@@ -1,0 +1,10 @@
+{
+  "name": "Hello decode",
+  "categories": ["Toolkit/Intel® oneAPI Base Toolkit/oneVPL"],
+  "description": "Sample that shows how to use the oneAPI Video Processing Library to perform a simple video decode",
+  "dependencies": ["vpl"],
+  "os": ["linux", "windows"],
+  "languages": [{"cpp":{}}],
+  "builder": [ "ide", "cmake"],
+  "targetDevice": ["CPU", "GPU"]
+}

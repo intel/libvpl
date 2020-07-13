@@ -1,0 +1,19 @@
+# do not rely on windows users to remember to set core.autocrlf=true
+* text=auto
+
+# force line endings for scripts
+*.sh eol=lf
+*.py eol=lf
+script/* eol=lf
+*.bat eol=crlf
+
+# force lf endings for yaml
+*.yaml eol=lf
+
+# force encoding for json
+*.json encoding=utf-8
+
+# force lf endings for CMake files
+CMakeLists.* eol=lf
+*.cmake eol=lf
+*.cmake.in eol=lf

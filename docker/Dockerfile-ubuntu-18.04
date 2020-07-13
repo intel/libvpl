@@ -1,0 +1,35 @@
+# ==============================================================================
+# Copyright (C) 2020 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+# ==============================================================================
+
+FROM ubuntu:18.04 
+LABEL Description="This is the base image for the oneAPI Video Processing Library CPU Reference Implementation"
+LABEL Vendor="Intel Corporation"
+
+# Common build tools
+ARG DEBIAN_FRONTEND=noninteractive
+ENV TZ=Europe/Moscow
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      build-essential \
+      git \
+      pkg-config \
+      yasm \
+      nasm \
+      cmake \
+      python3 \
+      python3-setuptools \
+      python3-pip && \
+    pip3 install -U wheel --user && \
+    pip3 install meson ninja && \
+    rm -rf /var/lib/apt/lsits/* 
+
+COPY . /oneVPL
+
+ENV VPL_BUILD_DEPENDENCIES=/oneVPL/_deps
+ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/oneVPL/_build/
+
+RUN cd /oneVPL && \
+   ./script/bootstrap  && \
+   ./script/build

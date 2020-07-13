@@ -1,0 +1,11 @@
+prefix=@DEST_DIR@
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+Name: oneVPL
+Description: oneAPI Video Processing Library 
+Version: 2021.1.7 
+
+Libs: -L${libdir} -lmfx 
+Cflags: -I${includedir}

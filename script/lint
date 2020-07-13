@@ -1,0 +1,14 @@
+#!/bin/bash
+###############################################################################
+# Copyright (C) 2020 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+###############################################################################
+## start of boilerplate to switch to project root ------------------------------
+script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+proj_dir="$( dirname "${script_dir}" )"
+cd ${proj_dir}
+set -o errexit
+## start of commands -----------------------------------------------------------
+gitlint
+pre-commit run --all-files

@@ -1,0 +1,15 @@
+# build dirs
+/.*/
+_*/
+/build
+
+# auto-generated files
+*.pyc
+*.pyo
+*.pyd
+
+# ignore Editor files
+*.code-workspace
+
+# sample output files
+out.*
