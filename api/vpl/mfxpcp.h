@@ -13,7 +13,6 @@ extern "C"
 {
 #endif /* __cplusplus */
 
-#if MFX_VERSION >= 1030
 /*! The Protected enumerator describes the protection schemes. */
 enum {
     MFX_PROTECTION_CENC_WV_CLASSIC      = 0x0004, /*!< The protection scheme is based on the Widevine* DRM from Google*. */
@@ -38,7 +37,6 @@ typedef struct _mfxExtCencParam{
     mfxU32 reserved[15];
 } mfxExtCencParam;
 MFX_PACK_END()
-#endif
 
 #ifdef __cplusplus
 } // extern "C"

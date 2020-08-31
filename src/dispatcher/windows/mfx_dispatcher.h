@@ -63,7 +63,7 @@ enum ePluginFunc {
 };
 
 enum eVideoFunc2 {
-    eMFXQueryImplDescription,
+    eMFXQueryImplsDescription,
     eMFXReleaseImplDescription,
     eMFXMemory_GetSurfaceForVPP,
     eMFXMemory_GetSurfaceForEncode,

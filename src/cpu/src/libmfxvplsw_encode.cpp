@@ -10,93 +10,49 @@
 mfxStatus MFXVideoENCODE_Query(mfxSession session,
                                mfxVideoParam *in,
                                mfxVideoParam *out) {
-    mfxStatus sts = MFX_ERR_NONE;
+    VPL_TRACE_FUNC;
+    RET_IF_FALSE(session, MFX_ERR_INVALID_HANDLE);
+    RET_IF_FALSE(out, MFX_ERR_NULL_PTR);
 
-    if (0 == session) {
-        return MFX_ERR_INVALID_HANDLE;
-    }
-    if (0 == out) {
-        return MFX_ERR_NULL_PTR;
-    }
-
-    //CpuWorkstream *ws = reinterpret_cast<CpuWorkstream *>(session);
-    if (in) {
-        // save a local copy of in, since user may set out == in
-        mfxVideoParam inCopy = *in;
-        in                   = &inCopy;
-
-        // start with out = copy of in (does not deep copy extBufs)
-        *out = *in;
-
-        // validate fields in the input param struct
-
-        if (in->mfx.FrameInfo.Width == 0 || in->mfx.FrameInfo.Height == 0)
-            sts = MFX_ERR_UNSUPPORTED;
-
-        if (in->mfx.CodecId != MFX_CODEC_AVC &&
-            in->mfx.CodecId != MFX_CODEC_HEVC &&
-            in->mfx.CodecId != MFX_CODEC_JPEG &&
-            in->mfx.CodecId != MFX_CODEC_AV1 &&
-            in->mfx.CodecId != MFX_CODEC_MPEG2)
-            sts = MFX_ERR_UNSUPPORTED;
-    }
-    else {
-        memset(out, 0, sizeof(mfxVideoParam));
-
-        // set output struct to zero for unsupported params, non-zero for supported params
-    }
-
-    return sts;
+    return CpuEncode::EncodeQuery(in, out);
 }
 
 mfxStatus MFXVideoENCODE_QueryIOSurf(mfxSession session,
                                      mfxVideoParam *par,
                                      mfxFrameAllocRequest *request) {
-    mfxStatus sts = MFX_ERR_NONE;
+    VPL_TRACE_FUNC;
+    RET_IF_FALSE(session, MFX_ERR_INVALID_HANDLE);
+    RET_IF_FALSE(par && request, MFX_ERR_NULL_PTR);
 
-    if (0 == session) {
-        return MFX_ERR_INVALID_HANDLE;
-    }
-    if (0 == par || 0 == request) {
-        return MFX_ERR_NULL_PTR;
-    }
-
-    request->Info              = par->mfx.FrameInfo;
-    request->NumFrameMin       = 1;
-    request->NumFrameSuggested = 1;
-    request->Type = MFX_MEMTYPE_SYSTEM_MEMORY | MFX_MEMTYPE_FROM_ENCODE;
-
-    return sts;
+    return CpuEncode::EncodeQueryIOSurf(par, request);
 }
 
 mfxStatus MFXVideoENCODE_Init(mfxSession session, mfxVideoParam *par) {
-    mfxStatus sts = MFX_ERR_NONE;
-
-    if (0 == session) {
-        return MFX_ERR_INVALID_HANDLE;
-    }
-    if (0 == par) {
-        return MFX_ERR_NULL_PTR;
-    }
+    VPL_TRACE_FUNC;
+    RET_IF_FALSE(session, MFX_ERR_INVALID_HANDLE);
+    RET_IF_FALSE(par, MFX_ERR_NULL_PTR);
 
     CpuWorkstream *ws = reinterpret_cast<CpuWorkstream *>(session);
+    RET_IF_FALSE(ws->GetEncoder() == nullptr, MFX_ERR_UNDEFINED_BEHAVIOR);
 
-    sts = ws->InitEncode(par);
+    std::unique_ptr<CpuEncode> encoder(new CpuEncode(ws));
+    RET_IF_FALSE(encoder, MFX_ERR_MEMORY_ALLOC);
+    RET_ERROR(encoder->InitEncode(par));
 
-    return sts;
+    ws->SetEncoder(encoder.release());
+
+    return MFX_ERR_NONE;
 }
 
 mfxStatus MFXVideoENCODE_Close(mfxSession session) {
-    if (0 == session) {
-        return MFX_ERR_INVALID_HANDLE;
-    }
+    VPL_TRACE_FUNC;
+    RET_IF_FALSE(session, MFX_ERR_INVALID_HANDLE);
 
-    CpuWorkstream *ws = reinterpret_cast<CpuWorkstream *>(session);
+    CpuWorkstream *ws  = reinterpret_cast<CpuWorkstream *>(session);
+    CpuEncode *encoder = ws->GetEncoder();
+    RET_IF_FALSE(encoder, MFX_ERR_NOT_INITIALIZED);
 
-    if (ws->getEncInit() == false)
-        return MFX_ERR_NOT_INITIALIZED;
-
-    ws->FreeEncode();
+    ws->SetEncoder(nullptr);
 
     return MFX_ERR_NONE;
 }
@@ -106,39 +62,44 @@ mfxStatus MFXVideoENCODE_EncodeFrameAsync(mfxSession session,
                                           mfxFrameSurface1 *surface,
                                           mfxBitstream *bs,
                                           mfxSyncPoint *syncp) {
-    mfxStatus sts = MFX_ERR_NONE;
+    VPL_TRACE_FUNC;
+    RET_IF_FALSE(session, MFX_ERR_INVALID_HANDLE);
+    RET_IF_FALSE(bs && syncp, MFX_ERR_NULL_PTR);
 
-    if (0 == session) {
-        return MFX_ERR_INVALID_HANDLE;
-    }
-    if (0 == bs || 0 == syncp) {
-        return MFX_ERR_NULL_PTR;
-    }
+    CpuWorkstream *ws  = reinterpret_cast<CpuWorkstream *>(session);
+    CpuEncode *encoder = ws->GetEncoder();
+    RET_IF_FALSE(encoder, MFX_ERR_NOT_INITIALIZED);
 
-    CpuWorkstream *ws = reinterpret_cast<CpuWorkstream *>(session);
+    *syncp = (mfxSyncPoint)(0x12345678);
 
-    if (ws->getEncInit() == false)
-        return MFX_ERR_NOT_INITIALIZED;
-
-    sts = ws->EncodeFrame(surface, bs);
-
-    *syncp = (mfxSyncPoint)(0);
-    if (sts == MFX_ERR_NONE)
-        *syncp = (mfxSyncPoint)(0x56789abc);
-
+    mfxStatus sts = encoder->EncodeFrame(surface, bs);
+    RET_ERROR(sts);
     return sts;
 }
 
 // stubs
 mfxStatus MFXVideoENCODE_Reset(mfxSession session, mfxVideoParam *par) {
-    return MFX_ERR_UNSUPPORTED;
+    VPL_TRACE_FUNC;
+    RET_IF_FALSE(session, MFX_ERR_INVALID_HANDLE);
+    RET_IF_FALSE(par, MFX_ERR_NULL_PTR);
+    MFXVideoENCODE_Close(session);
+    return MFXVideoENCODE_Init(session, par);
 }
 
 mfxStatus MFXVideoENCODE_GetVideoParam(mfxSession session, mfxVideoParam *par) {
-    return MFX_ERR_UNSUPPORTED;
+    VPL_TRACE_FUNC;
+    RET_IF_FALSE(session, MFX_ERR_INVALID_HANDLE);
+    RET_IF_FALSE(par, MFX_ERR_NULL_PTR);
+
+    CpuWorkstream *ws  = reinterpret_cast<CpuWorkstream *>(session);
+    CpuEncode *encoder = ws->GetEncoder();
+    RET_IF_FALSE(encoder, MFX_ERR_NOT_INITIALIZED);
+
+    return encoder->GetVideoParam(par);
 }
 
 mfxStatus MFXVideoENCODE_GetEncodeStat(mfxSession session,
                                        mfxEncodeStat *stat) {
-    return MFX_ERR_UNSUPPORTED;
+    VPL_TRACE_FUNC;
+    return MFX_ERR_NOT_IMPLEMENTED;
 }

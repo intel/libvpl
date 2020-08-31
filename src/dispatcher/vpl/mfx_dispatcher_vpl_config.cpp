@@ -15,8 +15,8 @@ ConfigCtxVPL::ConfigCtxVPL()
           m_propValue(),
           m_propIdx(),
           m_propParsedString() {
-    m_propValue.Version = { 0, 1 };
-    m_propValue.Type    = MFX_VARIANT_TYPE_UNSET;
+    m_propValue.Version.Version = MFX_VARIANT_VERSION;
+    m_propValue.Type            = MFX_VARIANT_TYPE_UNSET;
 
     return;
 }
@@ -33,7 +33,7 @@ struct PropVariant {
 enum PropIdx {
     // settable config properties for mfxImplDescription
     ePropMain_Impl = 0,
-    ePropMain_accelerationMode,
+    ePropMain_AccelerationMode,
     ePropMain_VendorID,
     ePropMain_VendorImplID,
 
@@ -66,7 +66,7 @@ enum PropIdx {
 // to avoid mismatches, this should be automated (e.g. pre-processor step)
 static const PropVariant PropIdxTab[] = {
     { "ePropMain_Impl", MFX_VARIANT_TYPE_U32 },
-    { "ePropMain_accelerationMode", MFX_VARIANT_TYPE_U16 },
+    { "ePropMain_AccelerationMode", MFX_VARIANT_TYPE_U16 },
     { "ePropMain_VendorID", MFX_VARIANT_TYPE_U32 },
     { "ePropMain_VendorImplID", MFX_VARIANT_TYPE_U32 },
 
@@ -239,9 +239,7 @@ mfxStatus ConfigCtxVPL::SetFilterPropertyVPP(mfxVariant value) {
 mfxStatus ConfigCtxVPL::SetFilterProperty(const mfxU8 *name, mfxVariant value) {
     m_propName = std::string((char *)name);
 
-    // definitions will be added to API
-    m_propValue.Version.Major = 1;
-    m_propValue.Version.Minor = 0;
+    m_propValue.Version.Version = MFX_VARIANT_VERSION;
 
     // initially set Type = unset (invalid)
     // if valid property string and value are passed in,
@@ -271,8 +269,8 @@ mfxStatus ConfigCtxVPL::SetFilterProperty(const mfxU8 *name, mfxVariant value) {
     if (nextProp == "Impl") {
         return ValidateAndSetProp(ePropMain_Impl, value);
     }
-    else if (nextProp == "accelerationMode") {
-        return ValidateAndSetProp(ePropMain_accelerationMode, value);
+    else if (nextProp == "AccelerationMode") {
+        return ValidateAndSetProp(ePropMain_AccelerationMode, value);
     }
     else if (nextProp == "VendorID") {
         return ValidateAndSetProp(ePropMain_VendorID, value);
@@ -326,8 +324,8 @@ CfgPropState ConfigCtxVPL::CheckProp(mfxI32 propIdx,
         case ePropMain_Impl:
             propMatch = (libImplDesc->Impl == value.Data.U32);
             break;
-        case ePropMain_accelerationMode:
-            propMatch = (libImplDesc->accelerationMode == value.Data.U16);
+        case ePropMain_AccelerationMode:
+            propMatch = (libImplDesc->AccelerationMode == value.Data.U16);
             break;
         case ePropMain_VendorID:
             propMatch = (libImplDesc->VendorID == value.Data.U32);

@@ -13,7 +13,7 @@
 
 #if defined(_WIN64)
 const wchar_t *const defaultDLLName[2]      = { L"libmfxhw64.dll",
-                                           L"libmfxsw64.dll" };
+                                           L"libvplswref64.dll" };
 const wchar_t *const defaultAudioDLLName[2] = { L"libmfxaudiosw64.dll",
                                                 L"libmfxaudiosw64.dll" };
 
@@ -25,7 +25,7 @@ const wchar_t *const IntelGFXAPIDLLName = { L"intel_gfx_api-x64.dll" };
 
 #elif defined(_WIN32)
 const wchar_t *const defaultDLLName[2] = { L"libmfxhw32.dll",
-                                           L"libmfxsw32.dll" };
+                                           L"libvplswref32.dll" };
 
 const wchar_t *const defaultAudioDLLName[2] = { L"libmfxaudiosw32.dll",
                                                 L"libmfxaudiosw32.dll" };

@@ -49,7 +49,7 @@ EXPORTS
 
     MFXInitEx
 
-    MFXQueryImplDescription
+    MFXQueryImplsDescription
     MFXReleaseImplDescription
 
     MFXMemory_GetSurfaceForVPP

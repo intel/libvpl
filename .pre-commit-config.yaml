@@ -2,6 +2,7 @@
 fail_fast: false
 default_language_version:
   python: python3
+exclude: ^test/unit/googletest/
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v2.5.0
@@ -18,7 +19,7 @@ repos:
   - repo: https://github.com/iconmaster5326/cmake-format-pre-commit-hook
     rev: master
     hooks:
-      - id: cmake-format      
+      - id: cmake-format
   - repo: local
     hooks:
       - id: pylint
@@ -27,10 +28,9 @@ repos:
         language: system
         types: [python]
   - repo: local
-    hooks:        
+    hooks:
       - id: cpplint
         name: cpplint
         entry: cpplint
         language: system
-        files: \.(h|hh|hpp|hxx|h|c|cc|cpp|cxx|c)$ 
-
+        files: \.(h|hh|hpp|hxx|h|c|cc|cpp|cxx|c)$

@@ -17,5 +17,10 @@ set CMAKE_BINARY_DIR=_build
 mkdir %CMAKE_BINARY_DIR%
 cd %CMAKE_BINARY_DIR%
 
-cmake -A x64 ..
+if "%~1"=="gpl" (
+  cmake -A x64 -DBUILD_GPL_X264=ON ..
+) else (
+  cmake -A x64 ..
+)
+
 cmake --build . --config Release --target package

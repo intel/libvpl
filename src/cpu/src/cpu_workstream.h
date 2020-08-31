@@ -7,111 +7,76 @@
 #ifndef SRC_CPU_SRC_CPU_WORKSTREAM_H_
 #define SRC_CPU_SRC_CPU_WORKSTREAM_H_
 
-#include <chrono>
-#include <future>
-#include <string>
-
-#include "vpl/mfxstructures.h"
-
-#include "vpl/mfxjpeg.h"
-
-#define ENABLE_LIBAV_AUTO_THREADS
-
-#if !defined(WIN32) && !defined(memcpy_s)
-    #define memcpy_s(dest, destsz, src, count) memcpy(dest, src, count)
-#endif
-
-extern "C" {
-#include "libavcodec/avcodec.h"
-#include "libavutil/imgutils.h"
-#include "libavutil/opt.h"
-#include "libswscale/swscale.h"
-}
-
-#define ERR_EXIT(ws)                    \
-    { /* optional logging, etc. here */ \
-        return MFX_ERR_UNKNOWN;         \
-    }
+#include <map>
+#include <memory>
+#include "src/cpu_common.h"
+#include "src/cpu_decode.h"
+#include "src/cpu_encode.h"
+#include "src/cpu_frame.h"
+#include "src/cpu_frame_pool.h"
+#include "src/cpu_vpp.h"
 
 class CpuWorkstream {
 public:
     CpuWorkstream();
     ~CpuWorkstream();
 
-    // decode
-    mfxStatus InitDecode(mfxU32 FourCC);
-    mfxStatus DecodeHeader(mfxBitstream *bs, mfxVideoParam *par);
-    mfxStatus DecodeFrame(mfxBitstream *bs,
-                          mfxFrameSurface1 *surface_work,
-                          mfxFrameSurface1 **surface_out);
-    void FreeDecode(void);
-
-    // VPP
-    mfxStatus InitVPP(void);
-    mfxStatus ProcessFrame(void);
-    void FreeVPP(void);
-
-    // encode
-    mfxStatus InitEncode(mfxVideoParam *par);
-    mfxStatus EncodeFrame(mfxFrameSurface1 *surface, mfxBitstream *bs);
-    void FreeEncode(void);
-
-    mfxStatus Sync(mfxU32 wait);
-
-    bool getDecInit() {
-        return m_decInit;
+    void SetDecoder(CpuDecode* decode) {
+        m_decode.reset(decode);
     }
-    bool getVppInit() {
-        return m_vppInit;
+    void SetEncoder(CpuEncode* encode) {
+        m_encode.reset(encode);
     }
-    bool getEncInit() {
-        return m_encInit;
+    void SetVPP(CpuVPP* vpp) {
+        m_vpp.reset(vpp);
+    }
+
+    CpuDecode* GetDecoder() {
+        return m_decode.get();
+    }
+    CpuEncode* GetEncoder() {
+        return m_encode.get();
+    }
+    CpuVPP* GetVPP() {
+        return m_vpp.get();
+    }
+
+    mfxStatus Sync(mfxSyncPoint& syncp, mfxU32 wait);
+
+    mfxStatus SetFrameAllocator(mfxFrameAllocator* allocator) {
+        RET_IF_FALSE(allocator, MFX_ERR_NULL_PTR);
+        m_allocator = *allocator;
+        return MFX_ERR_NONE;
+    }
+
+    mfxFrameAllocator* GetFrameAllocator() {
+        return m_allocator.pthis ? &m_allocator : nullptr;
+    }
+
+    void SetHandle(mfxHandleType ht, mfxHDL hdl) {
+        m_handles[ht] = hdl;
+    }
+
+    mfxHDL* GetHandle(mfxHandleType ht) {
+        if (m_handles.find(ht) == m_handles.end()) {
+            return nullptr;
+        }
+        else {
+            return &m_handles[ht];
+        }
     }
 
 private:
-    bool m_decInit;
-    bool m_vppInit;
-    bool m_vppBypass;
-    bool m_encInit;
+    std::unique_ptr<CpuDecode> m_decode;
+    std::unique_ptr<CpuEncode> m_encode;
+    std::unique_ptr<CpuVPP> m_vpp;
 
-    CpuWorkstream(const CpuWorkstream &) { /* copy not allowed */
-    }
-    CpuWorkstream &operator=(const CpuWorkstream &) {
-        return *this; /* copy not allowed */
-    }
+    mfxFrameAllocator m_allocator;
+    std::map<mfxHandleType, mfxHDL> m_handles;
 
-    void AVFrame2mfxFrameSurface(mfxFrameSurface1 *surface_work);
-
-    mfxStatus InitHEVCParams(mfxVideoParam *par);
-    mfxStatus InitAV1Params(mfxVideoParam *par);
-
-    // libav objects - Decode
-    const AVCodec *m_avDecCodec;
-    AVCodecContext *m_avDecContext;
-    AVCodecParserContext *m_avDecParser;
-    AVPacket *m_avDecPacket;
-
-    // bitstream buffer - Decode
-    uint8_t *m_bsDecData;
-    uint32_t m_bsDecValidBytes;
-    uint32_t m_bsDecMaxBytes;
-
-    // libav objects - VPP
-    struct SwsContext *m_avVppContext;
-
-    // libav objects - Encode
-    const AVCodec *m_avEncCodec;
-    AVCodecContext *m_avEncContext;
-    AVPacket *m_avEncPacket;
-
-    // libav frames
-    AVFrame *m_avDecFrameOut;
-    AVFrame *m_avVppFrameIn;
-    AVFrame *m_avVppFrameOut;
-    AVFrame *m_avEncFrameIn;
-
-    // other internal state
-    mfxU32 m_encCodecId;
+    /* copy not allowed */
+    CpuWorkstream(const CpuWorkstream&);
+    CpuWorkstream& operator=(const CpuWorkstream&);
 };
 
 #endif // SRC_CPU_SRC_CPU_WORKSTREAM_H_

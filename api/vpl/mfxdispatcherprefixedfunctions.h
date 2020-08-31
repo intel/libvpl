@@ -130,6 +130,6 @@
 #define MFXMemory_GetSurfaceForEncode    disp_MFXMemory_GetSurfaceForEncode
 #define MFXMemory_GetSurfaceForDecode    disp_MFXMemory_GetSurfaceForDecode
 
-#define MFXQueryImplDescription          disp_MFXQueryImplDescription
+#define MFXQueryImplsDescription         disp_MFXQueryImplsDescription
 #define MFXReleaseImplDescription        disp_MFXReleaseImplDescription
 #endif 

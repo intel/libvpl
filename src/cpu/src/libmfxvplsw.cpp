@@ -16,29 +16,51 @@ mfxStatus MFXInit(mfxIMPL implParam, mfxVersion *ver, mfxSession *session) {
     if (ver) {
         par.Version = *ver;
     }
-    else {
-        par.Version.Major = MFX_VERSION_MAJOR;
-        par.Version.Minor = MFX_VERSION_MINOR;
-    }
     par.ExternalThreads = 0;
 
     return MFXInitEx(par, session);
 }
 
 mfxStatus MFXInitEx(mfxInitParam par, mfxSession *session) {
-    mfxIMPL impl = par.Implementation & (MFX_IMPL_VIA_ANY - 1);
-
-    // check the library version
-    if ((MFX_VERSION_MAJOR < par.Version.Major) ||
-        (MFX_VERSION_MAJOR == par.Version.Major &&
-         MFX_VERSION_MINOR < par.Version.Minor)) {
-        return MFX_ERR_UNSUPPORTED;
+    if (!session) {
+        return MFX_ERR_INVALID_HANDLE;
     }
 
-    // SW plugin only
-    if ((MFX_IMPL_AUTO != impl) && (MFX_IMPL_AUTO_ANY != impl) &&
-        (MFX_IMPL_SOFTWARE != impl)) {
-        return MFX_ERR_UNSUPPORTED;
+    if ((par.Version.Major == 0) && (par.Version.Minor == 0)) {
+        par.Version.Major = MFX_VERSION_MAJOR;
+        par.Version.Minor = MFX_VERSION_MINOR;
+    }
+    else {
+        // check the library version
+        if ((MFX_VERSION_MAJOR < par.Version.Major) ||
+            (MFX_VERSION_MAJOR == par.Version.Major &&
+             MFX_VERSION_MINOR < par.Version.Minor)) {
+            return MFX_ERR_UNSUPPORTED;
+        }
+    }
+
+    mfxIMPL impl = par.Implementation & 0x000F;
+    switch (impl) {
+        case MFX_IMPL_AUTO:
+        case MFX_IMPL_SOFTWARE:
+            break;
+        case MFX_IMPL_HARDWARE:
+        case MFX_IMPL_HARDWARE_ANY:
+        case MFX_IMPL_HARDWARE2:
+        case MFX_IMPL_HARDWARE3:
+        case MFX_IMPL_HARDWARE4:
+        case MFX_IMPL_RUNTIME:
+        default:
+            return MFX_ERR_UNSUPPORTED;
+    }
+
+    uint32_t via = par.Implementation & 0x0F00;
+    switch (via) {
+        case 0:
+        case MFX_IMPL_VIA_ANY:
+            break;
+        default:
+            return MFX_ERR_UNSUPPORTED;
     }
 
     // create CPU workstream
@@ -95,21 +117,22 @@ mfxStatus MFXQueryVersion(mfxSession session, mfxVersion *pVersion) {
     return MFX_ERR_NONE;
 }
 
-// stubs
+// These functions are optional and not implemented in this
+// reference implementation.
 mfxStatus MFXJoinSession(mfxSession session, mfxSession child) {
-    return MFX_ERR_UNSUPPORTED;
+    return MFX_ERR_NOT_IMPLEMENTED;
 }
 mfxStatus MFXDisjoinSession(mfxSession session) {
-    return MFX_ERR_UNSUPPORTED;
+    return MFX_ERR_NOT_IMPLEMENTED;
 }
 mfxStatus MFXCloneSession(mfxSession session, mfxSession *clone) {
-    return MFX_ERR_UNSUPPORTED;
+    return MFX_ERR_NOT_IMPLEMENTED;
 }
 mfxStatus MFXSetPriority(mfxSession session, mfxPriority priority) {
-    return MFX_ERR_UNSUPPORTED;
+    return MFX_ERR_NOT_IMPLEMENTED;
 }
 mfxStatus MFXGetPriority(mfxSession session, mfxPriority *priority) {
-    return MFX_ERR_UNSUPPORTED;
+    return MFX_ERR_NOT_IMPLEMENTED;
 }
 
 // DLL entry point

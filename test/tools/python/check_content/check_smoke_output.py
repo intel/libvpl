@@ -8,7 +8,7 @@
 import sys
 import check_content
 
-PSNR_AVG_THRESHOLD = 35.0
+PSNR_AVG_THRESHOLD = 25.0
 
 if __name__ == '__main__':
     if len(sys.argv) != 5:

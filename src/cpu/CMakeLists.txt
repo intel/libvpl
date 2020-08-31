@@ -9,23 +9,12 @@ file(STRINGS "version.txt" version_txt)
 project(vpl VERSION ${version_txt})
 
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-  set(TARGET mfxsw64)
+  set(TARGET vplswref64)
 elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
-  set(TARGET mfxsw32)
+  set(TARGET vplswref32)
 endif()
 
-set(SOURCES
-    src/cpu_common.cpp
-    src/cpu_decode.cpp
-    src/cpu_encode.cpp
-    src/cpu_vpp.cpp
-    src/libmfxvplsw.cpp
-    src/libmfxvplsw_caps.cpp
-    src/libmfxvplsw_core.cpp
-    src/libmfxvplsw_decode.cpp
-    src/libmfxvplsw_encode.cpp
-    src/libmfxvplsw_vpl.cpp
-    src/libmfxvplsw_vpp.cpp)
+file(GLOB SOURCES src/*.cpp)
 
 if(WIN32)
   list(APPEND SOURCES src/windows/libmfxsw.def)

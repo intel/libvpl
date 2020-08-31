@@ -15,10 +15,10 @@
 extern "C" {
 #endif
 
-/*! SDK loader handle */
+/*! SDK loader handle. */
 typedef struct _mfxLoader *mfxLoader;
 
-/*! SDK config handle */
+/*! SDK config handle. */
 typedef struct _mfxConfig *mfxConfig;
 
 /*!
@@ -35,12 +35,12 @@ void MFX_CDECL MFXUnload(mfxLoader loader);
 
 /*!
    @brief This function creates dispatcher configuration.
-   @details This function creates dispatcher internal congfiguration, which is used to filter out avialable implementations.
-            Then this config is used to walk through selected implementations to gather more details and select appropriate 
-            implementation to load. Loader object remembers all created mfxConfig objects and desrtoyes them during mfxUnload
+   @details This function creates the dispatcher internal configuration, which is used to filter out available implementations.
+            Then this configuration is used to walk through selected implementations to gather more details and select the appropriate
+            implementation to load. The loader object remembers all created mfxConfig objects and destroys them during the mfxUnload
             function call.
 
-            Multilple configurations per single mfxLoader object is possible.
+            Multiple configurations per single mfxLoader object are possible.
 
             Usage example:
             @code
@@ -54,30 +54,30 @@ void MFX_CDECL MFXUnload(mfxLoader loader);
 mfxConfig MFX_CDECL MFXCreateConfig(mfxLoader loader);
 
 /*!
-   @brief This function used to add additional filter propery (any fields of mfxImplDescription structure) to the configuration of the SDK loader object.
-          One mfxConfig properties can hold only single filter property. 
-          @note Each new call with the same parameter "name" will overwrite previously set "value". This may invalidate other properties.
-          @note Each new call with another parameter "name" will delete previouse property and create new property based on new "name"'s value. 
+   @brief This function is used to add additional filter properties (any fields of the mfxImplDescription structure) to the configuration of the SDK loader object.
+          One mfxConfig properties can hold only single filter property.
+          @note Each new call with the same parameter name will overwrite the previously set value. This may invalidate other properties.
+          @note Each new call with another parameter name will delete the previous property and create a new property based on new name's value.
 
-          Simple Usage example:
+          Simple usage example:
           @code
              mfxLoader loader = MFXLoad();
              mfxConfig cfg = MFXCreateConfig(loader);
              mfxVariant ImplValue;
              ImplValue.Type = MFX_VARIANT_TYPE_U32;
-             ImplValue.Data.U32 = MFX_IMPL_SOFTWARE;
+             ImplValue.Data.U32 = MFX_IMPL_TYPE_HARDWARE;
              MFXSetConfigFilterProperty(cfg,"mfxImplDescription.Impl",ImplValue);
              MFXCreateSession(loader,0,&session);
           @endcode
 
-          Two sessions usage example (Multiple loaders example):
+          Usage example with two sessions (multiple loaders):
           @code
              // Create session with software based implementation
              mfxLoader loader1 = MFXLoad();
              mfxConfig cfg1 = MFXCreateConfig(loader1);
              mfxVariant ImplValueSW;
              ImplValueSW.Type = MFX_VARIANT_TYPE_U32;
-             ImplValueSW.Data.U32 = MFX_IMPL_SOFTWARE;
+             ImplValueSW.Data.U32 = MFX_IMPL_TYPE_SOFTWARE;
              MFXSetConfigFilterProperty(cfg1,"mfxImplDescription.Impl",ImplValueSW);
              MFXCreateSession(loader1,0,&sessionSW);
 
@@ -86,7 +86,7 @@ mfxConfig MFX_CDECL MFXCreateConfig(mfxLoader loader);
              mfxConfig cfg2 = MFXCreateConfig(loader2);
              mfxVariant ImplValueHW;
              ImplValueHW.Type = MFX_VARIANT_TYPE_U32;
-             ImplValueHW.Data.U32 = MFX_IMPL_HARDWARE;
+             ImplValueHW.Data.U32 = MFX_IMPL_TYPE_HARDWARE;
              MFXSetConfigFilterProperty(cfg2,"mfxImplDescription.Impl",ImplValueHW);
              MFXCreateSession(loader2,0,&sessionHW);
 
@@ -99,7 +99,7 @@ mfxConfig MFX_CDECL MFXCreateConfig(mfxLoader loader);
              MFXUnload(loader2); // cfg2 will be destroyed here.
           @endcode
 
-          Two decoders example (Multiple Config objects example):
+          Usage example with two decoders (multiple config objects):
           @code
              mfxLoader loader = MFXLoad();
 
@@ -118,7 +118,7 @@ mfxConfig MFX_CDECL MFXCreateConfig(mfxLoader loader);
              MFXCreateSession(loader,0,&sessionAVC);
              MFXCreateSession(loader,0,&sessionHEVC);
           @endcode
-            
+
    @param[in] config SDK config handle.
    @param[in] name Name of the parameter (see mfxImplDescription structure and example). 
    @param[in] value Value of the parameter.
@@ -127,30 +127,30 @@ mfxConfig MFX_CDECL MFXCreateConfig(mfxLoader loader);
       MFX_ERR_NULL_PTR    If config is NULL. \n
       MFX_ERR_NULL_PTR    If name is NULL. \n
       MFX_ERR_NOT_FOUND   If name contains unknown parameter name.
-      MFX_ERR_UNSUPPORTED If value data type doesn't equal to the paramer with provided name.
+      MFX_ERR_UNSUPPORTED If value data type does not equal the parameter with provided name.
 */
 mfxStatus MFX_CDECL MFXSetConfigFilterProperty(mfxConfig config, const mfxU8* name, mfxVariant value);
 
 /*!
-   @brief This function used to iterate over filtered out implementations to gather their details. This function allocates memory to store
-          mfxImplDescription structure instance. Use MFXDispReleaseImplDescription function to free memory allocated to the mfxImplDescription structure.
+   @brief This function is used to iterate over filtered out implementations to gather their details. This function allocates memory to store
+          mfxImplDescription structure instance. Use the MFXDispReleaseImplDescription function to free memory allocated to the mfxImplDescription structure.
    @param[in] loader SDK loader handle.
    @param[in] i Index of the implementation.
-   @param[in] format Format in which capabilities need to be delivered. See mfxImplCapsDeliveryFormat enumerator for more details.
-   @param[out] idesc Poiner to the mfxImplDescription structure.
+   @param[in] format Format in which capabilities need to be delivered. See the mfxImplCapsDeliveryFormat enumerator for more details.
+   @param[out] idesc Pointer to the mfxImplDescription structure.
    @return
-      MFX_ERR_NONE        The function completed successfully. The idesc contains valid information.\n 
+      MFX_ERR_NONE        The function completed successfully. The idesc contains valid information.\n
       MFX_ERR_NULL_PTR    If loader is NULL. \n
       MFX_ERR_NULL_PTR    If idesc is NULL. \n
       MFX_ERR_NOT_FOUND   Provided index is out of possible range. \n
-      MFX_ERR_UNSUPPORTED If requested format isn't supported.
+      MFX_ERR_UNSUPPORTED If requested format is not supported.
 */
 mfxStatus MFX_CDECL MFXEnumImplementations(mfxLoader loader, mfxU32 i, mfxImplCapsDeliveryFormat format, mfxHDL* idesc);
 
 
 /*!
-   @brief This function used to load and initialize the implementation.
-   @code 
+   @brief This function is used to load and initialize the implementation.
+   @code
       mfxLoader loader = MFXLoad();
       int i=0;
       while(1) {
@@ -170,9 +170,9 @@ mfxStatus MFX_CDECL MFXEnumImplementations(mfxLoader loader, mfxU32 i, mfxImplCa
    @endcode
    @param[in] loader SDK loader handle.
    @param[in] i Index of the implementation.
-   @param[out] session pointer to the SDK session handle.
+   @param[out] session Pointer to the SDK session handle.
    @return
-      MFX_ERR_NONE        The function completed successfully. The session contains pointer to the SDK session handle.\n 
+      MFX_ERR_NONE        The function completed successfully. The session contains pointer to the SDK session handle.\n
       MFX_ERR_NULL_PTR    If loader is NULL. \n
       MFX_ERR_NULL_PTR    If session is NULL. \n
       MFX_ERR_NOT_FOUND   Provided index is out of possible range.
@@ -181,7 +181,7 @@ mfxStatus MFX_CDECL MFXCreateSession(mfxLoader loader, mfxU32 i, mfxSession* ses
 
 /*!
    @brief
-      This function destoys handle allocated by MFXQueryImplCapabilities function.
+      This function destroys handle allocated by MFXQueryImplsCapabilities function.
 
    @param[in] loader   SDK loader handle.
    @param[in] hdl      Handle to destroy. Can be equal to NULL.
@@ -189,7 +189,7 @@ mfxStatus MFX_CDECL MFXCreateSession(mfxLoader loader, mfxU32 i, mfxSession* ses
    @return
       MFX_ERR_NONE           The function completed successfully. \n
       MFX_ERR_NULL_PTR       If loader is NULL. \n
-      MFX_ERR_INVALID_HANDLE Provided hdl handle isn't assotiated with this loader.
+      MFX_ERR_INVALID_HANDLE Provided hdl handle is not associated with this loader.
 */
 mfxStatus MFX_CDECL MFXDispReleaseImplDescription(mfxLoader loader, mfxHDL hdl);
 

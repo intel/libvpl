@@ -1,35 +1,80 @@
 #!/bin/bash
+###############################################################################
+# Copyright (C) 2020 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+###############################################################################
+## start of boilerplate to switch to project root ------------------------------
+script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+proj_dir="$( dirname "${script_dir}" )"
+cd ${proj_dir}
+set -o errexit
+## start of commands -----------------------------------------------------------
+source ${proj_dir}/test/tools/env/vars.sh
+if [ -n "$VPL_BUILD_DEPENDENCIES" ]; then
+    export ffmpeg_dir=${VPL_BUILD_DEPENDENCIES}/bin
+else
+    echo "VPL_BUILD_DEPENDENCIES not defined. Did you run bootstrap?"
+    exit 1
+fi
+export PATH=${ffmpeg_dir}:${PATH}
 
+cd _build
 export LD_LIBRARY_PATH=$PWD
-let result_all=0
+result_all=0
+
+echo --- Running Unit Tests ---
+./vpl-utest --gtest_output=xml:${proj_dir}/_logs/
+ret=$?
+if [ $ret -ne 0 ]; then
+    echo --- Unit Tests FAILED ---
+    let result_all++
+else
+    echo --- Unit Tests PASSED ---
+fi
 
 echo --- Running Decode Smoke Test ---
-./sample_decode h265 -i ../test/content/cars_128x96.h265 -o out_vpl_h265.i420 -vpl 
-$VPL_BUILD_DEPENDENCIES/bin/ffmpeg -y -i ../test/content/cars_128x96.h265 -f rawvideo -pix_fmt yuv420p out_ref_h265.i420
-$VPL_BUILD_DEPENDENCIES/bin/ffmpeg -y -r 30 -s 128x96 -pix_fmt yuv420p -f rawvideo -i out_vpl_h265.i420 -r 30 -s 128x96 -pix_fmt yuv420p -f rawvideo -i out_ref_h265.i420 -filter_complex psnr= -f null nullsink
-python3 $PYTHONPATH/check_content/check_smoke_output.py out_ref_h265.i420 out_vpl_h265.i420 I420 128x96@30
+./sample_decode h265 -i ${proj_dir}/test/content/cars_128x96.h265 \
+                -o out_vpl_h265.i420 -vpl
+$VPL_BUILD_DEPENDENCIES/bin/ffmpeg -y \
+                                   -i ${proj_dir}/test/content/cars_128x96.h265\
+                                   -f rawvideo -pix_fmt yuv420p \
+                                   out_ref_h265.i420
+$VPL_BUILD_DEPENDENCIES/bin/ffmpeg -y \
+                                   -r 30 -s 128x96 -pix_fmt yuv420p \
+                                   -f rawvideo -i out_vpl_h265.i420 \
+                                   -r 30 -s 128x96 -pix_fmt yuv420p \
+                                   -f rawvideo -i out_ref_h265.i420 \
+                                   -filter_complex psnr= -f null nullsink
+python3 $PYTHONPATH/check_content/check_smoke_output.py \
+        out_ref_h265.i420 out_vpl_h265.i420 I420 128x96@30
 
 ret=$?
 if [ $ret -ne 0 ]; then
     echo --- Decode Smoke Test FAILED ---
     let result_all++
-else 
+else
     echo --- Decode Smoke Test PASSED ---
 fi
 
 echo --- Running Encode Smoke Test ---
-./sample_encode h265 -i out_ref_h265.i420 -o out_vpl.h265 -w 128 -h 96 -vpl 
+./sample_encode h265 -i out_ref_h265.i420 -o out_vpl.h265 -w 128 -h 96 -vpl
 ./sample_decode h265 -i out_vpl.h265 -o out_vpl_dec_h265.i420 -vpl
-$VPL_BUILD_DEPENDENCIES/bin/ffmpeg -y -r 30 -s 128x96 -pix_fmt yuv420p -f rawvideo -i out_ref_h265.i420 -r 30 -s 128x96 -pix_fmt yuv420p -f rawvideo -i out_vpl_dec_h265.i420 -filter_complex psnr= -f null nullsink
-python3 $PYTHONPATH/check_content/check_smoke_output.py out_ref_h265.i420 out_vpl_dec_h265.i420 I420 128x96@30
+$VPL_BUILD_DEPENDENCIES/bin/ffmpeg -y \
+                                   -r 30 -s 128x96 -pix_fmt yuv420p \
+                                   -f rawvideo -i out_ref_h265.i420 \
+                                   -r 30 -s 128x96 -pix_fmt yuv420p \
+                                   -f rawvideo -i out_vpl_dec_h265.i420 \
+                                   -filter_complex psnr= -f null nullsink
+python3 $PYTHONPATH/check_content/check_smoke_output.py \
+        out_ref_h265.i420 out_vpl_dec_h265.i420 I420 128x96@30
 
 ret=$?
 if [ $ret -ne 0 ]; then
     echo --- Encode Smoke Test FAILED ---
     let result_all++
-else 
+else
     echo --- Encode Smoke Test PASSED ---
 fi
 
 exit $result_all
-

@@ -16,17 +16,30 @@ else()
   message(STATUS "Using VPL_BUILD_DEPENDENCIES located at ${VPL_DEP_DIR}")
 endif()
 
+option(BUILD_GPL_X264 "Build X264 with GPL License" OFF)
+
 set(SVTHEVCENC_LIB ${VPL_DEP_DIR}/lib/libSvtHevcEnc.a)
 set(SVTAV1ENC_LIB ${VPL_DEP_DIR}/lib/libSvtAv1Enc.a)
 set(DAV1D_LIB ${VPL_DEP_DIR}/lib/libdav1d.a)
 set(AVCODEC_LIB ${VPL_DEP_DIR}/lib/libavcodec.a)
 set(AVUTIL_LIB ${VPL_DEP_DIR}/lib/libavutil.a)
+set(AVFILTER_LIB ${VPL_DEP_DIR}/lib/libavfilter.a)
+set(SWSCALE_LIB ${VPL_DEP_DIR}/lib/libswscale.a)
+
+if(BUILD_GPL_X264)
+  set(X264_LIB ${VPL_DEP_DIR}/lib/libx264.a)
+  if(NOT EXISTS ${X264_LIB})
+    message(FATAL_ERROR "Could not find expected FFmpeg libraries")
+  endif()
+endif(BUILD_GPL_X264)
 
 if(NOT EXISTS ${SVTHEVCENC_LIB}
    OR NOT EXISTS ${SVTHEVCENC_LIB}
    OR NOT EXISTS ${DAV1D_LIB}
    OR NOT EXISTS ${AVCODEC_LIB}
-   OR NOT EXISTS ${AVUTIL_LIB})
+   OR NOT EXISTS ${AVUTIL_LIB}
+   OR NOT EXISTS ${AVFILTER_LIB}
+   OR NOT EXISTS ${SWSCALE_LIB})
   message(FATAL_ERROR "Could not find expected FFmpeg libraries")
 endif()
 
@@ -37,10 +50,15 @@ if(MSVC)
   else()
     set(MSYS_ROOT $ENV{MSYS_ROOT})
   endif()
+  execute_process(COMMAND ${MSYS_ROOT}/mingw64/bin/gcc.exe --version
+                  OUTPUT_VARIABLE gcc_version_text)
+  string(REGEX MATCH "[0-9]+\\.[0-9]+\\.[0-9]+" gcc_version ${gcc_version_text})
 
-  set(GCC_LIB ${MSYS_ROOT}/mingw64/lib/gcc/x86_64-w64-mingw32/10.1.0/libgcc.a)
+  set(GCC_LIB
+      ${MSYS_ROOT}/mingw64/lib/gcc/x86_64-w64-mingw32/${gcc_version}/libgcc.a)
   set(GCC_EH_LIB
-      ${MSYS_ROOT}/mingw64/lib/gcc/x86_64-w64-mingw32/10.1.0/libgcc_eh.a)
+      ${MSYS_ROOT}/mingw64/lib/gcc/x86_64-w64-mingw32/${gcc_version}/libgcc_eh.a
+  )
   set(BCRYPT_LIB ${MSYS_ROOT}/mingw64/x86_64-w64-mingw32/lib/libbcrypt.a)
   set(MINGW32_LIB ${MSYS_ROOT}/mingw64/x86_64-w64-mingw32/lib/libmingw32.a)
   set(MINGWEX_LIB ${MSYS_ROOT}/mingw64/x86_64-w64-mingw32/lib/libmingwex.a)
@@ -89,16 +107,32 @@ find_package(Threads REQUIRED)
 if(MSVC)
   target_link_libraries(
     ${TARGET}
-    INTERFACE ${VPL_DEP_DIR}/lib/libavcodec.a ${VPL_DEP_DIR}/lib/libavutil.a
-              ${SVTHEVCENC_LIB} ${SVTAV1ENC_LIB} ${DAV1D_LIB} Threads::Threads)
+    INTERFACE ${AVCODEC_LIB}
+              ${AVUTIL_LIB}
+              ${AVFILTER_LIB}
+              ${SWSCALE_LIB}
+              ${SVTHEVCENC_LIB}
+              ${SVTAV1ENC_LIB}
+              ${DAV1D_LIB}
+              Threads::Threads)
 else()
   target_link_libraries(
     ${TARGET}
-    INTERFACE ${VPL_DEP_DIR}/lib/libavcodec.a
-              ${VPL_DEP_DIR}/lib/libavutil.a
+    INTERFACE ${AVCODEC_LIB}
+              ${AVUTIL_LIB}
+              ${AVFILTER_LIB}
+              ${SWSCALE_LIB}
               ${SVTHEVCENC_LIB}
               ${SVTAV1ENC_LIB}
               ${DAV1D_LIB}
               Threads::Threads
               dl)
 endif()
+
+if(BUILD_GPL_X264)
+  if(MSVC)
+    target_link_libraries(${TARGET} INTERFACE ${X264_LIB} Threads::Threads)
+  else()
+    target_link_libraries(${TARGET} INTERFACE ${X264_LIB} Threads::Threads dl)
+  endif()
+endif(BUILD_GPL_X264)

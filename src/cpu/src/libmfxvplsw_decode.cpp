@@ -18,16 +18,19 @@
 mfxStatus MFXVideoDECODE_DecodeHeader(mfxSession session,
                                       mfxBitstream *bs,
                                       mfxVideoParam *par) {
-    if (0 == session) {
-        return MFX_ERR_INVALID_HANDLE;
-    }
-    if (0 == bs || 0 == par) {
-        return MFX_ERR_NULL_PTR;
-    }
+    VPL_TRACE_FUNC;
+    RET_IF_FALSE(session, MFX_ERR_INVALID_HANDLE);
+    RET_IF_FALSE(bs, MFX_ERR_NULL_PTR);
+    RET_IF_FALSE(par, MFX_ERR_NULL_PTR);
+    RET_IF_FALSE(bs->DataLength > 0, MFX_ERR_MORE_DATA);
 
     CpuWorkstream *ws = reinterpret_cast<CpuWorkstream *>(session);
 
-    return ws->DecodeHeader(bs, par);
+    std::unique_ptr<CpuDecode> decoder(new CpuDecode(ws));
+    RET_IF_FALSE(decoder, MFX_ERR_MEMORY_ALLOC);
+    RET_ERROR(decoder->InitDecode(par, bs));
+
+    return MFX_ERR_NONE;
 }
 
 // NOTES - only support the minimum parameters for basic decode
@@ -39,68 +42,29 @@ mfxStatus MFXVideoDECODE_DecodeHeader(mfxSession session,
 mfxStatus MFXVideoDECODE_Query(mfxSession session,
                                mfxVideoParam *in,
                                mfxVideoParam *out) {
-    mfxStatus sts = MFX_ERR_NONE;
+    VPL_TRACE_FUNC;
+    RET_IF_FALSE(session, MFX_ERR_INVALID_HANDLE);
+    RET_IF_FALSE(out, MFX_ERR_NULL_PTR);
 
-    if (0 == session) {
-        return MFX_ERR_INVALID_HANDLE;
-    }
-    if (0 == out) {
-        return MFX_ERR_NULL_PTR;
-    }
-
-    //CpuWorkstream *ws = reinterpret_cast<CpuWorkstream *>(session);
-    if (in) {
-        // save a local copy of in, since user may set out == in
-        mfxVideoParam inCopy = *in;
-        in                   = &inCopy;
-
-        // start with out = copy of in (does not deep copy extBufs)
-        *out = *in;
-
-        // validate fields in the input param struct
-
-        if (in->mfx.FrameInfo.Width == 0 || in->mfx.FrameInfo.Height == 0)
-            sts = MFX_ERR_UNSUPPORTED;
-
-        if (in->mfx.CodecId != MFX_CODEC_AVC &&
-            in->mfx.CodecId != MFX_CODEC_HEVC &&
-            in->mfx.CodecId != MFX_CODEC_AV1 &&
-            in->mfx.CodecId != MFX_CODEC_JPEG &&
-            in->mfx.CodecId != MFX_CODEC_MPEG2)
-            sts = MFX_ERR_UNSUPPORTED;
-    }
-    else {
-        memset(out, 0, sizeof(mfxVideoParam));
-
-        // set output struct to zero for unsupported params, non-zero for supported params
-    }
-
-    return sts;
+    CpuWorkstream *ws = reinterpret_cast<CpuWorkstream *>(session);
+    (void)ws;
+    return CpuDecode::DecodeQuery(in, out);
 }
 
 // NOTES - fixed at 1 frame for now
 //
 // Differences vs. MSDK 1.0 spec
 // - only supports system memory, SW impl
-// - hard-coded to a single frame
 mfxStatus MFXVideoDECODE_QueryIOSurf(mfxSession session,
                                      mfxVideoParam *par,
                                      mfxFrameAllocRequest *request) {
-    mfxStatus sts = MFX_ERR_NONE;
+    VPL_TRACE_FUNC;
+    RET_IF_FALSE(session, MFX_ERR_INVALID_HANDLE);
+    RET_IF_FALSE(par && request, MFX_ERR_NULL_PTR);
 
-    if (0 == session) {
-        return MFX_ERR_INVALID_HANDLE;
-    }
-    if (0 == par || 0 == request) {
-        return MFX_ERR_NULL_PTR;
-    }
-
-    request->Info              = par->mfx.FrameInfo;
-    request->NumFrameMin       = 1;
-    request->NumFrameSuggested = 1;
-    request->Type = MFX_MEMTYPE_SYSTEM_MEMORY | MFX_MEMTYPE_FROM_DECODE;
-
-    return sts;
+    CpuWorkstream *ws = reinterpret_cast<CpuWorkstream *>(session);
+    (void)ws;
+    return CpuDecode::DecodeQueryIOSurf(par, request);
 }
 
 // NOTES -
@@ -108,22 +72,20 @@ mfxStatus MFXVideoDECODE_QueryIOSurf(mfxSession session,
 // Differences vs. MSDK 1.0 spec
 // -
 mfxStatus MFXVideoDECODE_Init(mfxSession session, mfxVideoParam *par) {
-    mfxStatus sts = MFX_ERR_NONE;
-
-    if (0 == session) {
-        return MFX_ERR_INVALID_HANDLE;
-    }
-    if (0 == par) {
-        return MFX_ERR_NULL_PTR;
-    }
-
+    VPL_TRACE_FUNC;
+    RET_IF_FALSE(session, MFX_ERR_INVALID_HANDLE);
+    RET_IF_FALSE(par, MFX_ERR_NULL_PTR);
     CpuWorkstream *ws = reinterpret_cast<CpuWorkstream *>(session);
+    if (ws->GetDecoder())
+        return MFX_ERR_UNDEFINED_BEHAVIOR;
 
-    if (!ws->getDecInit()) {
-        sts = ws->InitDecode(par->mfx.CodecId);
-    }
+    std::unique_ptr<CpuDecode> decoder(new CpuDecode(ws));
+    RET_IF_FALSE(decoder, MFX_ERR_MEMORY_ALLOC);
+    RET_ERROR(decoder->InitDecode(par, nullptr));
 
-    return sts;
+    ws->SetDecoder(decoder.release());
+
+    return MFX_ERR_NONE;
 }
 
 // NOTES -
@@ -131,16 +93,13 @@ mfxStatus MFXVideoDECODE_Init(mfxSession session, mfxVideoParam *par) {
 // Differences vs. MSDK 1.0 spec
 // -
 mfxStatus MFXVideoDECODE_Close(mfxSession session) {
-    if (0 == session) {
-        return MFX_ERR_INVALID_HANDLE;
-    }
+    VPL_TRACE_FUNC;
+    RET_IF_FALSE(session, MFX_ERR_INVALID_HANDLE);
 
     CpuWorkstream *ws = reinterpret_cast<CpuWorkstream *>(session);
 
-    if (ws->getDecInit() == false)
-        return MFX_ERR_NOT_INITIALIZED;
-
-    ws->FreeDecode();
+    if (ws->GetDecoder() != nullptr)
+        ws->SetDecoder(nullptr);
 
     return MFX_ERR_NONE;
 }
@@ -154,26 +113,38 @@ mfxStatus MFXVideoDECODE_DecodeFrameAsync(mfxSession session,
                                           mfxFrameSurface1 *surface_work,
                                           mfxFrameSurface1 **surface_out,
                                           mfxSyncPoint *syncp) {
-    mfxStatus sts = MFX_ERR_NONE;
+    VPL_TRACE_FUNC;
+    RET_IF_FALSE(session, MFX_ERR_INVALID_HANDLE);
+    RET_IF_FALSE(surface_out && syncp, MFX_ERR_NULL_PTR);
 
-    if (0 == session) {
-        return MFX_ERR_INVALID_HANDLE;
+    CpuWorkstream *ws  = reinterpret_cast<CpuWorkstream *>(session);
+    CpuDecode *decoder = ws->GetDecoder();
+    if (!decoder) {
+        // Only 2.0 API permits lazy init - requires internal memory management
+        RET_IF_FALSE(surface_work == 0, MFX_ERR_NOT_INITIALIZED);
+
+        mfxVideoParam param = { 0 };
+        param.mfx.CodecId   = bs->CodecId;
+        RET_ERROR(MFXVideoDECODE_DecodeHeader(session, bs, &param));
+        RET_ERROR(MFXVideoDECODE_Init(session, &param));
+        decoder = ws->GetDecoder();
     }
-    if (0 == surface_work || 0 == surface_out || 0 == syncp) {
-        return MFX_ERR_NULL_PTR;
+
+    bool bInternalMem = false;
+    if (surface_work == 0) {
+        // get a ref-counted surface for decoding into
+        // behavior is equivalent to the application calling this and then
+        //   passing the surface into DecodeFrameAsync()
+        RET_ERROR(MFXMemory_GetSurfaceForDecode(session, &surface_work));
+        bInternalMem = true;
     }
 
-    CpuWorkstream *ws = reinterpret_cast<CpuWorkstream *>(session);
+    mfxStatus sts = decoder->DecodeFrame(bs, surface_work, surface_out);
 
-    if (ws->getDecInit() == false)
-        return MFX_ERR_NOT_INITIALIZED;
-
-    sts = ws->DecodeFrame(bs, surface_work, surface_out);
-
-    // consumes whole frame every time
-    if (bs) {
-        bs->DataOffset = 0;
-        bs->DataLength = 0;
+    // application will not know to release surface (e.g. if we
+    //   need more data) so need to release it here
+    if (bInternalMem && sts != MFX_ERR_NONE) {
+        surface_work->FrameInterface->Release(surface_work);
     }
 
     *syncp = (mfxSyncPoint)(0x12345678);
@@ -181,69 +152,49 @@ mfxStatus MFXVideoDECODE_DecodeFrameAsync(mfxSession session,
     return sts;
 }
 
-// NOTES -
-//
-// Differences vs. MSDK 1.0 spec
-// -
-mfxStatus MFXVideoCORE_SyncOperation(mfxSession session,
-                                     mfxSyncPoint syncp,
-                                     mfxU32 wait) {
-    if (0 == session) {
-        return MFX_ERR_INVALID_HANDLE;
-    }
-    if (0 == syncp) {
-        return MFX_ERR_NULL_PTR;
-    }
-
-    CpuWorkstream *ws = reinterpret_cast<CpuWorkstream *>(session);
-    return ws->Sync(wait);
-}
-
 mfxStatus MFXVideoDECODE_GetVideoParam(mfxSession session, mfxVideoParam *par) {
-    mfxStatus sts = MFX_ERR_NONE;
+    VPL_TRACE_FUNC;
+    RET_IF_FALSE(session, MFX_ERR_INVALID_HANDLE);
+    RET_IF_FALSE(par, MFX_ERR_NULL_PTR);
 
-    if (0 == session) {
-        return MFX_ERR_INVALID_HANDLE;
-    }
-    if (0 == par) {
-        return MFX_ERR_NULL_PTR;
-    }
+    CpuWorkstream *ws  = reinterpret_cast<CpuWorkstream *>(session);
+    CpuDecode *decoder = ws->GetDecoder();
+    RET_IF_FALSE(decoder, MFX_ERR_NOT_INITIALIZED);
 
-    return sts;
+    return decoder->GetVideoParam(par);
 }
 
 mfxStatus MFXVideoDECODE_Reset(mfxSession session, mfxVideoParam *par) {
-    mfxStatus sts = MFX_ERR_NONE;
+    VPL_TRACE_FUNC;
+    RET_IF_FALSE(session, MFX_ERR_INVALID_HANDLE);
+    RET_IF_FALSE(par, MFX_ERR_NULL_PTR);
 
-    if (0 == session) {
-        return MFX_ERR_INVALID_HANDLE;
-    }
-    if (0 == par) {
-        return MFX_ERR_NULL_PTR;
-    }
+    CpuWorkstream *ws  = reinterpret_cast<CpuWorkstream *>(session);
+    CpuDecode *decoder = ws->GetDecoder();
+    RET_IF_FALSE(decoder, MFX_ERR_NOT_INITIALIZED);
 
-    CpuWorkstream *ws = reinterpret_cast<CpuWorkstream *>(session);
+    RET_ERROR(decoder->CheckVideoParamDecoders(par));
+    mfxVideoParam oldParam = { 0 };
+    decoder->GetVideoParam(&oldParam);
+    RET_ERROR(decoder->IsSameVideoParam(par, &oldParam));
 
-    if (ws->getDecInit() == false)
-        return MFX_ERR_NOT_INITIALIZED;
-
-    ws->FreeDecode();
-
-    sts = ws->InitDecode(par->mfx.CodecId);
-
-    return sts;
+    RET_ERROR(MFXVideoDECODE_Close(session));
+    return MFXVideoDECODE_Init(session, par);
 }
 
 // stubs
 mfxStatus MFXVideoDECODE_GetDecodeStat(mfxSession session,
                                        mfxDecodeStat *stat) {
-    return MFX_ERR_UNSUPPORTED;
+    VPL_TRACE_FUNC;
+    return MFX_ERR_NOT_IMPLEMENTED;
 }
 mfxStatus MFXVideoDECODE_SetSkipMode(mfxSession session, mfxSkipMode mode) {
-    return MFX_ERR_UNSUPPORTED;
+    VPL_TRACE_FUNC;
+    return MFX_ERR_NOT_IMPLEMENTED;
 }
 mfxStatus MFXVideoDECODE_GetPayload(mfxSession session,
                                     mfxU64 *ts,
                                     mfxPayload *payload) {
-    return MFX_ERR_UNSUPPORTED;
+    VPL_TRACE_FUNC;
+    return MFX_ERR_NOT_IMPLEMENTED;
 }

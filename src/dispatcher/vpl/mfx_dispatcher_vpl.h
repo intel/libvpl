@@ -37,7 +37,22 @@ typedef std::string STRING_TYPE;
 typedef char CHAR_TYPE;
 #endif
 
-#define MAX_VPL_SEARCH_PATH 1024
+#define MAX_VPL_SEARCH_PATH 4096
+
+// OS-specific environment variables for implementation
+//   search paths as defined by spec
+// TO DO - clarify expected behavior for searching Windows "PATH"
+//   (not feasible to query every DLL in every directory in PATH
+//    to determine which might be an implementation library)
+#if defined(_WIN32) || defined(_WIN64)
+    #define ENV_ONEVPL_SEARCH_PATH  L"ONEVPL_SEARCH_PATH"
+    #define ENV_ONEVPL_PACKAGE_PATH L"VPL_BIN"
+    #define ENV_OS_PATH             L"" // skip for now (see comment above)
+#else
+    #define ENV_ONEVPL_SEARCH_PATH  "ONEVPL_SEARCH_PATH"
+    #define ENV_ONEVPL_PACKAGE_PATH "VPL_BIN"
+    #define ENV_OS_PATH             "LD_LIBRARY_PATH"
+#endif
 
 // internal function to load dll by full path, fail if unsuccessful
 mfxStatus MFXInitEx2(mfxInitParam par, mfxSession* session, CHAR_TYPE* dllName);
@@ -45,7 +60,7 @@ mfxStatus MFXInitEx2(mfxInitParam par, mfxSession* session, CHAR_TYPE* dllName);
 typedef void(MFX_CDECL* VPLFunctionPtr)(void);
 
 enum VPLFunctionIdx {
-    IdxMFXQueryImplDescription = 0,
+    IdxMFXQueryImplsDescription = 0,
     IdxMFXReleaseImplDescription,
     IdxMFXMemory_GetSurfaceForVPP,
     IdxMFXMemory_GetSurfaceForEncode,
@@ -62,9 +77,11 @@ struct VPLFunctionDesc {
 
 // priority of runtime loading, based on oneAPI-spec
 enum LibPriority {
-    LIB_PRIORITY_USE_DEFINED  = 1,
+    LIB_PRIORITY_USER_DEFINED = 1,
     LIB_PRIORITY_VPL_PACKAGE  = 2,
-    LIB_PRIORITY_MSDK_PACKAGE = 3,
+    LIB_PRIORITY_OS_PATH      = 3,
+    LIB_PRIORITY_SYS_DEFAULT  = 4,
+    LIB_PRIORITY_MSDK_PACKAGE = 5,
 };
 
 enum CfgPropState {
@@ -118,13 +135,6 @@ struct LibInfo {
     //   and table of exported functions
     void* hModuleVPL;
     VPLFunctionPtr vplFuncTable[NumVPLFunctions]; // NOLINT
-    mfxHDL implDesc;
-
-    // used for session initialization with this implementation
-    mfxInitParam initPar;
-
-    // assign unique index after validating library
-    mfxU32 libIdx;
 
     // avoid warnings
     LibInfo()
@@ -132,10 +142,33 @@ struct LibInfo {
               libNameBase(),
               libPriority(0),
               hModuleVPL(nullptr),
-              vplFuncTable(),
-              implDesc(),
+              vplFuncTable() {}
+};
+
+struct ImplInfo {
+    // library containing this implementation
+    LibInfo* libInfo;
+
+    // description of implementation
+    mfxHDL implDesc;
+
+    // used for session initialization with this implementation
+    mfxInitParam initPar;
+
+    // local index for libraries with more than one implementation
+    mfxU32 libImplIdx;
+
+    // unique index assigned after querying implementation
+    // this is the value used in QueryImpl and CreateSession
+    mfxU32 vplImplIdx;
+
+    // avoid warnings
+    ImplInfo()
+            : libInfo(nullptr),
+              implDesc(nullptr),
               initPar(),
-              libIdx(0) {}
+              libImplIdx(0),
+              vplImplIdx(0) {}
 };
 
 // loader class implementation
@@ -147,6 +180,7 @@ public:
     // manage library implementations
     mfxStatus BuildListOfCandidateLibs();
     mfxU32 CheckValidLibraries();
+    mfxStatus QueryLibraryCaps();
     mfxStatus UnloadAllLibraries();
 
     // query capabilities of each implementation
@@ -164,15 +198,22 @@ public:
 
 private:
     // helper functions
+    mfxU32 ParseEnvSearchPaths(const CHAR_TYPE* envVarName,
+                               std::list<STRING_TYPE>& searchDirs);
     mfxStatus SearchDirForLibs(STRING_TYPE searchDir,
                                std::list<LibInfo*>& libInfoList,
                                mfxU32 priority);
-    LibInfo* GetLibInfo(std::list<LibInfo*> libInfoList, mfxU32 idx);
 
     std::list<LibInfo*> m_libInfoList;
+    std::list<ImplInfo*> m_implInfoList;
     std::list<ConfigCtxVPL*> m_configCtxList;
 
+    std::list<STRING_TYPE> m_userSearchDirs;
+    std::list<STRING_TYPE> m_packageSearchDirs;
+    std::list<STRING_TYPE> m_pathSearchDirs;
     STRING_TYPE m_vplPackageDir;
+
+    mfxU32 m_implIdxNext;
 };
 
 #endif // SRC_DISPATCHER_VPL_MFX_DISPATCHER_VPL_H_

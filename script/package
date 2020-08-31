@@ -15,5 +15,10 @@ CMAKE_BINARY_DIR=_build
 mkdir -p ${CMAKE_BINARY_DIR}
 cd ${CMAKE_BINARY_DIR}
 
-cmake -DCMAKE_BUILD_TYPE=Release ..
+if [ "$1" == "gpl" ]; then
+  cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_GPL_X264=ON ..
+else
+  cmake -DCMAKE_BUILD_TYPE=Release ..
+fi
+
 cmake --build . --target package

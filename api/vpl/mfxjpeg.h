@@ -8,6 +8,7 @@
 #define __MFX_JPEG_H__
 
 #include "mfxdefs.h"
+#include "mfxstructures.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -22,16 +23,16 @@ enum {
 /* CodecProfile, CodecLevel */
 enum
 {
-    MFX_PROFILE_JPEG_BASELINE      = 1 /*!< Baseline JPEG Profile. */
+    MFX_PROFILE_JPEG_BASELINE      = 1 /*!< Baseline JPEG profile. */
 };
 
 /*! The Rotation enumerator itemizes the JPEG rotation options. */
 enum
 {
     MFX_ROTATION_0      = 0, /*!< No rotation. */
-    MFX_ROTATION_90     = 1, /*!< 90 degree rotation */
-    MFX_ROTATION_180    = 2, /*!< 180 degree rotation */
-    MFX_ROTATION_270    = 3  /*!< 270 degree rotation */
+    MFX_ROTATION_90     = 1, /*!< 90 degree rotation. */
+    MFX_ROTATION_180    = 2, /*!< 180 degree rotation. */
+    MFX_ROTATION_270    = 3  /*!< 270 degree rotation. */
 };
 
 enum {

@@ -36,9 +36,13 @@ list(APPEND SOURCES vpl/mfx_dispatcher_vpl.cpp
 
 add_library(${TARGET} SHARED "")
 
-# force correct name on Windows
-set_target_properties(${TARGET} PROPERTIES PREFIX "lib")
-set_target_properties(${TARGET} PROPERTIES IMPORT_PREFIX "lib")
+if(WIN32)
+  # force correct name on Windows
+  set_target_properties(${TARGET} PROPERTIES PREFIX "lib")
+  set_target_properties(${TARGET} PROPERTIES IMPORT_PREFIX "lib")
+endif()
+set_target_properties(${TARGET} PROPERTIES VERSION ${PROJECT_VERSION})
+set_target_properties(${TARGET} PROPERTIES SOVERSION ${API_VERSION_MAJOR})
 
 target_sources(${TARGET} PRIVATE ${SOURCES})
 

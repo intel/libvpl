@@ -23,21 +23,11 @@
 namespace MFX {
 
 #if defined(__i386__)
-    #ifdef ANDROID
-        #define LIBMFXSW "libmfxsw32.so"
-        #define LIBMFXHW "libmfxhw32.so"
-    #else
-        #define LIBMFXSW "libmfxsw32.so.1"
-        #define LIBMFXHW "libmfxhw32.so.1"
-    #endif
+    #define LIBMFXSW "libvplswref32.so.1"
+    #define LIBMFXHW "libmfxhw32.so.1"
 #elif defined(__x86_64__)
-    #ifdef ANDROID
-        #define LIBMFXSW "libmfxsw64.so"
-        #define LIBMFXHW "libmfxhw64.so"
-    #else
-        #define LIBMFXSW "libmfxsw64.so.1"
-        #define LIBMFXHW "libmfxhw64.so.1"
-    #endif
+    #define LIBMFXSW "libvplswref64.so.1"
+    #define LIBMFXHW "libmfxhw64.so.1"
 #else
     #error Unsupported architecture
 #endif
@@ -61,7 +51,7 @@ enum Function {
 
 // new functions for API 2.0
 enum Function2 {
-    eMFXQueryImplDescription = 0,
+    eMFXQueryImplsDescription = 0,
     eMFXReleaseImplDescription,
     eMFXMemory_GetSurfaceForVPP,
     eMFXMemory_GetSurfaceForEncode,
@@ -104,7 +94,7 @@ static const FunctionsTable g_mfxFuncTable[] = {
 };
 
 static const FunctionsTable2 g_mfxFuncTable2[] = {
-    { eMFXQueryImplDescription, "MFXQueryImplDescription", VERSION(0, 2) },
+    { eMFXQueryImplsDescription, "MFXQueryImplsDescription", VERSION(0, 2) },
     { eMFXReleaseImplDescription, "MFXReleaseImplDescription", VERSION(0, 2) },
     { eMFXMemory_GetSurfaceForVPP,
       "MFXMemory_GetSurfaceForVPP",

@@ -37,6 +37,33 @@ static const mfxRange32U DefaultRange = { DEF_RANGE_MIN,
                                           DEF_RANGE_MAX,
                                           DEF_RANGE_STEP };
 
+// Start - Device Description
+
+mfxStatus InitDeviceDescription(mfxDeviceDescription *Dev) {
+    // initially empty
+    memset(Dev, 0, sizeof(mfxDeviceDescription));
+
+    Dev->Version.Major = DefaultStructVersion.Major;
+    Dev->Version.Minor = DefaultStructVersion.Minor;
+
+    strncpy_s((char *)Dev->DeviceID,
+              sizeof(Dev->DeviceID),
+              "CPU",
+              sizeof(Dev->DeviceID) - 1);
+
+    // CPU should report 0
+    Dev->NumSubDevices = 0;
+
+    return MFX_ERR_NONE;
+}
+
+void FreeDeviceDescription(mfxDeviceDescription *Dev) {
+    // no dynamically allocated memory
+    return;
+}
+
+// End - Device Description
+
 // Start - Decoder Caps
 
 static DecCodec *AddDecoderDescription(mfxDecoderDescription *Dec,
@@ -46,9 +73,8 @@ static DecCodec *AddDecoderDescription(mfxDecoderDescription *Dec,
     if (NumCodecs == 0)
         return nullptr;
 
-    Dec->Version.Major = Version.Major;
-    Dec->Version.Minor = Version.Minor;
-    Dec->NumCodecs     = NumCodecs;
+    Dec->Version.Version = MFX_DECODERDESCRIPTION_VERSION;
+    Dec->NumCodecs       = NumCodecs;
 
     // allocate structures for supported codecs
     Dec->Codecs = AllocDescObject<DecCodec>(NumCodecs);
@@ -126,7 +152,7 @@ mfxStatus InitDecoderCaps(mfxDecoderDescription *Dec) {
     memset(Dec, 0, sizeof(mfxDecoderDescription));
 
     // fill decoder caps
-    Codecs = AddDecoderDescription(Dec, DefaultStructVersion, 2);
+    Codecs = AddDecoderDescription(Dec, DefaultStructVersion, 4);
     if (Codecs == nullptr)
         return MFX_ERR_MEMORY_ALLOC;
 
@@ -141,7 +167,7 @@ mfxStatus InitDecoderCaps(mfxDecoderDescription *Dec) {
                                      DefaultRange,
                                      DefaultRange,
                                      1);
-    ColorFormats[0] = MFX_FOURCC_IYUV;
+    ColorFormats[0] = MFX_FOURCC_I420;
 
     // profile[1] - HEVC_MAIN10
     MemDesc      = AddDecoderProfile(Profiles, 1, MFX_PROFILE_HEVC_MAIN10, 1);
@@ -163,8 +189,35 @@ mfxStatus InitDecoderCaps(mfxDecoderDescription *Dec) {
                                      MFX_RESOURCE_SYSTEM_SURFACE,
                                      DefaultRange,
                                      DefaultRange,
+                                     2);
+    ColorFormats[0] = MFX_FOURCC_I420;
+    ColorFormats[1] = MFX_FOURCC_I010;
+
+    // add codec type AVC
+    Profiles = AddDecoderCodec(Codecs, 2, MFX_CODEC_AVC, MFX_LEVEL_UNKNOWN, 1);
+
+    // profile[0] - MFX_PROFILE_AVC_HIGH
+    MemDesc         = AddDecoderProfile(Profiles, 0, MFX_PROFILE_AVC_HIGH, 1);
+    ColorFormats    = AddDecoderMemDesc(MemDesc,
+                                     0,
+                                     MFX_RESOURCE_SYSTEM_SURFACE,
+                                     DefaultRange,
+                                     DefaultRange,
                                      1);
-    ColorFormats[0] = MFX_FOURCC_IYUV;
+    ColorFormats[0] = MFX_FOURCC_I420;
+
+    // add codec type JPEG
+    Profiles = AddDecoderCodec(Codecs, 3, MFX_CODEC_JPEG, MFX_LEVEL_UNKNOWN, 1);
+
+    // profile[0] - MFX_PROFILE_AVC_HIGH
+    MemDesc      = AddDecoderProfile(Profiles, 0, MFX_PROFILE_JPEG_BASELINE, 1);
+    ColorFormats = AddDecoderMemDesc(MemDesc,
+                                     0,
+                                     MFX_RESOURCE_SYSTEM_SURFACE,
+                                     DefaultRange,
+                                     DefaultRange,
+                                     1);
+    ColorFormats[0] = MFX_FOURCC_I420;
 
     return MFX_ERR_NONE;
 }
@@ -203,9 +256,8 @@ static EncCodec *AddEncoderDescription(mfxEncoderDescription *Enc,
     if (NumCodecs == 0)
         return nullptr;
 
-    Enc->Version.Major = Version.Major;
-    Enc->Version.Minor = Version.Minor;
-    Enc->NumCodecs     = NumCodecs;
+    Enc->Version.Version = MFX_ENCODERDESCRIPTION_VERSION;
+    Enc->NumCodecs       = NumCodecs;
 
     // allocate structures for supported codecs
     Enc->Codecs = AllocDescObject<EncCodec>(NumCodecs);
@@ -285,7 +337,7 @@ mfxStatus InitEncoderCaps(mfxEncoderDescription *Enc) {
     memset(Enc, 0, sizeof(mfxEncoderDescription));
 
     // fill encoder caps
-    Codecs = AddEncoderDescription(Enc, DefaultStructVersion, 2);
+    Codecs = AddEncoderDescription(Enc, DefaultStructVersion, 3);
     if (Codecs == nullptr)
         return MFX_ERR_MEMORY_ALLOC;
 
@@ -301,7 +353,7 @@ mfxStatus InitEncoderCaps(mfxEncoderDescription *Enc) {
                                      DefaultRange,
                                      DefaultRange,
                                      1);
-    ColorFormats[0] = MFX_FOURCC_IYUV;
+    ColorFormats[0] = MFX_FOURCC_I420;
 
     // profile[1] - HEVC_MAIN10
     MemDesc      = AddEncoderProfile(Profiles, 1, MFX_PROFILE_HEVC_MAIN10, 1);
@@ -324,8 +376,23 @@ mfxStatus InitEncoderCaps(mfxEncoderDescription *Enc) {
                                      MFX_RESOURCE_SYSTEM_SURFACE,
                                      DefaultRange,
                                      DefaultRange,
+                                     2);
+    ColorFormats[0] = MFX_FOURCC_I420;
+    ColorFormats[1] = MFX_FOURCC_I010;
+
+    // add codec type JPEG
+    Profiles =
+        AddEncoderCodec(Codecs, 2, MFX_CODEC_JPEG, MFX_LEVEL_UNKNOWN, 0, 1);
+
+    // profile[0] - MFX_PROFILE_UNKNOWN
+    MemDesc      = AddEncoderProfile(Profiles, 0, MFX_PROFILE_JPEG_BASELINE, 1);
+    ColorFormats = AddEncoderMemDesc(MemDesc,
+                                     0,
+                                     MFX_RESOURCE_SYSTEM_SURFACE,
+                                     DefaultRange,
+                                     DefaultRange,
                                      1);
-    ColorFormats[0] = MFX_FOURCC_IYUV;
+    ColorFormats[0] = MFX_FOURCC_I420;
 
     return MFX_ERR_NONE;
 }
@@ -364,9 +431,8 @@ static VPPFilter *AddVPPDescription(mfxVPPDescription *VPP,
     if (NumFilters == 0)
         return nullptr;
 
-    VPP->Version.Major = Version.Major;
-    VPP->Version.Minor = Version.Minor;
-    VPP->NumFilters    = NumFilters;
+    VPP->Version.Version = MFX_VPPDESCRIPTION_VERSION;
+    VPP->NumFilters      = NumFilters;
 
     // allocate structures for supported codecs
     VPP->Filters = AllocDescObject<VPPFilter>(NumFilters);
@@ -416,14 +482,16 @@ static VPPFormat *AddVPPMemDesc(VPPMemDesc *MemDesc,
     return MemDesc[MemDescIdx].Formats;
 }
 
-static mfxU32 *AddVPPOutFormats(VPPFormat *Formats,
-                                mfxU32 FormatIdx,
-                                mfxU16 NumOutFormat) {
+static mfxU32 *AddVPPInFormats(VPPFormat *Formats,
+                               mfxU32 FormatIdx,
+                               mfxU32 InFormat,
+                               mfxU16 NumOutFormat) {
     // must specify at least one output color format
     if (NumOutFormat == 0)
         return nullptr;
 
     // fill in info about this memory type
+    Formats[FormatIdx].InFormat     = InFormat;
     Formats[FormatIdx].NumOutFormat = NumOutFormat;
 
     // allocate structures for supported color formats
@@ -433,8 +501,74 @@ static mfxU32 *AddVPPOutFormats(VPPFormat *Formats,
 }
 
 mfxStatus InitVPPCaps(mfxVPPDescription *VPP) {
+    VPPFilter *Filters;
+    VPPMemDesc *MemDesc;
+    VPPFormat *InFormats;
+    mfxU32 *OutFormats;
+
     // initially empty
     memset(VPP, 0, sizeof(mfxVPPDescription));
+
+    // fill VPP caps
+    Filters = AddVPPDescription(VPP, DefaultStructVersion, 2);
+    if (Filters == nullptr)
+        return MFX_ERR_MEMORY_ALLOC;
+
+    // add VPP filter CSC
+    MemDesc = AddVPPFilter(Filters, 0, MFX_EXTBUFF_VPP_COLOR_CONVERSION, 1, 1);
+
+    InFormats = AddVPPMemDesc(MemDesc,
+                              0,
+                              MFX_RESOURCE_SYSTEM_SURFACE,
+                              DefaultRange,
+                              DefaultRange,
+                              3);
+
+    // add input format MFX_FOURCC_I420
+    OutFormats    = AddVPPInFormats(InFormats, 0, MFX_FOURCC_I420, 3);
+    OutFormats[0] = MFX_FOURCC_I420;
+    OutFormats[1] = MFX_FOURCC_I010;
+    OutFormats[2] = MFX_FOURCC_RGB4;
+
+    // add input format MFX_FOURCC_I010
+    OutFormats    = AddVPPInFormats(InFormats, 1, MFX_FOURCC_I010, 3);
+    OutFormats[0] = MFX_FOURCC_I420;
+    OutFormats[1] = MFX_FOURCC_I010;
+    OutFormats[2] = MFX_FOURCC_RGB4;
+
+    // add input format MFX_FOURCC_RGB4
+    OutFormats    = AddVPPInFormats(InFormats, 2, MFX_FOURCC_RGB4, 3);
+    OutFormats[0] = MFX_FOURCC_I420;
+    OutFormats[1] = MFX_FOURCC_I010;
+    OutFormats[2] = MFX_FOURCC_RGB4;
+
+    // add VPP filter resize
+    MemDesc = AddVPPFilter(Filters, 1, MFX_EXTBUFF_VPP_SCALING, 1, 1);
+
+    InFormats = AddVPPMemDesc(MemDesc,
+                              0,
+                              MFX_RESOURCE_SYSTEM_SURFACE,
+                              DefaultRange,
+                              DefaultRange,
+                              3);
+
+    // add input format MFX_FOURCC_I420
+    OutFormats    = AddVPPInFormats(InFormats, 0, MFX_FOURCC_I420, 3);
+    OutFormats[0] = MFX_FOURCC_I420;
+    OutFormats[1] = MFX_FOURCC_I010;
+    OutFormats[2] = MFX_FOURCC_RGB4;
+
+    // add input format MFX_FOURCC_I010
+    OutFormats    = AddVPPInFormats(InFormats, 1, MFX_FOURCC_I010, 3);
+    OutFormats[0] = MFX_FOURCC_I420;
+    OutFormats[1] = MFX_FOURCC_I010;
+    OutFormats[2] = MFX_FOURCC_RGB4;
+
+    // add input format MFX_FOURCC_RGB4
+    OutFormats    = AddVPPInFormats(InFormats, 2, MFX_FOURCC_RGB4, 3);
+    OutFormats[0] = MFX_FOURCC_I420;
+    OutFormats[1] = MFX_FOURCC_I010;
+    OutFormats[2] = MFX_FOURCC_RGB4;
 
     return MFX_ERR_NONE;
 }

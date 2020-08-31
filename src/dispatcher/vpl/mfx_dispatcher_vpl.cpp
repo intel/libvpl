@@ -35,6 +35,10 @@ mfxLoader MFXLoad() {
         return nullptr;
     }
 
+    // query capabilities of each implementation
+    // may be more than one implementation per library
+    sts = loaderCtx->QueryLibraryCaps();
+
     return (mfxLoader)loaderCtx;
 }
 

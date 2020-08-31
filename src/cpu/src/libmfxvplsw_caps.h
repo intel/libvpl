@@ -9,7 +9,16 @@
 
 #include <string.h>
 
+#include "vpl/mfxjpeg.h"
 #include "vpl/mfxvideo.h"
+
+struct ImplDescriptionArray {
+    mfxImplDescription implDesc; // MUST be the first element
+
+    mfxHDL *basePtr; // pointer to the array of handles
+    mfxU32 currImpl; // index of this handle in the array
+    mfxU32 numImpl; // total number of implementations
+};
 
 #if defined(_WIN32) || defined(_WIN64)
 #else
@@ -40,10 +49,12 @@ typedef struct mfxVPPDescription::filter VPPFilter;
 typedef struct mfxVPPDescription::filter::memdesc VPPMemDesc;
 typedef struct mfxVPPDescription::filter::memdesc::format VPPFormat;
 
+mfxStatus InitDeviceDescription(mfxDeviceDescription *Dev);
 mfxStatus InitDecoderCaps(mfxDecoderDescription *Dec);
 mfxStatus InitEncoderCaps(mfxEncoderDescription *Enc);
 mfxStatus InitVPPCaps(mfxVPPDescription *VPP);
 
+void FreeDeviceDescription(mfxDeviceDescription *Dev);
 void FreeDecoderCaps(mfxDecoderDescription *Dec);
 void FreeEncoderCaps(mfxEncoderDescription *Enc);
 void FreeVPPCaps(mfxVPPDescription *VPP);

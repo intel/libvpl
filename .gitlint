@@ -9,7 +9,12 @@
 #
 [general]
 # Ignore certain rules, this example uses both full name and id
-ignore=body-is-missing,title-must-not-contain-word
+# B6  body-is-missing
+# T5  title-must-not-contain-word
+# T3  title-trailing-punctuation
+# UL3 title-is-capitalized
+# UL5 title-is-imperative
+ignore=B6, T5, T3, UL3, UL5
 
 # verbosity should be a value between 1 and 3, the commandline -v flags take
 # precedence over this

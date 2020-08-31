@@ -8,7 +8,7 @@
 #define __MFXDEFS_H__
 
 #define MFX_VERSION_MAJOR 2
-#define MFX_VERSION_MINOR 0 
+#define MFX_VERSION_MINOR 0
 
 // MFX_VERSION_NEXT is always +1 from last public release
 // may be enforced by MFX_VERSION_USE_LATEST define
@@ -30,6 +30,11 @@
   #undef MFX_VERSION_MINOR
   #define MFX_VERSION_MINOR ((MFX_VERSION) % 1000)
 #endif
+
+/*! This is correspondent version of the Intel(r) Media SDK legacy API that is used as a basis
+   for the current oneAPI Video Processing Library (oneVPL) API. */
+
+#define MFX_LEGACY_VERSION 1034
 
 
 #ifdef __cplusplus
@@ -53,7 +58,7 @@ extern "C"
 /* The general rule for alignment is following:
    - structures with pointers have 4/8 bytes alignment on 32/64 bit systems
    - structures with fields of type mfxU64/mfxF64 (unsigned long long / double)
-     have alignment 8 bytes on 64 bit and 32 bit Windows, on Linux alignment is 4 bytes
+     have alignment 8 bytes on 64 bit and 32 bit Windows*, on Linux* alignment is 4 bytes
    - all the rest structures are 4 bytes aligned
    - there are several exceptions: some structs which had 4-byte alignment were extended
      with pointer / long type fields; such structs have 4-byte alignment to keep binary
@@ -65,11 +70,11 @@ extern "C"
 #if defined(_WIN64) || defined(__LP64__)
     #define MFX_PACK_BEGIN_STRUCT_W_PTR()    MFX_PACK_BEGIN_X(8)
     #define MFX_PACK_BEGIN_STRUCT_W_L_TYPE() MFX_PACK_BEGIN_X(8)
-/* 32-bit ILP32 data model Windows (Intel architecture) */
+/* 32-bit ILP32 data model Windows* (Intel(r) architecture) */
 #elif defined(_WIN32) || defined(_M_IX86) && !defined(__linux__)
     #define MFX_PACK_BEGIN_STRUCT_W_PTR()    MFX_PACK_BEGIN_X(4)
     #define MFX_PACK_BEGIN_STRUCT_W_L_TYPE() MFX_PACK_BEGIN_X(8)
-/* 32-bit ILP32 data model Linux */
+/* 32-bit ILP32 data model Linux* */
 #elif defined(__ILP32__)
     #define MFX_PACK_BEGIN_STRUCT_W_PTR()    MFX_PACK_BEGIN_X(4)
     #define MFX_PACK_BEGIN_STRUCT_W_L_TYPE() MFX_PACK_BEGIN_X(4)
@@ -90,51 +95,53 @@ extern "C"
 
 #define MFX_INFINITE 0xFFFFFFFF
 
-typedef unsigned char       mfxU8;         /*!< Unsigned integer, 8 bit type */
-typedef char                mfxI8;         /*!< Signed integer, 8 bit type */
-typedef short               mfxI16;        /*!< Signed integer, 16 bit type */
-typedef unsigned short      mfxU16;        /*!< Unsigned integer, 16 bit type */
-typedef unsigned int        mfxU32;        /*!< Unsigned integer, 32 bit type */
-typedef int                 mfxI32;        /*!< Signed integer, 32 bit type */
+typedef unsigned char       mfxU8;         /*!< Unsigned integer, 8 bit type. */
+typedef char                mfxI8;         /*!< Signed integer, 8 bit type. */
+typedef short               mfxI16;        /*!< Signed integer, 16 bit type. */
+typedef unsigned short      mfxU16;        /*!< Unsigned integer, 16 bit type. */
+typedef unsigned int        mfxU32;        /*!< Unsigned integer, 32 bit type. */
+typedef int                 mfxI32;        /*!< Signed integer, 32 bit type. */
 #if defined( _WIN32 ) || defined ( _WIN64 )
-typedef unsigned long       mfxUL32;       /*!< Unsigned integer, 32 bit type */
-typedef long                mfxL32;        /*!< Signed integer, 32 bit type */
+typedef unsigned long       mfxUL32;       /*!< Unsigned integer, 32 bit type. */
+typedef long                mfxL32;        /*!< Signed integer, 32 bit type. */
 #else
-typedef unsigned int        mfxUL32;       /*!< Unsigned integer, 32 bit type */
-typedef int                 mfxL32;        /*!< Signed integer, 32 bit type */
+typedef unsigned int        mfxUL32;       /*!< Unsigned integer, 32 bit type. */
+typedef int                 mfxL32;        /*!< Signed integer, 32 bit type. */
 #endif
-typedef float               mfxF32;        /*!< Single-presesion floating point, 32 bit type */
-typedef double              mfxF64;        /*!< Double-presesion floating point, 64 bit type */
-typedef __UINT64            mfxU64;        /*!< Unigned integer, 64 bit type */
-typedef __INT64             mfxI64;        /*!< Signed integer, 64 bit type */
-typedef void*               mfxHDL;        /*!< Handle type */
-typedef mfxHDL              mfxMemId;      /*!< Memory ID type */
-typedef void*               mfxThreadTask; /*!< Thread task type */
-typedef char                mfxChar;       /*!< ASCII character, 8 bit type */
+typedef float               mfxF32;        /*!< Single-precision floating point, 32 bit type. */
+typedef double              mfxF64;        /*!< Double-precision floating point, 64 bit type. */
+typedef __UINT64            mfxU64;        /*!< Unsigned integer, 64 bit type. */
+typedef __INT64             mfxI64;        /*!< Signed integer, 64 bit type. */
+typedef void*               mfxHDL;        /*!< Handle type. */
+typedef mfxHDL              mfxMemId;      /*!< Memory ID type. */
+typedef void*               mfxThreadTask; /*!< Thread task type. */
+typedef char                mfxChar;       /*!< UTF-8 byte. */
 
-#if (MFX_VERSION >= 1034)
 /* MFX structures version info */
 MFX_PACK_BEGIN_USUAL_STRUCT()
 /*! Introduce field Version for any structures.
-Minor number is incremented when reserved fields are used, 
-major number is incremnted when size of structure is increased.
+Minor number is incremented when reserved fields are used,
+major number is incremented when size of structure is increased.
 Assumed that any structure changes are backward binary compatible.
- mfxStructVersion starts from {1,0} for any new API structures, if mfxStructVersion is 
+ mfxStructVersion starts from {1,0} for any new API structures, if mfxStructVersion is
  added to the existent legacy structure (replacing reserved fields) it starts from {1, 1}.
 */
 typedef union {
     /*! Structure with Major and Minor fields.  */
-    /*! @struct Anonimouse */
+    /*! @struct Anonymous */
     struct {
-        mfxU8  Minor; /*!< Minor number of the correspondent structure */
-        mfxU8  Major; /*!< Major number of the correspondent structure  */
+        mfxU8  Minor; /*!< Minor number of the correspondent structure. */
+        mfxU8  Major; /*!< Major number of the correspondent structure. */
     };
     mfxU16  Version;   /*!< Structure version number */
 } mfxStructVersion;
 MFX_PACK_END()
-#endif
 
-#if (MFX_VERSION >= 2000)
+#define MFX_STRUCT_VERSION(MAJOR, MINOR) (256*(MAJOR) + (MINOR))
+
+
+#define MFX_VARIANT_VERSION MFX_STRUCT_VERSION(1, 0)
+
 /*! The mfxVariantType enumerator data types for mfxVarianf type. */
 typedef enum {
     MFX_VARIANT_TYPE_UNSET = 0, /*!< Undefined type. */
@@ -174,82 +181,81 @@ typedef struct {
 MFX_PACK_END()
 
 MFX_PACK_BEGIN_USUAL_STRUCT()
-/*! This structure represents range of unsigned values */
+/*! This structure represents a range of unsigned values */
 typedef struct {
-    mfxU32 Min;  /*!< Minimal value of the range */
-    mfxU32 Max;  /*!< Maximal value of the range */
-    mfxU32 Step; /*!< Value incrementation step */
+    mfxU32 Min;  /*!< Minimal value of the range. */
+    mfxU32 Max;  /*!< Maximal value of the range. */
+    mfxU32 Step; /*!< Value incrementation step. */
 } mfxRange32U;
 MFX_PACK_END()
 
-#endif
 
-/*! Thus structure represents pair of numbers of mfxI16 type */
+/*! Thus structure represents a pair of numbers of type mfxI16. */
 typedef struct {
-    mfxI16  x; /*!< First number */
-    mfxI16  y; /*!< Second number */
+    mfxI16  x; /*!< First number. */
+    mfxI16  y; /*!< Second number. */
 } mfxI16Pair;
 
-/*! Thus structure represents pair of handles of mfxHDL type */
+/*! Thus structure represents pair of handles of type mfxHDL. */
 typedef struct {
-    mfxHDL first;  /*!< First handle */
-    mfxHDL second; /*!< Second number */
+    mfxHDL first;  /*!< First handle. */
+    mfxHDL second; /*!< Second handle. */
 } mfxHDLPair;
 
 
 /*********************************************************************************\
 Error message
 \*********************************************************************************/
-/*! @enum mfxStatus Itemizes status codes returned by SDK functions */
+/*! @enum mfxStatus Itemizes status codes returned by SDK functions. */
 typedef enum
 {
     /* no error */
-    MFX_ERR_NONE                        = 0,    /*!< no error */
+    MFX_ERR_NONE                        = 0,    /*!< No error. */
     /* reserved for unexpected errors */
-    MFX_ERR_UNKNOWN                     = -1,   /*!< unknown error. */
+    MFX_ERR_UNKNOWN                     = -1,   /*!< Unknown error. */
 
     /* error codes <0 */
-    MFX_ERR_NULL_PTR                    = -2,   /*!< null pointer */
-    MFX_ERR_UNSUPPORTED                 = -3,   /*!< undeveloped feature */
-    MFX_ERR_MEMORY_ALLOC                = -4,   /*!< failed to allocate memory */
-    MFX_ERR_NOT_ENOUGH_BUFFER           = -5,   /*!< insufficient buffer at input/output */
-    MFX_ERR_INVALID_HANDLE              = -6,   /*!< invalid handle */
-    MFX_ERR_LOCK_MEMORY                 = -7,   /*!< failed to lock the memory block */
-    MFX_ERR_NOT_INITIALIZED             = -8,   /*!< member function called before initialization */
-    MFX_ERR_NOT_FOUND                   = -9,   /*!< the specified object is not found */
-    MFX_ERR_MORE_DATA                   = -10,  /*!< expect more data at input */
-    MFX_ERR_MORE_SURFACE                = -11,  /*!< expect more surface at output */
-    MFX_ERR_ABORTED                     = -12,  /*!< operation aborted */
-    MFX_ERR_DEVICE_LOST                 = -13,  /*!< lose the HW acceleration device */
-    MFX_ERR_INCOMPATIBLE_VIDEO_PARAM    = -14,  /*!< incompatible video parameters */
-    MFX_ERR_INVALID_VIDEO_PARAM         = -15,  /*!< invalid video parameters */
-    MFX_ERR_UNDEFINED_BEHAVIOR          = -16,  /*!< undefined behavior */
-    MFX_ERR_DEVICE_FAILED               = -17,  /*!< device operation failure */
-    MFX_ERR_MORE_BITSTREAM              = -18,  /*!< expect more bitstream buffers at output */
-    MFX_ERR_GPU_HANG                    = -21,  /*!< device operation failure caused by GPU hang */
-    MFX_ERR_REALLOC_SURFACE             = -22,  /*!< bigger output surface required */
-
+    MFX_ERR_NULL_PTR                    = -2,   /*!< Null pointer. */
+    MFX_ERR_UNSUPPORTED                 = -3,   /*!< Unsupported feature. */
+    MFX_ERR_MEMORY_ALLOC                = -4,   /*!< Failed to allocate memory. */
+    MFX_ERR_NOT_ENOUGH_BUFFER           = -5,   /*!< Insufficient buffer at input/output. */
+    MFX_ERR_INVALID_HANDLE              = -6,   /*!< Invalid handle. */
+    MFX_ERR_LOCK_MEMORY                 = -7,   /*!< Failed to lock the memory block. */
+    MFX_ERR_NOT_INITIALIZED             = -8,   /*!< Member function called before initialization. */
+    MFX_ERR_NOT_FOUND                   = -9,   /*!< The specified object is not found. */
+    MFX_ERR_MORE_DATA                   = -10,  /*!< Expect more data at input. */
+    MFX_ERR_MORE_SURFACE                = -11,  /*!< Expect more surface at output. */
+    MFX_ERR_ABORTED                     = -12,  /*!< Operation aborted. */
+    MFX_ERR_DEVICE_LOST                 = -13,  /*!< Lose the hardware acceleration device. */
+    MFX_ERR_INCOMPATIBLE_VIDEO_PARAM    = -14,  /*!< Incompatible video parameters. */
+    MFX_ERR_INVALID_VIDEO_PARAM         = -15,  /*!< Invalid video parameters. */
+    MFX_ERR_UNDEFINED_BEHAVIOR          = -16,  /*!< Undefined behavior. */
+    MFX_ERR_DEVICE_FAILED               = -17,  /*!< Device operation failure. */
+    MFX_ERR_MORE_BITSTREAM              = -18,  /*!< Expect more bitstream buffers at output. */
+    MFX_ERR_GPU_HANG                    = -21,  /*!< Device operation failure caused by GPU hang. */
+    MFX_ERR_REALLOC_SURFACE             = -22,  /*!< Bigger output surface required. */
+    MFX_ERR_RESOURCE_MAPPED             = -23,  /*!< Write access is already acquired and user requested
+                                                   another write access, or read access with MFX_MEMORY_NO_WAIT flag. */
+    MFX_ERR_NOT_IMPLEMENTED             = -24,   /*!< Feature or function not implemented. */
     /* warnings >0 */
-    MFX_WRN_IN_EXECUTION                = 1,    /*!< the previous asynchronous operation is in execution */
-    MFX_WRN_DEVICE_BUSY                 = 2,    /*!< the HW acceleration device is busy */
-    MFX_WRN_VIDEO_PARAM_CHANGED         = 3,    /*!< the video parameters are changed during decoding */
-    MFX_WRN_PARTIAL_ACCELERATION        = 4,    /*!< SW is used */
-    MFX_WRN_INCOMPATIBLE_VIDEO_PARAM    = 5,    /*!< incompatible video parameters */
-    MFX_WRN_VALUE_NOT_CHANGED           = 6,    /*!< the value is saturated based on its valid range */
-    MFX_WRN_OUT_OF_RANGE                = 7,    /*!< the value is out of valid range */
-    MFX_WRN_FILTER_SKIPPED              = 10,   /*!< one of requested filters has been skipped */
-#if MFX_VERSION >= 1031
+    MFX_WRN_IN_EXECUTION                = 1,    /*!< The previous asynchronous operation is in execution. */
+    MFX_WRN_DEVICE_BUSY                 = 2,    /*!< The hardware acceleration device is busy. */
+    MFX_WRN_VIDEO_PARAM_CHANGED         = 3,    /*!< The video parameters are changed during decoding. */
+    MFX_WRN_PARTIAL_ACCELERATION        = 4,    /*!< Software acceleration is used. */
+    MFX_WRN_INCOMPATIBLE_VIDEO_PARAM    = 5,    /*!< Incompatible video parameters. */
+    MFX_WRN_VALUE_NOT_CHANGED           = 6,    /*!< The value is saturated based on its valid range. */
+    MFX_WRN_OUT_OF_RANGE                = 7,    /*!< The value is out of valid range. */
+    MFX_WRN_FILTER_SKIPPED              = 10,   /*!< One of requested filters has been skipped. */
     /* low-delay partial output */
-    MFX_ERR_NONE_PARTIAL_OUTPUT         = 12,   /*!< frame is not ready, but bitstream contains partial output */
-#endif
+    MFX_ERR_NONE_PARTIAL_OUTPUT         = 12,   /*!< Frame is not ready, but bitstream contains partial output. */
 
     /* threading statuses */
-    MFX_TASK_DONE = MFX_ERR_NONE,               /*!< task has been completed */
-    MFX_TASK_WORKING                    = 8,    /*!< there is some more work to do */
-    MFX_TASK_BUSY                       = 9,    /*!< task is waiting for resources */
+    MFX_TASK_DONE = MFX_ERR_NONE,               /*!< Task has been completed. */
+    MFX_TASK_WORKING                    = 8,    /*!< There is some more work to do. */
+    MFX_TASK_BUSY                       = 9,    /*!< Task is waiting for resources. */
 
     /* plug-in statuses */
-    MFX_ERR_MORE_DATA_SUBMIT_TASK       = -10000, /*!< return MFX_ERR_MORE_DATA but submit internal asynchronous task */
+    MFX_ERR_MORE_DATA_SUBMIT_TASK       = -10000, /*!< Return MFX_ERR_MORE_DATA but submit internal asynchronous task. */
 
 } mfxStatus;
 

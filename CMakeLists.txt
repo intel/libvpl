@@ -15,7 +15,6 @@ project(oneVPL VERSION ${version_txt})
 
 # Project options
 option(OPTION_BUILD_TESTS "Build tests." ON)
-option(OPTION_BUILD_DOCS "Build documentation." OFF)
 option(OPTION_BUILD_EXAMPLES "Build examples." OFF)
 
 # Set output directories
@@ -33,11 +32,12 @@ include(cmake/CompileOptions.cmake)
 add_subdirectory(api)
 add_subdirectory(src)
 add_subdirectory(env)
-add_subdirectory(doc)
-add_subdirectory(test/tools/cli)
+add_subdirectory(tools/cli)
+add_subdirectory(tools/legacy)
 add_subdirectory(examples/hello-decode)
 add_subdirectory(examples/hello-encode)
-add_subdirectory(test/tools/legacy)
+add_subdirectory(examples/hello-vpp)
+add_subdirectory(examples/dpcpp-blur)
 
 install(
   FILES third-party-programs.txt LICENSE
@@ -55,3 +55,10 @@ install(
   COMPONENT runtime)
 
 include(cmake/PackageTarget.cmake)
+
+option(vpl_build_tests "Build the tests" ON)
+if(vpl_build_tests)
+  enable_testing()
+  include(GoogleTest)
+  add_subdirectory(test/unit)
+endif()
