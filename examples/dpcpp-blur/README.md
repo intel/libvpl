@@ -52,7 +52,7 @@ Perform the following steps:
 
 2. Set up your environment using the following command.
    ```
-   $ source <oneapi_install_dir>/setvars.sh
+   source <oneapi_install_dir>/setvars.sh
    ```
    Here `<oneapi_install_dir>` represents the root folder of your oneAPI
    installation, which is `/opt/intel/oneapi/` when installed as root, and
@@ -61,15 +61,15 @@ Perform the following steps:
 
 3. Build the program using the following commands:
    ```
-   $ mkdir build
-   $ cd build
-   $ cmake ..
-   $ cmake --build .
+   mkdir build
+   cd build
+   cmake ..
+   cmake --build .
    ```
 
 4. Run the program using the following command:
    ```
-   $ cmake --build . --target run
+   cmake --build . --target run
    ```
 
 
@@ -85,7 +85,7 @@ Perform the following steps:
 
 2. Set up your environment using the following command.
    ```
-   > <oneapi_install_dir>\setvars.bat
+   <oneapi_install_dir>\setvars.bat
    ```
    Here `<oneapi_install_dir>` represents the root folder of your oneAPI
    installation, which is which is `C:\Program Files (x86)\Intel\oneAPI\`
@@ -96,15 +96,15 @@ Perform the following steps:
 
 3. Build the program using the following commands:
    ```
-   $ mkdir build
-   $ cd build
-   $ cmake ..
-   $ cmake --build .
+   mkdir build
+   cd build
+   cmake .. -T "Intel(R) oneAPI DPC++ Compiler"
+   cmake --build .
    ```
 
 4. Run the program using the following command:
    ```
-   $ cmake --build . --target run
+   cmake --build . --target run
    ```
 
 
