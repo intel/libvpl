@@ -94,8 +94,7 @@ public:
     virtual mfxStatus Query(mfxVideoParam *in, mfxVideoParam *out) {
         return MFXVideoENCODE_Query(m_session, in, out);
     }
-    virtual mfxStatus QueryIOSurf(mfxVideoParam *par,
-                                  mfxFrameAllocRequest *request) {
+    virtual mfxStatus QueryIOSurf(mfxVideoParam *par, mfxFrameAllocRequest *request) {
         return MFXVideoENCODE_QueryIOSurf(m_session, par, request);
     }
     virtual mfxStatus Init(mfxVideoParam *par) {
@@ -119,11 +118,7 @@ public:
                                        mfxFrameSurface1 *surface,
                                        mfxBitstream *bs,
                                        mfxSyncPoint *syncp) {
-        return MFXVideoENCODE_EncodeFrameAsync(m_session,
-                                               ctrl,
-                                               surface,
-                                               bs,
-                                               syncp);
+        return MFXVideoENCODE_EncodeFrameAsync(m_session, ctrl, surface, bs, syncp);
     }
 
 protected:
@@ -145,8 +140,7 @@ public:
     virtual mfxStatus DecodeHeader(mfxBitstream *bs, mfxVideoParam *par) {
         return MFXVideoDECODE_DecodeHeader(m_session, bs, par);
     }
-    virtual mfxStatus QueryIOSurf(mfxVideoParam *par,
-                                  mfxFrameAllocRequest *request) {
+    virtual mfxStatus QueryIOSurf(mfxVideoParam *par, mfxFrameAllocRequest *request) {
         return MFXVideoDECODE_QueryIOSurf(m_session, par, request);
     }
     virtual mfxStatus Init(mfxVideoParam *par) {
@@ -176,11 +170,7 @@ public:
                                        mfxFrameSurface1 *surface_work,
                                        mfxFrameSurface1 **surface_out,
                                        mfxSyncPoint *syncp) {
-        return MFXVideoDECODE_DecodeFrameAsync(m_session,
-                                               bs,
-                                               surface_work,
-                                               surface_out,
-                                               syncp);
+        return MFXVideoDECODE_DecodeFrameAsync(m_session, bs, surface_work, surface_out, syncp);
     }
 
 protected:
@@ -199,8 +189,7 @@ public:
     virtual mfxStatus Query(mfxVideoParam *in, mfxVideoParam *out) {
         return MFXVideoVPP_Query(m_session, in, out);
     }
-    virtual mfxStatus QueryIOSurf(mfxVideoParam *par,
-                                  mfxFrameAllocRequest request[2]) {
+    virtual mfxStatus QueryIOSurf(mfxVideoParam *par, mfxFrameAllocRequest request[2]) {
         return MFXVideoVPP_QueryIOSurf(m_session, par, request);
     }
     virtual mfxStatus Init(mfxVideoParam *par) {

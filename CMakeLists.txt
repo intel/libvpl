@@ -8,13 +8,26 @@ cmake_minimum_required(VERSION 3.10.2)
 
 file(STRINGS "version.txt" version_txt)
 project(oneVPL VERSION ${version_txt})
+if(NOT "${CMAKE_SIZEOF_VOID_P}" STREQUAL "8")
+  message(FATAL_ERROR "Unsupported architecture: only 64-bit supported")
+endif()
 
 #
 # Project configuration options
 #
 
+# Set default build type to Release if not specified
+if(NOT CMAKE_BUILD_TYPE)
+  message(STATUS "Default CMAKE_BUILD_TYPE not set using Release")
+  set(CMAKE_BUILD_TYPE
+      "Release"
+      CACHE
+        STRING
+        "Choose build type from: None Debug Release RelWithDebInfo MinSizeRel"
+        FORCE)
+endif()
+
 # Project options
-option(OPTION_BUILD_TESTS "Build tests." ON)
 option(OPTION_BUILD_EXAMPLES "Build examples." OFF)
 
 # Set output directories
@@ -30,8 +43,9 @@ set(CMAKE_INSTALL_SO_NO_EXE 0)
 include(cmake/CompileOptions.cmake)
 
 add_subdirectory(api)
-add_subdirectory(src)
+add_subdirectory(dispatcher)
 add_subdirectory(env)
+add_subdirectory(modulefiles)
 add_subdirectory(tools/cli)
 add_subdirectory(tools/legacy)
 add_subdirectory(examples/hello-decode)
@@ -40,25 +54,14 @@ add_subdirectory(examples/hello-vpp)
 add_subdirectory(examples/dpcpp-blur)
 
 install(
-  FILES third-party-programs.txt LICENSE
+  FILES third-party-programs.txt
   DESTINATION ${CMAKE_INSTALL_LICENSEDIR}
-  COMPONENT runtime)
-
-execute_process(
-  COMMAND git rev-parse HEAD
-  WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
-  OUTPUT_FILE "VPL-ID.txt")
+  COMPONENT license)
 
 install(
-  FILES ${PROJECT_BINARY_DIR}/VPL-ID.txt
-  DESTINATION ${CMAKE_INSTALL_DOCDIR}
-  COMPONENT runtime)
+  FILES LICENSE
+  RENAME license.txt
+  DESTINATION ${CMAKE_INSTALL_LICENSEDIR}
+  COMPONENT license)
 
 include(cmake/PackageTarget.cmake)
-
-option(vpl_build_tests "Build the tests" ON)
-if(vpl_build_tests)
-  enable_testing()
-  include(GoogleTest)
-  add_subdirectory(test/unit)
-endif()

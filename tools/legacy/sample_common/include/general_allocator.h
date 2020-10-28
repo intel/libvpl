@@ -31,8 +31,7 @@ protected:
     virtual mfxStatus GetFrameHDL(mfxMemId mid, mfxHDL *handle);
 
     virtual mfxStatus ReleaseResponse(mfxFrameAllocResponse *response);
-    virtual mfxStatus AllocImpl(mfxFrameAllocRequest *request,
-                                mfxFrameAllocResponse *response);
+    virtual mfxStatus AllocImpl(mfxFrameAllocRequest *request, mfxFrameAllocResponse *response);
 
     void StoreFrameMids(bool isD3DFrames, mfxFrameAllocResponse *response);
     bool isD3DMid(mfxHDL mid);

@@ -42,7 +42,7 @@ enum {
 
 /*! The JPEGColorFormat enumerator itemizes the JPEG color format options. */
 enum {
-    MFX_JPEG_COLORFORMAT_UNKNOWN = 0, /*! Unknown color format. The SDK decoder tries to determine color format from available in bitstream information.
+    MFX_JPEG_COLORFORMAT_UNKNOWN = 0, /*! Unknown color format. The decoder tries to determine color format from available in bitstream information.
                                           If such information is not present, then MFX_JPEG_COLORFORMAT_YCbCr color format is assumed. */
     MFX_JPEG_COLORFORMAT_YCbCr   = 1, /*! Bitstream contains Y, Cb and Cr components. */
     MFX_JPEG_COLORFORMAT_RGB     = 2  /*! Bitstream contains R, G and B components. */
@@ -61,11 +61,11 @@ enum {
 
 MFX_PACK_BEGIN_USUAL_STRUCT()
 /*!
-   The mfxExtJPEGQuantTables structure specifies quantization tables. The application may specify up to 4 quantization tables. The SDK encoder assigns ID to each table.
-   That ID is equal to table index in Qm array. Table “0” is used for encoding of Y component, table “1” for U component and table “2”
-   for V component. The application may specify fewer tables than number of components in the image. If two tables are specified,
+   Specifies quantization tables. The application may specify up to 4 quantization tables. The encoder assigns an ID to each table.
+   That ID is equal to the table index in the Qm array. Table “0” is used for encoding of the Y component, table “1” for the U component, and table “2”
+   for the V component. The application may specify fewer tables than the number of components in the image. If two tables are specified,
    then table “1” is used for both U and V components. If only one table is specified then it is used for all components in the image.
-   Table below illustrate this behavior.
+   The following table illustrates this behavior.
 
    @internal
    +------------------+---------+------+---+
@@ -93,10 +93,10 @@ MFX_PACK_END()
 
 MFX_PACK_BEGIN_USUAL_STRUCT()
 /*!
-   The mfxExtJPEGHuffmanTables structure specifies Huffman tables. The application may specify up to 2 quantization table pairs for baseline process. The SDK encoder
-   assigns ID to each table. That ID is equal to table index in DCTables and ACTables arrays. Table “0” is used for encoding of Y component,
-   table “1” for U and V component. The application may specify only one table in this case it will be used for all components in the image.
-   Table below illustrate this behavior.
+   Specifies Huffman tables. The application may specify up to 2 quantization table pairs for baseline process. The encoder
+   assigns an ID to each table. That ID is equal to the table index in the DCTables and ACTables arrays. Table “0” is used for encoding of the Y component and 
+   table “1” is used for encoding of the U and V component. The application may specify only one table, in which case the table will be used for all components in the image.
+   The following table illustrates this behavior.
 
    @internal
    +------------------+---------+------+

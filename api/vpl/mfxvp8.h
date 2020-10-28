@@ -35,13 +35,14 @@ enum {
 };
 
 MFX_PACK_BEGIN_USUAL_STRUCT()
+/*! Describes VP8 coding options. */
 typedef struct { 
     mfxExtBuffer    Header;             /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_VP8_CODING_OPTION. */
 
     mfxU16   Version;                   /*!< Determines the bitstream version. Corresponds to the same VP8 syntax element in frame_tag. */
-    mfxU16   EnableMultipleSegments;    /*!< Set this option to ON, to enable segmentation. This is tri-state option. See the CodingOptionValue
+    mfxU16   EnableMultipleSegments;    /*!< Set this option to ON to enable segmentation. This is tri-state option. See the CodingOptionValue
                                              enumerator for values of this option. */
-    mfxU16   LoopFilterType;            /*!< Selecting the type of filter (normal or simple). Corresponds to VP8 syntax element filter_type. */
+    mfxU16   LoopFilterType;            /*!< Select the type of filter (normal or simple). Corresponds to VP8 syntax element filter_type. */
     mfxU16   LoopFilterLevel[4];        /*!< Controls the filter strength. Corresponds to VP8 syntax element loop_filter_level. */
     mfxU16   SharpnessLevel;            /*!< Controls the filter sensitivity. Corresponds to VP8 syntax element sharpness_level. */
     mfxU16   NumTokenPartitions;        /*!< Specifies number of token partitions in the coded frame. */
@@ -49,7 +50,7 @@ typedef struct {
     mfxI16   LoopFilterMbModeDelta[4];  /*!< Loop filter level delta for MB modes. */
     mfxI16   SegmentQPDelta[4];         /*!< QP delta for segment. */
     mfxI16   CoeffTypeQPDelta[5];       /*!< QP delta for coefficient type (YDC, Y2AC, Y2DC, UVAC, UVDC). */
-    mfxU16   WriteIVFHeaders;           /*!< Set this option to ON, to enable insertion of IVF container headers into bitstream. This is tri-state
+    mfxU16   WriteIVFHeaders;           /*!< Set this option to ON to enable insertion of IVF container headers into bitstream. This is tri-state
                                              option. See the CodingOptionValue enumerator for values of this option */
     mfxU32   NumFramesForIVFHeader;     /*!< Specifies number of frames for IVF header when WriteIVFHeaders is ON. */
     mfxU16   reserved[223];

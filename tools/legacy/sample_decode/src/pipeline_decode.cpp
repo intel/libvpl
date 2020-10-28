@@ -289,41 +289,34 @@ mfxStatus CDecodingPipeline::Init(sInputParams *pParams) {
 
     MSDK_CHECK_STATUS(sts, "m_mfxSession.Init failed");
 
-    sts = m_mfxSession.QueryVersion(
-        &version); // get real API version of the loaded library
+    sts = m_mfxSession.QueryVersion(&version); // get real API version of the loaded library
     MSDK_CHECK_STATUS(sts, "m_mfxSession.QueryVersion failed");
 
     sts = m_mfxSession.QueryIMPL(&m_impl); // get actual library implementation
     MSDK_CHECK_STATUS(sts, "m_mfxSession.QueryIMPL failed");
 
     if (pParams->bIsMVC && !CheckVersion(&version, MSDK_FEATURE_MVC)) {
-        msdk_printf(
-            MSDK_STRING(
-                "error: MVC is not supported in the %d.%d API version\n"),
-            version.Major,
-            version.Minor);
+        msdk_printf(MSDK_STRING("error: MVC is not supported in the %d.%d API version\n"),
+                    version.Major,
+                    version.Minor);
         return MFX_ERR_UNSUPPORTED;
     }
     if ((pParams->videoType == MFX_CODEC_JPEG) &&
         !CheckVersion(&version, MSDK_FEATURE_JPEG_DECODE)) {
-        msdk_printf(
-            MSDK_STRING(
-                "error: Jpeg is not supported in the %d.%d API version\n"),
-            version.Major,
-            version.Minor);
+        msdk_printf(MSDK_STRING("error: Jpeg is not supported in the %d.%d API version\n"),
+                    version.Major,
+                    version.Minor);
         return MFX_ERR_UNSUPPORTED;
     }
     if (pParams->bLowLat && !CheckVersion(&version, MSDK_FEATURE_LOW_LATENCY)) {
         msdk_printf(
-            MSDK_STRING(
-                "error: Low Latency mode is not supported in the %d.%d API version\n"),
+            MSDK_STRING("error: Low Latency mode is not supported in the %d.%d API version\n"),
             version.Major,
             version.Minor);
         return MFX_ERR_UNSUPPORTED;
     }
 
-    if (pParams->eDeinterlace &&
-        (pParams->eDeinterlace != MFX_DEINTERLACING_ADVANCED) &&
+    if (pParams->eDeinterlace && (pParams->eDeinterlace != MFX_DEINTERLACING_ADVANCED) &&
         (pParams->eDeinterlace != MFX_DEINTERLACING_BOB)) {
         msdk_printf(MSDK_STRING("error: Unsupported deinterlace value: %d\n"),
                     pParams->eDeinterlace);
@@ -339,8 +332,7 @@ mfxStatus CDecodingPipeline::Init(sInputParams *pParams) {
 #endif
     }
 
-    m_delayTicks =
-        pParams->nMaxFPS ? msdk_time_get_frequency() / pParams->nMaxFPS : 0;
+    m_delayTicks = pParams->nMaxFPS ? msdk_time_get_frequency() / pParams->nMaxFPS : 0;
 
     // create decoder
     m_pmfxDEC = new MFXVideoDECODE(m_mfxSession);
@@ -419,8 +411,7 @@ mfxStatus CDecodingPipeline::Init(sInputParams *pParams) {
         sts = m_FileWriter.Init(pParams->strDstFile, pParams->numViews);
         MSDK_CHECK_STATUS(sts, "m_FileWriter.Init failed");
     }
-    else if ((m_eWorkMode != MODE_PERFORMANCE) &&
-             (m_eWorkMode != MODE_RENDERING)) {
+    else if ((m_eWorkMode != MODE_PERFORMANCE) && (m_eWorkMode != MODE_RENDERING)) {
         msdk_printf(MSDK_STRING("error: unsupported work mode\n"));
         return MFX_ERR_UNSUPPORTED;
     }
@@ -467,8 +458,7 @@ mfxStatus CDecodingPipeline::Init(sInputParams *pParams) {
 
     if (!pParams->bUseVPLLib) {
         printf("\n***\n");
-        printf(
-            "*** WARNING: not testing VPL implementation (-vpl switch not set) ***\n");
+        printf("*** WARNING: not testing VPL implementation (-vpl switch not set) ***\n");
         printf("***\n\n");
     }
 
@@ -492,12 +482,10 @@ bool CDecodingPipeline::IsVppRequired(sInputParams *pParams) {
 
     // JPEG and Capture decoders can provide output in nv12 and rgb4 formats
     if (pParams->videoType == MFX_CODEC_JPEG) {
-        bVppIsUsed |= m_fourcc && (m_fourcc != MFX_FOURCC_NV12) &&
-                      (m_fourcc != MFX_FOURCC_RGB4);
+        bVppIsUsed |= m_fourcc && (m_fourcc != MFX_FOURCC_NV12) && (m_fourcc != MFX_FOURCC_RGB4);
     }
     else {
-        bVppIsUsed |=
-            m_fourcc && (m_fourcc != m_mfxVideoParams.mfx.FrameInfo.FourCC);
+        bVppIsUsed |= m_fourcc && (m_fourcc != m_mfxVideoParams.mfx.FrameInfo.FourCC);
     }
 
     if (pParams->eDeinterlace) {
@@ -542,10 +530,9 @@ mfxStatus CDecodingPipeline::CreateRenderingWindow(sInputParams *pParams) {
 #if D3D_SURFACES_SUPPORT
     sWindowParams windowParams;
 
-    windowParams.lpWindowName =
-        pParams->bWallNoTitle ? NULL : MSDK_STRING("sample_decode");
-    windowParams.nx = pParams->nWallW;
-    windowParams.ny = pParams->nWallH;
+    windowParams.lpWindowName = pParams->bWallNoTitle ? NULL : MSDK_STRING("sample_decode");
+    windowParams.nx           = pParams->nWallW;
+    windowParams.ny           = pParams->nWallH;
     if (m_bVppIsUsed) {
         windowParams.nWidth  = m_mfxVppVideoParams.vpp.Out.Width;
         windowParams.nHeight = m_mfxVppVideoParams.vpp.Out.Height;
@@ -584,8 +571,7 @@ mfxStatus CDecodingPipeline::InitMfxParams(sInputParams *pParams) {
 #if (MFX_VERSION >= 1025)
     if (pParams->bErrorReport) {
         m_ExtBuffersMfxBS.push_back((mfxExtBuffer *)&m_DecodeErrorReport);
-        m_mfxBS.ExtParam =
-            reinterpret_cast<mfxExtBuffer **>(&m_ExtBuffersMfxBS[0]);
+        m_mfxBS.ExtParam    = reinterpret_cast<mfxExtBuffer **>(&m_ExtBuffersMfxBS[0]);
         m_mfxBS.NumExtParam = static_cast<mfxU16>(m_ExtBuffersMfxBS.size());
     }
 #endif
@@ -599,10 +585,9 @@ mfxStatus CDecodingPipeline::InitMfxParams(sInputParams *pParams) {
 #if (MFX_VERSION >= 1025)
         if (pParams->bErrorReport) {
             mfxExtDecodeErrorReport *pDecodeErrorReport =
-                (mfxExtDecodeErrorReport *)GetExtBuffer(
-                    m_mfxBS.ExtParam,
-                    m_mfxBS.NumExtParam,
-                    MFX_EXTBUFF_DECODE_ERROR_REPORT);
+                (mfxExtDecodeErrorReport *)GetExtBuffer(m_mfxBS.ExtParam,
+                                                        m_mfxBS.NumExtParam,
+                                                        MFX_EXTBUFF_DECODE_ERROR_REPORT);
 
             if (pDecodeErrorReport)
                 pDecodeErrorReport->ErrorTypes = 0;
@@ -633,8 +618,7 @@ mfxStatus CDecodingPipeline::InitMfxParams(sInputParams *pParams) {
             // read a portion of data
             totalBytesProcessed += m_mfxBS.DataOffset;
             sts = m_FileReader->ReadNextFrame(&m_mfxBS);
-            if (MFX_ERR_MORE_DATA == sts &&
-                !(m_mfxBS.DataFlag & MFX_BITSTREAM_EOS)) {
+            if (MFX_ERR_MORE_DATA == sts && !(m_mfxBS.DataFlag & MFX_BITSTREAM_EOS)) {
                 m_mfxBS.DataFlag |= MFX_BITSTREAM_EOS;
                 sts = MFX_ERR_NONE;
             }
@@ -653,8 +637,7 @@ mfxStatus CDecodingPipeline::InitMfxParams(sInputParams *pParams) {
 
                 // allocate and attach external parameters for MVC decoder
                 sts = AllocateExtBuffer<mfxExtMVCSeqDesc>();
-                MSDK_CHECK_STATUS(sts,
-                                  "AllocateExtBuffer<mfxExtMVCSeqDesc> failed");
+                MSDK_CHECK_STATUS(sts, "AllocateExtBuffer<mfxExtMVCSeqDesc> failed");
 
                 AttachExtParam();
                 sts = m_pmfxDEC->DecodeHeader(&m_mfxBS, &m_mfxVideoParams);
@@ -664,8 +647,7 @@ mfxStatus CDecodingPipeline::InitMfxParams(sInputParams *pParams) {
                     SetExtBuffersFlag();
 
                     MSDK_CHECK_STATUS(sts, "AllocateExtMVCBuffers failed");
-                    MSDK_CHECK_POINTER(m_mfxVideoParams.ExtParam,
-                                       MFX_ERR_MEMORY_ALLOC);
+                    MSDK_CHECK_POINTER(m_mfxVideoParams.ExtParam, MFX_ERR_MEMORY_ALLOC);
                     continue;
                 }
             }
@@ -721,8 +703,7 @@ mfxStatus CDecodingPipeline::InitMfxParams(sInputParams *pParams) {
     }
 
     // Videoparams for RGB4 JPEG decoder output
-    if ((pParams->fourcc == MFX_FOURCC_RGB4) &&
-        (pParams->videoType == MFX_CODEC_JPEG)) {
+    if ((pParams->fourcc == MFX_FOURCC_RGB4) && (pParams->videoType == MFX_CODEC_JPEG)) {
         m_mfxVideoParams.mfx.FrameInfo.FourCC       = MFX_FOURCC_RGB4;
         m_mfxVideoParams.mfx.FrameInfo.ChromaFormat = MFX_CHROMAFORMAT_YUV444;
         if (pParams->chromaType == MFX_JPEG_COLORFORMAT_RGB) {
@@ -738,64 +719,48 @@ mfxStatus CDecodingPipeline::InitMfxParams(sInputParams *pParams) {
 #if MFX_VERSION >= 1022
     /* Lets make final decision how to use VPP...*/
     if (!m_bVppIsUsed) {
-        if ((m_mfxVideoParams.mfx.FrameInfo.CropW != pParams->Width &&
-             pParams->Width) ||
-            (m_mfxVideoParams.mfx.FrameInfo.CropH != pParams->Height &&
-             pParams->Height)) {
+        if ((m_mfxVideoParams.mfx.FrameInfo.CropW != pParams->Width && pParams->Width) ||
+            (m_mfxVideoParams.mfx.FrameInfo.CropH != pParams->Height && pParams->Height)) {
             /* By default VPP used for resize */
             m_bVppIsUsed = true;
             /* But... lets try to use decoder's post processing */
-            if (((MODE_DECODER_POSTPROC_AUTO ==
-                  pParams->nDecoderPostProcessing) ||
-                 (MODE_DECODER_POSTPROC_FORCE ==
-                  pParams->nDecoderPostProcessing)) &&
-                (MFX_CODEC_AVC ==
-                 m_mfxVideoParams.mfx.CodecId) && /* Only for AVC */
+            if (((MODE_DECODER_POSTPROC_AUTO == pParams->nDecoderPostProcessing) ||
+                 (MODE_DECODER_POSTPROC_FORCE == pParams->nDecoderPostProcessing)) &&
+                (MFX_CODEC_AVC == m_mfxVideoParams.mfx.CodecId) && /* Only for AVC */
                 (MFX_PICSTRUCT_PROGRESSIVE ==
-                 m_mfxVideoParams.mfx.FrameInfo
-                     .PicStruct)) /* ...And only for progressive!*/
+                 m_mfxVideoParams.mfx.FrameInfo.PicStruct)) /* ...And only for progressive!*/
             { /* it is possible to use decoder's post-processing */
                 m_bVppIsUsed                     = false;
                 m_DecoderPostProcessing.In.CropX = 0;
                 m_DecoderPostProcessing.In.CropY = 0;
-                m_DecoderPostProcessing.In.CropW =
-                    m_mfxVideoParams.mfx.FrameInfo.CropW;
-                m_DecoderPostProcessing.In.CropH =
-                    m_mfxVideoParams.mfx.FrameInfo.CropH;
+                m_DecoderPostProcessing.In.CropW = m_mfxVideoParams.mfx.FrameInfo.CropW;
+                m_DecoderPostProcessing.In.CropH = m_mfxVideoParams.mfx.FrameInfo.CropH;
 
-                m_DecoderPostProcessing.Out.FourCC =
-                    m_mfxVideoParams.mfx.FrameInfo.FourCC;
+                m_DecoderPostProcessing.Out.FourCC = m_mfxVideoParams.mfx.FrameInfo.FourCC;
                 m_DecoderPostProcessing.Out.ChromaFormat =
                     m_mfxVideoParams.mfx.FrameInfo.ChromaFormat;
-                m_DecoderPostProcessing.Out.Width =
-                    MSDK_ALIGN16(pParams->Width);
-                m_DecoderPostProcessing.Out.Height =
-                    MSDK_ALIGN16(pParams->Height);
-                m_DecoderPostProcessing.Out.CropX = 0;
-                m_DecoderPostProcessing.Out.CropY = 0;
-                m_DecoderPostProcessing.Out.CropW = pParams->Width;
-                m_DecoderPostProcessing.Out.CropH = pParams->Height;
+                m_DecoderPostProcessing.Out.Width  = MSDK_ALIGN16(pParams->Width);
+                m_DecoderPostProcessing.Out.Height = MSDK_ALIGN16(pParams->Height);
+                m_DecoderPostProcessing.Out.CropX  = 0;
+                m_DecoderPostProcessing.Out.CropY  = 0;
+                m_DecoderPostProcessing.Out.CropW  = pParams->Width;
+                m_DecoderPostProcessing.Out.CropH  = pParams->Height;
 
-                m_ExtBuffers.push_back(
-                    (mfxExtBuffer *)&m_DecoderPostProcessing);
+                m_ExtBuffers.push_back((mfxExtBuffer *)&m_DecoderPostProcessing);
                 AttachExtParam();
-                msdk_printf(MSDK_STRING(
-                    "Decoder's post-processing is used for resizing\n"));
+                msdk_printf(MSDK_STRING("Decoder's post-processing is used for resizing\n"));
             }
             /* POSTPROC_FORCE */
-            if (MODE_DECODER_POSTPROC_FORCE ==
-                pParams->nDecoderPostProcessing) {
+            if (MODE_DECODER_POSTPROC_FORCE == pParams->nDecoderPostProcessing) {
                 if ((MFX_CODEC_AVC != m_mfxVideoParams.mfx.CodecId) ||
-                    (MFX_PICSTRUCT_PROGRESSIVE !=
-                     m_mfxVideoParams.mfx.FrameInfo.PicStruct)) {
+                    (MFX_PICSTRUCT_PROGRESSIVE != m_mfxVideoParams.mfx.FrameInfo.PicStruct)) {
                     /* it is impossible to use decoder's post-processing */
                     msdk_printf(MSDK_STRING(
                         "ERROR: decoder postprocessing (-dec_postproc forced) cannot resize this stream!\n"));
                     return MFX_ERR_UNSUPPORTED;
                 }
             }
-            if ((m_bVppIsUsed) &&
-                (MODE_DECODER_POSTPROC_AUTO == pParams->nDecoderPostProcessing))
+            if ((m_bVppIsUsed) && (MODE_DECODER_POSTPROC_AUTO == pParams->nDecoderPostProcessing))
                 msdk_printf(MSDK_STRING(
                     "Decoder post-processing is unsupported for this stream, VPP is used for resizing\n"));
         }
@@ -806,10 +771,9 @@ mfxStatus CDecodingPipeline::InitMfxParams(sInputParams *pParams) {
     // If MVC mode we need to detect number of views in stream
     if (m_bIsMVC) {
         mfxExtMVCSeqDesc *pSequenceBuffer;
-        pSequenceBuffer =
-            (mfxExtMVCSeqDesc *)GetExtBuffer(m_mfxVideoParams.ExtParam,
-                                             m_mfxVideoParams.NumExtParam,
-                                             MFX_EXTBUFF_MVC_SEQ_DESC);
+        pSequenceBuffer = (mfxExtMVCSeqDesc *)GetExtBuffer(m_mfxVideoParams.ExtParam,
+                                                           m_mfxVideoParams.NumExtParam,
+                                                           MFX_EXTBUFF_MVC_SEQ_DESC);
         MSDK_CHECK_POINTER(pSequenceBuffer, MFX_ERR_INVALID_VIDEO_PARAM);
 
         mfxU32 i = 0;
@@ -832,13 +796,12 @@ mfxStatus CDecodingPipeline::InitMfxParams(sInputParams *pParams) {
 
     // specify memory type
     if (!m_bVppIsUsed)
-        m_mfxVideoParams.IOPattern = (mfxU16)(
-            m_memType != SYSTEM_MEMORY ? MFX_IOPATTERN_OUT_VIDEO_MEMORY
-                                       : MFX_IOPATTERN_OUT_SYSTEM_MEMORY);
-    else
         m_mfxVideoParams.IOPattern =
-            (mfxU16)(pParams->bUseHWLib ? MFX_IOPATTERN_OUT_VIDEO_MEMORY
-                                        : MFX_IOPATTERN_OUT_SYSTEM_MEMORY);
+            (mfxU16)(m_memType != SYSTEM_MEMORY ? MFX_IOPATTERN_OUT_VIDEO_MEMORY
+                                                : MFX_IOPATTERN_OUT_SYSTEM_MEMORY);
+    else
+        m_mfxVideoParams.IOPattern = (mfxU16)(pParams->bUseHWLib ? MFX_IOPATTERN_OUT_VIDEO_MEMORY
+                                                                 : MFX_IOPATTERN_OUT_SYSTEM_MEMORY);
 
     m_mfxVideoParams.AsyncDepth = pParams->nAsyncDepth;
 
@@ -857,8 +820,7 @@ mfxStatus CDecodingPipeline::AllocAndInitVppFilters() {
     if (!m_VppDoNotUse.AlgList)
         return MFX_ERR_NULL_PTR;
 
-    m_VppDoNotUse.AlgList[0] =
-        MFX_EXTBUFF_VPP_DENOISE; // turn off denoising (on by default)
+    m_VppDoNotUse.AlgList[0] = MFX_EXTBUFF_VPP_DENOISE; // turn off denoising (on by default)
     m_VppDoNotUse.AlgList[1] =
         MFX_EXTBUFF_VPP_SCENE_ANALYSIS; // turn off scene analysis (on by default)
     m_VppDoNotUse.AlgList[2] =
@@ -875,19 +837,15 @@ mfxStatus CDecodingPipeline::AllocAndInitVppFilters() {
 
 mfxStatus CDecodingPipeline::InitVppParams() {
     m_mfxVppVideoParams.IOPattern =
-        (mfxU16)(m_bDecOutSysmem ? MFX_IOPATTERN_IN_SYSTEM_MEMORY
-                                 : MFX_IOPATTERN_IN_VIDEO_MEMORY);
+        (mfxU16)(m_bDecOutSysmem ? MFX_IOPATTERN_IN_SYSTEM_MEMORY : MFX_IOPATTERN_IN_VIDEO_MEMORY);
 
-    m_mfxVppVideoParams.IOPattern |= (m_memType != SYSTEM_MEMORY)
-                                         ? MFX_IOPATTERN_OUT_VIDEO_MEMORY
-                                         : MFX_IOPATTERN_OUT_SYSTEM_MEMORY;
+    m_mfxVppVideoParams.IOPattern |= (m_memType != SYSTEM_MEMORY) ? MFX_IOPATTERN_OUT_VIDEO_MEMORY
+                                                                  : MFX_IOPATTERN_OUT_SYSTEM_MEMORY;
 
     MSDK_MEMCPY_VAR(m_mfxVppVideoParams.vpp.In,
                     &m_mfxVideoParams.mfx.FrameInfo,
                     sizeof(mfxFrameInfo));
-    MSDK_MEMCPY_VAR(m_mfxVppVideoParams.vpp.Out,
-                    &m_mfxVppVideoParams.vpp.In,
-                    sizeof(mfxFrameInfo));
+    MSDK_MEMCPY_VAR(m_mfxVppVideoParams.vpp.Out, &m_mfxVppVideoParams.vpp.In, sizeof(mfxFrameInfo));
 
     if (m_fourcc) {
         m_mfxVppVideoParams.vpp.Out.FourCC = m_fourcc;
@@ -925,12 +883,11 @@ mfxStatus CDecodingPipeline::InitVppParams() {
     }
 
     // P010 video surfaces should be shifted
-    if (m_memType != SYSTEM_MEMORY &&
-        (m_mfxVppVideoParams.vpp.Out.FourCC == MFX_FOURCC_P010
+    if (m_memType != SYSTEM_MEMORY && (m_mfxVppVideoParams.vpp.Out.FourCC == MFX_FOURCC_P010
 #if (MFX_VERSION >= 1027)
-         || m_mfxVppVideoParams.vpp.Out.FourCC == MFX_FOURCC_Y210
+                                       || m_mfxVppVideoParams.vpp.Out.FourCC == MFX_FOURCC_Y210
 #endif
-         )) {
+                                       )) {
         m_mfxVppVideoParams.vpp.Out.Shift = 1;
     }
 
@@ -945,8 +902,7 @@ mfxStatus CDecodingPipeline::CreateHWDevice() {
     bool render = (m_eWorkMode == MODE_RENDERING);
 
     if (render) {
-        window =
-            (D3D11_MEMORY == m_memType) ? NULL : m_d3dRender.GetWindowHandle();
+        window = (D3D11_MEMORY == m_memType) ? NULL : m_d3dRender.GetWindowHandle();
     }
 
     #if MFX_D3D11_SUPPORT
@@ -1049,9 +1005,8 @@ mfxStatus CDecodingPipeline::AllocFrames() {
 
     if (m_bVppIsUsed) {
         // respecify memory type between Decoder and VPP
-        m_mfxVideoParams.IOPattern =
-            (mfxU16)(m_bDecOutSysmem ? MFX_IOPATTERN_OUT_SYSTEM_MEMORY
-                                     : MFX_IOPATTERN_OUT_VIDEO_MEMORY);
+        m_mfxVideoParams.IOPattern = (mfxU16)(m_bDecOutSysmem ? MFX_IOPATTERN_OUT_SYSTEM_MEMORY
+                                                              : MFX_IOPATTERN_OUT_VIDEO_MEMORY);
 
         // recalculate number of surfaces required for decoder
         sts = m_pmfxDEC->QueryIOSurf(&m_mfxVideoParams, &Request);
@@ -1073,8 +1028,7 @@ mfxStatus CDecodingPipeline::AllocFrames() {
         }
         MSDK_CHECK_STATUS(sts, "m_pmfxVPP->QueryIOSurf failed");
 
-        if ((VppRequest[0].NumFrameSuggested <
-             m_mfxVppVideoParams.AsyncDepth) ||
+        if ((VppRequest[0].NumFrameSuggested < m_mfxVppVideoParams.AsyncDepth) ||
             (VppRequest[1].NumFrameSuggested < m_mfxVppVideoParams.AsyncDepth))
             return MFX_ERR_MEMORY_ALLOC;
 
@@ -1090,28 +1044,25 @@ mfxStatus CDecodingPipeline::AllocFrames() {
         Request.NumFrameSuggested = Request.NumFrameMin = nSurfNum;
 
         // surfaces are shared between vpp input and decode output
-        Request.Type = MFX_MEMTYPE_EXTERNAL_FRAME | MFX_MEMTYPE_FROM_DECODE |
-                       MFX_MEMTYPE_FROM_VPPIN;
+        Request.Type =
+            MFX_MEMTYPE_EXTERNAL_FRAME | MFX_MEMTYPE_FROM_DECODE | MFX_MEMTYPE_FROM_VPPIN;
     }
 
     if ((Request.NumFrameSuggested < m_mfxVideoParams.AsyncDepth) &&
         (m_impl & MFX_IMPL_HARDWARE_ANY))
         return MFX_ERR_MEMORY_ALLOC;
 
-    Request.Type |= (m_bDecOutSysmem) ? MFX_MEMTYPE_SYSTEM_MEMORY
-                                      : MFX_MEMTYPE_VIDEO_MEMORY_DECODER_TARGET;
+    Request.Type |=
+        (m_bDecOutSysmem) ? MFX_MEMTYPE_SYSTEM_MEMORY : MFX_MEMTYPE_VIDEO_MEMORY_DECODER_TARGET;
 
 #ifdef LIBVA_SUPPORT
-    if (!m_bVppIsUsed &&
-        (m_export_mode != vaapiAllocatorParams::DONOT_EXPORT)) {
+    if (!m_bVppIsUsed && (m_export_mode != vaapiAllocatorParams::DONOT_EXPORT)) {
         Request.Type |= MFX_MEMTYPE_EXPORT_FRAME;
     }
 #endif
 
     // alloc frames for decoder
-    sts = m_pGeneralAllocator->Alloc(m_pGeneralAllocator->pthis,
-                                     &Request,
-                                     &m_mfxResponse);
+    sts = m_pGeneralAllocator->Alloc(m_pGeneralAllocator->pthis, &Request, &m_mfxResponse);
     MSDK_CHECK_STATUS(sts, "m_pGeneralAllocator->Alloc failed");
 
     if (m_bVppIsUsed) {
@@ -1121,11 +1072,8 @@ mfxStatus CDecodingPipeline::AllocFrames() {
             VppRequest[1].Type |= MFX_MEMTYPE_EXPORT_FRAME;
         }
 #endif
-        VppRequest[1].NumFrameSuggested = VppRequest[1].NumFrameMin =
-            nVppSurfNum;
-        MSDK_MEMCPY_VAR(VppRequest[1].Info,
-                        &(m_mfxVppVideoParams.vpp.Out),
-                        sizeof(mfxFrameInfo));
+        VppRequest[1].NumFrameSuggested = VppRequest[1].NumFrameMin = nVppSurfNum;
+        MSDK_MEMCPY_VAR(VppRequest[1].Info, &(m_mfxVppVideoParams.vpp.Out), sizeof(mfxFrameInfo));
 
         sts = m_pGeneralAllocator->Alloc(m_pGeneralAllocator->pthis,
                                          &VppRequest[1],
@@ -1148,15 +1096,12 @@ mfxStatus CDecodingPipeline::AllocFrames() {
 
     for (int i = 0; i < nSurfNum; i++) {
         // initating each frame:
-        MSDK_MEMCPY_VAR(m_pSurfaces[i].frame.Info,
-                        &(Request.Info),
-                        sizeof(mfxFrameInfo));
+        MSDK_MEMCPY_VAR(m_pSurfaces[i].frame.Info, &(Request.Info), sizeof(mfxFrameInfo));
         if (m_bExternalAlloc) {
             m_pSurfaces[i].frame.Data.MemId = m_mfxResponse.mids[i];
             if (m_bVppFullColorRange) {
-                m_pSurfaces[i].frame.Data.ExtParam = &m_VppSurfaceExtParams[0];
-                m_pSurfaces[i].frame.Data.NumExtParam =
-                    (mfxU16)m_VppSurfaceExtParams.size();
+                m_pSurfaces[i].frame.Data.ExtParam    = &m_VppSurfaceExtParams[0];
+                m_pSurfaces[i].frame.Data.NumExtParam = (mfxU16)m_VppSurfaceExtParams.size();
             }
         }
         else {
@@ -1169,16 +1114,12 @@ mfxStatus CDecodingPipeline::AllocFrames() {
 
     // prepare mfxFrameSurface1 array for VPP
     for (int i = 0; i < nVppSurfNum; i++) {
-        MSDK_MEMCPY_VAR(m_pVppSurfaces[i].frame.Info,
-                        &(VppRequest[1].Info),
-                        sizeof(mfxFrameInfo));
+        MSDK_MEMCPY_VAR(m_pVppSurfaces[i].frame.Info, &(VppRequest[1].Info), sizeof(mfxFrameInfo));
         if (m_bExternalAlloc) {
             m_pVppSurfaces[i].frame.Data.MemId = m_mfxVppResponse.mids[i];
             if (m_bVppFullColorRange) {
-                m_pVppSurfaces[i].frame.Data.ExtParam =
-                    &m_VppSurfaceExtParams[0];
-                m_pVppSurfaces[i].frame.Data.NumExtParam =
-                    (mfxU16)m_VppSurfaceExtParams.size();
+                m_pVppSurfaces[i].frame.Data.ExtParam    = &m_VppSurfaceExtParams[0];
+                m_pVppSurfaces[i].frame.Data.NumExtParam = (mfxU16)m_VppSurfaceExtParams.size();
             }
         }
         else {
@@ -1229,8 +1170,7 @@ mfxStatus CDecodingPipeline::CreateAllocator() {
         {
             D3DAllocatorParams *pd3dAllocParams = new D3DAllocatorParams;
             MSDK_CHECK_POINTER(pd3dAllocParams, MFX_ERR_MEMORY_ALLOC);
-            pd3dAllocParams->pManager =
-                reinterpret_cast<IDirect3DDeviceManager9 *>(hdl);
+            pd3dAllocParams->pManager = reinterpret_cast<IDirect3DDeviceManager9 *>(hdl);
 
             m_pmfxAllocatorParams = pd3dAllocParams;
         }
@@ -1262,17 +1202,13 @@ mfxStatus CDecodingPipeline::CreateAllocator() {
         if (m_eWorkMode == MODE_RENDERING) {
             if (m_libvaBackend == MFX_LIBVA_DRM_MODESET) {
     #if defined(LIBVA_DRM_SUPPORT)
-                CVAAPIDeviceDRM *drmdev =
-                    dynamic_cast<CVAAPIDeviceDRM *>(m_hwdev);
-                p_vaapiAllocParams->m_export_mode =
-                    vaapiAllocatorParams::CUSTOM_FLINK;
+                CVAAPIDeviceDRM *drmdev = dynamic_cast<CVAAPIDeviceDRM *>(m_hwdev);
+                p_vaapiAllocParams->m_export_mode = vaapiAllocatorParams::CUSTOM_FLINK;
                 p_vaapiAllocParams->m_exporter =
-                    dynamic_cast<vaapiAllocatorParams::Exporter *>(
-                        drmdev->getRenderer());
+                    dynamic_cast<vaapiAllocatorParams::Exporter *>(drmdev->getRenderer());
     #endif
             }
-            else if (m_libvaBackend == MFX_LIBVA_WAYLAND ||
-                     m_libvaBackend == MFX_LIBVA_X11) {
+            else if (m_libvaBackend == MFX_LIBVA_WAYLAND || m_libvaBackend == MFX_LIBVA_X11) {
                 p_vaapiAllocParams->m_export_mode = vaapiAllocatorParams::PRIME;
             }
         }
@@ -1298,7 +1234,7 @@ mfxStatus CDecodingPipeline::CreateAllocator() {
 
             // provide device manager to MediaSDK
             VADisplay va_dpy = NULL;
-            sts = m_hwdev->GetHandle(MFX_HANDLE_VA_DISPLAY, (mfxHDL *)&va_dpy);
+            sts              = m_hwdev->GetHandle(MFX_HANDLE_VA_DISPLAY, (mfxHDL *)&va_dpy);
             MSDK_CHECK_STATUS(sts, "m_hwdev->GetHandle failed");
             sts = m_mfxSession.SetHandle(MFX_HANDLE_VA_DISPLAY, va_dpy);
             MSDK_CHECK_STATUS(sts, "m_mfxSession.SetHandle failed");
@@ -1359,21 +1295,18 @@ mfxStatus CDecodingPipeline::AllocateExtBuffer() {
 
     init_ext_buffer(*pExtBuffer);
 
-    m_ExtBuffers.push_back(
-        reinterpret_cast<mfxExtBuffer *>(pExtBuffer.release()));
+    m_ExtBuffers.push_back(reinterpret_cast<mfxExtBuffer *>(pExtBuffer.release()));
 
     return MFX_ERR_NONE;
 }
 
 void CDecodingPipeline::AttachExtParam() {
-    m_mfxVideoParams.ExtParam =
-        reinterpret_cast<mfxExtBuffer **>(&m_ExtBuffers[0]);
+    m_mfxVideoParams.ExtParam    = reinterpret_cast<mfxExtBuffer **>(&m_ExtBuffers[0]);
     m_mfxVideoParams.NumExtParam = static_cast<mfxU16>(m_ExtBuffers.size());
 }
 
 void CDecodingPipeline::DeleteExtBuffers() {
-    for (std::vector<mfxExtBuffer *>::iterator it = m_ExtBuffers.begin();
-         it != m_ExtBuffers.end();
+    for (std::vector<mfxExtBuffer *>::iterator it = m_ExtBuffers.begin(); it != m_ExtBuffers.end();
          ++it)
         delete *it;
     m_ExtBuffers.clear();
@@ -1383,8 +1316,7 @@ mfxStatus CDecodingPipeline::AllocateExtMVCBuffers() {
 #ifndef DISABLE_NON_VPL
     mfxU32 i;
 
-    mfxExtMVCSeqDesc *pExtMVCBuffer =
-        (mfxExtMVCSeqDesc *)m_mfxVideoParams.ExtParam[0];
+    mfxExtMVCSeqDesc *pExtMVCBuffer = (mfxExtMVCSeqDesc *)m_mfxVideoParams.ExtParam[0];
     MSDK_CHECK_POINTER(pExtMVCBuffer, MFX_ERR_MEMORY_ALLOC);
 
     pExtMVCBuffer->View = new mfxMVCViewDependency[pExtMVCBuffer->NumView];
@@ -1413,8 +1345,7 @@ mfxStatus CDecodingPipeline::AllocateExtMVCBuffers() {
 
 void CDecodingPipeline::DeallocateExtMVCBuffers() {
 #ifndef DISABLE_NON_VPL
-    mfxExtMVCSeqDesc *pExtMVCBuffer =
-        (mfxExtMVCSeqDesc *)m_mfxVideoParams.ExtParam[0];
+    mfxExtMVCSeqDesc *pExtMVCBuffer = (mfxExtMVCSeqDesc *)m_mfxVideoParams.ExtParam[0];
     if (pExtMVCBuffer != NULL) {
         MSDK_SAFE_DELETE_ARRAY(pExtMVCBuffer->View);
         MSDK_SAFE_DELETE_ARRAY(pExtMVCBuffer->ViewId);
@@ -1510,8 +1441,7 @@ mfxStatus CDecodingPipeline::DeliverOutput(mfxFrameSurface1 *frame) {
             res = m_hwdev->RenderFrame(frame, m_pGeneralAllocator);
 #endif
 
-            while (m_delayTicks &&
-                   (m_startTick + m_delayTicks > msdk_time_get_tick())) {
+            while (m_delayTicks && (m_startTick + m_delayTicks > msdk_time_get_tick())) {
                 MSDK_SLEEP(0);
             };
             m_startTick = msdk_time_get_tick();
@@ -1536,8 +1466,7 @@ mfxStatus CDecodingPipeline::DeliverLoop(void) {
         if (MFX_ERR_NONE != m_error) {
             continue;
         }
-        msdkOutputSurface *pCurrentDeliveredSurface =
-            m_DeliveredSurfacesPool.GetSurface();
+        msdkOutputSurface *pCurrentDeliveredSurface = m_DeliveredSurfacesPool.GetSurface();
         if (!pCurrentDeliveredSurface) {
             m_error = MFX_ERR_NULL_PTR;
             continue;
@@ -1566,26 +1495,18 @@ unsigned int MFX_STDCALL CDecodingPipeline::DeliverThreadFunc(void *ctx) {
 void CDecodingPipeline::PrintPerFrameStat(bool force) {
 #define MY_COUNT     1 // TODO: this will be cmd option
 #define MY_THRESHOLD 10000.0
-    if ((!(m_output_count % MY_COUNT) && (m_eWorkMode != MODE_PERFORMANCE)) ||
-        force) {
+    if ((!(m_output_count % MY_COUNT) && (m_eWorkMode != MODE_PERFORMANCE)) || force) {
         double fps, fps_fread, fps_fwrite;
 
         m_timer_overall.Sync();
 
-        fps = (m_tick_overall)
-                  ? m_output_count / CTimer::ConvertToSeconds(m_tick_overall)
-                  : 0.0;
-        fps_fread = (m_tick_fread) ? m_output_count /
-                                         CTimer::ConvertToSeconds(m_tick_fread)
-                                   : 0.0;
+        fps = (m_tick_overall) ? m_output_count / CTimer::ConvertToSeconds(m_tick_overall) : 0.0;
+        fps_fread = (m_tick_fread) ? m_output_count / CTimer::ConvertToSeconds(m_tick_fread) : 0.0;
         fps_fwrite =
-            (m_tick_fwrite)
-                ? m_output_count / CTimer::ConvertToSeconds(m_tick_fwrite)
-                : 0.0;
+            (m_tick_fwrite) ? m_output_count / CTimer::ConvertToSeconds(m_tick_fwrite) : 0.0;
         // decoding progress
         msdk_printf(
-            MSDK_STRING(
-                "Frame number: %4d, fps: %0.3f, fread_fps: %0.3f, fwrite_fps: %.3f\r"),
+            MSDK_STRING("Frame number: %4d, fps: %0.3f, fread_fps: %0.3f, fwrite_fps: %.3f\r"),
             m_output_count,
             fps,
             (fps_fread < MY_THRESHOLD) ? fps_fread : 0.0,
@@ -1608,8 +1529,7 @@ mfxStatus CDecodingPipeline::SyncOutputSurface(mfxU32 wait) {
         return MFX_ERR_MORE_DATA;
     }
 
-    mfxStatus sts =
-        m_mfxSession.SyncOperation(m_pCurrentOutputSurface->syncp, wait);
+    mfxStatus sts = m_mfxSession.SyncOperation(m_pCurrentOutputSurface->syncp, wait);
 
     if (MFX_ERR_GPU_HANG == sts && m_bSoftRobustFlag) {
         msdk_printf(MSDK_STRING("GPU hang happened\n"));
@@ -1625,8 +1545,7 @@ mfxStatus CDecodingPipeline::SyncOutputSurface(mfxU32 wait) {
         // we got completely decoded frame - pushing it to the delivering thread...
         ++m_synced_count;
         if (m_bPrintLatency) {
-            m_vLatency.push_back(m_timer_overall.Sync() -
-                                 m_pCurrentOutputSurface->surface->submit);
+            m_vLatency.push_back(m_timer_overall.Sync() - m_pCurrentOutputSurface->surface->submit);
         }
         else {
             PrintPerFrameStat();
@@ -1672,9 +1591,8 @@ mfxStatus CDecodingPipeline::RunDecoding() {
     if (m_eWorkMode == MODE_RENDERING) {
         m_pDeliverOutputSemaphore = new MSDKSemaphore(sts);
         m_pDeliveredEvent         = new MSDKEvent(sts, false, false);
-        pDeliverThread = new MSDKThread(sts, DeliverThreadFunc, this);
-        if (!pDeliverThread || !m_pDeliverOutputSemaphore ||
-            !m_pDeliveredEvent) {
+        pDeliverThread            = new MSDKThread(sts, DeliverThreadFunc, this);
+        if (!pDeliverThread || !m_pDeliverOutputSemaphore || !m_pDeliveredEvent) {
             MSDK_SAFE_DELETE(pDeliverThread);
             MSDK_SAFE_DELETE(m_pDeliverOutputSemaphore);
             MSDK_SAFE_DELETE(m_pDeliveredEvent);
@@ -1682,27 +1600,23 @@ mfxStatus CDecodingPipeline::RunDecoding() {
         }
     }
 
-    while (((sts == MFX_ERR_NONE) || (MFX_ERR_MORE_DATA == sts) ||
-            (MFX_ERR_MORE_SURFACE == sts)) &&
+    while (((sts == MFX_ERR_NONE) || (MFX_ERR_MORE_DATA == sts) || (MFX_ERR_MORE_SURFACE == sts)) &&
            (m_nFrames > m_output_count)) {
         if (MFX_ERR_NONE != m_error) {
-            msdk_printf(MSDK_STRING("DeliverOutput return error = %d\n"),
-                        m_error);
+            msdk_printf(MSDK_STRING("DeliverOutput return error = %d\n"), m_error);
             break;
         }
 
-        if (pBitstream && ((MFX_ERR_MORE_DATA == sts) ||
-                           (m_bIsCompleteFrame && !pBitstream->DataLength))) {
+        if (pBitstream &&
+            ((MFX_ERR_MORE_DATA == sts) || (m_bIsCompleteFrame && !pBitstream->DataLength))) {
             CAutoTimer timer_fread(m_tick_fread);
-            sts = m_FileReader->ReadNextFrame(
-                pBitstream); // read more data to input bit stream
+            sts = m_FileReader->ReadNextFrame(pBitstream); // read more data to input bit stream
 
             if (MFX_ERR_MORE_DATA == sts) {
                 sts = MFX_ERR_NONE;
                 // Timeout has expired or videowall mode
                 m_timer_overall.Sync();
-                if (((CTimer::ConvertToSeconds(m_tick_overall) < m_nTimeout) &&
-                     m_nTimeout) ||
+                if (((CTimer::ConvertToSeconds(m_tick_overall) < m_nTimeout) && m_nTimeout) ||
                     m_bIsVideoWall) {
                     m_FileReader->Reset();
                     m_bResetFileWriter = true;
@@ -1714,8 +1628,7 @@ mfxStatus CDecodingPipeline::RunDecoding() {
             }
         }
 
-        if ((MFX_ERR_NONE == sts) || (MFX_ERR_MORE_DATA == sts) ||
-            (MFX_ERR_MORE_SURFACE == sts)) {
+        if ((MFX_ERR_NONE == sts) || (MFX_ERR_MORE_DATA == sts) || (MFX_ERR_MORE_SURFACE == sts)) {
             // here we check whether output is ready, though we do not wait...
 #ifndef __SYNC_WA
             mfxStatus _sts = SyncOutputSurface(0);
@@ -1732,8 +1645,7 @@ mfxStatus CDecodingPipeline::RunDecoding() {
             MSDK_CHECK_STATUS_NO_RET(sts, "ReadNextFrame failed");
         }
 
-        if ((MFX_ERR_NONE == sts) || (MFX_ERR_MORE_DATA == sts) ||
-            (MFX_ERR_MORE_SURFACE == sts)) {
+        if ((MFX_ERR_NONE == sts) || (MFX_ERR_MORE_DATA == sts) || (MFX_ERR_MORE_SURFACE == sts)) {
             SyncFrameSurfaces();
             SyncVppFrameSurfaces();
             if (!m_pCurrentFreeSurface) {
@@ -1745,30 +1657,26 @@ mfxStatus CDecodingPipeline::RunDecoding() {
 #ifndef __SYNC_WA
             if (!m_pCurrentFreeSurface || !m_pCurrentFreeVppSurface) {
 #else
-            if (!m_pCurrentFreeSurface ||
-                (!m_pCurrentFreeVppSurface && m_bVppIsUsed) ||
-                (m_OutputSurfacesPool.GetSurfaceCount() ==
-                 m_mfxVideoParams.AsyncDepth)) {
+            if (!m_pCurrentFreeSurface || (!m_pCurrentFreeVppSurface && m_bVppIsUsed) ||
+                (m_OutputSurfacesPool.GetSurfaceCount() == m_mfxVideoParams.AsyncDepth)) {
 #endif
                 // we stuck with no free surface available, now we will sync...
                 sts = SyncOutputSurface(MSDK_DEC_WAIT_INTERVAL);
                 if (MFX_ERR_MORE_DATA == sts) {
-                    if ((m_eWorkMode == MODE_PERFORMANCE) ||
-                        (m_eWorkMode == MODE_FILE_DUMP)) {
+                    if ((m_eWorkMode == MODE_PERFORMANCE) || (m_eWorkMode == MODE_FILE_DUMP)) {
                         sts = MFX_ERR_NOT_FOUND;
                     }
                     else if (m_eWorkMode == MODE_RENDERING) {
                         if (m_synced_count != m_output_count) {
-                            sts = m_pDeliveredEvent->TimedWait(
-                                MSDK_DEC_WAIT_INTERVAL);
+                            sts = m_pDeliveredEvent->TimedWait(MSDK_DEC_WAIT_INTERVAL);
                         }
                         else {
                             sts = MFX_ERR_NOT_FOUND;
                         }
                     }
                     if (MFX_ERR_NOT_FOUND == sts) {
-                        msdk_printf(MSDK_STRING(
-                            "fatal: failed to find output surface, that's a bug!\n"));
+                        msdk_printf(
+                            MSDK_STRING("fatal: failed to find output surface, that's a bug!\n"));
                         break;
                     }
                 }
@@ -1786,14 +1694,12 @@ mfxStatus CDecodingPipeline::RunDecoding() {
         }
 
         // exit by timeout
-        if ((MFX_ERR_NONE == sts) && m_bIsVideoWall &&
-            (time(0) - start_time) >= m_nTimeout) {
+        if ((MFX_ERR_NONE == sts) && m_bIsVideoWall && (time(0) - start_time) >= m_nTimeout) {
             sts = MFX_ERR_NONE;
             break;
         }
 
-        if ((MFX_ERR_NONE == sts) || (MFX_ERR_MORE_DATA == sts) ||
-            (MFX_ERR_MORE_SURFACE == sts)) {
+        if ((MFX_ERR_NONE == sts) || (MFX_ERR_MORE_DATA == sts) || (MFX_ERR_MORE_SURFACE == sts)) {
             if (m_bIsCompleteFrame) {
                 m_pCurrentFreeSurface->submit = m_timer_overall.Sync();
             }
@@ -1802,17 +1708,15 @@ mfxStatus CDecodingPipeline::RunDecoding() {
 #if (MFX_VERSION >= 1025)
                 if (pBitstream) {
                     pDecodeErrorReport =
-                        (mfxExtDecodeErrorReport *)GetExtBuffer(
-                            pBitstream->ExtParam,
-                            pBitstream->NumExtParam,
-                            MFX_EXTBUFF_DECODE_ERROR_REPORT);
+                        (mfxExtDecodeErrorReport *)GetExtBuffer(pBitstream->ExtParam,
+                                                                pBitstream->NumExtParam,
+                                                                MFX_EXTBUFF_DECODE_ERROR_REPORT);
                 }
 #endif
-                sts = m_pmfxDEC->DecodeFrameAsync(
-                    pBitstream,
-                    &(m_pCurrentFreeSurface->frame),
-                    &pOutSurface,
-                    &(m_pCurrentFreeOutputSurface->syncp));
+                sts = m_pmfxDEC->DecodeFrameAsync(pBitstream,
+                                                  &(m_pCurrentFreeSurface->frame),
+                                                  &pOutSurface,
+                                                  &(m_pCurrentFreeOutputSurface->syncp));
 
 #if (MFX_VERSION >= 1025)
                 PrintDecodeErrorReport(pDecodeErrorReport);
@@ -1820,9 +1724,7 @@ mfxStatus CDecodingPipeline::RunDecoding() {
 
                 if (pBitstream && MFX_ERR_MORE_DATA == sts &&
                     pBitstream->MaxLength == pBitstream->DataLength) {
-                    mfxStatus stsExt =
-                        ExtendMfxBitstream(pBitstream,
-                                           pBitstream->MaxLength * 2);
+                    mfxStatus stsExt = ExtendMfxBitstream(pBitstream, pBitstream->MaxLength * 2);
                     MSDK_CHECK_STATUS_SAFE(stsExt,
                                            "ExtendMfxBitstream failed",
                                            MSDK_SAFE_DELETE(pDeliverThread));
@@ -1893,8 +1795,7 @@ mfxStatus CDecodingPipeline::RunDecoding() {
             }
         }
 
-        if ((MFX_ERR_NONE == sts) || (MFX_ERR_MORE_DATA == sts) ||
-            (MFX_ERR_MORE_SURFACE == sts)) {
+        if ((MFX_ERR_NONE == sts) || (MFX_ERR_MORE_DATA == sts) || (MFX_ERR_MORE_SURFACE == sts)) {
             // if current free surface is locked we are moving it to the used surfaces array
             /*if (m_pCurrentFreeSurface->frame.Data.Locked)*/ {
                 m_UsedSurfacesPool.AddSurface(m_pCurrentFreeSurface);
@@ -1902,8 +1803,7 @@ mfxStatus CDecodingPipeline::RunDecoding() {
             }
         }
         else {
-            MSDK_CHECK_STATUS_NO_RET(sts,
-                                     "DecodeFrameAsync returned error status");
+            MSDK_CHECK_STATUS_NO_RET(sts, "DecodeFrameAsync returned error status");
         }
 
         if (MFX_ERR_NONE == sts) {
@@ -1912,14 +1812,10 @@ mfxStatus CDecodingPipeline::RunDecoding() {
                     do {
                         if ((m_pCurrentFreeVppSurface->frame.Info.CropW == 0) ||
                             (m_pCurrentFreeVppSurface->frame.Info.CropH == 0)) {
-                            m_pCurrentFreeVppSurface->frame.Info.CropW =
-                                pOutSurface->Info.CropW;
-                            m_pCurrentFreeVppSurface->frame.Info.CropH =
-                                pOutSurface->Info.CropH;
-                            m_pCurrentFreeVppSurface->frame.Info.CropX =
-                                pOutSurface->Info.CropX;
-                            m_pCurrentFreeVppSurface->frame.Info.CropY =
-                                pOutSurface->Info.CropY;
+                            m_pCurrentFreeVppSurface->frame.Info.CropW = pOutSurface->Info.CropW;
+                            m_pCurrentFreeVppSurface->frame.Info.CropH = pOutSurface->Info.CropH;
+                            m_pCurrentFreeVppSurface->frame.Info.CropX = pOutSurface->Info.CropX;
+                            m_pCurrentFreeVppSurface->frame.Info.CropY = pOutSurface->Info.CropY;
                         }
                         if (pOutSurface->Info.PicStruct !=
                             m_pCurrentFreeVppSurface->frame.Info.PicStruct) {
@@ -1927,11 +1823,9 @@ mfxStatus CDecodingPipeline::RunDecoding() {
                                 pOutSurface->Info.PicStruct;
                         }
                         if ((pOutSurface->Info.PicStruct == 0) &&
-                            (m_pCurrentFreeVppSurface->frame.Info.PicStruct ==
-                             0)) {
+                            (m_pCurrentFreeVppSurface->frame.Info.PicStruct == 0)) {
                             m_pCurrentFreeVppSurface->frame.Info.PicStruct =
-                                pOutSurface->Info.PicStruct =
-                                    MFX_PICSTRUCT_PROGRESSIVE;
+                                pOutSurface->Info.PicStruct = MFX_PICSTRUCT_PROGRESSIVE;
                         }
 
                         if (m_diMode)
@@ -1941,11 +1835,10 @@ mfxStatus CDecodingPipeline::RunDecoding() {
                         // WA: RunFrameVPPAsync doesn't copy ViewId from input to output
                         m_pCurrentFreeVppSurface->frame.Info.FrameId.ViewId =
                             pOutSurface->Info.FrameId.ViewId;
-                        sts = m_pmfxVPP->RunFrameVPPAsync(
-                            pOutSurface,
-                            &(m_pCurrentFreeVppSurface->frame),
-                            NULL,
-                            &(m_pCurrentFreeOutputSurface->syncp));
+                        sts = m_pmfxVPP->RunFrameVPPAsync(pOutSurface,
+                                                          &(m_pCurrentFreeVppSurface->frame),
+                                                          NULL,
+                                                          &(m_pCurrentFreeOutputSurface->syncp));
 
                         if (MFX_WRN_DEVICE_BUSY == sts) {
                             MSDK_SLEEP(
@@ -1954,8 +1847,7 @@ mfxStatus CDecodingPipeline::RunDecoding() {
                     } while (MFX_WRN_DEVICE_BUSY == sts);
 
                     // process errors
-                    if (MFX_ERR_MORE_DATA ==
-                        sts) { // will never happen actually
+                    if (MFX_ERR_MORE_DATA == sts) { // will never happen actually
                         continue;
                     }
                     else if (MFX_ERR_NONE != sts) {
@@ -1966,10 +1858,8 @@ mfxStatus CDecodingPipeline::RunDecoding() {
                     m_UsedVppSurfacesPool.AddSurface(m_pCurrentFreeVppSurface);
                     msdk_atomic_inc16(&(m_pCurrentFreeVppSurface->render_lock));
 
-                    m_pCurrentFreeOutputSurface->surface =
-                        m_pCurrentFreeVppSurface;
-                    m_OutputSurfacesPool.AddSurface(
-                        m_pCurrentFreeOutputSurface);
+                    m_pCurrentFreeOutputSurface->surface = m_pCurrentFreeVppSurface;
+                    m_OutputSurfacesPool.AddSurface(m_pCurrentFreeOutputSurface);
 
                     m_pCurrentFreeOutputSurface = NULL;
                     m_pCurrentFreeVppSurface    = NULL;
@@ -2002,8 +1892,7 @@ mfxStatus CDecodingPipeline::RunDecoding() {
     if (m_bPrintLatency && m_vLatency.size() > 0) {
         unsigned int frame_idx = 0;
         msdk_tick sum          = 0;
-        for (std::vector<msdk_tick>::iterator it = m_vLatency.begin();
-             it != m_vLatency.end();
+        for (std::vector<msdk_tick>::iterator it = m_vLatency.begin(); it != m_vLatency.end();
              ++it) {
             sum += *it;
             msdk_printf(MSDK_STRING("Frame %4d, latency=%5.5f ms\n"),
@@ -2013,14 +1902,10 @@ mfxStatus CDecodingPipeline::RunDecoding() {
         msdk_printf(MSDK_STRING("\nLatency summary:\n"));
         msdk_printf(
             MSDK_STRING("\nAVG=%5.5f ms, MAX=%5.5f ms, MIN=%5.5f ms"),
-            CTimer::ConvertToSeconds(
-                (msdk_tick)((mfxF64)sum / m_vLatency.size())) *
+            CTimer::ConvertToSeconds((msdk_tick)((mfxF64)sum / m_vLatency.size())) * 1000,
+            CTimer::ConvertToSeconds(*std::max_element(m_vLatency.begin(), m_vLatency.end())) *
                 1000,
-            CTimer::ConvertToSeconds(
-                *std::max_element(m_vLatency.begin(), m_vLatency.end())) *
-                1000,
-            CTimer::ConvertToSeconds(
-                *std::min_element(m_vLatency.begin(), m_vLatency.end())) *
+            CTimer::ConvertToSeconds(*std::min_element(m_vLatency.begin(), m_vLatency.end())) *
                 1000);
     }
 
@@ -2047,23 +1932,18 @@ mfxStatus CDecodingPipeline::RunDecoding() {
 }
 
 void CDecodingPipeline::PrintInfo() {
-    msdk_printf(MSDK_STRING("Decoding Sample Version %s\n\n"),
-                GetMSDKSampleVersion().c_str());
+    msdk_printf(MSDK_STRING("Decoding Sample Version %s\n\n"), GetMSDKSampleVersion().c_str());
     msdk_printf(MSDK_STRING("\nInput video\t%s\n"),
                 CodecIdToStr(m_mfxVideoParams.mfx.CodecId).c_str());
     if (m_bVppIsUsed) {
-        msdk_printf(
-            MSDK_STRING("Output format\t%s (using vpp)\n"),
-            m_bOutI420
-                ? MSDK_STRING("I420(YUV)")
-                : CodecIdToStr(m_mfxVppVideoParams.vpp.Out.FourCC).c_str());
+        msdk_printf(MSDK_STRING("Output format\t%s (using vpp)\n"),
+                    m_bOutI420 ? MSDK_STRING("I420(YUV)")
+                               : CodecIdToStr(m_mfxVppVideoParams.vpp.Out.FourCC).c_str());
     }
     else {
-        msdk_printf(
-            MSDK_STRING("Output format\t%s\n"),
-            m_bOutI420
-                ? MSDK_STRING("I420(YUV)")
-                : CodecIdToStr(m_mfxVideoParams.mfx.FrameInfo.FourCC).c_str());
+        msdk_printf(MSDK_STRING("Output format\t%s\n"),
+                    m_bOutI420 ? MSDK_STRING("I420(YUV)")
+                               : CodecIdToStr(m_mfxVideoParams.mfx.FrameInfo.FourCC).c_str());
     }
 
     mfxFrameInfo Info = m_mfxVideoParams.mfx.FrameInfo;
@@ -2076,9 +1956,7 @@ void CDecodingPipeline::PrintInfo() {
                 Info.CropH);
     msdk_printf(MSDK_STRING("Output:\n"));
     if (m_vppOutHeight && m_vppOutWidth) {
-        msdk_printf(MSDK_STRING("  Resolution\t%dx%d\n"),
-                    m_vppOutWidth,
-                    m_vppOutHeight);
+        msdk_printf(MSDK_STRING("  Resolution\t%dx%d\n"), m_vppOutWidth, m_vppOutHeight);
     }
     else {
         msdk_printf(MSDK_STRING("  Resolution\t%dx%d\n"),
@@ -2086,8 +1964,7 @@ void CDecodingPipeline::PrintInfo() {
                     Info.CropH ? Info.CropH : Info.Height);
     }
 
-    mfxF64 dFrameRate =
-        CalculateFrameRate(Info.FrameRateExtN, Info.FrameRateExtD);
+    mfxF64 dFrameRate = CalculateFrameRate(Info.FrameRateExtN, Info.FrameRateExtD);
     msdk_printf(MSDK_STRING("Frame rate\t%.2f\n"), dFrameRate);
 
     const msdk_char *sMemType =
@@ -2098,18 +1975,16 @@ void CDecodingPipeline::PrintInfo() {
         m_memType == D3D9_MEMORY
             ? MSDK_STRING("vaapi")
 #endif
-            : (m_memType == D3D11_MEMORY ? MSDK_STRING("d3d11")
-                                         : MSDK_STRING("system"));
+            : (m_memType == D3D11_MEMORY ? MSDK_STRING("d3d11") : MSDK_STRING("system"));
     msdk_printf(MSDK_STRING("Memory type\t\t%s\n"), sMemType);
 
-    const msdk_char *sImpl =
-        (MFX_IMPL_VIA_D3D11 == MFX_IMPL_VIA_MASK(m_impl))
-            ? MSDK_STRING("hw_d3d11")
-            : (m_bUseVPLLib == true)
-                  ? MSDK_STRING("VPL SW")
-                  : (MFX_IMPL_SOFTWARE == MFX_IMPL_BASETYPE(m_impl))
-                        ? MSDK_STRING("sw")
-                        : MSDK_STRING("hw");
+    const msdk_char *sImpl = (MFX_IMPL_VIA_D3D11 == MFX_IMPL_VIA_MASK(m_impl))
+                                 ? MSDK_STRING("hw_d3d11")
+                                 : (m_bUseVPLLib == true)
+                                       ? MSDK_STRING("VPL SW")
+                                       : (MFX_IMPL_SOFTWARE == MFX_IMPL_BASETYPE(m_impl))
+                                             ? MSDK_STRING("sw")
+                                             : MSDK_STRING("hw");
     msdk_printf(MSDK_STRING("MediaSDK impl\t\t%s\n"), sImpl);
 
     mfxVersion ver;

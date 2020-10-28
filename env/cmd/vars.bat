@@ -8,6 +8,9 @@
 FOR /D %%i IN ("%~dp0\..") DO (
   set VPL_ROOT=%%~fi
 )
+FOR /D %%i IN ("%~dp0\..\..") DO (
+  set VPL_PREFIX=%%~fi
+)
 set "VPL_INCLUDE=%VPL_ROOT%\include"
 set "VPL_LIB=%VPL_ROOT%\lib"
 set "VPL_BIN=%VPL_ROOT%\bin"
@@ -29,3 +32,10 @@ IF DEFINED PATH (
 ) ELSE (
   set "PATH=%VPL_BIN%"
 )
+
+IF DEFINED CMAKE_PREFIX_PATH (
+  set "CMAKE_PREFIX_PATH=%VPL_PREFIX%;%CMAKE_PREFIX_PATH%"
+) ELSE (
+  set "CMAKE_PREFIX_PATH=%VPL_PREFIX%"
+)
+set VPL_PREFIX=

@@ -14,8 +14,7 @@ struct PluginModuleTemplate {
     typedef MFXAudioDecoderPlugin* (*fncCreateAudioDecoderPlugin)();
     typedef MFXAudioEncoderPlugin* (*fncCreateAudioEncoderPlugin)();
     typedef MFXGenericPlugin* (*fncCreateGenericPlugin)();
-    typedef mfxStatus(MFX_CDECL* CreatePluginPtr_t)(mfxPluginUID uid,
-                                                    mfxPlugin* plugin);
+    typedef mfxStatus(MFX_CDECL* CreatePluginPtr_t)(mfxPluginUID uid, mfxPlugin* plugin);
 
     fncCreateDecoderPlugin CreateDecoderPlugin;
     fncCreateEncoderPlugin CreateEncoderPlugin;

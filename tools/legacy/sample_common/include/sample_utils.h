@@ -110,8 +110,7 @@ public:
     virtual ~CSmplBitstreamWriter();
 
     virtual mfxStatus Init(const msdk_char* strFileName);
-    virtual mfxStatus WriteNextFrame(mfxBitstream* pMfxBitstream,
-                                     bool isPrint = true);
+    virtual mfxStatus WriteNextFrame(mfxBitstream* pMfxBitstream, bool isPrint = true);
     virtual mfxStatus Reset();
     virtual void Close();
     mfxU32 m_nProcessedFramesNum;
@@ -240,8 +239,7 @@ public:
 
     virtual mfxStatus InitDuplicate(const msdk_char* strFileName);
     virtual mfxStatus JoinDuplicate(CSmplBitstreamDuplicateWriter* pJoinee);
-    virtual mfxStatus WriteNextFrame(mfxBitstream* pMfxBitstream,
-                                     bool isPrint = true);
+    virtual mfxStatus WriteNextFrame(mfxBitstream* pMfxBitstream, bool isPrint = true);
     virtual void Close();
 
 protected:
@@ -437,9 +435,7 @@ private:
     void operator=(const CAutoTimer&);
 };
 
-mfxStatus ConvertFrameRate(mfxF64 dFrameRate,
-                           mfxU32* pnFrameRateExtN,
-                           mfxU32* pnFrameRateExtD);
+mfxStatus ConvertFrameRate(mfxF64 dFrameRate, mfxU32* pnFrameRateExtN, mfxU32* pnFrameRateExtD);
 mfxF64 CalculateFrameRate(mfxU32 nFrameRateExtN, mfxU32 nFrameRateExtD);
 mfxU16 GetFreeSurfaceIndex(mfxFrameSurface1* pSurfacesPool, mfxU16 nPoolSize);
 mfxU16 GetFreeSurface(mfxFrameSurface1* pSurfacesPool, mfxU16 nPoolSize);
@@ -448,9 +444,7 @@ mfxStatus InitMfxBitstream(mfxBitstream* pBitstream, mfxU32 nSize);
 
 //performs copy to end if possible, also move data to buffer begin if necessary
 //shifts offset pointer in source bitstream in success case
-mfxStatus MoveMfxBitstream(mfxBitstream* pTarget,
-                           mfxBitstream* pSrc,
-                           mfxU32 nBytesToCopy);
+mfxStatus MoveMfxBitstream(mfxBitstream* pTarget, mfxBitstream* pSrc, mfxU32 nBytesToCopy);
 mfxStatus ExtendMfxBitstream(mfxBitstream* pBitstream, mfxU32 nSize);
 void WipeMfxBitstream(mfxBitstream* pBitstream);
 
@@ -471,8 +465,7 @@ const msdk_char* MfxStatusToStr(mfxStatus sts);
 mfxStatus MJPEG_AVI_ParsePicStruct(mfxBitstream* bitstream);
 
 // For MVC encoding/decoding purposes
-std::basic_string<msdk_char> FormMVCFileName(const msdk_char* strFileName,
-                                             const mfxU32 numView);
+std::basic_string<msdk_char> FormMVCFileName(const msdk_char* strFileName, const mfxU32 numView);
 
 //piecewise linear function for bitrate approximation
 class PartiallyLinearFNC {
@@ -493,17 +486,10 @@ private:
 };
 
 // function for conversion of display aspect ratio to pixel aspect ratio
-mfxStatus DARtoPAR(mfxU32 darw,
-                   mfxU32 darh,
-                   mfxU32 w,
-                   mfxU32 h,
-                   mfxU16* pparw,
-                   mfxU16* pparh);
+mfxStatus DARtoPAR(mfxU32 darw, mfxU32 darh, mfxU32 w, mfxU32 h, mfxU16* pparw, mfxU16* pparh);
 
 // function for getting a pointer to a specific external buffer from the array
-mfxExtBuffer* GetExtBuffer(mfxExtBuffer** ebuffers,
-                           mfxU32 nbuffers,
-                           mfxU32 BufferId);
+mfxExtBuffer* GetExtBuffer(mfxExtBuffer** ebuffers, mfxU32 nbuffers, mfxU32 BufferId);
 
 //declare used extended buffers
 template <class T>
@@ -539,8 +525,7 @@ struct mfx_ext_buffer_id<mfxExtThreadsParam> {
 template <class T>
 void init_ext_buffer(T& ext_buffer) {
     memset(&ext_buffer, 0, sizeof(ext_buffer));
-    reinterpret_cast<mfxExtBuffer*>(&ext_buffer)->BufferId =
-        mfx_ext_buffer_id<T>::id;
+    reinterpret_cast<mfxExtBuffer*>(&ext_buffer)->BufferId = mfx_ext_buffer_id<T>::id;
     reinterpret_cast<mfxExtBuffer*>(&ext_buffer)->BufferSz = sizeof(ext_buffer);
 }
 
@@ -562,7 +547,7 @@ struct MSDKAdapter {
     // returns the number of adapter associated with MSDK session, 0 for SW session
     static mfxU32 GetNumber(mfxSession session, mfxIMPL implVia = 0) {
         mfxU32 adapterNum = 0; // default
-        mfxIMPL impl = MFX_IMPL_SOFTWARE; // default in case no HW IMPL is found
+        mfxIMPL impl      = MFX_IMPL_SOFTWARE; // default in case no HW IMPL is found
 
         // we don't care for error codes in further code; if something goes wrong we fall back to the default adapter
         if (session) {
@@ -573,9 +558,7 @@ struct MSDKAdapter {
             mfxSession auxSession;
             memset(&auxSession, 0, sizeof(auxSession));
 
-            mfxVersion ver = {
-                { 1, 1 }
-            }; // minimum API version which supports multiple devices
+            mfxVersion ver = { { 1, 1 } }; // minimum API version which supports multiple devices
             MFXInit(MFX_IMPL_HARDWARE_ANY | implVia, &ver, &auxSession);
             MFXQueryIMPL(auxSession, &impl);
             MFXClose(auxSession);
@@ -667,8 +650,7 @@ mfxStatus msdk_opt_read(const msdk_char* string, msdk_char (&value)[S]) {
     value[0] = 0;
 #if defined(_WIN32) || defined(_WIN64)
     value[S - 1] = 0;
-    return (0 == _tcsncpy_s(value, string, S - 1)) ? MFX_ERR_NONE
-                                                   : MFX_ERR_UNKNOWN;
+    return (0 == _tcsncpy_s(value, string, S - 1)) ? MFX_ERR_NONE : MFX_ERR_UNKNOWN;
 #else
     if (strlen(string) < S) {
         strncpy(value, string, S - 1);
@@ -684,8 +666,7 @@ inline mfxStatus msdk_opt_read(const msdk_string& string, T& value) {
     return msdk_opt_read(string.c_str(), value);
 }
 
-mfxStatus StrFormatToCodecFormatFourCC(msdk_char* strInput,
-                                       mfxU32& codecFormat);
+mfxStatus StrFormatToCodecFormatFourCC(msdk_char* strInput, mfxU32& codecFormat);
 msdk_string StatusToString(mfxStatus sts);
 mfxI32 getMonitorType(msdk_char* str);
 
@@ -728,8 +709,7 @@ private:
 // not implemented yet for simpicity reasons.
 template <class ParamT, mfxU32 ParamName>
 //mfxExtMctfControl* GetMctfParamBuffer(mfxFrameSurface1* pmfxSurface, bool DeallocateAll = false)
-ParamT* GetMctfParamBuffer(mfxFrameSurface1* pmfxSurface,
-                           bool DeallocateAll = false) {
+ParamT* GetMctfParamBuffer(mfxFrameSurface1* pmfxSurface, bool DeallocateAll = false) {
     // map <pointer, busy-status>
     static std::map<ParamT*, bool> mfxFrameParamPool;
     static std::mutex ExclusiveAccess;
@@ -740,9 +720,7 @@ ParamT* GetMctfParamBuffer(mfxFrameSurface1* pmfxSurface,
     if (!pmfxSurface && !DeallocateAll)
         return NULL;
     if (DeallocateAll) {
-        for (map_iter it = mfxFrameParamPool.begin();
-             it != mfxFrameParamPool.end();
-             ++it) {
+        for (map_iter it = mfxFrameParamPool.begin(); it != mfxFrameParamPool.end(); ++it) {
             if (it->first)
                 delete (it->first);
         };
@@ -750,22 +728,19 @@ ParamT* GetMctfParamBuffer(mfxFrameSurface1* pmfxSurface,
         return NULL;
     };
     if (!pmfxSurface->Data.ExtParam) {
-        msdk_printf(MSDK_STRING(
-            "GetMctfParamBuffer: pmfxSurface->Data.ExtParam is null!\n"));
+        msdk_printf(MSDK_STRING("GetMctfParamBuffer: pmfxSurface->Data.ExtParam is null!\n"));
         return NULL;
     }
 
-    mfxExtBuffer* pBuf = GetExtBuffer(pmfxSurface->Data.ExtParam,
-                                      pmfxSurface->Data.NumExtParam,
-                                      ParamName);
+    mfxExtBuffer* pBuf =
+        GetExtBuffer(pmfxSurface->Data.ExtParam, pmfxSurface->Data.NumExtParam, ParamName);
     // try to find; if exist, set not-busy; otherwise, insert as a new
     if (pBuf) {
         map_iter it = mfxFrameParamPool.find(reinterpret_cast<ParamT*>(pBuf));
         if (it != mfxFrameParamPool.end())
             it->second = false;
         else
-            mfxFrameParamPool.insert(
-                std::make_pair(reinterpret_cast<ParamT*>(pBuf), false));
+            mfxFrameParamPool.insert(std::make_pair(reinterpret_cast<ParamT*>(pBuf), false));
     }
     else {
         ParamT* pBuf1(NULL);
@@ -784,8 +759,7 @@ ParamT* GetMctfParamBuffer(mfxFrameSurface1* pmfxSurface,
 
     // now try to find non-busy buffer:
     ParamT* pControl = NULL;
-    for (map_iter it = mfxFrameParamPool.begin(); it != mfxFrameParamPool.end();
-         ++it) {
+    for (map_iter it = mfxFrameParamPool.begin(); it != mfxFrameParamPool.end(); ++it) {
         if (!it->second) {
             it->second = true;
             pControl   = it->first;
@@ -794,8 +768,8 @@ ParamT* GetMctfParamBuffer(mfxFrameSurface1* pmfxSurface,
     }
 
     if (!pControl) {
-        msdk_printf(MSDK_STRING(
-            "GetMctfParamBuffer: cannot find an empty buffer & cannot create!\n"));
+        msdk_printf(
+            MSDK_STRING("GetMctfParamBuffer: cannot find an empty buffer & cannot create!\n"));
         return NULL;
     }
     else {
@@ -805,9 +779,7 @@ ParamT* GetMctfParamBuffer(mfxFrameSurface1* pmfxSurface,
         return pControl;
     };
 };
-inline static void WipeOutExtParams(mfxFrameSurface1* pmfxSurface,
-                                    bool isInput,
-                                    mfxU32 size) {
+inline static void WipeOutExtParams(mfxFrameSurface1* pmfxSurface, bool isInput, mfxU32 size) {
     if (isInput && pmfxSurface->Data.ExtParam) {
         for (mfxU32 i = 0; i < size; ++i)
             pmfxSurface->Data.ExtParam[i] = NULL;

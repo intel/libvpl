@@ -15,79 +15,98 @@ extern "C"
 
 /* Global Functions */
 
-/*! SDK session handle. */
+/*! Session handle. */
 typedef struct _mfxSession *mfxSession;
 
 /*!
    @brief
-      This function creates and initializes an SDK session. Call this function before calling
-      any other SDK function. If the desired implementation specified by impl is MFX_IMPL_AUTO,
-      the function will search for the platform-specific SDK implementation.
-      If the function cannot find it, it will use the software implementation.
+      Creates and initializes a session in legacy mode.
+
+      Call this function before calling
+      any other API function. If the desired implementation specified by ``impl`` is MFX_IMPL_AUTO,
+      the function will search for the platform-specific implementation.
+      If the function cannot find the platform-specific implementation, it will use the software implementation instead.
 
       The ``ver`` argument indicates the desired version of the library implementation.
-      The loaded SDK will have an API version compatible to the specified version (equal in
+      The loaded implementation will have an API version compatible to the specified version (equal in
       the major version number, and no less in the minor version number.) If the desired version
-      is not specified, the default is to use the API version from the SDK release, with
+      is not specified, the default is to use the API version from the library release with
       which an application is built.
 
-      We recommend that production applications always specify the minimum API version that meets their
+      Production applications should always specify the minimum API version that meets the
       functional requirements. For example, if an application uses only H.264 decoding as described
-      in API v1.0, have the application initialize the library with API v1.0. This ensures
+      in API v1.0, the application should initialize the library with API v1.0. This ensures
       backward compatibility.
 
-   @param[in] impl     mfxIMPL enumerator that indicates the desired SDK implementation.
+   @param[in] impl     mfxIMPL enumerator that indicates the desired legacy Intel(r) Media SDK implementation.
    @param[in] ver      Pointer to the minimum library version or zero, if not specified.
-   @param[out] session Pointer to the SDK session handle.
+   @param[out] session Pointer to the legacy Intel(r) Media SDK session handle.
 
    @return
       MFX_ERR_NONE        The function completed successfully. The output parameter contains the handle of the session.\n
-      MFX_ERR_UNSUPPORTED The function cannot find the desired SDK implementation or version.
+      MFX_ERR_UNSUPPORTED The function cannot find the desired legacy Intel(r) Media SDK implementation or version.
 */
 mfxStatus MFX_CDECL MFXInit(mfxIMPL impl, mfxVersion *ver, mfxSession *session);
 
 /*!
    @brief
-      This function creates and initializes an SDK session. Call this function before calling any other SDK functions.
-      If the desired implementation specified by par. Implementation is MFX_IMPL_AUTO, the function will search for
-      the platform-specific SDK implementation. If the function cannot find it, it will use the software implementation.
+      Creates and initializes a session in legacy mode.
 
-      The argument ``par.Version`` indicates the desired version of the library implementation. The loaded SDK will have an API
+      Call this function before calling any other API functions.
+      If the desired implementation specified by ``par`` is MFX_IMPL_AUTO, the function will search for
+      the platform-specific implementation. If the function cannot find the platform-specific implementation, it will use the software implementation instead.
+
+      The argument ``par.Version`` indicates the desired version of the implementation. The loaded implementation will have an API
       version compatible to the specified version (equal in the major version number, and no less in the minor version number.)
-      If the desired version is not specified, the default is to use the API version from the SDK release, with
+      If the desired version is not specified, the default is to use the API version from the library release with
       which an application is built.
 
-      We recommend that production applications always specify the minimum API version that meets their functional requirements.
-      For example, if an application uses only H.264 decoding as described in API v1.0, have the application initialize
-      the library with API v1.0. This ensures backward compatibility.
+      Production applications should always specify the minimum API version that meets the functional requirements.
+      For example, if an application uses only H.264 decoding as described in API v1.0, the application should initialize the library with API v1.0. This ensures backward compatibility.
 
-      The argument ``par.ExternalThreads`` specifies threading mode. Value 0 means that SDK should internally create and
-      handle work threads (this essentially equivalent of regular MFXInit). I
+      The argument ``par.ExternalThreads`` specifies threading mode. Value 0 means that the implementation should create and
+      handle work threads internally (this is essentially the equivalent of the regular MFXInit). I
 
-   @param[in]  par     mfxInitParam structure that indicates the desired SDK implementation, minimum library version and desired threading mode.
-   @param[out] session Pointer to the SDK session handle.
+   @param[in]  par     mfxInitParam structure that indicates the desired implementation, minimum library version and desired threading mode.
+   @param[out] session Pointer to the session handle.
 
    @return
       MFX_ERR_NONE        The function completed successfully. The output parameter contains the handle of the session.\n
-      MFX_ERR_UNSUPPORTED The function cannot find the desired SDK implementation or version.
+      MFX_ERR_UNSUPPORTED The function cannot find the desired implementation or version.
 */
 mfxStatus MFX_CDECL MFXInitEx(mfxInitParam par, mfxSession *session);
 
 /*!
-   @brief This function completes and deinitializes an SDK session. Any active tasks in execution or
-    in queue are aborted. The application cannot call any SDK function after this function.
+   @brief
+   Creates and initializes a session starting from API version 2.0. This function is used by the dispatcher.
+   The dispatcher creates and fills the mfxInitializationParam structure according to mfxConfig values set by an application.
+   Calling this function directly is not recommended. Instead, applications must call the mfxCreateSession function.
+
+
+   @param[in]  par     mfxInitializationParam structure that indicates the minimum library version and acceleration type.
+   @param[out] session Pointer to the session handle.
+
+   @return
+      MFX_ERR_NONE        The function completed successfully. The output parameter contains the handle of the session.\n
+      MFX_ERR_UNSUPPORTED The function cannot find the desired implementation or version.
+*/
+mfxStatus MFX_CDECL MFXInitialize(mfxInitializationParam par, mfxSession *session);
+
+/*!
+   @brief Completes and deinitializes a session. Any active tasks in execution or
+    in queue are aborted. The application cannot call any API function after calling this function.
 
    All child sessions must be disjoined before closing a parent session.
-   @param[in] session SDK session handle.
+   @param[in] session session handle.
 
    @return MFX_ERR_NONE The function completed successfully.
 */
 mfxStatus MFX_CDECL MFXClose(mfxSession session);
 
 /*!
-   @brief This function returns the implementation type of a given session.
+   @brief Returns the implementation type of a given session.
 
-   @param[in]  session SDK session handle.
+   @param[in]  session Session handle.
    @param[out] impl    Pointer to the implementation type
 
    @return MFX_ERR_NONE The function completed successfully.
@@ -95,9 +114,9 @@ mfxStatus MFX_CDECL MFXClose(mfxSession session);
 mfxStatus MFX_CDECL MFXQueryIMPL(mfxSession session, mfxIMPL *impl);
 
 /*!
-   @brief This function returns the SDK implementation version.
-    
-   @param[in]  session SDK session handle.
+   @brief Returns the implementation version.
+
+   @param[in]  session Session handle.
    @param[out] version Pointer to the returned implementation version.
 
    @return MFX_ERR_NONE The function completed successfully.
@@ -105,7 +124,7 @@ mfxStatus MFX_CDECL MFXQueryIMPL(mfxSession session, mfxIMPL *impl);
 mfxStatus MFX_CDECL MFXQueryVersion(mfxSession session, mfxVersion *version);
 
 /*!
-   @brief This function joins the child session to the current session.
+   @brief Joins the child session to the current session.
 
    After joining, the two sessions share thread and resource scheduling for asynchronous
    operations. However, each session still maintains its own device manager and buffer/frame
@@ -129,9 +148,9 @@ mfxStatus MFX_CDECL MFXQueryVersion(mfxSession session, mfxVersion *version);
 mfxStatus MFX_CDECL MFXJoinSession(mfxSession session, mfxSession child);
 
 /*!
-   @brief This function removes the joined state of the current session. After disjoining, the current
-      session becomes independent. The application must ensure there is no active task running
-      in the session before calling this function.
+   @brief Removes the joined state of the current session.
+
+          After disjoining, the current session becomes independent. The application must ensure there is no active task running in the session before calling this API function.
 
    @param[in,out] session    The current session handle.
 
@@ -143,8 +162,9 @@ mfxStatus MFX_CDECL MFXJoinSession(mfxSession session, mfxSession child);
 mfxStatus MFX_CDECL MFXDisjoinSession(mfxSession session);
 
 /*!
-   @brief This function creates a clean copy of the current session. The cloned session is an independent session.
-          It does not inherit any user-defined buffer, frame allocator, or device manager handles from the current session.
+   @brief Creates a clean copy of the current session.
+
+          The cloned session is an independent session and does not inherit any user-defined buffer, frame allocator, or device manager handles from the current session.
           This function is a light-weight equivalent of MFXJoinSession after MFXInit.
 
    @param[in] session    The current session handle.
@@ -155,7 +175,7 @@ mfxStatus MFX_CDECL MFXDisjoinSession(mfxSession session);
 mfxStatus MFX_CDECL MFXCloneSession(mfxSession session, mfxSession *clone);
 
 /*!
-   @brief This function sets the current session priority.
+   @brief Sets the current session priority.
 
    @param[in] session    The current session handle.
    @param[in] priority   Priority value.
@@ -165,7 +185,7 @@ mfxStatus MFX_CDECL MFXCloneSession(mfxSession session, mfxSession *clone);
 mfxStatus MFX_CDECL MFXSetPriority(mfxSession session, mfxPriority priority);
 
 /*!
-   @brief This function returns the current session priority.
+   @brief Returns the current session priority.
 
    @param[in] session    The current session handle.
    @param[out] priority   Pointer to the priority value.

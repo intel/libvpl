@@ -107,9 +107,7 @@ public:
     inline mfxF64 GetTimeStdDev(bool inSeconds = true) {
         mfxF64 avg = GetAvgTime();
         mfxF64 ftmp =
-            (numMeasurements
-                 ? sqrt(totalTimeSquares / numMeasurements - avg * avg)
-                 : 0.0);
+            (numMeasurements ? sqrt(totalTimeSquares / numMeasurements - avg * avg) : 0.0);
         return inSeconds ? ftmp : ftmp * 1000;
     }
 

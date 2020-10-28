@@ -53,9 +53,7 @@ struct msdkSemaphoreHandle {
 };
 
 struct msdkEventHandle {
-    msdkEventHandle(bool manual, bool state)
-            : m_manual(manual),
-              m_state(state) {}
+    msdkEventHandle(bool manual, bool state) : m_manual(manual), m_state(state) {}
 
     bool m_manual;
     bool m_state;

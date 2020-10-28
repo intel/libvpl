@@ -31,8 +31,8 @@
   #define MFX_VERSION_MINOR ((MFX_VERSION) % 1000)
 #endif
 
-/*! This is correspondent version of the Intel(r) Media SDK legacy API that is used as a basis
-   for the current oneAPI Video Processing Library (oneVPL) API. */
+/*! The corresponding version of the Intel(r) Media SDK legacy API that is used as a basis
+   for the current API. */
 
 #define MFX_LEGACY_VERSION 1034
 
@@ -58,7 +58,7 @@ extern "C"
 /* The general rule for alignment is following:
    - structures with pointers have 4/8 bytes alignment on 32/64 bit systems
    - structures with fields of type mfxU64/mfxF64 (unsigned long long / double)
-     have alignment 8 bytes on 64 bit and 32 bit Windows*, on Linux* alignment is 4 bytes
+     have alignment 8 bytes on 64 bit and 32 bit Windows, on Linux alignment is 4 bytes
    - all the rest structures are 4 bytes aligned
    - there are several exceptions: some structs which had 4-byte alignment were extended
      with pointer / long type fields; such structs have 4-byte alignment to keep binary
@@ -119,19 +119,21 @@ typedef char                mfxChar;       /*!< UTF-8 byte. */
 
 /* MFX structures version info */
 MFX_PACK_BEGIN_USUAL_STRUCT()
-/*! Introduce field Version for any structures.
-Minor number is incremented when reserved fields are used,
-major number is incremented when size of structure is increased.
+/*! Introduce the field Version for any structure.
 Assumed that any structure changes are backward binary compatible.
- mfxStructVersion starts from {1,0} for any new API structures, if mfxStructVersion is
+ mfxStructVersion starts from {1,0} for any new API structures. If mfxStructVersion is
  added to the existent legacy structure (replacing reserved fields) it starts from {1, 1}.
 */
 typedef union {
     /*! Structure with Major and Minor fields.  */
     /*! @struct Anonymous */
     struct {
+      /*! @{
+      @name Major and Minor fields
+      Anonymous structure with Major and Minor fields. Minor number is incremented when reserved fields are used. Major number is incremented when the size of structure is increased. */
         mfxU8  Minor; /*!< Minor number of the correspondent structure. */
         mfxU8  Major; /*!< Major number of the correspondent structure. */
+      /*! @} */
     };
     mfxU16  Version;   /*!< Structure version number */
 } mfxStructVersion;
@@ -181,7 +183,7 @@ typedef struct {
 MFX_PACK_END()
 
 MFX_PACK_BEGIN_USUAL_STRUCT()
-/*! This structure represents a range of unsigned values */
+/*! Represents a range of unsigned values. */
 typedef struct {
     mfxU32 Min;  /*!< Minimal value of the range. */
     mfxU32 Max;  /*!< Maximal value of the range. */
@@ -190,13 +192,13 @@ typedef struct {
 MFX_PACK_END()
 
 
-/*! Thus structure represents a pair of numbers of type mfxI16. */
+/*! Represents a pair of numbers of type mfxI16. */
 typedef struct {
     mfxI16  x; /*!< First number. */
     mfxI16  y; /*!< Second number. */
 } mfxI16Pair;
 
-/*! Thus structure represents pair of handles of type mfxHDL. */
+/*! Represents pair of handles of type mfxHDL. */
 typedef struct {
     mfxHDL first;  /*!< First handle. */
     mfxHDL second; /*!< Second handle. */
@@ -206,7 +208,7 @@ typedef struct {
 /*********************************************************************************\
 Error message
 \*********************************************************************************/
-/*! @enum mfxStatus Itemizes status codes returned by SDK functions. */
+/*! @enum mfxStatus Itemizes status codes returned by API functions. */
 typedef enum
 {
     /* no error */
@@ -260,7 +262,7 @@ typedef enum
 } mfxStatus;
 
 
-// Application 
+// Application
 #if defined(MFX_DISPATCHER_EXPOSED_PREFIX)
 
 #include "mfxdispatcherprefixedfunctions.h"

@@ -27,8 +27,7 @@ MFXVideoVPPEx::MFXVideoVPPEx(mfxSession session)
 };
 
 mfxStatus MFXVideoVPPEx::Close(void) {
-    for (std::vector<mfxFrameSurface1 *>::iterator it =
-             m_LockedSurfacesList.begin();
+    for (std::vector<mfxFrameSurface1 *>::iterator it = m_LockedSurfacesList.begin();
          it != m_LockedSurfacesList.end();
          ++it) {
         try {
@@ -43,8 +42,7 @@ mfxStatus MFXVideoVPPEx::Close(void) {
     return MFXVideoVPP::Close();
 };
 
-mfxStatus MFXVideoVPPEx::QueryIOSurf(mfxVideoParam *par,
-                                     mfxFrameAllocRequest request[2]) {
+mfxStatus MFXVideoVPPEx::QueryIOSurf(mfxVideoParam *par, mfxFrameAllocRequest request[2]) {
     mfxVideoParam params;
 
     if (NULL == par) {
@@ -87,8 +85,7 @@ mfxStatus MFXVideoVPPEx::Init(mfxVideoParam *par) {
     m_nArraySize      = 0;
     m_nInputTimeStamp = 0;
 
-    for (std::vector<mfxFrameSurface1 *>::iterator it =
-             m_LockedSurfacesList.begin();
+    for (std::vector<mfxFrameSurface1 *>::iterator it = m_LockedSurfacesList.begin();
          it != m_LockedSurfacesList.end();
          ++it) {
         msdk_atomic_dec16((volatile mfxU16 *)(&(*it)->Data.Locked));
@@ -96,9 +93,8 @@ mfxStatus MFXVideoVPPEx::Init(mfxVideoParam *par) {
 
     m_LockedSurfacesList.clear();
 
-    m_nIncreaseTime =
-        (mfxU64)((mfxF64)MFX_TIME_STAMP_FREQUENCY * par->vpp.Out.FrameRateExtD /
-                 par->vpp.Out.FrameRateExtN);
+    m_nIncreaseTime = (mfxU64)((mfxF64)MFX_TIME_STAMP_FREQUENCY * par->vpp.Out.FrameRateExtD /
+                               par->vpp.Out.FrameRateExtN);
 
     MSDK_MEMCPY_VAR(m_VideoParams, par, sizeof(mfxVideoParam));
 
@@ -141,13 +137,10 @@ mfxStatus MFXVideoVPPEx::RunFrameVPPAsync(mfxFrameSurface1 *in,
         if (!m_LockedSurfacesList.empty()) {
             // subtract 1 to handle minimal difference between input and expected timestamps
             if (m_nCurrentPTS - 1 <= m_LockedSurfacesList[0]->Data.TimeStamp) {
-                mfxU64 nPTS = m_LockedSurfacesList[0]->Data.TimeStamp;
+                mfxU64 nPTS                             = m_LockedSurfacesList[0]->Data.TimeStamp;
                 m_LockedSurfacesList[0]->Data.TimeStamp = m_nCurrentPTS;
 
-                sts = MFXVideoVPP::RunFrameVPPAsync(m_LockedSurfacesList[0],
-                                                    out,
-                                                    aux,
-                                                    syncp);
+                sts = MFXVideoVPP::RunFrameVPPAsync(m_LockedSurfacesList[0], out, aux, syncp);
 
                 m_LockedSurfacesList[0]->Data.TimeStamp = nPTS;
 
@@ -156,8 +149,7 @@ mfxStatus MFXVideoVPPEx::RunFrameVPPAsync(mfxFrameSurface1 *in,
                 }
             }
             else {
-                for (std::vector<mfxFrameSurface1 *>::iterator it =
-                         m_LockedSurfacesList.begin();
+                for (std::vector<mfxFrameSurface1 *>::iterator it = m_LockedSurfacesList.begin();
                      it != m_LockedSurfacesList.end();
                      ++it) {
                     msdk_atomic_dec16((volatile mfxU16 *)(&(*it)->Data.Locked));
@@ -201,16 +193,12 @@ mfxStatus MFXVideoVPPEx::RunFrameVPPAsync(mfxFrameSurface1 *in,
             m_nInputTimeStamp = m_LockedSurfacesList[0]->Data.TimeStamp;
 
             if (m_nCurrentPTS <= m_LockedSurfacesList[0]->Data.TimeStamp ||
-                m_nCurrentPTS <
-                    (in->Data.TimeStamp - (mfxF64)m_nIncreaseTime / 2)) {
-                m_nInputTimeStamp = m_LockedSurfacesList[0]->Data.TimeStamp;
+                m_nCurrentPTS < (in->Data.TimeStamp - (mfxF64)m_nIncreaseTime / 2)) {
+                m_nInputTimeStamp                       = m_LockedSurfacesList[0]->Data.TimeStamp;
                 m_LockedSurfacesList[0]->Data.TimeStamp = m_nCurrentPTS;
 
                 stsRunFrame = sts =
-                    MFXVideoVPP::RunFrameVPPAsync(m_LockedSurfacesList[0],
-                                                  out,
-                                                  aux,
-                                                  syncp);
+                    MFXVideoVPP::RunFrameVPPAsync(m_LockedSurfacesList[0], out, aux, syncp);
 
                 m_LockedSurfacesList[0]->Data.TimeStamp = m_nInputTimeStamp;
 
@@ -230,11 +218,9 @@ mfxStatus MFXVideoVPPEx::RunFrameVPPAsync(mfxFrameSurface1 *in,
                 }
 
                 if (m_nCurrentPTS > m_LockedSurfacesList[0]->Data.TimeStamp &&
-                    m_nCurrentPTS >= (m_LockedSurfacesList[1]->Data.TimeStamp -
-                                      (mfxF64)m_nIncreaseTime / 2)) {
-                    msdk_atomic_dec16(
-                        (volatile mfxU16 *)&m_LockedSurfacesList[0]
-                            ->Data.Locked);
+                    m_nCurrentPTS >=
+                        (m_LockedSurfacesList[1]->Data.TimeStamp - (mfxF64)m_nIncreaseTime / 2)) {
+                    msdk_atomic_dec16((volatile mfxU16 *)&m_LockedSurfacesList[0]->Data.Locked);
                     m_LockedSurfacesList.erase(m_LockedSurfacesList.begin());
 
                     if (MFX_ERR_NONE == stsRunFrame) {

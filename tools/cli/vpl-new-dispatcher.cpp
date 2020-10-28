@@ -10,10 +10,8 @@ const char *MemoryModeString[MEM_MODE_COUNT] = { "MEM_MODE_EXTERNAL",
                                                  "MEM_MODE_INTERNAL",
                                                  "MEM_MODE_AUTO" };
 
-const char *DispatcherModeString[DISPATCHER_MODE_COUNT] = {
-    "DISPATCHER_MODE_LEGACY",
-    "DISPATCHER_MODE_VPL_20"
-};
+const char *DispatcherModeString[DISPATCHER_MODE_COUNT] = { "DISPATCHER_MODE_LEGACY",
+                                                            "DISPATCHER_MODE_VPL_20" };
 
 // check if this implementation can decode our stream
 bool CheckDecoderImplCaps(mfxImplDescription *implDesc, mfxU32 codecID) {
@@ -31,21 +29,18 @@ bool CheckDecoderImplCaps(mfxImplDescription *implDesc, mfxU32 codecID) {
 }
 
 // check if this implementation can encode our stream
-bool CheckEncoderImplCaps(mfxImplDescription *implDesc,
-                          mfxU32 rawFormat,
-                          mfxU32 codecID) {
+bool CheckEncoderImplCaps(mfxImplDescription *implDesc, mfxU32 rawFormat, mfxU32 codecID) {
     mfxU32 i, j, k, n;
 
     for (i = 0; i < implDesc->Enc.NumCodecs; i++) {
         mfxEncoderDescription::encoder *currEnc = &(implDesc->Enc.Codecs[i]);
         if (currEnc->CodecID == codecID) {
             for (j = 0; j < currEnc->NumProfiles; j++) {
-                mfxEncoderDescription::encoder::encprofile *currProfile =
-                    &(currEnc->Profiles[j]);
+                mfxEncoderDescription::encoder::encprofile *currProfile = &(currEnc->Profiles[j]);
 
                 for (k = 0; k < currProfile->NumMemTypes; k++) {
-                    mfxEncoderDescription::encoder::encprofile::encmemdesc
-                        *currMemDesc = &(currProfile->MemDesc[k]);
+                    mfxEncoderDescription::encoder::encprofile::encmemdesc *currMemDesc =
+                        &(currProfile->MemDesc[k]);
 
                     for (n = 0; n < currMemDesc->NumColorFormats; n++) {
                         if (currMemDesc->ColorFormats[n] == rawFormat)
@@ -60,17 +55,14 @@ bool CheckEncoderImplCaps(mfxImplDescription *implDesc,
 }
 
 // check if this implementation can process our stream (just check in/out colorspaces)
-bool CheckVPPImplCaps(mfxImplDescription *implDesc,
-                      mfxU32 inFormat,
-                      mfxU32 outFormat) {
+bool CheckVPPImplCaps(mfxImplDescription *implDesc, mfxU32 inFormat, mfxU32 outFormat) {
     mfxU32 i, j, k, n;
 
     for (i = 0; i < implDesc->VPP.NumFilters; i++) {
         mfxVPPDescription::filter *currFilter = &(implDesc->VPP.Filters[i]);
         if (currFilter->FilterFourCC == MFX_EXTBUFF_VPP_COLOR_CONVERSION) {
             for (j = 0; j < currFilter->NumMemTypes; j++) {
-                mfxVPPDescription::filter::memdesc *currMemDesc =
-                    &(currFilter->MemDesc[j]);
+                mfxVPPDescription::filter::memdesc *currMemDesc = &(currFilter->MemDesc[j]);
                 for (k = 0; k < currMemDesc->NumInFormats; k++) {
                     mfxVPPDescription::filter::memdesc::format *currFormat =
                         &(currMemDesc->Formats[k]);
@@ -87,9 +79,7 @@ bool CheckVPPImplCaps(mfxImplDescription *implDesc,
     return false;
 }
 
-mfxStatus InitNewDispatcher(WSType wsType,
-                            Params *params,
-                            mfxSession *session) {
+mfxStatus InitNewDispatcher(WSType wsType, Params *params, mfxSession *session) {
     mfxStatus sts = MFX_ERR_NONE;
     *session      = nullptr;
 
@@ -104,12 +94,64 @@ mfxStatus InitNewDispatcher(WSType wsType,
     mfxConfig cfg;
 
     // basic filtering - test for SW implementation
+    sts                = MFX_ERR_NONE;
     cfg                = MFXCreateConfig(loader);
     ImplValue.Type     = MFX_VARIANT_TYPE_U32;
     ImplValue.Data.U32 = MFX_IMPL_TYPE_SOFTWARE;
-    MFXSetConfigFilterProperty(cfg,
-                               (const mfxU8 *)"mfxImplDescription.Impl",
-                               ImplValue);
+    sts = MFXSetConfigFilterProperty(cfg, (const mfxU8 *)"mfxImplDescription.Impl", ImplValue);
+
+    sts = MFX_ERR_NONE;
+    if (wsType == WSTYPE_DECODE) {
+        mfxConfig cfg2     = MFXCreateConfig(loader);
+        ImplValue.Type     = MFX_VARIANT_TYPE_U32;
+        ImplValue.Data.U32 = params->srcFourCC;
+        sts                = MFXSetConfigFilterProperty(
+            cfg2,
+            (const mfxU8 *)"mfxImplDescription.mfxDecoderDescription.decoder.CodecID",
+            ImplValue);
+        if (sts) {
+            printf("Error - MFXSetConfigFilterProperty() failed\n");
+            return sts;
+        }
+    }
+    else if (wsType == WSTYPE_ENCODE) {
+        mfxConfig cfg2     = MFXCreateConfig(loader);
+        ImplValue.Type     = MFX_VARIANT_TYPE_U32;
+        ImplValue.Data.U32 = params->dstFourCC;
+        sts                = MFXSetConfigFilterProperty(
+            cfg2,
+            (const mfxU8 *)"mfxImplDescription.mfxEncoderDescription.encoder.CodecID",
+            ImplValue);
+        if (sts) {
+            printf("Error - MFXSetConfigFilterProperty() failed\n");
+            return sts;
+        }
+    }
+    else if (wsType == WSTYPE_VPP) {
+        mfxConfig cfg2     = MFXCreateConfig(loader);
+        ImplValue.Type     = MFX_VARIANT_TYPE_U32;
+        ImplValue.Data.U32 = params->srcFourCC;
+        sts                = MFXSetConfigFilterProperty(
+            cfg2,
+            (const mfxU8 *)"mfxImplDescription.mfxVPPDescription.filter.memdesc.format.InFormat",
+            ImplValue);
+        if (sts) {
+            printf("Error - MFXSetConfigFilterProperty() failed\n");
+            return sts;
+        }
+
+        mfxConfig cfg3     = MFXCreateConfig(loader);
+        ImplValue.Type     = MFX_VARIANT_TYPE_U32;
+        ImplValue.Data.U32 = params->dstFourCC;
+        sts                = MFXSetConfigFilterProperty(
+            cfg3,
+            (const mfxU8 *)"mfxImplDescription.mfxVPPDescription.filter.memdesc.format.OutFormat",
+            ImplValue);
+        if (sts) {
+            printf("Error - MFXSetConfigFilterProperty() failed\n");
+            return sts;
+        }
+    }
 
     mfxU32 implIdx = 0;
     while (1) {
@@ -130,14 +172,10 @@ mfxStatus InitNewDispatcher(WSType wsType,
             isSupported = CheckDecoderImplCaps(implDesc, params->srcFourCC);
         }
         else if (wsType == WSTYPE_ENCODE) {
-            isSupported = CheckEncoderImplCaps(implDesc,
-                                               params->srcFourCC,
-                                               params->dstFourCC);
+            isSupported = CheckEncoderImplCaps(implDesc, params->srcFourCC, params->dstFourCC);
         }
         else if (wsType == WSTYPE_VPP) {
-            isSupported = CheckVPPImplCaps(implDesc,
-                                           params->srcFourCC,
-                                           params->dstFourCC);
+            isSupported = CheckVPPImplCaps(implDesc, params->srcFourCC, params->dstFourCC);
         }
 
         if (isSupported) {
@@ -194,18 +232,13 @@ static void TestCfgPropsDec(mfxLoader loader) {
     mfxVariant ImplValue;
     const mfxU8 *name;
 
-    name = (const mfxU8
-                *)"mfxImplDescription.mfxDecoderDescription.decoder.CodecID";
+    name = (const mfxU8 *)"mfxImplDescription.mfxDecoderDescription.decoder.CodecID";
     TEST_CFG(MFX_VARIANT_TYPE_U32, U32, MFX_CODEC_HEVC);
 
-    name =
-        (const mfxU8
-             *)"mfxImplDescription.mfxDecoderDescription.decoder.MaxcodecLevel";
+    name = (const mfxU8 *)"mfxImplDescription.mfxDecoderDescription.decoder.MaxcodecLevel";
     TEST_CFG(MFX_VARIANT_TYPE_U16, U16, 54);
 
-    name =
-        (const mfxU8
-             *)"mfxImplDescription.mfxDecoderDescription.decoder.decprofile.Profile";
+    name = (const mfxU8 *)"mfxImplDescription.mfxDecoderDescription.decoder.decprofile.Profile";
     TEST_CFG(MFX_VARIANT_TYPE_U32, U32, 150);
 
     name =
@@ -225,23 +258,17 @@ static void TestCfgPropsEnc(mfxLoader loader) {
     mfxVariant ImplValue;
     const mfxU8 *name;
 
-    name = (const mfxU8
-                *)"mfxImplDescription.mfxEncoderDescription.encoder.CodecID";
+    name = (const mfxU8 *)"mfxImplDescription.mfxEncoderDescription.encoder.CodecID";
     TEST_CFG(MFX_VARIANT_TYPE_U32, U32, MFX_CODEC_HEVC);
 
-    name =
-        (const mfxU8
-             *)"mfxImplDescription.mfxEncoderDescription.encoder.MaxcodecLevel";
+    name = (const mfxU8 *)"mfxImplDescription.mfxEncoderDescription.encoder.MaxcodecLevel";
     TEST_CFG(MFX_VARIANT_TYPE_U16, U16, 54);
 
     name =
-        (const mfxU8
-             *)"mfxImplDescription.mfxEncoderDescription.encoder.BiDirectionalPrediction";
+        (const mfxU8 *)"mfxImplDescription.mfxEncoderDescription.encoder.BiDirectionalPrediction";
     TEST_CFG(MFX_VARIANT_TYPE_U16, U16, 1);
 
-    name =
-        (const mfxU8
-             *)"mfxImplDescription.mfxEncoderDescription.encoder.encprofile.Profile";
+    name = (const mfxU8 *)"mfxImplDescription.mfxEncoderDescription.encoder.encprofile.Profile";
     TEST_CFG(MFX_VARIANT_TYPE_U32, U32, 150);
 
     name =
@@ -261,22 +288,15 @@ static void TestCfgPropsVPP(mfxLoader loader) {
     mfxVariant ImplValue;
     const mfxU8 *name;
 
-    name = (const mfxU8
-                *)"mfxImplDescription.mfxVPPDescription.filter.FilterFourCC";
+    name = (const mfxU8 *)"mfxImplDescription.mfxVPPDescription.filter.FilterFourCC";
     TEST_CFG(MFX_VARIANT_TYPE_U32, U32, MFX_CODEC_HEVC);
 
-    name =
-        (const mfxU8
-             *)"mfxImplDescription.mfxVPPDescription.filter.MaxDelayInFrames";
+    name = (const mfxU8 *)"mfxImplDescription.mfxVPPDescription.filter.MaxDelayInFrames";
     TEST_CFG(MFX_VARIANT_TYPE_U16, U16, 3);
 
-    name =
-        (const mfxU8
-             *)"mfxImplDescription.mfxVPPDescription.filter.memdesc.MemHandleType";
+    name = (const mfxU8 *)"mfxImplDescription.mfxVPPDescription.filter.memdesc.MemHandleType";
     TEST_CFG(MFX_VARIANT_TYPE_I32, I32, MFX_RESOURCE_SYSTEM_SURFACE);
 
-    name =
-        (const mfxU8
-             *)"mfxImplDescription.mfxVPPDescription.filter.memdesc.format.OutFormats";
+    name = (const mfxU8 *)"mfxImplDescription.mfxVPPDescription.filter.memdesc.format.OutFormats";
     TEST_CFG(MFX_VARIANT_TYPE_U32, U32, MFX_FOURCC_I420);
 }

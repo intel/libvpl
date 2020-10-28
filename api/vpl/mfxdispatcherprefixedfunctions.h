@@ -132,4 +132,6 @@
 
 #define MFXQueryImplsDescription         disp_MFXQueryImplsDescription
 #define MFXReleaseImplDescription        disp_MFXReleaseImplDescription
+
+#define MFXInitialize                    disp_MFXInitialize
 #endif 

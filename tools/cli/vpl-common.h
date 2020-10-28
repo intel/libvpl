@@ -6,7 +6,6 @@
 #ifndef TOOLS_CLI_VPL_COMMON_H_
 #define TOOLS_CLI_VPL_COMMON_H_
 
-#define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -46,8 +45,16 @@ enum WSType {
     WSTYPE_COUNT
 };
 
+enum FrameMode {
+    FRAME_MODE_ONE = 0,
+    FRAME_MODE_ALL,
+
+    FRAME_MODE_COUNT
+};
+
 extern const char* MemoryModeString[MEM_MODE_COUNT];
 extern const char* DispatcherModeString[DISPATCHER_MODE_COUNT];
+extern const char* FrameModeString[FRAME_MODE_COUNT];
 
 typedef struct _Params {
     char* infileName;
@@ -84,6 +91,9 @@ typedef struct _Params {
     mfxU32 keyFrameDist;
     mfxU32 qp;
 
+    // loop counter
+    mfxU32 repeat;
+
     // jpeg encoder specific
     mfxU32 quality;
 
@@ -103,6 +113,7 @@ typedef struct _Params {
 
     MemoryMode memoryMode;
     DispatcherMode dispatcherMode;
+    FrameMode frameMode;
 
     mfxU32 outWidth;
     mfxU32 outHeight;

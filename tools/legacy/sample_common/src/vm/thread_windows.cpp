@@ -47,14 +47,12 @@ MSDKSemaphore::~MSDKSemaphore(void) {
 }
 
 mfxStatus MSDKSemaphore::Post(void) {
-    return (ReleaseSemaphore(m_semaphore, 1, NULL) == false) ? MFX_ERR_UNKNOWN
-                                                             : MFX_ERR_NONE;
+    return (ReleaseSemaphore(m_semaphore, 1, NULL) == false) ? MFX_ERR_UNKNOWN : MFX_ERR_NONE;
 }
 
 mfxStatus MSDKSemaphore::Wait(void) {
-    return (WaitForSingleObject(m_semaphore, INFINITE) != WAIT_OBJECT_0)
-               ? MFX_ERR_UNKNOWN
-               : MFX_ERR_NONE;
+    return (WaitForSingleObject(m_semaphore, INFINITE) != WAIT_OBJECT_0) ? MFX_ERR_UNKNOWN
+                                                                         : MFX_ERR_NONE;
 }
 
 /* ****************************************************************************** */
@@ -79,9 +77,8 @@ mfxStatus MSDKEvent::Reset(void) {
 }
 
 mfxStatus MSDKEvent::Wait(void) {
-    return (WaitForSingleObject(m_event, INFINITE) != WAIT_OBJECT_0)
-               ? MFX_ERR_UNKNOWN
-               : MFX_ERR_NONE;
+    return (WaitForSingleObject(m_event, INFINITE) != WAIT_OBJECT_0) ? MFX_ERR_UNKNOWN
+                                                                     : MFX_ERR_NONE;
 }
 
 mfxStatus MSDKEvent::TimedWait(mfxU32 msec) {
@@ -112,9 +109,8 @@ MSDKThread::~MSDKThread(void) {
 }
 
 mfxStatus MSDKThread::Wait(void) {
-    return (WaitForSingleObject(m_thread, INFINITE) != WAIT_OBJECT_0)
-               ? MFX_ERR_UNKNOWN
-               : MFX_ERR_NONE;
+    return (WaitForSingleObject(m_thread, INFINITE) != WAIT_OBJECT_0) ? MFX_ERR_UNKNOWN
+                                                                      : MFX_ERR_NONE;
 }
 
 mfxStatus MSDKThread::TimedWait(mfxU32 msec) {

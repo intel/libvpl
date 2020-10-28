@@ -18,8 +18,7 @@ msdk_so_handle msdk_so_load(const msdk_char *file_name) {
     return (msdk_so_handle)LoadLibrary((LPCTSTR)file_name);
 }
 
-msdk_func_pointer msdk_so_get_addr(msdk_so_handle handle,
-                                   const char *func_name) {
+msdk_func_pointer msdk_so_get_addr(msdk_so_handle handle, const char *func_name) {
     if (!handle)
         return NULL;
     return (msdk_func_pointer)GetProcAddress((HMODULE)handle,

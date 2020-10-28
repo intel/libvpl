@@ -1,24 +1,45 @@
 #!/bin/bash
 ###############################################################################
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 ###############################################################################
 ## start of boilerplate to switch to project root ------------------------------
 script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 proj_dir="$( dirname "${script_dir}" )"
-cd ${proj_dir}
+cd "${proj_dir}"
 set -o errexit
+
+## Read options -----------------------------------------------------------
+BUILD_MODE="Release"
+
+while [ "$1" != "" ]; do
+    case $1 in
+        debug )
+            BUILD_MODE="Debug"
+            ;;
+        * )
+            echo "usage: build [debug]"
+            exit 1
+    esac
+    shift
+done
+
 ## start of commands -----------------------------------------------------------
 CMAKE_BINARY_DIR=_build
+if [ -n "$VPL_INSTALL_DIR" ]; then
+  INSTALL_OPTS=-DCMAKE_INSTALL_PREFIX="${VPL_INSTALL_DIR}"
+fi
 
 mkdir -p ${CMAKE_BINARY_DIR}
 cd ${CMAKE_BINARY_DIR}
 
-if [ "$1" == "gpl" ]; then
- cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_GPL_X264=ON ..
-else
- cmake -DCMAKE_BUILD_TYPE=Release ..
-fi
+cmake ${INSTALL_OPTS} -DCMAKE_BUILD_TYPE=${BUILD_MODE} ..
 
 make -j $(nproc)
+
+cmake --build . --config ${BUILD_MODE} --target package
+
+if [ -n "$TEAMCITY_VERSION" ]; then
+  echo "##teamcity[publishArtifacts 'oneVPL/${CMAKE_BINARY_DIR}/*-all.zip=>']"
+fi

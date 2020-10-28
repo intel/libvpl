@@ -46,10 +46,7 @@ enum MemType {
 enum eWorkMode { MODE_PERFORMANCE, MODE_RENDERING, MODE_FILE_DUMP };
 
 #if MFX_VERSION >= 1022
-enum eDecoderPostProc {
-    MODE_DECODER_POSTPROC_AUTO  = 0x1,
-    MODE_DECODER_POSTPROC_FORCE = 0x2
-};
+enum eDecoderPostProc { MODE_DECODER_POSTPROC_AUTO = 0x1, MODE_DECODER_POSTPROC_FORCE = 0x2 };
 #endif //MFX_VERSION >= 1022
 
 struct sInputParams {
@@ -177,17 +174,13 @@ struct CPipelineStatistics {
               m_timer_overall(m_tick_overall) {}
     virtual ~CPipelineStatistics() {}
 
-    mfxU32
-        m_input_count; // number of received incoming packets (frames or bitstreams)
-    mfxU32
-        m_output_count; // number of delivered outgoing packets (frames or bitstreams)
+    mfxU32 m_input_count; // number of received incoming packets (frames or bitstreams)
+    mfxU32 m_output_count; // number of delivered outgoing packets (frames or bitstreams)
     mfxU32 m_synced_count;
 
     msdk_tick m_tick_overall; // overall time passed during processing
-    msdk_tick
-        m_tick_fread; // part of tick_overall: time spent to receive incoming data
-    msdk_tick
-        m_tick_fwrite; // part of tick_overall: time spent to deliver outgoing data
+    msdk_tick m_tick_fread; // part of tick_overall: time spent to receive incoming data
+    msdk_tick m_tick_fwrite; // part of tick_overall: time spent to deliver outgoing data
 
     CAutoTimer m_timer_overall; // timer which corresponds to m_tick_overall
 
@@ -217,8 +210,7 @@ public:
     }
 
 #if (MFX_VERSION >= 1025)
-    inline void PrintDecodeErrorReport(
-        mfxExtDecodeErrorReport* pDecodeErrorReport) {
+    inline void PrintDecodeErrorReport(mfxExtDecodeErrorReport* pDecodeErrorReport) {
         if (pDecodeErrorReport) {
             if (pDecodeErrorReport->ErrorTypes & MFX_ERROR_SPS)
                 msdk_printf(MSDK_STRING("[Error] SPS Error detected!\n"));
@@ -227,8 +219,7 @@ public:
                 msdk_printf(MSDK_STRING("[Error] PPS Error detected!\n"));
 
             if (pDecodeErrorReport->ErrorTypes & MFX_ERROR_SLICEHEADER)
-                msdk_printf(
-                    MSDK_STRING("[Error] SliceHeader Error detected!\n"));
+                msdk_printf(MSDK_STRING("[Error] SliceHeader Error detected!\n"));
 
             if (pDecodeErrorReport->ErrorTypes & MFX_ERROR_FRAME_GAP)
                 msdk_printf(MSDK_STRING("[Error] Frame Gap Error detected!\n"));
@@ -304,35 +295,25 @@ protected: // variables
     mfxAllocatorParams* m_pmfxAllocatorParams;
     MemType m_memType; // memory type of surfaces to use
     bool m_bExternalAlloc; // use memory allocator as external for Media SDK
-    bool
-        m_bDecOutSysmem; // use system memory between Decoder and VPP, if false - video memory
-    mfxFrameAllocResponse
-        m_mfxResponse; // memory allocation response for decoder
-    mfxFrameAllocResponse
-        m_mfxVppResponse; // memory allocation response for vpp
+    bool m_bDecOutSysmem; // use system memory between Decoder and VPP, if false - video memory
+    mfxFrameAllocResponse m_mfxResponse; // memory allocation response for decoder
+    mfxFrameAllocResponse m_mfxVppResponse; // memory allocation response for vpp
 
-    msdkFrameSurface*
-        m_pCurrentFreeSurface; // surface detached from free surfaces array
-    msdkFrameSurface*
-        m_pCurrentFreeVppSurface; // VPP surface detached from free VPP surfaces array
+    msdkFrameSurface* m_pCurrentFreeSurface; // surface detached from free surfaces array
+    msdkFrameSurface* m_pCurrentFreeVppSurface; // VPP surface detached from free VPP surfaces array
     msdkOutputSurface*
         m_pCurrentFreeOutputSurface; // surface detached from free output surfaces array
-    msdkOutputSurface*
-        m_pCurrentOutputSurface; // surface detached from output surfaces array
+    msdkOutputSurface* m_pCurrentOutputSurface; // surface detached from output surfaces array
 
-    MSDKSemaphore*
-        m_pDeliverOutputSemaphore; // to access to DeliverOutput method
-    MSDKEvent*
-        m_pDeliveredEvent; // to signal when output surfaces will be processed
+    MSDKSemaphore* m_pDeliverOutputSemaphore; // to access to DeliverOutput method
+    MSDKEvent* m_pDeliveredEvent; // to signal when output surfaces will be processed
     mfxStatus m_error; // error returned by DeliverOutput method
     bool m_bStopDeliverLoop;
 
     eWorkMode m_eWorkMode; // work mode for the pipeline
-    bool
-        m_bIsMVC; // enables MVC mode (need to support several files as an output)
+    bool m_bIsMVC; // enables MVC mode (need to support several files as an output)
     bool m_bIsExtBuffers; // indicates if external buffers were allocated
-    bool
-        m_bIsVideoWall; // indicates special mode: decoding will be done in a loop
+    bool m_bIsVideoWall; // indicates special mode: decoding will be done in a loop
     bool m_bIsCompleteFrame;
     mfxU32 m_fourcc; // color format of vpp out, i420 by default
     bool m_bPrintLatency;
@@ -341,8 +322,7 @@ protected: // variables
     mfxU16 m_vppOutWidth;
     mfxU16 m_vppOutHeight;
 
-    mfxU32
-        m_nTimeout; // enables timeout for video playback, measured in seconds
+    mfxU32 m_nTimeout; // enables timeout for video playback, measured in seconds
     mfxU16 m_nMaxFps; // limit of fps, if isn't specified equal 0.
     mfxU32 m_nFrames; //limit number of output frames
 

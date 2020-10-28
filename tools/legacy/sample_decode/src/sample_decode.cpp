@@ -15,37 +15,29 @@
 #endif
 
 void PrintHelp(msdk_char *strAppName, const msdk_char *strErrorMessage) {
-    msdk_printf(MSDK_STRING("Decoding Sample Version %s\n\n"),
-                GetMSDKSampleVersion().c_str());
+    msdk_printf(MSDK_STRING("Decoding Sample Version %s\n\n"), GetMSDKSampleVersion().c_str());
 
     if (strErrorMessage) {
         msdk_printf(MSDK_STRING("Error: %s\n"), strErrorMessage);
     }
 
-    msdk_printf(
-        MSDK_STRING("Usage: %s <codecid> [<options>] -i InputBitstream\n"),
-        strAppName);
-    msdk_printf(
-        MSDK_STRING("   or: %s <codecid> [<options>] -i InputBitstream -r\n"),
-        strAppName);
-    msdk_printf(
-        MSDK_STRING(
-            "   or: %s <codecid> [<options>] -i InputBitstream -o OutputYUVFile\n"),
-        strAppName);
+    msdk_printf(MSDK_STRING("Usage: %s <codecid> [<options>] -i InputBitstream\n"), strAppName);
+    msdk_printf(MSDK_STRING("   or: %s <codecid> [<options>] -i InputBitstream -r\n"), strAppName);
+    msdk_printf(MSDK_STRING("   or: %s <codecid> [<options>] -i InputBitstream -o OutputYUVFile\n"),
+                strAppName);
     msdk_printf(MSDK_STRING("\n"));
     msdk_printf(MSDK_STRING("Supported codecs (<codecid>):\n"));
-    msdk_printf(MSDK_STRING(
-        "   <codecid>=h264|mpeg2|vc1|mvc|jpeg|vp9 - built-in Media SDK codecs\n"));
+    msdk_printf(
+        MSDK_STRING("   <codecid>=h264|mpeg2|vc1|mvc|jpeg|vp9 - built-in Media SDK codecs\n"));
     msdk_printf(MSDK_STRING(
         "   <codecid>=h265|vp9|capture            - in-box Media SDK plugins (may require separate downloading and installation)\n"));
     msdk_printf(MSDK_STRING("\n"));
     msdk_printf(MSDK_STRING("Work models:\n"));
     msdk_printf(MSDK_STRING(
         "  1. Performance model: decoding on MAX speed, no rendering, no YUV dumping (no -r or -o option)\n"));
-    msdk_printf(MSDK_STRING(
-        "  2. Rendering model: decoding with rendering on the screen (-r option)\n"));
-    msdk_printf(MSDK_STRING(
-        "  3. Dump model: decoding with YUV dumping (-o option)\n"));
+    msdk_printf(
+        MSDK_STRING("  2. Rendering model: decoding with rendering on the screen (-r option)\n"));
+    msdk_printf(MSDK_STRING("  3. Dump model: decoding with YUV dumping (-o option)\n"));
     msdk_printf(MSDK_STRING("\n"));
     msdk_printf(MSDK_STRING("Options:\n"));
     msdk_printf(MSDK_STRING("   [-?]                      - print help\n"));
@@ -54,47 +46,42 @@ void PrintHelp(msdk_char *strAppName, const msdk_char *strErrorMessage) {
     msdk_printf(MSDK_STRING(
         "   [-sw]                     - use software implementation, if not specified platform specific SDK implementation is used\n"));
     msdk_printf(MSDK_STRING(
-        "   [-vpl]                    - use VPL software implementation (libmfxvplsw64)\n"));
+        "   [-vpl]                    - use VPL software implementation (libvplswref64)\n"));
     msdk_printf(MSDK_STRING(
         "   [-p plugin]               - decoder plugin. Supported values: hevcd_sw, hevcd_hw, vp8d_hw, vp9d_hw, camera_hw, capture_hw\n"));
     msdk_printf(MSDK_STRING(
         "   [-path path]              - path to plugin (valid only in pair with -p option)\n"));
     msdk_printf(MSDK_STRING(
         "                               (optional for Media SDK in-box plugins, required for user-decoder ones)\n"));
-    msdk_printf(
-        MSDK_STRING("   [-f]                      - rendering framerate\n"));
+    msdk_printf(MSDK_STRING("   [-f]                      - rendering framerate\n"));
     msdk_printf(MSDK_STRING("   [-w]                      - output width\n"));
     msdk_printf(MSDK_STRING("   [-h]                      - output height\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-di bob/adi]             - enable deinterlacing BOB/ADI\n"));
+    msdk_printf(MSDK_STRING("   [-di bob/adi]             - enable deinterlacing BOB/ADI\n"));
 #if (MFX_VERSION >= 1025)
-    msdk_printf(MSDK_STRING(
-        "   [-d]                      - enable decode error report\n"));
+    msdk_printf(MSDK_STRING("   [-d]                      - enable decode error report\n"));
 #endif
     msdk_printf(MSDK_STRING("\n"));
     msdk_printf(MSDK_STRING("JPEG Chroma Type:\n"));
     msdk_printf(MSDK_STRING("   [-jpeg_rgb] - RGB Chroma Type\n"));
     msdk_printf(MSDK_STRING("Output format parameters:\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-i420] - pipeline output format: NV12, output file format: I420\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-nv12] - pipeline output format: NV12, output file format: NV12\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-rgb4] - pipeline output format: RGB4, output file format: RGB4\n"));
+    msdk_printf(
+        MSDK_STRING("   [-i420] - pipeline output format: NV12, output file format: I420\n"));
+    msdk_printf(
+        MSDK_STRING("   [-nv12] - pipeline output format: NV12, output file format: NV12\n"));
+    msdk_printf(
+        MSDK_STRING("   [-rgb4] - pipeline output format: RGB4, output file format: RGB4\n"));
     msdk_printf(MSDK_STRING(
         "   [-rgb4_fcr] - pipeline output format: RGB4 in full color range, output file format: RGB4 in full color range\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-p010] - pipeline output format: P010, output file format: P010\n"));
+    msdk_printf(
+        MSDK_STRING("   [-p010] - pipeline output format: P010, output file format: P010\n"));
     msdk_printf(MSDK_STRING(
         "   [-a2rgb10] - pipeline output format: A2RGB10, output file format: A2RGB10\n"));
     msdk_printf(MSDK_STRING("\n"));
 #if D3D_SURFACES_SUPPORT
-    msdk_printf(MSDK_STRING(
-        "   [-d3d]                    - work with d3d9 surfaces\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-d3d11]                  - work with d3d11 surfaces\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-r]                      - render decoded data in a separate window \n"));
+    msdk_printf(MSDK_STRING("   [-d3d]                    - work with d3d9 surfaces\n"));
+    msdk_printf(MSDK_STRING("   [-d3d11]                  - work with d3d11 surfaces\n"));
+    msdk_printf(
+        MSDK_STRING("   [-r]                      - render decoded data in a separate window \n"));
     msdk_printf(MSDK_STRING(
         "   [-wall w h n m t tmo]     - same as -r, and positioned rendering window in a particular cell on specific monitor \n"));
     msdk_printf(MSDK_STRING(
@@ -104,32 +91,29 @@ void PrintHelp(msdk_char *strAppName, const msdk_char *strErrorMessage) {
     msdk_printf(MSDK_STRING(
         "       n(0,.,w*h-1)          - order of video window in table that will be rendered\n"));
     msdk_printf(MSDK_STRING("       m(0,1..)              - monitor id \n"));
-    msdk_printf(MSDK_STRING(
-        "       t(0/1)                - enable/disable window's title\n"));
-    msdk_printf(MSDK_STRING(
-        "       tmo                   - timeout for -wall option\n"));
+    msdk_printf(MSDK_STRING("       t(0/1)                - enable/disable window's title\n"));
+    msdk_printf(MSDK_STRING("       tmo                   - timeout for -wall option\n"));
     msdk_printf(MSDK_STRING("\n"));
 
 #endif
 #if defined(LIBVA_SUPPORT)
-    msdk_printf(MSDK_STRING(
-        "   [-vaapi]                  - work with vaapi surfaces\n"));
+    msdk_printf(MSDK_STRING("   [-vaapi]                  - work with vaapi surfaces\n"));
 #endif
 #if defined(LIBVA_X11_SUPPORT)
     msdk_printf(MSDK_STRING(
         "   [-r]                      - render decoded data in a separate X11 window \n"));
 #endif
 #if defined(LIBVA_WAYLAND_SUPPORT)
-    msdk_printf(MSDK_STRING(
-        "   [-rwld]                   - render decoded data in a Wayland window \n"));
+    msdk_printf(
+        MSDK_STRING("   [-rwld]                   - render decoded data in a Wayland window \n"));
     msdk_printf(MSDK_STRING(
         "   [-perf]                   - turn on asynchronous flipping with Wayland rendering \n"));
 #endif
 #if defined(LIBVA_DRM_SUPPORT)
     msdk_printf(MSDK_STRING(
         "   [-rdrm]                   - render decoded data in a thru DRM frame buffer\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-window x y w h]         - set render window position and size\n"));
+    msdk_printf(
+        MSDK_STRING("   [-window x y w h]         - set render window position and size\n"));
 #endif
     msdk_printf(MSDK_STRING(
         "   [-low_latency]            - configures decoder for low latency mode (supported only for H.264 and JPEG codec)\n"));
@@ -137,19 +121,17 @@ void PrintHelp(msdk_char *strAppName, const msdk_char *strErrorMessage) {
         "   [-calc_latency]           - calculates latency during decoding and prints log (supported only for H.264 and JPEG codec)\n"));
     msdk_printf(MSDK_STRING(
         "   [-async]                  - depth of asynchronous pipeline. default value is 4. must be between 1 and 20\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-gpucopy::<on,off>] Enable or disable GPU copy mode\n"));
+    msdk_printf(MSDK_STRING("   [-gpucopy::<on,off>] Enable or disable GPU copy mode\n"));
     msdk_printf(MSDK_STRING(
         "   [-robust:soft]            - GPU hang recovery by inserting an IDR frame\n"));
-    msdk_printf(
-        MSDK_STRING("   [-timeout]                - timeout in seconds\n"));
+    msdk_printf(MSDK_STRING("   [-timeout]                - timeout in seconds\n"));
 #if MFX_VERSION >= 1022
-    msdk_printf(MSDK_STRING(
-        "   [-dec_postproc force/auto] - resize after decoder using direct pipe\n"));
-    msdk_printf(MSDK_STRING(
-        "                  force: instruct to use decoder-based post processing\n"));
-    msdk_printf(MSDK_STRING(
-        "                         or fail if the decoded stream is unsupported\n"));
+    msdk_printf(
+        MSDK_STRING("   [-dec_postproc force/auto] - resize after decoder using direct pipe\n"));
+    msdk_printf(
+        MSDK_STRING("                  force: instruct to use decoder-based post processing\n"));
+    msdk_printf(
+        MSDK_STRING("                         or fail if the decoded stream is unsupported\n"));
     msdk_printf(MSDK_STRING(
         "                  auto: instruct to use decoder-based post processing for supported streams \n"));
     msdk_printf(MSDK_STRING(
@@ -157,36 +139,27 @@ void PrintHelp(msdk_char *strAppName, const msdk_char *strErrorMessage) {
 
 #endif //MFX_VERSION >= 1022
 #if !defined(_WIN32) && !defined(_WIN64)
-    msdk_printf(MSDK_STRING(
-        "   [-threads_num]            - number of mediasdk task threads\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-threads_schedtype]      - scheduling type of mediasdk task threads\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-threads_priority]       - priority of mediasdk task threads\n"));
+    msdk_printf(MSDK_STRING("   [-threads_num]            - number of mediasdk task threads\n"));
+    msdk_printf(
+        MSDK_STRING("   [-threads_schedtype]      - scheduling type of mediasdk task threads\n"));
+    msdk_printf(MSDK_STRING("   [-threads_priority]       - priority of mediasdk task threads\n"));
     msdk_printf(MSDK_STRING("\n"));
     msdk_thread_printf_scheduling_help();
 #endif
 #if defined(_WIN32) || defined(_WIN64)
-    msdk_printf(MSDK_STRING(
-        "   [-jpeg_rotate n]          - rotate jpeg frame n degrees \n"));
-    msdk_printf(
-        MSDK_STRING("       n(90,180,270)         - number of degrees \n"));
+    msdk_printf(MSDK_STRING("   [-jpeg_rotate n]          - rotate jpeg frame n degrees \n"));
+    msdk_printf(MSDK_STRING("       n(90,180,270)         - number of degrees \n"));
 
     msdk_printf(MSDK_STRING("\nFeatures: \n"));
-    msdk_printf(
-        MSDK_STRING("   Press 1 to toggle fullscreen rendering on/off\n"));
+    msdk_printf(MSDK_STRING("   Press 1 to toggle fullscreen rendering on/off\n"));
 #endif
     msdk_printf(MSDK_STRING("\n"));
     msdk_printf(MSDK_STRING("Example:\n"));
-    msdk_printf(
-        MSDK_STRING(
-            "  %s h265 -i in.bit -o out.yuv -p 15dd936825ad475ea34e35f3f54217a6\n"),
-        strAppName);
+    msdk_printf(MSDK_STRING("  %s h265 -i in.bit -o out.yuv -p 15dd936825ad475ea34e35f3f54217a6\n"),
+                strAppName);
 }
 
-mfxStatus ParseInputString(msdk_char *strInput[],
-                           mfxU8 nArgNum,
-                           sInputParams *pParams) {
+mfxStatus ParseInputString(msdk_char *strInput[], mfxU8 nArgNum, sInputParams *pParams) {
     if (1 == nArgNum) {
         PrintHelp(strInput[0], NULL);
         return MFX_ERR_UNSUPPORTED;
@@ -203,8 +176,7 @@ mfxStatus ParseInputString(msdk_char *strInput[],
 
     for (mfxU8 i = 1; i < nArgNum; i++) {
         if (MSDK_CHAR('-') != strInput[i][0]) {
-            mfxStatus sts =
-                StrFormatToCodecFormatFourCC(strInput[i], pParams->videoType);
+            mfxStatus sts = StrFormatToCodecFormatFourCC(strInput[i], pParams->videoType);
             if (sts != MFX_ERR_NONE) {
                 PrintHelp(strInput[0], MSDK_STRING("Unknown codec"));
                 return MFX_ERR_UNSUPPORTED;
@@ -248,8 +220,7 @@ mfxStatus ParseInputString(msdk_char *strInput[],
         }
         else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-wall"))) {
             if (i + 6 >= nArgNum) {
-                PrintHelp(strInput[0],
-                          MSDK_STRING("Not enough parameters for -wall key"));
+                PrintHelp(strInput[0], MSDK_STRING("Not enough parameters for -wall key"));
                 return MFX_ERR_UNSUPPORTED;
             }
             // use d3d9 rendering by default
@@ -294,26 +265,22 @@ mfxStatus ParseInputString(msdk_char *strInput[],
             pParams->libvaBackend = MFX_LIBVA_DRM_MODESET;
             if (strInput[i][5]) {
                 if (strInput[i][5] != '-') {
-                    PrintHelp(strInput[0],
-                              MSDK_STRING("unsupported monitor type"));
+                    PrintHelp(strInput[0], MSDK_STRING("unsupported monitor type"));
                     return MFX_ERR_UNSUPPORTED;
                 }
                 pParams->monitorType = getMonitorType(&strInput[i][6]);
                 if (pParams->monitorType >= MFX_MONITOR_MAXNUMBER) {
-                    PrintHelp(strInput[0],
-                              MSDK_STRING("unsupported monitor type"));
+                    PrintHelp(strInput[0], MSDK_STRING("unsupported monitor type"));
                     return MFX_ERR_UNSUPPORTED;
                 }
             }
             else {
-                pParams->monitorType =
-                    MFX_MONITOR_AUTO; // that's case of "-rdrm" pure option
+                pParams->monitorType = MFX_MONITOR_AUTO; // that's case of "-rdrm" pure option
             }
         }
         else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-window"))) {
             if (i + 4 >= nArgNum) {
-                PrintHelp(strInput[0],
-                          MSDK_STRING("Not enough parameters for -window key"));
+                PrintHelp(strInput[0], MSDK_STRING("Not enough parameters for -window key"));
                 return MFX_ERR_UNSUPPORTED;
             }
             msdk_opt_read(strInput[++i], pParams->nRenderWinX);
@@ -339,10 +306,9 @@ mfxStatus ParseInputString(msdk_char *strInput[],
                         break;
                 }
                 default: {
-                    PrintHelp(
-                        strInput[0],
-                        MSDK_STRING(
-                            "-low_latency mode is suppoted only for H.264 and JPEG codecs"));
+                    PrintHelp(strInput[0],
+                              MSDK_STRING(
+                                  "-low_latency mode is suppoted only for H.264 and JPEG codecs"));
                     return MFX_ERR_UNSUPPORTED;
                 }
             }
@@ -352,19 +318,15 @@ mfxStatus ParseInputString(msdk_char *strInput[],
                 return MFX_ERR_UNSUPPORTED;
 
             if (i + 1 >= nArgNum) {
-                PrintHelp(
-                    strInput[0],
-                    MSDK_STRING("Not enough parameters for -jpeg_rotate key"));
+                PrintHelp(strInput[0], MSDK_STRING("Not enough parameters for -jpeg_rotate key"));
                 return MFX_ERR_UNSUPPORTED;
             }
 
             msdk_opt_read(strInput[++i], pParams->nRotation);
             if ((pParams->nRotation != 90) && (pParams->nRotation != 180) &&
                 (pParams->nRotation != 270)) {
-                PrintHelp(
-                    strInput[0],
-                    MSDK_STRING(
-                        "-jpeg_rotate is supported only for 90, 180 and 270 angles"));
+                PrintHelp(strInput[0],
+                          MSDK_STRING("-jpeg_rotate is supported only for 90, 180 and 270 angles"));
                 return MFX_ERR_UNSUPPORTED;
             }
         }
@@ -378,35 +340,29 @@ mfxStatus ParseInputString(msdk_char *strInput[],
                         break;
                 }
                 default: {
-                    PrintHelp(
-                        strInput[0],
-                        MSDK_STRING(
-                            "-calc_latency mode is suppoted only for H.264 and JPEG codecs"));
+                    PrintHelp(strInput[0],
+                              MSDK_STRING(
+                                  "-calc_latency mode is suppoted only for H.264 and JPEG codecs"));
                     return MFX_ERR_UNSUPPORTED;
                 }
             }
         }
         else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-async"))) {
             if (i + 1 >= nArgNum) {
-                PrintHelp(strInput[0],
-                          MSDK_STRING("Not enough parameters for -async key"));
+                PrintHelp(strInput[0], MSDK_STRING("Not enough parameters for -async key"));
                 return MFX_ERR_UNSUPPORTED;
             }
-            if (MFX_ERR_NONE !=
-                msdk_opt_read(strInput[++i], pParams->nAsyncDepth)) {
+            if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->nAsyncDepth)) {
                 PrintHelp(strInput[0], MSDK_STRING("async is invalid"));
                 return MFX_ERR_UNSUPPORTED;
             }
         }
         else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-timeout"))) {
             if (i + 1 >= nArgNum) {
-                PrintHelp(
-                    strInput[0],
-                    MSDK_STRING("Not enough parameters for -timeout key"));
+                PrintHelp(strInput[0], MSDK_STRING("Not enough parameters for -timeout key"));
                 return MFX_ERR_UNSUPPORTED;
             }
-            if (MFX_ERR_NONE !=
-                msdk_opt_read(strInput[++i], pParams->nTimeout)) {
+            if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->nTimeout)) {
                 PrintHelp(strInput[0], MSDK_STRING("timeout is invalid"));
                 return MFX_ERR_UNSUPPORTED;
             }
@@ -414,14 +370,12 @@ mfxStatus ParseInputString(msdk_char *strInput[],
 
         else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-di"))) {
             if (i + 1 >= nArgNum) {
-                PrintHelp(strInput[0],
-                          MSDK_STRING("Not enough parameters for -di key"));
+                PrintHelp(strInput[0], MSDK_STRING("Not enough parameters for -di key"));
                 return MFX_ERR_UNSUPPORTED;
             }
             msdk_char diMode[32] = {};
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], diMode)) {
-                PrintHelp(strInput[0],
-                          MSDK_STRING("deinterlace value is not set"));
+                PrintHelp(strInput[0], MSDK_STRING("deinterlace value is not set"));
                 return MFX_ERR_UNSUPPORTED;
             }
 
@@ -432,8 +386,7 @@ mfxStatus ParseInputString(msdk_char *strInput[],
                 pParams->eDeinterlace = MFX_DEINTERLACING_ADVANCED;
             }
             else {
-                PrintHelp(strInput[0],
-                          MSDK_STRING("deinterlace value is invalid"));
+                PrintHelp(strInput[0], MSDK_STRING("deinterlace value is invalid"));
                 return MFX_ERR_UNSUPPORTED;
             }
         }
@@ -454,47 +407,33 @@ mfxStatus ParseInputString(msdk_char *strInput[],
     #endif
         else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-threads_num"))) {
             if (i + 1 >= nArgNum) {
-                PrintHelp(
-                    strInput[0],
-                    MSDK_STRING("Not enough parameters for -threads_num key"));
+                PrintHelp(strInput[0], MSDK_STRING("Not enough parameters for -threads_num key"));
                 return MFX_ERR_UNSUPPORTED;
             }
-            if (MFX_ERR_NONE !=
-                msdk_opt_read(strInput[++i], pParams->nThreadsNum)) {
+            if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->nThreadsNum)) {
                 PrintHelp(strInput[0], MSDK_STRING("threads_num is invalid"));
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 ==
-                 msdk_strcmp(strInput[i], MSDK_STRING("-threads_schedtype"))) {
+        else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-threads_schedtype"))) {
             if (i + 1 >= nArgNum) {
-                PrintHelp(
-                    strInput[0],
-                    MSDK_STRING(
-                        "Not enough parameters for -threads_schedtype key"));
+                PrintHelp(strInput[0],
+                          MSDK_STRING("Not enough parameters for -threads_schedtype key"));
                 return MFX_ERR_UNSUPPORTED;
             }
-            if (MFX_ERR_NONE !=
-                msdk_thread_get_schedtype(strInput[++i],
-                                          pParams->SchedulingType)) {
-                PrintHelp(strInput[0],
-                          MSDK_STRING("threads_schedtype is invalid"));
+            if (MFX_ERR_NONE != msdk_thread_get_schedtype(strInput[++i], pParams->SchedulingType)) {
+                PrintHelp(strInput[0], MSDK_STRING("threads_schedtype is invalid"));
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 ==
-                 msdk_strcmp(strInput[i], MSDK_STRING("-threads_priority"))) {
+        else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-threads_priority"))) {
             if (i + 1 >= nArgNum) {
-                PrintHelp(
-                    strInput[0],
-                    MSDK_STRING(
-                        "Not enough parameters for -threads_priority key"));
+                PrintHelp(strInput[0],
+                          MSDK_STRING("Not enough parameters for -threads_priority key"));
                 return MFX_ERR_UNSUPPORTED;
             }
-            if (MFX_ERR_NONE !=
-                msdk_opt_read(strInput[++i], pParams->Priority)) {
-                PrintHelp(strInput[0],
-                          MSDK_STRING("threads_priority is invalid"));
+            if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->Priority)) {
+                PrintHelp(strInput[0], MSDK_STRING("threads_priority is invalid"));
                 return MFX_ERR_UNSUPPORTED;
             }
         }
@@ -510,8 +449,7 @@ mfxStatus ParseInputString(msdk_char *strInput[],
             }
             msdk_char postProcMode[32] = {};
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], postProcMode)) {
-                PrintHelp(strInput[0],
-                          MSDK_STRING("dec_postproc value is not set"));
+                PrintHelp(strInput[0], MSDK_STRING("dec_postproc value is not set"));
                 return MFX_ERR_UNSUPPORTED;
             }
             if (0 == msdk_strcmp(postProcMode, MSDK_STRING("auto"))) {
@@ -528,21 +466,17 @@ mfxStatus ParseInputString(msdk_char *strInput[],
 #endif //MFX_VERSION >= 1022
         else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-f"))) {
             if (i + 1 >= nArgNum) {
-                PrintHelp(strInput[0],
-                          MSDK_STRING("Not enough parameters for -f key"));
+                PrintHelp(strInput[0], MSDK_STRING("Not enough parameters for -f key"));
                 return MFX_ERR_UNSUPPORTED;
             }
-            if (MFX_ERR_NONE !=
-                msdk_opt_read(strInput[++i], pParams->nMaxFPS)) {
-                PrintHelp(strInput[0],
-                          MSDK_STRING("rendering frame rate is invalid"));
+            if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->nMaxFPS)) {
+                PrintHelp(strInput[0], MSDK_STRING("rendering frame rate is invalid"));
                 return MFX_ERR_UNSUPPORTED;
             }
         }
         else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-w"))) {
             if (i + 1 >= nArgNum) {
-                PrintHelp(strInput[0],
-                          MSDK_STRING("Not enough parameters for -w key"));
+                PrintHelp(strInput[0], MSDK_STRING("Not enough parameters for -w key"));
                 return MFX_ERR_UNSUPPORTED;
             }
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->Width)) {
@@ -552,8 +486,7 @@ mfxStatus ParseInputString(msdk_char *strInput[],
         }
         else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-h"))) {
             if (i + 1 >= nArgNum) {
-                PrintHelp(strInput[0],
-                          MSDK_STRING("Not enough parameters for -h key"));
+                PrintHelp(strInput[0], MSDK_STRING("Not enough parameters for -h key"));
                 return MFX_ERR_UNSUPPORTED;
             }
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->Height)) {
@@ -563,14 +496,11 @@ mfxStatus ParseInputString(msdk_char *strInput[],
         }
         else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-n"))) {
             if (i + 1 >= nArgNum) {
-                PrintHelp(strInput[0],
-                          MSDK_STRING("Not enough parameters for -n key"));
+                PrintHelp(strInput[0], MSDK_STRING("Not enough parameters for -n key"));
                 return MFX_ERR_UNSUPPORTED;
             }
-            if (MFX_ERR_NONE !=
-                msdk_opt_read(strInput[++i], pParams->nFrames)) {
-                PrintHelp(strInput[0],
-                          MSDK_STRING("rendering frame rate is invalid"));
+            if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->nFrames)) {
+                PrintHelp(strInput[0], MSDK_STRING("rendering frame rate is invalid"));
                 return MFX_ERR_UNSUPPORTED;
             }
         }
@@ -610,8 +540,7 @@ mfxStatus ParseInputString(msdk_char *strInput[],
                         msdk_opt_read(strInput[i], pParams->strSrcFile);
                     }
                     else {
-                        msdk_printf(MSDK_STRING(
-                            "error: option '-i' expects an argument\n"));
+                        msdk_printf(MSDK_STRING("error: option '-i' expects an argument\n"));
                     }
                     break;
                 case MSDK_CHAR('o'):
@@ -620,8 +549,7 @@ mfxStatus ParseInputString(msdk_char *strInput[],
                         msdk_opt_read(strInput[i], pParams->strDstFile);
                     }
                     else {
-                        msdk_printf(MSDK_STRING(
-                            "error: option '-o' expects an argument\n"));
+                        msdk_printf(MSDK_STRING("error: option '-o' expects an argument\n"));
                     }
                     break;
                 case MSDK_CHAR('?'):
@@ -642,18 +570,14 @@ mfxStatus ParseInputString(msdk_char *strInput[],
         return MFX_ERR_UNSUPPORTED;
     }
 
-    if ((pParams->mode == MODE_FILE_DUMP) &&
-        (0 == msdk_strlen(pParams->strDstFile))) {
+    if ((pParams->mode == MODE_FILE_DUMP) && (0 == msdk_strlen(pParams->strDstFile))) {
         msdk_printf(MSDK_STRING("error: destination file name not found"));
         return MFX_ERR_UNSUPPORTED;
     }
 
-    if (MFX_CODEC_MPEG2 != pParams->videoType &&
-        MFX_CODEC_AVC != pParams->videoType &&
-        MFX_CODEC_HEVC != pParams->videoType &&
-        MFX_CODEC_VC1 != pParams->videoType &&
-        MFX_CODEC_JPEG != pParams->videoType &&
-        MFX_CODEC_VP8 != pParams->videoType &&
+    if (MFX_CODEC_MPEG2 != pParams->videoType && MFX_CODEC_AVC != pParams->videoType &&
+        MFX_CODEC_HEVC != pParams->videoType && MFX_CODEC_VC1 != pParams->videoType &&
+        MFX_CODEC_JPEG != pParams->videoType && MFX_CODEC_VP8 != pParams->videoType &&
         MFX_CODEC_VP9 != pParams->videoType) {
         PrintHelp(strInput[0], MSDK_STRING("Unknown codec"));
         return MFX_ERR_UNSUPPORTED;
@@ -700,8 +624,8 @@ int main(int argc, char *argv[])
     for (;;) {
         sts = Pipeline.RunDecoding();
 
-        if (MFX_ERR_INCOMPATIBLE_VIDEO_PARAM == sts ||
-            MFX_ERR_DEVICE_LOST == sts || MFX_ERR_DEVICE_FAILED == sts) {
+        if (MFX_ERR_INCOMPATIBLE_VIDEO_PARAM == sts || MFX_ERR_DEVICE_LOST == sts ||
+            MFX_ERR_DEVICE_FAILED == sts) {
             if (prevResetBytesCount == Pipeline.GetTotalBytesProcessed()) {
                 msdk_printf(MSDK_STRING(
                     "\nERROR: No input data was consumed since last reset. Quitting to avoid looping forever.\n"));

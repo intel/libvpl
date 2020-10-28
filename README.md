@@ -4,65 +4,56 @@ The oneAPI Video Processing Library (oneVPL) provides a single video processing
 API for encode, decode, and video processing that works across a wide range of
 accelerators.
 
-This repository contains the API, dispatcher, and a CPU reference implementation
-of the specification.
+This repository contains the following components of oneVPL:
 
-## Building
+- Copies of the oneVPL Specification API header files
+- oneVPL dispatcher
+- Examples demonstrating API usage
+- oneVPL command line tools
 
-### Configure the build environment
+This project is part of the larger [oneAPI](https://www.oneapi.com/) project.
+See **Contributing** below for details about submitting issues and pull
+requests.
 
-See BUILD.md for instructions on installing build prerequisites
+oneAPI Specification: 
+https://spec.oneapi.com
+
+oneVPL Specification: 
+https://spec.oneapi.com/versions/latest/elements/oneVPL/source/index.html
+
+The version of the oneVPL API is listed in the file
+[mfxdefs.h](./api/vpl/mfxdefs.h).
 
 
-### Build dependencies and oneVPL (default, no GPL)
+## Building and Installing
 
-Ubuntu bash shell:
-```
-script/bootstrap
-script/build
-```
+### Prerequisites
 
-You can find the build output in `_build`.
+- Compiler with C++11 support
+- CMake 3.10 or newer
 
-Windows cmd prompt:
-```
-script\bootstrap
-script\build
-```
 
-You can find the build output in `_build\Release`.
-
-### Optionally enable h264 encode
-
-Add `gpl` to the above build lines to enable h264 encode capability. Note that
-the GPL license will apply to the build output in this case.
+### General
 
 ```
-bootstrap gpl
-build gpl
+mkdir _build
+cd _build
+cmake .. -DCMAKE_INSTALL_PREFIX=<vpl-install-location>
+cmake --build . --config Release
+cmake --build . --config Release --target install
 ```
 
-### Run the examples
-
-Ubuntu bash shell:
-```
-export LD_LIBRARY_PATH=`pwd`/_build
-_build/hello-decode test/content/cars_128x96.h265
-_build/hello-encode test/content/cars_128x96.i420 128 96
-_build/hello-vpp test/content/cars_128x96.i420 128 96
-```
-
-Windows cmd prompt:
-```
-_build\Release\hello-decode test\content\cars_128x96.h265
-_build\Release\hello-encode test\content\cars_128x96.i420 128 96
-_build\Release\hello-vpp test\content\cars_128x96.i420 128 96
-```
+You can find the build output in `<vpl-install-location>`.
 
 
-### Other builds
+## Getting an Implementation
 
-See the [scripts README](script/README.md) for other build options.
+To use oneVPL for video processing to you need to install at least one
+implementation:
+
+- [oneVPL-cpu](https://github.com/oneapi-src/oneVPL-cpu) - CPU reference
+  implementation
+
 
 ## Contributing
 

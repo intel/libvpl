@@ -46,10 +46,8 @@ enum {
 
         #if defined(_WIN32) && !defined(MFX_D3D11_SUPPORT)
             #include <sdkddkver.h>
-            #if (NTDDI_VERSION >= NTDDI_VERSION_FROM_WIN32_WINNT2( \
-                                      0x0602)) // >= _WIN32_WINNT_WIN8
-                #define MFX_D3D11_SUPPORT \
-                    1 // Enable D3D11 support if SDK allows
+            #if (NTDDI_VERSION >= NTDDI_VERSION_FROM_WIN32_WINNT2(0x0602)) // >= _WIN32_WINNT_WIN8
+                #define MFX_D3D11_SUPPORT 1 // Enable D3D11 support if SDK allows
             #else
                 #define MFX_D3D11_SUPPORT 0
             #endif
@@ -116,40 +114,37 @@ enum LibVABackend {
 #define MSDK_MAX_FILENAME_LEN            1024
 #define MSDK_MAX_USER_DATA_UNREG_SEI_LEN 80
 
-#define MSDK_PRINT_RET_MSG(ERR, MSG)                                           \
-    {                                                                          \
-        msdk_stringstream tmpStr1;                                             \
-        tmpStr1 << std::endl                                                   \
-                << "[ERROR], sts=" << StatusToString(ERR) << "(" << ERR << ")" \
-                << ", " << __FUNCTION__ << ", " << MSG << " at " << __FILE__   \
-                << ":" << __LINE__ << std::endl;                               \
-        msdk_err << tmpStr1.str();                                             \
+#define MSDK_PRINT_RET_MSG(ERR, MSG)                                                            \
+    {                                                                                           \
+        msdk_stringstream tmpStr1;                                                              \
+        tmpStr1 << std::endl                                                                    \
+                << "[ERROR], sts=" << StatusToString(ERR) << "(" << ERR << ")"                  \
+                << ", " << __FUNCTION__ << ", " << MSG << " at " << __FILE__ << ":" << __LINE__ \
+                << std::endl;                                                                   \
+        msdk_err << tmpStr1.str();                                                              \
     }
 
-#define MSDK_PRINT_WRN_MSG(WRN, MSG)                                         \
-    {                                                                        \
-        msdk_stringstream tmpStr1;                                           \
-        tmpStr1 << std::endl                                                 \
-                << "[WARNING], sts=" << StatusToString(WRN) << "(" << WRN    \
-                << ")"                                                       \
-                << ", " << __FUNCTION__ << ", " << MSG << " at " << __FILE__ \
-                << ":" << __LINE__ << std::endl;                             \
-        msdk_err << tmpStr1.str();                                           \
+#define MSDK_PRINT_WRN_MSG(WRN, MSG)                                                            \
+    {                                                                                           \
+        msdk_stringstream tmpStr1;                                                              \
+        tmpStr1 << std::endl                                                                    \
+                << "[WARNING], sts=" << StatusToString(WRN) << "(" << WRN << ")"                \
+                << ", " << __FUNCTION__ << ", " << MSG << " at " << __FILE__ << ":" << __LINE__ \
+                << std::endl;                                                                   \
+        msdk_err << tmpStr1.str();                                                              \
     }
 
-#define MSDK_TRACE_LEVEL(level, ERR)                                       \
-    if (level <= msdk_trace_get_level()) {                                 \
-        msdk_err << NoFullPath(MSDK_STRING(__FILE__)) << MSDK_STRING(" :") \
-                 << __LINE__ << MSDK_STRING(" [") << level                 \
-                 << MSDK_STRING("] ") << ERR << std::endl;                 \
+#define MSDK_TRACE_LEVEL(level, ERR)                                                     \
+    if (level <= msdk_trace_get_level()) {                                               \
+        msdk_err << NoFullPath(MSDK_STRING(__FILE__)) << MSDK_STRING(" :") << __LINE__   \
+                 << MSDK_STRING(" [") << level << MSDK_STRING("] ") << ERR << std::endl; \
     }
 
-#define MSDK_TRACE_CRITICAL(ERR) \
-    MSDK_TRACE_LEVEL(MSDK_TRACE_LEVEL_CRITICAL, ERR)
-#define MSDK_TRACE_ERROR(ERR)   MSDK_TRACE_LEVEL(MSDK_TRACE_LEVEL_ERROR, ERR)
-#define MSDK_TRACE_WARNING(ERR) MSDK_TRACE_LEVEL(MSDK_TRACE_LEVEL_WARNING, ERR)
-#define MSDK_TRACE_INFO(ERR)    MSDK_TRACE_LEVEL(MSDK_TRACE_LEVEL_INFO, ERR)
-#define MSDK_TRACE_DEBUG(ERR)   MSDK_TRACE_LEVEL(MSDK_TRACE_LEVEL_DEBUG, ERR)
+#define MSDK_TRACE_CRITICAL(ERR) MSDK_TRACE_LEVEL(MSDK_TRACE_LEVEL_CRITICAL, ERR)
+#define MSDK_TRACE_ERROR(ERR)    MSDK_TRACE_LEVEL(MSDK_TRACE_LEVEL_ERROR, ERR)
+#define MSDK_TRACE_WARNING(ERR)  MSDK_TRACE_LEVEL(MSDK_TRACE_LEVEL_WARNING, ERR)
+#define MSDK_TRACE_INFO(ERR)     MSDK_TRACE_LEVEL(MSDK_TRACE_LEVEL_INFO, ERR)
+#define MSDK_TRACE_DEBUG(ERR)    MSDK_TRACE_LEVEL(MSDK_TRACE_LEVEL_DEBUG, ERR)
 
 #define MSDK_CHECK_ERROR(P, X, ERR)                                            \
     {                                                                          \
@@ -284,12 +279,10 @@ enum LibVABackend {
 
 #define MSDK_ZERO_MEMORY(VAR) \
     { memset(&VAR, 0, sizeof(VAR)); }
-#define MSDK_MAX(A, B) (((A) > (B)) ? (A) : (B))
-#define MSDK_MIN(A, B) (((A) < (B)) ? (A) : (B))
-#define MSDK_ALIGN16(value) \
-    (((value + 15) >> 4) << 4) // round up to a multiple of 16
-#define MSDK_ALIGN32(value) \
-    (((value + 31) >> 5) << 5) // round up to a multiple of 32
+#define MSDK_MAX(A, B)      (((A) > (B)) ? (A) : (B))
+#define MSDK_MIN(A, B)      (((A) < (B)) ? (A) : (B))
+#define MSDK_ALIGN16(value) (((value + 15) >> 4) << 4) // round up to a multiple of 16
+#define MSDK_ALIGN32(value) (((value + 31) >> 5) << 5) // round up to a multiple of 32
 #define MSDK_ALIGN(value, alignment) \
     (alignment) * ((value) / (alignment) + (((value) % (alignment)) ? 1 : 0))
 #define MSDK_ARRAY_LEN(value) (sizeof(value) / sizeof(value[0]))
@@ -301,13 +294,12 @@ enum LibVABackend {
 #define MFX_IMPL_VIA_MASK(x) (0x0f00 & (x))
 
 // Deprecated
-#define MSDK_PRINT_RET_MSG_(ERR)                                          \
-    {                                                                     \
-        msdk_printf(                                                      \
-            MSDK_STRING("\nReturn on error: error code %d,\t%s\t%d\n\n"), \
-            (int)ERR,                                                     \
-            MSDK_STRING(__FILE__),                                        \
-            __LINE__);                                                    \
+#define MSDK_PRINT_RET_MSG_(ERR)                                                  \
+    {                                                                             \
+        msdk_printf(MSDK_STRING("\nReturn on error: error code %d,\t%s\t%d\n\n"), \
+                    (int)ERR,                                                     \
+                    MSDK_STRING(__FILE__),                                        \
+                    __LINE__);                                                    \
     }
 #define MSDK_CHECK_RESULT(P, X, ERR)  \
     {                                 \

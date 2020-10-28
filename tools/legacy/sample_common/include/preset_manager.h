@@ -7,13 +7,7 @@
 #include "sample_defs.h"
 
 #pragma once
-enum EPresetModes {
-    PRESET_DEFAULT,
-    PRESET_DSS,
-    PRESET_CONF,
-    PRESET_GAMING,
-    PRESET_MAX_MODES
-};
+enum EPresetModes { PRESET_DEFAULT, PRESET_DSS, PRESET_CONF, PRESET_GAMING, PRESET_MAX_MODES };
 
 enum EPresetCodecs { PRESET_AVC, PRESET_HEVC, PRESET_MAX_CODECS };
 
@@ -51,14 +45,11 @@ struct CDependentPresetParameters {
     mfxU32 MaxFrameSize;
 };
 
-struct COutputPresetParameters : public CPresetParameters,
-                                 CDependentPresetParameters {
+struct COutputPresetParameters : public CPresetParameters, CDependentPresetParameters {
     msdk_string PresetName;
 
     void Clear() {
-        memset(dynamic_cast<CPresetParameters*>(this),
-               0,
-               sizeof(CPresetParameters));
+        memset(dynamic_cast<CPresetParameters*>(this), 0, sizeof(CPresetParameters));
         memset(dynamic_cast<CDependentPresetParameters*>(this),
                0,
                sizeof(CDependentPresetParameters));
@@ -83,8 +74,7 @@ public:
                                       mfxU32 width,
                                       mfxU32 height,
                                       bool isHWLib);
-    COutputPresetParameters GetBasicPreset(EPresetModes mode,
-                                           mfxU32 codecFourCC);
+    COutputPresetParameters GetBasicPreset(EPresetModes mode, mfxU32 codecFourCC);
     CDependentPresetParameters GetDependentPresetParameters(EPresetModes mode,
                                                             mfxU32 codecFourCC,
                                                             mfxF64 fps,
@@ -122,22 +112,18 @@ protected:
         }                                                                      \
     }
 
-#define MODIFY_AND_PRINT_PARAM_EXT(paramName,                                  \
-                                   presetName,                                 \
-                                   value,                                      \
-                                   shouldPrintPresetInfo)                      \
-    if (!paramName) {                                                          \
-        paramName = (value);                                                   \
-        if (shouldPrintPresetInfo) {                                           \
-            msdk_printf(MSDK_STRING(#presetName) MSDK_STRING(": %d\n"),        \
-                        (int)paramName);                                       \
-        }                                                                      \
-    }                                                                          \
-    else {                                                                     \
-        if (shouldPrintPresetInfo) {                                           \
-            msdk_printf(MSDK_STRING(#presetName)                               \
-                            MSDK_STRING(": %d (original preset value: %d)\n"), \
-                        (int)paramName,                                        \
-                        (int)(value));                                         \
-        }                                                                      \
+#define MODIFY_AND_PRINT_PARAM_EXT(paramName, presetName, value, shouldPrintPresetInfo)  \
+    if (!paramName) {                                                                    \
+        paramName = (value);                                                             \
+        if (shouldPrintPresetInfo) {                                                     \
+            msdk_printf(MSDK_STRING(#presetName) MSDK_STRING(": %d\n"), (int)paramName); \
+        }                                                                                \
+    }                                                                                    \
+    else {                                                                               \
+        if (shouldPrintPresetInfo) {                                                     \
+            msdk_printf(MSDK_STRING(#presetName)                                         \
+                            MSDK_STRING(": %d (original preset value: %d)\n"),           \
+                        (int)paramName,                                                  \
+                        (int)(value));                                                   \
+        }                                                                                \
     }

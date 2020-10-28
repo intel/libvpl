@@ -28,7 +28,7 @@ enum {
 
 MFX_PACK_BEGIN_USUAL_STRUCT()
 /*! 
-  This structure describes MVC view dependencies.
+  Describes MVC view dependencies.
 */
 typedef struct  {
     mfxU16 ViewId; /*!< View identifier of this dependency structure. */
@@ -47,21 +47,21 @@ MFX_PACK_END()
 
 MFX_PACK_BEGIN_STRUCT_W_PTR()
 /*! 
-  The mfxMVCOperationPoint structure describes the MVC operation point.
+  Describes the MVC operation point.
 */
 typedef struct {
     mfxU16 TemporalId; /*!< Temporal identifier of the operation point. */
     mfxU16 LevelIdc; /*!< Level value signaled for the operation point. */
 
-    mfxU16 NumViews; /*!< Number of views required for decoding the target output views corresponding to the operation point. */
+    mfxU16 NumViews; /*!< Number of views required for decoding the target output views that correspond to the operation point. */
     mfxU16 NumTargetViews; /*!< Number of target output views for the operation point. */
-    mfxU16 *TargetViewId; /*!<  View identifiers of the target output views for operation point. */
+    mfxU16 *TargetViewId; /*!< Target output view identifiers for operation point. */
 } mfxMVCOperationPoint;
 MFX_PACK_END()
 
 MFX_PACK_BEGIN_STRUCT_W_PTR()
 /*!
-  The mfxExtMVCSeqDesc structure describes the MVC stream information of view dependencies, view identifiers, and operation points. See the ITU*-T H.264 specification chapter H.7.3.2.1.4 for details.
+  Describes the MVC stream information of view dependencies, view identifiers, and operation points. See the ITU*-T H.264 specification chapter H.7.3.2.1.4 for details.
 */
 typedef struct  {
     mfxExtBuffer Header; /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_MVC_SEQUENCE_DESCRIPTION. */
@@ -78,7 +78,7 @@ typedef struct  {
     mfxU32 NumOPAlloc; /*!< The allocated operation point array size. */
     mfxMVCOperationPoint *OP; /*!< Pointer to a list of the mfxMVCOperationPoint structure. */
 
-    mfxU16 NumRefsTotal; /*!< Total number of reference frames in all views required to decode the stream. This value is returned from the `MFXVideoDECODE_Decodeheader` function. Do not modify this value. */
+    mfxU16 NumRefsTotal; /*!< Total number of reference frames in all views required to decode the stream. This value is returned from the MFXVideoDECODE_Decodeheader function. Do not modify this value. */
     mfxU32 Reserved[16];
 
 } mfxExtMVCSeqDesc;
@@ -86,7 +86,7 @@ MFX_PACK_END()
 
 MFX_PACK_BEGIN_USUAL_STRUCT()
 /*!
- The mfxExtMvcTargetViews structure configures views for the decoding output.
+ Configures views for the decoding output.
 */
 typedef struct {
     mfxExtBuffer    Header; /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_MVC_TARGET_VIEWS. */

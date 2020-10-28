@@ -27,7 +27,7 @@ enum {
 
 MFX_PACK_BEGIN_USUAL_STRUCT()
 /*!
-   This structure is used to pass decryption status report index for Common Encryption usage model. The application can
+   Used to pass the decryption status report index for the Common Encryption usage model. The application can
    attach this extended buffer to the mfxBitstream structure at runtime.
 */
 typedef struct _mfxExtCencParam{

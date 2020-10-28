@@ -40,8 +40,7 @@ public:
 protected:
     virtual mfxStatus CheckRequestType(mfxFrameAllocRequest *request);
     virtual mfxStatus ReleaseResponse(mfxFrameAllocResponse *response);
-    virtual mfxStatus AllocImpl(mfxFrameAllocRequest *request,
-                                mfxFrameAllocResponse *response);
+    virtual mfxStatus AllocImpl(mfxFrameAllocRequest *request, mfxFrameAllocResponse *response);
 
     MFXBufferAllocator *m_pBufferAllocator;
     bool m_bOwnBufferAllocator;

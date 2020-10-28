@@ -1,0 +1,346 @@
+#!/bin/bash
+###############################################################################
+# Copyright (C) 2020 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+###############################################################################
+#
+# Usage: script/stress [iteration number]
+#    ex: script/stress 5
+#
+# Steps #
+#   1. In each iterations, it launches listed processes at the same time.
+#      (decode h264/h265/av1/jpeg, encode h264/h265/av1/jpeg, vpp crop-csc)
+#   2. Check whether all the processes are finished with PROCESS_TIMER_INTERVAL
+#      time interval and PROCESS_TIME_OUT_MAX times.
+#      (if there's timeout, if there's any process is hung, test's failed)
+#   3. Compare the output from processes with reference output.
+#      (if there's failure, test's failed)
+###############################################################################
+
+## start of boilerplate to switch to project root ------------------------------
+script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+proj_dir="$( dirname "${script_dir}" )"
+cd ${proj_dir}
+set -o errexit
+
+if [ "$1" == "" ];then
+     NUM_ITERATION=1
+else
+     NUM_ITERATION=$1
+fi
+
+echo [ Total execution number: $NUM_ITERATION ]
+echo
+
+## start of commands -----------------------------------------------------------
+source ${proj_dir}/test/tools/env/vars.sh
+if [ -n "$VPL_BUILD_DEPENDENCIES" ]; then
+    export ffmpeg_dir=${VPL_BUILD_DEPENDENCIES}/bin
+else
+    echo "VPL_BUILD_DEPENDENCIES not defined. Did you run bootstrap?"
+    exit 1
+fi
+export PATH=${ffmpeg_dir}:${PATH}
+work_dir=${proj_dir}/_build
+
+cd ${work_dir}
+export LD_LIBRARY_PATH=$PWD
+result_all=0
+
+# variables for process time out (unit of process_timer_interval is second)
+# script will check processes existance PROCESS_TIME_OUT_MAX times every PROCESS_TIMER_INTERVAL sec
+PROCESS_TIMER_INTERVAL=5
+PROCESS_TIME_OUT_MAX=60
+
+# vpl-decode in/out file
+FI_DECODE_H264=${proj_dir}/test/content/cars_128x96.h264
+FO_DECODE_H264=out_dec_h264.i420
+FI_DECODE_H265=${proj_dir}/test/content/cars_128x96.h265
+FO_DECODE_H265=out_dec_h265.i420
+FI_DECODE_AV1=${proj_dir}/test/content/cars_128x96.ivf
+FO_DECODE_AV1=out_dec_av1.i420
+FI_DECODE_JPEG=${proj_dir}/test/content/cars_128x96.mjpeg
+FO_DECODE_JPEG=out_dec_mjpeg.i420
+# vpl-encode in/out file
+FI_ENCODE=${proj_dir}/test/content/cars_128x96.i420
+FO_ENCODE_H264=out_enc.h264
+FO_ENCODE_H265=out_enc.h265
+FO_ENCODE_AV1=out_enc.ivf
+FO_ENCODE_JPEG=out_enc.mjpeg
+# vpl-vpp in/out file
+FI_VPP=${FI_ENCODE}
+FO_VPP=out_vpp.bgra
+
+# define test cases
+## vpl-decode processing list
+VPL_DECODE_H264="${work_dir}/vpl-decode -if H264 -i ${FI_DECODE_H264} -o ${FO_DECODE_H264} -int"
+VPL_DECODE_H265="${work_dir}/vpl-decode -if H265 -i ${FI_DECODE_H265} -o ${FO_DECODE_H265} -int"
+VPL_DECODE_AV1="${work_dir}/vpl-decode -if AV1 -i ${FI_DECODE_AV1} -o ${FO_DECODE_AV1} -int"
+VPL_DECODE_JPEG="${work_dir}/vpl-decode -if JPEG -i ${FI_DECODE_JPEG} -o ${FO_DECODE_JPEG} -int"
+## vpl-encode processing list
+VPL_ENCODE_H264="${work_dir}/vpl-encode -of H264 -if I420 -sw 128 -sh 96 -i ${FI_ENCODE} -o ${FO_ENCODE_H264} -int"
+VPL_ENCODE_H265="${work_dir}/vpl-encode -of H265 -if I420 -sw 128 -sh 96 -i ${FI_ENCODE} -o ${FO_ENCODE_H265} -int"
+VPL_ENCODE_AV1="${work_dir}/vpl-encode -of AV1 -if I420 -sw 128 -sh 96 -i ${FI_ENCODE} -o ${FO_ENCODE_AV1} -gs 30 -fr 30 -bm 2 -br 4000 -tu 7 -int"
+VPL_ENCODE_JPEG="${work_dir}/vpl-encode -of JPEG -if I420 -sw 128 -sh 96 -i ${FI_ENCODE} -o ${FO_ENCODE_JPEG} -int"
+## vpl-vpp processing list
+VPL_VPP="${work_dir}/vpl-vpp -sw 128 -sh 96 -scrx 10 -scry 10 -scrw 50 -scrh 50 -if I420\
+        -i ${FI_VPP}\
+        -dw 640 -dh 480 -dcrx 10 -dcry 10 -dcrw 300 -dcrh 300 -of BGRA\
+        -o ${FO_VPP} -int"
+
+cur_iter=1
+
+while true; do
+     # run process
+
+     echo launch .. ${VPL_DECODE_H264}
+     ${VPL_DECODE_H264}&
+     PID1=$!
+     echo ${PID1}
+     echo launch .. ${VPL_DECODE_H265}
+     ${VPL_DECODE_H265}&
+     PID2=$!
+     echo ${PID2}
+     echo launch .. ${VPL_DECODE_AV1}
+     ${VPL_DECODE_AV1}&
+     PID3=$!
+     echo ${PID3}
+     echo launch .. ${VPL_DECODE_JPEG}}
+     ${VPL_DECODE_JPEG}&
+     PID4=$!
+     echo ${PID4}
+     echo launch .. ${VPL_ENCODE_H264}
+     ${VPL_ENCODE_H264}&
+     PID5=$!
+     echo ${PID5}
+     echo launch .. ${VPL_ENCODE_H265}
+     ${VPL_ENCODE_H265}&
+     PID6=$!
+     echo ${PID6}
+     echo launch .. ${VPL_ENCODE_AV1}
+     ${VPL_ENCODE_AV1}&
+     PID7=$!
+     echo ${PID7}
+     echo launch .. ${VPL_ENCODE_JPEG}
+     ${VPL_ENCODE_JPEG}&
+     PID8=$!
+     echo ${PID8}
+     echo launch .. ${VPL_VPP}
+     ${VPL_VPP}&
+     PID9=$!
+     echo ${PID9}
+
+     PID_LIST=(${PID1} ${PID2} ${PID3} ${PID4} ${PID5} ${PID6} ${PID7} ${PID8} ${PID9})
+
+     check_process_count=0
+
+     while true; do
+          all_process_stopped=0
+          
+          for t in ${PID_LIST[@]}; do
+               echo $t
+               if ps -p $t; then
+                    echo $t is running.
+               else
+                    echo $t is not running.
+                    all_process_stopped=$((all_process_stopped + 1))
+               fi
+          done
+
+          if [ "${all_process_stopped}" == 9 ]; then
+               echo no more process left
+               break
+          fi
+
+          check_process_count=$((check_process_count + 1))
+
+          if [ "${check_process_count}" -gt "${PROCESS_TIME_OUT_MAX}" ]; then
+               echo --- \[TIME OUT\] Stress Test FAILED ---
+          
+               for t in ${PID_LIST[@]}; do
+                    kill -9 $t
+               done
+               exit 1
+          fi
+
+          echo there are processes to finish
+          sleep ${PROCESS_TIMER_INTERVAL}
+     done
+
+     result_all=0
+     FO_REF=ref.out
+
+     # check decode h264 output
+     ${VPL_BUILD_DEPENDENCIES}/bin/ffmpeg -y \
+          -i ${FI_DECODE_H264} \
+          -f rawvideo -pixel_format yuv420p ${FO_REF}
+     python3 ${PYTHONPATH}/check_content/check_smoke_output.py \
+          ${FO_DECODE_H264} ${FO_REF} I420 128x96@30
+
+     ret=$?
+     if [ $ret -ne 0 ]; then
+     echo --- Decode H264 Stress Test FAILED ---
+     let result_all++
+     else
+     echo --- Decode H264 Stress Test PASSED ---
+     fi
+
+     # check decode h265 output
+     ${VPL_BUILD_DEPENDENCIES}/bin/ffmpeg -y \
+          -i ${FI_DECODE_H265} \
+          -f rawvideo -pixel_format yuv420p ${FO_REF}
+     python3 ${PYTHONPATH}/check_content/check_smoke_output.py \
+          ${FO_DECODE_H265} ${FO_REF} I420 128x96@30
+
+     ret=$?
+     if [ $ret -ne 0 ]; then
+     echo --- Decode H265 Stress Test FAILED ---
+     let result_all++
+     else
+     echo --- Decode H265 Stress Test PASSED ---
+     fi
+
+     # check decode av1 output
+     ${VPL_BUILD_DEPENDENCIES}/bin/ffmpeg -y \
+          -i ${FI_DECODE_AV1} \
+          -f rawvideo -pixel_format yuv420p ${FO_REF}
+     python3 ${PYTHONPATH}/check_content/check_smoke_output.py \
+          ${FO_DECODE_AV1} ${FO_REF} I420 128x96@30
+
+     ret=$?
+     if [ $ret -ne 0 ]; then
+     echo --- Decode AV1 Stress Test FAILED ---
+     let result_all++
+     else
+     echo --- Decode AV1 Stress Test PASSED ---
+     fi
+
+     # check decode jpeg output
+     ${VPL_BUILD_DEPENDENCIES}/bin/ffmpeg -y \
+          -i ${FI_DECODE_JPEG} \
+          -f rawvideo -pixel_format yuv420p ${FO_REF}
+     python3 ${PYTHONPATH}/check_content/check_smoke_output.py \
+          ${FO_DECODE_JPEG} ${FO_REF} I420 128x96@30
+
+     ret=$?
+     if [ $ret -ne 0 ]; then
+     echo --- Decode JPEG Stress Test FAILED ---
+     let result_all++
+     else
+     echo --- Decode JPEG Stress Test PASSED ---
+     fi
+
+     # check encode h264 output
+     ${VPL_BUILD_DEPENDENCIES}/bin/ffmpeg -y \
+          -f rawvideo -pixel_format yuv420p -video_size 128x96 \
+          -i ${FI_ENCODE} \
+          -c:v libx264 \
+          -g 30 -rc 1 -preset ultrafast -b:v 4000*1000 -f h264 \
+          ${FO_REF}
+     python3 ${PYTHONPATH}/check_content/check_smoke_output.py \
+          ${FO_ENCODE_H264} ${FO_REF} H264 128x96@30
+
+     ret=$?
+     if [ $ret -ne 0 ]; then
+     echo --- Encode H264 Stress Test FAILED ---
+     let result_all++
+     else
+     echo --- Encode H264 Stress Test PASSED ---
+     fi
+
+     # check encode h265 output
+     ${VPL_BUILD_DEPENDENCIES}/bin/ffmpeg -y \
+          -f rawvideo -pixel_format yuv420p -video_size 128x96 \
+          -i ${FI_ENCODE} \
+          -c:v libsvt_hevc \
+          -g 30 -rc 1 -preset 9 -b:v 4000*1000 -f hevc \
+          ${FO_REF}
+     python3 ${PYTHONPATH}/check_content/check_smoke_output.py \
+          ${FO_ENCODE_H265} ${FO_REF} H265 128x96@30
+
+     ret=$?
+     if [ $ret -ne 0 ]; then
+     echo --- Encode H265 Stress Test FAILED ---
+     let result_all++
+     else
+     echo --- Encode H265 Stress Test PASSED ---
+     fi
+
+     # check encode av1 output
+     ${VPL_BUILD_DEPENDENCIES}/bin/ffmpeg -y \
+          -f rawvideo -pixel_format yuv420p -video_size 128x96 \
+          -i ${FI_ENCODE} \
+          -c:v libsvt_av1 \
+          -g 30 -rc 1 -preset 8 -b:v 4000*1000 -f ivf \
+          ${FO_REF}
+     python3 ${PYTHONPATH}/check_content/check_smoke_output.py \
+          ${FO_ENCODE_AV1} ${FO_REF} AV1 128x96@30
+
+     ret=$?
+     if [ $ret -ne 0 ]; then
+     echo --- Encode AV1 Stress Test FAILED ---
+     let result_all++
+     else
+     echo --- Encode AV1 Stress Test PASSED ---
+     fi
+
+     # check encode jpeg output
+     ${VPL_BUILD_DEPENDENCIES}/bin/ffmpeg -y \
+          -f rawvideo -pixel_format yuv420p -video_size 128x96 \
+          -i ${FI_ENCODE} \
+          -c:v mjpeg \
+          -g 30 -b:v 4000*1000 -f mjpeg \
+          ${FO_REF}
+     python3 ${PYTHONPATH}/check_content/check_smoke_output.py \
+          ${FO_ENCODE_JPEG} ${FO_REF} MJPEG 128x96@30
+
+     ret=$?
+     if [ $ret -ne 0 ]; then
+     echo --- Encode JPEG Stress Test FAILED ---
+     let result_all++
+     else
+     echo --- Encode JPEG Stress Test PASSED ---
+     fi
+
+     # check vpp output
+     VPP_FILTER="split=2[bg][main];\
+                    [bg]scale=640:480,drawbox=x=0:y=0:w=640:h=480:t=fill[bg2];\
+                    [main]crop=50:50:10:10,scale=300:300[ovr];\
+                    [bg2][ovr]overlay=10:10,format=pix_fmts=bgra"
+
+     ${VPL_BUILD_DEPENDENCIES}/bin/ffmpeg -y \
+          -f rawvideo -pixel_format yuv420p -video_size 128x96 \
+          -i ${FI_VPP} \
+          -filter_complex "${VPP_FILTER}" \
+          -f rawvideo \
+          ${FO_REF}
+     python3 ${PYTHONPATH}/check_content/check_smoke_output.py \
+          ${FO_VPP} ${FO_REF} BGRA 640x480@30
+
+     ret=$?
+     if [ $ret -ne 0 ]; then
+     echo --- VPP CROP,CSC Stress Test FAILED ---
+     let result_all++
+     else
+     echo --- VPP CROP,CSC Stress Test PASSED ---
+     fi
+
+     echo
+     echo \[ Done ${cur_iter} \/ ${NUM_ITERATION} time\(s\) \]
+     echo
+
+     if [ "${result_all}" == 0 ]; then
+          echo --- Stress Test PASSED ---
+     else
+          echo --- Stress Test FAILED ---
+          exit $result_all
+     fi
+
+     if [ "${cur_iter}" -eq "${NUM_ITERATION}" ]; then
+          break;
+     else
+         cur_iter=$((cur_iter + 1))
+     fi
+done
+exit $result_all

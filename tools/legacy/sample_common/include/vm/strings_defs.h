@@ -45,10 +45,9 @@ typedef TCHAR msdk_char;
 
     // msdk_strcopy is intended to be used with 2 parmeters, i.e. msdk_strcopy(dst, src)
     // for _tcscpy_s that's possible if DST is declared as: TCHAR DST[n];
-    #define msdk_strcopy    _tcscpy_s
-    #define msdk_strncopy_s _tcsncpy_s
-    #define MSDK_MEMCPY_S(dest, destsz, src, count) \
-        memcpy_s((dest), (destsz), (src), (count))
+    #define msdk_strcopy                            _tcscpy_s
+    #define msdk_strncopy_s                         _tcsncpy_s
+    #define MSDK_MEMCPY_S(dest, destsz, src, count) memcpy_s((dest), (destsz), (src), (count))
 
     #define MSDK_MEMCPY_BUF(bufptr, offset, maxsize, src, count) \
         memcpy_s(&(bufptr)[offset], (maxsize) - (offset), (src), (count))
@@ -88,14 +87,12 @@ typedef char msdk_char;
 
     #define msdk_strncopy_s(dst, num_dst, src, count) strncpy(dst, src, count)
 
-    #define MSDK_MEMCPY_S(dest, destsz, src, count) \
-        memcpy((dest), (src), (count))
+    #define MSDK_MEMCPY_S(dest, destsz, src, count) memcpy((dest), (src), (count))
 
     #define MSDK_MEMCPY_BUF(bufptr, offset, maxsize, src, count) \
         memcpy((bufptr) + (offset), (src), (count))
 
-    #define MSDK_MEMCPY_VAR(dstVarName, src, count) \
-        memcpy(&(dstVarName), (src), (count))
+    #define MSDK_MEMCPY_VAR(dstVarName, src, count) memcpy(&(dstVarName), (src), (count))
 
     #define MSDK_MEMCPY(dst, src, count) memcpy(dst, (src), (count))
 

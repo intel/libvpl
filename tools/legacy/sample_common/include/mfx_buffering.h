@@ -38,17 +38,15 @@ struct msdkOutputSurface {
  * desirable and atually needed.
  */
 #if 0 //_DEBUG
-    #define MSDK_SELF_CHECK(C)                                                \
-        {                                                                     \
-            if (!(C)) {                                                       \
-                msdk_printf(                                                  \
-                    MSDK_STRING(                                              \
-                        "bug: %s:%d: self-check failed: '%s' is not true\n"), \
-                    __FILE__,                                                 \
-                    __LINE__,                                                 \
-                    #C);                                                      \
-                exit(-1);                                                     \
-            }                                                                 \
+    #define MSDK_SELF_CHECK(C)                                                                \
+        {                                                                                     \
+            if (!(C)) {                                                                       \
+                msdk_printf(MSDK_STRING("bug: %s:%d: self-check failed: '%s' is not true\n"), \
+                            __FILE__,                                                         \
+                            __LINE__,                                                         \
+                            #C);                                                              \
+                exit(-1);                                                                     \
+            }                                                                                 \
         }
 #else
     #define MSDK_SELF_CHECK(C)
@@ -61,9 +59,7 @@ class msdkFreeSurfacesPool {
     friend class CBuffering;
 
 public:
-    msdkFreeSurfacesPool(MSDKMutex* mutex)
-            : m_pSurfaces(NULL),
-              m_pMutex(mutex) {}
+    msdkFreeSurfacesPool(MSDKMutex* mutex) : m_pSurfaces(NULL), m_pMutex(mutex) {}
 
     ~msdkFreeSurfacesPool() {
         m_pSurfaces = NULL;

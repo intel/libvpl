@@ -87,10 +87,8 @@ struct sInputParams {
     mfxU16 nQuality; // quality parameter for JPEG encoder
 
     mfxU32 numViews; // number of views for Multi-View Codec
-    mfxU16
-        nDstWidth; // destination picture width, specified if resizing required
-    mfxU16
-        nDstHeight; // destination picture height, specified if resizing required
+    mfxU16 nDstWidth; // destination picture width, specified if resizing required
+    mfxU16 nDstHeight; // destination picture height, specified if resizing required
 
     mfxU16 nEncTileRows; // number of rows for encoding tiling
     mfxU16 nEncTileCols; // number of columns for encoding tiling
@@ -104,10 +102,8 @@ struct sInputParams {
     std::vector<msdk_char*> dstFileBuff;
 
     mfxU32 HEVCPluginVersion;
-    mfxU8
-        nRotationAngle; // if specified, enables rotation plugin in mfx pipeline
-    msdk_char
-        strPluginDLLPath[MSDK_MAX_FILENAME_LEN]; // plugin dll path and name
+    mfxU8 nRotationAngle; // if specified, enables rotation plugin in mfx pipeline
+    msdk_char strPluginDLLPath[MSDK_MAX_FILENAME_LEN]; // plugin dll path and name
 
     mfxU16
         nAsyncDepth; // depth of asynchronous pipeline, this number can be tuned to achieve better performance
@@ -216,8 +212,7 @@ struct bufSet {
 
     void Destroy() {
 #if (MFX_VERSION >= 1027)
-        if (buffers.size() > 0 &&
-            buffers[0]->BufferId == MFX_EXTBUFF_AVC_ROUNDING_OFFSET) {
+        if (buffers.size() > 0 && buffers[0]->BufferId == MFX_EXTBUFF_AVC_ROUNDING_OFFSET) {
             mfxExtAVCRoundingOffset* roundingOffset =
                 reinterpret_cast<mfxExtAVCRoundingOffset*>(buffers[0]);
             MSDK_SAFE_DELETE_ARRAY(roundingOffset);
@@ -246,8 +241,7 @@ struct bufList {
     }
 
     void Clear() {
-        for (std::vector<std::unique_ptr<bufSet>>::iterator it =
-                 buf_list.begin();
+        for (std::vector<std::unique_ptr<bufSet>>::iterator it = buf_list.begin();
              it != buf_list.end();
              ++it) {
             if (*it) {
@@ -378,11 +372,9 @@ protected:
     bool m_bExternalAlloc; // use memory allocator as external for Media SDK
     bool m_bUseVPLLib;
 
-    mfxFrameSurface1*
-        m_pEncSurfaces; // frames array for encoder input (vpp output)
+    mfxFrameSurface1* m_pEncSurfaces; // frames array for encoder input (vpp output)
     mfxFrameSurface1* m_pVppSurfaces; // frames array for vpp input
-    mfxFrameAllocResponse
-        m_EncResponse; // memory allocation response for encoder
+    mfxFrameAllocResponse m_EncResponse; // memory allocation response for encoder
     mfxFrameAllocResponse m_VppResponse; // memory allocation response for vpp
 
     mfxU32 m_nNumView;
@@ -448,8 +440,7 @@ protected:
 
     virtual mfxStatus InitFileWriters(sInputParams* pParams);
     virtual void FreeFileWriters();
-    virtual mfxStatus InitFileWriter(CSmplBitstreamWriter** ppWriter,
-                                     const msdk_char* filename);
+    virtual mfxStatus InitFileWriter(CSmplBitstreamWriter** ppWriter, const msdk_char* filename);
 
     virtual mfxStatus AllocAndInitVppDoNotUse();
     virtual void FreeVppDoNotUse();

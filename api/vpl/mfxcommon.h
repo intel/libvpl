@@ -21,7 +21,7 @@ extern "C"
 
 /* Extended Configuration Header Structure */
 MFX_PACK_BEGIN_USUAL_STRUCT()
-/*! This structure is the common header definition for external buffers and video
+/*! The common header definition for external buffers and video
     processing hints. */
 typedef struct {
     mfxU32  BufferId; /*!< Identifier of the buffer content. See the ExtendedBufferID enumerator for a complete list of extended buffers. */
@@ -31,7 +31,7 @@ MFX_PACK_END()
 
 /* Library initialization and deinitialization */
 /*!
-    This enumerator itemizes SDK implementation types.
+    This enumerator itemizes implementation types.
     The implementation type is a bit OR’ed value of the base type and any decorative flags.
     @note This enumerator is for legacy dispatcher compatibility only. The new dispatcher does not use it.
  */
@@ -50,13 +50,13 @@ enum  {
     MFX_IMPL_HARDWARE2    = 0x0005,  /*!< Hardware accelerated implementation (2nd device). */
     MFX_IMPL_HARDWARE3    = 0x0006,  /*!< Hardware accelerated implementation (3rd device). */
     MFX_IMPL_HARDWARE4    = 0x0007,  /*!< Hardware accelerated implementation (4th device). */
-    MFX_IMPL_RUNTIME      = 0x0008,  /*!< This value cannot be used for session initialization. It may be returned by MFXQueryIMPL
-                                          function to show that session has been initialized in run time mode. */
+    MFX_IMPL_RUNTIME      = 0x0008,  /*!< This value cannot be used for session initialization. It may be returned by the MFXQueryIMPL
+                                          function to show that the session has been initialized in run-time mode. */
 #if (MFX_VERSION >= MFX_VERSION_NEXT)
     MFX_IMPL_SINGLE_THREAD= 0x0009,
 #endif
-    MFX_IMPL_VIA_ANY      = 0x0100,  /*!< Hardware acceleration can go through any supported OS infrastructure. This is default value,
-                                          it is used by the SDK if none of MFX_IMPL_VIA_xxx flag is specified by application. */
+    MFX_IMPL_VIA_ANY      = 0x0100,  /*!< Hardware acceleration can go through any supported OS infrastructure. This is the default value. The default value
+                                          is used by the legacy Intel(r) Media SDK if none of the MFX_IMPL_VIA_xxx flags are specified by the application. */
     MFX_IMPL_VIA_D3D9     = 0x0200,  /*!< Hardware acceleration goes through the Microsoft* Direct3D* 9 infrastructure. */
     MFX_IMPL_VIA_D3D11    = 0x0300,  /*!< Hardware acceleration goes through the Microsoft* Direct3D* 11 infrastructure. */
     MFX_IMPL_VIA_VAAPI    = 0x0400,  /*!< Hardware acceleration goes through the Linux* VA-API infrastructure. */
@@ -70,15 +70,20 @@ enum  {
 
 /* Version Info */
 MFX_PACK_BEGIN_USUAL_STRUCT()
-/*! The mfxVersion union describes the version of the SDK implementation.*/
+/*! The mfxVersion union describes the version of the implementation.*/
 typedef union {
     /*! @brief Structure with Major and Minor fields.  */
     /*! @struct Anonymous */
     struct {
-        mfxU16  Minor; /*!< Minor number of the SDK implementation. */
-        mfxU16  Major; /*!< Major number of the SDK implementation. */
+        /*! @{
+          @name Major and Minor fields
+          Anonymous structure with Major and Minor fields.
+           */
+        mfxU16  Minor; /*!< Minor number of the implementation. */
+        mfxU16  Major; /*!< Major number of the implementation. */
+        /*! @} */
     };
-    mfxU32  Version;   /*!< SDK implementation version number. */
+    mfxU32  Version;   /*!< Implementation version number. */
 } mfxVersion;
 MFX_PACK_END()
 
@@ -93,7 +98,7 @@ typedef enum
 
 typedef struct _mfxEncryptedData mfxEncryptedData;
 MFX_PACK_BEGIN_STRUCT_W_L_TYPE()
-/*! The mfxBitstream structure defines the buffer that holds compressed video data. */
+/*! Defines the buffer that holds compressed video data. */
 typedef struct {
      /*! @internal :unnamed(union) @endinternal */
      union {
@@ -101,14 +106,15 @@ typedef struct {
             mfxEncryptedData* EncryptedData; /*!< Reserved and must be zero. */
             mfxExtBuffer **ExtParam;         /*!< Array of extended buffers for additional bitstream configuration. See the ExtendedBufferID enumerator for a complete list of extended buffers. */
             mfxU16  NumExtParam;             /*!< The number of extended buffers attached to this structure. */
-            mfxU32  CodecId;                 /*!< Specifies the codec format identifier in the FourCC code; see the CodecFormatFourCC enumerator for details. This is optional parameter required for the simplified decode initialization.  */
+            mfxU32  CodecId;                 /*!< Specifies the codec format identifier in the FourCC code. See the CodecFormatFourCC enumerator for details. This optional parameter is required for the simplified decode initialization.  */
 
         };
          mfxU32  reserved[6];
      };
     /*! Decode time stamp of the compressed bitstream in units of 90KHz. A value of MFX_TIMESTAMP_UNKNOWN indicates that there is no time stamp.
-        This value is calculated by the SDK encoder from the presentation time stamp provided by the application in mfxFrameSurface1 structure and
-        from the frame rate provided by the application during the SDK encoder initialization. */
+
+        This value is calculated by the encoder from the presentation time stamp provided by the application in the mfxFrameSurface1 structure and
+        from the frame rate provided by the application during the encoder initialization. */
     mfxI64  DecodeTimeStamp;
     mfxU64  TimeStamp;                       /*!< Time stamp of the compressed bitstream in units of 90KHz. A value of MFX_TIMESTAMP_UNKNOWN indicates that there is no time stamp. */
     mfxU8*  Data;                            /*!< Bitstream buffer pointer, 32-bytes aligned. */
@@ -116,9 +122,9 @@ typedef struct {
     mfxU32  DataLength;                      /*!< Size of the actual bitstream data in bytes. */
     mfxU32  MaxLength;                       /*!< Allocated bitstream buffer size in bytes. */
 
-    mfxU16  PicStruct;                       /*!< Type of the picture in the bitstream; this is an output parameter. */
-    mfxU16  FrameType;                       /*!< Frame type of the picture in the bitstream; this is an output parameter. */
-    mfxU16  DataFlag;                        /*!< Indicates additional bitstream properties; see the BitstreamDataFlag enumerator for details. */
+    mfxU16  PicStruct;                       /*!< Type of the picture in the bitstream. Output parameter. */
+    mfxU16  FrameType;                       /*!< Frame type of the picture in the bitstream. Output parameter. */
+    mfxU16  DataFlag;                        /*!< Indicates additional bitstream properties. See the BitstreamDataFlag enumerator for details. */
     mfxU16  reserved2;                       /*!< Reserved for future use. */
 } mfxBitstream;
 MFX_PACK_END()
@@ -126,20 +132,20 @@ MFX_PACK_END()
 /*! Synchronization point object handle. */
 typedef struct _mfxSyncPoint *mfxSyncPoint;
 
-/*! The GPUCopy enumerator controls usage of GPU accelerated copying between video and system memory in the SDK components. */
+/*! The GPUCopy enumerator controls usage of GPU accelerated copying between video and system memory in the legacy Intel(r) Media SDK components. */
 enum {
-    MFX_GPUCOPY_DEFAULT = 0, /*!< Use default mode for the current SDK implementation. */
+    MFX_GPUCOPY_DEFAULT = 0, /*!< Use default mode for the legacy Intel(r) Media SDK implementation. */
     MFX_GPUCOPY_ON      = 1, /*!< Enable GPU accelerated copying. */
     MFX_GPUCOPY_OFF     = 2  /*!< Disable GPU accelerated copying. */
 };
 
 MFX_PACK_BEGIN_STRUCT_W_PTR()
-/*! This structure specifies advanced initialization parameters.
+/*! Specifies advanced initialization parameters.
     A zero value in any of the fields indicates that the corresponding field
     is not explicitly specified.
 */
 typedef struct {
-    mfxIMPL     Implementation;  /*!< mfxIMPL enumerator that indicates the desired SDK implementation. */
+    mfxIMPL     Implementation;  /*!< Enumerator that indicates the desired legacy Intel(r) Media SDK implementation. */
     mfxVersion  Version;         /*!< Structure which specifies minimum library version or zero, if not specified. */
     mfxU16      ExternalThreads; /*!< Desired threading mode. Value 0 means internal threading, 1 – external. */
     /*! @internal :unnamed(union) @endinternal */
@@ -150,7 +156,7 @@ typedef struct {
         };
         mfxU16  reserved2[5];
     };
-    mfxU16      GPUCopy;         /*!< Enables or disables GPU accelerated copying between video and system memory in the SDK components. See the GPUCopy enumerator for a list of valid values. */
+    mfxU16      GPUCopy;         /*!< Enables or disables GPU accelerated copying between video and system memory in legacy Intel(r) Media SDK components. See the GPUCopy enumerator for a list of valid values. */
     mfxU16      reserved[21];
 } mfxInitParam;
 MFX_PACK_END()
@@ -160,19 +166,20 @@ enum {
 };
 
 MFX_PACK_BEGIN_USUAL_STRUCT()
-/*! Attached to the mfxInitParam structure during the SDK session initialization,
-    mfxExtThreadsParam structure specifies options for threads created by this session. */
+/*! Specifies options for threads created by this session. Attached to the
+    mfxInitParam structure during legacy Intel(r) Media SDK session initialization. */
 typedef struct {
-    mfxExtBuffer Header; /*!< Must be MFX_EXTBUFF_THREADS_PARAM */
+    mfxExtBuffer Header; /*!< Must be MFX_EXTBUFF_THREADS_PARAM. */
 
     mfxU16       NumThread;      /*!< The number of threads. */
     mfxI32       SchedulingType; /*!< Scheduling policy for all threads. */
     mfxI32       Priority;       /*!< Priority for all threads. */
-    mfxU16       reserved[55];   /*!< Reserved for future use */
+    mfxU16       reserved[55];   /*!< Reserved for future use. */
 } mfxExtThreadsParam;
 MFX_PACK_END()
 
-/*! The PlatformCodeName enumerator itemizes microarchitecture code names. For details about Intel code names, see ark.intel.com. */
+/*! The PlatformCodeName enumerator itemizes microarchitecture code names for the Legacy mode. 
+    For details about Intel code names, see ark.intel.com. */
 enum {
     MFX_PLATFORM_UNKNOWN        = 0,  /*!< Unknown platform. */
     MFX_PLATFORM_SANDYBRIDGE    = 1,  /*!< Intel(r) microarchitecture code name Sandy Bridge. */
@@ -191,6 +198,7 @@ enum {
     MFX_PLATFORM_JASPERLAKE     = 32, /*!< Code name Jasper Lake. */
     MFX_PLATFORM_ELKHARTLAKE    = 33, /*!< Code name Elkhart Lake. */
     MFX_PLATFORM_TIGERLAKE      = 40, /*!< Code name Tiger Lake. */
+    MFX_PLATFORM_KEEMBAY        = 50, /*!< Code name Keem Bay. */
 };
 
 /*! The mfxMediaAdapterType enumerator itemizes types of graphics adapters. */
@@ -202,7 +210,7 @@ typedef enum
 } mfxMediaAdapterType;
 
 MFX_PACK_BEGIN_USUAL_STRUCT()
-/*! The mfxPlatform structure contains information about hardware platform. */
+/*! Contains information about hardware platform for the Legacy mode. */
 typedef struct {
     mfxU16 CodeName;         /*!< Microarchitecture code name. See the PlatformCodeName enumerator for a list of possible values. */
     mfxU16 DeviceId;         /*!< Unique identifier of graphics device. */
@@ -375,8 +383,8 @@ typedef struct {
     mfxU32                 VendorID;                     /*!< Standard vendor ID 0x8086 - Intel. */
     mfxU32                 VendorImplID;                 /*!< Vendor specific number with given implementation ID. */
     mfxDeviceDescription   Dev;                          /*!< Supported device. */
-    mfxDecoderDescription  Dec;                          /*!< Decoders configuration. */
-    mfxEncoderDescription  Enc;                          /*!< Encoders configuration. */
+    mfxDecoderDescription  Dec;                          /*!< Decoder configuration. */
+    mfxEncoderDescription  Enc;                          /*!< Encoder configuration. */
     mfxVPPDescription      VPP;                          /*!< VPP configuration. */
     mfxU32                 reserved[16];                 /*!< Reserved for future use. */
     mfxU32                 NumExtParam;                  /*!< Number of extension buffers. Reserved for future use. Must be 0. */
@@ -391,6 +399,18 @@ MFX_PACK_END()
 typedef enum {
     MFX_IMPLCAPS_IMPLDESCSTRUCTURE       = 1  /*!< Deliver capabilities as mfxImplDescription structure. */
 } mfxImplCapsDeliveryFormat;
+
+MFX_PACK_BEGIN_STRUCT_W_PTR()
+/*! Specifies initialization parameters for API version starting from 2.0.
+*/
+typedef struct {
+    mfxAccelerationMode    AccelerationMode; /*!< Hardware acceleration stack to use. OS dependent parameter. Use VA for Linux*, DX* for Windows* or HDDL. */
+    mfxU16  reserved[3];                     /*!< Reserved for future use. */
+    mfxU16  NumExtParam;                     /*!< The number of extra configuration structures attached to this structure. */
+    mfxExtBuffer **ExtParam;                 /*!< Points to an array of pointers to the extra configuration structures; see the ExtendedBufferID enumerator for a list of extended configurations. */
+    mfxU32      reserved2[4];                /*!< Reserved for future use. */
+} mfxInitializationParam;
+MFX_PACK_END()
 
 #ifdef __cplusplus
 }

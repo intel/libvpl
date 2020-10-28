@@ -1,8 +1,8 @@
 # Contributing guidelines
 
-## Pull Request Checklist
+## Pull request checklist
 
-Before sending your pull requests, make sure you followed this list.
+Before submitting your pull requests, make sure you followed this list.
 
 - Read [contributing guidelines](CONTRIBUTING.md).
 
@@ -17,8 +17,7 @@ Before sending your pull requests, make sure you followed this list.
 
 ### Contribution guidelines and standards
 
-Before sending your pull request for review, make sure your changes are
-consistent with the guidelines and follow the coding style.
+Before submitting your pull request for review, make sure your changes are consistent with project guidelines and coding style.
 
 #### General guidelines and philosophy for contribution
 
@@ -55,17 +54,17 @@ Further reading:
 
 #### Automated style checking
 
-Use `script/lint` to assist with style conformance checking. To install its
-python prerequisites do:
+Install the Python modules required by the script\lint format checking script:
 
 ```
 pip3 install -r requirements-dev.txt
 ```
 
-Version 11.0.0 of `clang-format` also needs to be in the path.
+Install Version 11.0.0 of `clang-format` by clicking on a link below to download.  The file is named after the sha1 hash, rename it to clang-format.exe. Add its path to the PATH environment variable.
 
 [Windows binary](https://commondatastorage.googleapis.com/chromium-clang-format/d4afd4eba27022f5f6d518133aebde57281677c9)
 (sha1: d4afd4eba27022f5f6d518133aebde57281677c9)
 
 [Linux binary](https://commondatastorage.googleapis.com/chromium-clang-format/1baf0089e895c989a311b6a38ed94d0e8be4c0a7)
 (sha1: 1baf0089e895c989a311b6a38ed94d0e8be4c0a7)
+

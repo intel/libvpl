@@ -26,7 +26,6 @@
 
 static msdk_string GetMSDKSampleVersion() {
     msdk_stringstream ss;
-    ss << MSDK_MAJOR << "." << MSDK_MINOR << "." << MSDK_TARGETAPIMINOR << "."
-       << MSDK_BUILD;
+    ss << MSDK_MAJOR << "." << MSDK_MINOR << "." << MSDK_TARGETAPIMINOR << "." << MSDK_BUILD;
     return ss.str();
 }

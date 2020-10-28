@@ -34,16 +34,14 @@ mfxStatus CBuffering::AllocBuffers(mfxU32 SurfaceNumber) {
     }
     m_SurfacesNumber = SurfaceNumber;
 
-    m_pSurfaces =
-        (msdkFrameSurface*)calloc(m_SurfacesNumber, sizeof(msdkFrameSurface));
+    m_pSurfaces = (msdkFrameSurface*)calloc(m_SurfacesNumber, sizeof(msdkFrameSurface));
     if (!m_pSurfaces)
         return MFX_ERR_MEMORY_ALLOC;
 
     msdkOutputSurface* p    = NULL;
     msdkOutputSurface* tail = NULL;
 
-    m_pFreeOutputSurfaces =
-        (msdkOutputSurface*)calloc(1, sizeof(msdkOutputSurface));
+    m_pFreeOutputSurfaces = (msdkOutputSurface*)calloc(1, sizeof(msdkOutputSurface));
     if (!m_pFreeOutputSurfaces)
         return MFX_ERR_MEMORY_ALLOC;
 
@@ -63,8 +61,7 @@ mfxStatus CBuffering::AllocBuffers(mfxU32 SurfaceNumber) {
 
 mfxStatus CBuffering::AllocVppBuffers(mfxU32 VppSurfaceNumber) {
     m_OutputSurfacesNumber = VppSurfaceNumber;
-    m_pVppSurfaces         = (msdkFrameSurface*)calloc(m_OutputSurfacesNumber,
-                                               sizeof(msdkFrameSurface));
+    m_pVppSurfaces = (msdkFrameSurface*)calloc(m_OutputSurfacesNumber, sizeof(msdkFrameSurface));
     if (!m_pVppSurfaces)
         return MFX_ERR_MEMORY_ALLOC;
 
@@ -75,8 +72,7 @@ mfxStatus CBuffering::AllocVppBuffers(mfxU32 VppSurfaceNumber) {
 void CBuffering::AllocOutputBuffer() {
     AutomaticMutex lock(m_Mutex);
 
-    m_pFreeOutputSurfaces =
-        (msdkOutputSurface*)calloc(1, sizeof(msdkOutputSurface));
+    m_pFreeOutputSurfaces = (msdkOutputSurface*)calloc(1, sizeof(msdkOutputSurface));
 }
 
 static void FreeList(msdkOutputSurface*& head) {
@@ -126,8 +122,7 @@ void CBuffering::ResetBuffers() {
 
 void CBuffering::ResetVppBuffers() {
     mfxU32 i;
-    msdkFrameSurface* pFreeVppSurf = m_FreeVppSurfacesPool.m_pSurfaces =
-        m_pVppSurfaces;
+    msdkFrameSurface* pFreeVppSurf = m_FreeVppSurfacesPool.m_pSurfaces = m_pVppSurfaces;
 
     for (i = 0; i < m_OutputSurfacesNumber; ++i) {
         if (i < (m_OutputSurfacesNumber - 1)) {

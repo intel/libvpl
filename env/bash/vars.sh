@@ -108,3 +108,7 @@ PATH=$(append_path "$VPL_BIN" "$PATH")
 export PATH
 LD_LIBRARY_PATH=$(append_path "$VPL_LIB" "$LD_LIBRARY_PATH")
 export LD_LIBRARY_PATH
+VPL_PREFIX=`cd "$VPL_ROOT/.."; pwd`
+CMAKE_PREFIX_PATH=$(append_path "$VPL_PREFIX" "$CMAKE_PREFIX_PATH")
+export CMAKE_PREFIX_PATH
+

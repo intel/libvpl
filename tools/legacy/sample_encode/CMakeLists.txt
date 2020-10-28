@@ -14,7 +14,7 @@ add_executable(${TARGET} ${SOURCES})
 target_include_directories(${TARGET} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include
                                              ${CMAKE_CURRENT_BINARY_DIR})
 
-target_link_libraries(${TARGET} sample_common mfx)
+target_link_libraries(${TARGET} sample_common VPL)
 
 if(UNIX)
   set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
