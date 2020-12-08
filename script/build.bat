@@ -32,11 +32,11 @@ if defined VPL_INSTALL_DIR (
 mkdir %CMAKE_BINARY_DIR%
 cd %CMAKE_BINARY_DIR%
 
-cmake -A x64 %INSTALL_OPTS% ..
+cmake -A x64 %INSTALL_OPTS% .. || exit /b 1
 
-cmake --build . --config %BUILD_MODE% -j %NUMBER_OF_PROCESSORS%
+cmake --build . --config %BUILD_MODE% -j %NUMBER_OF_PROCESSORS% || exit /b 1
 
-cmake --build . --config %BUILD_MODE% --target package
+cmake --build . --config %BUILD_MODE% --target package || exit /b 1
 
 if defined TEAMCITY_VERSION (
    echo ##teamcity[publishArtifacts 'oneVPL/%CMAKE_BINARY_DIR%/*-all.zip=^>']

@@ -21,11 +21,3 @@ install(
   DIRECTORY vpl
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
   COMPONENT dev)
-
-set(DEST_DIR "${CMAKE_INSTALL_PREFIX}")
-configure_file("libmfx.pc.in" "libmfx.pc" @ONLY)
-
-install(
-  FILES ${CMAKE_CURRENT_BINARY_DIR}/libmfx.pc
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
-  COMPONENT dev)

@@ -155,6 +155,8 @@ public:
 
 private:
     __inline std::string GetNextProp(std::list<std::string>* s) {
+        if (s->empty())
+            return "";
         std::string t = s->front();
         s->pop_front();
         return t;

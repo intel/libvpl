@@ -652,6 +652,9 @@ mfxStatus ConfigCtxVPL::ValidateConfig(mfxImplDescription *libImplDesc,
     bool encRequested = false;
     bool vppRequested = false;
 
+    if (!libImplDesc)
+        return MFX_ERR_NULL_PTR;
+
     std::list<DecConfig> decConfigList;
     std::list<EncConfig> encConfigList;
     std::list<VPPConfig> vppConfigList;

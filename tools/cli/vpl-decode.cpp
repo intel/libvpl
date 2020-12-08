@@ -7,6 +7,14 @@
 #include <string>
 #include "./vpl-common.h"
 
+#ifdef ENABLE_VAAPI
+    #include <fcntl.h>
+    #include <unistd.h>
+    #include "va/va.h"
+    #include "va/va_drm.h"
+#endif
+#include "vpl/mfxvideo.h"
+
 #define MAX_LENGTH             260
 #define MAX_WIDTH              3840
 #define MAX_HEIGHT             2160
@@ -31,6 +39,9 @@ bool ValidateSize(char* in, mfxU32* vsize, mfxU32 vmax);
 bool ValidateParams(Params* params);
 bool ParseArgsAndValidate(int argc, char* argv[], Params* params);
 void Usage(void);
+mfxStatus InitializeSession(Params* params, mfxSession* session);
+void PrintDecParams(mfxVideoParam* mfxDecParams);
+void PrintFrameParams(mfxFrameSurface1* frame);
 
 int main(int argc, char* argv[]) {
     if (argc < 2) {
@@ -69,22 +80,7 @@ int main(int argc, char* argv[]) {
     mfxStatus sts      = MFX_ERR_NOT_INITIALIZED;
     mfxSession session = nullptr;
 
-    if (params.dispatcherMode == DISPATCHER_MODE_VPL_20) {
-        sts = InitNewDispatcher(WSTYPE_DECODE, &params, &session);
-    }
-    else if (params.dispatcherMode == DISPATCHER_MODE_LEGACY) {
-        // initialize session
-        mfxInitParam initPar   = { 0 };
-        initPar.Version.Major  = 2;
-        initPar.Version.Minor  = 0;
-        initPar.Implementation = MFX_IMPL_SOFTWARE;
-
-        sts = MFXInitEx(initPar, &session);
-    }
-    else {
-        printf("invalid dispatcher mode %d\n", params.dispatcherMode);
-    }
-
+    sts = InitializeSession(&params, &session);
     if (sts != MFX_ERR_NONE) {
         fclose(fSource);
         fclose(fSink);
@@ -94,6 +90,15 @@ int main(int argc, char* argv[]) {
 
     printf("Dispatcher mode = %s\n", DispatcherModeString[params.dispatcherMode]);
     printf("Memory mode     = %s\n", MemoryModeString[params.memoryMode]);
+
+    mfxIMPL impl;
+    MFXQueryIMPL(session, &impl);
+    printf("Implementation  = %s\n", (MFX_IMPL_SOFTWARE == impl) ? "SOFTWARE" : "HARDWARE");
+
+    mfxVersion ver;
+    MFXQueryVersion(session, &ver);
+    printf("API version     = %d.%d\n", ver.Major, ver.Minor);
+
     puts("library initialized");
 
     // prepare input bitstream
@@ -114,8 +119,7 @@ int main(int argc, char* argv[]) {
     ReadEncodedStream(mfxBS, params.srcFourCC, fSource, params.repeat);
 
     // initialize decode parameters from stream header
-    mfxVideoParam mfxDecParams;
-    memset(&mfxDecParams, 0, sizeof(mfxDecParams));
+    mfxVideoParam mfxDecParams = { 0 };
 
     // do lazy-init for AUTO mode
     if (params.memoryMode == MEM_MODE_AUTO) {
@@ -131,6 +135,7 @@ int main(int argc, char* argv[]) {
         //only MFX_CHROMAFORMAT_YUV420 in I420 and I010 colorspaces allowed
         switch (mfxDecParams.mfx.FrameInfo.FourCC) {
             case MFX_FOURCC_I420:
+            case MFX_FOURCC_NV12:
                 if (mfxDecParams.mfx.FrameInfo.BitDepthLuma &&
                     (mfxDecParams.mfx.FrameInfo.BitDepthLuma != 8)) {
                     printf("Unsupported Luma Bit Depth for I420\n");
@@ -148,6 +153,8 @@ int main(int argc, char* argv[]) {
                 }
 
                 break;
+            case MFX_FOURCC_P010:
+                mfxDecParams.mfx.FrameInfo.Shift = 1;
             case MFX_FOURCC_I010:
                 if (mfxDecParams.mfx.FrameInfo.BitDepthLuma &&
                     (mfxDecParams.mfx.FrameInfo.BitDepthLuma != 10)) {
@@ -184,6 +191,7 @@ int main(int argc, char* argv[]) {
         if (sts != MFX_ERR_NONE) {
             fclose(fSource);
             fclose(fSink);
+            PrintDecParams(&mfxDecParams);
             puts("Could not initialize decode");
             return 1;
         }
@@ -298,8 +306,12 @@ int main(int argc, char* argv[]) {
                                                             &mfxDecParams.mfx.FrameInfo,
                                                             nSurfNumDec);
                         if (sts != MFX_ERR_NONE) {
-                            fclose(fSource);
-                            fclose(fSink);
+                            if (fSource) {
+                                fclose(fSource);
+                            }
+                            if (fSink) {
+                                fclose(fSink);
+                            }
                             puts("External memory allocation error after resolution change.");
                             return sts;
                         }
@@ -336,6 +348,34 @@ int main(int argc, char* argv[]) {
         if (sts < 0)
             break;
 
+        if (params.verboseMode) {
+            if (framenum == 0) {
+                mfxVideoParam tmpParams = { 0 };
+
+                //Show settable parameters
+                MFXVideoDECODE_Query(session, nullptr, &tmpParams);
+
+                puts("-----------------------");
+                puts("Settable Parameters (nonzero=settable):");
+                PrintDecParams(&tmpParams);
+                puts("-----------------------");
+
+                //Show parameters from input video
+                tmpParams = { 0 };
+                MFXVideoDECODE_GetVideoParam(session, &tmpParams);
+
+                puts("-----------------------");
+                puts("Current Parameters:");
+                PrintDecParams(&tmpParams);
+                puts("-----------------------");
+            }
+
+            puts("-----------------------");
+            puts("mfxFrameSurface1 parameters:");
+            PrintFrameParams(pmfxOutSurface);
+            puts("-----------------------");
+        }
+
         // data available to app only after sync
         auto t0 = std::chrono::high_resolution_clock::now();
         MFXVideoCORE_SyncOperation(session, syncp, 60000);
@@ -366,6 +406,8 @@ int main(int argc, char* argv[]) {
         }
 
         framenum++;
+        if (params.maxFrames && framenum >= params.maxFrames)
+            break;
     }
 
     printf("read %d frames\n", framenum);
@@ -375,8 +417,12 @@ int main(int argc, char* argv[]) {
                sync_time / framenum);
     }
 
-    fclose(fSink);
-    fclose(fSource);
+    if (fSink) {
+        fclose(fSink);
+    }
+    if (fSource) {
+        fclose(fSource);
+    }
 
     if (params.memoryMode == MEM_MODE_EXTERNAL) {
         if (decSurfaces) {
@@ -402,8 +448,9 @@ mfxStatus AllocateExternalMemorySurface(std::vector<mfxU8>* dec_buf,
     dec_buf->resize(framePoolBufSize);
     mfxU8* decout = dec_buf->data();
 
-    mfxU16 surfW =
-        (frame_info->FourCC == MFX_FOURCC_I010) ? frame_info->Width * 2 : frame_info->Width;
+    mfxU16 surfW = (frame_info->FourCC == MFX_FOURCC_I010 || frame_info->FourCC == MFX_FOURCC_P010)
+                       ? frame_info->Width * 2
+                       : frame_info->Width;
     mfxU16 surfH = frame_info->Height;
 
     for (mfxU32 i = 0; i < surfnum; i++) {
@@ -423,9 +470,11 @@ mfxU32 GetSurfaceSize(mfxU32 FourCC, mfxU32 width, mfxU32 height) {
     mfxU32 nbytes = 0;
 
     switch (FourCC) {
+        case MFX_FOURCC_NV12:
         case MFX_FOURCC_I420:
             nbytes = width * height + (width >> 1) * (height >> 1) + (width >> 1) * (height >> 1);
             break;
+        case MFX_FOURCC_P010:
         case MFX_FOURCC_I010:
             nbytes = width * height + (width >> 1) * (height >> 1) + (width >> 1) * (height >> 1);
             nbytes *= 2;
@@ -522,11 +571,24 @@ void WriteRawFrame(mfxFrameSurface1* pSurface, FILE* f) {
     mfxFrameInfo* pInfo = &pSurface->Info;
     mfxFrameData* pData = &pSurface->Data;
 
-    w = pInfo->Width;
-    h = pInfo->Height;
+    w = pInfo->CropW;
+    h = pInfo->CropH;
 
     // write the output to disk
     switch (pInfo->FourCC) {
+        case MFX_FOURCC_NV12:
+            //Y
+            pitch = pData->Pitch;
+            for (i = 0; i < h; i++) {
+                fwrite(pData->Y + i * pitch, 1, w, f);
+            }
+
+            //UV
+            for (i = 0; i < h / 2; i++) {
+                fwrite(pData->UV + i * pitch, 1, w, f);
+            }
+
+            break;
         case MFX_FOURCC_I420:
             //Y
             pitch = pData->Pitch;
@@ -544,6 +606,20 @@ void WriteRawFrame(mfxFrameSurface1* pSurface, FILE* f) {
             //V
             for (i = 0; i < h; i++) {
                 fwrite(pData->V + i * pitch, 1, w, f);
+            }
+            break;
+
+        case MFX_FOURCC_P010:
+            //Y
+            pitch = pData->Pitch;
+            w *= 2;
+            for (i = 0; i < h; i++) {
+                fwrite(pData->Y + i * pitch, 1, w, f);
+            }
+
+            //UV
+            for (i = 0; i < h / 2; i++) {
+                fwrite(pData->UV + i * pitch, 1, w, f);
             }
             break;
 
@@ -602,13 +678,12 @@ char* ValidateFileName(char* in) {
 
 bool ValidateSize(char* in, mfxU32* vsize, mfxU32 vmax) {
     if (in) {
-        *vsize = static_cast<mfxU32>(strtol(in, NULL, 10));
-        if (*vsize > vmax)
-            return false;
-        else
+        *vsize = static_cast<mfxU16>(strtol(in, NULL, 10));
+        if (*vsize <= vmax)
             return true;
     }
 
+    *vsize = 0;
     return false;
 }
 
@@ -700,6 +775,7 @@ bool ParseArgsAndValidate(int argc, char* argv[], Params* params) {
     // set any non-zero defaults
     params->memoryMode     = MEM_MODE_EXTERNAL;
     params->dispatcherMode = DISPATCHER_MODE_LEGACY;
+    params->impl           = MFX_IMPL_SOFTWARE;
 
     if (argc < 2)
         return false;
@@ -730,6 +806,9 @@ bool ParseArgsAndValidate(int argc, char* argv[], Params* params) {
         }
         else if (IS_ARG_EQ(s, "n")) {
             params->maxFrames = atoi(argv[idx++]);
+        }
+        else if (IS_ARG_EQ(s, "v")) {
+            params->verboseMode = true;
         }
         else if (IS_ARG_EQ(s, "if")) {
             params->infileFormat = argv[idx++];
@@ -819,6 +898,9 @@ bool ParseArgsAndValidate(int argc, char* argv[], Params* params) {
         else if (IS_ARG_EQ(s, "dsp2")) {
             params->dispatcherMode = DISPATCHER_MODE_VPL_20;
         }
+        else if (IS_ARG_EQ(s, "hw")) {
+            params->impl = MFX_IMPL_HARDWARE;
+        }
         else if (IS_ARG_EQ(s, "scrx")) {
             if (!ValidateSize(argv[idx++], &params->srcCropX, MAX_WIDTH))
                 return false;
@@ -874,6 +956,7 @@ void Usage(void) {
     printf("  -if    inputFormat   ... [h264, h265, av1, jpeg]\n");
     printf("  -rp    repeat        ... number of times to repeat decoding\n");
     printf("  -sbs   bsbufSize     ... source bitstream buffer size (bytes)\n");
+    printf("  -v     verbose       ... verbose output for debug\n");
 
     printf("\nMemory model (default = -ext)\n");
     printf("  -ext  = external memory (1.0 style)\n");
@@ -884,6 +967,11 @@ void Usage(void) {
     printf("  -dsp1 = legacy dispatcher (MSDK 1.x)\n");
     printf("  -dsp2 = smart dispatcher (API 2.0)\n");
 
+    printf("\nImplementation (default = software\n");
+#ifdef ENABLE_VAAPI
+    printf("  -hw = hardware 1.x API implementation via VAAPI\n");
+#endif
+
     printf("\nMore for resolution change test\n");
     printf(
         "  -o_res outputRes     ... exclude all frames except those of specified resolution (ex: 128x96)\n");
@@ -891,4 +979,120 @@ void Usage(void) {
     printf(
         " ffplay -video_size [width]x[height] -pixel_format [pixel format] -f rawvideo [out filename]\n");
     return;
+}
+
+mfxStatus InitializeSession(Params* params, mfxSession* session) {
+    std::string diagnoseText = "";
+    mfxStatus sts            = MFX_ERR_UNDEFINED_BEHAVIOR;
+
+    switch (params->dispatcherMode) {
+        case DISPATCHER_MODE_VPL_20:
+            diagnoseText = "InitNewDispatcher with WSTYPE_DECODE in DISPATCHER_MODE_VPL_20";
+            sts          = InitNewDispatcher(WSTYPE_DECODE, params, session);
+            break;
+        case DISPATCHER_MODE_LEGACY: {
+            if (MFX_IMPL_SOFTWARE == params->impl) {
+                diagnoseText = "MFXInitEx with MFX_IMPL_SOFTWARE in DISPATCHER_MODE_LEGACY";
+                // initialize session
+                mfxInitParam initPar   = { 0 };
+                initPar.Version.Major  = 2;
+                initPar.Version.Minor  = 0;
+                initPar.Implementation = MFX_IMPL_SOFTWARE;
+
+                sts = MFXInitEx(initPar, session);
+            }
+            else {
+                diagnoseText = "MFXInitEx with MFX_IMPL_HARDWARE in DISPATCHER_MODE_LEGACY";
+                // initialize session
+                mfxInitParam initPar   = { 0 };
+                initPar.Version.Major  = 1;
+                initPar.Version.Minor  = 0;
+                initPar.Implementation = MFX_IMPL_HARDWARE;
+
+                sts = MFXInitEx(initPar, session);
+#ifdef ENABLE_VAAPI
+                // initialize VAAPI context and set session handle (req in Linux)
+                sts    = MFX_ERR_NOT_INITIALIZED;
+                int fd = open("/dev/dri/renderD128", O_RDWR);
+                if (fd >= 0) {
+                    VADisplay va_dpy = vaGetDisplayDRM(fd);
+                    if (va_dpy) {
+                        int major_version = 0, minor_version = 0;
+                        if (VA_STATUS_SUCCESS ==
+                            vaInitialize(va_dpy, &major_version, &minor_version)) {
+                            sts = MFX_ERR_NONE;
+                            MFXVideoCORE_SetHandle(
+                                *session,
+                                static_cast<mfxHandleType>(MFX_HANDLE_VA_DISPLAY),
+                                va_dpy);
+                        }
+                    }
+                }
+                else {
+                    puts("Could not could not find a valid VAAPI interface");
+                }
+
+#endif
+            }
+        } break;
+        default:
+            diagnoseText = "Invalid dispatcher mode";
+            break;
+    }
+
+    if (sts != MFX_ERR_NONE) {
+        printf("MFXInitEx error. could not initialize session\n");
+        std::cout << "Failed " << diagnoseText.c_str() << std::endl;
+        if (sts == MFX_ERR_UNSUPPORTED) {
+            printf("Did you configure the necessary environment variables?\n");
+        }
+        else {
+            std::cout << "Error code: " << sts << std::endl;
+        }
+    }
+
+    return sts;
+}
+
+void PrintDecParams(mfxVideoParam* mfxDecParams) {
+    std::cout << "AsyncDepth=" << mfxDecParams->AsyncDepth << " | ";
+    std::cout << "CodecId=" << mfxDecParams->mfx.CodecId << " | ";
+    std::cout << "CodecProfile=" << mfxDecParams->mfx.CodecProfile << " | ";
+    std::cout << "CodecLevel=" << mfxDecParams->mfx.CodecLevel << " | ";
+    std::cout << "NumThread=" << mfxDecParams->mfx.NumThread << " | ";
+    std::cout << "PicStruct=" << mfxDecParams->mfx.FrameInfo.PicStruct << " | ";
+    std::cout << "Shift=" << mfxDecParams->mfx.FrameInfo.Shift << " | ";
+    std::cout << "BitDepthLuma=" << mfxDecParams->mfx.FrameInfo.BitDepthLuma << " | ";
+    std::cout << "BitDepthChroma=" << mfxDecParams->mfx.FrameInfo.BitDepthChroma << " | ";
+    std::cout << "ChromaFormat=" << mfxDecParams->mfx.FrameInfo.ChromaFormat << " | ";
+    std::cout << "FourCC=" << mfxDecParams->mfx.FrameInfo.FourCC << " | ";
+    std::cout << "Width=" << mfxDecParams->mfx.FrameInfo.Width << " | ";
+    std::cout << "Height=" << mfxDecParams->mfx.FrameInfo.Height << " | ";
+    std::cout << "CropX=" << mfxDecParams->mfx.FrameInfo.CropX << " | ";
+    std::cout << "CropY=" << mfxDecParams->mfx.FrameInfo.CropY << " | ";
+    std::cout << "CropH=" << mfxDecParams->mfx.FrameInfo.CropH << " | ";
+    std::cout << "CropW=" << mfxDecParams->mfx.FrameInfo.CropW << " | ";
+    std::cout << "AspectRatioH=" << mfxDecParams->mfx.FrameInfo.AspectRatioH << " | ";
+    std::cout << "AspectRatioW=" << mfxDecParams->mfx.FrameInfo.AspectRatioW << " | ";
+    std::cout << "FrameRateExtD=" << mfxDecParams->mfx.FrameInfo.FrameRateExtD << " | ";
+    std::cout << "FrameRateExtN=" << mfxDecParams->mfx.FrameInfo.FrameRateExtN << " | ";
+    std::cout << "DecodedOrder=" << mfxDecParams->mfx.DecodedOrder << " | ";
+    if (mfxDecParams->mfx.CodecId == MFX_CODEC_JPEG) {
+        std::cout << "Quality=" << mfxDecParams->mfx.Quality << " | ";
+        std::cout << "JPEGChromaFormat=" << mfxDecParams->mfx.JPEGChromaFormat << " | ";
+        std::cout << "JPEGColorFormat=" << mfxDecParams->mfx.JPEGColorFormat << " | ";
+        std::cout << "Rotation=" << mfxDecParams->mfx.Rotation << " | ";
+    }
+    std::cout << "Protected=" << mfxDecParams->Protected << " | ";
+    std::cout << "IOPattern=" << mfxDecParams->IOPattern << " | ";
+    std::cout << "NumExtParam=" << mfxDecParams->NumExtParam << " | ";
+    std::cout << std::endl;
+}
+
+void PrintFrameParams(mfxFrameSurface1* frame) {
+    std::cout << "TimeStamp=" << frame->Data.TimeStamp << " | ";
+    std::cout << "FrameOrder=" << frame->Data.FrameOrder << " | ";
+    std::cout << "Corrupted=" << frame->Data.Corrupted << " | ";
+    std::cout << "DataFlag=" << frame->Data.DataFlag << " | ";
+    std::cout << std::endl;
 }

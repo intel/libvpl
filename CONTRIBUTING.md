@@ -1,25 +1,26 @@
-# Contributing guidelines
+# Contributing
 
-## Pull request checklist
+The oneVPL project welcomes community contributions. You can:
 
-Before submitting your pull requests, make sure you followed this list.
+- Submit your changes directly as a [pull request](https://github.com/oneapi-src/oneVPL/pulls)
+- Log a bug or feature request with an [issue](https://github.com/oneapi-src/oneVPL/issues)
 
-- Read [contributing guidelines](CONTRIBUTING.md).
+## Pull Request Checklist
 
-- Check if changes are consistent with the
-  [guidelines](#general-guidelines-and-philosophy-for-contribution).
+Before submitting your pull requests, please do the following:
 
-- Check if changes are consistent with the
-  [coding style](#commit-message-style).
+- Make sure your changes are consistent with the 
+  [philosophy for contribution](#philosophy-for-contribution).
+
+- Make sure the correct license is included at the top of new files.
+
+- Make sure your commits follow the correct
+  [commit message style](#commit-message-style).
+
+- Make sure to [sign your work](#sign-your-work).
 
 
-## How to become a contributor and submit your own code
-
-### Contribution guidelines and standards
-
-Before submitting your pull request for review, make sure your changes are consistent with project guidelines and coding style.
-
-#### General guidelines and philosophy for contribution
+## Philosophy for Contribution
 
 Contributed code must be:
 
@@ -34,12 +35,7 @@ Contributed code must be:
 - *Portable*: The project supports different operating systems CPU and GPU
   architectures, compilers, and run-times.
 
-
-#### License
-
-Include a license at the top of new files.
-
-#### Commit message style
+## Commit Message Style
 
 1.  Separate subject from body with a blank line
 2.  Limit the subject line to 50 characters
@@ -52,7 +48,61 @@ Include a license at the top of new files.
 Further reading:
 [How to Write a Git Commit Message](https://chris.beams.io/posts/git-commit/)
 
-#### Automated style checking
+## Sign Your Work
+
+Please use the sign-off line at the end of the patch. Your signature certifies
+that you wrote the patch or otherwise have the right to pass it on as an
+open-source patch. The rules are pretty simple: if you can certify
+the below (from [developercertificate.org](http://developercertificate.org/)):
+
+```
+Developer Certificate of Origin
+Version 1.1
+
+Copyright (C) 2004, 2006 The Linux Foundation and its contributors.
+660 York Street, Suite 102,
+San Francisco, CA 94110 USA
+
+Everyone is permitted to copy and distribute verbatim copies of this
+license document, but changing it is not allowed.
+
+Developer's Certificate of Origin 1.1
+
+By making a contribution to this project, I certify that:
+
+(a) The contribution was created in whole or in part by me and I
+    have the right to submit it under the open source license
+    indicated in the file; or
+
+(b) The contribution is based upon previous work that, to the best
+    of my knowledge, is covered under an appropriate open source
+    license and I have the right under that license to submit that
+    work with modifications, whether created in whole or in part
+    by me, under the same open source license (unless I am
+    permitted to submit under a different license), as indicated
+    in the file; or
+
+(c) The contribution was provided directly to me by some other
+    person who certified (a), (b) or (c) and I have not modified
+    it.
+
+(d) I understand and agree that this project and the contribution
+    are public and that a record of the contribution (including all
+    personal information I submit with it, including my sign-off) is
+    maintained indefinitely and may be redistributed consistent with
+    this project or the open source license(s) involved.
+```
+
+Then you just add a line to every git commit message:
+
+    Signed-off-by: Kris Smith <kris.smith@email.com>
+
+Use your real name (sorry, no pseudonyms or anonymous contributions.)
+
+If you set your `user.name` and `user.email` git configs, you can sign your
+commit automatically with `git commit -s`.
+
+## Automated Style Checking
 
 Install the Python modules required by the script\lint format checking script:
 
@@ -60,11 +110,13 @@ Install the Python modules required by the script\lint format checking script:
 pip3 install -r requirements-dev.txt
 ```
 
-Install Version 11.0.0 of `clang-format` by clicking on a link below to download.  The file is named after the sha1 hash, rename it to clang-format.exe. Add its path to the PATH environment variable.
+Install version 11.0.0 of `clang-format` using one of the links listed below.
+The file is named after the sha1 hash, rename it to clang-format.exe. Add it's
+path to the PATH environment variable.
 
-[Windows binary](https://commondatastorage.googleapis.com/chromium-clang-format/d4afd4eba27022f5f6d518133aebde57281677c9)
+- [Windows binary](https://commondatastorage.googleapis.com/chromium-clang-format/d4afd4eba27022f5f6d518133aebde57281677c9)
 (sha1: d4afd4eba27022f5f6d518133aebde57281677c9)
 
-[Linux binary](https://commondatastorage.googleapis.com/chromium-clang-format/1baf0089e895c989a311b6a38ed94d0e8be4c0a7)
+- [Linux binary](https://commondatastorage.googleapis.com/chromium-clang-format/1baf0089e895c989a311b6a38ed94d0e8be4c0a7)
 (sha1: 1baf0089e895c989a311b6a38ed94d0e8be4c0a7)
 

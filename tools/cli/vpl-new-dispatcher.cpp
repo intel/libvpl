@@ -152,6 +152,31 @@ mfxStatus InitNewDispatcher(WSType wsType, Params *params, mfxSession *session) 
             return sts;
         }
     }
+    else if (wsType == WSTYPE_VPPENC) {
+        mfxConfig cfg2     = MFXCreateConfig(loader);
+        ImplValue.Type     = MFX_VARIANT_TYPE_U32;
+        ImplValue.Data.U32 = params->srcFourCC;
+        sts                = MFXSetConfigFilterProperty(
+            cfg2,
+            (const mfxU8 *)"mfxImplDescription.mfxVPPDescription.filter.memdesc.format.InFormat",
+            ImplValue);
+        if (sts) {
+            printf("Error - MFXSetConfigFilterProperty() failed\n");
+            return sts;
+        }
+
+        mfxConfig cfg3     = MFXCreateConfig(loader);
+        ImplValue.Type     = MFX_VARIANT_TYPE_U32;
+        ImplValue.Data.U32 = params->dstFourCC;
+        sts                = MFXSetConfigFilterProperty(
+            cfg3,
+            (const mfxU8 *)"mfxImplDescription.mfxEncoderDescription.encoder.CodecID",
+            ImplValue);
+        if (sts) {
+            printf("Error - MFXSetConfigFilterProperty() failed\n");
+            return sts;
+        }
+    }
 
     mfxU32 implIdx = 0;
     while (1) {
@@ -166,8 +191,9 @@ mfxStatus InitNewDispatcher(WSType wsType, Params *params, mfxSession *session) 
         if (sts == MFX_ERR_NOT_FOUND)
             break;
 
-        bool isSupported = false;
+        bool isSupported = true;
 
+        // optional additional check to illustrate how to parse implDesc
         if (wsType == WSTYPE_DECODE) {
             isSupported = CheckDecoderImplCaps(implDesc, params->srcFourCC);
         }
@@ -194,6 +220,8 @@ mfxStatus InitNewDispatcher(WSType wsType, Params *params, mfxSession *session) 
 
         implIdx++;
     }
+
+    MFXUnload(loader);
 
     return sts;
 }

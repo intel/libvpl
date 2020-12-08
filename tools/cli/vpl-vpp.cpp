@@ -4,7 +4,16 @@
   # SPDX-License-Identifier: MIT
   ############################################################################*/
 
+#include <string>
 #include "./vpl-common.h"
+
+#ifdef ENABLE_VAAPI
+    #include <fcntl.h>
+    #include <unistd.h>
+    #include "va/va.h"
+    #include "va/va_drm.h"
+#endif
+#include "vpl/mfxvideo.h"
 
 #if !defined(WIN32) && !defined(memcpy_s)
     // memcpy_s proxy to allow use safe version where supported
@@ -18,9 +27,17 @@
 #define MAX_HEIGHT 2160
 mfxU32 repeatCount = 0;
 
-const char* FrameModeString[FRAME_MODE_COUNT] = { "FRAME_MODE_ONE", "FRAME_MODE_ALL" };
+const char* InputFrameReadModeString[INPUT_FRAME_READ_MODE_COUNT] = {
+    "INPUT_FRAME_READ_MODE_PITCH",
+    "INPUT_FRAME_READ_MODE_FRAME"
+};
 
 mfxStatus LoadRawFrame(mfxFrameSurface1* pSurface, FILE* f, mfxU32 repeat);
+mfxStatus LoadRawFrame2(mfxFrameSurface1* pSurface,
+                        FILE* f,
+                        int bytes_to_read,
+                        mfxU8* buf_read,
+                        mfxU32 repeat);
 void WriteRawFrame(mfxFrameSurface1* pSurface, FILE* f);
 mfxU32 GetSurfaceWidth(mfxU32 fourcc, mfxU16 img_width);
 mfxU32 GetSurfaceSize(mfxU32 FourCC, mfxU32 width, mfxU32 height);
@@ -30,8 +47,10 @@ char* ValidateFileName(char* in);
 bool ValidateSize(char* in, mfxU32* vsize, mfxU32 vmax);
 bool ValidateParams(Params* params);
 bool ParseArgsAndValidate(int argc, char* argv[], Params* params);
-bool b_read_all;
 void Usage(void);
+mfxStatus InitializeSession(Params* params, mfxSession* session);
+void PrintVppParams(mfxVideoParam* mfxVPPParams);
+void InitializeVppParams(Params* params, mfxVideoParam* mfxVPPParams);
 
 int main(int argc, char* argv[]) {
     if (argc < 2) {
@@ -67,85 +86,40 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    // Initialize Media SDK session
-    mfxInitParam initPar   = { 0 };
-    initPar.Version.Major  = 2;
-    initPar.Version.Minor  = 0;
-    initPar.Implementation = MFX_IMPL_SOFTWARE;
-
     mfxStatus sts      = MFX_ERR_NOT_INITIALIZED;
     mfxSession session = nullptr;
 
-    if (params.dispatcherMode == DISPATCHER_MODE_VPL_20) {
-        sts = InitNewDispatcher(WSTYPE_VPP, &params, &session);
+    sts = InitializeSession(&params, &session);
+    if (sts != MFX_ERR_NONE) {
+        fclose(fSource);
+        fclose(fSink);
+        return 1;
     }
-    else if (params.dispatcherMode == DISPATCHER_MODE_LEGACY) {
-        // initialize session
-        mfxInitParam initPar   = { 0 };
-        initPar.Version.Major  = 2;
-        initPar.Version.Minor  = 0;
-        initPar.Implementation = MFX_IMPL_SOFTWARE;
+    puts("Session initialized");
 
-        sts = MFXInitEx(initPar, &session);
-    }
-    else {
-        printf("invalid dispatcher mode %d\n", params.dispatcherMode);
-    }
+    printf("Dispatcher mode = %s\n", DispatcherModeString[params.dispatcherMode]);
+    printf("Memory mode     = %s\n", MemoryModeString[params.memoryMode]);
+    printf("Frame mode      = %s\n", InputFrameReadModeString[params.inFrameReadMode]);
 
-    printf("Dispatcher mode  = %s\n", DispatcherModeString[params.dispatcherMode]);
-    printf("Memory mode      = %s\n", MemoryModeString[params.memoryMode]);
-    printf("Frame mode       = %s\n", FrameModeString[params.frameMode]);
-    if (params.frameMode == FRAME_MODE_ALL) {
-        b_read_all = true;
-    }
-    else if (params.frameMode == FRAME_MODE_ONE) {
-        b_read_all = false;
-    }
-    else {
-        printf("unable to set frame mode\n");
+    bool b_read_frame = false;
+
+    if (params.inFrameReadMode == INPUT_FRAME_READ_MODE_FRAME) {
+        b_read_frame = true;
     }
 
-    puts("library initialized");
+    mfxIMPL impl;
+    MFXQueryIMPL(session, &impl);
+    printf("Implementation  = %s\n", (MFX_IMPL_SOFTWARE == impl) ? "SOFTWARE" : "HARDWARE");
+
+    mfxVersion ver;
+    MFXQueryVersion(session, &ver);
+    printf("API version     = %d.%d\n", ver.Major, ver.Minor);
 
     // Initialize VPP parameters
     // - For simplistic memory management, system memory surfaces are used to store the raw frames
     //   (Note that when using HW acceleration video surfaces are prefered, for better performance)
-    mfxVideoParam mfxVPPParams;
-    memset(&mfxVPPParams, 0, sizeof(mfxVPPParams));
-    // Input data
-    mfxVPPParams.vpp.In.FourCC        = params.srcFourCC;
-    mfxVPPParams.vpp.In.ChromaFormat  = MFX_CHROMAFORMAT_YUV420;
-    mfxVPPParams.vpp.In.CropX         = params.srcCropX;
-    mfxVPPParams.vpp.In.CropY         = params.srcCropY;
-    mfxVPPParams.vpp.In.CropW         = params.srcCropW ? params.srcCropW : params.srcWidth;
-    mfxVPPParams.vpp.In.CropH         = params.srcCropH ? params.srcCropH : params.srcHeight;
-    mfxVPPParams.vpp.In.PicStruct     = MFX_PICSTRUCT_PROGRESSIVE;
-    mfxVPPParams.vpp.In.FrameRateExtN = 30;
-    mfxVPPParams.vpp.In.FrameRateExtD = 1;
-    // FFmpeg manages alignment, no need to make alignment here for cpu-plugin perspective.
-    // BTW, if this app should be common to legacy mediasdk, we need to use same method and use alignment here.
-    // Then, we need to have new param that we can deliver original size (before alignment) to vpl.
-    mfxVPPParams.vpp.In.Width  = params.srcWidth;
-    mfxVPPParams.vpp.In.Height = params.srcHeight;
-    if (params.srcFourCC == MFX_FOURCC_P010) // enable ms10bit
-        mfxVPPParams.vpp.In.Shift = 1;
-
-    // Output data
-    mfxVPPParams.vpp.Out.FourCC        = params.dstFourCC;
-    mfxVPPParams.vpp.Out.ChromaFormat  = MFX_CHROMAFORMAT_YUV420;
-    mfxVPPParams.vpp.Out.CropX         = params.dstCropX;
-    mfxVPPParams.vpp.Out.CropY         = params.dstCropY;
-    mfxVPPParams.vpp.Out.CropW         = params.dstCropW ? params.dstCropW : params.dstWidth;
-    mfxVPPParams.vpp.Out.CropH         = params.dstCropH ? params.dstCropH : params.dstHeight;
-    mfxVPPParams.vpp.Out.PicStruct     = MFX_PICSTRUCT_PROGRESSIVE;
-    mfxVPPParams.vpp.Out.FrameRateExtN = 30;
-    mfxVPPParams.vpp.Out.FrameRateExtD = 1;
-    mfxVPPParams.vpp.Out.Width         = params.dstWidth;
-    mfxVPPParams.vpp.Out.Height        = params.dstHeight;
-    if (params.dstFourCC == MFX_FOURCC_P010) // enable ms10bit
-        mfxVPPParams.vpp.Out.Shift = 1;
-
-    mfxVPPParams.IOPattern = MFX_IOPATTERN_IN_SYSTEM_MEMORY | MFX_IOPATTERN_OUT_SYSTEM_MEMORY;
+    mfxVideoParam mfxVPPParams = { 0 };
+    InitializeVppParams(&params, &mfxVPPParams);
 
     // Query number of required surfaces for VPP
     mfxFrameAllocRequest VPPRequest[2]; // [0] - in, [1] - out
@@ -160,10 +134,13 @@ int main(int argc, char* argv[]) {
             fclose(fSink);
             fSink = NULL;
         }
+
+        PrintVppParams(&mfxVPPParams);
         puts("QueryIOSurf error");
         return 1;
     }
 
+    // We currently do not use the suggested number of
     mfxU16 nVPPSurfNumIn  = VPPRequest[0].NumFrameSuggested;
     mfxU16 nVPPSurfNumOut = VPPRequest[1].NumFrameSuggested;
 
@@ -196,7 +173,6 @@ int main(int argc, char* argv[]) {
     // start load all frames section
     std::vector<mfxFrameSurface1> pVPPSurfacesInAll;
     std::vector<mfxU8> surfDataInAll;
-    mfxU8* surfaceBuffersInAll;
 
     // get frame size
     mfxU32 frame_size = GetSurfaceSize(mfxVPPParams.vpp.In.FourCC,
@@ -218,6 +194,16 @@ int main(int argc, char* argv[]) {
 
     printf("Frame size       = %d\n", frame_size);
 
+    mfxU8* buf_read = NULL;
+
+    if (b_read_frame) {
+        buf_read = reinterpret_cast<mfxU8*>(malloc(frame_size));
+        if (!buf_read) {
+            puts("Error allocating frame buffer.");
+            return 1;
+        }
+    }
+
     // get file size
     fseek(fSource, 0, SEEK_END);
 #ifdef _WIN32
@@ -229,46 +215,6 @@ int main(int argc, char* argv[]) {
     printf("File size        = %llu\n", file_size);
     mfxU64 num_frames = file_size / frame_size;
     printf("Frames estimated = %llu\n", num_frames);
-
-    if (b_read_all) {
-        pVPPSurfacesInAll.resize(num_frames);
-
-        // prepare data block for surfaces to allocate mem pointer
-        surfDataInAll.resize(frame_size * num_frames);
-
-        // data access point for the consecutive data memory for full frame and for mfxFrameSurfaces
-        surfaceBuffersInAll = surfDataInAll.data();
-
-        // data connection between consecutive data array and mfxFrameSurfaces
-        for (mfxI32 i = 0; i < num_frames; i++) {
-            memset(&pVPPSurfacesInAll[i], 0, sizeof(mfxFrameSurface1));
-            pVPPSurfacesInAll[i].Info = mfxVPPParams.vpp.In;
-            if (mfxVPPParams.vpp.In.FourCC == MFX_FOURCC_RGB4) {
-                pVPPSurfacesInAll[i].Data.B     = &surfaceBuffersInAll[surfaceSize * i];
-                pVPPSurfacesInAll[i].Data.G     = pVPPSurfacesInAll[i].Data.B + 1;
-                pVPPSurfacesInAll[i].Data.R     = pVPPSurfacesInAll[i].Data.B + 2;
-                pVPPSurfacesInAll[i].Data.A     = pVPPSurfacesInAll[i].Data.B + 3;
-                pVPPSurfacesInAll[i].Data.Pitch = surf_w;
-            }
-            else {
-                pVPPSurfacesInAll[i].Data.Y = &surfaceBuffersInAll[surfaceSize * i];
-                pVPPSurfacesInAll[i].Data.U = pVPPSurfacesInAll[i].Data.Y + (mfxU16)surf_w * surf_h;
-                pVPPSurfacesInAll[i].Data.V =
-                    pVPPSurfacesInAll[i].Data.U + (((mfxU16)surf_w / 2) * (surf_h / 2));
-                pVPPSurfacesInAll[i].Data.Pitch = surf_w;
-            }
-        }
-
-        // load all frames to surfaces
-        for (int i = 0; i < num_frames; i++) {
-            LoadRawFrame(&pVPPSurfacesInAll[i], fSource, params.repeat);
-        }
-
-        if (fSource) {
-            fclose(fSource);
-            fSource = NULL;
-        }
-    }
 
     if (params.memoryMode == MEM_MODE_EXTERNAL) {
         surfDataIn.resize(surfaceSize * nVPPSurfNumIn);
@@ -308,6 +254,10 @@ int main(int argc, char* argv[]) {
         if (fSink) {
             fclose(fSink);
             fSink = NULL;
+        }
+        if (buf_read) {
+            free(buf_read);
+            buf_read = NULL;
         }
         puts("VPP-out surface size is wrong");
         return 1;
@@ -350,6 +300,11 @@ int main(int argc, char* argv[]) {
             fclose(fSink);
             fSink = NULL;
         }
+        if (buf_read) {
+            free(buf_read);
+            buf_read = NULL;
+        }
+        PrintVppParams(&mfxVPPParams);
         puts("could not initialize vpp");
         return 1;
     }
@@ -357,8 +312,7 @@ int main(int argc, char* argv[]) {
     // Start processing the frames
     int nSurfIdxIn = 0, nSurfIdxOut = 0;
     mfxSyncPoint syncp;
-    mfxU32 framenum   = 0;
-    int process_index = 0;
+    mfxU32 framenum = 0;
 
     printf("Processing %s -> %s\n", params.infileName, params.outfileName);
 
@@ -388,6 +342,10 @@ int main(int argc, char* argv[]) {
                     fclose(fSink);
                     fSink = NULL;
                 }
+                if (buf_read) {
+                    free(buf_read);
+                    buf_read = NULL;
+                }
                 puts("no available surface");
                 return 1;
             }
@@ -405,6 +363,10 @@ int main(int argc, char* argv[]) {
                     fclose(fSink);
                     fSink = NULL;
                 }
+                if (buf_read) {
+                    free(buf_read);
+                    buf_read = NULL;
+                }
                 printf("Unknown error in MFXMemory_GetSurfaceForVPP, sts = %d()\n", sts);
                 return 1;
             }
@@ -413,57 +375,8 @@ int main(int argc, char* argv[]) {
         }
 
         if (vppSurfaceIn) {
-            if (b_read_all) {
-                if (process_index < num_frames) {
-                    if (params.memoryMode == MEM_MODE_EXTERNAL) {
-                        vppSurfaceIn = &pVPPSurfacesInAll[process_index++];
-                    }
-                    else {
-                        if (mfxVPPParams.vpp.In.FourCC == MFX_FOURCC_I420) {
-                            memcpy_s(vppSurfaceIn->Data.Y,
-                                     mfxVPPParams.vpp.In.Width * mfxVPPParams.vpp.In.Height,
-                                     pVPPSurfacesInAll[process_index].Data.Y,
-                                     mfxVPPParams.vpp.In.Width * mfxVPPParams.vpp.In.Height);
-                            memcpy_s(vppSurfaceIn->Data.U,
-                                     (mfxVPPParams.vpp.In.Width >> 1) *
-                                         (mfxVPPParams.vpp.In.Height >> 1),
-                                     pVPPSurfacesInAll[process_index].Data.U,
-                                     (mfxVPPParams.vpp.In.Width >> 1) *
-                                         (mfxVPPParams.vpp.In.Height >> 1));
-                            memcpy_s(vppSurfaceIn->Data.V,
-                                     (mfxVPPParams.vpp.In.Width >> 1) *
-                                         (mfxVPPParams.vpp.In.Height >> 1),
-                                     pVPPSurfacesInAll[process_index].Data.V,
-                                     (mfxVPPParams.vpp.In.Width >> 1) *
-                                         (mfxVPPParams.vpp.In.Height >> 1));
-                        }
-                        else if (mfxVPPParams.vpp.In.FourCC == MFX_FOURCC_I010) {
-                            memcpy_s(vppSurfaceIn->Data.Y,
-                                     (mfxVPPParams.vpp.In.Width * 2) * mfxVPPParams.vpp.In.Height,
-                                     pVPPSurfacesInAll[process_index].Data.Y,
-                                     (mfxVPPParams.vpp.In.Width * 2) * mfxVPPParams.vpp.In.Height);
-                            memcpy_s(vppSurfaceIn->Data.U,
-                                     mfxVPPParams.vpp.In.Width * (mfxVPPParams.vpp.In.Height >> 1),
-                                     pVPPSurfacesInAll[process_index].Data.U,
-                                     mfxVPPParams.vpp.In.Width * (mfxVPPParams.vpp.In.Height >> 1));
-                            memcpy_s(vppSurfaceIn->Data.V,
-                                     mfxVPPParams.vpp.In.Width * (mfxVPPParams.vpp.In.Height >> 1),
-                                     pVPPSurfacesInAll[process_index].Data.V,
-                                     mfxVPPParams.vpp.In.Width * (mfxVPPParams.vpp.In.Height >> 1));
-                        }
-                        else if (mfxVPPParams.vpp.In.FourCC == MFX_FOURCC_RGB4) {
-                            memcpy_s(vppSurfaceIn->Data.B,
-                                     mfxVPPParams.vpp.In.Width * mfxVPPParams.vpp.In.Height * 4,
-                                     pVPPSurfacesInAll[process_index].Data.B,
-                                     mfxVPPParams.vpp.In.Width * mfxVPPParams.vpp.In.Height * 4);
-                        }
-                        process_index++;
-                    }
-                    sts = MFX_ERR_NONE;
-                }
-                else {
-                    sts = MFX_ERR_MORE_DATA;
-                }
+            if (b_read_frame) {
+                sts = LoadRawFrame2(vppSurfaceIn, fSource, frame_size, buf_read, params.repeat);
             }
             else {
                 sts = LoadRawFrame(vppSurfaceIn, fSource, params.repeat);
@@ -577,6 +490,10 @@ int main(int argc, char* argv[]) {
                 fclose(fSink);
                 fSink = NULL;
             }
+            if (buf_read) {
+                free(buf_read);
+                buf_read = NULL;
+            }
             puts("no available surface");
             return 1;
         }
@@ -638,8 +555,63 @@ int main(int argc, char* argv[]) {
         fclose(fSink);
         fSink = NULL;
     }
-
+    if (buf_read) {
+        free(buf_read);
+        buf_read = NULL;
+    }
     return 0;
+}
+
+mfxStatus LoadRawFrame2(mfxFrameSurface1* pSurface,
+                        FILE* f,
+                        int bytes_to_read,
+                        mfxU8* buf_read,
+                        mfxU32 repeat) {
+    mfxU32 nBytesRead = (mfxU32)fread(buf_read, 1, bytes_to_read, f);
+
+    if (bytes_to_read != nBytesRead) {
+        if (repeatCount == repeat)
+            return MFX_ERR_MORE_DATA;
+        else {
+            fseek(f, 0, SEEK_SET);
+            repeatCount++;
+        }
+    }
+
+    mfxU16 w, h, pitch;
+    mfxFrameInfo* pInfo = &pSurface->Info;
+    mfxFrameData* pData = &pSurface->Data;
+
+    w = pInfo->Width;
+    h = pInfo->Height;
+
+    switch (pInfo->FourCC) {
+        case MFX_FOURCC_NV12:
+        case MFX_FOURCC_I420:
+            pitch    = pData->Pitch;
+            pData->Y = buf_read;
+            pData->U = pData->Y + w * h;
+            pData->V = pData->U + ((w / 2) * (h / 2));
+            break;
+
+        case MFX_FOURCC_P010:
+        case MFX_FOURCC_I010:
+            pitch    = pData->Pitch;
+            pData->Y = buf_read;
+            pData->U = pData->Y + w * 2 * h;
+            pData->V = pData->U + (w * (h / 2));
+            break;
+
+        case MFX_FOURCC_RGB4:
+            // read luminance plane (Y)
+            pitch    = pData->Pitch;
+            pData->B = buf_read;
+            break;
+        default:
+            break;
+    }
+
+    return MFX_ERR_NONE;
 }
 
 mfxStatus LoadRawFrame(mfxFrameSurface1* pSurface, FILE* f, mfxU32 repeat) {
@@ -653,6 +625,7 @@ mfxStatus LoadRawFrame(mfxFrameSurface1* pSurface, FILE* f, mfxU32 repeat) {
     h = pInfo->Height;
 
     switch (pInfo->FourCC) {
+        case MFX_FOURCC_NV12:
         case MFX_FOURCC_I420:
             // read luminance plane (Y)
             pitch = pData->Pitch;
@@ -700,6 +673,7 @@ mfxStatus LoadRawFrame(mfxFrameSurface1* pSurface, FILE* f, mfxU32 repeat) {
             }
             break;
 
+        case MFX_FOURCC_P010:
         case MFX_FOURCC_I010:
             // read luminance plane (Y)
             pitch = pData->Pitch;
@@ -782,6 +756,7 @@ void WriteRawFrame(mfxFrameSurface1* pSurface, FILE* f) {
 
     // write the output to disk
     switch (pInfo->FourCC) {
+        case MFX_FOURCC_NV12:
         case MFX_FOURCC_I420:
             //Y
             pitch = pData->Pitch;
@@ -802,6 +777,7 @@ void WriteRawFrame(mfxFrameSurface1* pSurface, FILE* f) {
             }
             break;
 
+        case MFX_FOURCC_P010:
         case MFX_FOURCC_I010:
             //Y
             pitch = pData->Pitch;
@@ -837,40 +813,59 @@ void WriteRawFrame(mfxFrameSurface1* pSurface, FILE* f) {
     return;
 }
 
-mfxU32 GetSurfaceWidth(mfxU32 fourcc, mfxU16 img_width) {
-    if (fourcc == MFX_FOURCC_I420) {
-        return img_width;
-    }
-    else if (fourcc == MFX_FOURCC_I010) {
-        return img_width * 2;
-    }
-    else if (fourcc == MFX_FOURCC_RGB4) {
-        return img_width * 4;
+mfxU32 GetSurfaceWidth(mfxU32 FourCC, mfxU16 img_width) {
+    mfxU16 W;
+    switch (FourCC) {
+        case MFX_FOURCC_NV12:
+        case MFX_FOURCC_I420:
+            W = img_width;
+            break;
+        case MFX_FOURCC_P010:
+        case MFX_FOURCC_I010:
+            W = img_width * 2;
+            break;
+        case MFX_FOURCC_BGRA:
+        default:
+            W = img_width * 4;
+            break;
     }
 
-    return img_width;
+    return W;
 }
 
 mfxU32 GetSurfaceSize(mfxU32 FourCC, mfxU32 width, mfxU32 height) {
     mfxU32 nbytes = 0;
 
     switch (FourCC) {
+        case MFX_FOURCC_NV12:
         case MFX_FOURCC_I420:
             nbytes = width * height + (width >> 1) * (height >> 1) + (width >> 1) * (height >> 1);
             break;
-
+        case MFX_FOURCC_P010:
         case MFX_FOURCC_I010:
             nbytes = width * height + (width >> 1) * (height >> 1) + (width >> 1) * (height >> 1);
             nbytes *= 2;
             break;
-
-        case MFX_FOURCC_RGB4:
-            nbytes = width * height * 4;
+        case MFX_FOURCC_BGRA:
         default:
+            nbytes = width * height * 4;
             break;
     }
 
     return nbytes;
+}
+
+mfxI32 GetFreeSurfaceIndex(const std::vector<mfxFrameSurface1>& pSurfacesPool) {
+    auto it = std::find_if(pSurfacesPool.begin(),
+                           pSurfacesPool.end(),
+                           [](const mfxFrameSurface1& surface) {
+                               return 0 == surface.Data.Locked;
+                           });
+
+    if (it == pSurfacesPool.end())
+        return MFX_ERR_NOT_FOUND;
+    else
+        return static_cast<mfxI32>(it - pSurfacesPool.begin());
 }
 
 char** ValidateInput(int cnt, char* in[]) {
@@ -901,13 +896,12 @@ char* ValidateFileName(char* in) {
 
 bool ValidateSize(char* in, mfxU32* vsize, mfxU32 vmax) {
     if (in) {
-        *vsize = static_cast<mfxU32>(strtol(in, NULL, 10));
-        if (*vsize > vmax)
-            return false;
-        else
+        *vsize = static_cast<mfxU16>(strtol(in, NULL, 10));
+        if (*vsize <= vmax)
             return true;
     }
 
+    *vsize = 0;
     return false;
 }
 
@@ -921,7 +915,7 @@ bool ValidateParams(Params* params) {
 
     // output file (required)
     if (!params->outfileName) {
-        printf("ERROR - output file name (-i) is required\n");
+        printf("ERROR - output file name (-o) is required\n");
         return false;
     }
 
@@ -936,10 +930,7 @@ bool ValidateParams(Params* params) {
         params->srcFourCC = MFX_FOURCC_NV12;
     }
     else if (!strncmp(params->infileFormat, "BGRA", strlen("BGRA"))) {
-        params->srcFourCC = MFX_FOURCC_RGB4;
-    }
-    else if (!strncmp(params->infileFormat, "ABGR", strlen("ABGR"))) {
-        params->srcFourCC = MFX_FOURCC_BGR4;
+        params->srcFourCC = MFX_FOURCC_BGRA;
     }
     else if (!strncmp(params->infileFormat, "I420", strlen("I420"))) {
         params->srcFourCC = MFX_FOURCC_I420;
@@ -977,10 +968,7 @@ bool ValidateParams(Params* params) {
         params->dstFourCC = MFX_FOURCC_NV12;
     }
     else if (!strncmp(params->outfileFormat, "BGRA", strlen("BGRA"))) {
-        params->dstFourCC = MFX_FOURCC_RGB4;
-    }
-    else if (!strncmp(params->outfileFormat, "ABGR", strlen("ABGR"))) {
-        params->dstFourCC = MFX_FOURCC_BGR4;
+        params->dstFourCC = MFX_FOURCC_BGRA;
     }
     else if (!strncmp(params->outfileFormat, "I420", strlen("I420"))) {
         params->dstFourCC = MFX_FOURCC_I420;
@@ -1007,7 +995,10 @@ bool ParseArgsAndValidate(int argc, char* argv[], Params* params) {
     memset(params, 0, sizeof(Params));
 
     // set any non-zero defaults
-    params->memoryMode = MEM_MODE_EXTERNAL;
+    if (!params->memoryMode)
+        params->memoryMode = MEM_MODE_EXTERNAL;
+    if (!params->impl)
+        params->impl = MFX_IMPL_SOFTWARE;
 
     if (argc < 2)
         return false;
@@ -1038,6 +1029,9 @@ bool ParseArgsAndValidate(int argc, char* argv[], Params* params) {
         }
         else if (IS_ARG_EQ(s, "n")) {
             params->maxFrames = atoi(argv[idx++]);
+        }
+        else if (IS_ARG_EQ(s, "v")) {
+            params->verboseMode = true;
         }
         else if (IS_ARG_EQ(s, "if")) {
             params->infileFormat = argv[idx++];
@@ -1124,6 +1118,9 @@ bool ParseArgsAndValidate(int argc, char* argv[], Params* params) {
         else if (IS_ARG_EQ(s, "dsp2")) {
             params->dispatcherMode = DISPATCHER_MODE_VPL_20;
         }
+        else if (IS_ARG_EQ(s, "hw")) {
+            params->impl = MFX_IMPL_HARDWARE;
+        }
         else if (IS_ARG_EQ(s, "scrx")) {
             if (!ValidateSize(argv[idx++], &params->srcCropX, MAX_WIDTH))
                 return false;
@@ -1156,11 +1153,11 @@ bool ParseArgsAndValidate(int argc, char* argv[], Params* params) {
             if (!ValidateSize(argv[idx++], &params->dstCropH, MAX_HEIGHT))
                 return false;
         }
-        else if (IS_ARG_EQ(s, "fone")) {
-            params->frameMode = FRAME_MODE_ONE;
+        else if (IS_ARG_EQ(s, "fpitch")) {
+            params->inFrameReadMode = INPUT_FRAME_READ_MODE_PITCH;
         }
-        else if (IS_ARG_EQ(s, "fall")) {
-            params->frameMode = FRAME_MODE_ALL;
+        else if (IS_ARG_EQ(s, "fframe")) {
+            params->inFrameReadMode = INPUT_FRAME_READ_MODE_FRAME;
         }
         else {
             printf("ERROR - invalid argument: %s\n", argv[idx]);
@@ -1201,11 +1198,156 @@ void Usage(void) {
     printf("  -dsp1 = legacy dispatcher (MSDK 1.x)\n");
     printf("  -dsp2 = smart dispatcher (API 2.0)\n");
 
-    printf("\nFrame mode (optional, default = -fone)\n");
-    printf("  -fone = load frame-by-frame\n");
-    printf("  -fall = load all frames into memory\n");
+    printf("\nImplementation (default = software 2.0 API implementation\n");
+#ifdef ENABLE_VAAPI
+    printf("  -hw = hardware 1.x API implementation via VAAPI\n");
+#endif
+
+    printf("\nFrame mode (optional, default = -fpitch)\n");
+    printf("  -fpitch = load frame-by-frame (read data per pitch - legacy)\n");
+    printf("  -fframe = load frame-by-frame (read data per frame)\n");
 
     printf("\nTo view:\n");
     printf(
         " ffplay -video_size [width]x[height] -pixel_format [pixel format] -f rawvideo [out filename]\n");
+    return;
+}
+
+mfxStatus InitializeSession(Params* params, mfxSession* session) {
+    std::string diagnoseText = "";
+    mfxStatus sts            = MFX_ERR_UNDEFINED_BEHAVIOR;
+
+    switch (params->dispatcherMode) {
+        case DISPATCHER_MODE_VPL_20:
+            diagnoseText = "InitNewDispatcher with WSTYPE_DECODE in DISPATCHER_MODE_VPL_20";
+            sts          = InitNewDispatcher(WSTYPE_VPP, params, session);
+            break;
+        case DISPATCHER_MODE_LEGACY: {
+            if (MFX_IMPL_SOFTWARE == params->impl) {
+                diagnoseText = "MFXInitEx with MFX_IMPL_SOFTWARE in DISPATCHER_MODE_LEGACY";
+                // initialize session
+                mfxInitParam initPar   = { 0 };
+                initPar.Version.Major  = 2;
+                initPar.Version.Minor  = 0;
+                initPar.Implementation = MFX_IMPL_SOFTWARE;
+
+                sts = MFXInitEx(initPar, session);
+            }
+            else {
+                diagnoseText = "MFXInitEx with MFX_IMPL_HARDWARE in DISPATCHER_MODE_LEGACY";
+                // initialize session
+                mfxInitParam initPar   = { 0 };
+                initPar.Version.Major  = 1;
+                initPar.Version.Minor  = 0;
+                initPar.Implementation = MFX_IMPL_HARDWARE;
+
+                sts = MFXInitEx(initPar, session);
+            }
+        } break;
+        default:
+            diagnoseText = "Invalid dispatcher mode";
+            break;
+    }
+
+    if (sts != MFX_ERR_NONE) {
+        printf("MFXInitEx error. could not initialize session\n");
+
+        std::cout << "Failed " << diagnoseText.c_str() << std::endl;
+        if (sts == MFX_ERR_UNSUPPORTED) {
+            printf("Did you configure the necessary environment variables?\n");
+        }
+        else {
+            std::cout << "Error code: " << sts << std::endl;
+        }
+    }
+
+    if (MFX_IMPL_HARDWARE == params->impl) {
+#ifdef ENABLE_VAAPI
+        // initialize VAAPI context and set session handle (req in Linux)
+        sts    = MFX_ERR_NOT_INITIALIZED;
+        int fd = open("/dev/dri/renderD128", O_RDWR);
+        if (fd >= 0) {
+            VADisplay va_dpy = vaGetDisplayDRM(fd);
+            if (va_dpy) {
+                int major_version = 0, minor_version = 0;
+                if (VA_STATUS_SUCCESS == vaInitialize(va_dpy, &major_version, &minor_version)) {
+                    sts = MFX_ERR_NONE;
+                    MFXVideoCORE_SetHandle(*session,
+                                           static_cast<mfxHandleType>(MFX_HANDLE_VA_DISPLAY),
+                                           va_dpy);
+                }
+            }
+        }
+        else {
+            puts("Could not could not find a valid VAAPI interface");
+        }
+
+#endif
+    }
+
+    return sts;
+}
+
+void InitializeVppParams(Params* params, mfxVideoParam* mfxVPPParams) {
+    // Input data
+    (*mfxVPPParams).vpp.In.FourCC        = params->srcFourCC;
+    (*mfxVPPParams).vpp.In.ChromaFormat  = MFX_CHROMAFORMAT_YUV420;
+    (*mfxVPPParams).vpp.In.CropX         = params->srcCropX;
+    (*mfxVPPParams).vpp.In.CropY         = params->srcCropY;
+    (*mfxVPPParams).vpp.In.CropW         = params->srcCropW ? params->srcCropW : params->srcWidth;
+    (*mfxVPPParams).vpp.In.CropH         = params->srcCropH ? params->srcCropH : params->srcHeight;
+    (*mfxVPPParams).vpp.In.PicStruct     = MFX_PICSTRUCT_PROGRESSIVE;
+    (*mfxVPPParams).vpp.In.FrameRateExtN = 30;
+    (*mfxVPPParams).vpp.In.FrameRateExtD = 1;
+    // FFmpeg manages alignment, no need to make alignment here for cpu-plugin perspective.
+    // BTW, if this app should be common to legacy mediasdk, we need to use same method and use alignment here.
+    // Then, we need to have new param that we can deliver original size (before alignment) to vpl.
+    (*mfxVPPParams).vpp.In.Width  = params->srcWidth;
+    (*mfxVPPParams).vpp.In.Height = params->srcHeight;
+    if (params->srcFourCC == MFX_FOURCC_P010) // enable ms10bit
+        (*mfxVPPParams).vpp.In.Shift = 1;
+
+    // Output data
+    (*mfxVPPParams).vpp.Out.FourCC        = params->dstFourCC;
+    (*mfxVPPParams).vpp.Out.ChromaFormat  = MFX_CHROMAFORMAT_YUV420;
+    (*mfxVPPParams).vpp.Out.CropX         = params->dstCropX;
+    (*mfxVPPParams).vpp.Out.CropY         = params->dstCropY;
+    (*mfxVPPParams).vpp.Out.CropW         = params->dstCropW ? params->dstCropW : params->dstWidth;
+    (*mfxVPPParams).vpp.Out.CropH         = params->dstCropH ? params->dstCropH : params->dstHeight;
+    (*mfxVPPParams).vpp.Out.PicStruct     = MFX_PICSTRUCT_PROGRESSIVE;
+    (*mfxVPPParams).vpp.Out.FrameRateExtN = 30;
+    (*mfxVPPParams).vpp.Out.FrameRateExtD = 1;
+    (*mfxVPPParams).vpp.Out.Width         = params->dstWidth;
+    (*mfxVPPParams).vpp.Out.Height        = params->dstHeight;
+    if (params->dstFourCC == MFX_FOURCC_P010) // enable ms10bit
+        (*mfxVPPParams).vpp.Out.Shift = 1;
+
+    (*mfxVPPParams).IOPattern = MFX_IOPATTERN_IN_SYSTEM_MEMORY | MFX_IOPATTERN_OUT_SYSTEM_MEMORY;
+}
+
+void PrintVppParams(mfxVideoParam* mfxVPPParams) {
+    std::cout << "CodecId=" << mfxVPPParams->mfx.CodecId << " | ";
+    std::cout << "CodecProfile=" << mfxVPPParams->mfx.CodecProfile << " | ";
+    std::cout << "CodecLevel=" << mfxVPPParams->mfx.CodecLevel << " | ";
+    std::cout << "GopPicSize=" << mfxVPPParams->mfx.GopPicSize << " | ";
+    std::cout << "JPEGChromaFormat=" << mfxVPPParams->mfx.JPEGChromaFormat << " | ";
+    std::cout << "Rotation=" << mfxVPPParams->mfx.Rotation << " | ";
+    std::cout << "JPEGColorFormat=" << mfxVPPParams->mfx.JPEGColorFormat << " | " << std::endl;
+    std::cout << "PicStruct=" << mfxVPPParams->mfx.FrameInfo.PicStruct << " | ";
+    std::cout << "BitDepthLuma=" << mfxVPPParams->mfx.FrameInfo.BitDepthLuma << " | ";
+    std::cout << "BitDepthChroma=" << mfxVPPParams->mfx.FrameInfo.BitDepthChroma << " | ";
+    std::cout << "ChromaFormat=" << mfxVPPParams->mfx.FrameInfo.ChromaFormat << " | ";
+    std::cout << "FourCC=" << mfxVPPParams->mfx.FrameInfo.FourCC << " | ";
+    std::cout << "Width=" << mfxVPPParams->mfx.FrameInfo.Width << " | ";
+    std::cout << "Height=" << mfxVPPParams->mfx.FrameInfo.Height << " | " << std::endl;
+    std::cout << "CropX=" << mfxVPPParams->mfx.FrameInfo.CropX << " | ";
+    std::cout << "CropY=" << mfxVPPParams->mfx.FrameInfo.CropY << " | ";
+    std::cout << "CropH=" << mfxVPPParams->mfx.FrameInfo.CropH << " | ";
+    std::cout << "CropW=" << mfxVPPParams->mfx.FrameInfo.CropW << " | ";
+    std::cout << "AspectRatioH=" << mfxVPPParams->mfx.FrameInfo.AspectRatioH << " | ";
+    std::cout << "AspectRatioW=" << mfxVPPParams->mfx.FrameInfo.AspectRatioW << " | ";
+    std::cout << "FrameRateExtD=" << mfxVPPParams->mfx.FrameInfo.FrameRateExtD << " | ";
+    std::cout << "FrameRateExtN=" << mfxVPPParams->mfx.FrameInfo.FrameRateExtN << " | "
+              << std::endl;
+    std::cout << "Quality=" << mfxVPPParams->mfx.Quality << " | " << std::endl;
 }

@@ -12,28 +12,22 @@ This repository contains the following components of oneVPL:
 - oneVPL command line tools
 
 This project is part of the larger [oneAPI](https://www.oneapi.com/) project.
-See **Contributing** below for details about submitting issues and pull
-requests.
+See the [oneAPI Specification](https://spec.oneapi.com) and the
+[oneVPL Specification](https://spec.oneapi.com/versions/latest/elements/oneVPL/source/index.html) for additional information.
 
-oneAPI Specification: 
-https://spec.oneapi.com
+The version of the oneVPL API is listed in the
+[mfxdefs.h](./api/vpl/mfxdefs.h) file.
 
-oneVPL Specification: 
-https://spec.oneapi.com/versions/latest/elements/oneVPL/source/index.html
+## Prerequisites
 
-The version of the oneVPL API is listed in the file
-[mfxdefs.h](./api/vpl/mfxdefs.h).
+To build this project you will need:
 
-
-## Building and Installing
-
-### Prerequisites
-
-- Compiler with C++11 support
+- A compiler with C++11 support
 - CMake 3.10 or newer
 
+## Build and Installation
 
-### General
+Build the project with the following commands:
 
 ```
 mkdir _build
@@ -45,21 +39,24 @@ cmake --build . --config Release --target install
 
 You can find the build output in `<vpl-install-location>`.
 
-
 ## Getting an Implementation
 
-To use oneVPL for video processing to you need to install at least one
-implementation:
+To use oneVPL for video processing you need to install at least one
+implementation. Current implementations:
 
-- [oneVPL-cpu](https://github.com/oneapi-src/oneVPL-cpu) - CPU reference
+- [oneVPL-cpu](https://github.com/oneapi-src/oneVPL-cpu), the CPU reference
   implementation
-
 
 ## Contributing
 
-Please see the [CONTRIBUTING.md](CONTRIBUTING.md) file for details.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for more information.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file
 for details.
+
+## Security
+
+See the [Intel Security Center](https://www.intel.com/content/www/us/en/security-center/default.html) for information on how to report a potential
+security issue or vulnerability.

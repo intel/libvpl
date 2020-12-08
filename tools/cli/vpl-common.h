@@ -41,20 +41,22 @@ enum WSType {
     WSTYPE_DECODE = 0,
     WSTYPE_ENCODE,
     WSTYPE_VPP,
+    WSTYPE_VPPENC,
+    WSTYPE_DECENC,
 
     WSTYPE_COUNT
 };
 
-enum FrameMode {
-    FRAME_MODE_ONE = 0,
-    FRAME_MODE_ALL,
+enum InputFrameReadMode {
+    INPUT_FRAME_READ_MODE_PITCH = 0,
+    INPUT_FRAME_READ_MODE_FRAME,
 
-    FRAME_MODE_COUNT
+    INPUT_FRAME_READ_MODE_COUNT
 };
 
 extern const char* MemoryModeString[MEM_MODE_COUNT];
 extern const char* DispatcherModeString[DISPATCHER_MODE_COUNT];
-extern const char* FrameModeString[FRAME_MODE_COUNT];
+extern const char* InputFrameReadModeString[INPUT_FRAME_READ_MODE_COUNT];
 
 typedef struct _Params {
     char* infileName;
@@ -67,6 +69,8 @@ typedef struct _Params {
     char* targetDeviceType;
 
     char* gpuCopyMode;
+
+    bool verboseMode;
 
     mfxU32 srcFourCC;
     mfxU32 dstFourCC;
@@ -113,7 +117,8 @@ typedef struct _Params {
 
     MemoryMode memoryMode;
     DispatcherMode dispatcherMode;
-    FrameMode frameMode;
+    mfxIMPL impl;
+    InputFrameReadMode inFrameReadMode;
 
     mfxU32 outWidth;
     mfxU32 outHeight;

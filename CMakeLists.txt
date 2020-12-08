@@ -47,11 +47,10 @@ add_subdirectory(dispatcher)
 add_subdirectory(env)
 add_subdirectory(modulefiles)
 add_subdirectory(tools/cli)
-add_subdirectory(tools/legacy)
 add_subdirectory(examples/hello-decode)
 add_subdirectory(examples/hello-encode)
 add_subdirectory(examples/hello-vpp)
-add_subdirectory(examples/dpcpp-blur)
+add_subdirectory(examples/hello-transcode)
 
 install(
   FILES third-party-programs.txt

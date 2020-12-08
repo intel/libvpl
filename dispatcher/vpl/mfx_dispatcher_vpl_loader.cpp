@@ -179,6 +179,7 @@ mfxStatus LoaderCtxVPL::SearchDirForLibs(STRING_TYPE searchDir,
                 libInfoList.push_back(libInfo);
             }
         }
+        closedir(pSearchDir);
     }
 #endif
 
@@ -294,6 +295,24 @@ mfxU32 LoaderCtxVPL::CheckValidLibraries() {
 // iterate over all implementation runtimes
 // unload DLL's and free memory
 mfxStatus LoaderCtxVPL::UnloadAllLibraries() {
+    std::list<ImplInfo*>::iterator it2 = m_implInfoList.begin();
+    while (it2 != m_implInfoList.end()) {
+        ImplInfo* implInfo = (*it2);
+
+        if (implInfo) {
+            // call MFXReleaseImplDescription() for this implementation if it
+            //   was never called by application
+            if (implInfo->implDesc) {
+                LibInfo* libInfo     = implInfo->libInfo;
+                VPLFunctionPtr pFunc = libInfo->vplFuncTable[IdxMFXReleaseImplDescription];
+                (*(mfxStatus(MFX_CDECL*)(mfxHDL))pFunc)(implInfo->implDesc);
+            }
+
+            delete implInfo;
+        }
+        it2++;
+    }
+
     std::list<LibInfo*>::iterator it = m_libInfoList.begin();
     while (it != m_libInfoList.end()) {
         LibInfo* libInfo = (*it);
@@ -307,16 +326,6 @@ mfxStatus LoaderCtxVPL::UnloadAllLibraries() {
             delete libInfo;
         }
         it++;
-    }
-
-    std::list<ImplInfo*>::iterator it2 = m_implInfoList.begin();
-    while (it2 != m_implInfoList.end()) {
-        ImplInfo* implInfo = (*it2);
-
-        if (implInfo) {
-            delete implInfo;
-        }
-        it2++;
     }
 
     return MFX_ERR_NONE;
