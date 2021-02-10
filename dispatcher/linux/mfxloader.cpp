@@ -25,12 +25,9 @@ namespace MFX {
 #if defined(__i386__)
     #define LIBMFXSW "libvplswref32.so.1"
     #define LIBMFXHW "libmfxhw32.so.1"
-#elif defined(__x86_64__)
+#elif defined(__x86_64__) || defined(__aarch64__)
     #define LIBMFXSW "libvplswref64.so.1"
     #define LIBMFXHW "libmfxhw64.so.1"
-#elif defined(__aarch64__)
-    #define LIBMFXSW "libvplswrefaarch64.so.1"
-    #define LIBMFXHW "libmfxhwaarch64.so.1"
 #else
     #error Unsupported architecture
 #endif
