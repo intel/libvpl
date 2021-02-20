@@ -22,10 +22,10 @@
 
 namespace MFX {
 
-#if defined(__i386__)
+#if INTPTR_MAX == INT32_MAX
     #define LIBMFXSW "libvplswref32.so.1"
     #define LIBMFXHW "libmfxhw32.so.1"
-#elif defined(__x86_64__) || defined(__aarch64__)
+#elif INTPTR_MAX == INT64_MAX
     #define LIBMFXSW "libvplswref64.so.1"
     #define LIBMFXHW "libmfxhw64.so.1"
 #else
