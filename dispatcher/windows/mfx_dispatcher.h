@@ -7,11 +7,11 @@
 #ifndef DISPATCHER_WINDOWS_MFX_DISPATCHER_H_
 #define DISPATCHER_WINDOWS_MFX_DISPATCHER_H_
 
-#include <vpl/mfxvideo.h>
-
-#include <vpl/mfxdispatcher.h>
-
 #include <stddef.h>
+
+#include "vpl/mfxdispatcher.h"
+#include "vpl/mfxvideo.h"
+
 #include "windows/mfx_dispatcher_defs.h"
 
 #define INTEL_VENDOR_ID 0x8086
@@ -59,12 +59,22 @@ enum ePluginFunc {
 };
 
 enum eVideoFunc2 {
+    // 2.0
     eMFXQueryImplsDescription,
     eMFXReleaseImplDescription,
     eMFXMemory_GetSurfaceForVPP,
     eMFXMemory_GetSurfaceForEncode,
     eMFXMemory_GetSurfaceForDecode,
     eMFXInitialize,
+
+    // 2.1
+    eMFXMemory_GetSurfaceForVPPOut,
+    eMFXVideoDECODE_VPP_Init,
+    eMFXVideoDECODE_VPP_DecodeFrameAsync,
+    eMFXVideoDECODE_VPP_Reset,
+    eMFXVideoDECODE_VPP_GetChannelParam,
+    eMFXVideoDECODE_VPP_Close,
+    eMFXVideoVPP_ProcessFrameAsync,
 
     eVideoFunc2Total
 };
@@ -85,7 +95,7 @@ enum eMfxImplType {
 };
 
 // declare dispatcher's version
-enum { MFX_DISPATCHER_VERSION_MAJOR = 1, MFX_DISPATCHER_VERSION_MINOR = 2 };
+enum { MFX_DISPATCHER_VERSION_MAJOR = 1, MFX_DISPATCHER_VERSION_MINOR = 3 };
 
 struct _mfxSession {
     // A real handle from MFX engine passed to a called function
@@ -111,7 +121,8 @@ struct MFX_DISP_HANDLE : public _mfxSession {
                               eMfxImplType implType,
                               mfxIMPL impl,
                               mfxIMPL implInterface,
-                              mfxInitParam &par);
+                              mfxInitParam &par,
+                              mfxInitializationParam &vplParam);
     // Unload the library's module
     mfxStatus UnLoadSelectedDLL(void);
 
@@ -147,6 +158,16 @@ private:
     // Declare assignment operator and copy constructor to prevent occasional assignment
     MFX_DISP_HANDLE(const MFX_DISP_HANDLE &);
     MFX_DISP_HANDLE &operator=(const MFX_DISP_HANDLE &);
+};
+
+// This struct extends MFX_DISP_HANDLE, we cannot extend MFX_DISP_HANDLE itself due to possible compatibility issues
+// This struct was added in dispatcher version 1.3
+// Check dispatcher handle's version when you cast session struct which came from outside of MSDK API function to this
+struct MFX_DISP_HANDLE_EX : public MFX_DISP_HANDLE {
+    explicit MFX_DISP_HANDLE_EX(const mfxVersion requiredVersion);
+
+    mfxU16 mediaAdapterType;
+    mfxU16 reserved[10];
 };
 
 // declare comparison operator

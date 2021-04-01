@@ -1,5 +1,5 @@
 # ##############################################################################
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 # ##############################################################################
@@ -8,9 +8,15 @@
 # Set installation directories
 #
 
-set(CMAKE_INSTALL_BINDIR bin)
+if("${CMAKE_SIZEOF_VOID_P}" STREQUAL "4")
+  set(CMAKE_INSTALL_BINDIR bin32)
+  set(CMAKE_INSTALL_LIBDIR lib32)
+else()
+  set(CMAKE_INSTALL_BINDIR bin)
+  set(CMAKE_INSTALL_LIBDIR lib)
+endif()
+
 set(CMAKE_INSTALL_INCLUDEDIR include)
-set(CMAKE_INSTALL_LIBDIR lib)
 set(CMAKE_INSTALL_DOCDIR documentation)
 set(CMAKE_INSTALL_ENVDIR env)
 set(CMAKE_INSTALL_MODDIR modulefiles)

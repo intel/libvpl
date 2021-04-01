@@ -1,18 +1,11 @@
 /*############################################################################
-  # Copyright (C) 2020 Intel Corporation
+  # Copyright (C) Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
 
 #include <string>
 #include "./vpl-common.h"
-
-#ifdef ENABLE_VAAPI
-    #include <fcntl.h>
-    #include <unistd.h>
-    #include "va/va.h"
-    #include "va/va_drm.h"
-#endif
 #include "vpl/mfxvideo.h"
 
 #if !defined(WIN32) && !defined(memcpy_s)
@@ -97,9 +90,14 @@ int main(int argc, char* argv[]) {
     }
     puts("Session initialized");
 
-    printf("Dispatcher mode = %s\n", DispatcherModeString[params.dispatcherMode]);
-    printf("Memory mode     = %s\n", MemoryModeString[params.memoryMode]);
-    printf("Frame mode      = %s\n", InputFrameReadModeString[params.inFrameReadMode]);
+    printf("Dispatcher mode  = %s\n", DispatcherModeString[params.dispatcherMode]);
+    printf("Memory mode      = %s\n", MemoryModeString[params.memoryMode]);
+    printf("Frame mode       = %s\n", InputFrameReadModeString[params.inFrameReadMode]);
+
+    if (params.vppProcFnName == FN_RUNFRAMEVPPASYNC)
+        printf("Process function = RunFrameVPPAsync()\n");
+    else // FN_PROCESSFRAMEASYNC
+        printf("Process function = ProcessFrameAsync()\n");
 
     bool b_read_frame = false;
 
@@ -216,6 +214,10 @@ int main(int argc, char* argv[]) {
     mfxU64 num_frames = file_size / frame_size;
     printf("Frames estimated = %llu\n", num_frames);
 
+    std::vector<mfxFrameSurface1> pVPPSurfacesOut;
+    std::vector<mfxU8> surfDataOut;
+    mfxU8* surfaceBuffersOut;
+
     if (params.memoryMode == MEM_MODE_EXTERNAL) {
         surfDataIn.resize(surfaceSize * nVPPSurfNumIn);
         surfaceBuffersIn = surfDataIn.data();
@@ -239,53 +241,53 @@ int main(int argc, char* argv[]) {
                 pVPPSurfacesIn[i].Data.Pitch = surf_w;
             }
         }
-    }
 
-    // Allocate surfaces for VPP: Out
-    // - Frame surface array keeps pointers all surface planes and general frame info
-    mfxU32 surfaceSizeOut = GetSurfaceSize(mfxVPPParams.vpp.Out.FourCC,
-                                           mfxVPPParams.vpp.Out.Width,
-                                           mfxVPPParams.vpp.Out.Height);
-    if (surfaceSizeOut == 0) {
-        if (fSource) {
-            fclose(fSource);
-            fSource = NULL;
+        // Allocate surfaces for VPP: Out
+        // - Frame surface array keeps pointers all surface planes and general frame info
+        mfxU32 surfaceSizeOut = GetSurfaceSize(mfxVPPParams.vpp.Out.FourCC,
+                                               mfxVPPParams.vpp.Out.Width,
+                                               mfxVPPParams.vpp.Out.Height);
+        if (surfaceSizeOut == 0) {
+            if (fSource) {
+                fclose(fSource);
+                fSource = NULL;
+            }
+            if (fSink) {
+                fclose(fSink);
+                fSink = NULL;
+            }
+            if (buf_read) {
+                free(buf_read);
+                buf_read = NULL;
+            }
+            puts("VPP-out surface size is wrong");
+            return 1;
         }
-        if (fSink) {
-            fclose(fSink);
-            fSink = NULL;
-        }
-        if (buf_read) {
-            free(buf_read);
-            buf_read = NULL;
-        }
-        puts("VPP-out surface size is wrong");
-        return 1;
-    }
 
-    surf_w = GetSurfaceWidth(mfxVPPParams.vpp.Out.FourCC, mfxVPPParams.vpp.Out.Width);
-    surf_h = mfxVPPParams.vpp.Out.Height;
+        surf_w = GetSurfaceWidth(mfxVPPParams.vpp.Out.FourCC, mfxVPPParams.vpp.Out.Width);
+        surf_h = mfxVPPParams.vpp.Out.Height;
 
-    std::vector<mfxU8> surfDataOut((mfxU32)surfaceSizeOut * nVPPSurfNumOut);
-    mfxU8* surfaceBuffersOut = surfDataOut.data();
+        surfDataOut.resize((mfxU32)surfaceSizeOut * nVPPSurfNumOut);
+        surfaceBuffersOut = surfDataOut.data();
 
-    std::vector<mfxFrameSurface1> pVPPSurfacesOut(nVPPSurfNumOut);
-    for (mfxI32 i = 0; i < nVPPSurfNumOut; i++) {
-        memset(&pVPPSurfacesOut[i], 0, sizeof(mfxFrameSurface1));
-        pVPPSurfacesOut[i].Info = mfxVPPParams.vpp.Out;
-        if (mfxVPPParams.vpp.Out.FourCC == MFX_FOURCC_RGB4) {
-            pVPPSurfacesOut[i].Data.B     = &surfaceBuffersOut[surfaceSizeOut * i];
-            pVPPSurfacesOut[i].Data.G     = pVPPSurfacesOut[i].Data.B + 1;
-            pVPPSurfacesOut[i].Data.R     = pVPPSurfacesOut[i].Data.B + 2;
-            pVPPSurfacesOut[i].Data.A     = pVPPSurfacesOut[i].Data.B + 3;
-            pVPPSurfacesOut[i].Data.Pitch = surf_w;
-        }
-        else {
-            pVPPSurfacesOut[i].Data.Y = &surfaceBuffersOut[surfaceSizeOut * i];
-            pVPPSurfacesOut[i].Data.U = pVPPSurfacesOut[i].Data.Y + (mfxU16)surf_w * surf_h;
-            pVPPSurfacesOut[i].Data.V =
-                pVPPSurfacesOut[i].Data.U + (((mfxU16)surf_w / 2) * (surf_h / 2));
-            pVPPSurfacesOut[i].Data.Pitch = surf_w;
+        pVPPSurfacesOut.resize(nVPPSurfNumOut);
+        for (mfxI32 i = 0; i < nVPPSurfNumOut; i++) {
+            memset(&pVPPSurfacesOut[i], 0, sizeof(mfxFrameSurface1));
+            pVPPSurfacesOut[i].Info = mfxVPPParams.vpp.Out;
+            if (mfxVPPParams.vpp.Out.FourCC == MFX_FOURCC_RGB4) {
+                pVPPSurfacesOut[i].Data.B     = &surfaceBuffersOut[surfaceSizeOut * i];
+                pVPPSurfacesOut[i].Data.G     = pVPPSurfacesOut[i].Data.B + 1;
+                pVPPSurfacesOut[i].Data.R     = pVPPSurfacesOut[i].Data.B + 2;
+                pVPPSurfacesOut[i].Data.A     = pVPPSurfacesOut[i].Data.B + 3;
+                pVPPSurfacesOut[i].Data.Pitch = surf_w;
+            }
+            else {
+                pVPPSurfacesOut[i].Data.Y = &surfaceBuffersOut[surfaceSizeOut * i];
+                pVPPSurfacesOut[i].Data.U = pVPPSurfacesOut[i].Data.Y + (mfxU16)surf_w * surf_h;
+                pVPPSurfacesOut[i].Data.V =
+                    pVPPSurfacesOut[i].Data.U + (((mfxU16)surf_w / 2) * (surf_h / 2));
+                pVPPSurfacesOut[i].Data.Pitch = surf_w;
+            }
         }
     }
 
@@ -321,14 +323,15 @@ int main(int argc, char* argv[]) {
 
     // Stage 1: Main processing loop
     while (MFX_ERR_NONE <= sts || MFX_ERR_MORE_DATA == sts) {
-        mfxFrameSurface1* vppSurfaceIn = nullptr;
+        mfxFrameSurface1* vppSurfaceIn  = nullptr;
+        mfxFrameSurface1* vppSurfaceOut = nullptr;
 
         if (params.memoryMode == MEM_MODE_EXTERNAL) {
-            // Find free frame surface
+            // Find free frame surface for vpp in and out
             nSurfIdxIn = -1;
-            for (int i = 0; i < pVPPSurfacesIn.size(); i++) {
+            for (size_t i = 0; i < pVPPSurfacesIn.size(); i++) {
                 if (!pVPPSurfacesIn[i].Data.Locked) {
-                    nSurfIdxIn = i;
+                    nSurfIdxIn = static_cast<int>(i);
                     break;
                 }
             }
@@ -351,9 +354,32 @@ int main(int argc, char* argv[]) {
             }
 
             vppSurfaceIn = &pVPPSurfacesIn[nSurfIdxIn];
+
+            nSurfIdxOut = -1;
+            for (size_t i = 0; i < pVPPSurfacesOut.size(); i++) {
+                if (!pVPPSurfacesOut[i].Data.Locked) {
+                    nSurfIdxOut = static_cast<int>(i);
+                    break;
+                }
+            }
+
+            if (nSurfIdxOut < 0) {
+                if (fSource) {
+                    fclose(fSource);
+                    fSource = NULL;
+                }
+                if (fSink) {
+                    fclose(fSink);
+                    fSink = NULL;
+                }
+                puts("no available surface");
+                return 1;
+            }
+
+            vppSurfaceOut = &pVPPSurfacesOut[nSurfIdxOut];
         }
         else if (params.memoryMode == MEM_MODE_INTERNAL) {
-            sts = MFXMemory_GetSurfaceForVPP(session, &vppSurfaceIn);
+            sts = MFXMemory_GetSurfaceForVPPIn(session, &vppSurfaceIn);
             if (sts) {
                 if (fSource) {
                     fclose(fSource);
@@ -367,11 +393,33 @@ int main(int argc, char* argv[]) {
                     free(buf_read);
                     buf_read = NULL;
                 }
-                printf("Unknown error in MFXMemory_GetSurfaceForVPP, sts = %d()\n", sts);
+                printf("Unknown error in MFXMemory_GetSurfaceForVPPIn, sts = %d()\n", sts);
                 return 1;
             }
 
             vppSurfaceIn->FrameInterface->Map(vppSurfaceIn, MFX_MAP_WRITE);
+
+            if (params.vppProcFnName == FN_RUNFRAMEVPPASYNC) {
+                sts = MFXMemory_GetSurfaceForVPPOut(session, &vppSurfaceOut);
+                if (sts) {
+                    if (fSource) {
+                        fclose(fSource);
+                        fSource = NULL;
+                    }
+                    if (fSink) {
+                        fclose(fSink);
+                        fSink = NULL;
+                    }
+                    if (buf_read) {
+                        free(buf_read);
+                        buf_read = NULL;
+                    }
+                    printf("Unknown error in MFXMemory_GetSurfaceForVPPOut, sts = %d()\n", sts);
+                    return 1;
+                }
+
+                vppSurfaceOut->FrameInterface->Map(vppSurfaceOut, MFX_MAP_WRITE);
+            }
         }
 
         if (vppSurfaceIn) {
@@ -389,35 +437,19 @@ int main(int argc, char* argv[]) {
         if (sts != MFX_ERR_NONE)
             break;
 
-        nSurfIdxOut = -1;
-        for (int i = 0; i < pVPPSurfacesOut.size(); i++) {
-            if (!pVPPSurfacesOut[i].Data.Locked) {
-                nSurfIdxOut = i;
-                break;
-            }
-        }
-
-        if (nSurfIdxOut < 0) {
-            if (fSource) {
-                fclose(fSource);
-                fSource = NULL;
-            }
-            if (fSink) {
-                fclose(fSink);
-                fSink = NULL;
-            }
-            puts("no available surface");
-            return 1;
-        }
         for (;;) {
             // Process a frame asychronously (returns immediately)
-            sts = MFXVideoVPP_RunFrameVPPAsync(session,
-                                               vppSurfaceIn,
-                                               &pVPPSurfacesOut[nSurfIdxOut],
-                                               NULL,
-                                               &syncp);
+            if (params.vppProcFnName == FN_RUNFRAMEVPPASYNC)
+                sts = MFXVideoVPP_RunFrameVPPAsync(session,
+                                                   vppSurfaceIn,
+                                                   vppSurfaceOut,
+                                                   NULL,
+                                                   &syncp);
+            else // FN_PROCESSFRAMEASYNC
+                sts = MFXVideoVPP_ProcessFrameAsync(session, vppSurfaceIn, &vppSurfaceOut);
 
-            if (MFX_ERR_NONE < sts && syncp) {
+            if (MFX_ERR_NONE < sts &&
+                (params.vppProcFnName == FN_RUNFRAMEVPPASYNC ? syncp : (mfxSyncPoint)(1))) {
                 sts = MFX_ERR_NONE; // Ignore warnings if output is available
                 break;
             }
@@ -430,18 +462,22 @@ int main(int argc, char* argv[]) {
             }
         }
         if (MFX_ERR_NONE == sts) {
-            sts = MFXVideoCORE_SyncOperation(session,
-                                             syncp,
-                                             60000); // Synchronize. Wait until a frame is ready
-
+            if (params.vppProcFnName == FN_RUNFRAMEVPPASYNC) {
+                // Synchronize. Wait until a frame is ready
+                sts = MFXVideoCORE_SyncOperation(session, syncp, 60000);
+            }
             if (!IS_ARG_EQ(params.outfileName, "null")) {
-                WriteRawFrame(&pVPPSurfacesOut[nSurfIdxOut], fSink);
+                WriteRawFrame(vppSurfaceOut, fSink);
             }
 
             if (params.memoryMode == MEM_MODE_INTERNAL) {
                 vppSurfaceIn->FrameInterface->Unmap(
                     vppSurfaceIn); // Exception thrown: read access violation. vppSurfaceIn->FrameInterface was nullptr.
                 vppSurfaceIn->FrameInterface->Release(vppSurfaceIn);
+
+                vppSurfaceOut->FrameInterface->Unmap(
+                    vppSurfaceOut); // Exception thrown: read access violation. vppSurfaceOut->FrameInterface was nullptr.
+                vppSurfaceOut->FrameInterface->Release(vppSurfaceOut);
             }
 
             ++framenum;
@@ -473,40 +509,66 @@ int main(int argc, char* argv[]) {
 
     // Stage 2: Retrieve the buffered encoded frames
     while (MFX_ERR_NONE <= sts) {
-        nSurfIdxOut = -1;
-        for (int i = 0; i < pVPPSurfacesOut.size(); i++) {
-            if (!pVPPSurfacesOut[i].Data.Locked) {
-                nSurfIdxOut = i;
-                break;
-            }
-        }
+        mfxFrameSurface1* vppSurfaceOut = nullptr;
 
-        if (nSurfIdxOut < 0) {
-            if (fSource) {
-                fclose(fSource);
-                fSource = NULL;
+        if (params.memoryMode == MEM_MODE_EXTERNAL) {
+            // Find free frame surface for vpp out
+            nSurfIdxOut = -1;
+            for (size_t i = 0; i < pVPPSurfacesOut.size(); i++) {
+                if (!pVPPSurfacesOut[i].Data.Locked) {
+                    nSurfIdxOut = static_cast<int>(i);
+                    break;
+                }
             }
-            if (fSink) {
-                fclose(fSink);
-                fSink = NULL;
+
+            if (nSurfIdxOut < 0) {
+                if (fSource) {
+                    fclose(fSource);
+                    fSource = NULL;
+                }
+                if (fSink) {
+                    fclose(fSink);
+                    fSink = NULL;
+                }
+                puts("no available surface");
+                return 1;
             }
-            if (buf_read) {
-                free(buf_read);
-                buf_read = NULL;
+
+            vppSurfaceOut = &pVPPSurfacesOut[nSurfIdxOut];
+        }
+        else if (params.memoryMode == MEM_MODE_INTERNAL) {
+            if (params.vppProcFnName == FN_RUNFRAMEVPPASYNC) {
+                sts = MFXMemory_GetSurfaceForVPPOut(session, &vppSurfaceOut);
+                if (sts) {
+                    if (fSource) {
+                        fclose(fSource);
+                        fSource = NULL;
+                    }
+                    if (fSink) {
+                        fclose(fSink);
+                        fSink = NULL;
+                    }
+                    if (buf_read) {
+                        free(buf_read);
+                        buf_read = NULL;
+                    }
+                    printf("Unknown error in MFXMemory_GetSurfaceForVPPOut, sts = %d()\n", sts);
+                    return 1;
+                }
+
+                vppSurfaceOut->FrameInterface->Map(vppSurfaceOut, MFX_MAP_WRITE);
             }
-            puts("no available surface");
-            return 1;
         }
 
         for (;;) {
             // Process a frame asychronously (returns immediately)
-            sts = MFXVideoVPP_RunFrameVPPAsync(session,
-                                               NULL,
-                                               &pVPPSurfacesOut[nSurfIdxOut],
-                                               NULL,
-                                               &syncp);
+            if (params.vppProcFnName == FN_RUNFRAMEVPPASYNC)
+                sts = MFXVideoVPP_RunFrameVPPAsync(session, NULL, vppSurfaceOut, NULL, &syncp);
+            else // FN_PROCESSFRAMEASYNC
+                sts = MFXVideoVPP_ProcessFrameAsync(session, NULL, &vppSurfaceOut);
 
-            if (MFX_ERR_NONE < sts && syncp) {
+            if (MFX_ERR_NONE < sts &&
+                (params.vppProcFnName == FN_RUNFRAMEVPPASYNC ? syncp : (mfxSyncPoint)1)) {
                 sts = MFX_ERR_NONE; // Ignore warnings if output is available
                 break;
             }
@@ -516,12 +578,19 @@ int main(int argc, char* argv[]) {
         }
 
         if (MFX_ERR_NONE == sts) {
-            sts = MFXVideoCORE_SyncOperation(session,
-                                             syncp,
-                                             60000); // Synchronize. Wait until a frame is ready
+            if (params.vppProcFnName == FN_RUNFRAMEVPPASYNC) {
+                // Synchronize. Wait until a frame is ready
+                sts = MFXVideoCORE_SyncOperation(session, syncp, 60000);
+            }
 
             if (!IS_ARG_EQ(params.outfileName, "null")) {
                 WriteRawFrame(&pVPPSurfacesOut[nSurfIdxOut], fSink);
+            }
+
+            if (params.memoryMode == MEM_MODE_INTERNAL) {
+                vppSurfaceOut->FrameInterface->Unmap(
+                    vppSurfaceOut); // Exception thrown: read access violation. vppSurfaceOut->FrameInterface was nullptr.
+                vppSurfaceOut->FrameInterface->Release(vppSurfaceOut);
             }
 
             ++framenum;
@@ -547,6 +616,9 @@ int main(int argc, char* argv[]) {
     MFXVideoVPP_Close(session);
     MFXClose(session);
 
+    if (params.dispatcherMode == DISPATCHER_MODE_VPL_20)
+        CloseNewDispatcher();
+
     if (fSource) {
         fclose(fSource);
         fSource = NULL;
@@ -567,7 +639,7 @@ mfxStatus LoadRawFrame2(mfxFrameSurface1* pSurface,
                         int bytes_to_read,
                         mfxU8* buf_read,
                         mfxU32 repeat) {
-    mfxU32 nBytesRead = (mfxU32)fread(buf_read, 1, bytes_to_read, f);
+    int nBytesRead = static_cast<int>(fread(buf_read, 1, bytes_to_read, f));
 
     if (bytes_to_read != nBytesRead) {
         if (repeatCount == repeat)
@@ -578,7 +650,7 @@ mfxStatus LoadRawFrame2(mfxFrameSurface1* pSurface,
         }
     }
 
-    mfxU16 w, h, pitch;
+    mfxU16 w, h;
     mfxFrameInfo* pInfo = &pSurface->Info;
     mfxFrameData* pData = &pSurface->Data;
 
@@ -588,7 +660,6 @@ mfxStatus LoadRawFrame2(mfxFrameSurface1* pSurface,
     switch (pInfo->FourCC) {
         case MFX_FOURCC_NV12:
         case MFX_FOURCC_I420:
-            pitch    = pData->Pitch;
             pData->Y = buf_read;
             pData->U = pData->Y + w * h;
             pData->V = pData->U + ((w / 2) * (h / 2));
@@ -596,7 +667,6 @@ mfxStatus LoadRawFrame2(mfxFrameSurface1* pSurface,
 
         case MFX_FOURCC_P010:
         case MFX_FOURCC_I010:
-            pitch    = pData->Pitch;
             pData->Y = buf_read;
             pData->U = pData->Y + w * 2 * h;
             pData->V = pData->U + (w * (h / 2));
@@ -604,7 +674,6 @@ mfxStatus LoadRawFrame2(mfxFrameSurface1* pSurface,
 
         case MFX_FOURCC_RGB4:
             // read luminance plane (Y)
-            pitch    = pData->Pitch;
             pData->B = buf_read;
             break;
         default:
@@ -994,11 +1063,11 @@ bool ParseArgsAndValidate(int argc, char* argv[], Params* params) {
     // init all params to 0
     memset(params, 0, sizeof(Params));
 
+    params->impl = MFX_IMPL_SOFTWARE;
+
     // set any non-zero defaults
     if (!params->memoryMode)
         params->memoryMode = MEM_MODE_EXTERNAL;
-    if (!params->impl)
-        params->impl = MFX_IMPL_SOFTWARE;
 
     if (argc < 2)
         return false;
@@ -1118,8 +1187,11 @@ bool ParseArgsAndValidate(int argc, char* argv[], Params* params) {
         else if (IS_ARG_EQ(s, "dsp2")) {
             params->dispatcherMode = DISPATCHER_MODE_VPL_20;
         }
-        else if (IS_ARG_EQ(s, "hw")) {
-            params->impl = MFX_IMPL_HARDWARE;
+        else if (IS_ARG_EQ(s, "fn1")) {
+            params->vppProcFnName = FN_RUNFRAMEVPPASYNC;
+        }
+        else if (IS_ARG_EQ(s, "fn2")) {
+            params->vppProcFnName = FN_PROCESSFRAMEASYNC;
         }
         else if (IS_ARG_EQ(s, "scrx")) {
             if (!ValidateSize(argv[idx++], &params->srcCropX, MAX_WIDTH))
@@ -1192,16 +1264,19 @@ void Usage(void) {
 
     printf("\nMemory model (default = -ext)\n");
     printf("  -ext  = external memory (1.0 style)\n");
-    printf("  -int  = internal memory with MFXMemory_GetSurfaceForVPP\n");
+    printf("  -int  = internal memory with MFXMemory_GetSurfaceForVPPIn/Out\n");
+
+    printf("\nProcess function (default = -fn1)\n");
+    printf("  -fn1  = use RunFrameAPPAsync()\n");
+    printf("  -fn2  = use ProcessFrameAsync()\n");
 
     printf("\nDispatcher (default = -dsp1)\n");
     printf("  -dsp1 = legacy dispatcher (MSDK 1.x)\n");
-    printf("  -dsp2 = smart dispatcher (API 2.0)\n");
+    printf("  -dsp2 = smart dispatcher (API %d.%d)\n",
+           DEFAULT_VERSION_MAJOR,
+           DEFAULT_VERSION_MINOR);
 
     printf("\nImplementation (default = software 2.0 API implementation\n");
-#ifdef ENABLE_VAAPI
-    printf("  -hw = hardware 1.x API implementation via VAAPI\n");
-#endif
 
     printf("\nFrame mode (optional, default = -fpitch)\n");
     printf("  -fpitch = load frame-by-frame (read data per pitch - legacy)\n");
@@ -1219,7 +1294,7 @@ mfxStatus InitializeSession(Params* params, mfxSession* session) {
 
     switch (params->dispatcherMode) {
         case DISPATCHER_MODE_VPL_20:
-            diagnoseText = "InitNewDispatcher with WSTYPE_DECODE in DISPATCHER_MODE_VPL_20";
+            diagnoseText = "InitNewDispatcher with WSTYPE_VPP in DISPATCHER_MODE_VPL_20";
             sts          = InitNewDispatcher(WSTYPE_VPP, params, session);
             break;
         case DISPATCHER_MODE_LEGACY: {
@@ -1227,21 +1302,15 @@ mfxStatus InitializeSession(Params* params, mfxSession* session) {
                 diagnoseText = "MFXInitEx with MFX_IMPL_SOFTWARE in DISPATCHER_MODE_LEGACY";
                 // initialize session
                 mfxInitParam initPar   = { 0 };
-                initPar.Version.Major  = 2;
-                initPar.Version.Minor  = 0;
+                initPar.Version.Major  = DEFAULT_VERSION_MAJOR;
+                initPar.Version.Minor  = DEFAULT_VERSION_MINOR;
                 initPar.Implementation = MFX_IMPL_SOFTWARE;
 
                 sts = MFXInitEx(initPar, session);
             }
             else {
-                diagnoseText = "MFXInitEx with MFX_IMPL_HARDWARE in DISPATCHER_MODE_LEGACY";
-                // initialize session
-                mfxInitParam initPar   = { 0 };
-                initPar.Version.Major  = 1;
-                initPar.Version.Minor  = 0;
-                initPar.Implementation = MFX_IMPL_HARDWARE;
-
-                sts = MFXInitEx(initPar, session);
+                diagnoseText = "Tool does not support MFX_IMPL_HARDWARE mode";
+                sts          = MFX_ERR_UNSUPPORTED;
             }
         } break;
         default:
@@ -1259,30 +1328,6 @@ mfxStatus InitializeSession(Params* params, mfxSession* session) {
         else {
             std::cout << "Error code: " << sts << std::endl;
         }
-    }
-
-    if (MFX_IMPL_HARDWARE == params->impl) {
-#ifdef ENABLE_VAAPI
-        // initialize VAAPI context and set session handle (req in Linux)
-        sts    = MFX_ERR_NOT_INITIALIZED;
-        int fd = open("/dev/dri/renderD128", O_RDWR);
-        if (fd >= 0) {
-            VADisplay va_dpy = vaGetDisplayDRM(fd);
-            if (va_dpy) {
-                int major_version = 0, minor_version = 0;
-                if (VA_STATUS_SUCCESS == vaInitialize(va_dpy, &major_version, &minor_version)) {
-                    sts = MFX_ERR_NONE;
-                    MFXVideoCORE_SetHandle(*session,
-                                           static_cast<mfxHandleType>(MFX_HANDLE_VA_DISPLAY),
-                                           va_dpy);
-                }
-            }
-        }
-        else {
-            puts("Could not could not find a valid VAAPI interface");
-        }
-
-#endif
     }
 
     return sts;

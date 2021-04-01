@@ -1,14 +1,15 @@
 # ==============================================================================
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 # ==============================================================================
 
 ARG VPL_BUILD_DEPENDENCIES=/oneVPL/_deps
 ARG VPL_INSTALL_PREFIX=/opt/intel/onevpl
+ARG DOCKER_REGISTRY
 
 # Stage 1
-FROM registry.access.redhat.com/ubi8/ubi:8.1 AS vpl_base
+FROM ${DOCKER_REGISTRY}ubi:8.1 AS vpl_base
 ENV TZ=Europe/Moscow
 RUN yum install -y cmake gcc gcc-c++ git libtool make pkgconfig
 
@@ -26,11 +27,11 @@ RUN cd /oneVPL && \
 
 
 # Runtime image build
-FROM registry.access.redhat.com/ubi8/ubi:8.1 
+FROM registry.access.redhat.com/ubi8/ubi:8.1
 LABEL Description="This is the RHEL 8.1 base image for the oneAPI Video Processing Library API"
 LABEL Vendor="Intel Corporation"
 ARG VPL_INSTALL_PREFIX
 ENV LD_LIBRARY_PATH=${VPL_INSTALL_PREFIX}/lib
 ENV PKG_CONFIG_PATH=${VPL_INSTALL_PREFIX}/pkgconfig
 ENV PATH="${PATH}:/${VPL_INSTALL_PREFIX}/bin"
-COPY --from=vpl_build ${VPL_INSTALL_PREFIX} ${VPL_INSTALL_PREFIX}  
+COPY --from=vpl_build ${VPL_INSTALL_PREFIX} ${VPL_INSTALL_PREFIX}

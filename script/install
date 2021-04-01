@@ -4,28 +4,20 @@
 #
 # SPDX-License-Identifier: MIT
 ###############################################################################
-## start of boilerplate to switch to project root ------------------------------
-script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-proj_dir="$( dirname "${script_dir}" )"
-cd ${proj_dir}
+# Install base.
+
 set -o errexit
 
-## Read options -----------------------------------------------------------
-export BUILD_MODE= "Release"
 
-while [ "$1" != "" ]; do
-    case $1 in
-        debug )
-            export BUILD_MODE="Debug"
-            ;;
-        * )
-            echo "usage: build [debug]"
-            exit 1
-    esac
-    shift
-done
+SCRIPT_DIR="$( cd "$(dirname "${BASH_SOURCE[0]:-$0}")" >/dev/null 2>&1 ; pwd -P )"
 
-## start of commands -----------------------------------------------------------
-CMAKE_BINARY_DIR=_build
+# Read command line options
+. "${SCRIPT_DIR}/_buildopts.sh" \
+    --name install \
+    --desc "Install base." \
+    -- "$@"
 
-cmake --build ${CMAKE_BINARY_DIR} --config ${BUILD_MODE} --target install
+pushd "${PROJ_DIR}"
+    BUILD_DIR=_build
+    cmake --build "${BUILD_DIR}" --config "${COFIG_OPT}" --target install
+popd

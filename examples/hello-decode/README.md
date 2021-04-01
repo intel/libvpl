@@ -1,11 +1,11 @@
 # `hello-decode` Sample
 
 This sample shows how to use the oneAPI Video Processing Library (oneVPL) to
-perform a simple video decode.
+perform a simple video decode using 2.x enhanced programming model APIs.
 
 | Optimized for    | Description
 |----------------- | ----------------------------------------
-| OS               | Ubuntu* 18.04; Windows* 10
+| OS               | Ubuntu* 20.04; Windows* 10
 | Hardware         | Intel® Processor Graphics GEN9 or newer
 | Software         | Intel® oneAPI Video Processing Library(oneVPL)
 | What You Will Learn | How to use oneVPL to decode an H.265 encoded video file
@@ -16,8 +16,9 @@ perform a simple video decode.
 
 This sample is a command line application that takes a file containing an H.265
 video elementary stream as an argument, decodes it with oneVPL and writes the
-decoded output to a the file `out.i420` in raw I420 format.
+decoded output to a the file `out.raw` in raw format.
 
+Native raw frame format: CPU=I420, GPU=NV12.
 
 ## Key Implementation details
 
@@ -104,34 +105,31 @@ Perform the following steps:
    ```
 
 
-#### Building the program using VS2017 or VS2019 IDE
-
-1. Install the Intel® oneAPI Base Toolkit for Windows*
-2. Right click on the solution file and open using either VS2017 or VS2019 IDE.
-3. Right click on the project in Solution explorer and select Rebuild.
-4. From top menu select Debug -> Start without Debugging.
-
-
 ## Running the Sample
 
 ### Application Parameters
 
 The instructions given above run the sample executable with the argument
-`<sample_dir>/content/cars_128x96.h265`.
+`-i examples/content/cars_128x96.h265`.
 
 
 ### Example of Output
 
 ```
-Decoding hello-decode/content/cars_128x96.h265 -> out.i420
+Implementation info
+      version = 2.2
+      impl = Software
+Decoding hello-decode/../content/cars_128x96.h265 -> out.raw
 Decoded 60 frames
 ```
 
-You can find the output file `out.i420` in the build directory.
+You can find the output file `out.raw` in the build directory.
 
 You can display the output with a video player that supports raw streams such as
 FFplay. You can use the following command to display the output with FFplay:
 
 ```
-ffplay -video_size 128x96 -pixel_format yuv420p -f rawvideo out.i420
+ffplay -video_size 128x96 -pixel_format yuv420p -f rawvideo out.raw
 ```
+
+Use nv12 for pixel_format for GPU output.

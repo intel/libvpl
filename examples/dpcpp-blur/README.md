@@ -5,7 +5,7 @@ oneAPI Video Processing Library to perform a simple video content blur.
 
 | Optimized for   | Description
 |---------------- | ----------------------------------------
-| OS              | Ubuntu* 18.04; Windows* 10
+| OS              | Ubuntu* 20.04; Windows* 10
 | Hardware        | Intel® Processor Graphics GEN9 or newer
 | Software        | Intel® oneAPI Video Processing Library (oneVPL)
 | What You Will Learn | How to use oneVPL and DPC++ to convert I420 raw video file in to BGRA and blur each frame.
@@ -17,9 +17,9 @@ oneAPI Video Processing Library to perform a simple video content blur.
 ## Purpose
 
 This sample is a command line application that takes a file containing a raw
-I420 format video elementary stream as an argument, converts it to BGRA with
-oneVPL and blurs each frame with DPC++ by using SYCL kernel, and writes the
-decoded output to `out.bgra` in BGRA format.
+frame input video as an argument, converts it to BGRA with oneVPL and blurs each
+frame with DPC++ by using SYCL kernel, and writes the decoded output to `out.raw` 
+in BGRA format.
 
 If the oneAPI DPC++ Compiler is not found the blur operation will be disabled.
 
@@ -32,7 +32,7 @@ If the oneAPI DPC++ Compiler is not found the blur operation will be disabled.
 | Target device     | CPU
 | Input format      | I420
 | Output format     | BGRA raw video elementary stream
-| Output resolution | same as input
+| Output resolution | 256x192
 
 
 ## License
@@ -110,34 +110,32 @@ Perform the following steps:
    ```
 
 
-#### Building the program using VS2017 or VS2019 IDE
-
-1. Install the Intel® oneAPI Base Toolkit for Windows*
-2. Right click on the solution file and open using either VS2017 or VS2019 IDE.
-3. Right click on the project in Solution explorer and select Rebuild.
-4. From top menu select Debug -> Start without Debugging.
-
-
 ## Running the Sample
 
 ### Application Parameters
 
 The instructions given above run the sample executable with the argument
-`<sample_dir>/content/cars_128x96.i420 128 96`.
+`-i <sample_dir>/content/cars_128x96.i420 -w 128 -h 96`.
 
 
 ### Example of Output
 
 ```
-Processing dpcpp-blur/content/cars_128x96.i420 -> out.bgra
+Processing ../content/cars_128x96.i420 -> out.raw
 Processed 60 frames
 ```
 
-You can find the output file ``out.bgra`` in the build directory.
+You can find the output file ``out.raw`` in the build directory.
 
 You can display the output with a video player that supports raw streams such as
 FFplay. You can use the following command to display the output with FFplay:
 
 ```
-ffplay -video_size [128]x[96] -pixel_format bgra -f rawvideo out.bgra
+ffplay -video_size [256]x[192] -pixel_format bgra -f rawvideo out.raw
 ```
+
+## Using with USM mapping
+
+Build and install level-zero from https://github.com/oneapi-src/level-zero
+
+dpcpp ../src/dpcpp-blur.cpp -I../../ -lvpl -lva -lva-drm -lpthread -DBUILD_DPCPP -DUSE_VPL_USM_MAP  -lze_loader -I/usr/local/include

@@ -49,6 +49,10 @@ EXPORTS
 
     MFXInitEx
 
+    MFXQueryAdapters
+    MFXQueryAdaptersNumber
+    MFXQueryAdaptersDecode
+
     MFXLoad
     MFXUnload
     MFXCreateConfig
@@ -60,3 +64,13 @@ EXPORTS
     MFXMemory_GetSurfaceForVPP
     MFXMemory_GetSurfaceForEncode
     MFXMemory_GetSurfaceForDecode
+
+    MFXMemory_GetSurfaceForVPPOut
+    MFXVideoDECODE_VPP_Init
+    MFXVideoDECODE_VPP_DecodeFrameAsync
+    MFXVideoDECODE_VPP_Reset
+    MFXVideoDECODE_VPP_GetChannelParam
+    MFXVideoDECODE_VPP_Close
+    MFXVideoVPP_ProcessFrameAsync
+
+

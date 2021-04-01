@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) 2020 Intel Corporation
+  # Copyright (C) Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -25,6 +25,7 @@ mfxLoader MFXLoad() {
     // spec
     mfxStatus sts = loaderCtx->BuildListOfCandidateLibs();
     if (MFX_ERR_NONE != sts) {
+        delete loaderCtx;
         return nullptr;
     }
 
@@ -32,12 +33,17 @@ mfxLoader MFXLoad() {
     // ptr table for each library which is
     mfxU32 numLibs = loaderCtx->CheckValidLibraries();
     if (numLibs == 0) {
+        delete loaderCtx;
         return nullptr;
     }
 
     // query capabilities of each implementation
     // may be more than one implementation per library
     sts = loaderCtx->QueryLibraryCaps();
+    if (MFX_ERR_NONE != sts) {
+        delete loaderCtx;
+        return nullptr;
+    }
 
     return (mfxLoader)loaderCtx;
 }

@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) 2020 Intel Corporation
+  # Copyright (C) Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -26,6 +26,8 @@ extern "C"
    @return
       Array of handles to the capability report or NULL in case of unsupported format or NULL num_impls pointer.
       Length of array is equal to num_impls.
+
+   @since This function is available since API version 2.0.
 */
 mfxHDL* MFX_CDECL MFXQueryImplsDescription(mfxImplCapsDeliveryFormat format, mfxU32* num_impls);
 
@@ -39,6 +41,8 @@ mfxHDL* MFX_CDECL MFXQueryImplsDescription(mfxImplCapsDeliveryFormat format, mfx
 
    @return
       MFX_ERR_NONE The function completed successfully.
+
+   @since This function is available since API version 2.0.
 */
 mfxStatus MFX_CDECL MFXReleaseImplDescription(mfxHDL hdl);
 

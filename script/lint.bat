@@ -1,16 +1,26 @@
-::------------------------------------------------------------------------------
-:: Copyright (C) 2020 Intel Corporation
-::
-:: SPDX-License-Identifier: MIT
-::------------------------------------------------------------------------------
-:: start of boilerplate to switch to project root ------------------------------
-@echo off
-SETLOCAL
-:: switch cd to repo root
+@REM ------------------------------------------------------------------------------
+@REM Copyright (C) Intel Corporation
+@REM 
+@REM SPDX-License-Identifier: MIT
+@REM ------------------------------------------------------------------------------
+@REM Check base code for issues.
+
+@ECHO off
+SETLOCAL ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION 
+
+@REM Set project folder
 FOR /D %%i IN ("%~dp0\..") DO (
-	set PROJ_DIR=%%~fi
+	SET PROJ_DIR=%%~fi
 )
-cd %PROJ_DIR%
-:: start of commands -----------------------------------------------------------
-gitlint || exit /b 1
-pre-commit run --all-files
+
+@REM Set script folder
+FOR /D %%i IN ("%~dp0") DO (
+	SET SCRIPT_DIR=%%~fi
+)
+
+PUSHD %PROJ_DIR%
+	gitlint || EXIT /b 1
+	pre-commit run --all-files || EXIT /b 1
+POPD
+
+ENDLOCAL

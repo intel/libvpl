@@ -1,7 +1,7 @@
 #!/bin/sh
 # shellcheck shell=sh
 ###############################################################################
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 ###############################################################################
@@ -111,4 +111,6 @@ export LD_LIBRARY_PATH
 VPL_PREFIX=`cd "$VPL_ROOT/.."; pwd`
 CMAKE_PREFIX_PATH=$(append_path "$VPL_PREFIX" "$CMAKE_PREFIX_PATH")
 export CMAKE_PREFIX_PATH
+PKG_CONFIG_PATH=$(append_path "$VPL_LIB/pkgconfig" "$PKG_CONFIG_PATH")
+export PKG_CONFIG_PATH
 

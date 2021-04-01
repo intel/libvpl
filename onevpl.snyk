@@ -1,0 +1,6 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+# https://support.snyk.io/hc/en-us/articles/360007487097-The-snyk-file
+version: v1.14.0
+language-settings: python: "3.7"
+ignore: 
+patch: 

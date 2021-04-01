@@ -1,22 +1,53 @@
+# ##############################################################################
+# Copyright (C) 2021 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+# ##############################################################################
 cmake_minimum_required(VERSION 3.10.2)
-# This sample must be compiled and executed within the oneAPI product enviroment
-# with the dpcpp compiler to use dpcpp features
+
+# This sample must be compiled and executed within the oneAPI product
+# environment with the dpcpp compiler to use dpcpp features
 set(DPCPP_COMPILER_NAME "dpcpp")
 find_program(DPCPP_COMPILER ${DPCPP_COMPILER_NAME})
 
 if(DPCPP_COMPILER)
-  set(CMAKE_CXX_COMPILER ${DPCPP_COMPILER_NAME})
+  set(CMAKE_CXX_COMPILER ${DPCPP_COMPILER})
   message(STATUS "DPCPP compiler found, blur feature enabled")
 else()
   message(STATUS "DPCPP compiler not found, blur feature disabled")
 endif()
 
 project(dpcpp-blur LANGUAGES CXX)
+
+if(NOT TARGET vpl-example-util)
+  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../util
+                   ${CMAKE_CURRENT_BINARY_DIR}/util)
+endif()
+
+# Default install places 64 bit runtimes in the environment, so we want to do a
+# 64 bit build by default.
+if(WIN32)
+  if(NOT DEFINED CMAKE_GENERATOR_PLATFORM)
+    set(CMAKE_GENERATOR_PLATFORM
+        x64
+        CACHE STRING "")
+    message(STATUS "Generator Platform set to ${CMAKE_GENERATOR_PLATFORM}")
+  endif()
+endif()
+
 set(CMAKE_CXX_STANDARD 17)
 
 set(TARGET dpcpp-blur)
 set(SOURCES src/dpcpp-blur.cpp)
-set(RUNARGS ${CMAKE_CURRENT_SOURCE_DIR}/content/cars_128x96.i420 128 96)
+set(CONTENTPATH ${CMAKE_CURRENT_SOURCE_DIR}/../content)
+set(RUNARGS
+    -sw
+    -i
+    ${CONTENTPATH}/cars_128x96.i420
+    -w
+    128
+    -h
+    96)
 
 # Set default build type to RelWithDebInfo if not specified
 if(NOT CMAKE_BUILD_TYPE)
@@ -49,15 +80,17 @@ if(DPCPP_COMPILER)
   target_link_libraries(${TARGET} OpenCL sycl)
 endif()
 
-if(TARGET VPL)
-  target_link_libraries(${TARGET} VPL)
-else()
-  find_package(VPL REQUIRED)
-  target_link_libraries(${TARGET} VPL::dispatcher)
-endif()
+find_package(VPL REQUIRED)
+target_link_libraries(${TARGET} VPL::dispatcher)
+find_path(VPL_UTIL_PATH util/util.h vpl-example-util
+          ${CMAKE_CURRENT_SOURCE_DIR}/../util)
+target_include_directories(${TARGET} PRIVATE . ${VPL_UTIL_PATH})
 
 get_directory_property(has_parent PARENT_DIRECTORY)
 if(NOT has_parent)
   # only make run target available for stand-alone build
   add_custom_target(run ${TARGET} ${RUNARGS})
+else()
+  install(TARGETS ${TARGET} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+                                    COMPONENT dev)
 endif()

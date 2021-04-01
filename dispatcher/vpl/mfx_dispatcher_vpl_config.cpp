@@ -1,10 +1,12 @@
 /*############################################################################
-  # Copyright (C) 2020 Intel Corporation
+  # Copyright (C) Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
 
 #include "vpl/mfx_dispatcher_vpl.h"
+
+#include <assert.h>
 
 // implementation of config context (mfxConfig)
 // each loader instance can have one or more configs
@@ -15,7 +17,11 @@ ConfigCtxVPL::ConfigCtxVPL()
           m_propValue(),
           m_propIdx(),
           m_propParsedString(),
-          m_propRange32U() {
+          m_propRange32U(),
+          m_implName(),
+          m_implLicense(),
+          m_implKeywords(),
+          m_implFunctionName() {
     m_propValue.Version.Version = MFX_VARIANT_VERSION;
     m_propValue.Type            = MFX_VARIANT_TYPE_UNSET;
     m_parentLoader              = nullptr;
@@ -35,8 +41,17 @@ enum PropIdx {
     // settable config properties for mfxImplDescription
     ePropMain_Impl = 0,
     ePropMain_AccelerationMode,
+    ePropMain_ApiVersion,
+    ePropMain_ApiVersion_Major,
+    ePropMain_ApiVersion_Minor,
+    ePropMain_ImplName,
+    ePropMain_License,
+    ePropMain_Keywords,
     ePropMain_VendorID,
     ePropMain_VendorImplID,
+
+    // settable config properties for mfxDeviceDescription
+    ePropDevice_DeviceID,
 
     // settable config properties for mfxDecoderDescription
     ePropDec_CodecID,
@@ -66,43 +81,73 @@ enum PropIdx {
     ePropVPP_InFormat,
     ePropVPP_OutFormat,
 
+    // special properties not part of description struct
+    ePropSpecial_HandleType,
+    ePropSpecial_Handle,
+
+    // functions which must report as implemented
+    ePropFunc_FunctionName,
+
     // number of entries (always last)
     eProp_TotalProps
 };
 
+// leave table formatting alone
+// clang-format off
+
 // order must align exactly with PropIdx list
 // to avoid mismatches, this should be automated (e.g. pre-processor step)
 static const PropVariant PropIdxTab[] = {
-    { "ePropMain_Impl", MFX_VARIANT_TYPE_U32 },
-    { "ePropMain_AccelerationMode", MFX_VARIANT_TYPE_U16 },
-    { "ePropMain_VendorID", MFX_VARIANT_TYPE_U32 },
-    { "ePropMain_VendorImplID", MFX_VARIANT_TYPE_U32 },
+    { "ePropMain_Impl",                     MFX_VARIANT_TYPE_U32 },
+    { "ePropMain_AccelerationMode",         MFX_VARIANT_TYPE_U32 },
+    { "ePropMain_ApiVersion",               MFX_VARIANT_TYPE_U32 },
+    { "ePropMain_ApiVersion_Major",         MFX_VARIANT_TYPE_U16 },
+    { "ePropMain_ApiVersion_Minor",         MFX_VARIANT_TYPE_U16 },
+    { "ePropMain_ImplName",                 MFX_VARIANT_TYPE_PTR },
+    { "ePropMain_License",                  MFX_VARIANT_TYPE_PTR },
+    { "ePropMain_Keywords",                 MFX_VARIANT_TYPE_PTR },
+    { "ePropMain_VendorID",                 MFX_VARIANT_TYPE_U32 },
+    { "ePropMain_VendorImplID",             MFX_VARIANT_TYPE_U32 },
 
-    { "ePropDec_CodecID", MFX_VARIANT_TYPE_U32 },
-    { "ePropDec_MaxcodecLevel", MFX_VARIANT_TYPE_U16 },
-    { "ePropDec_Profile", MFX_VARIANT_TYPE_U32 },
-    { "ePropDec_MemHandleType", MFX_VARIANT_TYPE_U32 },
-    { "ePropDec_Width", MFX_VARIANT_TYPE_PTR },
-    { "ePropDec_Height", MFX_VARIANT_TYPE_PTR },
-    { "ePropDec_ColorFormats", MFX_VARIANT_TYPE_U32 },
+    { "ePropDevice_DeviceID",                 MFX_VARIANT_TYPE_U16 },
 
-    { "ePropEnc_CodecID", MFX_VARIANT_TYPE_U32 },
-    { "ePropEnc_MaxcodecLevel", MFX_VARIANT_TYPE_U16 },
-    { "ePropEnc_BiDirectionalPrediction", MFX_VARIANT_TYPE_U16 },
-    { "ePropEnc_Profile", MFX_VARIANT_TYPE_U32 },
-    { "ePropEnc_MemHandleType", MFX_VARIANT_TYPE_U32 },
-    { "ePropEnc_Width", MFX_VARIANT_TYPE_PTR },
-    { "ePropEnc_Height", MFX_VARIANT_TYPE_PTR },
-    { "ePropEnc_ColorFormats", MFX_VARIANT_TYPE_U32 },
+    { "ePropDec_CodecID",                   MFX_VARIANT_TYPE_U32 },
+    { "ePropDec_MaxcodecLevel",             MFX_VARIANT_TYPE_U16 },
+    { "ePropDec_Profile",                   MFX_VARIANT_TYPE_U32 },
+    { "ePropDec_MemHandleType",             MFX_VARIANT_TYPE_U32 },
+    { "ePropDec_Width",                     MFX_VARIANT_TYPE_PTR },
+    { "ePropDec_Height",                    MFX_VARIANT_TYPE_PTR },
+    { "ePropDec_ColorFormats",              MFX_VARIANT_TYPE_U32 },
 
-    { "ePropVPP_FilterFourCC", MFX_VARIANT_TYPE_U32 },
-    { "ePropVPP_MaxDelayInFrames", MFX_VARIANT_TYPE_U16 },
-    { "ePropVPP_MemHandleType", MFX_VARIANT_TYPE_U32 },
-    { "ePropVPP_Width", MFX_VARIANT_TYPE_PTR },
-    { "ePropVPP_Height", MFX_VARIANT_TYPE_PTR },
-    { "ePropVPP_InFormat", MFX_VARIANT_TYPE_U32 },
-    { "ePropVPP_OutFormat", MFX_VARIANT_TYPE_U32 },
+    { "ePropEnc_CodecID",                   MFX_VARIANT_TYPE_U32 },
+    { "ePropEnc_MaxcodecLevel",             MFX_VARIANT_TYPE_U16 },
+    { "ePropEnc_BiDirectionalPrediction",   MFX_VARIANT_TYPE_U16 },
+    { "ePropEnc_Profile",                   MFX_VARIANT_TYPE_U32 },
+    { "ePropEnc_MemHandleType",             MFX_VARIANT_TYPE_U32 },
+    { "ePropEnc_Width",                     MFX_VARIANT_TYPE_PTR },
+    { "ePropEnc_Height",                    MFX_VARIANT_TYPE_PTR },
+    { "ePropEnc_ColorFormats",              MFX_VARIANT_TYPE_U32 },
+
+    { "ePropVPP_FilterFourCC",              MFX_VARIANT_TYPE_U32 },
+    { "ePropVPP_MaxDelayInFrames",          MFX_VARIANT_TYPE_U16 },
+    { "ePropVPP_MemHandleType",             MFX_VARIANT_TYPE_U32 },
+    { "ePropVPP_Width",                     MFX_VARIANT_TYPE_PTR },
+    { "ePropVPP_Height",                    MFX_VARIANT_TYPE_PTR },
+    { "ePropVPP_InFormat",                  MFX_VARIANT_TYPE_U32 },
+    { "ePropVPP_OutFormat",                 MFX_VARIANT_TYPE_U32 },
+
+    { "ePropSpecial_HandleType",            MFX_VARIANT_TYPE_U32 },
+    { "ePropSpecial_Handle",                MFX_VARIANT_TYPE_PTR },
+
+    { "ePropFunc_FunctionName",             MFX_VARIANT_TYPE_PTR },
 };
+
+// end table formatting
+// clang-format on
+
+// sanity check - property table and indexes must have same number of entries
+static_assert((sizeof(PropIdxTab) / sizeof(PropVariant)) == eProp_TotalProps,
+              "PropIdx and PropIdxTab are misaligned");
 
 mfxStatus ConfigCtxVPL::ValidateAndSetProp(mfxI32 idx, mfxVariant value) {
     if (idx < 0 || idx >= eProp_TotalProps)
@@ -128,6 +173,25 @@ mfxStatus ConfigCtxVPL::ValidateAndSetProp(mfxI32 idx, mfxVariant value) {
             case ePropVPP_Height:
                 m_propRange32U       = *((mfxRange32U *)(value.Data.Ptr));
                 m_propValue.Data.Ptr = &(m_propRange32U);
+                break;
+            case ePropSpecial_Handle:
+                m_propValue.Data.Ptr = (mfxHDL)(value.Data.Ptr);
+                break;
+            case ePropMain_ImplName:
+                m_implName           = (char *)(value.Data.Ptr);
+                m_propValue.Data.Ptr = &(m_implName);
+                break;
+            case ePropMain_License:
+                m_implLicense        = (char *)(value.Data.Ptr);
+                m_propValue.Data.Ptr = &(m_implLicense);
+                break;
+            case ePropMain_Keywords:
+                m_implKeywords       = (char *)(value.Data.Ptr);
+                m_propValue.Data.Ptr = &(m_implKeywords);
+                break;
+            case ePropFunc_FunctionName:
+                // no need to save Data.Ptr - parsed in main loop
+                m_implFunctionName = (char *)(value.Data.Ptr);
                 break;
             default:
                 break;
@@ -316,8 +380,28 @@ mfxStatus ConfigCtxVPL::SetFilterProperty(const mfxU8 *name, mfxVariant value) {
         m_propParsedString.push_back(s);
     }
 
-    // get first property descriptor - must be "mfxImplDescription"
+    // get first property descriptor
     std::string nextProp = GetNextProp(&m_propParsedString);
+
+    // check for special-case properties, not part of mfxImplDescription
+    if (nextProp == "mfxHandleType") {
+        return ValidateAndSetProp(ePropSpecial_HandleType, value);
+    }
+    else if (nextProp == "mfxHDL") {
+        return ValidateAndSetProp(ePropSpecial_Handle, value);
+    }
+
+    // to require that a specific function is implemented, use the property name
+    //   "mfxImplementedFunctions.FunctionsName"
+    if (nextProp == "mfxImplementedFunctions") {
+        nextProp = GetNextProp(&m_propParsedString);
+        if (nextProp == "FunctionsName") {
+            return ValidateAndSetProp(ePropFunc_FunctionName, value);
+        }
+        return MFX_ERR_NOT_FOUND;
+    }
+
+    // standard properties must begin with "mfxImplDescription"
     if (nextProp != "mfxImplDescription") {
         return MFX_ERR_NOT_FOUND;
     }
@@ -332,11 +416,45 @@ mfxStatus ConfigCtxVPL::SetFilterProperty(const mfxU8 *name, mfxVariant value) {
     else if (nextProp == "AccelerationMode") {
         return ValidateAndSetProp(ePropMain_AccelerationMode, value);
     }
+    else if (nextProp == "ApiVersion") {
+        // ApiVersion may be passed as single U32 (Version) or two U16's (Major, Minor)
+        nextProp = GetNextProp(&m_propParsedString);
+        if (nextProp == "Version")
+            return ValidateAndSetProp(ePropMain_ApiVersion, value);
+        else if (nextProp == "Major")
+            return ValidateAndSetProp(ePropMain_ApiVersion_Major, value);
+        else if (nextProp == "Minor")
+            return ValidateAndSetProp(ePropMain_ApiVersion_Minor, value);
+        else
+            return MFX_ERR_NOT_FOUND;
+    }
     else if (nextProp == "VendorID") {
         return ValidateAndSetProp(ePropMain_VendorID, value);
     }
+    else if (nextProp == "ImplName") {
+        return ValidateAndSetProp(ePropMain_ImplName, value);
+    }
+    else if (nextProp == "License") {
+        return ValidateAndSetProp(ePropMain_License, value);
+    }
+    else if (nextProp == "Keywords") {
+        return ValidateAndSetProp(ePropMain_Keywords, value);
+    }
     else if (nextProp == "VendorImplID") {
         return ValidateAndSetProp(ePropMain_VendorImplID, value);
+    }
+
+    // property is a member of mfxDeviceDescription
+    // currently only settable parameter is DeviceID
+    if (nextProp == "mfxDeviceDescription") {
+        nextProp = GetNextProp(&m_propParsedString);
+        if (nextProp == "device") {
+            nextProp = GetNextProp(&m_propParsedString);
+            if (nextProp == "DeviceID") {
+                return ValidateAndSetProp(ePropDevice_DeviceID, value);
+            }
+        }
+        return MFX_ERR_NOT_FOUND;
     }
 
     // property is a member of mfxDecoderDescription
@@ -501,9 +619,84 @@ mfxStatus ConfigCtxVPL::CheckPropsGeneral(mfxVariant cfgPropsAll[],
     // check if this implementation includes
     //   all of the required top-level properties
     CHECK_PROP(ePropMain_Impl, U32, libImplDesc->Impl);
-    CHECK_PROP(ePropMain_AccelerationMode, U16, libImplDesc->AccelerationMode);
     CHECK_PROP(ePropMain_VendorID, U32, libImplDesc->VendorID);
     CHECK_PROP(ePropMain_VendorImplID, U32, libImplDesc->VendorImplID);
+
+    // confirm that API version of this implementation is >= requested version
+    mfxU32 versionRequested = 0;
+    if (cfgPropsAll[ePropMain_ApiVersion].Type != MFX_VARIANT_TYPE_UNSET) {
+        // version was passed as U32 = (Major | Minor)
+        versionRequested = (mfxU32)(cfgPropsAll[ePropMain_ApiVersion].Data.U32);
+    }
+    else if (cfgPropsAll[ePropMain_ApiVersion_Major].Type != MFX_VARIANT_TYPE_UNSET &&
+             cfgPropsAll[ePropMain_ApiVersion_Minor].Type != MFX_VARIANT_TYPE_UNSET) {
+        // version was passed as 2x U16
+        mfxVersion ver   = {};
+        ver.Major        = (mfxU16)(cfgPropsAll[ePropMain_ApiVersion_Major].Data.U16);
+        ver.Minor        = (mfxU16)(cfgPropsAll[ePropMain_ApiVersion_Minor].Data.U16);
+        versionRequested = (mfxU32)ver.Version;
+    }
+
+    if (versionRequested) {
+        if (libImplDesc->ApiVersion.Version < versionRequested)
+            isCompatible = false;
+    }
+
+    if (libImplDesc->AccelerationModeDescription.NumAccelerationModes > 0) {
+        if (cfgPropsAll[ePropMain_AccelerationMode].Type != MFX_VARIANT_TYPE_UNSET) {
+            // check all supported modes if list is filled out
+            mfxU16 numModes = libImplDesc->AccelerationModeDescription.NumAccelerationModes;
+            mfxAccelerationMode modeRequested =
+                (mfxAccelerationMode)(cfgPropsAll[ePropMain_AccelerationMode].Data.U32);
+            auto *modeTab = libImplDesc->AccelerationModeDescription.Mode;
+
+            auto *m = std::find(modeTab, modeTab + numModes, modeRequested);
+            if (m == modeTab + numModes)
+                isCompatible = false;
+        }
+    }
+    else {
+        // check default mode
+        CHECK_PROP(ePropMain_AccelerationMode, U32, libImplDesc->AccelerationMode);
+    }
+
+    // check string: ImplName (string match)
+    if (cfgPropsAll[ePropMain_ImplName].Type != MFX_VARIANT_TYPE_UNSET) {
+        std::string filtName = *(std::string *)(cfgPropsAll[ePropMain_ImplName].Data.Ptr);
+        std::string implName = libImplDesc->ImplName;
+        if (filtName != implName)
+            isCompatible = false;
+    }
+
+    // check string: License (tokenized)
+    if (cfgPropsAll[ePropMain_License].Type != MFX_VARIANT_TYPE_UNSET) {
+        std::string license = *(std::string *)(cfgPropsAll[ePropMain_License].Data.Ptr);
+        if (CheckPropString(libImplDesc->License, license) != MFX_ERR_NONE)
+            isCompatible = false;
+    }
+
+    // check string: Keywords (tokenized)
+    if (cfgPropsAll[ePropMain_Keywords].Type != MFX_VARIANT_TYPE_UNSET) {
+        std::string keywords = *(std::string *)(cfgPropsAll[ePropMain_Keywords].Data.Ptr);
+        if (CheckPropString(libImplDesc->Keywords, keywords) != MFX_ERR_NONE)
+            isCompatible = false;
+    }
+
+    // check DeviceID - stored as char*, but passed in for filtering as U16
+    // convert both to unsigned ints and compare
+    if (cfgPropsAll[ePropDevice_DeviceID].Type != MFX_VARIANT_TYPE_UNSET) {
+        unsigned int implDeviceID = 0;
+        try {
+            implDeviceID = std::stoi(libImplDesc->Dev.DeviceID, 0, 16);
+        }
+        catch (...) {
+            return MFX_ERR_UNSUPPORTED;
+        }
+
+        unsigned int filtDeviceID = (unsigned int)(cfgPropsAll[ePropDevice_DeviceID].Data.U16);
+        if (implDeviceID != filtDeviceID)
+            isCompatible = false;
+    }
 
     if (isCompatible == true)
         return MFX_ERR_NONE;
@@ -644,8 +837,35 @@ mfxStatus ConfigCtxVPL::CheckPropsVPP(mfxVariant cfgPropsAll[],
     return MFX_ERR_UNSUPPORTED;
 }
 
+// implString = string from implDesc - one or more comma-separated tokens
+// filtString = string user is looking for - one or more comma-separated tokens
+// we parse filtString into tokens, then check if all of them are present in implString
+mfxStatus ConfigCtxVPL::CheckPropString(mfxChar *implString, std::string filtString) {
+    std::list<std::string> tokenString;
+    std::string s;
+
+    // parse implString string into tokens, separated by ','
+    std::stringstream implSS((char *)implString);
+    while (getline(implSS, s, ',')) {
+        tokenString.push_back(s);
+    }
+
+    // parse filtString string into tokens, separated by ','
+    // check that each token is present in implString, otherwise return error
+    std::stringstream filtSS(filtString);
+    while (getline(filtSS, s, ',')) {
+        if (std::find(tokenString.begin(), tokenString.end(), s) == tokenString.end())
+            return MFX_ERR_UNSUPPORTED;
+    }
+
+    return MFX_ERR_NONE;
+}
+
 mfxStatus ConfigCtxVPL::ValidateConfig(mfxImplDescription *libImplDesc,
-                                       std::list<ConfigCtxVPL *> configCtxList) {
+                                       mfxImplementedFunctions *libImplFuncs,
+                                       std::list<ConfigCtxVPL *> configCtxList,
+                                       LibType libType,
+                                       SpecialConfig *specialConfig) {
     mfxU32 idx;
     mfxStatus sts     = MFX_ERR_NONE;
     bool decRequested = false;
@@ -658,6 +878,10 @@ mfxStatus ConfigCtxVPL::ValidateConfig(mfxImplDescription *libImplDesc,
     std::list<DecConfig> decConfigList;
     std::list<EncConfig> encConfigList;
     std::list<VPPConfig> vppConfigList;
+
+    // list of functions required to be implemented
+    std::list<std::string> implFunctionList;
+    implFunctionList.clear();
 
     // save list when multiple filters apply to the the same property
     //   (e.g two mfxConfig objects with different values for CodecID)
@@ -681,6 +905,12 @@ mfxStatus ConfigCtxVPL::ValidateConfig(mfxImplDescription *libImplDesc,
         if (idx >= eProp_TotalProps)
             continue;
 
+        // if property is required function, add to list which will be checked below
+        if (idx == ePropFunc_FunctionName) {
+            implFunctionList.push_back(config->m_implFunctionName);
+            continue;
+        }
+
         // ignore config objects that were never assigned a property
         if (config->m_propValue.Type == MFX_VARIANT_TYPE_UNSET)
             continue;
@@ -702,6 +932,50 @@ mfxStatus ConfigCtxVPL::ValidateConfig(mfxImplDescription *libImplDesc,
             vppRequested = true;
     }
 
+    // check whether required functions are implemented
+    if (!implFunctionList.empty()) {
+        if (!libImplFuncs) {
+            // library did not provide list of implemented functions
+            return MFX_ERR_UNSUPPORTED;
+        }
+
+        auto fn = implFunctionList.begin();
+        while (fn != implFunctionList.end()) {
+            std::string fnName = (*fn++);
+            mfxU32 fnIdx;
+
+            // search for fnName in list of implemented functions
+            for (fnIdx = 0; fnIdx < libImplFuncs->NumFunctions; fnIdx++) {
+                if (fnName == libImplFuncs->FunctionsName[fnIdx])
+                    break;
+            }
+
+            if (fnIdx == libImplFuncs->NumFunctions)
+                return MFX_ERR_UNSUPPORTED;
+        }
+    }
+
+    // update any special (including non-filtering) properties, for use by caller
+    if (cfgPropsAll[ePropSpecial_HandleType].Type != MFX_VARIANT_TYPE_UNSET)
+        specialConfig->deviceHandleType =
+            (mfxHandleType)cfgPropsAll[ePropSpecial_HandleType].Data.U32;
+
+    if (cfgPropsAll[ePropSpecial_Handle].Type != MFX_VARIANT_TYPE_UNSET)
+        specialConfig->deviceHandle = (mfxHDL)cfgPropsAll[ePropSpecial_Handle].Data.Ptr;
+
+    if (cfgPropsAll[ePropMain_ApiVersion].Type != MFX_VARIANT_TYPE_UNSET) {
+        specialConfig->ApiVersion.Version = (mfxU32)cfgPropsAll[ePropMain_ApiVersion].Data.U32;
+    }
+    else if (cfgPropsAll[ePropMain_ApiVersion_Major].Type != MFX_VARIANT_TYPE_UNSET &&
+             cfgPropsAll[ePropMain_ApiVersion_Minor].Type != MFX_VARIANT_TYPE_UNSET) {
+        specialConfig->ApiVersion.Major = cfgPropsAll[ePropMain_ApiVersion_Major].Data.U16;
+        specialConfig->ApiVersion.Minor = cfgPropsAll[ePropMain_ApiVersion_Minor].Data.U16;
+    }
+
+    if (cfgPropsAll[ePropMain_AccelerationMode].Type != MFX_VARIANT_TYPE_UNSET)
+        specialConfig->accelerationMode =
+            (mfxAccelerationMode)cfgPropsAll[ePropMain_AccelerationMode].Data.U32;
+
     // generate "flat" descriptions of each combination
     //   (e.g. multiple profiles from the same codec)
     GetFlatDescriptionsDec(libImplDesc, decConfigList);
@@ -711,6 +985,11 @@ mfxStatus ConfigCtxVPL::ValidateConfig(mfxImplDescription *libImplDesc,
     sts = CheckPropsGeneral(cfgPropsAll, libImplDesc);
     if (sts)
         return sts;
+
+    // early exit - MSDK RT compatibility mode (1.x) does not provide Dec/Enc/VPP caps
+    // ignore these filters if set (do not use them to _exclude_ the library)
+    if (libType == LibTypeMSDK)
+        return MFX_ERR_NONE;
 
     if (decRequested) {
         sts = CheckPropsDec(cfgPropsAll, decConfigList);

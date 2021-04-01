@@ -27,7 +27,7 @@
                     " (" STRINGIFY(__LINE__) "):\nUsing of D3D9 enabled!\n\n")
 #endif
 
-#include <vpl/mfxdefs.h>
+#include "vpl/mfxdefs.h"
 
 #ifdef DXVA2DEVICE_LOG
     #include <stdio.h>

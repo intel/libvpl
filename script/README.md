@@ -12,6 +12,10 @@ The scripts are designed around the model described by
 - `lint` - Analyze project source for potential issues, including compliance
   with coding style. Requires Python modules in `requirements-dev.txt`.
 
+- `clean` - Remove project build files. Will not remove installed files or
+bootstrap files placed in `VPL_BUILD_DEPENDENCIES`.
+
+
 - `bootstrap` - Build the project dependencies and place in the location
   specified by the `VPL_BUILD_DEPENDENCIES` environment variable. If environment
   variable is undefined, define it as and place output in `_deps`.
@@ -21,3 +25,7 @@ The scripts are designed around the model described by
   there at install time.
 
 - `install` - Install the project built in the build stage.
+
+- `test` or `test32` - Run basic smoke testing on built project.
+
+- `stress` - Run stress testing on built project.

@@ -1,6 +1,6 @@
 #!/bin/bash
 ###############################################################################
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 ###############################################################################
@@ -35,7 +35,7 @@ echo
 
 ## start of commands -----------------------------------------------------------
 source ${proj_dir}/test/tools/env/vars.sh
-if [ -n "$VPL_BUILD_DEPENDENCIES" ]; then
+if [ -n "${VPL_BUILD_DEPENDENCIES}" ]; then
     export ffmpeg_dir=${VPL_BUILD_DEPENDENCIES}/bin
 else
     echo "VPL_BUILD_DEPENDENCIES not defined. Did you run bootstrap?"

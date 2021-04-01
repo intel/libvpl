@@ -134,4 +134,17 @@
 #define MFXReleaseImplDescription        disp_MFXReleaseImplDescription
 
 #define MFXInitialize                    disp_MFXInitialize
+
+// API 2.1 functions
+#define MFXMemory_GetSurfaceForVPPOut    disp_MFXMemory_GetSurfaceForVPPOut
+
+#define MFXVideoDECODE_VPP_Init                      disp_MFXVideoDECODE_VPP_Init
+#define MFXVideoDECODE_VPP_DecodeFrameAsync          disp_MFXVideoDECODE_VPP_DecodeFrameAsync
+#define MFXVideoDECODE_VPP_Reset                     disp_MFXVideoDECODE_VPP_Reset
+#define MFXVideoDECODE_VPP_GetChannelParam           disp_MFXVideoDECODE_VPP_GetChannelParam
+#define MFXVideoDECODE_VPP_Close                     disp_MFXVideoDECODE_VPP_Close
+
+#define MFXVideoVPP_ProcessFrameAsync                disp_MFXVideoVPP_ProcessFrameAsync
+
+
 #endif 

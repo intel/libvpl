@@ -22,7 +22,7 @@ const FUNCTION_DESCRIPTION APIFunc[eVideoFuncTotal] = {
     { "MFXCloneSession", { { 1, 1 } } }, { "MFXSetPriority", { { 1, 1 } } },
     { "MFXGetPriority", { { 1, 1 } } },
 
-    { "MFXInitEx", { { 1, 14 } } },
+    { "MFXInitEx", { { 14, 1 } } },
 
 #include "windows/mfx_exposed_functions_list.h"
 };
@@ -35,6 +35,14 @@ const FUNCTION_DESCRIPTION APIVideoFunc2[eVideoFunc2Total] = {
     { "MFXMemory_GetSurfaceForEncode", { { 0, 2 } } },
     { "MFXMemory_GetSurfaceForDecode", { { 0, 2 } } },
     { "MFXInitialize", { { 0, 2 } } },
+
+    { "MFXMemory_GetSurfaceForVPPOut", { { 1, 2 } } },
+    { "MFXVideoDECODE_VPP_Init", { { 1, 2 } } },
+    { "MFXVideoDECODE_VPP_DecodeFrameAsync", { { 1, 2 } } },
+    { "MFXVideoDECODE_VPP_Reset", { { 1, 2 } } },
+    { "MFXVideoDECODE_VPP_GetChannelParam", { { 1, 2 } } },
+    { "MFXVideoDECODE_VPP_Close", { { 1, 2 } } },
+    { "MFXVideoVPP_ProcessFrameAsync", { { 1, 2 } } },
 };
 
 // static section of the file

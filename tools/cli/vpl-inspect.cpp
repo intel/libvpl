@@ -1,14 +1,19 @@
 /*############################################################################
-  # Copyright (C) 2020 Intel Corporation
+  # Copyright (C) Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
 
 #include <assert.h>
 #include <stdio.h>
-#include <vpl/mfxdispatcher.h>
-#include <vpl/mfxjpeg.h>
-#include <vpl/mfxstructures.h>
+#include <string.h>
+
+#include <algorithm>
+
+#include "vpl/mfxdispatcher.h"
+#include "vpl/mfxjpeg.h"
+#include "vpl/mfxstructures.h"
+#include "vpl/mfxvp8.h"
 
 #define DECODE_FOURCC(ch) ch & 0xff, ch >> 8 & 0xff, ch >> 16 & 0xff, ch >> 24 & 0xff
 #define MAKEFOURCC(ch0, ch1, ch2, ch3)                                                   \
@@ -27,6 +32,22 @@ const char *_print_Impl(mfxIMPL impl) {
     return "<unknown implementation>";
 }
 
+const char *_print_AccelMode(mfxAccelerationMode mode) {
+    switch (mode) {
+        STRING_OPTION(MFX_ACCEL_MODE_NA);
+        STRING_OPTION(MFX_ACCEL_MODE_VIA_D3D9);
+        STRING_OPTION(MFX_ACCEL_MODE_VIA_D3D11);
+        STRING_OPTION(MFX_ACCEL_MODE_VIA_VAAPI);
+        STRING_OPTION(MFX_ACCEL_MODE_VIA_VAAPI_DRM_MODESET);
+        STRING_OPTION(MFX_ACCEL_MODE_VIA_VAAPI_GLX);
+        STRING_OPTION(MFX_ACCEL_MODE_VIA_VAAPI_X11);
+        STRING_OPTION(MFX_ACCEL_MODE_VIA_VAAPI_WAYLAND);
+        STRING_OPTION(MFX_ACCEL_MODE_VIA_HDDLUNITE);
+    }
+
+    return "<unknown acceleration mode>";
+}
+
 const char *_print_ResourceType(mfxResourceType type) {
     switch (type) {
         STRING_OPTION(MFX_RESOURCE_SYSTEM_SURFACE);
@@ -36,6 +57,7 @@ const char *_print_ResourceType(mfxResourceType type) {
         STRING_OPTION(MFX_RESOURCE_DX11_TEXTURE);
         STRING_OPTION(MFX_RESOURCE_DX12_RESOURCE);
         STRING_OPTION(MFX_RESOURCE_DMA_RESOURCE);
+        STRING_OPTION(MFX_RESOURCE_HDDLUNITE_REMOTE_MEMORY);
     }
 
     return "<unknown resource type>";
@@ -63,6 +85,9 @@ const char *_print_ProfileType(mfxU32 fourcc, mfxU32 type) {
                 STRING_OPTION(MFX_PROFILE_AVC_HIGH);
                 STRING_OPTION(MFX_PROFILE_AVC_HIGH10);
                 STRING_OPTION(MFX_PROFILE_AVC_HIGH_422);
+                STRING_OPTION(MFX_PROFILE_AVC_CONSTRAINED_BASELINE);
+                STRING_OPTION(MFX_PROFILE_AVC_CONSTRAINED_HIGH);
+                STRING_OPTION(MFX_PROFILE_AVC_PROGRESSIVE_HIGH);
 
                 default:
                     return "<unknown MFX_CODEC_AVC profile>";
@@ -96,6 +121,19 @@ const char *_print_ProfileType(mfxU32 fourcc, mfxU32 type) {
             }
         }
 
+        case MFX_CODEC_VP8: {
+            switch (type) {
+                STRING_OPTION(MFX_PROFILE_UNKNOWN);
+                STRING_OPTION(MFX_PROFILE_VP8_0);
+                STRING_OPTION(MFX_PROFILE_VP8_1);
+                STRING_OPTION(MFX_PROFILE_VP8_2);
+                STRING_OPTION(MFX_PROFILE_VP8_3);
+
+                default:
+                    return "<unknown MFX_CODEC_VP9 profile>";
+            }
+        }
+
         case MFX_CODEC_VC1: {
             switch (type) {
                 STRING_OPTION(MFX_PROFILE_UNKNOWN);
@@ -124,6 +162,9 @@ const char *_print_ProfileType(mfxU32 fourcc, mfxU32 type) {
         case MFX_CODEC_AV1: {
             switch (type) {
                 STRING_OPTION(MFX_PROFILE_UNKNOWN);
+                STRING_OPTION(MFX_PROFILE_AV1_MAIN);
+                STRING_OPTION(MFX_PROFILE_AV1_HIGH);
+                STRING_OPTION(MFX_PROFILE_AV1_PRO);
 
                 default:
                     return "<unknown MFX_CODEC_AV1 profile>";
@@ -136,24 +177,40 @@ const char *_print_ProfileType(mfxU32 fourcc, mfxU32 type) {
 
 int main(int argc, char *argv[]) {
     mfxLoader loader = MFXLoad();
-    assert(NULL != loader);
+    if (loader == NULL) {
+        printf("Error - MFXLoad() returned null - no libraries found\n");
+        return -1;
+    }
+
+    bool bPrintImplementedFunctions = false;
+    if (argc == 2 && !strncmp(argv[1], "-f", 2)) {
+        bPrintImplementedFunctions = true;
+    }
 
     int i = 0;
     mfxImplDescription *idesc;
     while (MFX_ERR_NONE == MFXEnumImplementations(loader,
-                                                  i++,
+                                                  i,
                                                   MFX_IMPLCAPS_IMPLDESCSTRUCTURE,
                                                   reinterpret_cast<mfxHDL *>(&idesc))) {
         printf("\nImplementation: %s\n", idesc->ImplName);
 
         printf("  Version: %hu.%hu\n", idesc->Version.Major, idesc->Version.Minor);
         printf("  Impl: %s\n", _print_Impl(idesc->Impl));
-        printf("  AccelerationMode: %hu\n", (mfxI16)idesc->AccelerationMode);
+        printf("  AccelerationMode: %s\n", _print_AccelMode(idesc->AccelerationMode));
         printf("  ApiVersion: %hu.%hu\n", idesc->ApiVersion.Major, idesc->ApiVersion.Minor);
         printf("  License: %s\n", idesc->License);
         printf("  Keywords: %s\n", idesc->Keywords);
         printf("  VendorID: 0x%04X\n", idesc->VendorID);
         printf("  VendorImplID: 0x%04X\n", idesc->VendorImplID);
+
+        /* mfxAccelerationModeDescription */
+        mfxAccelerationModeDescription *accel = &idesc->AccelerationModeDescription;
+        printf("\n mfxAccelerationModeDescription:\n");
+        printf("    Version: %hu.%hu\n", accel->Version.Major, accel->Version.Minor);
+        for (int mode = 0; mode < accel->NumAccelerationModes; mode++) {
+            printf("    Mode: %s\n", _print_AccelMode(accel->Mode[mode]));
+        }
 
         /* mfxDeviceDescription */
         mfxDeviceDescription *dev = &idesc->Dev;
@@ -292,7 +349,39 @@ int main(int argc, char *argv[]) {
         printf("\n  NumExtParam: %d\n", idesc->NumExtParam);
 
         MFXDispReleaseImplDescription(loader, idesc);
+
+        if (bPrintImplementedFunctions) {
+            mfxImplementedFunctions *fdesc;
+
+            mfxStatus sts = MFXEnumImplementations(loader,
+                                                   i,
+                                                   MFX_IMPLCAPS_IMPLEMENTEDFUNCTIONS,
+                                                   reinterpret_cast<mfxHDL *>(&fdesc));
+
+            if (sts == MFX_ERR_NONE) {
+                // print out list of functions' name
+                printf("\nImplemented functions:\n");
+                std::for_each(fdesc->FunctionsName,
+                              fdesc->FunctionsName + fdesc->NumFunctions,
+                              [](mfxChar *functionName) {
+                                  printf("  %s\n", functionName);
+                              });
+                printf("\n");
+
+                MFXDispReleaseImplDescription(loader, fdesc);
+            }
+            else {
+                printf("Warning - MFX_IMPLCAPS_IMPLEMENTEDFUNCTIONS not supported\n");
+            }
+        }
+
+        i++;
     }
+
+    if (i == 0)
+        printf("\nWarning - no implementations found by MFXEnumImplementations()\n");
+    else
+        printf("\nTotal number of implementations found = %d\n", i);
 
     MFXUnload(loader);
     return 0;

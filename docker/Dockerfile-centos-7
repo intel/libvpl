@@ -1,17 +1,18 @@
 # ==============================================================================
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 # ==============================================================================
 
 ARG VPL_INSTALL_PREFIX=/opt/intel/onevpl
+ARG DOCKER_REGISTRY
 
 # Stage 1
-FROM centos:centos7 AS vpl_base
+FROM ${DOCKER_REGISTRY}centos:centos7 AS vpl_base
 ENV TZ=Europe/Moscow
-RUN yum install -y centos-release-scl && \
+RUN yum check-update && yum install -y centos-release-scl && \
    yum-config-manager --enable rhel-server-rhscl-7-rpms && \
-   yum install -y git libtool make pkgconfig devtoolset-7 
+   yum install -y git libtool make pkgconfig devtoolset-7
 
 RUN cd /tmp && \
     curl -O -L https://cmake.org/files/v3.12/cmake-3.12.3.tar.gz && \
@@ -21,7 +22,6 @@ RUN cd /tmp && \
     ./bootstrap --prefix=/usr/local && \
     make -j$(nproc) && \
     make install
-
 
 # Stage 2
 FROM vpl_base AS vpl_build
@@ -37,11 +37,11 @@ RUN cd /oneVPL && \
 
 
 # Runtime image build
-FROM centos:centos7
+FROM ${DOCKER_REGISTRY}centos:centos7
 LABEL Description="This is the CentOS 7 base image for the oneAPI Video Processing Library API"
 LABEL Vendor="Intel Corporation"
 ARG VPL_INSTALL_PREFIX
 ENV LD_LIBRARY_PATH=${VPL_INSTALL_PREFIX}/lib
 ENV PKG_CONFIG_PATH=${VPL_INSTALL_PREFIX}/pkgconfig
 ENV PATH="${PATH}:/${VPL_INSTALL_PREFIX}/bin"
-COPY --from=vpl_build ${VPL_INSTALL_PREFIX} ${VPL_INSTALL_PREFIX} 
+COPY --from=vpl_build ${VPL_INSTALL_PREFIX} ${VPL_INSTALL_PREFIX}

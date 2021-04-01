@@ -66,7 +66,8 @@ mfxStatus MFX_DISP_HANDLE::LoadSelectedDLL(const wchar_t* pPath,
                                            eMfxImplType reqImplType,
                                            mfxIMPL reqImpl,
                                            mfxIMPL reqImplInterface,
-                                           mfxInitParam& par) {
+                                           mfxInitParam& par,
+                                           mfxInitializationParam& vplParam) {
     mfxStatus mfxRes = MFX_ERR_NONE;
 
     // check error(s)
@@ -78,11 +79,7 @@ mfxStatus MFX_DISP_HANDLE::LoadSelectedDLL(const wchar_t* pPath,
         return loadStatus;
     }
     // only exact types of implementation is allowed
-    if (
-#if (MFX_VERSION >= MFX_VERSION_NEXT)
-        !(reqImpl & MFX_IMPL_EXTERNAL_THREADING) &&
-#endif
-        (MFX_IMPL_SOFTWARE != reqImpl) && (MFX_IMPL_HARDWARE != reqImpl) &&
+    if ((MFX_IMPL_SOFTWARE != reqImpl) && (MFX_IMPL_HARDWARE != reqImpl) &&
         (MFX_IMPL_HARDWARE2 != reqImpl) && (MFX_IMPL_HARDWARE3 != reqImpl) &&
         (MFX_IMPL_HARDWARE4 != reqImpl)) {
         DISPATCHER_LOG_ERROR((("invalid implementation impl == %s\n"),
@@ -164,12 +161,16 @@ mfxStatus MFX_DISP_HANDLE::LoadSelectedDLL(const wchar_t* pPath,
                     }
                     else {
                         // The library doesn't contain the function
-                        DISPATCHER_LOG_ERROR((("\"%s\" is required for API %u.%u\n"),
-                                              APIVideoFunc2[i].pName,
-                                              apiVersion.Major,
-                                              apiVersion.Minor));
-                        mfxRes = MFX_ERR_UNSUPPORTED;
-                        break;
+                        DISPATCHER_LOG_WRN(
+                            (("Can't find API function \"%s\"\n"), APIVideoFunc2[i].pName));
+                        if (apiVersion.Version >= APIVideoFunc2[i].apiVersion.Version) {
+                            DISPATCHER_LOG_ERROR((("\"%s\" is required for API %u.%u\n"),
+                                                  APIVideoFunc2[i].pName,
+                                                  apiVersion.Major,
+                                                  apiVersion.Minor));
+                            mfxRes = MFX_ERR_UNSUPPORTED;
+                            break;
+                        }
                     }
                 }
             }
@@ -186,31 +187,33 @@ mfxStatus MFX_DISP_HANDLE::LoadSelectedDLL(const wchar_t* pPath,
 
         if (version.Major >= 2) {
             // for API >= 2.0 call MFXInitialize instead of MFXInitEx
-            int tableIndex                  = eMFXInitialize;
-            mfxFunctionPointer pFunc        = callVideoTable2[tableIndex];
-            mfxInitializationParam initPar2 = {};
+            int tableIndex           = eMFXInitialize;
+            mfxFunctionPointer pFunc = callVideoTable2[tableIndex];
 
-            if (reqImplType == MFX_LIB_HARDWARE) {
-                // hardware - D3D11 by default
-                if (reqImplInterface == MFX_IMPL_VIA_D3D9)
-                    initPar2.AccelerationMode = MFX_ACCEL_MODE_VIA_D3D9;
-                else
-                    initPar2.AccelerationMode = MFX_ACCEL_MODE_VIA_D3D11;
-            }
-            else {
-                // software
-                initPar2.AccelerationMode = MFX_ACCEL_MODE_NA;
-            }
-
-            mfxRes = (*(mfxStatus(MFX_CDECL*)(mfxInitializationParam, mfxSession*))pFunc)(initPar2,
+            // filled-in mfxInitializationParam must be provided for MFXInitialize path
+            mfxRes = (*(mfxStatus(MFX_CDECL*)(mfxInitializationParam, mfxSession*))pFunc)(vplParam,
                                                                                           &session);
         }
         else {
-            // only support MFXInitEx for 1.x
-            int tableIndex           = eMFXInitEx;
+            // Call old-style MFXInit init for older libraries
+            bool callOldInit =
+                !callTable[eMFXInitEx]; // if true call eMFXInit, if false - eMFXInitEx
+            int tableIndex           = (callOldInit) ? eMFXInit : eMFXInitEx;
             mfxFunctionPointer pFunc = callTable[tableIndex];
 
-            {
+            if (callOldInit) {
+                DISPATCHER_LOG_BLOCK(("MFXInit(%s,ver=%u.%u,session=0x%p)\n",
+                                      DispatcherLog_GetMFXImplString(impl | implInterface).c_str(),
+                                      apiVersion.Major,
+                                      apiVersion.Minor,
+                                      &session));
+
+                mfxRes = (*(mfxStatus(MFX_CDECL*)(mfxIMPL, mfxVersion*, mfxSession*))pFunc)(
+                    impl | implInterface,
+                    &version,
+                    &session);
+            }
+            else {
                 DISPATCHER_LOG_BLOCK(("MFXInitEx(%s,ver=%u.%u,ExtThreads=%d,session=0x%p)\n",
                                       DispatcherLog_GetMFXImplString(impl | implInterface).c_str(),
                                       apiVersion.Major,
@@ -252,7 +255,7 @@ mfxStatus MFX_DISP_HANDLE::LoadSelectedDLL(const wchar_t* pPath,
     loadStatus = mfxRes;
     return mfxRes;
 
-} // mfxStatus MFX_DISP_HANDLE::LoadSelectedDLL(const wchar_t *pPath, eMfxImplType implType, mfxIMPL impl)
+} // mfxStatus MFX_DISP_HANDLE::LoadSelectedDLL(const wchar_t* pPath, eMfxImplType reqImplType, mfxIMPL reqImpl, mfxIMPL reqImplInterface, mfxInitParam& par, mfxInitializationParam &vplParam)
 
 mfxStatus MFX_DISP_HANDLE::UnLoadSelectedDLL(void) {
     mfxStatus mfxRes = MFX_ERR_NONE;
@@ -286,6 +289,10 @@ mfxStatus MFX_DISP_HANDLE::UnLoadSelectedDLL(void) {
     return mfxRes;
 
 } // mfxStatus MFX_DISP_HANDLE::UnLoadSelectedDLL(void)
+
+MFX_DISP_HANDLE_EX::MFX_DISP_HANDLE_EX(const mfxVersion requiredVersion)
+        : MFX_DISP_HANDLE(requiredVersion),
+          mediaAdapterType(MFX_MEDIA_UNKNOWN) {}
 
 #if (defined(_WIN64) || defined(_WIN32)) && (MFX_VERSION >= 1031)
 static mfxStatus InitDummySession(mfxU32 adapter_n, MFXVideoSession& dummy_session) {
@@ -345,6 +352,7 @@ static inline mfxI32 iGPU_priority(const void* ll, const void* rr) {
 
 static void RearrangeInPriorityOrder(const mfxComponentInfo& info,
                                      MFX::MFXVector<mfxAdapterInfo>& vec) {
+    (void)info;
     {
         // Move iGPU to top priority
         qsort(vec.data(), vec.size(), sizeof(mfxAdapterInfo), &iGPU_priority);
@@ -381,13 +389,17 @@ static mfxStatus PrepareAdaptersInfo(const mfxComponentInfo* info,
 static inline bool QueryAdapterInfo(mfxU32 adapter_n, mfxU32& VendorID, mfxU32& DeviceID) {
     MFX::DXVA2Device dxvaDevice;
 
-    if (!dxvaDevice.InitD3D9(adapter_n) && !dxvaDevice.InitDXGI1(adapter_n))
+    if (!dxvaDevice.InitDXGI1(adapter_n))
         return false;
 
     VendorID = dxvaDevice.GetVendorID();
     DeviceID = dxvaDevice.GetDeviceID();
 
     return true;
+}
+
+static inline mfxU32 MakeVersion(mfxU16 major, mfxU16 minor) {
+    return major * 1000 + minor;
 }
 
 mfxStatus MFXQueryAdaptersDecode(mfxBitstream* bitstream,
@@ -443,13 +455,27 @@ mfxStatus MFXQueryAdaptersDecode(mfxBitstream* bitstream,
 
         mfxAdapterInfo info;
         memset(&info, 0, sizeof(info));
-        sts = MFXVideoCORE_QueryPlatform(dummy_session.operator mfxSession(), &info.Platform);
 
-        if (sts != MFX_ERR_NONE) {
+        //WA for initialization when application built w/ new API, but lib w/ old one.
+        mfxVersion apiVersion;
+        sts = dummy_session.QueryVersion(&apiVersion);
+        if (sts != MFX_ERR_NONE)
             continue;
+
+        mfxU32 version = MakeVersion(apiVersion.Major, apiVersion.Minor);
+
+        if (version >= 1019) {
+            sts = MFXVideoCORE_QueryPlatform(dummy_session.operator mfxSession(), &info.Platform);
+
+            if (sts != MFX_ERR_NONE) {
+                continue;
+            }
+        }
+        else {
+            // for API versions greater than 1.19 Device id is set inside QueryPlatform call
+            info.Platform.DeviceId = static_cast<mfxU16>(DeviceID);
         }
 
-        //info.Platform.DeviceId = DeviceID;
         info.Number = adapter_n - 1;
 
         obtained_info.push_back(info);
@@ -520,13 +546,27 @@ mfxStatus MFXQueryAdapters(mfxComponentInfo* input_info, mfxAdaptersInfo* adapte
 
         mfxAdapterInfo info;
         memset(&info, 0, sizeof(info));
-        sts = MFXVideoCORE_QueryPlatform(dummy_session.operator mfxSession(), &info.Platform);
 
-        if (sts != MFX_ERR_NONE) {
+        //WA for initialization when application built w/ new API, but lib w/ old one.
+        mfxVersion apiVersion;
+        sts = dummy_session.QueryVersion(&apiVersion);
+        if (sts != MFX_ERR_NONE)
             continue;
+
+        mfxU32 version = MakeVersion(apiVersion.Major, apiVersion.Minor);
+
+        if (version >= 1019) {
+            sts = MFXVideoCORE_QueryPlatform(dummy_session.operator mfxSession(), &info.Platform);
+
+            if (sts != MFX_ERR_NONE) {
+                continue;
+            }
+        }
+        else {
+            // for API versions greater than 1.19 Device id is set inside QueryPlatform call
+            info.Platform.DeviceId = static_cast<mfxU16>(DeviceID);
         }
 
-        //info.Platform.DeviceId = DeviceID;
         info.Number = adapter_n - 1;
 
         obtained_info.push_back(info);

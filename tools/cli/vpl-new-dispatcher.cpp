@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) 2020 Intel Corporation
+  # Copyright (C) Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -68,7 +68,7 @@ bool CheckVPPImplCaps(mfxImplDescription *implDesc, mfxU32 inFormat, mfxU32 outF
                         &(currMemDesc->Formats[k]);
                     if (currFormat->InFormat == inFormat) {
                         for (n = 0; n < currFormat->NumOutFormat; n++) {
-                            if (currFormat->OutFormats[n] == outFormat)
+                            if ((inFormat == outFormat) || (currFormat->OutFormats[n] == outFormat))
                                 return true;
                         }
                     }
@@ -79,12 +79,15 @@ bool CheckVPPImplCaps(mfxImplDescription *implDesc, mfxU32 inFormat, mfxU32 outF
     return false;
 }
 
+// save for testing MFXUnload() at end of app
+static mfxLoader loader;
+
 mfxStatus InitNewDispatcher(WSType wsType, Params *params, mfxSession *session) {
     mfxStatus sts = MFX_ERR_NONE;
     *session      = nullptr;
 
     // load 2.0 dispatcher
-    mfxLoader loader = MFXLoad();
+    loader = MFXLoad();
     if (!loader) {
         printf("Error - MFXLoad() returned NULL\n");
         return MFX_ERR_UNSUPPORTED;
@@ -93,11 +96,14 @@ mfxStatus InitNewDispatcher(WSType wsType, Params *params, mfxSession *session) 
     mfxVariant ImplValue;
     mfxConfig cfg;
 
+    if (params->impl != MFX_IMPL_SOFTWARE && params->impl != MFX_IMPL_HARDWARE)
+        params->impl = MFX_IMPL_SOFTWARE;
+
     // basic filtering - test for SW implementation
     sts                = MFX_ERR_NONE;
     cfg                = MFXCreateConfig(loader);
     ImplValue.Type     = MFX_VARIANT_TYPE_U32;
-    ImplValue.Data.U32 = MFX_IMPL_TYPE_SOFTWARE;
+    ImplValue.Data.U32 = params->impl;
     sts = MFXSetConfigFilterProperty(cfg, (const mfxU8 *)"mfxImplDescription.Impl", ImplValue);
 
     sts = MFX_ERR_NONE;
@@ -194,24 +200,28 @@ mfxStatus InitNewDispatcher(WSType wsType, Params *params, mfxSession *session) 
         bool isSupported = true;
 
         // optional additional check to illustrate how to parse implDesc
-        if (wsType == WSTYPE_DECODE) {
-            isSupported = CheckDecoderImplCaps(implDesc, params->srcFourCC);
-        }
-        else if (wsType == WSTYPE_ENCODE) {
-            isSupported = CheckEncoderImplCaps(implDesc, params->srcFourCC, params->dstFourCC);
-        }
-        else if (wsType == WSTYPE_VPP) {
-            isSupported = CheckVPPImplCaps(implDesc, params->srcFourCC, params->dstFourCC);
+        // skip for MSDK compatibility mode (1.x - Dec/Enc/VPP caps not provided)
+        if (params->impl == MFX_IMPL_SOFTWARE) {
+            if (wsType == WSTYPE_DECODE) {
+                isSupported = CheckDecoderImplCaps(implDesc, params->srcFourCC);
+            }
+            else if (wsType == WSTYPE_ENCODE) {
+                isSupported = CheckEncoderImplCaps(implDesc, params->srcFourCC, params->dstFourCC);
+            }
+            else if (wsType == WSTYPE_VPP) {
+                isSupported = CheckVPPImplCaps(implDesc, params->srcFourCC, params->dstFourCC);
+            }
         }
 
         if (isSupported) {
             // this implementation is capable of processing the stream
             sts = MFXCreateSession(loader, implIdx, session);
+            MFXDispReleaseImplDescription(loader, implDesc);
+
             if (sts != MFX_ERR_NONE) {
                 printf("Error in MFXCreateSession, sts = %d", sts);
                 return sts;
             }
-            MFXDispReleaseImplDescription(loader, implDesc);
             break;
         }
         else {
@@ -221,19 +231,23 @@ mfxStatus InitNewDispatcher(WSType wsType, Params *params, mfxSession *session) 
         implIdx++;
     }
 
-    MFXUnload(loader);
-
     return sts;
 }
 
-// debugging functions
+mfxStatus CloseNewDispatcher(void) {
+    MFXUnload(loader);
+    loader = nullptr;
+    return MFX_ERR_NONE;
+}
 
-#define TEST_CFG(type, dType, val)                                           \
-    cfg                  = MFXCreateConfig(loader);                          \
-    ImplValue.Type       = (type);                                           \
-    ImplValue.Data.dType = (val);                                            \
-    sts                  = MFXSetConfigFilterProperty(cfg, name, ImplValue); \
-    printf("Test config: sts = %d, name = %s\n", sts, name);
+// debugging functions
+#ifdef DBG_TEST_CFG_PROPS
+    #define TEST_CFG(type, dType, val)                                           \
+        cfg                  = MFXCreateConfig(loader);                          \
+        ImplValue.Type       = (type);                                           \
+        ImplValue.Data.dType = (val);                                            \
+        sts                  = MFXSetConfigFilterProperty(cfg, name, ImplValue); \
+        printf("Test config: sts = %d, name = %s\n", sts, name);
 
 static void TestCfgPropsMain(mfxLoader loader) {
     mfxStatus sts;
@@ -328,3 +342,4 @@ static void TestCfgPropsVPP(mfxLoader loader) {
     name = (const mfxU8 *)"mfxImplDescription.mfxVPPDescription.filter.memdesc.format.OutFormats";
     TEST_CFG(MFX_VARIANT_TYPE_U32, U32, MFX_FOURCC_I420);
 }
+#endif

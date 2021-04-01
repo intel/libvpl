@@ -1,5 +1,5 @@
 ::------------------------------------------------------------------------------
-:: Copyright (C) 2020 Intel Corporation
+:: Copyright (C) Intel Corporation
 ::
 :: SPDX-License-Identifier: MIT
 ::------------------------------------------------------------------------------
@@ -39,3 +39,8 @@ IF DEFINED CMAKE_PREFIX_PATH (
   set "CMAKE_PREFIX_PATH=%VPL_PREFIX%"
 )
 set VPL_PREFIX=
+IF DEFINED PKG_CONFIG_PATH (
+  set "PKG_CONFIG_PATH=%VPL_LIB%\pkgconfig;%PKG_CONFIG_PATH%"
+) ELSE (
+  set "PKG_CONFIG_PATH=%VPL_LIB%\pkgconfig"
+)

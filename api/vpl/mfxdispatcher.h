@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) 2020 Intel Corporation
+  # Copyright (C) Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -24,12 +24,16 @@ typedef struct _mfxConfig *mfxConfig;
 /*!
    @brief Creates the loader.
    @return Loader Loader handle or NULL if failed.
+
+   @since This function is available since API version 2.0.
 */
-mfxLoader MFX_CDECL MFXLoad();
+mfxLoader MFX_CDECL MFXLoad(void);
 
 /*!
    @brief Destroys the dispatcher.
    @param[in] loader Loader handle.
+
+   @since This function is available since API version 2.0.
 */
 void MFX_CDECL MFXUnload(mfxLoader loader);
 
@@ -50,6 +54,8 @@ void MFX_CDECL MFXUnload(mfxLoader loader);
             @endcode
    @param[in] loader Loader handle.
    @return Config handle or NULL pointer is failed.
+
+   @since This function is available since API version 2.0.
 */
 mfxConfig MFX_CDECL MFXCreateConfig(mfxLoader loader);
 
@@ -128,6 +134,8 @@ mfxConfig MFX_CDECL MFXCreateConfig(mfxLoader loader);
       MFX_ERR_NULL_PTR    If name is NULL. \n
       MFX_ERR_NOT_FOUND   If name contains unknown parameter name.
       MFX_ERR_UNSUPPORTED If value data type does not equal the parameter with provided name.
+
+   @since This function is available since API version 2.0.
 */
 mfxStatus MFX_CDECL MFXSetConfigFilterProperty(mfxConfig config, const mfxU8* name, mfxVariant value);
 
@@ -144,6 +152,8 @@ mfxStatus MFX_CDECL MFXSetConfigFilterProperty(mfxConfig config, const mfxU8* na
       MFX_ERR_NULL_PTR    If idesc is NULL. \n
       MFX_ERR_NOT_FOUND   Provided index is out of possible range. \n
       MFX_ERR_UNSUPPORTED If requested format is not supported.
+
+   @since This function is available since API version 2.0.
 */
 mfxStatus MFX_CDECL MFXEnumImplementations(mfxLoader loader, mfxU32 i, mfxImplCapsDeliveryFormat format, mfxHDL* idesc);
 
@@ -176,6 +186,8 @@ mfxStatus MFX_CDECL MFXEnumImplementations(mfxLoader loader, mfxU32 i, mfxImplCa
       MFX_ERR_NULL_PTR    If loader is NULL. \n
       MFX_ERR_NULL_PTR    If session is NULL. \n
       MFX_ERR_NOT_FOUND   Provided index is out of possible range.
+
+   @since This function is available since API version 2.0.
 */
 mfxStatus MFX_CDECL MFXCreateSession(mfxLoader loader, mfxU32 i, mfxSession* session);
 
@@ -190,6 +202,8 @@ mfxStatus MFX_CDECL MFXCreateSession(mfxLoader loader, mfxU32 i, mfxSession* ses
       MFX_ERR_NONE           The function completed successfully. \n
       MFX_ERR_NULL_PTR       If loader is NULL. \n
       MFX_ERR_INVALID_HANDLE Provided hdl handle is not associated with this loader.
+
+   @since This function is available since API version 2.0.
 */
 mfxStatus MFX_CDECL MFXDispReleaseImplDescription(mfxLoader loader, mfxHDL hdl);
 

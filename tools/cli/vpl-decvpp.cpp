@@ -14,8 +14,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <vpl/mfxjpeg.h>
 #include "vpl/mfxdispatcher.h"
+#include "vpl/mfxjpeg.h"
 #include "vpl/mfxvideo.h"
 
 #define MAX_PATH   260
@@ -92,18 +92,18 @@ int main(int argc, char *argv[]) {
     mfxSyncPoint syncp                  = { 0 };
     mfxVideoParam vpp_params            = { 0 };
     mfxFrameAllocRequest vpp_request[2] = { 0 };
-    mfxU16 num_surfaces_in              = 0;
-    mfxU16 num_surfaces_out             = 0;
-    mfxU8 *vpp_data_out                 = NULL;
-    mfxU16 out_width                    = 0;
-    mfxU16 out_height                   = 0;
-    mfxU16 input_width                  = 0;
-    mfxU16 input_height                 = 0;
-    mfxU32 surface_size                 = 0;
-    bool is_draining_dec                = false;
-    bool is_draining_vpp                = false;
-    bool is_stillgoing                  = true;
-    mfxU32 framenum                     = 0;
+    //mfxU16 num_surfaces_in              = 0;
+    mfxU16 num_surfaces_out = 0;
+    mfxU8 *vpp_data_out     = NULL;
+    mfxU16 out_width        = 0;
+    mfxU16 out_height       = 0;
+    mfxU16 input_width      = 0;
+    mfxU16 input_height     = 0;
+    mfxU32 surface_size     = 0;
+    bool is_draining_dec    = false;
+    bool is_draining_vpp    = false;
+    bool is_stillgoing      = true;
+    mfxU32 framenum         = 0;
     mfxU16 i;
     int available_surface_index = 0;
 
@@ -137,6 +137,15 @@ int main(int argc, char *argv[]) {
     cfg = MFXCreateConfig(loader);
     VERIFY(NULL != cfg, "MFXCreateConfig failed")
     impl_value.Type     = MFX_VARIANT_TYPE_U32;
+    impl_value.Data.U32 = MFX_IMPL_TYPE_SOFTWARE;
+    sts                 = MFXSetConfigFilterProperty(cfg,
+                                     reinterpret_cast<const mfxU8 *>("mfxImplDescription.Impl"),
+                                     impl_value);
+    VERIFY(MFX_ERR_NONE == sts, "MFXSetConfigFilterProperty failed");
+
+    cfg = MFXCreateConfig(loader);
+    VERIFY(NULL != cfg, "MFXCreateConfig failed")
+    impl_value.Type     = MFX_VARIANT_TYPE_U32;
     impl_value.Data.U32 = GetCodecId(in_codec);
     sts                 = MFXSetConfigFilterProperty(
         cfg,
@@ -144,6 +153,8 @@ int main(int argc, char *argv[]) {
         impl_value);
     VERIFY(MFX_ERR_NONE == sts, "MFXSetConfigFilterProperty failed");
 
+    cfg = MFXCreateConfig(loader);
+    VERIFY(NULL != cfg, "MFXCreateConfig failed")
     impl_value.Type     = MFX_VARIANT_TYPE_U32;
     impl_value.Data.U32 = MFX_EXTBUFF_VPP_SCALING;
     sts                 = MFXSetConfigFilterProperty(
@@ -213,7 +224,6 @@ int main(int argc, char *argv[]) {
     sts = MFXVideoVPP_QueryIOSurf(session, &vpp_params, vpp_request);
     VERIFY(MFX_ERR_NONE == sts, "QueryIOSurf error");
 
-    num_surfaces_in  = vpp_request[0].NumFrameSuggested;
     num_surfaces_out = vpp_request[1].NumFrameSuggested;
     VERIFY(num_surfaces_out, "Sugested output surface count is zero");
 
@@ -524,7 +534,7 @@ char *ValidateFourCC(char *in) {
 
 char *ValidateDigits(char *in) {
     if (in) {
-        for (int i = 0; i < strlen(in); i++) {
+        for (size_t i = 0; i < strlen(in); i++) {
             if (!isdigit(in[i]))
                 return NULL;
         }

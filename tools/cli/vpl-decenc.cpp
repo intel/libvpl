@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) 2020 Intel Corporation
+  # Copyright (C) Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -436,6 +436,9 @@ int main(int argc, char* argv[]) {
     MFXVideoENCODE_Close(session);
     MFXClose(session);
 
+    if (params.dispatcherMode == DISPATCHER_MODE_VPL_20)
+        CloseNewDispatcher();
+
     return 0;
 }
 
@@ -785,7 +788,9 @@ void Usage(void) {
 
     printf("\nDispatcher (default = -dsp1)\n");
     printf("  -dsp1 = legacy dispatcher (MSDK 1.x)\n");
-    printf("  -dsp2 = smart dispatcher (API 2.0)\n");
+    printf("  -dsp2 = smart dispatcher (API %d.%d)\n",
+           DEFAULT_VERSION_MAJOR,
+           DEFAULT_VERSION_MINOR);
 
     printf("\nIn case of AV1, output will be contained with IVF headers.\n");
     printf("To view:\n");
@@ -803,8 +808,8 @@ mfxStatus InitializeSession(Params* params, mfxSession* session) {
         diagnoseText = "MFXInitEx with MFX_IMPL_SOFTWARE while in DISPATCHER_MODE_LEGACY";
         // initialize session
         mfxInitParam initPar   = { 0 };
-        initPar.Version.Major  = 2;
-        initPar.Version.Minor  = 0;
+        initPar.Version.Major  = DEFAULT_VERSION_MAJOR;
+        initPar.Version.Minor  = DEFAULT_VERSION_MINOR;
         initPar.Implementation = MFX_IMPL_SOFTWARE;
 
         sts = MFXInitEx(initPar, *(&session));

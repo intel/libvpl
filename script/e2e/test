@@ -1,0 +1,25 @@
+#!/bin/bash
+###############################################################################
+# Copyright (C) Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+###############################################################################
+# Run basic tests on project.
+
+set -o errexit
+
+
+SCRIPT_DIR="$( cd "$(dirname "${BASH_SOURCE[0]:-$0}")" >/dev/null 2>&1 ; pwd -P )"
+
+# Read command line options
+. "${SCRIPT_DIR}/_buildopts.sh" \
+    --name test \
+    --desc "Run basic tests on project." \
+    -- "$@"
+
+pushd "${ROOT_DIR}"
+    echo "Testing base..."
+    oneVPL/script/test ${FORWARD_OPTS}
+    echo "Testing cpu..."
+    oneVPL-cpu/script/test ${FORWARD_OPTS}
+popd

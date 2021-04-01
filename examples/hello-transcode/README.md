@@ -5,7 +5,7 @@ perform a simple video transcode.
 
 | Optimized for    | Description
 |----------------- | ----------------------------------------
-| OS               | Ubuntu* 18.04; Windows* 10
+| OS               | Ubuntu* 20.04; Windows* 10
 | Hardware         | Intel® Processor Graphics GEN9 or newer
 | Software         | Intel® oneAPI Video Processing Library(oneVPL)
 | What You Will Learn | How to use oneVPL to transcode a MJPEG encoded video file to H.265 encoded video file
@@ -22,7 +22,7 @@ This sample is a command line application that takes a file containing a JPEG vi
 | Configuration     | Default setting
 | ----------------- | ----------------------------------
 | Target device     | CPU
-| Input format      | JPEG video elementary stream
+| Input format      | MJPEG video elementary stream
 | Output format     | H.265 video elementary stream
 | Output resolution | same as input
 
@@ -102,20 +102,12 @@ Perform the following steps:
    ```
 
 
-#### Building the program using VS2017 or VS2019 IDE
-
-1. Install the Intel® oneAPI Base Toolkit for Windows*
-2. Right click on the solution file and open using either VS2017 or VS2019 IDE.
-3. Right click on the project in Solution explorer and select Rebuild.
-4. From top menu select Debug -> Start without Debugging.
-
-
 ## Running the Sample
 
 ### Application Parameters
 
 The instructions given above run the sample executable with the argument
-`<sample_dir>/content/cars_128x96.mjpeg`.
+`-i <sample_dir>/content/cars_128x96.mjpeg`.
 
 
 ### Example of Output

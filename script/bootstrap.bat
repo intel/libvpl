@@ -1,14 +1,22 @@
-::------------------------------------------------------------------------------
-:: Copyright (C) 2020 Intel Corporation
-::
-:: SPDX-License-Identifier: MIT
-::------------------------------------------------------------------------------
-:: start of boilerplate to switch to project root ------------------------------
-@echo off
-SETLOCAL EnableDelayedExpansion
-FOR /D %%i IN ("%~dp0\..") DO (
-	set PROJ_DIR=%%~fi
-)
-cd %PROJ_DIR%
-:: start of commands -----------------------------------------------------------
+@REM ------------------------------------------------------------------------------
+@REM Copyright (C) Intel Corporation
+@REM 
+@REM SPDX-License-Identifier: MIT
+@REM ------------------------------------------------------------------------------
+@REM Build base dependencies.
 
+@ECHO off
+SETLOCAL ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION 
+
+@REM Read command line options
+CALL %~dp0%\_buildopts.bat ^
+    --name "%~n0%" ^
+    --desc "Build base dependencies." ^
+    -- %*
+IF DEFINED HELP_OPT ( EXIT /b 0 )
+
+PUSHD %PROJ_DIR%
+  ECHO No dependencies for base.
+POPD
+
+ENDLOCAL

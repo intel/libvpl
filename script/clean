@@ -1,0 +1,45 @@
+#!/bin/bash
+###############################################################################
+# Copyright (C) Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+###############################################################################
+# Clean base.
+
+set -o errexit
+
+
+SCRIPT_DIR="$( cd "$(dirname "${BASH_SOURCE[0]:-$0}")" >/dev/null 2>&1 ; pwd -P )"
+
+# Read command line options
+. "${SCRIPT_DIR}/_buildopts.sh" \
+    --name clean \
+    --desc "Clean base." \
+    -- "$@"
+
+if [ -n "${BOOTSTRAP_OPT}" ]
+then
+  if [ -e "${VPL_BUILD_DEPENDENCIES}" ]
+  then
+      echo "Cleaning dependencies cache folder..."
+      rm -rf "${VPL_BUILD_DEPENDENCIES}"
+  fi
+fi
+
+pushd "${PROJ_DIR}"
+  if [ -e _deps ]
+  then
+      echo "Cleaning base dependencies folder..."
+      rm -rf _build
+  fi
+  if [ -e _extbuild ]
+  then
+      echo "Cleaning base dependencies build folder..."
+      rm -rf _extbuild
+  fi
+  if [ -e _build ]
+  then
+      echo "Cleaning base build folder..."
+      rm -rf _build
+  fi
+popd

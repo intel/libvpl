@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) 2020 Intel Corporation
+  # Copyright (C) Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -7,12 +7,6 @@
 #include <string>
 #include "./vpl-common.h"
 
-#ifdef ENABLE_VAAPI
-    #include <fcntl.h>
-    #include <unistd.h>
-    #include "va/va.h"
-    #include "va/va_drm.h"
-#endif
 #include "vpl/mfxvideo.h"
 
 #define ALIGN_UP(addr, size) (((addr) + ((size)-1)) & (~((decltype(addr))(size)-1)))
@@ -405,6 +399,9 @@ int main(int argc, char* argv[]) {
     MFXVideoENCODE_Close(session);
     MFXClose(session);
 
+    if (params.dispatcherMode == DISPATCHER_MODE_VPL_20)
+        CloseNewDispatcher();
+
     fclose(fSource);
     fclose(fSink);
 
@@ -499,7 +496,7 @@ mfxStatus LoadRawFrame2(mfxFrameSurface1* pSurface,
                         int bytes_to_read,
                         mfxU8* buf_read,
                         mfxU32 repeat) {
-    mfxU32 nBytesRead = (mfxU32)fread(buf_read, 1, bytes_to_read, f);
+    int nBytesRead = static_cast<int>(fread(buf_read, 1, bytes_to_read, f));
 
     if (bytes_to_read != nBytesRead) {
         if (repeatCount == repeat)
@@ -510,7 +507,7 @@ mfxStatus LoadRawFrame2(mfxFrameSurface1* pSurface,
         }
     }
 
-    mfxU16 w, h, pitch;
+    mfxU16 w, h;
     mfxFrameInfo* pInfo = &pSurface->Info;
     mfxFrameData* pData = &pSurface->Data;
 
@@ -519,24 +516,20 @@ mfxStatus LoadRawFrame2(mfxFrameSurface1* pSurface,
 
     switch (pInfo->FourCC) {
         case MFX_FOURCC_NV12:
-            pitch     = pData->Pitch;
             pData->Y  = buf_read;
             pData->UV = pData->Y + w * h;
             break;
         case MFX_FOURCC_I420:
-            pitch    = pData->Pitch;
             pData->Y = buf_read;
             pData->U = pData->Y + w * h;
             pData->V = pData->U + ((w / 2) * (h / 2));
             break;
 
         case MFX_FOURCC_P010:
-            pitch     = pData->Pitch;
             pData->Y  = buf_read;
             pData->UV = pData->Y + w * 2 * h;
             break;
         case MFX_FOURCC_I010:
-            pitch    = pData->Pitch;
             pData->Y = buf_read;
             pData->U = pData->Y + w * 2 * h;
             pData->V = pData->U + (w * (h / 2));
@@ -544,7 +537,7 @@ mfxStatus LoadRawFrame2(mfxFrameSurface1* pSurface,
 
         case MFX_FOURCC_RGB4:
             // read luminance plane (Y)
-            pitch    = pData->Pitch;
+            //pitch    = pData->Pitch;
             pData->B = buf_read;
             break;
         default:
@@ -914,10 +907,11 @@ bool ParseArgsAndValidate(int argc, char* argv[], Params* params) {
     // init all params to 0
     memset(params, 0, sizeof(Params));
 
+    params->impl = MFX_IMPL_SOFTWARE;
+
     // set any non-zero defaults
     if (!params->memoryMode)
         params->memoryMode = MEM_MODE_EXTERNAL;
-    //if (params->impl == MFX_IMPL_HARDWARE) {
     if (!params->frameRate)
         params->frameRate = 30;
     if (!params->targetUsage)
@@ -926,9 +920,6 @@ bool ParseArgsAndValidate(int argc, char* argv[], Params* params) {
         params->qp = 22;
     if (!params->brcMode)
         params->brcMode = MFX_RATECONTROL_CQP;
-    //}
-    if (!params->impl)
-        params->impl = MFX_IMPL_SOFTWARE;
 
     if (argc < 2)
         return false;
@@ -1051,9 +1042,6 @@ bool ParseArgsAndValidate(int argc, char* argv[], Params* params) {
         else if (IS_ARG_EQ(s, "dsp2")) {
             params->dispatcherMode = DISPATCHER_MODE_VPL_20;
         }
-        else if (IS_ARG_EQ(s, "hw")) {
-            params->impl = MFX_IMPL_HARDWARE;
-        }
         else if (IS_ARG_EQ(s, "scrx")) {
             if (!ValidateSize(argv[idx++], &params->srcCropX, MAX_WIDTH))
                 return false;
@@ -1101,10 +1089,6 @@ bool ParseArgsAndValidate(int argc, char* argv[], Params* params) {
     // handle alignment requirements
     params->srcCropW = params->srcWidth;
     params->srcCropH = params->srcHeight;
-    if (params->impl == MFX_IMPL_HARDWARE) {
-        params->srcWidth  = ALIGN_UP(params->srcCropW, 16);
-        params->srcHeight = ALIGN_UP(params->srcCropH, 16);
-    }
 
     // run basic parameter validation
     return ValidateParams(params);
@@ -1134,12 +1118,11 @@ void Usage(void) {
 
     printf("\nDispatcher (default = -dsp1)\n");
     printf("  -dsp1 = legacy dispatcher (MSDK 1.x)\n");
-    printf("  -dsp2 = smart dispatcher (API 2.0)\n");
+    printf("  -dsp2 = smart dispatcher (API %d.%d)\n",
+           DEFAULT_VERSION_MAJOR,
+           DEFAULT_VERSION_MINOR);
 
     printf("\nImplementation (default = software 2.0 API implementation\n");
-#ifdef ENABLE_VAAPI
-    printf("  -hw = hardware 1.x API implementation via VAAPI\n");
-#endif
 
     printf("\nFrame mode (optional, default = -fpitch)\n");
     printf("  -fpitch = load frame-by-frame (read data per pitch - legacy)\n");
@@ -1165,21 +1148,15 @@ mfxStatus InitializeSession(Params* params, mfxSession* session) {
                 diagnoseText = "MFXInitEx with MFX_IMPL_SOFTWARE in DISPATCHER_MODE_LEGACY";
                 // initialize session
                 mfxInitParam initPar   = { 0 };
-                initPar.Version.Major  = 2;
-                initPar.Version.Minor  = 0;
+                initPar.Version.Major  = DEFAULT_VERSION_MAJOR;
+                initPar.Version.Minor  = DEFAULT_VERSION_MINOR;
                 initPar.Implementation = MFX_IMPL_SOFTWARE;
 
                 sts = MFXInitEx(initPar, session);
             }
             else {
-                diagnoseText = "MFXInitEx with MFX_IMPL_HARDWARE in DISPATCHER_MODE_LEGACY";
-                // initialize session
-                mfxInitParam initPar   = { 0 };
-                initPar.Version.Major  = 1;
-                initPar.Version.Minor  = 0;
-                initPar.Implementation = MFX_IMPL_HARDWARE;
-
-                sts = MFXInitEx(initPar, session);
+                diagnoseText = "Tool does not support MFX_IMPL_HARDWARE mode";
+                sts          = MFX_ERR_UNSUPPORTED;
             }
         } break;
         default:
@@ -1196,30 +1173,6 @@ mfxStatus InitializeSession(Params* params, mfxSession* session) {
         else {
             std::cout << "Error code: " << sts << std::endl;
         }
-    }
-
-    if (MFX_IMPL_HARDWARE == params->impl) {
-#ifdef ENABLE_VAAPI
-        // initialize VAAPI context and set session handle (req in Linux)
-        sts    = MFX_ERR_NOT_INITIALIZED;
-        int fd = open("/dev/dri/renderD128", O_RDWR);
-        if (fd >= 0) {
-            VADisplay va_dpy = vaGetDisplayDRM(fd);
-            if (va_dpy) {
-                int major_version = 0, minor_version = 0;
-                if (VA_STATUS_SUCCESS == vaInitialize(va_dpy, &major_version, &minor_version)) {
-                    sts = MFX_ERR_NONE;
-                    MFXVideoCORE_SetHandle(*session,
-                                           static_cast<mfxHandleType>(MFX_HANDLE_VA_DISPLAY),
-                                           va_dpy);
-                }
-            }
-        }
-        else {
-            puts("Could not could not find a valid VAAPI interface");
-        }
-
-#endif
     }
 
     return sts;

@@ -7,7 +7,7 @@
 #ifndef DISPATCHER_WINDOWS_MFX_CRITICAL_SECTION_H_
 #define DISPATCHER_WINDOWS_MFX_CRITICAL_SECTION_H_
 
-#include <vpl/mfxdefs.h>
+#include "vpl/mfxdefs.h"
 
 namespace MFX {
 

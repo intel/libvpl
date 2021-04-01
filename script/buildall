@@ -1,0 +1,22 @@
+#!/bin/bash
+###############################################################################
+# Copyright (C) Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+###############################################################################
+# Unified Build (Depricated, use e2e build).
+
+set -o errexit
+
+
+# Set script folder
+SCRIPT_DIR="$( cd "$(dirname "${BASH_SOURCE[0]:-$0}")" >/dev/null 2>&1 ; pwd -P )"
+
+
+if [ -z "${VPL_INSTALL_DIR}" ]
+then
+  VPL_INSTALL_DIR=$(pwd)/_vplbuild
+  export VPL_INSTALL_DIR
+fi
+
+"${SCRIPT_DIR}/e2e/build" "$@" --bootstrap

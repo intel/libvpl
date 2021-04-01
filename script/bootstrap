@@ -1,12 +1,22 @@
 #!/bin/bash
 ###############################################################################
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 ###############################################################################
-## start of boilerplate to switch to project root ------------------------------
-script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-proj_dir="$( dirname "${script_dir}" )"
-cd ${proj_dir}
-## start of commands -----------------------------------------------------------
+# Build base dependencies.
 
+set -o errexit
+
+
+SCRIPT_DIR="$( cd "$(dirname "${BASH_SOURCE[0]:-$0}")" >/dev/null 2>&1 ; pwd -P )"
+
+# Read command line options
+. "${SCRIPT_DIR}/_buildopts.sh" \
+    --name bootstrap \
+    --desc "Build base dependencies." \
+    -- "$@"
+
+pushd "${PROJ_DIR}"
+    echo "No dependencies for base."
+popd

@@ -1,0 +1,27 @@
+#!/bin/bash
+###############################################################################
+# Copyright (C) Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+###############################################################################
+# Build project dependencies.
+
+set -o errexit
+
+
+SCRIPT_DIR="$( cd "$(dirname "${BASH_SOURCE[0]:-$0}")" >/dev/null 2>&1 ; pwd -P )"
+
+# Read command line options
+. "${SCRIPT_DIR}/_buildopts.sh" \
+    --name bootstrap \
+    --desc "Build project dependencies." \
+    -- "$@"
+
+echo "Building project dependencies..."
+
+pushd "${ROOT_DIR}"
+    echo "Building base dependencies build folder..."
+    . oneVPL/script/bootstrap ${FORWARD_OPTS}
+    echo "Building cpu dependencies build folder..."
+    . oneVPL-cpu/script/bootstrap ${FORWARD_OPTS}
+popd

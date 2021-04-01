@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) 2020 Intel Corporation
+  # Copyright (C) Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -7,19 +7,13 @@
 #include <string>
 #include "./vpl-common.h"
 
-#ifdef ENABLE_VAAPI
-    #include <fcntl.h>
-    #include <unistd.h>
-    #include "va/va.h"
-    #include "va/va_drm.h"
-#endif
 #include "vpl/mfxvideo.h"
 
 #define MAX_LENGTH             260
 #define MAX_WIDTH              3840
 #define MAX_HEIGHT             2160
 #define MAX_BS_BUFFER_SIZE     64 * 1024 * 1024
-#define DEFAULT_BS_BUFFER_SIZE 2 * 1024 * 21024
+#define DEFAULT_BS_BUFFER_SIZE 2 * 1024 * 1024
 
 #define IS_ARG_EQ(a, b) (!strcmp((a), (b)))
 mfxU32 repeatCount = 0;
@@ -42,6 +36,16 @@ void Usage(void);
 mfxStatus InitializeSession(Params* params, mfxSession* session);
 void PrintDecParams(mfxVideoParam* mfxDecParams);
 void PrintFrameParams(mfxFrameSurface1* frame);
+
+// A callback function which is triggered by mfxFrameSurfaceInterface::OnComplete()
+// when decoded frame is ready
+static void cb_OnComplete(mfxStatus sts) {
+    // printf("%d\n", sts);
+    return;
+}
+
+typedef void (*VplCallback)(mfxStatus sts);
+VplCallback on_complete;
 
 int main(int argc, char* argv[]) {
     if (argc < 2) {
@@ -76,6 +80,8 @@ int main(int argc, char* argv[]) {
         printf("could not create output file, %s\n", params.outfileName);
         return 1;
     }
+
+    on_complete = cb_OnComplete;
 
     mfxStatus sts      = MFX_ERR_NOT_INITIALIZED;
     mfxSession session = nullptr;
@@ -131,6 +137,11 @@ int main(int argc, char* argv[]) {
         mfxDecParams.mfx.CodecId = params.srcFourCC;
         mfxDecParams.IOPattern   = MFX_IOPATTERN_OUT_SYSTEM_MEMORY;
         sts                      = MFXVideoDECODE_DecodeHeader(session, &mfxBS, &mfxDecParams);
+
+        // disable film-grain denoise
+        if (params.filmGrain == 0) {
+            mfxDecParams.mfx.FilmGrain = 0;
+        }
 
         //only MFX_CHROMAFORMAT_YUV420 in I420 and I010 colorspaces allowed
         switch (mfxDecParams.mfx.FrameInfo.FourCC) {
@@ -245,18 +256,23 @@ int main(int argc, char* argv[]) {
             nIndex = GetFreeSurfaceIndex(decSurfaces, nSurfNumDec);
         }
 
+        pmfxWorkSurface = nullptr;
         while (stillgoing) {
             // submit async decode request
-            pmfxWorkSurface = nullptr;
-            auto t0         = std::chrono::high_resolution_clock::now();
+            auto t0 = std::chrono::high_resolution_clock::now();
             if (params.memoryMode == MEM_MODE_EXTERNAL) {
                 pmfxWorkSurface = &decSurfaces[nIndex];
             }
             else if (params.memoryMode == MEM_MODE_INTERNAL) {
-                sts = MFXMemory_GetSurfaceForDecode(session, &pmfxWorkSurface);
-                if (sts) {
-                    printf("Error in GetSurfaceForDecode: sts=%d\n", sts);
-                    exit(1);
+                // if previous call to DecodeFrameAsync() returned a non-fatal error
+                //   (e.g. MFX_ERR_MORE_DATA = needs more bitstream data) then send the same work surface again
+                if (!pmfxWorkSurface) {
+                    sts = MFXMemory_GetSurfaceForDecode(session, &pmfxWorkSurface);
+                    if (sts) {
+                        printf("Error in GetSurfaceForDecode: sts=%d\n", sts);
+                        exit(1);
+                    }
+                    pmfxWorkSurface->FrameInterface->OnComplete = on_complete;
                 }
             }
             else if (params.memoryMode == MEM_MODE_AUTO) {
@@ -276,17 +292,14 @@ int main(int argc, char* argv[]) {
             switch (sts) {
                 case MFX_ERR_MORE_DATA: // more data is needed to decode
                     ReadEncodedStream(mfxBS, params.srcFourCC, fSource, params.repeat);
-                    if (mfxBS.DataLength == 0)
+                    if (mfxBS.DataLength == 0) {
                         if (isdraining == true) {
                             stillgoing = false; // stop if end of file and all drained
                         }
                         else {
                             isdraining = true;
                         }
-
-                    if (params.memoryMode == MEM_MODE_INTERNAL)
-                        pmfxWorkSurface->FrameInterface->Release(pmfxWorkSurface);
-
+                    }
                     break;
                 case MFX_ERR_MORE_SURFACE: // feed a fresh surface to decode
                     if (params.memoryMode == MEM_MODE_EXTERNAL) {
@@ -406,7 +419,7 @@ int main(int argc, char* argv[]) {
         }
 
         framenum++;
-        if (params.maxFrames && framenum >= params.maxFrames)
+        if (params.maxFrames && framenum >= static_cast<int>(params.maxFrames))
             break;
     }
 
@@ -432,6 +445,10 @@ int main(int argc, char* argv[]) {
 
     MFXVideoDECODE_Close(session);
     MFXClose(session);
+
+    if (params.dispatcherMode == DISPATCHER_MODE_VPL_20)
+        CloseNewDispatcher();
+
     return 0;
 }
 
@@ -776,6 +793,7 @@ bool ParseArgsAndValidate(int argc, char* argv[], Params* params) {
     params->memoryMode     = MEM_MODE_EXTERNAL;
     params->dispatcherMode = DISPATCHER_MODE_LEGACY;
     params->impl           = MFX_IMPL_SOFTWARE;
+    params->filmGrain      = -1; // auto
 
     if (argc < 2)
         return false;
@@ -898,9 +916,6 @@ bool ParseArgsAndValidate(int argc, char* argv[], Params* params) {
         else if (IS_ARG_EQ(s, "dsp2")) {
             params->dispatcherMode = DISPATCHER_MODE_VPL_20;
         }
-        else if (IS_ARG_EQ(s, "hw")) {
-            params->impl = MFX_IMPL_HARDWARE;
-        }
         else if (IS_ARG_EQ(s, "scrx")) {
             if (!ValidateSize(argv[idx++], &params->srcCropX, MAX_WIDTH))
                 return false;
@@ -938,6 +953,11 @@ bool ParseArgsAndValidate(int argc, char* argv[], Params* params) {
             str_upper(params->outResolution,
                       static_cast<int>(strlen(params->outResolution))); // to upper case
         }
+        else if (IS_ARG_EQ(s, "fg")) {
+            params->filmGrain = atoi(argv[idx++]);
+            if (params->filmGrain < 0 || params->filmGrain > 1)
+                return false;
+        }
         else {
             printf("ERROR - invalid argument: %s\n", argv[idx]);
             return false;
@@ -957,7 +977,7 @@ void Usage(void) {
     printf("  -rp    repeat        ... number of times to repeat decoding\n");
     printf("  -sbs   bsbufSize     ... source bitstream buffer size (bytes)\n");
     printf("  -v     verbose       ... verbose output for debug\n");
-
+    printf("  -fg    filmgrain     ... film-grain denoise (0: disable, 1: enable)\n");
     printf("\nMemory model (default = -ext)\n");
     printf("  -ext  = external memory (1.0 style)\n");
     printf("  -int  = internal memory with MFXMemory_GetSurfaceForDecode\n");
@@ -965,12 +985,11 @@ void Usage(void) {
 
     printf("\nDispatcher (default = -dsp1)\n");
     printf("  -dsp1 = legacy dispatcher (MSDK 1.x)\n");
-    printf("  -dsp2 = smart dispatcher (API 2.0)\n");
+    printf("  -dsp2 = smart dispatcher (API %d.%d)\n",
+           DEFAULT_VERSION_MAJOR,
+           DEFAULT_VERSION_MINOR);
 
     printf("\nImplementation (default = software\n");
-#ifdef ENABLE_VAAPI
-    printf("  -hw = hardware 1.x API implementation via VAAPI\n");
-#endif
 
     printf("\nMore for resolution change test\n");
     printf(
@@ -995,44 +1014,15 @@ mfxStatus InitializeSession(Params* params, mfxSession* session) {
                 diagnoseText = "MFXInitEx with MFX_IMPL_SOFTWARE in DISPATCHER_MODE_LEGACY";
                 // initialize session
                 mfxInitParam initPar   = { 0 };
-                initPar.Version.Major  = 2;
-                initPar.Version.Minor  = 0;
+                initPar.Version.Major  = DEFAULT_VERSION_MAJOR;
+                initPar.Version.Minor  = DEFAULT_VERSION_MINOR;
                 initPar.Implementation = MFX_IMPL_SOFTWARE;
 
                 sts = MFXInitEx(initPar, session);
             }
             else {
-                diagnoseText = "MFXInitEx with MFX_IMPL_HARDWARE in DISPATCHER_MODE_LEGACY";
-                // initialize session
-                mfxInitParam initPar   = { 0 };
-                initPar.Version.Major  = 1;
-                initPar.Version.Minor  = 0;
-                initPar.Implementation = MFX_IMPL_HARDWARE;
-
-                sts = MFXInitEx(initPar, session);
-#ifdef ENABLE_VAAPI
-                // initialize VAAPI context and set session handle (req in Linux)
-                sts    = MFX_ERR_NOT_INITIALIZED;
-                int fd = open("/dev/dri/renderD128", O_RDWR);
-                if (fd >= 0) {
-                    VADisplay va_dpy = vaGetDisplayDRM(fd);
-                    if (va_dpy) {
-                        int major_version = 0, minor_version = 0;
-                        if (VA_STATUS_SUCCESS ==
-                            vaInitialize(va_dpy, &major_version, &minor_version)) {
-                            sts = MFX_ERR_NONE;
-                            MFXVideoCORE_SetHandle(
-                                *session,
-                                static_cast<mfxHandleType>(MFX_HANDLE_VA_DISPLAY),
-                                va_dpy);
-                        }
-                    }
-                }
-                else {
-                    puts("Could not could not find a valid VAAPI interface");
-                }
-
-#endif
+                diagnoseText = "Tool does not support MFX_IMPL_HARDWARE mode";
+                sts          = MFX_ERR_UNSUPPORTED;
             }
         } break;
         default:

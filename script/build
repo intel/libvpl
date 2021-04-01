@@ -4,42 +4,44 @@
 #
 # SPDX-License-Identifier: MIT
 ###############################################################################
-## start of boilerplate to switch to project root ------------------------------
-script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-proj_dir="$( dirname "${script_dir}" )"
-cd "${proj_dir}"
+# Build base.
+
 set -o errexit
 
-## Read options -----------------------------------------------------------
-BUILD_MODE="Release"
 
-while [ "$1" != "" ]; do
-    case $1 in
-        debug )
-            BUILD_MODE="Debug"
-            ;;
-        * )
-            echo "usage: build [debug]"
-            exit 1
-    esac
-    shift
-done
+SCRIPT_DIR="$( cd "$(dirname "${BASH_SOURCE[0]:-$0}")" >/dev/null 2>&1 ; pwd -P )"
 
-## start of commands -----------------------------------------------------------
-CMAKE_BINARY_DIR=_build
-if [ -n "$VPL_INSTALL_DIR" ]; then
-  INSTALL_OPTS=-DCMAKE_INSTALL_PREFIX="${VPL_INSTALL_DIR}"
+# Read command line options
+. "${SCRIPT_DIR}/_buildopts.sh" \
+    --name build \
+    --desc "Build base." \
+    -- "$@"
+
+if [ -n "${BOOTSTRAP_OPT}" ]
+then
+  echo "Building dependencies..."
+  "${SCRIPT_DIR}/bootstrap" ${FORWARD_OPTS}
 fi
 
-mkdir -p ${CMAKE_BINARY_DIR}
-cd ${CMAKE_BINARY_DIR}
+if [ -n "${VPL_INSTALL_DIR}" ]
+then
+  mkdir -p "${VPL_INSTALL_DIR}"
+  INSTALL_PREFIX_CM_OPT="-DCMAKE_INSTALL_PREFIX=${VPL_INSTALL_DIR}"
+fi
 
-cmake ${INSTALL_OPTS} -DCMAKE_BUILD_TYPE=${BUILD_MODE} ..
+COFIG_CM_OPT="-DCMAKE_BUILD_TYPE=${COFIG_OPT}"
 
-make -j $(nproc)
+pushd "${PROJ_DIR}"
+  BUILD_DIR=_build
+  mkdir -p "${BUILD_DIR}"
+  pushd "${BUILD_DIR}"
+    cmake "${INSTALL_PREFIX_CM_OPT}" "${COFIG_CM_OPT}" ..
+    make -j "$(nproc)" VERBOSE=1
+    cmake --build . --config "${COFIG_OPT}" --target package
+  popd
+popd
 
-cmake --build . --config ${BUILD_MODE} --target package
-
-if [ -n "$TEAMCITY_VERSION" ]; then
-  echo "##teamcity[publishArtifacts 'oneVPL/${CMAKE_BINARY_DIR}/*-all.zip=>']"
+# Signal to CI system 
+if [ -n "${TEAMCITY_VERSION}" ]; then
+  echo "##teamcity[publishArtifacts 'oneVPL/${BUILD_DIR}/*-all.zip=>']"
 fi

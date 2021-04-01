@@ -5,7 +5,7 @@ perform a simple video encode.
 
 | Optimized for    | Description
 |----------------- | ----------------------------------------
-| OS               | Ubuntu* 18.04; Windows* 10
+| OS               | Ubuntu* 20.04; Windows* 10
 | Hardware         | Intel® Processor Graphics GEN9 or newer
 | Software         | Intel® oneAPI Video Processing Library(oneVPL)
 | What You Will Learn | How to use oneVPL to encode an raw video file to H.265
@@ -15,9 +15,10 @@ perform a simple video encode.
 ## Purpose
 
 This sample is a command line application that takes a file containing a raw
-I420 format video elementary stream as an argument, encodes it with oneVPL and
+format video elementary stream as an argument, encodes it with oneVPL and
 writes the encoded output to `out.h265` in H.265 format.
 
+Native raw frame format: CPU=I420, GPU=NV12.
 
 ## Key Implementation details
 
@@ -104,20 +105,12 @@ Perform the following steps:
    ```
 
 
-#### Building the program using VS2017 or VS2019 IDE
-
-1. Install the Intel® oneAPI Base Toolkit for Windows*
-2. Right click on the solution file and open using either VS2017 or VS2019 IDE.
-3. Right click on the project in Solution explorer and select Rebuild.
-4. From top menu select Debug -> Start without Debugging.
-
-
 ## Running the Sample
 
 ### Application Parameters
 
 The instructions given above run the sample executable with the arguments
-`<sample_dir>/content/cars_128x96.i420 128 96`.
+`-i <sample_dir>/content/cars_128x96.i420 -w 128 -h 96`.
 
 
 ### Example of Output

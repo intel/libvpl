@@ -1,5 +1,5 @@
 # ##############################################################################
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 # ##############################################################################
@@ -8,9 +8,8 @@ cmake_minimum_required(VERSION 3.10.2)
 
 file(STRINGS "version.txt" version_txt)
 project(oneVPL VERSION ${version_txt})
-if(NOT "${CMAKE_SIZEOF_VOID_P}" STREQUAL "8")
-  message(FATAL_ERROR "Unsupported architecture: only 64-bit supported")
-endif()
+
+set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 #
 # Project configuration options
@@ -28,7 +27,7 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 # Project options
-option(OPTION_BUILD_EXAMPLES "Build examples." OFF)
+option(OPTION_COMPILE_PREVIEW_EXAMPLES "Build examples." OFF)
 
 # Set output directories
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
@@ -46,11 +45,8 @@ add_subdirectory(api)
 add_subdirectory(dispatcher)
 add_subdirectory(env)
 add_subdirectory(modulefiles)
-add_subdirectory(tools/cli)
-add_subdirectory(examples/hello-decode)
-add_subdirectory(examples/hello-encode)
-add_subdirectory(examples/hello-vpp)
-add_subdirectory(examples/hello-transcode)
+add_subdirectory(tools)
+add_subdirectory(examples)
 
 install(
   FILES third-party-programs.txt

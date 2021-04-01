@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) 2020 Intel Corporation
+  # Copyright (C) Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -7,6 +7,7 @@
 #ifndef DISPATCHER_VPL_MFX_DISPATCHER_VPL_H_
 #define DISPATCHER_VPL_MFX_DISPATCHER_VPL_H_
 
+#include <algorithm>
 #include <list>
 #include <memory>
 #include <sstream>
@@ -19,6 +20,8 @@
     #include <windows.h>
 
     #include "windows/mfx_dispatcher.h"
+    #include "windows/mfx_dispatcher_defs.h"
+    #include "windows/mfx_library_iterator.h"
     #include "windows/mfx_load_dll.h"
 
     // use wide char on Windows
@@ -37,6 +40,13 @@ typedef std::string STRING_TYPE;
 typedef char CHAR_TYPE;
 #endif
 
+#define MSDK_MIN_VERSION_MAJOR 1
+#define MSDK_MIN_VERSION_MINOR 0
+
+#define MAX_MSDK_ACCEL_MODES 16 // see mfxcommon.h --> mfxAccelerationMode
+
+#define MAX_WINDOWS_ADAPTER_ID 3 // check adapterID in range [0,3]
+
 #define MAX_VPL_SEARCH_PATH 4096
 
 // OS-specific environment variables for implementation
@@ -51,12 +61,35 @@ typedef char CHAR_TYPE;
     #define ENV_OS_PATH             "LD_LIBRARY_PATH"
 #endif
 
+#define TAB_SIZE(type, tab) (sizeof(tab) / sizeof(type))
+#define MAKE_MFX_VERSION(major, minor) \
+    { (minor), (major) }
+
+// internal flag for MSDK compatibility mode (loading via MFXLoad)
+// do not specify accelerator mode (see MFXInitEx2 default path)
+enum { MFX_ACCEL_MODE_VIA_HW_ANY = 0x7FFFFFFF };
+
 // internal function to load dll by full path, fail if unsuccessful
-mfxStatus MFXInitEx2(mfxInitParam par, mfxSession* session, CHAR_TYPE* dllName);
+mfxStatus MFXInitEx2(mfxVersion version,
+                     mfxInitializationParam vplParam,
+                     mfxIMPL hwImpl,
+                     mfxSession* session,
+                     mfxU16* deviceID,
+                     CHAR_TYPE* dllName);
 
 typedef void(MFX_CDECL* VPLFunctionPtr)(void);
 
+enum LibType {
+    LibTypeUnknown = -1,
+
+    LibTypeVPL = 0,
+    LibTypeMSDK,
+
+    NumLibTypes
+};
+
 enum VPLFunctionIdx {
+    // 2.0
     IdxMFXQueryImplsDescription = 0,
     IdxMFXReleaseImplDescription,
     IdxMFXMemory_GetSurfaceForVPP,
@@ -64,7 +97,24 @@ enum VPLFunctionIdx {
     IdxMFXMemory_GetSurfaceForDecode,
     IdxMFXInitialize,
 
+    // 2.1
+    IdxMFXMemory_GetSurfaceForVPPOut,
+    IdxMFXVideoDECODE_VPP_Init,
+    IdxMFXVideoDECODE_VPP_DecodeFrameAsync,
+    IdxMFXVideoDECODE_VPP_Reset,
+    IdxMFXVideoDECODE_VPP_GetChannelParam,
+    IdxMFXVideoDECODE_VPP_Close,
+    IdxMFXVideoVPP_ProcessFrameAsync,
+
     NumVPLFunctions
+};
+
+// select MSDK functions for 1.x style caps query
+enum MSDKCompatFunctionIdx {
+    IdxMFXInitEx = 0,
+    IdxMFXClose,
+
+    NumMSDKFunctions
 };
 
 // both Windows and Linux use char* for function names
@@ -135,6 +185,16 @@ struct VPPConfig {
     mfxU32 OutFormat;
 };
 
+// special props which are passed in via MFXSetConfigProperty()
+// these are updated with every call to ValidateConfig() and may
+//   be used in MFXCreateSession()
+struct SpecialConfig {
+    mfxHandleType deviceHandleType;
+    mfxHDL deviceHandle;
+    mfxAccelerationMode accelerationMode;
+    mfxVersion ApiVersion;
+};
+
 // config class implementation
 class ConfigCtxVPL {
 public:
@@ -146,7 +206,10 @@ public:
 
     // compare library caps vs. set of configuration filters
     static mfxStatus ValidateConfig(mfxImplDescription* libImplDesc,
-                                    std::list<ConfigCtxVPL*> configCtxList);
+                                    mfxImplementedFunctions* libImplFuncs,
+                                    std::list<ConfigCtxVPL*> configCtxList,
+                                    LibType libType,
+                                    SpecialConfig* specialConfig);
 
     // loader object this config is associated with - needed to
     //   rebuild valid implementation list after each calling
@@ -184,6 +247,8 @@ private:
 
     static mfxStatus CheckPropsVPP(mfxVariant cfgPropsAll[], std::list<VPPConfig> vppConfigList);
 
+    static mfxStatus CheckPropString(mfxChar* implString, std::string filtString);
+
     std::string m_propName;
     mfxVariant m_propValue;
     mfxI32 m_propIdx;
@@ -192,6 +257,57 @@ private:
     // special containers for properties which are passed by pointer
     //   (save a copy of the whole object based on m_propName)
     mfxRange32U m_propRange32U;
+    std::string m_implName;
+    std::string m_implLicense;
+    std::string m_implKeywords;
+    std::string m_implFunctionName;
+};
+
+// MSDK compatibility loader implementation
+class LoaderCtxMSDK {
+public:
+    LoaderCtxMSDK();
+    ~LoaderCtxMSDK();
+
+    // public function to be called by VPL dispatcher
+    // do not allocate any new memory here, so no need for a matching Release functions
+    mfxStatus QueryMSDKCaps(STRING_TYPE libNameFull,
+                            mfxImplDescription** implDesc,
+                            mfxImplementedFunctions** implFuncs,
+                            mfxIMPL* msdkAdapter);
+
+    // required by MFXCreateSession
+    mfxIMPL msdkAdapter;
+
+private:
+    // session management
+    mfxStatus OpenSession(mfxSession* session,
+                          STRING_TYPE libNameFull,
+                          mfxAccelerationMode accelMode,
+                          mfxIMPL hwImpl);
+    void CloseSession(mfxSession* session);
+
+    // utility functions
+    mfxAccelerationMode CvtAccelType(mfxIMPL implType, mfxIMPL implMethod);
+    mfxStatus GetDefaultAccelType(mfxU32 adapterID, mfxIMPL* implDefault);
+    mfxStatus CheckAccelType(mfxU32 adapterID, mfxIMPL implTest);
+
+    // internal state variables
+    STRING_TYPE m_libNameFull;
+    mfxImplDescription m_id; // base description struct
+    mfxAccelerationMode m_accelMode[MAX_MSDK_ACCEL_MODES];
+    mfxU16 m_loaderDeviceID;
+
+    __inline bool IsVersionSupported(mfxVersion reqVersion, mfxVersion actualVersion) {
+        if (actualVersion.Major > reqVersion.Major) {
+            return true;
+        }
+        else if ((actualVersion.Major == reqVersion.Major) &&
+                 (actualVersion.Minor >= reqVersion.Minor)) {
+            return true;
+        }
+        return false;
+    }
 };
 
 struct LibInfo {
@@ -200,14 +316,32 @@ struct LibInfo {
     STRING_TYPE libNameFull;
     STRING_TYPE libNameBase;
     mfxU32 libPriority;
+    LibType libType;
 
     // if valid library, store file handle
     //   and table of exported functions
     void* hModuleVPL;
     VPLFunctionPtr vplFuncTable[NumVPLFunctions]; // NOLINT
 
+    // select MSDK functions for 1.x style caps query
+    VPLFunctionPtr msdkFuncTable[NumMSDKFunctions]; // NOLINT
+    class LoaderCtxMSDK* msdkCtx;
+
     // avoid warnings
-    LibInfo() : libNameFull(), libNameBase(), libPriority(0), hModuleVPL(nullptr), vplFuncTable() {}
+    LibInfo()
+            : libNameFull(),
+              libNameBase(),
+              libPriority(0),
+              libType(LibTypeUnknown),
+              hModuleVPL(nullptr),
+              vplFuncTable(),
+              msdkFuncTable(),
+              msdkCtx() {}
+
+    ~LibInfo() {
+        if (msdkCtx)
+            delete msdkCtx;
+    }
 };
 
 struct ImplInfo {
@@ -217,14 +351,15 @@ struct ImplInfo {
     // description of implementation
     mfxHDL implDesc;
 
+    // list of implemented functions
+    mfxHDL implFuncs;
+
     // used for session initialization with this implementation
-    mfxInitParam initPar;
+    mfxInitializationParam vplParam;
+    mfxVersion version;
 
     // local index for libraries with more than one implementation
     mfxU32 libImplIdx;
-
-    // globally unique index assigned after querying implementation
-    mfxU32 vplImplIdx;
 
     // index of valid libraries - updates with every call to MFXSetConfigFilterProperty()
     mfxI32 validImplIdx;
@@ -233,9 +368,10 @@ struct ImplInfo {
     ImplInfo()
             : libInfo(nullptr),
               implDesc(nullptr),
-              initPar(),
+              implFuncs(nullptr),
+              vplParam(),
+              version(),
               libImplIdx(0),
-              vplImplIdx(0),
               validImplIdx(-1) {}
 };
 
@@ -257,6 +393,7 @@ public:
 
     // update list of valid implementations based on current filter props
     mfxStatus UpdateValidImplList(void);
+    mfxStatus PrioritizeImplList(void);
 
     // create mfxSession
     mfxStatus CreateSession(mfxU32 idx, mfxSession* session);
@@ -267,10 +404,19 @@ public:
 
 private:
     // helper functions
+    mfxStatus LoadSingleLibrary(LibInfo* libInfo);
+    mfxStatus UnloadSingleLibrary(LibInfo* libInfo);
+    mfxStatus UnloadSingleImplementation(ImplInfo* implInfo);
+    VPLFunctionPtr GetFunctionAddr(void* hModuleVPL, const char* pName);
+
     mfxU32 ParseEnvSearchPaths(const CHAR_TYPE* envVarName, std::list<STRING_TYPE>& searchDirs);
+    mfxU32 ParseLegacySearchPaths(std::list<STRING_TYPE>& searchDirs);
+
     mfxStatus SearchDirForLibs(STRING_TYPE searchDir,
                                std::list<LibInfo*>& libInfoList,
                                mfxU32 priority);
+
+    mfxStatus ValidateAPIExports(VPLFunctionPtr* vplFuncTable, mfxVersion reportedVersion);
 
     std::list<LibInfo*> m_libInfoList;
     std::list<ImplInfo*> m_implInfoList;
@@ -279,9 +425,13 @@ private:
     std::list<STRING_TYPE> m_userSearchDirs;
     std::list<STRING_TYPE> m_packageSearchDirs;
     std::list<STRING_TYPE> m_pathSearchDirs;
+    std::list<STRING_TYPE> m_legacySearchDirs;
     STRING_TYPE m_vplPackageDir;
+    STRING_TYPE m_driverStoreDir;
+    SpecialConfig m_specialConfig;
 
     mfxU32 m_implIdxNext;
+    bool m_bKeepCapsUntilUnload;
 };
 
 #endif // DISPATCHER_VPL_MFX_DISPATCHER_VPL_H_

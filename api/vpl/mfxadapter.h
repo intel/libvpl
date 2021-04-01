@@ -29,6 +29,8 @@ extern "C"
    @p input_info or adapters pointer is NULL. \n
    MFX_ERR_NOT_FOUND  No suitable adapters found. \n
    MFX_WRN_OUT_OF_RANGE  Not enough memory to report back entire list of adapters. In this case as many adapters as possible will be returned.
+
+   @since This function is available since API version 1.31.
 */
 mfxStatus MFX_CDECL MFXQueryAdapters(mfxComponentInfo* input_info, mfxAdaptersInfo* adapters);
 
@@ -45,6 +47,8 @@ mfxStatus MFX_CDECL MFXQueryAdapters(mfxComponentInfo* input_info, mfxAdaptersIn
    MFX_ERR_NULL_PTR  bitstream or @p adapters pointer is NULL. \n
    MFX_ERR_NOT_FOUND No suitable adapters found. \n
    MFX_WRN_OUT_OF_RANGE Not enough memory to report back entire list of adapters. In this case as many adapters as possible will be returned.
+
+   @since This function is available since API version 1.31.
 */
 mfxStatus MFX_CDECL MFXQueryAdaptersDecode(mfxBitstream* bitstream, mfxU32 codec_id, mfxAdaptersInfo* adapters);
 
@@ -57,6 +61,8 @@ mfxStatus MFX_CDECL MFXQueryAdaptersDecode(mfxBitstream* bitstream, mfxU32 codec
    @return
    MFX_ERR_NONE The function completed successfully. \n
    MFX_ERR_NULL_PTR  num_adapters pointer is NULL.
+
+   @since This function is available since API version 1.31.
 */
 mfxStatus MFX_CDECL MFXQueryAdaptersNumber(mfxU32* num_adapters);
 #ifdef __cplusplus

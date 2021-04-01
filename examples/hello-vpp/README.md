@@ -1,11 +1,11 @@
 # `hello-vpp` Sample
 
 This sample shows how to use the oneAPI Video Processing Library (oneVPL) to
-perform simple video processing.
+perform simple video processing using 2.x enhanced programming model APIs.
 
 | Optimized for       | Description
 |-------------------- | ----------------------------------------
-| OS                  | Ubuntu* 18.04; Windows* 10
+| OS                  | Ubuntu* 20.04; Windows* 10
 | Hardware            | Intel® Processor Graphics GEN9 or newer
 | Software            | Intel® oneAPI Video Processing Library(oneVPL)
 | What You Will Learn | How to use oneVPL to resize an I420 raw video file
@@ -15,14 +15,15 @@ perform simple video processing.
 
 This sample is a command line application that takes a file containing a raw
 I420 format video elementary stream as an argument, processes it with oneVPL
-writes the resized output to `out.i420` in I420 raw video format.
+writes the resized output to `out.raw` in raw video format.
 
+Native raw frame format: CPU=I420, GPU=NV12.
 
 | Configuration     | Default setting
 | ----------------- | ----------------------------------
 | Target device     | CPU
 | Input format      | I420
-| Output format     | I420
+| Output format     | BGRA raw video elementary stream
 | Output resolution | 640 x 480
 
 ## License
@@ -100,35 +101,30 @@ Perform the following steps:
    ```
 
 
-#### Building the program using VS2017 or VS2019 IDE
-
-1. Install the Intel® oneAPI Base Toolkit for Windows*
-2. Right click on the solution file and open using either VS2017 or VS2019 IDE.
-3. Right click on the project in Solution explorer and select Rebuild.
-4. From top menu select Debug -> Start without Debugging.
-
-
 ## Running the Sample
 
 ### Application Parameters
 
 The instructions given above run the sample executable with the argument
-`<sample_dir>/content/cars_128x96.i420 128 96`.
+`-i examples/content/cars_128x96.i420 128 96`.
 
 
 ### Example of Output
 
 ```
-Processing hello-vpp/content/cars_128x96.i420 -> out.i420
+Implementation info
+      version = 2.2
+      impl = Software
+Processing hello-vpp/../content/cars_128x96.i420 -> out.raw
 Processed 60 frames
 
 ```
 
-You can find the output file `out.i420` in the build directory and its size is `640x480`.
+You can find the output file `out.raw` in the build directory and its size is `640x480`.
 
 You can display the output with a video player that supports raw streams such as
 FFplay. You can use the following command to display the output with FFplay:
 
 ```
-ffplay -video_size 640x480 -pixel_format yuv420p -f rawvideo out.i420
+ffplay -video_size 640x480 -pixel_format yuv420p -f rawvideo out.raw
 ```

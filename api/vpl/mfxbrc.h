@@ -76,7 +76,7 @@ enum {
     MFX_BRC_PANIC_SMALL_FRAME = 4  /*!< Coded frame is too small, no further recoding possible - required padding to mfxBRCFrameStatus::MinFrameSize. */
 };
 
-MFX_PACK_BEGIN_USUAL_STRUCT()
+MFX_PACK_BEGIN_STRUCT_W_PTR()
 /*!
    Specifies instructions for the encoder provided by external BRC after each frame encoding. See the BRCStatus enumerator for details.
 */

@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) 2020 Intel Corporation
+  # Copyright (C) Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -19,6 +19,9 @@
 #include "vpl/mfxvideo.h"
 
 #define IS_ARG_EQ(a, b) (!strcmp((a), (b)))
+
+#define DEFAULT_VERSION_MAJOR 2
+#define DEFAULT_VERSION_MINOR 1
 
 enum MemoryMode {
     MEM_MODE_UNKNOWN  = -1,
@@ -53,6 +56,8 @@ enum InputFrameReadMode {
 
     INPUT_FRAME_READ_MODE_COUNT
 };
+
+enum VppProcessFunctionName { FN_RUNFRAMEVPPASYNC = 0, FN_PROCESSFRAMEASYNC, FN_COUNT };
 
 extern const char* MemoryModeString[MEM_MODE_COUNT];
 extern const char* DispatcherModeString[DISPATCHER_MODE_COUNT];
@@ -122,9 +127,19 @@ typedef struct _Params {
 
     mfxU32 outWidth;
     mfxU32 outHeight;
+
+    // av1 film-grain denoise
+    // -1: default by decoder
+    //  0: disable
+    //  1: enable (will be ignored if not enabled in the content)
+    int filmGrain;
+
+    // process function name
+    VppProcessFunctionName vppProcFnName;
 } Params;
 
 // vpl-new-dispatcher.cpp
 mfxStatus InitNewDispatcher(WSType wsType, Params* params, mfxSession* session);
+mfxStatus CloseNewDispatcher(void);
 
 #endif // TOOLS_CLI_VPL_COMMON_H_

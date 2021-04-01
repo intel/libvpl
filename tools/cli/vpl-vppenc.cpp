@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) 2020 Intel Corporation
+  # Copyright (C) Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -109,11 +109,6 @@ int main(int argc, char* argv[]) {
     }
 
     // Initialize Media SDK session
-    mfxInitParam initPar   = { 0 };
-    initPar.Version.Major  = 2;
-    initPar.Version.Minor  = 0;
-    initPar.Implementation = MFX_IMPL_SOFTWARE;
-
     mfxStatus sts      = MFX_ERR_NOT_INITIALIZED;
     mfxSession session = nullptr;
 
@@ -398,9 +393,9 @@ int main(int argc, char* argv[]) {
         if (params.memoryMode == MEM_MODE_EXTERNAL) {
             // Find free frame surface
             nSurfIdxIn = -1;
-            for (int i = 0; i < pVPPSurfacesIn.size(); i++) {
+            for (size_t i = 0; i < pVPPSurfacesIn.size(); i++) {
                 if (!pVPPSurfacesIn[i].Data.Locked) {
-                    nSurfIdxIn = i;
+                    nSurfIdxIn = static_cast<int>(i);
                     break;
                 }
             }
@@ -453,9 +448,9 @@ int main(int argc, char* argv[]) {
         }
 
         nSurfIdxOut = -1;
-        for (int i = 0; i < pVPPSurfacesOut.size(); i++) {
+        for (size_t i = 0; i < pVPPSurfacesOut.size(); i++) {
             if (!pVPPSurfacesOut[i].Data.Locked) {
-                nSurfIdxOut = i;
+                nSurfIdxOut = static_cast<int>(i);
                 break;
             }
         }
@@ -558,6 +553,9 @@ int main(int argc, char* argv[]) {
     MFXVideoVPP_Close(session);
     MFXClose(session);
 
+    if (params.dispatcherMode == DISPATCHER_MODE_VPL_20)
+        CloseNewDispatcher();
+
     if (bitstream.Data)
         free(bitstream.Data);
 
@@ -581,7 +579,7 @@ mfxStatus LoadRawFrame2(mfxFrameSurface1* pSurface,
                         int bytes_to_read,
                         mfxU8* buf_read,
                         mfxU32 repeat) {
-    mfxU32 nBytesRead = (mfxU32)fread(buf_read, 1, bytes_to_read, f);
+    int nBytesRead = static_cast<int>(fread(buf_read, 1, bytes_to_read, f));
 
     if (bytes_to_read != nBytesRead) {
         if (repeatCount == repeat)
@@ -592,7 +590,7 @@ mfxStatus LoadRawFrame2(mfxFrameSurface1* pSurface,
         }
     }
 
-    mfxU16 w, h, pitch;
+    mfxU16 w, h;
     mfxFrameInfo* pInfo = &pSurface->Info;
     mfxFrameData* pData = &pSurface->Data;
 
@@ -601,14 +599,12 @@ mfxStatus LoadRawFrame2(mfxFrameSurface1* pSurface,
 
     switch (pInfo->FourCC) {
         case MFX_FOURCC_I420:
-            pitch    = pData->Pitch;
             pData->Y = buf_read;
             pData->U = pData->Y + w * h;
             pData->V = pData->U + ((w / 2) * (h / 2));
             break;
 
         case MFX_FOURCC_I010:
-            pitch    = pData->Pitch;
             pData->Y = buf_read;
             pData->U = pData->Y + w * 2 * h;
             pData->V = pData->U + (w * (h / 2));
@@ -616,7 +612,6 @@ mfxStatus LoadRawFrame2(mfxFrameSurface1* pSurface,
 
         case MFX_FOURCC_RGB4:
             // read luminance plane (Y)
-            pitch    = pData->Pitch;
             pData->B = buf_read;
             break;
         default:
@@ -1177,7 +1172,9 @@ void Usage(void) {
 
     printf("\nDispatcher (default = -dsp1)\n");
     printf("  -dsp1 = legacy dispatcher (MSDK 1.x)\n");
-    printf("  -dsp2 = smart dispatcher (API 2.0)\n");
+    printf("  -dsp2 = smart dispatcher (API %d.%d)\n",
+           DEFAULT_VERSION_MAJOR,
+           DEFAULT_VERSION_MINOR);
 
     printf("\nFrame mode (optional, default = -fpitch)\n");
     printf("  -fpitch = load frame-by-frame (read data per pitch - legacy)\n");
@@ -1192,15 +1189,15 @@ mfxStatus InitializeSession(Params* params, mfxSession* session) {
     std::string diagnoseText = "";
     mfxStatus sts            = MFX_ERR_UNDEFINED_BEHAVIOR;
     if (params->dispatcherMode == DISPATCHER_MODE_VPL_20) {
-        diagnoseText = "InitNewDispatcher with WSTYPE_VPP while in DISPATCHER_MODE_VPL_20";
+        diagnoseText = "InitNewDispatcher with WSTYPE_VPPENC while in DISPATCHER_MODE_VPL_20";
         sts          = InitNewDispatcher(WSTYPE_VPPENC, params, *(&session));
     }
     else if (params->dispatcherMode == DISPATCHER_MODE_LEGACY) {
         diagnoseText = "MFXInitEx with MFX_IMPL_SOFTWARE while in DISPATCHER_MODE_LEGACY";
         // initialize session
         mfxInitParam initPar   = { 0 };
-        initPar.Version.Major  = 2;
-        initPar.Version.Minor  = 0;
+        initPar.Version.Major  = DEFAULT_VERSION_MAJOR;
+        initPar.Version.Minor  = DEFAULT_VERSION_MINOR;
         initPar.Implementation = MFX_IMPL_SOFTWARE;
 
         sts = MFXInitEx(initPar, *(&session));

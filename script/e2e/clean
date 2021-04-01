@@ -1,0 +1,32 @@
+#!/bin/bash
+###############################################################################
+# Copyright (C) Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+###############################################################################
+# Clean project.
+
+set -o errexit
+
+
+SCRIPT_DIR="$( cd "$(dirname "${BASH_SOURCE[0]:-$0}")" >/dev/null 2>&1 ; pwd -P )"
+
+# Read command line options
+. "${SCRIPT_DIR}/_buildopts.sh" \
+    --name clean \
+    --desc "Clean project." \
+    -- "$@"
+
+echo "Cleaning project..."
+
+if [ -e "${VPL_INSTALL_DIR}" ]
+then
+    echo "Cleaning install folder..."
+    rm -rf "${VPL_INSTALL_DIR}"
+fi
+pushd "${ROOT_DIR}"
+    echo "Cleaning base..."
+    oneVPL/script/clean ${FORWARD_OPTS}
+    echo "Cleaning cpu..."
+    oneVPL-cpu/script/clean ${FORWARD_OPTS}
+popd

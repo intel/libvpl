@@ -8,25 +8,18 @@
 #define __MFXDEFS_H__
 
 #define MFX_VERSION_MAJOR 2
-#define MFX_VERSION_MINOR 0
-
-// MFX_VERSION_NEXT is always +1 from last public release
-// may be enforced by MFX_VERSION_USE_LATEST define
-// if MFX_VERSION_USE_LATEST is defined  MFX_VERSION is ignored
-
-#define MFX_VERSION_NEXT (MFX_VERSION_MAJOR * 1000 + MFX_VERSION_MINOR + 1)
+#define MFX_VERSION_MINOR 2
 
 // MFX_VERSION - version of API that 'assumed' by build may be provided externally
 // if it omitted then latest stable API derived from Major.Minor is assumed
 
 
 #if !defined(MFX_VERSION)
-  #if defined(MFX_VERSION_USE_LATEST)
-    #define MFX_VERSION MFX_VERSION_NEXT
-  #else
     #define MFX_VERSION (MFX_VERSION_MAJOR * 1000 + MFX_VERSION_MINOR)
-  #endif
 #else
+  #undef MFX_VERSION_MAJOR
+  #define MFX_VERSION_MAJOR ((MFX_VERSION) / 1000)
+  
   #undef MFX_VERSION_MINOR
   #define MFX_VERSION_MINOR ((MFX_VERSION) % 1000)
 #endif
@@ -82,9 +75,6 @@ extern "C"
     #error Unknown packing
 #endif
 
-  #define __INT64   long long
-  #define __UINT64  unsigned long long
-
 #ifdef _WIN32
   #define MFX_CDECL __cdecl
   #define MFX_STDCALL __stdcall
@@ -95,6 +85,52 @@ extern "C"
 
 #define MFX_INFINITE 0xFFFFFFFF
 
+#if !defined(MFX_DEPRECATED_OFF) && (MFX_VERSION < MFX_VERSION_NEXT)
+#define MFX_DEPRECATED_OFF
+#endif
+
+#ifndef MFX_DEPRECATED_OFF
+  #if defined(__cplusplus) && __cplusplus >= 201402L
+    #define MFX_DEPRECATED [[deprecated]]
+    #define MFX_DEPRECATED_ENUM_FIELD_INSIDE(arg) arg [[deprecated]]
+    #define MFX_DEPRECATED_ENUM_FIELD_OUTSIDE(arg)
+  #elif defined(__clang__)
+    #define MFX_DEPRECATED __attribute__((deprecated))
+    #define MFX_DEPRECATED_ENUM_FIELD_INSIDE(arg) arg __attribute__((deprecated))
+    #define MFX_DEPRECATED_ENUM_FIELD_OUTSIDE(arg)
+  #elif defined(__INTEL_COMPILER)
+    #if (defined(_WIN32) || defined(_WIN64))
+      #define MFX_DEPRECATED __declspec(deprecated)
+      #define MFX_DEPRECATED_ENUM_FIELD_INSIDE(arg) arg
+      #define MFX_DEPRECATED_ENUM_FIELD_OUTSIDE(arg) __pragma(deprecated(arg))
+    #elif defined(__linux__)
+      #define MFX_DEPRECATED __attribute__((deprecated))
+      #if defined(__cplusplus)
+        #define MFX_DEPRECATED_ENUM_FIELD_INSIDE(arg) arg __attribute__((deprecated))
+      #else
+        #define MFX_DEPRECATED_ENUM_FIELD_INSIDE(arg) arg
+      #endif
+      #define MFX_DEPRECATED_ENUM_FIELD_OUTSIDE(arg)
+    #endif
+  #elif defined(_MSC_VER) && _MSC_VER > 1200 // VS 6 doesn't support deprecation
+    #define MFX_DEPRECATED __declspec(deprecated)
+    #define MFX_DEPRECATED_ENUM_FIELD_INSIDE(arg) arg
+    #define MFX_DEPRECATED_ENUM_FIELD_OUTSIDE(arg) __pragma(deprecated(arg))
+  #elif defined(__GNUC__)
+    #define MFX_DEPRECATED __attribute__((deprecated))
+    #define MFX_DEPRECATED_ENUM_FIELD_INSIDE(arg) arg __attribute__((deprecated))
+    #define MFX_DEPRECATED_ENUM_FIELD_OUTSIDE(arg)
+  #else
+    #define MFX_DEPRECATED
+    #define MFX_DEPRECATED_ENUM_FIELD_INSIDE(arg) arg
+    #define MFX_DEPRECATED_ENUM_FIELD_OUTSIDE(arg)
+  #endif
+#else
+  #define MFX_DEPRECATED
+  #define MFX_DEPRECATED_ENUM_FIELD_INSIDE(arg) arg
+  #define MFX_DEPRECATED_ENUM_FIELD_OUTSIDE(arg)
+#endif
+    
 typedef unsigned char       mfxU8;         /*!< Unsigned integer, 8 bit type. */
 typedef char                mfxI8;         /*!< Signed integer, 8 bit type. */
 typedef short               mfxI16;        /*!< Signed integer, 16 bit type. */
@@ -110,8 +146,8 @@ typedef int                 mfxL32;        /*!< Signed integer, 32 bit type. */
 #endif
 typedef float               mfxF32;        /*!< Single-precision floating point, 32 bit type. */
 typedef double              mfxF64;        /*!< Double-precision floating point, 64 bit type. */
-typedef __UINT64            mfxU64;        /*!< Unsigned integer, 64 bit type. */
-typedef __INT64             mfxI64;        /*!< Signed integer, 64 bit type. */
+typedef unsigned long long  mfxU64;        /*!< Unsigned integer, 64 bit type. */
+typedef long long           mfxI64;        /*!< Signed integer, 64 bit type. */
 typedef void*               mfxHDL;        /*!< Handle type. */
 typedef mfxHDL              mfxMemId;      /*!< Memory ID type. */
 typedef void*               mfxThreadTask; /*!< Thread task type. */
@@ -135,7 +171,7 @@ typedef union {
         mfxU8  Major; /*!< Major number of the correspondent structure. */
       /*! @} */
     };
-    mfxU16  Version;   /*!< Structure version number */
+    mfxU16  Version;   /*!< Structure version number. */
 } mfxStructVersion;
 MFX_PACK_END()
 
@@ -187,7 +223,7 @@ MFX_PACK_BEGIN_USUAL_STRUCT()
 typedef struct {
     mfxU32 Min;  /*!< Minimal value of the range. */
     mfxU32 Max;  /*!< Maximal value of the range. */
-    mfxU32 Step; /*!< Value incrementation step. */
+    mfxU32 Step; /*!< Value increment. */
 } mfxRange32U;
 MFX_PACK_END()
 

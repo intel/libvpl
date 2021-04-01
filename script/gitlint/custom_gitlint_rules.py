@@ -1,6 +1,6 @@
 # pylint: disable=too-few-public-methods
 ###############################################################################
-# Copyright (C) 2020 Intel Corporation
+# Copyright (C) Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 ###############################################################################
