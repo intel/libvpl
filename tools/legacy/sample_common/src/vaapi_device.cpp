@@ -396,7 +396,7 @@ mfxStatus CVAAPIDeviceWayland::RenderFrame(mfxFrameSurface1* pSurface,
         return mfx_res;
     }
 
-    m_Wayland->RenderBuffer(m_wl_buffer, pSurface->Info.CropW, pSurface->Info.CropH);
+    m_Wayland->RenderBuffer(m_wl_buffer, pSurface);
 
     return mfx_res;
 }
