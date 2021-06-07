@@ -1765,7 +1765,10 @@ mfxStatus CEncodingPipeline::Init(sInputParams *pParams) {
     // create internal memory allocator
     m_pmfxMemory = new MFXMemory(m_mfxSession);
     MSDK_CHECK_POINTER(m_pmfxMemory, MFX_ERR_MEMORY_ALLOC);
-    m_bAPI2XInternalMem = (pParams->api2xInternalMem) ? true : false;
+    m_bAPI2XInternalMem = (pParams->api2xInternalMem && pParams->memType == SYSTEM_MEMORY) ? true : false;
+    if (pParams->api2xInternalMem && pParams->memType != SYSTEM_MEMORY) {
+        msdk_printf(MSDK_STRING("WARNING: In case of video memory we demonstrate \"external allocator\" usage model. Option \"-api2x_internalmem\" will be ignored\n"));
+    }
 #endif
 
     bool bVpp = false;
