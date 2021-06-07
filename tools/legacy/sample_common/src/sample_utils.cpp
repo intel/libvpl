@@ -347,7 +347,6 @@ mfxStatus CSmplYUVReader::LoadNextFrame(mfxFrameSurface1* pSurface) {
         {
             case MFX_FOURCC_I420:
             case MFX_FOURCC_YV12:
-            case MFX_FOURCC_NV12:
                 switch (pInfo.FourCC) {
                     case MFX_FOURCC_NV12:
 
@@ -449,6 +448,7 @@ mfxStatus CSmplYUVReader::LoadNextFrame(mfxFrameSurface1* pSurface) {
                     }
                 }
                 break;
+            case MFX_FOURCC_NV12:
             case MFX_FOURCC_P010:
             case MFX_FOURCC_P210:
 #if (MFX_VERSION >= 1031)
