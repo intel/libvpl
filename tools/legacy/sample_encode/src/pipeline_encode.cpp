@@ -2376,6 +2376,12 @@ mfxStatus CEncodingPipeline::EncodeOneFrame(const ExtendedSurface &In, sTask *&p
             sts = MFX_ERR_NONE; // ignore warnings if output is available
             if (m_nPerfOpt)
                 m_nEncSurfIdx++;
+
+            if (m_bAPI2XInternalMem)
+            {
+                mfxStatus msts = In.pSurface->FrameInterface->Release(In.pSurface);
+                MSDK_CHECK_STATUS(msts, "mfxFrameSurfaceInterface->Release failed");
+            }
             break;
         }
         else if (MFX_ERR_NOT_ENOUGH_BUFFER == sts) {
@@ -2387,6 +2393,12 @@ mfxStatus CEncodingPipeline::EncodeOneFrame(const ExtendedSurface &In, sTask *&p
             MSDK_IGNORE_MFX_STS(sts, MFX_ERR_MORE_BITSTREAM);
             if (m_nPerfOpt)
                 m_nEncSurfIdx++;
+
+            if (m_bAPI2XInternalMem)
+            {
+                mfxStatus msts = In.pSurface->FrameInterface->Release(In.pSurface);
+                MSDK_CHECK_STATUS(msts, "mfxFrameSurfaceInterface->Release failed");
+            }
             break;
         }
     }
@@ -2501,9 +2513,6 @@ mfxStatus CEncodingPipeline::Run() {
                     mfxStatus msts =
                         vppSurface.pSurface->FrameInterface->Unmap(vppSurface.pSurface);
                     MSDK_CHECK_STATUS(msts, "mfxFrameSurfaceInterface->Unmap failed");
-
-                    msts = vppSurface.pSurface->FrameInterface->Release(vppSurface.pSurface);
-                    MSDK_CHECK_STATUS(msts, "mfxFrameSurfaceInterface->Release failed");
                 }
 #endif
 
