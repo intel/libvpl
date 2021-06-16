@@ -26,4 +26,4 @@ target_sources(${TARGET} PRIVATE
 
 target_link_libraries(${TARGET} sample_common wayland-client va drm drm_intel)
 
-install( TARGETS ${TARGETS} LIBRARY DESTINATION ${CMAKE_INSTALL_BINDIR} )
+install( TARGETS ${TARGETS} LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} )
