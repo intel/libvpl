@@ -1,0 +1,713 @@
+<!--
+SPDX-FileCopyrightText: 2019-2023 Intel Corporation
+
+SPDX-License-Identifier: MIT
+-->
+
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Streaming and Video Conferencing Features &#8212; Intel® VPL  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=5b4479735964841361fd" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=5b4479735964841361fd" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd" />
+  <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=5b4479735964841361fd"></script>
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'appendix/VPL_apnds_c';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Switchable Graphics and Multiple Monitors" href="VPL_apnds_d.html" />
+    <link rel="prev" title="Multiple-segment Encoding" href="VPL_apnds_b.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Intel® VPL  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../VPL_intel_media_sdk.html">Intel<sup>®</sup> VPL for Intel<sup>®</sup> Media Software Development Kit Users</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../architecture/index.html">Architecture</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/VPL_decoding.html">Video Decoding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/VPL_encoding.html">Video Encoding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/VPL_processing.html">Video Processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/VPL_decoding_vpp.html">Video Decoding with multiple video processing</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../programming_guide/index.html">Programming Guide</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_stc.html">Status Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_session.html">Intel<sup>®</sup> VPL Session</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_frame.html">Frame and Fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_decoding.html">Decoding Procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_encoding.html">Encoding Procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_vpp.html">Video Processing Procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_transcoding.html">Transcoding Procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_config.html">Parameter Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_hw.html">Hardware Acceleration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_mem.html">Memory Allocation and External Allocators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_surface_sharing.html">Importing and Exporting Shared Surfaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_err.html">Hardware Device Error Handling</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../VPL_summary.html">Mandatory APIs and Functions</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../API_ref/VPL_api_ref.html">Intel<sup>®</sup> VPL API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../API_ref/VPL_functions.html">Function Reference</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_vid_decode.html">VideoDECODE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_vid_encode.html">VideoENCODE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_vid_vpp.html">VideoVPP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_vidcore.html">VideoCORE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_session.html">Session Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_mem.html">Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_capabilities.html">Implementation Capabilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_adapters.html">Adapters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_vid_decode_vpp.html">VideoDECODE_VPP</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../API_ref/VPL_structs.html">Structure Reference</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_type.html">Type Definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_memory.html">Memory Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_impl_manage.html">Implementation Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_cross_component.html">Cross-component Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_decode.html">Decode Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_encode.html">Encode Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_vpp.html">VPP Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_protected.html">Protected Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_decode_vpp.html">DECODE_VPP Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_camera.html">Camera Structures</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../API_ref/VPL_enums.html">Enumerator Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../API_ref/VPL_defines.html">Define Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../API_ref/VPL_ref_types.html">Type Reference</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../API_ref/VPL_disp_api.html">Dispatcher API</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_disp_api_func.html">Dispatcher API Function Reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_disp_api_struct.html">Dispatcher API Structure Reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_disp_api_enum.html">Dispatcher API Enumeration Reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_disp_api_def.html">Dispatcher API Define Reference</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../API_ref/VPL_guids.html">GUIDs Reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Versioning.html">Intel<sup>®</sup> VPL API Versioning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Experimental.html">Intel<sup>®</sup> VPL Experimental API</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Appendices</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="VPL_apnds_a.html">Configuration Parameter Constraints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_apnds_b.html">Multiple-segment Encoding</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Streaming and Video Conferencing Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_apnds_d.html">Switchable Graphics and Multiple Monitors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_apnds_e.html">Working Directly with VA-API for Linux*</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_apnds_f.html">CQP HRD Mode Encoding</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../VPL_acronyms.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../VPL_deprecation.html">Deprecated API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../VPL_change_log.html">Change Log</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/appendix/VPL_apnds_c.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Streaming and Video Conferencing Features</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamic-bitrate-change">Dynamic Bitrate Change</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamic-resolution-change">Dynamic Resolution Change</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamic-reference-frame-scaling">Dynamic Reference Frame Scaling</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#forced-keyframe-generation">Forced Keyframe Generation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reference-list-selection">Reference List Selection</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#low-latency-encoding-and-decoding">Low Latency Encoding and Decoding</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reference-picture-marking-repetition-sei-message">Reference Picture Marking Repetition SEI Message</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#long-term-reference-frame">Long Term Reference Frame</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#temporal-scalability">Temporal Scalability</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="streaming-and-video-conferencing-features">
+<span id="stream-vid-conf-features"></span><h1>Streaming and Video Conferencing Features<a class="headerlink" href="#streaming-and-video-conferencing-features" title="Permalink to this heading">#</a></h1>
+<p>The following sections address some aspects of additional requirements that
+streaming or video conferencing applications may use in the encoding or
+transcoding process. See the <a class="reference internal" href="../programming_guide/VPL_prg_encoding.html#config-change"><span class="std std-ref">Configuration Change</span></a> section for additional
+information.</p>
+<section id="dynamic-bitrate-change">
+<h2>Dynamic Bitrate Change<a class="headerlink" href="#dynamic-bitrate-change" title="Permalink to this heading">#</a></h2>
+<p>The Intel<sup>®</sup> VPL encoder supports dynamic bitrate change according to bitrate control mode
+and HRD conformance requirements. If HRD conformance is required, for example if
+the application sets the <code class="docutils literal notranslate"><span class="pre">NalHrdConformance</span></code> option in the
+<a class="reference internal" href="../API_ref/VPL_structs_encode.html#_CPPv418mfxExtCodingOption" title="mfxExtCodingOption"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxExtCodingOption</span></code></a> structure to ON, the only allowed
+bitrate control mode is VBR. In this mode, the application can change the
+<code class="docutils literal notranslate"><span class="pre">TargetKbps</span></code> and <code class="docutils literal notranslate"><span class="pre">MaxKbps</span></code> values of the <a class="reference internal" href="../API_ref/VPL_structs_cross_component.html#_CPPv410mfxInfoMFX" title="mfxInfoMFX"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxInfoMFX</span></code></a> structure
+by calling the  <a class="reference internal" href="../API_ref/VPL_func_vid_encode.html#_CPPv420MFXVideoENCODE_Reset10mfxSessionP13mfxVideoParam" title="MFXVideoENCODE_Reset"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoENCODE_Reset()</span></code></a> function. This sort of change in
+bitrate usually results in the generation of a new keyframe and sequence header.
+There are exceptions, such as if HRD information is absent in the stream.
+In this scenario, the change of <code class="docutils literal notranslate"><span class="pre">TargetKbps</span></code> does not require a change in the
+sequence header and as a result the encoder does not insert a keyframe.</p>
+<p>If HRD conformance is not required, for example if the application turns off
+the <code class="docutils literal notranslate"><span class="pre">NalHrdConformance</span></code> option in the <a class="reference internal" href="../API_ref/VPL_structs_encode.html#_CPPv418mfxExtCodingOption" title="mfxExtCodingOption"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxExtCodingOption</span></code></a>
+structure, all bitrate control modes are available. In CBR and AVBR modes the
+application can change <code class="docutils literal notranslate"><span class="pre">TargetKbps</span></code>. In VBR mode the application can change
+<code class="docutils literal notranslate"><span class="pre">TargetKbps</span></code> and <code class="docutils literal notranslate"><span class="pre">MaxKbps</span></code> values. This sort of change in bitrate will not
+result in the generation of a new keyframe or sequence header.</p>
+<p>The Intel<sup>®</sup> VPL encoder may change some initialization parameters provided by the
+application during initialization. That in turn may lead to incompatibility
+between the parameters provided by the application during reset and the working set
+of parameters used by the encoder. For this reason, it is strongly recommended
+to retrieve the actual working parameters using the
+<a class="reference internal" href="../API_ref/VPL_func_vid_encode.html#_CPPv428MFXVideoENCODE_GetVideoParam10mfxSessionP13mfxVideoParam" title="MFXVideoENCODE_GetVideoParam"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoENCODE_GetVideoParam()</span></code></a> function before making any changes to
+bitrate settings.</p>
+<p>In all modes, Intel<sup>®</sup> VPL encoders will respond to the bitrate changes as quickly as
+the underlying algorithm allows, without breaking other encoding restrictions
+such as HRD compliance if it is enabled. How quickly the actual bitrate can catch
+up with the specified bitrate is implementation dependent.</p>
+<p>Alternatively, the application may use the <a class="reference internal" href="../VPL_acronyms.html#term-CQP"><span class="xref std std-term">CQP</span></a> encoding mode to perform
+customized bitrate adjustment on a per-frame base. The application may use any
+of the encoded or display order modes to use per-frame CQP.</p>
+</section>
+<section id="dynamic-resolution-change">
+<h2>Dynamic Resolution Change<a class="headerlink" href="#dynamic-resolution-change" title="Permalink to this heading">#</a></h2>
+<p>The Intel<sup>®</sup> VPL encoder supports dynamic resolution change in all bitrate control modes.
+The application may change resolution by calling the <a class="reference internal" href="../API_ref/VPL_func_vid_encode.html#_CPPv420MFXVideoENCODE_Reset10mfxSessionP13mfxVideoParam" title="MFXVideoENCODE_Reset"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoENCODE_Reset()</span></code></a>
+function. The application may decrease or increase resolution up to the size
+specified during encoder initialization.</p>
+<p>Resolution change always results in the insertion of a key IDR frame and a new
+sequence parameter set in the header. The only exception is the Intel<sup>®</sup> VPL VP9 encoder
+(see section for <a class="reference internal" href="#dynamic-reference-frame-scaling">Dynamic reference frame scaling</a>). The Intel<sup>®</sup> VPL encoder does not
+guarantee HRD conformance across the resolution change point.</p>
+<p>The Intel<sup>®</sup> VPL encoder may change some initialization parameters provided by the
+application during initialization. That in turn may lead to incompatibility of
+parameters provide by the application during reset and working set of parameters
+used by the encoder. Due to this potential incompatibility, it is strongly
+recommended to retrieve the actual working parameters set by
+<a class="reference internal" href="../API_ref/VPL_func_vid_encode.html#_CPPv428MFXVideoENCODE_GetVideoParam10mfxSessionP13mfxVideoParam" title="MFXVideoENCODE_GetVideoParam"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoENCODE_GetVideoParam()</span></code></a> function before making any resolution
+change.</p>
+</section>
+<section id="dynamic-reference-frame-scaling">
+<h2>Dynamic Reference Frame Scaling<a class="headerlink" href="#dynamic-reference-frame-scaling" title="Permalink to this heading">#</a></h2>
+<p>The VP9 standard allows changing the resolution without the insertion of a
+keyframe. This is possible because the VP9 encoder has the built-in capability
+to upscale and downscale reference frames to match the resolution of the frame
+being encoded. By default the Intel<sup>®</sup> VPL VP9 encoder inserts a keyframe when the
+application does <a class="reference internal" href="#dynamic-resolution-change">Dynamic Resolution Change</a>. In this case, the first frame
+with a new resolution is encoded using inter prediction from the scaled reference
+frame of the previous resolution. Dynamic scaling has the following limitations,
+described in the VP9 specification:</p>
+<ul class="simple">
+<li><p>The resolution of any active reference frame cannot exceed 2x the resolution
+of the current frame.</p></li>
+<li><p>The resolution of any active reference frame cannot be smaller than 1/16 of
+the current frame resolution.</p></li>
+</ul>
+<p>In the case of dynamic scaling, the Intel<sup>®</sup> VPL VP9 encoder always uses a single active
+reference frame for the first frame after a resolution change. The VP9
+encoder has the following limitations for dynamic resolution change:</p>
+<ul class="simple">
+<li><p>The new resolution should not exceed 16x the resolution of the current frame.</p></li>
+<li><p>The new resolution should be less than 1/2 of current frame resolution.</p></li>
+</ul>
+<p>The application may force insertion of a keyframe at the point of resolution
+change by invoking encoder reset with <a class="reference internal" href="../API_ref/VPL_structs_encode.html#_CPPv4N24mfxExtEncoderResetOption16StartNewSequenceE" title="mfxExtEncoderResetOption::StartNewSequence"><code class="xref cpp cpp-member docutils literal notranslate"><span class="pre">mfxExtEncoderResetOption::StartNewSequence</span></code></a>
+set to <a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv419MFX_CODINGOPTION_ON" title="MFX_CODINGOPTION_ON"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">MFX_CODINGOPTION_ON</span></code></a>. If a keyframe is inserted, the
+dynamic resolution limitations are not enforced.</p>
+<p>Note that resolution change with dynamic reference scaling is compatible with
+multiref (<a class="reference internal" href="../API_ref/VPL_structs_cross_component.html#_CPPv4N10mfxInfoMFX11NumRefFrameE" title="mfxInfoMFX::NumRefFrame"><code class="xref cpp cpp-member docutils literal notranslate"><span class="pre">mfxInfoMFX::NumRefFrame</span></code></a> &gt; 1). For multiref
+configuration, the Intel<sup>®</sup> VPL VP9 encoder uses multiple references within stream pieces
+of the same resolution and uses a single reference at the place of resolution
+change.</p>
+</section>
+<section id="forced-keyframe-generation">
+<h2>Forced Keyframe Generation<a class="headerlink" href="#forced-keyframe-generation" title="Permalink to this heading">#</a></h2>
+<p>Intel<sup>®</sup> VPL supports forced keyframe generation during encoding. The application
+can set the FrameType parameter of the <a class="reference internal" href="../API_ref/VPL_structs_encode.html#_CPPv413mfxEncodeCtrl" title="mfxEncodeCtrl"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxEncodeCtrl</span></code></a> structure to
+control how the current frame is encoded, as follows:</p>
+<ul class="simple">
+<li><p>If the Intel<sup>®</sup> VPL encoder works in the display order, the application can enforce any
+current frame to be a keyframe. The application cannot change the frame type
+of already buffered frames inside the encoder.</p></li>
+<li><p>If the Intel<sup>®</sup> VPL encoder works in the encoded order, the application must specify
+exact frame type for every frame. In this way, the application can enforce the
+current frame to have any frame type that the particular coding standard allows.</p></li>
+</ul>
+</section>
+<section id="reference-list-selection">
+<span id="sec-reference-list-selection"></span><h2>Reference List Selection<a class="headerlink" href="#reference-list-selection" title="Permalink to this heading">#</a></h2>
+<p>During streaming or video conferencing, if the application can obtain feedback
+about how well the client receives certain frames, the application may need to
+adjust the encoding process to use or not use certain frames as reference. This
+section describes how to fine-tune the encoding process based on client feedback.</p>
+<p>The application can specify the reference window size by specifying the
+<a class="reference internal" href="../API_ref/VPL_structs_cross_component.html#_CPPv4N10mfxInfoMFX11NumRefFrameE" title="mfxInfoMFX::NumRefFrame"><code class="xref cpp cpp-member docutils literal notranslate"><span class="pre">mfxInfoMFX::NumRefFrame</span></code></a> parameter during encoding initialization.
+Certain platforms may have limits on the the size of the reference window. Use the
+<a class="reference internal" href="../API_ref/VPL_func_vid_encode.html#_CPPv428MFXVideoENCODE_GetVideoParam10mfxSessionP13mfxVideoParam" title="MFXVideoENCODE_GetVideoParam"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoENCODE_GetVideoParam()</span></code></a> function to retrieve the current working
+set of parameters.</p>
+<p>During encoding, the application can specify the actual reference list lengths
+by attaching the <a class="reference internal" href="../API_ref/VPL_structs_encode.html#_CPPv420mfxExtAVCRefListCtrl" title="mfxExtAVCRefListCtrl"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxExtAVCRefListCtrl</span></code></a> structure to the
+<a class="reference internal" href="../API_ref/VPL_func_vid_encode.html#_CPPv431MFXVideoENCODE_EncodeFrameAsync10mfxSessionP13mfxEncodeCtrlP16mfxFrameSurface1P12mfxBitstreamP12mfxSyncPoint" title="MFXVideoENCODE_EncodeFrameAsync"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoENCODE_EncodeFrameAsync()</span></code></a> function. <code class="docutils literal notranslate"><span class="pre">NumRefIdxL0Active</span></code>
+specifies the length of the reference list L0 and <code class="docutils literal notranslate"><span class="pre">NumRefIdxL1Active</span></code> specifies
+the length of the reference list L1. These two numbers must be less than or equal
+to the <a class="reference internal" href="../API_ref/VPL_structs_cross_component.html#_CPPv4N10mfxInfoMFX11NumRefFrameE" title="mfxInfoMFX::NumRefFrame"><code class="xref cpp cpp-member docutils literal notranslate"><span class="pre">mfxInfoMFX::NumRefFrame</span></code></a> parameter during encoding initialization.</p>
+<p>The application can instruct the Intel<sup>®</sup> VPL encoder to use or not use certain reference
+frames. To do this, there is a prerequisite that the application uniquely
+identify each input frame by setting the <a class="reference internal" href="../API_ref/VPL_structs_memory.html#_CPPv4N12mfxFrameData10FrameOrderE" title="mfxFrameData::FrameOrder"><code class="xref cpp cpp-member docutils literal notranslate"><span class="pre">mfxFrameData::FrameOrder</span></code></a>
+parameter. The application then specifies the preferred reference frame list
+<code class="docutils literal notranslate"><span class="pre">PreferredRefList</span></code> and/or the rejected frame list <code class="docutils literal notranslate"><span class="pre">RejectedRefList</span></code>, and
+attaches the <a class="reference internal" href="../API_ref/VPL_structs_encode.html#_CPPv420mfxExtAVCRefListCtrl" title="mfxExtAVCRefListCtrl"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxExtAVCRefListCtrl</span></code></a> structure to the
+<a class="reference internal" href="../API_ref/VPL_func_vid_encode.html#_CPPv431MFXVideoENCODE_EncodeFrameAsync10mfxSessionP13mfxEncodeCtrlP16mfxFrameSurface1P12mfxBitstreamP12mfxSyncPoint" title="MFXVideoENCODE_EncodeFrameAsync"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoENCODE_EncodeFrameAsync()</span></code></a> function. The two lists fine-tune how
+the encoder chooses the reference frames for the current frame.
+The encoder does not keep <code class="docutils literal notranslate"><span class="pre">PreferredRefList</span></code> and the application must send it
+for each frame if necessary. There are limitations as follows:</p>
+<ul class="simple">
+<li><p>The frames in the lists are ignored if they are out of the reference window.</p></li>
+<li><p>If by going through the lists, the Intel<sup>®</sup> VPL encoder cannot find a reference frame
+for the current frame, the encoder will encode the current frame without
+using any reference frames.</p></li>
+<li><p>If the GOP pattern contains B-frames, the Intel<sup>®</sup> VPL encoder may not be able to follow
+the <a class="reference internal" href="../API_ref/VPL_structs_encode.html#_CPPv420mfxExtAVCRefListCtrl" title="mfxExtAVCRefListCtrl"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxExtAVCRefListCtrl</span></code></a> instructions.</p></li>
+</ul>
+</section>
+<section id="low-latency-encoding-and-decoding">
+<h2>Low Latency Encoding and Decoding<a class="headerlink" href="#low-latency-encoding-and-decoding" title="Permalink to this heading">#</a></h2>
+<p>The application can set <a class="reference internal" href="../API_ref/VPL_structs_cross_component.html#_CPPv4N13mfxVideoParam10AsyncDepthE" title="mfxVideoParam::AsyncDepth"><code class="xref cpp cpp-member docutils literal notranslate"><span class="pre">mfxVideoParam::AsyncDepth</span></code></a> = 1 to disable
+any decoder buffering of output frames, which is aimed to improve the transcoding
+throughput. With <a class="reference internal" href="../API_ref/VPL_structs_cross_component.html#_CPPv4N13mfxVideoParam10AsyncDepthE" title="mfxVideoParam::AsyncDepth"><code class="xref cpp cpp-member docutils literal notranslate"><span class="pre">mfxVideoParam::AsyncDepth</span></code></a> = 1, the application
+must synchronize after the decoding or transcoding operation of each frame.</p>
+<p>The application can adjust <a class="reference internal" href="../API_ref/VPL_structs_encode.html#_CPPv4N18mfxExtCodingOption20MaxDecFrameBufferingE" title="mfxExtCodingOption::MaxDecFrameBuffering"><code class="xref cpp cpp-member docutils literal notranslate"><span class="pre">mfxExtCodingOption::MaxDecFrameBuffering</span></code></a>
+during encoding initialization to improve decoding latency. It is recommended to
+set this value equal to the number of reference frames.</p>
+</section>
+<section id="reference-picture-marking-repetition-sei-message">
+<h2>Reference Picture Marking Repetition SEI Message<a class="headerlink" href="#reference-picture-marking-repetition-sei-message" title="Permalink to this heading">#</a></h2>
+<p>The application can request writing the reference picture marking repetition SEI
+message during encoding initialization by setting <code class="docutils literal notranslate"><span class="pre">RefPicMarkRep</span></code> of the
+<a class="reference internal" href="../API_ref/VPL_structs_encode.html#_CPPv418mfxExtCodingOption" title="mfxExtCodingOption"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxExtCodingOption</span></code></a> structure. The reference picture marking
+repetition SEI message repeats certain reference frame information in the output
+bitstream for robust streaming.</p>
+<p>The Intel<sup>®</sup> VPL decoder will respond to the reference picture marking repetition SEI
+message if the message exists in the bitstream and compare it to the reference
+list information specified in the sequence/picture headers. The decoder will
+report any mismatch of the SEI message with the reference list information in
+the <a class="reference internal" href="../API_ref/VPL_structs_memory.html#_CPPv4N12mfxFrameData9CorruptedE" title="mfxFrameData::Corrupted"><code class="xref cpp cpp-member docutils literal notranslate"><span class="pre">mfxFrameData::Corrupted</span></code></a> field.</p>
+</section>
+<section id="long-term-reference-frame">
+<span id="sec-long-term-reference-frame"></span><h2>Long Term Reference Frame<a class="headerlink" href="#long-term-reference-frame" title="Permalink to this heading">#</a></h2>
+<p>The application may use long term reference frames to improve coding efficiency
+or robustness for video conferencing applications. The application controls the
+long term frame marking process by attaching the <a class="reference internal" href="../API_ref/VPL_structs_encode.html#_CPPv420mfxExtAVCRefListCtrl" title="mfxExtAVCRefListCtrl"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxExtAVCRefListCtrl</span></code></a>
+extended buffer during encoding. The Intel<sup>®</sup> VPL encoder itself never marks a frame as
+long term.</p>
+<p>There are two control lists in the <a class="reference internal" href="../API_ref/VPL_structs_encode.html#_CPPv420mfxExtAVCRefListCtrl" title="mfxExtAVCRefListCtrl"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxExtAVCRefListCtrl</span></code></a> extended
+buffer. The <code class="docutils literal notranslate"><span class="pre">LongTermRefList</span></code> list contains the frame orders (the <code class="docutils literal notranslate"><span class="pre">FrameOrder</span></code>
+value in the <a class="reference internal" href="../API_ref/VPL_structs_memory.html#_CPPv412mfxFrameData" title="mfxFrameData"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxFrameData</span></code></a> structure) of the frames that should be
+marked as long term frames. The <code class="docutils literal notranslate"><span class="pre">RejectedRefList</span></code> list contains the frame order
+of the frames that should be unmarked as long term frames. The application can
+only mark or unmark the frames that are buffered inside the encoder. Because of
+this, it is recommended that the application marks a frame when it is submitted
+for encoding. The application can either explicitly unmark long term reference
+frames or wait for the IDR frame. When the IDR frame is reached, all long term
+reference frames will be unmarked.</p>
+<p>The Intel<sup>®</sup> VPL encoder puts all long term reference frames at the end of a reference
+frame list. If the number of active reference frames (the <code class="docutils literal notranslate"><span class="pre">NumRefIdxL0Active</span></code>
+and <code class="docutils literal notranslate"><span class="pre">NumRefIdxL1Active</span></code> values in the <a class="reference internal" href="../API_ref/VPL_structs_encode.html#_CPPv420mfxExtAVCRefListCtrl" title="mfxExtAVCRefListCtrl"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxExtAVCRefListCtrl</span></code></a>
+extended buffer) is less than than the total reference frame number (the
+<code class="docutils literal notranslate"><span class="pre">NumRefFrame</span></code> value in the <a class="reference internal" href="../API_ref/VPL_structs_cross_component.html#_CPPv410mfxInfoMFX" title="mfxInfoMFX"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxInfoMFX</span></code></a> structure during the
+encoding initialization), the encoder may ignore some or all long term
+reference frames. The application may avoid this by providing a list of preferred
+reference frames in the <code class="docutils literal notranslate"><span class="pre">PreferredRefList</span></code> list in the
+<a class="reference internal" href="../API_ref/VPL_structs_encode.html#_CPPv420mfxExtAVCRefListCtrl" title="mfxExtAVCRefListCtrl"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxExtAVCRefListCtrl</span></code></a> extended buffer. In this case, the encoder
+reorders the reference list based on the specified list.</p>
+</section>
+<section id="temporal-scalability">
+<h2>Temporal Scalability<a class="headerlink" href="#temporal-scalability" title="Permalink to this heading">#</a></h2>
+<p>The application may specify the temporal hierarchy of frames by using the
+<a class="reference internal" href="../API_ref/VPL_structs_encode.html#_CPPv423mfxExtAvcTemporalLayers" title="mfxExtAvcTemporalLayers"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxExtAvcTemporalLayers</span></code></a> extended buffer during the encoder
+initialization in the display order encoding mode. Intel<sup>®</sup> VPL inserts the prefix
+NAL unit before each slice with a unique temporal and priority ID. The temporal
+ID starts from zero and the priority ID starts from the <code class="docutils literal notranslate"><span class="pre">BaseLayerPID</span></code> value.
+Intel<sup>®</sup> VPL increases the temporal ID and priority ID value by one for each
+consecutive layer.</p>
+<p>If the application needs to specify a unique sequence or picture parameter set
+ID, the application must use the <a class="reference internal" href="../API_ref/VPL_structs_encode.html#_CPPv424mfxExtCodingOptionSPSPPS" title="mfxExtCodingOptionSPSPPS"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxExtCodingOptionSPSPPS</span></code></a>
+extended buffer, with all pointers and sizes set to zero and valid
+<code class="docutils literal notranslate"><span class="pre">SPSId</span></code> and <code class="docutils literal notranslate"><span class="pre">PPSId</span></code> fields. The same SPS and PPS ID will be used for all
+temporal layers.</p>
+<p>Each temporal layer is a set of frames with the same temporal ID. Each layer is
+defined by the <code class="docutils literal notranslate"><span class="pre">Scale</span></code> value. The scale for layer N is equal to the ratio
+between the frame rate of subsequent temporal layers with a temporal ID less
+than or equal to N and the frame rate of the base temporal layer. The application
+may skip some temporal layers by specifying the <code class="docutils literal notranslate"><span class="pre">Scale</span></code> value as zero. The
+application should use an integer ratio of the frame rates for two consecutive
+temporal layers.</p>
+<p>For example, a video sequence with 30 frames/second is typically separated by
+three temporal layers that can be decoded as 7.5 fps (base layer), 15 fps (base
+and first temporal layer) and 30 fps (all three layers). In this scenario,
+<code class="docutils literal notranslate"><span class="pre">Scale</span></code> should have the values {1,2,4,0,0,0,0,0}.</p>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="VPL_apnds_b.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Multiple-segment Encoding</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="VPL_apnds_d.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Switchable Graphics and Multiple Monitors</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamic-bitrate-change">Dynamic Bitrate Change</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamic-resolution-change">Dynamic Resolution Change</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamic-reference-frame-scaling">Dynamic Reference Frame Scaling</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#forced-keyframe-generation">Forced Keyframe Generation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reference-list-selection">Reference List Selection</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#low-latency-encoding-and-decoding">Low Latency Encoding and Decoding</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reference-picture-marking-repetition-sei-message">Reference Picture Marking Repetition SEI Message</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#long-term-reference-frame">Long Term Reference Frame</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#temporal-scalability">Temporal Scalability</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023, Intel.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=5b4479735964841361fd"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

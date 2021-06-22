@@ -1,0 +1,835 @@
+<!--
+SPDX-FileCopyrightText: 2019-2023 Intel Corporation
+
+SPDX-License-Identifier: MIT
+-->
+
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Hardware Acceleration &#8212; Intel® VPL  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=5b4479735964841361fd" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=5b4479735964841361fd" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd" />
+  <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=5b4479735964841361fd"></script>
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'programming_guide/VPL_prg_hw';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Memory Allocation and External Allocators" href="VPL_prg_mem.html" />
+    <link rel="prev" title="Parameter Configuration" href="VPL_prg_config.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Intel® VPL  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../VPL_intel_media_sdk.html">Intel<sup>®</sup> VPL for Intel<sup>®</sup> Media Software Development Kit Users</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../architecture/index.html">Architecture</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/VPL_decoding.html">Video Decoding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/VPL_encoding.html">Video Encoding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/VPL_processing.html">Video Processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/VPL_decoding_vpp.html">Video Decoding with multiple video processing</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Programming Guide</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_stc.html">Status Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_session.html">Intel<sup>®</sup> VPL Session</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_frame.html">Frame and Fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_decoding.html">Decoding Procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_encoding.html">Encoding Procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_vpp.html">Video Processing Procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_transcoding.html">Transcoding Procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_config.html">Parameter Configuration</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Hardware Acceleration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_mem.html">Memory Allocation and External Allocators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_surface_sharing.html">Importing and Exporting Shared Surfaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_err.html">Hardware Device Error Handling</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../VPL_summary.html">Mandatory APIs and Functions</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../API_ref/VPL_api_ref.html">Intel<sup>®</sup> VPL API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../API_ref/VPL_functions.html">Function Reference</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_vid_decode.html">VideoDECODE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_vid_encode.html">VideoENCODE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_vid_vpp.html">VideoVPP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_vidcore.html">VideoCORE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_session.html">Session Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_mem.html">Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_capabilities.html">Implementation Capabilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_adapters.html">Adapters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_vid_decode_vpp.html">VideoDECODE_VPP</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../API_ref/VPL_structs.html">Structure Reference</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_type.html">Type Definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_memory.html">Memory Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_impl_manage.html">Implementation Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_cross_component.html">Cross-component Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_decode.html">Decode Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_encode.html">Encode Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_vpp.html">VPP Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_protected.html">Protected Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_decode_vpp.html">DECODE_VPP Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_camera.html">Camera Structures</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../API_ref/VPL_enums.html">Enumerator Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../API_ref/VPL_defines.html">Define Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../API_ref/VPL_ref_types.html">Type Reference</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../API_ref/VPL_disp_api.html">Dispatcher API</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_disp_api_func.html">Dispatcher API Function Reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_disp_api_struct.html">Dispatcher API Structure Reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_disp_api_enum.html">Dispatcher API Enumeration Reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_disp_api_def.html">Dispatcher API Define Reference</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../API_ref/VPL_guids.html">GUIDs Reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Versioning.html">Intel<sup>®</sup> VPL API Versioning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Experimental.html">Intel<sup>®</sup> VPL Experimental API</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../appendix/index.html">Appendices</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_a.html">Configuration Parameter Constraints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_b.html">Multiple-segment Encoding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_c.html">Streaming and Video Conferencing Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_d.html">Switchable Graphics and Multiple Monitors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_e.html">Working Directly with VA-API for Linux*</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_f.html">CQP HRD Mode Encoding</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../VPL_acronyms.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../VPL_deprecation.html">Deprecated API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../VPL_change_log.html">Change Log</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/programming_guide/VPL_prg_hw.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Hardware Acceleration</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#new-model-to-work-with-hardware-acceleration">New Model to Work with Hardware Acceleration</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#work-with-hardware-acceleration-in-legacy-mode">Work with Hardware Acceleration in Legacy Mode</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#work-with-multiple-media-devices">Work with Multiple Media Devices</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#work-with-video-memory">Work with Video Memory</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#work-with-microsoft-directx-applications">Work with Microsoft DirectX* Applications</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#work-with-va-api-applications">Work with VA-API Applications</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="hardware-acceleration">
+<span id="hw-acceleration"></span><h1>Hardware Acceleration<a class="headerlink" href="#hardware-acceleration" title="Permalink to this heading">#</a></h1>
+<p>Intel<sup>®</sup> VPL provides a new model for working with hardware acceleration while
+continuing to support hardware acceleration in legacy mode.</p>
+<section id="new-model-to-work-with-hardware-acceleration">
+<h2>New Model to Work with Hardware Acceleration<a class="headerlink" href="#new-model-to-work-with-hardware-acceleration" title="Permalink to this heading">#</a></h2>
+<p>Intel<sup>®</sup> VPL API version 2.0 introduces a new memory model: internal allocation where
+Intel<sup>®</sup> VPL is responsible for video memory allocation. In this mode,
+an application is not dependent on a low-level video framework API, such as
+DirectX* or the VA-API, and does not need to create and set corresponding
+low-level Intel<sup>®</sup> VPL primitives such as <cite>ID3D11Device</cite> or <cite>VADisplay</cite>. Instead,
+Intel<sup>®</sup> VPL creates all required objects to work with hardware acceleration and video
+surfaces internally. An application can get access to these objects using
+<a class="reference internal" href="../API_ref/VPL_func_vidcore.html#_CPPv422MFXVideoCORE_GetHandle10mfxSession13mfxHandleTypeP6mfxHDL" title="MFXVideoCORE_GetHandle"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoCORE_GetHandle()</span></code></a> or with help of the
+<a class="reference internal" href="../API_ref/VPL_structs_memory.html#_CPPv424mfxFrameSurfaceInterface" title="mfxFrameSurfaceInterface"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxFrameSurfaceInterface</span></code></a> interface.</p>
+<p>This approach simplifies the Intel<sup>®</sup> VPL initialization, making calls to the
+<a class="reference internal" href="../API_ref/VPL_func_vid_encode.html#_CPPv426MFXVideoENCODE_QueryIOSurf10mfxSessionP13mfxVideoParamP20mfxFrameAllocRequest" title="MFXVideoENCODE_QueryIOSurf"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoENCODE_QueryIOSurf()</span></code></a>, <a class="reference internal" href="../API_ref/VPL_func_vid_decode.html#_CPPv426MFXVideoDECODE_QueryIOSurf10mfxSessionP13mfxVideoParamP20mfxFrameAllocRequest" title="MFXVideoDECODE_QueryIOSurf"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoDECODE_QueryIOSurf()</span></code></a>,
+or <a class="reference internal" href="../API_ref/VPL_func_vid_vpp.html#_CPPv423MFXVideoVPP_QueryIOSurf10mfxSessionP13mfxVideoParamAL2E_20mfxFrameAllocRequest" title="MFXVideoVPP_QueryIOSurf"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoVPP_QueryIOSurf()</span></code></a> functions optional. See
+<a class="reference internal" href="VPL_prg_mem.html#internal-mem-manage"><span class="std std-ref">Internal Memory Management</span></a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Applications can set device handle before session creation through <a class="reference internal" href="../API_ref/VPL_disp_api_func.html#_CPPv426MFXSetConfigFilterProperty9mfxConfigPK5mfxU810mfxVariant" title="MFXSetConfigFilterProperty"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXSetConfigFilterProperty()</span></code></a>
+like shown in the code below:</p>
+</div>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="n">mfxLoader</span><span class="w"> </span><span class="n">loader</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFXLoad</span><span class="p">();</span>
+<span class="linenos"> 2</span><span class="n">mfxConfig</span><span class="w"> </span><span class="n">config1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFXCreateConfig</span><span class="p">(</span><span class="n">loader</span><span class="p">);</span>
+<span class="linenos"> 3</span><span class="n">mfxConfig</span><span class="w"> </span><span class="n">config2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFXCreateConfig</span><span class="p">(</span><span class="n">loader</span><span class="p">);</span>
+<span class="linenos"> 4</span><span class="n">mfxSession</span><span class="w"> </span><span class="n">session</span><span class="p">;</span>
+<span class="linenos"> 5</span>
+<span class="linenos"> 6</span><span class="n">mfxVariant</span><span class="w"> </span><span class="n">HandleType</span><span class="p">;</span>
+<span class="linenos"> 7</span><span class="n">HandleType</span><span class="p">.</span><span class="n">Type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_VARIANT_TYPE_U32</span><span class="p">;</span>
+<span class="linenos"> 8</span><span class="n">HandleType</span><span class="p">.</span><span class="n">Data</span><span class="p">.</span><span class="n">U32</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_HANDLE_VA_DISPLAY</span><span class="p">;</span>
+<span class="linenos"> 9</span><span class="n">MFXSetConfigFilterProperty</span><span class="p">(</span><span class="n">config1</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="n">mfxU8</span><span class="o">*</span><span class="p">)</span><span class="s">&quot;mfxHandleType&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">HandleType</span><span class="p">);</span>
+<span class="linenos">10</span>
+<span class="linenos">11</span><span class="n">mfxVariant</span><span class="w"> </span><span class="n">DisplayHandle</span><span class="p">;</span>
+<span class="linenos">12</span><span class="n">DisplayHandle</span><span class="p">.</span><span class="n">Type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_VARIANT_TYPE_PTR</span><span class="p">;</span>
+<span class="linenos">13</span><span class="n">HandleType</span><span class="p">.</span><span class="n">Data</span><span class="p">.</span><span class="n">Ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vaDisplay</span><span class="p">;</span>
+<span class="linenos">14</span><span class="n">MFXSetConfigFilterProperty</span><span class="p">(</span><span class="n">config2</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="n">mfxU8</span><span class="o">*</span><span class="p">)</span><span class="s">&quot;mfxHDL&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">DisplayHandle</span><span class="p">);</span>
+<span class="linenos">15</span>
+<span class="linenos">16</span><span class="n">MFXCreateSession</span><span class="p">(</span><span class="n">loader</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">session</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+<section id="work-with-hardware-acceleration-in-legacy-mode">
+<h2>Work with Hardware Acceleration in Legacy Mode<a class="headerlink" href="#work-with-hardware-acceleration-in-legacy-mode" title="Permalink to this heading">#</a></h2>
+<section id="work-with-multiple-media-devices">
+<h3>Work with Multiple Media Devices<a class="headerlink" href="#work-with-multiple-media-devices" title="Permalink to this heading">#</a></h3>
+<p>If your system has multiple graphics adapters, you may need hints on which
+adapter is better suited to process a particular workload. The legacy mode of
+Intel<sup>®</sup> VPL provides a helper API to select the most suitable adapter for your
+workload based on the provided workload description.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p><a class="reference internal" href="../API_ref/VPL_func_adapters.html#_CPPv416MFXQueryAdaptersP16mfxComponentInfoP15mfxAdaptersInfo" title="MFXQueryAdapters"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXQueryAdapters()</span></code></a>, <a class="reference internal" href="../API_ref/VPL_func_adapters.html#_CPPv422MFXQueryAdaptersDecodeP12mfxBitstream6mfxU32P15mfxAdaptersInfo" title="MFXQueryAdaptersDecode"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXQueryAdaptersDecode()</span></code></a>,
+and <a class="reference internal" href="../API_ref/VPL_func_adapters.html#_CPPv422MFXQueryAdaptersNumberP6mfxU32" title="MFXQueryAdaptersNumber"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXQueryAdaptersNumber()</span></code></a> are deprecated starting
+from API 2.9. Applications should use <a class="reference internal" href="../API_ref/VPL_disp_api_func.html#_CPPv422MFXEnumImplementations9mfxLoader6mfxU3225mfxImplCapsDeliveryFormatP6mfxHDL" title="MFXEnumImplementations"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXEnumImplementations()</span></code></a>
+and <a class="reference internal" href="../API_ref/VPL_disp_api_func.html#_CPPv426MFXSetConfigFilterProperty9mfxConfigPK5mfxU810mfxVariant" title="MFXSetConfigFilterProperty"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXSetConfigFilterProperty()</span></code></a> to query adapter
+capabilities and to select a suitable adapter for the input workload.</p>
+</div>
+<p>The following example shows workload initialization on a discrete adapter
+in legacy mode:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="n">mfxU32</span><span class="w"> </span><span class="n">num_adapters_available</span><span class="p">;</span>
+<span class="linenos"> 2</span><span class="n">mfxIMPL</span><span class="w"> </span><span class="n">impl</span><span class="p">;</span>
+<span class="linenos"> 3</span>
+<span class="linenos"> 4</span><span class="c1">// Query number of graphics adapters available on system</span>
+<span class="linenos"> 5</span><span class="n">mfxStatus</span><span class="w"> </span><span class="n">sts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFXQueryAdaptersNumber</span><span class="p">(</span><span class="o">&amp;</span><span class="n">num_adapters_available</span><span class="p">);</span>
+<span class="linenos"> 6</span><span class="n">MSDK_CHECK_STATUS</span><span class="p">(</span><span class="n">sts</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;MFXQueryAdaptersNumber failed&quot;</span><span class="p">);</span>
+<span class="linenos"> 7</span>
+<span class="linenos"> 8</span><span class="c1">// Allocate memory for response</span>
+<span class="linenos"> 9</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">mfxAdapterInfo</span><span class="o">&gt;</span><span class="w"> </span><span class="n">displays_data</span><span class="p">(</span><span class="n">num_adapters_available</span><span class="p">);</span>
+<span class="linenos">10</span><span class="n">mfxAdaptersInfo</span><span class="w"> </span><span class="n">adapters</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">displays_data</span><span class="p">.</span><span class="n">data</span><span class="p">(),</span><span class="w"> </span><span class="n">mfxU32</span><span class="p">(</span><span class="n">displays_data</span><span class="p">.</span><span class="n">size</span><span class="p">()),</span><span class="w"> </span><span class="mi">0u</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="mi">0</span><span class="p">}</span><span class="w"> </span><span class="p">};</span>
+<span class="linenos">11</span>
+<span class="linenos">12</span><span class="c1">// Query information about all adapters (mind that first parameter is NULL)</span>
+<span class="linenos">13</span><span class="n">sts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFXQueryAdapters</span><span class="p">(</span><span class="k">nullptr</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">adapters</span><span class="p">);</span>
+<span class="linenos">14</span><span class="n">MSDK_CHECK_STATUS</span><span class="p">(</span><span class="n">sts</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;MFXQueryAdapters failed&quot;</span><span class="p">);</span>
+<span class="linenos">15</span>
+<span class="linenos">16</span><span class="c1">// Find dGfx adapter in list of adapters</span>
+<span class="linenos">17</span><span class="k">auto</span><span class="w"> </span><span class="n">idx_d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">find_if</span><span class="p">(</span><span class="n">adapters</span><span class="p">.</span><span class="n">Adapters</span><span class="p">,</span><span class="w"> </span><span class="n">adapters</span><span class="p">.</span><span class="n">Adapters</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">adapters</span><span class="p">.</span><span class="n">NumActual</span><span class="p">,</span>
+<span class="linenos">18</span><span class="w">    </span><span class="p">[](</span><span class="k">const</span><span class="w"> </span><span class="n">mfxAdapterInfo</span><span class="w"> </span><span class="n">info</span><span class="p">)</span>
+<span class="linenos">19</span><span class="p">{</span>
+<span class="linenos">20</span><span class="w">   </span><span class="k">return</span><span class="w"> </span><span class="n">info</span><span class="p">.</span><span class="n">Platform</span><span class="p">.</span><span class="n">MediaAdapterType</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">mfxMediaAdapterType</span><span class="o">::</span><span class="n">MFX_MEDIA_DISCRETE</span><span class="p">;</span>
+<span class="linenos">21</span><span class="p">});</span>
+<span class="linenos">22</span>
+<span class="linenos">23</span><span class="c1">// No dGfx in list</span>
+<span class="linenos">24</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">idx_d</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">adapters</span><span class="p">.</span><span class="n">Adapters</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">adapters</span><span class="p">.</span><span class="n">NumActual</span><span class="p">)</span>
+<span class="linenos">25</span><span class="p">{</span>
+<span class="linenos">26</span><span class="w">   </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Warning: No dGfx detected on machine</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="linenos">27</span><span class="w">   </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
+<span class="linenos">28</span><span class="p">}</span>
+<span class="linenos">29</span>
+<span class="linenos">30</span><span class="n">mfxU32</span><span class="w"> </span><span class="n">idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">static_cast</span><span class="o">&lt;</span><span class="n">mfxU32</span><span class="o">&gt;</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">distance</span><span class="p">(</span><span class="n">adapters</span><span class="p">.</span><span class="n">Adapters</span><span class="p">,</span><span class="w"> </span><span class="n">idx_d</span><span class="p">));</span>
+<span class="linenos">31</span>
+<span class="linenos">32</span><span class="c1">// Choose correct implementation for discrete adapter</span>
+<span class="linenos">33</span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">adapters</span><span class="p">.</span><span class="n">Adapters</span><span class="p">[</span><span class="n">idx</span><span class="p">].</span><span class="n">Number</span><span class="p">)</span>
+<span class="linenos">34</span><span class="p">{</span>
+<span class="linenos">35</span><span class="k">case</span><span class="w"> </span><span class="mi">0</span><span class="p">:</span>
+<span class="linenos">36</span><span class="w">   </span><span class="n">impl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_IMPL_HARDWARE</span><span class="p">;</span>
+<span class="linenos">37</span><span class="w">   </span><span class="k">break</span><span class="p">;</span>
+<span class="linenos">38</span><span class="k">case</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span>
+<span class="linenos">39</span><span class="w">   </span><span class="n">impl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_IMPL_HARDWARE2</span><span class="p">;</span>
+<span class="linenos">40</span><span class="w">   </span><span class="k">break</span><span class="p">;</span>
+<span class="linenos">41</span><span class="k">case</span><span class="w"> </span><span class="mi">2</span><span class="p">:</span>
+<span class="linenos">42</span><span class="w">   </span><span class="n">impl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_IMPL_HARDWARE3</span><span class="p">;</span>
+<span class="linenos">43</span><span class="w">   </span><span class="k">break</span><span class="p">;</span>
+<span class="linenos">44</span><span class="k">case</span><span class="w"> </span><span class="mi">3</span><span class="p">:</span>
+<span class="linenos">45</span><span class="w">   </span><span class="n">impl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_IMPL_HARDWARE4</span><span class="p">;</span>
+<span class="linenos">46</span><span class="w">   </span><span class="k">break</span><span class="p">;</span>
+<span class="linenos">47</span>
+<span class="linenos">48</span><span class="k">default</span><span class="o">:</span>
+<span class="linenos">49</span><span class="w">   </span><span class="c1">// Try searching on all display adapters</span>
+<span class="linenos">50</span><span class="w">   </span><span class="n">impl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_IMPL_HARDWARE_ANY</span><span class="p">;</span>
+<span class="linenos">51</span><span class="w">   </span><span class="k">break</span><span class="p">;</span>
+<span class="linenos">52</span><span class="p">}</span>
+<span class="linenos">53</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Choosen implementation: %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">impl</span><span class="p">);</span>
+<span class="linenos">54</span><span class="c1">// Initialize mfxSession in regular way with obtained implementation.</span>
+</pre></div>
+</div>
+<p>The example shows that after obtaining the adapter list with
+<a class="reference internal" href="../API_ref/VPL_func_adapters.html#_CPPv416MFXQueryAdaptersP16mfxComponentInfoP15mfxAdaptersInfo" title="MFXQueryAdapters"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXQueryAdapters()</span></code></a>, further initialization of <a class="reference internal" href="../API_ref/VPL_ref_types.html#_CPPv410mfxSession" title="mfxSession"><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">mfxSession</span></code></a>
+is performed in the regular way. The specific adapter is selected using
+the <a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv417MFX_IMPL_HARDWARE" title="MFX_IMPL_HARDWARE"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">MFX_IMPL_HARDWARE</span></code></a>, <a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv418MFX_IMPL_HARDWARE2" title="MFX_IMPL_HARDWARE2"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">MFX_IMPL_HARDWARE2</span></code></a>,
+<a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv418MFX_IMPL_HARDWARE3" title="MFX_IMPL_HARDWARE3"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">MFX_IMPL_HARDWARE3</span></code></a>, or <a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv418MFX_IMPL_HARDWARE4" title="MFX_IMPL_HARDWARE4"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">MFX_IMPL_HARDWARE4</span></code></a>
+values of <a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv47mfxIMPL" title="mfxIMPL"><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">mfxIMPL</span></code></a>.</p>
+<p>The following example shows the use of <a class="reference internal" href="../API_ref/VPL_func_adapters.html#_CPPv416MFXQueryAdaptersP16mfxComponentInfoP15mfxAdaptersInfo" title="MFXQueryAdapters"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXQueryAdapters()</span></code></a> for querying
+the most suitable adapter for a particular encode workload:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="n">mfxU32</span><span class="w"> </span><span class="n">num_adapters_available</span><span class="p">;</span>
+<span class="linenos"> 2</span><span class="n">mfxIMPL</span><span class="w"> </span><span class="n">impl</span><span class="p">;</span>
+<span class="linenos"> 3</span><span class="n">mfxVideoParam</span><span class="w"> </span><span class="n">Encode_mfxVideoParam</span><span class="p">;</span>
+<span class="linenos"> 4</span>
+<span class="linenos"> 5</span><span class="c1">// Query number of graphics adapters available on system</span>
+<span class="linenos"> 6</span><span class="n">mfxStatus</span><span class="w"> </span><span class="n">sts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFXQueryAdaptersNumber</span><span class="p">(</span><span class="o">&amp;</span><span class="n">num_adapters_available</span><span class="p">);</span>
+<span class="linenos"> 7</span><span class="n">MSDK_CHECK_STATUS</span><span class="p">(</span><span class="n">sts</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;MFXQueryAdaptersNumber failed&quot;</span><span class="p">);</span>
+<span class="linenos"> 8</span>
+<span class="linenos"> 9</span><span class="c1">// Allocate memory for response</span>
+<span class="linenos">10</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">mfxAdapterInfo</span><span class="o">&gt;</span><span class="w"> </span><span class="n">displays_data</span><span class="p">(</span><span class="n">num_adapters_available</span><span class="p">);</span>
+<span class="linenos">11</span><span class="n">mfxAdaptersInfo</span><span class="w"> </span><span class="n">adapters</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">displays_data</span><span class="p">.</span><span class="n">data</span><span class="p">(),</span><span class="w"> </span><span class="n">mfxU32</span><span class="p">(</span><span class="n">displays_data</span><span class="p">.</span><span class="n">size</span><span class="p">()),</span><span class="w"> </span><span class="mi">0u</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="mi">0</span><span class="p">}</span><span class="w"> </span><span class="p">};</span>
+<span class="linenos">12</span>
+<span class="linenos">13</span><span class="c1">// Fill description of Encode workload</span>
+<span class="linenos">14</span><span class="n">mfxComponentInfo</span><span class="w"> </span><span class="n">interface_request</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">MFX_COMPONENT_ENCODE</span><span class="p">,</span><span class="w"> </span><span class="n">Encode_mfxVideoParam</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="mi">0</span><span class="p">}</span><span class="w"> </span><span class="p">};</span>
+<span class="linenos">15</span>
+<span class="linenos">16</span><span class="c1">// Query information about suitable adapters for Encode workload described by Encode_mfxVideoParam</span>
+<span class="linenos">17</span><span class="n">sts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFXQueryAdapters</span><span class="p">(</span><span class="o">&amp;</span><span class="n">interface_request</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">adapters</span><span class="p">);</span>
+<span class="linenos">18</span>
+<span class="linenos">19</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">sts</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">MFX_ERR_NOT_FOUND</span><span class="p">)</span>
+<span class="linenos">20</span><span class="p">{</span>
+<span class="linenos">21</span><span class="w">   </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Error: No adapters on machine capable to process desired workload</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="linenos">22</span><span class="w">   </span><span class="k">return</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span>
+<span class="linenos">23</span><span class="p">}</span>
+<span class="linenos">24</span>
+<span class="linenos">25</span><span class="n">MSDK_CHECK_STATUS</span><span class="p">(</span><span class="n">sts</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;MFXQueryAdapters failed&quot;</span><span class="p">);</span>
+<span class="linenos">26</span>
+<span class="linenos">27</span><span class="c1">// Choose correct implementation for discrete adapter. Mind usage of index 0, this is best suitable adapter from MSDK perspective</span>
+<span class="linenos">28</span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">adapters</span><span class="p">.</span><span class="n">Adapters</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">Number</span><span class="p">)</span>
+<span class="linenos">29</span><span class="p">{</span>
+<span class="linenos">30</span><span class="k">case</span><span class="w"> </span><span class="mi">0</span><span class="p">:</span>
+<span class="linenos">31</span><span class="w">   </span><span class="n">impl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_IMPL_HARDWARE</span><span class="p">;</span>
+<span class="linenos">32</span><span class="w">   </span><span class="k">break</span><span class="p">;</span>
+<span class="linenos">33</span><span class="k">case</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span>
+<span class="linenos">34</span><span class="w">   </span><span class="n">impl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_IMPL_HARDWARE2</span><span class="p">;</span>
+<span class="linenos">35</span><span class="w">   </span><span class="k">break</span><span class="p">;</span>
+<span class="linenos">36</span><span class="k">case</span><span class="w"> </span><span class="mi">2</span><span class="p">:</span>
+<span class="linenos">37</span><span class="w">   </span><span class="n">impl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_IMPL_HARDWARE3</span><span class="p">;</span>
+<span class="linenos">38</span><span class="w">   </span><span class="k">break</span><span class="p">;</span>
+<span class="linenos">39</span><span class="k">case</span><span class="w"> </span><span class="mi">3</span><span class="p">:</span>
+<span class="linenos">40</span><span class="w">   </span><span class="n">impl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_IMPL_HARDWARE4</span><span class="p">;</span>
+<span class="linenos">41</span><span class="w">   </span><span class="k">break</span><span class="p">;</span>
+<span class="linenos">42</span>
+<span class="linenos">43</span><span class="k">default</span><span class="o">:</span>
+<span class="linenos">44</span><span class="w">   </span><span class="c1">// Try searching on all display adapters</span>
+<span class="linenos">45</span><span class="w">   </span><span class="n">impl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_IMPL_HARDWARE_ANY</span><span class="p">;</span>
+<span class="linenos">46</span><span class="w">   </span><span class="k">break</span><span class="p">;</span>
+<span class="linenos">47</span><span class="p">}</span>
+<span class="linenos">48</span>
+<span class="linenos">49</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Choosen implementation: %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">impl</span><span class="p">);</span>
+<span class="linenos">50</span>
+<span class="linenos">51</span><span class="c1">// Initialize mfxSession in regular way with obtained implementation</span>
+</pre></div>
+</div>
+<p>See the <a class="reference internal" href="../API_ref/VPL_func_adapters.html#_CPPv416MFXQueryAdaptersP16mfxComponentInfoP15mfxAdaptersInfo" title="MFXQueryAdapters"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXQueryAdapters()</span></code></a> description for adapter priority rules.</p>
+</section>
+<section id="work-with-video-memory">
+<h3>Work with Video Memory<a class="headerlink" href="#work-with-video-memory" title="Permalink to this heading">#</a></h3>
+<p>To fully utilize the Intel<sup>®</sup> VPL acceleration capability, the application should support
+OS specific infrastructures. If using Microsoft* Windows*, the application
+should support Microsoft DirectX*. If using Linux*, the application should
+support the VA-API for Linux.</p>
+<p>The hardware acceleration support in an application consists of video memory
+support and acceleration device support.</p>
+<p>Depending on the usage model, the application can use video memory at different
+stages in the pipeline. Three major scenarios are shown in the following
+diagrams:</p>
+<div class="graphviz"><img src="../_images/graphviz-e560f21ce08a6938ad530120b8308bb58218e037.png" alt="digraph {
+  rankdir=LR;
+  labelloc=&quot;t&quot;;
+  label=&quot;Intel® VPL functions interconnection&quot;;
+  F1 [shape=octagon label=&quot;Intel® VPL Function&quot;];
+  F2 [shape=octagon label=&quot;Intel® VPL Function&quot;];
+  F1-&gt;F2 [ label=&quot;Video Memory&quot; ];
+}" class="graphviz" /></div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="graphviz"><img src="../_images/graphviz-0985d1f19814cee2fff69ffb6e3f79a4cac29890.png" alt="digraph {
+  rankdir=LR;
+  labelloc=&quot;t&quot;;
+  label=&quot;Video memory as output&quot;;
+  F3 [shape=octagon label=&quot;Intel® VPL Function&quot;];
+  F4 [shape=octagon label=&quot;Application&quot; fillcolor=lightgrey];
+  F3-&gt;F4 [ label=&quot;Video Memory&quot; ];
+}" class="graphviz" /></div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<div class="graphviz"><img src="../_images/graphviz-99a6aa89e20c8c972b71eaf08a0911c4ac31aab6.png" alt="digraph {
+  rankdir=LR;
+  labelloc=&quot;t&quot;;
+  label=&quot;Video memory as input&quot;;
+  F5 [shape=octagon label=&quot;Application&quot;];
+  F6 [shape=octagon label=&quot;Intel® VPL Function&quot;];
+  F5-&gt;F6 [ label=&quot;Video Memory&quot; ];
+}" class="graphviz" /></div>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
+<p>The application must use the <a class="reference internal" href="../API_ref/VPL_structs_cross_component.html#_CPPv4N13mfxVideoParam9IOPatternE" title="mfxVideoParam::IOPattern"><code class="xref cpp cpp-member docutils literal notranslate"><span class="pre">mfxVideoParam::IOPattern</span></code></a> field to
+indicate the I/O access pattern during initialization. Subsequent function calls
+must follow this access pattern. For example, if a function operates on video
+memory surfaces at both input and output, the
+application must specify the access pattern <cite>IOPattern</cite> at initialization in
+<a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv429MFX_IOPATTERN_IN_VIDEO_MEMORY" title="MFX_IOPATTERN_IN_VIDEO_MEMORY"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">MFX_IOPATTERN_IN_VIDEO_MEMORY</span></code></a> for input and
+<a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv430MFX_IOPATTERN_OUT_VIDEO_MEMORY" title="MFX_IOPATTERN_OUT_VIDEO_MEMORY"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">MFX_IOPATTERN_OUT_VIDEO_MEMORY</span></code></a> for output. This particular I/O
+access pattern must not change inside the <strong>Init</strong> <strong>-</strong> <strong>Close</strong> sequence.</p>
+<p>Initialization of any hardware accelerated Intel<sup>®</sup> VPL component requires the
+acceleration device handle. This handle is also used by the Intel<sup>®</sup> VPL component to
+query hardware capabilities. The application can share its device with Intel<sup>®</sup> VPL
+by passing the device handle through the <a class="reference internal" href="../API_ref/VPL_func_vidcore.html#_CPPv422MFXVideoCORE_SetHandle10mfxSession13mfxHandleType6mfxHDL" title="MFXVideoCORE_SetHandle"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoCORE_SetHandle()</span></code></a>
+function. It is recommended to share the handle before any actual usage of Intel<sup>®</sup> VPL.</p>
+</section>
+<section id="work-with-microsoft-directx-applications">
+<span id="work-ms-directx-app"></span><h3>Work with Microsoft DirectX* Applications<a class="headerlink" href="#work-with-microsoft-directx-applications" title="Permalink to this heading">#</a></h3>
+<p>Intel<sup>®</sup> VPL supports two different infrastructures for hardware acceleration on the
+Microsoft Windows OS: the Direct3D* 9 DXVA2 and Direct3D 11 Video API. If Direct3D 9
+DXVA2 is used for hardware acceleration, the application should use the
+<cite>IDirect3DDeviceManager9</cite> interface as the acceleration device handle. If the
+Direct3D 11 Video API is used for hardware acceleration, the application should
+use the <cite>ID3D11Device</cite> interface as the acceleration device handle.</p>
+<p>The application should share one of these interfaces with Intel<sup>®</sup> VPL through the
+<a class="reference internal" href="../API_ref/VPL_func_vidcore.html#_CPPv422MFXVideoCORE_SetHandle10mfxSession13mfxHandleType6mfxHDL" title="MFXVideoCORE_SetHandle"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoCORE_SetHandle()</span></code></a> function. If the application does not provide
+the interface, then Intel<sup>®</sup> VPL creates its own internal acceleration device. As a result,
+Intel<sup>®</sup> VPL input and output will be limited to system memory only for the external allocation mode, which will reduce Intel<sup>®</sup> VPL performance. If Intel<sup>®</sup> VPL fails to create a valid acceleration device,
+then Intel<sup>®</sup> VPL cannot proceed with hardware acceleration and returns an error status to the
+application.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>It is recommended to work in the internal allocation mode if the application does not provide the <cite>IDirect3DDeviceManager9</cite> or <cite>ID3D11Device</cite> interface.</p>
+</div>
+<p>The application must create the Direct3D 9 device with the flag
+<code class="docutils literal notranslate"><span class="pre">D3DCREATE_MULTITHREADED</span></code>. The flag <code class="docutils literal notranslate"><span class="pre">D3DCREATE_FPU_PRESERVE</span></code> is also
+recommended. This influences floating-point calculations, including PTS values.</p>
+<p>The application must also set multi-threading mode for the Direct3D 11 device.
+The following example shows how to set multi-threading mode for a Direct3D 11
+device:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="n">ID3D11Device</span><span class="w">            </span><span class="o">*</span><span class="n">pD11Device</span><span class="p">;</span>
+<span class="linenos">2</span><span class="n">ID3D11DeviceContext</span><span class="w">     </span><span class="o">*</span><span class="n">pD11Context</span><span class="p">;</span>
+<span class="linenos">3</span><span class="n">ID3D10Multithread</span><span class="w">       </span><span class="o">*</span><span class="n">pD10Multithread</span><span class="p">;</span>
+<span class="linenos">4</span>
+<span class="linenos">5</span><span class="n">pD11Device</span><span class="o">-&gt;</span><span class="n">GetImmediateContext</span><span class="p">(</span><span class="o">&amp;</span><span class="n">pD11Context</span><span class="p">);</span>
+<span class="linenos">6</span><span class="n">pD11Context</span><span class="o">-&gt;</span><span class="n">QueryInterface</span><span class="p">(</span><span class="n">IID_ID3D10Multithread</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">pD10Multithread</span><span class="p">);</span>
+<span class="linenos">7</span><span class="n">pD10Multithread</span><span class="o">-&gt;</span><span class="n">SetMultithreadProtected</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>During hardware acceleration, if a Direct3D “device lost” event occurs, the Intel<sup>®</sup> VPL
+operation terminates with the <a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv4N9mfxStatus19MFX_ERR_DEVICE_LOSTE" title="mfxStatus::MFX_ERR_DEVICE_LOST"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">mfxStatus::MFX_ERR_DEVICE_LOST</span></code></a>
+return status. If the application provided the Direct3D device handle, the
+application must reset the Direct3D device.</p>
+<p>When the Intel<sup>®</sup> VPL decoder creates auxiliary devices for hardware acceleration, it
+must allocate the list of Direct3D surfaces for I/O access, also known as the
+surface chain, and pass the surface chain as part of the device creation command.
+In most cases, the surface chain is the frame surface pool mentioned in the
+<a class="reference internal" href="VPL_prg_frame.html#frame-surface-manag"><span class="std std-ref">Frame Surface Locking</span></a> section.</p>
+<p>The application passes the surface chain to the Intel<sup>®</sup> VPL component <strong>Init</strong> function
+through a Intel<sup>®</sup> VPL external allocator callback. See the
+<a class="reference internal" href="VPL_prg_mem.html#mem-alloc-ext-alloc"><span class="std std-ref">Memory Allocation and External Allocators</span></a> section
+for details.</p>
+<p>Only the decoder <strong>Init</strong> function requests the external surface chain from the
+application and uses it for auxiliary device creation. Encoder and VPP <strong>Init</strong>
+functions may only request internal surfaces. See the
+<a class="reference internal" href="../API_ref/VPL_enums.html#extmemframetype"><span class="std std-ref">ExtMemFrameType enumerator</span></a> for more details about
+different memory types.</p>
+<p>Depending on configuration parameters, Intel<sup>®</sup> VPL requires different surface types.
+It is strongly recommended to call the <a class="reference internal" href="../API_ref/VPL_func_vid_encode.html#_CPPv426MFXVideoENCODE_QueryIOSurf10mfxSessionP13mfxVideoParamP20mfxFrameAllocRequest" title="MFXVideoENCODE_QueryIOSurf"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoENCODE_QueryIOSurf()</span></code></a>
+function, the <a class="reference internal" href="../API_ref/VPL_func_vid_decode.html#_CPPv426MFXVideoDECODE_QueryIOSurf10mfxSessionP13mfxVideoParamP20mfxFrameAllocRequest" title="MFXVideoDECODE_QueryIOSurf"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoDECODE_QueryIOSurf()</span></code></a> function, or the
+<a class="reference internal" href="../API_ref/VPL_func_vid_vpp.html#_CPPv423MFXVideoVPP_QueryIOSurf10mfxSessionP13mfxVideoParamAL2E_20mfxFrameAllocRequest" title="MFXVideoVPP_QueryIOSurf"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoVPP_QueryIOSurf()</span></code></a> function to determine the appropriate type in
+the external allocation mode.</p>
+</section>
+<section id="work-with-va-api-applications">
+<h3>Work with VA-API Applications<a class="headerlink" href="#work-with-va-api-applications" title="Permalink to this heading">#</a></h3>
+<p>Intel<sup>®</sup> VPL supports the VA-API infrastructure for hardware acceleration on Linux.
+The application should use the <cite>VADisplay</cite> interface as the acceleration device
+handle for this infrastructure and share it with Intel<sup>®</sup> VPL through the
+<a class="reference internal" href="../API_ref/VPL_func_vidcore.html#_CPPv422MFXVideoCORE_SetHandle10mfxSession13mfxHandleType6mfxHDL" title="MFXVideoCORE_SetHandle"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoCORE_SetHandle()</span></code></a> function.</p>
+<p>The following example shows how to obtain the VA display from the X Window System:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="n">Display</span>   <span class="o">*</span><span class="n">x11_display</span><span class="p">;</span>
+<span class="linenos">2</span><span class="n">VADisplay</span> <span class="n">va_display</span><span class="p">;</span>
+<span class="linenos">3</span>
+<span class="linenos">4</span><span class="n">x11_display</span> <span class="o">=</span> <span class="n">XOpenDisplay</span><span class="p">(</span><span class="n">current_display</span><span class="p">);</span>
+<span class="linenos">5</span><span class="n">va_display</span>  <span class="o">=</span> <span class="n">vaGetDisplay</span><span class="p">(</span><span class="n">x11_display</span><span class="p">);</span>
+<span class="linenos">6</span>
+<span class="linenos">7</span><span class="n">MFXVideoCORE_SetHandle</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">MFX_HANDLE_VA_DISPLAY</span><span class="p">,</span> <span class="p">(</span><span class="n">mfxHDL</span><span class="p">)</span> <span class="n">va_display</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The following example shows how to obtain the VA display from the Direct
+Rendering Manager:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="nb">int</span> <span class="n">card</span><span class="p">;</span>
+<span class="linenos">2</span><span class="n">VADisplay</span> <span class="n">va_display</span><span class="p">;</span>
+<span class="linenos">3</span>
+<span class="linenos">4</span><span class="n">card</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;/dev/dri/card0&quot;</span><span class="p">,</span> <span class="n">O_RDWR</span><span class="p">);</span> <span class="o">/*</span> <span class="n">primary</span> <span class="n">card</span> <span class="o">*/</span>
+<span class="linenos">5</span><span class="n">va_display</span> <span class="o">=</span> <span class="n">vaGetDisplayDRM</span><span class="p">(</span><span class="n">card</span><span class="p">);</span>
+<span class="linenos">6</span><span class="n">vaInitialize</span><span class="p">(</span><span class="n">va_display</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">major_version</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">minor_version</span><span class="p">);</span>
+<span class="linenos">7</span>
+<span class="linenos">8</span><span class="n">MFXVideoCORE_SetHandle</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="n">MFX_HANDLE_VA_DISPLAY</span><span class="p">,</span> <span class="p">(</span><span class="n">mfxHDL</span><span class="p">)</span> <span class="n">va_display</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>When the Intel<sup>®</sup> VPL decoder creates a hardware acceleration device, it must allocate
+the list of video memory surfaces for I/O access, also known as the surface chain,
+and pass the surface chain as part of the device creation command. The
+application passes the surface chain to the Intel<sup>®</sup> VPL component <strong>Init</strong> function
+through a Intel<sup>®</sup> VPL external allocator callback.  See the
+<a class="reference internal" href="VPL_prg_mem.html#mem-alloc-ext-alloc"><span class="std std-ref">Memory Allocation and External Allocators</span></a> section
+for details.
+Starting from Intel<sup>®</sup> VPL API version 2.0, Intel<sup>®</sup> VPL creates its own surface chain if an
+external allocator is not set. See the :ref`New Model to work with Hardware Acceleration &lt;hw-acceleration&gt;`
+section for details.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The VA-API does not define any surface types and the application can
+use either <a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv439MFX_MEMTYPE_VIDEO_MEMORY_DECODER_TARGET" title="MFX_MEMTYPE_VIDEO_MEMORY_DECODER_TARGET"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">MFX_MEMTYPE_VIDEO_MEMORY_DECODER_TARGET</span></code></a>
+or <a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv441MFX_MEMTYPE_VIDEO_MEMORY_PROCESSOR_TARGET" title="MFX_MEMTYPE_VIDEO_MEMORY_PROCESSOR_TARGET"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">MFX_MEMTYPE_VIDEO_MEMORY_PROCESSOR_TARGET</span></code></a> to indicate data in video
+memory.</p>
+</div>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="VPL_prg_config.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Parameter Configuration</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="VPL_prg_mem.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Memory Allocation and External Allocators</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#new-model-to-work-with-hardware-acceleration">New Model to Work with Hardware Acceleration</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#work-with-hardware-acceleration-in-legacy-mode">Work with Hardware Acceleration in Legacy Mode</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#work-with-multiple-media-devices">Work with Multiple Media Devices</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#work-with-video-memory">Work with Video Memory</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#work-with-microsoft-directx-applications">Work with Microsoft DirectX* Applications</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#work-with-va-api-applications">Work with VA-API Applications</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023, Intel.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=5b4479735964841361fd"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

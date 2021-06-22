@@ -1,0 +1,873 @@
+<!--
+SPDX-FileCopyrightText: 2019-2023 Intel Corporation
+
+SPDX-License-Identifier: MIT
+-->
+
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Implementation Management &#8212; Intel® VPL  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=5b4479735964841361fd" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=5b4479735964841361fd" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd" />
+  <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=5b4479735964841361fd"></script>
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'API_ref/VPL_structs_impl_manage';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Cross-component Structures" href="VPL_structs_cross_component.html" />
+    <link rel="prev" title="Memory Structures" href="VPL_structs_memory.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Intel® VPL  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../VPL_intel_media_sdk.html">Intel<sup>®</sup> VPL for Intel<sup>®</sup> Media Software Development Kit Users</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../architecture/index.html">Architecture</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/VPL_decoding.html">Video Decoding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/VPL_encoding.html">Video Encoding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/VPL_processing.html">Video Processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/VPL_decoding_vpp.html">Video Decoding with multiple video processing</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../programming_guide/index.html">Programming Guide</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_stc.html">Status Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_session.html">Intel<sup>®</sup> VPL Session</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_frame.html">Frame and Fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_decoding.html">Decoding Procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_encoding.html">Encoding Procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_vpp.html">Video Processing Procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_transcoding.html">Transcoding Procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_config.html">Parameter Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_hw.html">Hardware Acceleration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_mem.html">Memory Allocation and External Allocators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_surface_sharing.html">Importing and Exporting Shared Surfaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_err.html">Hardware Device Error Handling</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../VPL_summary.html">Mandatory APIs and Functions</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="VPL_api_ref.html">Intel<sup>®</sup> VPL API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="VPL_functions.html">Function Reference</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="VPL_func_vid_decode.html">VideoDECODE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_func_vid_encode.html">VideoENCODE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_func_vid_vpp.html">VideoVPP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_func_vidcore.html">VideoCORE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_func_session.html">Session Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_func_mem.html">Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_func_capabilities.html">Implementation Capabilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_func_adapters.html">Adapters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_func_vid_decode_vpp.html">VideoDECODE_VPP</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="VPL_structs.html">Structure Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="VPL_structs_type.html">Type Definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_structs_memory.html">Memory Structures</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">Implementation Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_structs_cross_component.html">Cross-component Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_structs_decode.html">Decode Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_structs_encode.html">Encode Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_structs_vpp.html">VPP Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_structs_protected.html">Protected Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_structs_decode_vpp.html">DECODE_VPP Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_structs_camera.html">Camera Structures</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_enums.html">Enumerator Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_defines.html">Define Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_ref_types.html">Type Reference</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="VPL_disp_api.html">Dispatcher API</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="VPL_disp_api_func.html">Dispatcher API Function Reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_disp_api_struct.html">Dispatcher API Structure Reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_disp_api_enum.html">Dispatcher API Enumeration Reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_disp_api_def.html">Dispatcher API Define Reference</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_guids.html">GUIDs Reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Versioning.html">Intel<sup>®</sup> VPL API Versioning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Experimental.html">Intel<sup>®</sup> VPL Experimental API</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../appendix/index.html">Appendices</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_a.html">Configuration Parameter Constraints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_b.html">Multiple-segment Encoding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_c.html">Streaming and Video Conferencing Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_d.html">Switchable Graphics and Multiple Monitors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_e.html">Working Directly with VA-API for Linux*</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_f.html">CQP HRD Mode Encoding</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../VPL_acronyms.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../VPL_deprecation.html">Deprecated API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../VPL_change_log.html">Change Log</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/API_ref/VPL_structs_impl_manage.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Implementation Management</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxadapterinfo">mfxAdapterInfo</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxadaptersinfo">mfxAdaptersInfo</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxextthreadsparam">mfxExtThreadsParam</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxinitparam">mfxInitParam</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxplatform">mfxPlatform</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxversion">mfxVersion</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxextdeviceaffinitymask">mfxExtDeviceAffinityMask</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxinitializationparam">mfxInitializationParam</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxautoselectimpldevicehandle">mfxAutoSelectImplDeviceHandle</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="implementation-management">
+<span id="struct-impl-manage"></span><h1>Implementation Management<a class="headerlink" href="#implementation-management" title="Permalink to this heading">#</a></h1>
+<p id="struct-impl-man-begin">Structures used for implementation management.</p>
+<section id="api">
+<span id="struct-impl-man-end"></span><h2>API<a class="headerlink" href="#api" title="Permalink to this heading">#</a></h2>
+<nav class="contents local" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#mfxadapterinfo" id="id1">mfxAdapterInfo</a></p></li>
+<li><p><a class="reference internal" href="#mfxadaptersinfo" id="id2">mfxAdaptersInfo</a></p></li>
+<li><p><a class="reference internal" href="#mfxextthreadsparam" id="id3">mfxExtThreadsParam</a></p></li>
+<li><p><a class="reference internal" href="#mfxinitparam" id="id4">mfxInitParam</a></p></li>
+<li><p><a class="reference internal" href="#mfxplatform" id="id5">mfxPlatform</a></p></li>
+<li><p><a class="reference internal" href="#mfxversion" id="id6">mfxVersion</a></p></li>
+<li><p><a class="reference internal" href="#mfxextdeviceaffinitymask" id="id7">mfxExtDeviceAffinityMask</a></p></li>
+<li><p><a class="reference internal" href="#mfxinitializationparam" id="id8">mfxInitializationParam</a></p></li>
+<li><p><a class="reference internal" href="#mfxautoselectimpldevicehandle" id="id9">mfxAutoSelectImplDeviceHandle</a></p></li>
+</ul>
+</nav>
+<section id="mfxadapterinfo">
+<h3><a class="toc-backref" href="#id1" role="doc-backlink">mfxAdapterInfo</a><a class="headerlink" href="#mfxadapterinfo" title="Permalink to this heading">#</a></h3>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv414mfxAdapterInfo">
+<span id="_CPPv314mfxAdapterInfo"></span><span id="_CPPv214mfxAdapterInfo"></span><span id="mfxAdapterInfo"></span><span class="target" id="structmfx_adapter_info"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mfxAdapterInfo</span></span></span><a class="headerlink" href="#_CPPv414mfxAdapterInfo" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Contains a description of the graphics adapter for the Legacy mode. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N14mfxAdapterInfo8PlatformE">
+<span id="_CPPv3N14mfxAdapterInfo8PlatformE"></span><span id="_CPPv2N14mfxAdapterInfo8PlatformE"></span><span id="mfxAdapterInfo::Platform__mfxPlatform"></span><span class="target" id="structmfx_adapter_info_1a4b8cd7b3e3d08352a9785b3649273a4f"></span><a class="reference internal" href="#_CPPv411mfxPlatform" title="mfxPlatform"><span class="n"><span class="pre">mfxPlatform</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Platform</span></span></span><a class="headerlink" href="#_CPPv4N14mfxAdapterInfo8PlatformE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Platform type description. See <a class="reference internal" href="#structmfx_platform"><span class="std std-ref">mfxPlatform</span></a> for details. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N14mfxAdapterInfo6NumberE">
+<span id="_CPPv3N14mfxAdapterInfo6NumberE"></span><span id="_CPPv2N14mfxAdapterInfo6NumberE"></span><span id="mfxAdapterInfo::Number__mfxU32"></span><span class="target" id="structmfx_adapter_info_1a1d1fcd65a47946cb6f2d60bb1df18efc"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU32" title="mfxU32"><span class="n"><span class="pre">mfxU32</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Number</span></span></span><a class="headerlink" href="#_CPPv4N14mfxAdapterInfo6NumberE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Value which uniquely characterizes media adapter. On Windows* this number can be used for initialization through DXVA interface (see <a class="reference external" href="https://docs.microsoft.com/en-us/windows/win32/api/dxgi/nf-dxgi-idxgifactory1-enumadapters1">example</a>). </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+<section id="mfxadaptersinfo">
+<h3><a class="toc-backref" href="#id2" role="doc-backlink">mfxAdaptersInfo</a><a class="headerlink" href="#mfxadaptersinfo" title="Permalink to this heading">#</a></h3>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv415mfxAdaptersInfo">
+<span id="_CPPv315mfxAdaptersInfo"></span><span id="_CPPv215mfxAdaptersInfo"></span><span id="mfxAdaptersInfo"></span><span class="target" id="structmfx_adapters_info"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mfxAdaptersInfo</span></span></span><a class="headerlink" href="#_CPPv415mfxAdaptersInfo" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Contains description of all graphics adapters available on the current system. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N15mfxAdaptersInfo8AdaptersE">
+<span id="_CPPv3N15mfxAdaptersInfo8AdaptersE"></span><span id="_CPPv2N15mfxAdaptersInfo8AdaptersE"></span><span id="mfxAdaptersInfo::Adapters__mfxAdapterInfoP"></span><span class="target" id="structmfx_adapters_info_1a6d1c6e6070bc122becaba757ffb96c91"></span><a class="reference internal" href="#_CPPv414mfxAdapterInfo" title="mfxAdapterInfo"><span class="n"><span class="pre">mfxAdapterInfo</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">Adapters</span></span></span><a class="headerlink" href="#_CPPv4N15mfxAdaptersInfo8AdaptersE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Pointer to array of <a class="reference internal" href="#structmfx_adapter_info"><span class="std std-ref">mfxAdapterInfo</span></a> structs allocated by user. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N15mfxAdaptersInfo8NumAllocE">
+<span id="_CPPv3N15mfxAdaptersInfo8NumAllocE"></span><span id="_CPPv2N15mfxAdaptersInfo8NumAllocE"></span><span id="mfxAdaptersInfo::NumAlloc__mfxU32"></span><span class="target" id="structmfx_adapters_info_1a6a29c5b13fd4e4b46a71259675755877"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU32" title="mfxU32"><span class="n"><span class="pre">mfxU32</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">NumAlloc</span></span></span><a class="headerlink" href="#_CPPv4N15mfxAdaptersInfo8NumAllocE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Length of Adapters array. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N15mfxAdaptersInfo9NumActualE">
+<span id="_CPPv3N15mfxAdaptersInfo9NumActualE"></span><span id="_CPPv2N15mfxAdaptersInfo9NumActualE"></span><span id="mfxAdaptersInfo::NumActual__mfxU32"></span><span class="target" id="structmfx_adapters_info_1a93c36f8239442109873902e1e59e49a2"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU32" title="mfxU32"><span class="n"><span class="pre">mfxU32</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">NumActual</span></span></span><a class="headerlink" href="#_CPPv4N15mfxAdaptersInfo9NumActualE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Number of Adapters entries filled by MFXQueryAdapters. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+<section id="mfxextthreadsparam">
+<h3><a class="toc-backref" href="#id3" role="doc-backlink">mfxExtThreadsParam</a><a class="headerlink" href="#mfxextthreadsparam" title="Permalink to this heading">#</a></h3>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv418mfxExtThreadsParam">
+<span id="_CPPv318mfxExtThreadsParam"></span><span id="_CPPv218mfxExtThreadsParam"></span><span id="mfxExtThreadsParam"></span><span class="target" id="structmfx_ext_threads_param"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mfxExtThreadsParam</span></span></span><a class="headerlink" href="#_CPPv418mfxExtThreadsParam" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Specifies options for threads created by this session. Attached to the <a class="reference internal" href="#structmfx_init_param"><span class="std std-ref">mfxInitParam</span></a> structure during legacy Intel(r) Media SDK session initialization or to <a class="reference internal" href="#structmfx_initialization_param"><span class="std std-ref">mfxInitializationParam</span></a> by the dispatcher in MFXCreateSession function. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N18mfxExtThreadsParam6HeaderE">
+<span id="_CPPv3N18mfxExtThreadsParam6HeaderE"></span><span id="_CPPv2N18mfxExtThreadsParam6HeaderE"></span><span id="mfxExtThreadsParam::Header__mfxExtBuffer"></span><span class="target" id="structmfx_ext_threads_param_1a585101e16fadafb98eada8dc5595db6e"></span><a class="reference internal" href="VPL_structs_type.html#_CPPv412mfxExtBuffer" title="mfxExtBuffer"><span class="n"><span class="pre">mfxExtBuffer</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Header</span></span></span><a class="headerlink" href="#_CPPv4N18mfxExtThreadsParam6HeaderE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_THREADS_PARAM. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N18mfxExtThreadsParam9NumThreadE">
+<span id="_CPPv3N18mfxExtThreadsParam9NumThreadE"></span><span id="_CPPv2N18mfxExtThreadsParam9NumThreadE"></span><span id="mfxExtThreadsParam::NumThread__mfxU16"></span><span class="target" id="structmfx_ext_threads_param_1af24984e5ae6f57ca6cf071d43d5da1a5"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">NumThread</span></span></span><a class="headerlink" href="#_CPPv4N18mfxExtThreadsParam9NumThreadE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>The number of threads. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N18mfxExtThreadsParam14SchedulingTypeE">
+<span id="_CPPv3N18mfxExtThreadsParam14SchedulingTypeE"></span><span id="_CPPv2N18mfxExtThreadsParam14SchedulingTypeE"></span><span id="mfxExtThreadsParam::SchedulingType__mfxI32"></span><span class="target" id="structmfx_ext_threads_param_1a5f3688f2d55eb8e0e3440ac00adb39a5"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxI32" title="mfxI32"><span class="n"><span class="pre">mfxI32</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">SchedulingType</span></span></span><a class="headerlink" href="#_CPPv4N18mfxExtThreadsParam14SchedulingTypeE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Scheduling policy for all threads. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N18mfxExtThreadsParam8PriorityE">
+<span id="_CPPv3N18mfxExtThreadsParam8PriorityE"></span><span id="_CPPv2N18mfxExtThreadsParam8PriorityE"></span><span id="mfxExtThreadsParam::Priority__mfxI32"></span><span class="target" id="structmfx_ext_threads_param_1af3b6f95c0e4701c0d7ce6d28818cd212"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxI32" title="mfxI32"><span class="n"><span class="pre">mfxI32</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Priority</span></span></span><a class="headerlink" href="#_CPPv4N18mfxExtThreadsParam8PriorityE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Priority for all threads. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N18mfxExtThreadsParam8reservedE">
+<span id="_CPPv3N18mfxExtThreadsParam8reservedE"></span><span id="_CPPv2N18mfxExtThreadsParam8reservedE"></span><span id="mfxExtThreadsParam::reserved__mfxU16A"></span><span class="target" id="structmfx_ext_threads_param_1a6a8342c20fa7fa6e04c2dd615256eff1"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">reserved</span></span></span><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">55</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#_CPPv4N18mfxExtThreadsParam8reservedE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Reserved for future use. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+<section id="mfxinitparam">
+<h3><a class="toc-backref" href="#id4" role="doc-backlink">mfxInitParam</a><a class="headerlink" href="#mfxinitparam" title="Permalink to this heading">#</a></h3>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv412mfxInitParam">
+<span id="_CPPv312mfxInitParam"></span><span id="_CPPv212mfxInitParam"></span><span id="mfxInitParam"></span><span class="target" id="structmfx_init_param"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mfxInitParam</span></span></span><a class="headerlink" href="#_CPPv412mfxInitParam" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Specifies advanced initialization parameters. A zero value in any of the fields indicates that the corresponding field is not explicitly specified. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N12mfxInitParam14ImplementationE">
+<span id="_CPPv3N12mfxInitParam14ImplementationE"></span><span id="_CPPv2N12mfxInitParam14ImplementationE"></span><span id="mfxInitParam::Implementation__mfxIMPL"></span><span class="target" id="structmfx_init_param_1a58972185d01a534e7acf266c66420a22"></span><a class="reference internal" href="VPL_enums.html#_CPPv47mfxIMPL" title="mfxIMPL"><span class="n"><span class="pre">mfxIMPL</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Implementation</span></span></span><a class="headerlink" href="#_CPPv4N12mfxInitParam14ImplementationE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Enumerator that indicates the desired legacy Intel(r) Media SDK implementation. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N12mfxInitParam7VersionE">
+<span id="_CPPv3N12mfxInitParam7VersionE"></span><span id="_CPPv2N12mfxInitParam7VersionE"></span><span id="mfxInitParam::Version__mfxVersion"></span><span class="target" id="structmfx_init_param_1a9f863ec522337ae1bb8f8069d9d95e4a"></span><a class="reference internal" href="#_CPPv410mfxVersion" title="mfxVersion"><span class="n"><span class="pre">mfxVersion</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Version</span></span></span><a class="headerlink" href="#_CPPv4N12mfxInitParam7VersionE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Structure which specifies minimum library version or zero, if not specified. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N12mfxInitParam15ExternalThreadsE">
+<span id="_CPPv3N12mfxInitParam15ExternalThreadsE"></span><span id="_CPPv2N12mfxInitParam15ExternalThreadsE"></span><span id="mfxInitParam::ExternalThreads__mfxU16"></span><span class="target" id="structmfx_init_param_1a539dc5197917f98a6027584bf217f504"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ExternalThreads</span></span></span><a class="headerlink" href="#_CPPv4N12mfxInitParam15ExternalThreadsE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Desired threading mode. Value 0 means internal threading, 1 - external. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N12mfxInitParam8ExtParamE">
+<span id="_CPPv3N12mfxInitParam8ExtParamE"></span><span id="_CPPv2N12mfxInitParam8ExtParamE"></span><span id="mfxInitParam::ExtParam__mfxExtBufferPP"></span><span class="target" id="structmfx_init_param_1af75bbbaafcd5618e265bcad352f2e6bf"></span><a class="reference internal" href="VPL_structs_type.html#_CPPv412mfxExtBuffer" title="mfxExtBuffer"><span class="n"><span class="pre">mfxExtBuffer</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">ExtParam</span></span></span><a class="headerlink" href="#_CPPv4N12mfxInitParam8ExtParamE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Points to an array of pointers to the extra configuration structures; see the ExtendedBufferID enumerator for a list of extended configurations. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N12mfxInitParam11NumExtParamE">
+<span id="_CPPv3N12mfxInitParam11NumExtParamE"></span><span id="_CPPv2N12mfxInitParam11NumExtParamE"></span><span id="mfxInitParam::NumExtParam__mfxU16"></span><span class="target" id="structmfx_init_param_1a1121b4223cff017c9699ebef29b51ed0"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">NumExtParam</span></span></span><a class="headerlink" href="#_CPPv4N12mfxInitParam11NumExtParamE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>The number of extra configuration structures attached to this structure. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N12mfxInitParam7GPUCopyE">
+<span id="_CPPv3N12mfxInitParam7GPUCopyE"></span><span id="_CPPv2N12mfxInitParam7GPUCopyE"></span><span id="mfxInitParam::GPUCopy__mfxU16"></span><span class="target" id="structmfx_init_param_1aedc171c5768a76c35fa6dbe5a9d1bfa9"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">GPUCopy</span></span></span><a class="headerlink" href="#_CPPv4N12mfxInitParam7GPUCopyE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Enables or disables GPU accelerated copying between video and system memory in legacy Intel(r) Media SDK components. See the GPUCopy enumerator for a list of valid values. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+<section id="mfxplatform">
+<h3><a class="toc-backref" href="#id5" role="doc-backlink">mfxPlatform</a><a class="headerlink" href="#mfxplatform" title="Permalink to this heading">#</a></h3>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv411mfxPlatform">
+<span id="_CPPv311mfxPlatform"></span><span id="_CPPv211mfxPlatform"></span><span id="mfxPlatform"></span><span class="target" id="structmfx_platform"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mfxPlatform</span></span></span><a class="headerlink" href="#_CPPv411mfxPlatform" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Contains information about hardware platform for the Legacy mode. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N11mfxPlatform8CodeNameE">
+<span id="_CPPv3N11mfxPlatform8CodeNameE"></span><span id="_CPPv2N11mfxPlatform8CodeNameE"></span><span id="mfxPlatform::CodeName__mfxU16"></span><span class="target" id="structmfx_platform_1afda02de73584735d513c8d87c05b064d"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">CodeName</span></span></span><a class="headerlink" href="#_CPPv4N11mfxPlatform8CodeNameE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Deprecated. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N11mfxPlatform8DeviceIdE">
+<span id="_CPPv3N11mfxPlatform8DeviceIdE"></span><span id="_CPPv2N11mfxPlatform8DeviceIdE"></span><span id="mfxPlatform::DeviceId__mfxU16"></span><span class="target" id="structmfx_platform_1a47bb33dce5f4f3fa3711abeeb259141b"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">DeviceId</span></span></span><a class="headerlink" href="#_CPPv4N11mfxPlatform8DeviceIdE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Unique identifier of graphics device. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N11mfxPlatform16MediaAdapterTypeE">
+<span id="_CPPv3N11mfxPlatform16MediaAdapterTypeE"></span><span id="_CPPv2N11mfxPlatform16MediaAdapterTypeE"></span><span id="mfxPlatform::MediaAdapterType__mfxU16"></span><span class="target" id="structmfx_platform_1a5ad716754125ca61f7a0ac9df89d8359"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">MediaAdapterType</span></span></span><a class="headerlink" href="#_CPPv4N11mfxPlatform16MediaAdapterTypeE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Description of graphics adapter type. See the mfxMediaAdapterType enumerator for a list of possible values. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N11mfxPlatform8reservedE">
+<span id="_CPPv3N11mfxPlatform8reservedE"></span><span id="_CPPv2N11mfxPlatform8reservedE"></span><span id="mfxPlatform::reserved__mfxU16A"></span><span class="target" id="structmfx_platform_1a7372271439c4e5fce6c9458fa3ca6d43"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">reserved</span></span></span><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">13</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#_CPPv4N11mfxPlatform8reservedE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Reserved for future use. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+<section id="mfxversion">
+<h3><a class="toc-backref" href="#id6" role="doc-backlink">mfxVersion</a><a class="headerlink" href="#mfxversion" title="Permalink to this heading">#</a></h3>
+<dl class="cpp union">
+<dt class="sig sig-object cpp" id="_CPPv410mfxVersion">
+<span id="_CPPv310mfxVersion"></span><span id="_CPPv210mfxVersion"></span><span class="target" id="unionmfx_version"></span><span class="k"><span class="pre">union</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mfxVersion</span></span></span><a class="headerlink" href="#_CPPv410mfxVersion" title="Permalink to this definition">#</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;mfxcommon.h&gt;</em></div>
+<p>The <a class="reference internal" href="#unionmfx_version"><span class="std std-ref">mfxVersion</span></a> union describes the version of the implementation. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-major-and-minor-fields">Major and Minor fields</p>
+<p>Anonymous structure with Major and Minor fields. </p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N10mfxVersion5MinorE">
+<span id="_CPPv3N10mfxVersion5MinorE"></span><span id="_CPPv2N10mfxVersion5MinorE"></span><span id="mfxVersion::Minor__mfxU16"></span><span class="target" id="unionmfx_version_1abf442174a43bb2db3d973ccac93c1573"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Minor</span></span></span><a class="headerlink" href="#_CPPv4N10mfxVersion5MinorE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Minor number of the implementation. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N10mfxVersion5MajorE">
+<span id="_CPPv3N10mfxVersion5MajorE"></span><span id="_CPPv2N10mfxVersion5MajorE"></span><span id="mfxVersion::Major__mfxU16"></span><span class="target" id="unionmfx_version_1ae3cc134052c29456083f7d085fe83551"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Major</span></span></span><a class="headerlink" href="#_CPPv4N10mfxVersion5MajorE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Major number of the implementation. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N10mfxVersionUt2_15E">
+<span id="_CPPv3N10mfxVersionUt2_15E"></span><span class="target" id="unionmfx_version_1a8a612472221ae28c2d06daafd6ae809e"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv410mfxVersion" title="mfxVersion"><span class="n"><span class="pre">mfxVersion</span></span></a><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">[anonymous]</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">[anonymous]</span></span></span><a class="headerlink" href="#_CPPv4N10mfxVersionUt2_15E" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N10mfxVersion7VersionE">
+<span id="_CPPv3N10mfxVersion7VersionE"></span><span id="_CPPv2N10mfxVersion7VersionE"></span><span id="mfxVersion::Version__mfxU32"></span><span class="target" id="unionmfx_version_1aa9e02e3b78cdb1f15ad69ba23d4ec25b"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU32" title="mfxU32"><span class="n"><span class="pre">mfxU32</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Version</span></span></span><a class="headerlink" href="#_CPPv4N10mfxVersion7VersionE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Implementation version number. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+<section id="mfxextdeviceaffinitymask">
+<h3><a class="toc-backref" href="#id7" role="doc-backlink">mfxExtDeviceAffinityMask</a><a class="headerlink" href="#mfxextdeviceaffinitymask" title="Permalink to this heading">#</a></h3>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv424mfxExtDeviceAffinityMask">
+<span id="_CPPv324mfxExtDeviceAffinityMask"></span><span id="_CPPv224mfxExtDeviceAffinityMask"></span><span id="mfxExtDeviceAffinityMask"></span><span class="target" id="structmfx_ext_device_affinity_mask"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mfxExtDeviceAffinityMask</span></span></span><a class="headerlink" href="#_CPPv424mfxExtDeviceAffinityMask" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>The <a class="reference internal" href="#structmfx_ext_device_affinity_mask"><span class="std std-ref">mfxExtDeviceAffinityMask</span></a> structure is used by the application to specify affinity mask for the device with given device ID. See <a class="reference internal" href="VPL_disp_api_struct.html#structmfx_device_description"><span class="std std-ref">mfxDeviceDescription</span></a> for the device ID definition and sub device indexes. If the implementation manages CPU threads for some purpose, the user can set the CPU thread affinity mask by using this structure with DeviceID set to “CPU”. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N24mfxExtDeviceAffinityMask6HeaderE">
+<span id="_CPPv3N24mfxExtDeviceAffinityMask6HeaderE"></span><span id="_CPPv2N24mfxExtDeviceAffinityMask6HeaderE"></span><span id="mfxExtDeviceAffinityMask::Header__mfxExtBuffer"></span><span class="target" id="structmfx_ext_device_affinity_mask_1aa764744b63af1e5349d3671afd49fe96"></span><a class="reference internal" href="VPL_structs_type.html#_CPPv412mfxExtBuffer" title="mfxExtBuffer"><span class="n"><span class="pre">mfxExtBuffer</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Header</span></span></span><a class="headerlink" href="#_CPPv4N24mfxExtDeviceAffinityMask6HeaderE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_DEVICE_AFFINITY_MASK. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N24mfxExtDeviceAffinityMask8DeviceIDE">
+<span id="_CPPv3N24mfxExtDeviceAffinityMask8DeviceIDE"></span><span id="_CPPv2N24mfxExtDeviceAffinityMask8DeviceIDE"></span><span id="mfxExtDeviceAffinityMask::DeviceID__mfxCharA"></span><span class="target" id="structmfx_ext_device_affinity_mask_1a7661880c74d742d64bd0f97e7b2afde4"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv47mfxChar" title="mfxChar"><span class="n"><span class="pre">mfxChar</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">DeviceID</span></span></span><span class="p"><span class="pre">[</span></span><span class="n"><span class="pre">MFX_STRFIELD_LEN</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#_CPPv4N24mfxExtDeviceAffinityMask8DeviceIDE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Null terminated string with device ID. In case of CPU affinity mask it must be equal to “CPU”. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N24mfxExtDeviceAffinityMask13NumSubDevicesE">
+<span id="_CPPv3N24mfxExtDeviceAffinityMask13NumSubDevicesE"></span><span id="_CPPv2N24mfxExtDeviceAffinityMask13NumSubDevicesE"></span><span id="mfxExtDeviceAffinityMask::NumSubDevices__mfxU32"></span><span class="target" id="structmfx_ext_device_affinity_mask_1abe302f795a0d75594ba9f35efa52c4bc"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU32" title="mfxU32"><span class="n"><span class="pre">mfxU32</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">NumSubDevices</span></span></span><a class="headerlink" href="#_CPPv4N24mfxExtDeviceAffinityMask13NumSubDevicesE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Number of sub devices or threads in case of CPU in the mask. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N24mfxExtDeviceAffinityMask4MaskE">
+<span id="_CPPv3N24mfxExtDeviceAffinityMask4MaskE"></span><span id="_CPPv2N24mfxExtDeviceAffinityMask4MaskE"></span><span id="mfxExtDeviceAffinityMask::Mask__mfxU8P"></span><span class="target" id="structmfx_ext_device_affinity_mask_1a677fe3de07a92917e75e2c69f5389277"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv45mfxU8" title="mfxU8"><span class="n"><span class="pre">mfxU8</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">Mask</span></span></span><a class="headerlink" href="#_CPPv4N24mfxExtDeviceAffinityMask4MaskE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Mask array. Every bit represents sub-device (or thread for CPU). “1” means execution is allowed. “0” means that execution is prohibited on this sub-device (or thread). Length of the array is equal to the: “NumSubDevices / 8” and rounded to the closest (from the right) integer. Bits order within each entry of the mask array is LSB: bit 0 holds data for sub device with index 0 and bit 8 for sub device with index 8. Index of sub device is defined by the <a class="reference internal" href="VPL_disp_api_struct.html#structmfx_device_description"><span class="std std-ref">mfxDeviceDescription</span></a> structure. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+<section id="mfxinitializationparam">
+<h3><a class="toc-backref" href="#id8" role="doc-backlink">mfxInitializationParam</a><a class="headerlink" href="#mfxinitializationparam" title="Permalink to this heading">#</a></h3>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv422mfxInitializationParam">
+<span id="_CPPv322mfxInitializationParam"></span><span id="_CPPv222mfxInitializationParam"></span><span id="mfxInitializationParam"></span><span class="target" id="structmfx_initialization_param"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mfxInitializationParam</span></span></span><a class="headerlink" href="#_CPPv422mfxInitializationParam" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Specifies initialization parameters for API version starting from 2.0. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N22mfxInitializationParam16AccelerationModeE">
+<span id="_CPPv3N22mfxInitializationParam16AccelerationModeE"></span><span id="_CPPv2N22mfxInitializationParam16AccelerationModeE"></span><span id="mfxInitializationParam::AccelerationMode__mfxAccelerationMode"></span><span class="target" id="structmfx_initialization_param_1a7c9ac94175572c506b5e49385b30379f"></span><a class="reference internal" href="VPL_disp_api_enum.html#_CPPv419mfxAccelerationMode" title="mfxAccelerationMode"><span class="n"><span class="pre">mfxAccelerationMode</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AccelerationMode</span></span></span><a class="headerlink" href="#_CPPv4N22mfxInitializationParam16AccelerationModeE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Hardware acceleration stack to use. OS dependent parameter. Use VA for Linux*, DX* for Windows* or HDDL. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N22mfxInitializationParam10DeviceCopyE">
+<span id="_CPPv3N22mfxInitializationParam10DeviceCopyE"></span><span id="_CPPv2N22mfxInitializationParam10DeviceCopyE"></span><span id="mfxInitializationParam::DeviceCopy__mfxU16"></span><span class="target" id="structmfx_initialization_param_1a189d16f026f2f37b8a212766a01a18ef"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">DeviceCopy</span></span></span><a class="headerlink" href="#_CPPv4N22mfxInitializationParam10DeviceCopyE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Enables or disables device’s accelerated copying between device and host. See the GPUCopy enumerator for a list of valid values. This parameter is the equivalent of <a class="reference internal" href="#structmfx_init_param_1aedc171c5768a76c35fa6dbe5a9d1bfa9"><span class="std std-ref">mfxInitParam::GPUCopy</span></a>. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N22mfxInitializationParam8reservedE">
+<span id="_CPPv3N22mfxInitializationParam8reservedE"></span><span id="_CPPv2N22mfxInitializationParam8reservedE"></span><span id="mfxInitializationParam::reserved__mfxU16A"></span><span class="target" id="structmfx_initialization_param_1a3229c03079204e6fe7dcb86a9022424a"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">reserved</span></span></span><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">2</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#_CPPv4N22mfxInitializationParam8reservedE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Reserved for future use. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N22mfxInitializationParam11NumExtParamE">
+<span id="_CPPv3N22mfxInitializationParam11NumExtParamE"></span><span id="_CPPv2N22mfxInitializationParam11NumExtParamE"></span><span id="mfxInitializationParam::NumExtParam__mfxU16"></span><span class="target" id="structmfx_initialization_param_1a9b0e806ea5a0d96dbfac59dbdbfd9a19"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">NumExtParam</span></span></span><a class="headerlink" href="#_CPPv4N22mfxInitializationParam11NumExtParamE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>The number of extra configuration structures attached to this structure. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N22mfxInitializationParam8ExtParamE">
+<span id="_CPPv3N22mfxInitializationParam8ExtParamE"></span><span id="_CPPv2N22mfxInitializationParam8ExtParamE"></span><span id="mfxInitializationParam::ExtParam__mfxExtBufferPP"></span><span class="target" id="structmfx_initialization_param_1a9cb06fec9283142794c37335bf7e7fca"></span><a class="reference internal" href="VPL_structs_type.html#_CPPv412mfxExtBuffer" title="mfxExtBuffer"><span class="n"><span class="pre">mfxExtBuffer</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">ExtParam</span></span></span><a class="headerlink" href="#_CPPv4N22mfxInitializationParam8ExtParamE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Points to an array of pointers to the extra configuration structures; see the ExtendedBufferID enumerator for a list of extended configurations. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N22mfxInitializationParam12VendorImplIDE">
+<span id="_CPPv3N22mfxInitializationParam12VendorImplIDE"></span><span id="_CPPv2N22mfxInitializationParam12VendorImplIDE"></span><span id="mfxInitializationParam::VendorImplID__mfxU32"></span><span class="target" id="structmfx_initialization_param_1a14e291c62aae835d5544f48f8de53471"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU32" title="mfxU32"><span class="n"><span class="pre">mfxU32</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">VendorImplID</span></span></span><a class="headerlink" href="#_CPPv4N22mfxInitializationParam12VendorImplIDE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Vendor specific number with given implementation ID. Represents the same field from <a class="reference internal" href="VPL_disp_api_struct.html#structmfx_impl_description"><span class="std std-ref">mfxImplDescription</span></a>. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N22mfxInitializationParam9reserved2E">
+<span id="_CPPv3N22mfxInitializationParam9reserved2E"></span><span id="_CPPv2N22mfxInitializationParam9reserved2E"></span><span id="mfxInitializationParam::reserved2__mfxU32A"></span><span class="target" id="structmfx_initialization_param_1aa8cf4f8716bb7b5f22371e67c2d7ea14"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU32" title="mfxU32"><span class="n"><span class="pre">mfxU32</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">reserved2</span></span></span><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">3</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#_CPPv4N22mfxInitializationParam9reserved2E" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Reserved for future use. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+<section id="mfxautoselectimpldevicehandle">
+<h3><a class="toc-backref" href="#id9" role="doc-backlink">mfxAutoSelectImplDeviceHandle</a><a class="headerlink" href="#mfxautoselectimpldevicehandle" title="Permalink to this heading">#</a></h3>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv429mfxAutoSelectImplDeviceHandle">
+<span id="_CPPv329mfxAutoSelectImplDeviceHandle"></span><span id="_CPPv229mfxAutoSelectImplDeviceHandle"></span><span id="mfxAutoSelectImplDeviceHandle"></span><span class="target" id="structmfx_auto_select_impl_device_handle"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mfxAutoSelectImplDeviceHandle</span></span></span><a class="headerlink" href="#_CPPv429mfxAutoSelectImplDeviceHandle" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Specifies that an implementation should be selected which matches the device handle provided by the application. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N29mfxAutoSelectImplDeviceHandle18AutoSelectImplTypeE">
+<span id="_CPPv3N29mfxAutoSelectImplDeviceHandle18AutoSelectImplTypeE"></span><span id="_CPPv2N29mfxAutoSelectImplDeviceHandle18AutoSelectImplTypeE"></span><span id="mfxAutoSelectImplDeviceHandle::AutoSelectImplType__mfxAutoSelectImplType"></span><span class="target" id="structmfx_auto_select_impl_device_handle_1a790d4560c3acfaa9b3877adcd40b81a8"></span><a class="reference internal" href="VPL_disp_api_enum.html#_CPPv421mfxAutoSelectImplType" title="mfxAutoSelectImplType"><span class="n"><span class="pre">mfxAutoSelectImplType</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AutoSelectImplType</span></span></span><a class="headerlink" href="#_CPPv4N29mfxAutoSelectImplDeviceHandle18AutoSelectImplTypeE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Must be set to MFX_AUTO_SELECT_IMPL_TYPE_DEVICE_HANDLE. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N29mfxAutoSelectImplDeviceHandle9AccelModeE">
+<span id="_CPPv3N29mfxAutoSelectImplDeviceHandle9AccelModeE"></span><span id="_CPPv2N29mfxAutoSelectImplDeviceHandle9AccelModeE"></span><span id="mfxAutoSelectImplDeviceHandle::AccelMode__mfxAccelerationMode"></span><span class="target" id="structmfx_auto_select_impl_device_handle_1a48b610a2064216680e0c7454c98098f2"></span><a class="reference internal" href="VPL_disp_api_enum.html#_CPPv419mfxAccelerationMode" title="mfxAccelerationMode"><span class="n"><span class="pre">mfxAccelerationMode</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AccelMode</span></span></span><a class="headerlink" href="#_CPPv4N29mfxAutoSelectImplDeviceHandle9AccelModeE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Hardware acceleration mode of provided device handle. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N29mfxAutoSelectImplDeviceHandle16DeviceHandleTypeE">
+<span id="_CPPv3N29mfxAutoSelectImplDeviceHandle16DeviceHandleTypeE"></span><span id="_CPPv2N29mfxAutoSelectImplDeviceHandle16DeviceHandleTypeE"></span><span id="mfxAutoSelectImplDeviceHandle::DeviceHandleType__mfxHandleType"></span><span class="target" id="structmfx_auto_select_impl_device_handle_1acac0bf573c82552bb0807edf58ac99d3"></span><a class="reference internal" href="VPL_enums.html#_CPPv413mfxHandleType" title="mfxHandleType"><span class="n"><span class="pre">mfxHandleType</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">DeviceHandleType</span></span></span><a class="headerlink" href="#_CPPv4N29mfxAutoSelectImplDeviceHandle16DeviceHandleTypeE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Type of provided device handle. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N29mfxAutoSelectImplDeviceHandle12DeviceHandleE">
+<span id="_CPPv3N29mfxAutoSelectImplDeviceHandle12DeviceHandleE"></span><span id="_CPPv2N29mfxAutoSelectImplDeviceHandle12DeviceHandleE"></span><span id="mfxAutoSelectImplDeviceHandle::DeviceHandle__mfxHDL"></span><span class="target" id="structmfx_auto_select_impl_device_handle_1ab1f5878bf5a9163790758135da44b868"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxHDL" title="mfxHDL"><span class="n"><span class="pre">mfxHDL</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">DeviceHandle</span></span></span><a class="headerlink" href="#_CPPv4N29mfxAutoSelectImplDeviceHandle12DeviceHandleE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>System handle to hardware device. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N29mfxAutoSelectImplDeviceHandle8reservedE">
+<span id="_CPPv3N29mfxAutoSelectImplDeviceHandle8reservedE"></span><span id="_CPPv2N29mfxAutoSelectImplDeviceHandle8reservedE"></span><span id="mfxAutoSelectImplDeviceHandle::reserved__mfxU16A"></span><span class="target" id="structmfx_auto_select_impl_device_handle_1a598353320790831f8e5983524f524b34"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">reserved</span></span></span><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">8</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#_CPPv4N29mfxAutoSelectImplDeviceHandle8reservedE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Reserved for future use. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="VPL_structs_memory.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Memory Structures</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="VPL_structs_cross_component.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Cross-component Structures</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxadapterinfo">mfxAdapterInfo</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxadaptersinfo">mfxAdaptersInfo</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxextthreadsparam">mfxExtThreadsParam</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxinitparam">mfxInitParam</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxplatform">mfxPlatform</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxversion">mfxVersion</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxextdeviceaffinitymask">mfxExtDeviceAffinityMask</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxinitializationparam">mfxInitializationParam</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxautoselectimpldevicehandle">mfxAutoSelectImplDeviceHandle</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023, Intel.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=5b4479735964841361fd"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
