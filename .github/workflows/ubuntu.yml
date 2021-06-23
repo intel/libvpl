@@ -1,0 +1,124 @@
+name: ubuntu-20.04
+
+on: [ push, pull_request ]
+
+env:
+  #CFLAGS: -O2 -Wformat -Wformat-security -Wall -Werror -D_FORTIFY_SOURCE=2 -fstack-protector-strong
+  CFLAGS: -O2 -Wformat -Wformat-security -Wall -D_FORTIFY_SOURCE=2 -fstack-protector-strong
+
+jobs:
+  clang12:
+    runs-on: ubuntu-20.04
+    env:
+      CC: /usr/bin/clang-12
+      CXX: /usr/bin/clang++-12
+      ASM: /usr/bin/clang-12
+    steps:
+    - name: checkout libvpl
+      uses: actions/checkout@v2
+      with:
+        path: libvpl
+    - name: checkout libva
+      uses: actions/checkout@v2
+      with:
+        repository: intel/libva
+        path: libva
+    - name: install toolchain
+      run: |
+        if [[ -e $CC && -e $CXX ]]; then \
+          echo "clang-12 already presents in the image"; \
+        else \
+          echo "clang-12 missed in the image, installing from llvm"; \
+          echo "deb [trusted=yes] http://apt.llvm.org/focal/ llvm-toolchain-focal-12 main" | sudo tee -a /etc/apt/sources.list; \
+          sudo apt-get update; \
+          sudo apt-get install -y --no-install-recommends clang-12; \
+        fi
+    - name: install prerequisites
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y --no-install-recommends \
+          cmake \
+          libdrm-dev \
+          libegl1-mesa-dev \
+          libgl1-mesa-dev \
+          libx11-dev \
+          libx11-xcb-dev \
+          libxcb-dri3-dev \
+          libxcb-present-dev \
+          libxext-dev \
+          libxfixes-dev \
+          libwayland-dev \
+          ocl-icd-opencl-dev \
+          opencl-clhpp-headers \
+          make
+    - name: print tools versions
+      run: |
+        cmake --version
+        $CC --version
+        $CXX --version
+    - name: build libva
+      run: |
+        cd libva
+        ./autogen.sh --prefix=/usr --libdir=/usr/lib/x86_64-linux-gnu
+        make -j$(nproc)
+        sudo make install
+    - name: build libvpl
+      run: |
+        cd libvpl
+        mkdir build && cd build
+        cmake -DCMAKE_C_FLAGS_RELEASE="$CFLAGS" -DCMAKE_CXX_FLAGS_RELEASE="$CFLAGS" ..
+        make -j$(nproc)
+        sudo make install
+
+  gcc10:
+    runs-on: ubuntu-20.04
+    env:
+      CC: /usr/bin/gcc-10
+      CXX: /usr/bin/g++-10
+      ASM: /usr/bin/gcc-10
+    steps:
+    - name: checkout libvpl
+      uses: actions/checkout@v2
+      with:
+        path: libvpl
+    - name: checkout libva
+      uses: actions/checkout@v2
+      with:
+        repository: intel/libva
+        path: libva
+    - name: install prerequisites
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y --no-install-recommends \
+          cmake \
+          libdrm-dev \
+          libegl1-mesa-dev \
+          libgl1-mesa-dev \
+          libx11-dev \
+          libx11-xcb-dev \
+          libxcb-dri3-dev \
+          libxcb-present-dev \
+          libxext-dev \
+          libxfixes-dev \
+          libwayland-dev \
+          ocl-icd-opencl-dev \
+          opencl-clhpp-headers \
+          make
+    - name: print tools versions
+      run: |
+        cmake --version
+        $CC --version
+        $CXX --version
+    - name: build libva
+      run: |
+        cd libva
+        ./autogen.sh --prefix=/usr --libdir=/usr/lib/x86_64-linux-gnu
+        make -j$(nproc)
+        sudo make install
+    - name: build libvpl
+      run: |
+        cd libvpl
+        mkdir build && cd build
+        cmake -DCMAKE_C_FLAGS_RELEASE="$CFLAGS" -DCMAKE_CXX_FLAGS_RELEASE="$CFLAGS"  ..
+        make -j$(nproc)
+        sudo make install
