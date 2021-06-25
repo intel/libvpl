@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -33,7 +33,7 @@ mfxHDL* MFX_CDECL MFXQueryImplsDescription(mfxImplCapsDeliveryFormat format, mfx
 
 /*!
    @brief
-      Destroys the handle allocated by the MFXQueryImplsCapabilities function.
+      Destroys the handle allocated by the MFXQueryImplsDescription function.
       Implementation must remember which handles are released. Once the last handle is released, this function must release memory
       allocated for the array of handles.
 

@@ -20,7 +20,7 @@ SCRIPT_DIR="$( cd "$(dirname "${BASH_SOURCE[0]:-$0}")" >/dev/null 2>&1 ; pwd -P 
 if [ -n "${BOOTSTRAP_OPT}" ]
 then
   echo "Building dependencies..."
-  "${SCRIPT_DIR}/bootstrap" ${FORWARD_OPTS}
+  . "${SCRIPT_DIR}/bootstrap" ${FORWARD_OPTS}
 fi
 
 if [ -n "${VPL_INSTALL_DIR}" ]
@@ -35,7 +35,7 @@ pushd "${PROJ_DIR}"
   BUILD_DIR=_build
   mkdir -p "${BUILD_DIR}"
   pushd "${BUILD_DIR}"
-    cmake "${INSTALL_PREFIX_CM_OPT}" "${COFIG_CM_OPT}" ..
+    cmake "${INSTALL_PREFIX_CM_OPT}" "${COFIG_CM_OPT}" -DBUILD_PYTHON_BINDING=1 "${PROJ_DIR}"
     make -j "$(nproc)" VERBOSE=1
     cmake --build . --config "${COFIG_OPT}" --target package
   popd

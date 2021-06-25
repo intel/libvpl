@@ -201,19 +201,27 @@ mfxStatus OutputProcessFrame(sAppResources* Resources,
 
         pProcessedSurface = Resources->pSurfStore->m_SyncPoints.front().second.pSurface;
 
-        GeneralWriter* writer = (1 == Resources->dstFileWritersN)
-                                    ? &Resources->pDstFileWriters[0]
-                                    : &Resources->pDstFileWriters[paramID];
+        if (Resources->pParams->strDstFiles.size()) {
+            GeneralWriter* writer = (1 == Resources->dstFileWritersN)
+                                        ? &Resources->pDstFileWriters[0]
+                                        : &Resources->pDstFileWriters[paramID];
 #if (MFX_VERSION >= 2000)
-        if (Resources->pParams->api2xInternalMem) {
-            sts = writer->PutNextFrame2(pOutFrameInfo, pProcessedSurface);
+            if (Resources->pParams->api2xInternalMem) {
+                sts = writer->PutNextFrame2(pOutFrameInfo, pProcessedSurface);
+            }
+            else {
+                sts = writer->PutNextFrame(Resources->pAllocator, pOutFrameInfo, pProcessedSurface);
+            }
+#else
+            sts = writer->PutNextFrame(Resources->pAllocator, pOutFrameInfo, pProcessedSurface);
+#endif
         }
         else {
-            sts = writer->PutNextFrame(Resources->pAllocator, pOutFrameInfo, pProcessedSurface);
+            if (Resources->pParams->api2xInternalMem) {
+                sts = pProcessedSurface->FrameInterface->Release(pProcessedSurface);
+                MSDK_CHECK_NOT_EQUAL(sts, MFX_ERR_NONE, MFX_ERR_ABORTED);
+            }
         }
-#else
-        sts = writer->PutNextFrame(Resources->pAllocator, pOutFrameInfo, pProcessedSurface);
-#endif
 
         DecreaseReference(&pProcessedSurface->Data);
 
@@ -224,13 +232,16 @@ mfxStatus OutputProcessFrame(sAppResources* Resources,
         nFrames++;
 
         //VPP progress
-        if (!Resources->pParams->bPerf) {
-            msdk_printf(MSDK_STRING("Frame number: %d\r"), nFrames);
-        }
-        else {
-            if (!(nFrames % 100))
-                msdk_printf(MSDK_STRING("."));
-        }
+#if (MFX_VERSION >= 2000)
+        if (Resources->pParams->api2xPerf == false)
+#endif
+            if (!Resources->pParams->bPerf) {
+                msdk_printf(MSDK_STRING("Frame number: %d\r"), nFrames);
+            }
+            else {
+                if (!(nFrames % 100))
+                    msdk_printf(MSDK_STRING("."));
+            }
     }
     return MFX_ERR_NONE;
 
@@ -262,6 +273,30 @@ void ownToMfxFrameInfo(sOwnFrameInfo* in, mfxFrameInfo* out, bool copyCropParams
 
     return;
 }
+
+#if (MFX_VERSION >= 2000)
+mfxU32 GetSurfaceSize(mfxU32 FourCC, mfxU32 width, mfxU32 height) {
+    mfxU32 nbytes = 0;
+
+    switch (FourCC) {
+        case MFX_FOURCC_NV12:
+        case MFX_FOURCC_I420:
+            nbytes = width * height + (width >> 1) * (height >> 1) + (width >> 1) * (height >> 1);
+            break;
+        case MFX_FOURCC_P010:
+        case MFX_FOURCC_I010:
+            nbytes = width * height + (width >> 1) * (height >> 1) + (width >> 1) * (height >> 1);
+            nbytes *= 2;
+            break;
+        case MFX_FOURCC_RGB4:
+            nbytes = width * height * 4;
+        default:
+            break;
+    }
+
+    return nbytes;
+}
+#endif
 
 #if defined(_WIN32) || defined(_WIN64)
 int _tmain(int argc, TCHAR* argv[])
@@ -472,20 +507,22 @@ int main(int argc, msdk_char* argv[])
     }
     ownToMfxFrameInfo(&(Params.frameInfoOut[0]), &realFrameInfoOut);
 
-    //prepare file writers (YUV file)
-    Resources.dstFileWritersN = (mfxU32)Params.strDstFiles.size();
-    Resources.pDstFileWriters = new GeneralWriter[Resources.dstFileWritersN];
-    const msdk_char* istream;
-    for (mfxU32 i = 0; i < Resources.dstFileWritersN; i++) {
-        istream = Params.isOutput ? Params.strDstFiles[i].c_str() : NULL;
-        sts     = Resources.pDstFileWriters[i].Init(istream,
-                                                ptsMaker.get(),
-                                                NULL,
-                                                Params.forcedOutputFourcc);
-        MSDK_CHECK_STATUS_SAFE(sts, "Resources.pDstFileWriters[i].Init failed", {
-            WipeResources(&Resources);
-            WipeParams(&Params);
-        });
+    if (Params.strDstFiles.size()) {
+        //prepare file writers (YUV file)
+        Resources.dstFileWritersN = (mfxU32)Params.strDstFiles.size();
+        Resources.pDstFileWriters = new GeneralWriter[Resources.dstFileWritersN];
+        const msdk_char* istream;
+        for (mfxU32 i = 0; i < Resources.dstFileWritersN; i++) {
+            istream = Params.isOutput ? Params.strDstFiles[i].c_str() : NULL;
+            sts     = Resources.pDstFileWriters[i].Init(istream,
+                                                    ptsMaker.get(),
+                                                    NULL,
+                                                    Params.forcedOutputFourcc);
+            MSDK_CHECK_STATUS_SAFE(sts, "Resources.pDstFileWriters[i].Init failed", {
+                WipeResources(&Resources);
+                WipeParams(&Params);
+            });
+        }
     }
 
     //#ifdef LIBVA_SUPPORT
@@ -610,6 +647,18 @@ int main(int argc, msdk_char* argv[])
     mfxU32 nextResetFrmNum =
         (Params.resetFrmNums.size() > 0) ? Params.resetFrmNums[0] : NOT_INIT_VALUE;
 
+#if (MFX_VERSION >= 2000)
+    mfxF64 api2xPerfLoopTime;
+    mfxU32 frame_size = GetSurfaceSize(realFrameInfoIn[0].FourCC,
+                                       realFrameInfoIn[0].Width,
+                                       realFrameInfoIn[0].Height);
+    mfxU8* buf_read   = NULL;
+
+    if (Params.api2xPerf) {
+        buf_read = reinterpret_cast<mfxU8*>(malloc(frame_size));
+    }
+#endif
+
     //---------------------------------------------------------
     do {
         if (bNeedReset) {
@@ -660,6 +709,10 @@ int main(int argc, msdk_char* argv[])
             msdk_printf(MSDK_STRING("VPP reseted at frame number %d\n"), numGetFrames);
         }
 
+#if (MFX_VERSION >= 2000)
+        auto api2x_perf_t1 = std::chrono::high_resolution_clock::now();
+#endif
+
         while (MFX_ERR_NONE <= sts || MFX_ERR_MORE_DATA == sts || bDoNotUpdateIn) {
             mfxU16 viewID   = 0;
             mfxU16 viewIndx = 0;
@@ -694,10 +747,20 @@ int main(int argc, msdk_char* argv[])
 
 #if (MFX_VERSION >= 2000)
                 if (Params.api2xInternalMem) {
-                    sts =
-                        yuvReaders[nInStreamInd].GetNextInputFrame2(&frameProcessor,
-                                                                    &realFrameInfoIn[nInStreamInd],
-                                                                    &pInSurf[nInStreamInd]);
+                    if (Params.api2xPerf) {
+                        sts = yuvReaders[nInStreamInd].GetNextInputFrame2(
+                            &frameProcessor,
+                            &realFrameInfoIn[nInStreamInd],
+                            &pInSurf[nInStreamInd],
+                            frame_size,
+                            buf_read);
+                    }
+                    else {
+                        sts = yuvReaders[nInStreamInd].GetNextInputFrame2(
+                            &frameProcessor,
+                            &realFrameInfoIn[nInStreamInd],
+                            &pInSurf[nInStreamInd]);
+                    }
                 }
                 else {
                     // if we share allocator with mediasdk we need to call Lock to access surface data and after we're done call Unlock
@@ -975,24 +1038,39 @@ int main(int argc, msdk_char* argv[])
                 msdk_printf(MSDK_STRING("SyncOperation wait interval exceeded\n"));
             MSDK_BREAK_ON_ERROR(sts);
 
-            GeneralWriter* writer = (1 == Resources.dstFileWritersN)
-                                        ? &Resources.pDstFileWriters[0]
-                                        : &Resources.pDstFileWriters[paramID];
-            sts = writer->PutNextFrame(Resources.pAllocator, &realFrameInfoOut, pOutSurf);
-            if (sts)
-                msdk_printf(MSDK_STRING("Failed to write frame to disk\n"));
-            MSDK_CHECK_NOT_EQUAL(sts, MFX_ERR_NONE, MFX_ERR_ABORTED);
+            if (Resources.pParams->strDstFiles.size()) {
+                GeneralWriter* writer = (1 == Resources.dstFileWritersN)
+                                            ? &Resources.pDstFileWriters[0]
+                                            : &Resources.pDstFileWriters[paramID];
+                sts = writer->PutNextFrame(Resources.pAllocator, &realFrameInfoOut, pOutSurf);
+                if (sts)
+                    msdk_printf(MSDK_STRING("Failed to write frame to disk\n"));
+                MSDK_CHECK_NOT_EQUAL(sts, MFX_ERR_NONE, MFX_ERR_ABORTED);
+            }
 
             nFrames++;
 
             //VPP progress
-            if (!Params.bPerf)
-                msdk_printf(MSDK_STRING("Frame number: %d\r"), nFrames);
-            else {
-                if (!(nFrames % 100))
-                    msdk_printf(MSDK_STRING("."));
-            }
+#if (MFX_VERSION >= 2000)
+            if (Params.api2xPerf == false)
+#endif
+                if (!Params.bPerf)
+                    msdk_printf(MSDK_STRING("Frame number: %d\r"), nFrames);
+                else {
+                    if (!(nFrames % 100))
+                        msdk_printf(MSDK_STRING("."));
+                }
         }
+#if (MFX_VERSION >= 2000)
+        if (Params.api2xPerf) {
+            auto api2x_perf_t2 = std::chrono::high_resolution_clock::now();
+            api2xPerfLoopTime  = static_cast<double>(
+                std::chrono::duration_cast<std::chrono::microseconds>(api2x_perf_t2 - api2x_perf_t1)
+                    .count());
+            if (buf_read)
+                free(buf_read);
+        }
+#endif
     } while (bNeedReset);
 
     statTimer.StopTimeMeasurement();
@@ -1009,10 +1087,28 @@ int main(int argc, msdk_char* argv[])
     msdk_printf(MSDK_STRING("\n"));
 
     msdk_printf(MSDK_STRING("Total frames %d \n"), nFrames);
+
+#if (MFX_VERSION >= 2000)
+    if (Params.api2xPerf) {
+        if (api2xPerfLoopTime) {
+            msdk_printf(MSDK_STRING("Total time %.2f sec \n"), (1.0e6 / api2xPerfLoopTime));
+            msdk_printf(MSDK_STRING("Frames per second %.3f fps \n"),
+                        ((1.0e6 / api2xPerfLoopTime) * nFrames));
+        }
+    }
+    else {
+        msdk_printf(MSDK_STRING("Total time %.2f sec \n"), statTimer.GetTotalTime());
+        msdk_printf(MSDK_STRING("Frames per second %.3f fps \n"),
+                    nFrames / statTimer.GetTotalTime());
+
+        PutPerformanceToFile(Params, nFrames / statTimer.GetTotalTime());
+    }
+#else
     msdk_printf(MSDK_STRING("Total time %.2f sec \n"), statTimer.GetTotalTime());
     msdk_printf(MSDK_STRING("Frames per second %.3f fps \n"), nFrames / statTimer.GetTotalTime());
 
     PutPerformanceToFile(Params, nFrames / statTimer.GetTotalTime());
+#endif
 
     WipeResources(&Resources);
     WipeParams(&Params);

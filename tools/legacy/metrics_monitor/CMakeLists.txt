@@ -18,6 +18,6 @@ install(TARGETS cttmetrics_static ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
                                           COMPONENT dev)
 
 install(TARGETS cttmetrics LIBRARY DESTINATION ${CMAKE_INSTALL_BINDIR}
-                                   COMPONENT runtime)
+                                   COMPONENT dev)
 
 add_subdirectory(sample)

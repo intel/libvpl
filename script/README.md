@@ -29,3 +29,7 @@ bootstrap files placed in `VPL_BUILD_DEPENDENCIES`.
 - `test` or `test32` - Run basic smoke testing on built project.
 
 - `stress` - Run stress testing on built project.
+
+
+**LEGAL NOTICE:  By downloading and using any scripts (the “Software Package”) and the included software or software made available for download, you agree to the terms and conditions of the software license agreements for the Software Package, which may also include notices, disclaimers, or license terms for third party software (together, the “Agreements”) included in this README file.
+If the Software Package is installed through a silent install, your download and use of the Software Package indicates your acceptance of the Agreements.**

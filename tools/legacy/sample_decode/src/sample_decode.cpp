@@ -186,7 +186,10 @@ void PrintHelp(msdk_char *strAppName, const msdk_char *strErrorMessage) {
         MSDK_STRING("   [-api2x_internalmem]      - specifies internal memory mode of vpl 2.x\n"));
     msdk_printf(MSDK_STRING("   [-api2x_dispatcher]       - specifies 2.x API smart dispatcher\n"));
     msdk_printf(MSDK_STRING("   [-api2x_decvpp]           - uses 2.x fused decode vpp API\n\n"));
+    msdk_printf(MSDK_STRING(
+        "   [-api2x_perf]             - aligns the measurement with reference tool to compare\n\n"));
 #endif
+    msdk_printf(MSDK_STRING("   [-adapterNum n]           - use adapter number n\n"));
 #if defined(_WIN32) || defined(_WIN64)
     msdk_printf(MSDK_STRING("\nFeatures: \n"));
     msdk_printf(MSDK_STRING("   Press 1 to toggle fullscreen rendering on/off\n"));
@@ -211,6 +214,9 @@ mfxStatus ParseInputString(msdk_char *strInput[], mfxU8 nArgNum, sInputParams *p
 #if defined(LIBVA_SUPPORT)
     pParams->libvaBackend = MFX_LIBVA_DRM;
 #endif
+
+    pParams->bUseAdapterNum = false;
+    pParams->adapterNum     = 0;
 
     for (mfxU8 i = 1; i < nArgNum; i++) {
         if (MSDK_CHAR('-') != strInput[i][0]) {
@@ -560,6 +566,17 @@ mfxStatus ParseInputString(msdk_char *strInput[], mfxU8 nArgNum, sInputParams *p
                 return MFX_ERR_UNSUPPORTED;
             }
         }
+        else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-adapterNum"))) {
+            if (i + 1 >= nArgNum) {
+                PrintHelp(strInput[0], MSDK_STRING("Not enough parameters for -adapterNum key"));
+                return MFX_ERR_UNSUPPORTED;
+            }
+            if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->adapterNum)) {
+                PrintHelp(strInput[0], MSDK_STRING("adapterNum is invalid"));
+                return MFX_ERR_UNSUPPORTED;
+            }
+            pParams->bUseAdapterNum = true;
+        }
         else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-jpeg_rgb"))) {
             if (MFX_CODEC_JPEG == pParams->videoType) {
                 pParams->chromaType = MFX_JPEG_COLORFORMAT_RGB;
@@ -631,6 +648,9 @@ mfxStatus ParseInputString(msdk_char *strInput[], mfxU8 nArgNum, sInputParams *p
         }
         else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-api2x_decvpp"))) {
             pParams->api2xDecVPP = true;
+        }
+        else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-api2x_perf"))) {
+            pParams->api2xPerf = true;
         }
 #endif
         else // 1-character options
@@ -757,6 +777,7 @@ int main(int argc, char *argv[])
     msdk_printf(MSDK_STRING("Decoding started\n"));
 
     mfxU64 prevResetBytesCount = 0xFFFFFFFFFFFFFFFF;
+
     for (;;) {
         sts = Pipeline.RunDecoding();
 
@@ -789,6 +810,16 @@ int main(int argc, char *argv[])
             break;
         }
     }
+
+#if (MFX_VERSION >= 2000)
+    if (Params.api2xPerf && sts == MFX_ERR_NONE) {
+        if (Pipeline.m_output_count && Pipeline.GetElapsedTime()) {
+            printf("Frame number: %d, fps: %0.3f",
+                   Pipeline.m_output_count,
+                   (1.0e6 / Pipeline.GetElapsedTime()) * Pipeline.m_output_count);
+        }
+    }
+#endif
 
     msdk_printf(MSDK_STRING("\nDecoding finished\n"));
 

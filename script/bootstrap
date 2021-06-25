@@ -18,5 +18,8 @@ SCRIPT_DIR="$( cd "$(dirname "${BASH_SOURCE[0]:-$0}")" >/dev/null 2>&1 ; pwd -P 
     -- "$@"
 
 pushd "${PROJ_DIR}"
-    echo "No dependencies for base."
+  python3 -m venv _build-venv
+  . _build-venv/bin/activate
+  python -m pip install -r "${PROJ_DIR}/requirements.txt"
+  export pybind11_DIR="$(python -m pybind11 --cmakedir)"
 popd

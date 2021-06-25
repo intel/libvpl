@@ -27,4 +27,4 @@ find_package(VPL REQUIRED)
 target_link_libraries(${TARGET} sample_common)
 
 install(TARGETS ${TARGET} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-                                  COMPONENT runtime)
+                                  COMPONENT dev)

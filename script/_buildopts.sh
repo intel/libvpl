@@ -111,7 +111,7 @@ if [ -n "${HELP_OPT}" ]
 then
   echo "Usage: ${ORIG_SCRIPT_NAME} [options]"
   echo "  --gpl            Include componentes using GPL licensing"
-  echo "  --config CONFIG  Build coniguration"
+  echo "  --config CONFIG  Build configuration"
   echo "  -A ARCH          Target architecture"
   echo "  --bootstrap      Include bootstrap steps"
   echo "  --help, -h       Show this help message"

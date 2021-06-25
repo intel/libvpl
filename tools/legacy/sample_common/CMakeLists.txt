@@ -17,8 +17,10 @@ list(
   src/sysmem_allocator.cpp
   src/general_allocator.cpp
   src/sample_utils.cpp
+  src/plugin_utils.cpp
   src/preset_manager.cpp
   src/parameters_dumper.cpp
+  src/vpl_implementation_loader.cpp
   src/vm/atomic.cpp
   src/vm/time.cpp)
 
@@ -32,6 +34,7 @@ if(UNIX)
     src/vm/time_linux.cpp
     src/vm/atomic_linux.cpp
     src/vm/thread_linux.cpp
+    src/vaapi_utils_x11.cpp
     src/vaapi_utils_drm.cpp)
 else()
   list(
@@ -61,23 +64,32 @@ if(POLICY CMP0074)
 endif()
 
 find_package(VPL REQUIRED)
-target_link_libraries(${TARGET} VPL::dispatcher)
+target_link_libraries(${TARGET} VPL::dispatcher media_sdk_compatibility_headers)
 
 if(UNIX)
   find_package(PkgConfig REQUIRED)
-  pkg_check_modules(PKG_LIBVA libva libva-drm)
+  # note: pkg-config version for libva is *API* version
+  pkg_check_modules(PKG_LIBVA libva>=1.2 libva-drm>=1.2)
   pkg_check_modules(PKG_LIBDRM libdrm)
+  pkg_check_modules(PKG_X11 x11)
+  pkg_check_modules(PKG_LIBVA_X11 libva-x11>=1.10.0)
   if(PKG_LIBVA_FOUND)
     target_compile_definitions(${TARGET} PUBLIC -DLIBVA_SUPPORT)
+    target_compile_definitions(${TARGET} PUBLIC -DLIBVA_DRM_SUPPORT)
     target_include_directories(${TARGET} PUBLIC ${PKG_LIBVA_INCLUDE_DIRS})
   else()
     message(WARNING "libva not found: building without libVA support")
   endif()
   if(PKG_LIBDRM_FOUND)
-    target_compile_definitions(${TARGET} PUBLIC -DLIBVA_DRM_SUPPORT)
     target_include_directories(${TARGET} PUBLIC ${PKG_LIBDRM_INCLUDE_DIRS})
   else()
     message(WARNING "libva-drm not found: building without libVA DRM support")
+  endif()
+  if(PKG_X11_FOUND)
+    target_compile_definitions(${TARGET} PUBLIC -DLIBVA_X11_SUPPORT)
+    target_include_directories(${TARGET} PUBLIC ${PKG_X11_LIBRARY_DIRS})
+  else()
+    message(WARNING "x11 modules not found: building without libVA X11 support")
   endif()
 
   target_link_libraries(${TARGET} ${CMAKE_DL_LIBS})

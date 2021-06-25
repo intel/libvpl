@@ -7,6 +7,7 @@
 #ifndef __PLUGIN_UTILS_H__
 #define __PLUGIN_UTILS_H__
 
+#include "mfxplugin.h"
 #include "sample_defs.h"
 #include "sample_types.h"
 
@@ -36,7 +37,9 @@ struct sPluginParams {
     mfxChar strPluginPath[MSDK_MAX_FILENAME_LEN];
     MfxPluginLoadType type;
     sPluginParams() {
-        MSDK_ZERO_MEMORY(*this);
+        MSDK_ZERO_MEMORY(pluginGuid);
+        memset(strPluginPath, 0, sizeof(strPluginPath));
+        MSDK_ZERO_MEMORY(type);
     }
 };
 

@@ -50,12 +50,6 @@
     #error MFX_VERSION not defined
 #endif
 
-enum MemType {
-    SYSTEM_MEMORY = 0x00,
-    D3D9_MEMORY   = 0x01,
-    D3D11_MEMORY  = 0x02,
-};
-
 enum eWorkMode { MODE_PERFORMANCE, MODE_RENDERING, MODE_FILE_DUMP };
 
 #if MFX_VERSION >= 1022
@@ -131,7 +125,11 @@ struct sInputParams {
     bool api2xInternalMem;
     bool api2xDispatcher;
     bool api2xDecVPP;
+    bool api2xPerf;
 #endif
+
+    bool bUseAdapterNum;
+    mfxU32 adapterNum;
 };
 
 struct CPipelineStatistics {
@@ -176,6 +174,12 @@ public:
     mfxU64 GetTotalBytesProcessed() {
         return totalBytesProcessed + m_mfxBS.DataOffset;
     }
+
+#if (MFX_VERSION >= 2000)
+    virtual mfxF64 GetElapsedTime() {
+        return m_api2xPerfLoopTime;
+    }
+#endif
 
 #if (MFX_VERSION >= 1025)
     inline void PrintDecodeErrorReport(mfxExtDecodeErrorReport* pDecodeErrorReport) {
@@ -248,6 +252,8 @@ protected: // variables
     mfxLoader m_mfxLoader;
     bool m_bAPI2XInternalMem;
     bool m_bAPI2XDecVPP;
+    bool m_bAPI2XPerf;
+    mfxF64 m_api2xPerfLoopTime;
     mfxU16 m_numVPPCh;
     mfxVideoChannelParam* m_pmfxVPPChParams;
     mfxSurfaceArray* m_pDecVPPOutSurfaces;

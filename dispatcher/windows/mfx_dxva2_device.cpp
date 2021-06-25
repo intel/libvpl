@@ -326,6 +326,8 @@ bool DXGI1Device::Init(const mfxU32 adapterNum) {
     } while (SUCCEEDED(hRes));
     maxAdapters = curAdapter;
 
+    m_numAdapters = maxAdapters;
+
     // there is no required adapter
     if (adapterNum >= maxAdapters) {
         return false;
@@ -354,6 +356,8 @@ DXVA2Device::DXVA2Device(void) {
     m_deviceID = 0;
 
     m_driverVersion = 0;
+
+    m_luid = 0;
 } // DXVA2Device::DXVA2Device(void)
 
 DXVA2Device::~DXVA2Device(void) {
@@ -396,6 +400,7 @@ bool DXVA2Device::InitD3D9(const mfxU32 adapterNum) {
         m_vendorID      = d3d9Device.GetVendorID();
         m_deviceID      = d3d9Device.GetDeviceID();
         m_driverVersion = d3d9Device.GetDriverVersion();
+        m_luid          = d3d9Device.GetLUID();
     }
 
     // ... say goodbye
@@ -425,6 +430,7 @@ bool DXVA2Device::InitDXGI1(const mfxU32 adapterNum) {
     m_vendorID    = dxgi1Device.GetVendorID();
     m_deviceID    = dxgi1Device.GetDeviceID();
     m_numAdapters = dxgi1Device.GetAdapterCount();
+    m_luid        = dxgi1Device.GetLUID();
 
     // ... say goodbye
     return true;
@@ -457,6 +463,7 @@ void DXVA2Device::UseAlternativeWay(const D3D9Device *pD3D9Device) {
             m_vendorID      = dxgi1Device.GetVendorID();
             m_deviceID      = dxgi1Device.GetDeviceID();
             m_driverVersion = dxgi1Device.GetDriverVersion();
+            m_luid          = dxgi1Device.GetLUID();
             return;
         }
 
@@ -489,3 +496,7 @@ mfxU32 DXVA2Device::GetAdapterCount(void) const {
     return m_numAdapters;
 
 } // mfxU32 DXVA2Device::GetAdapterCount(void) const
+
+mfxU64 DXVA2Device::GetLUID(void) const {
+    return m_luid;
+} // mfxU64 DXVA2Device::GetLUID(void) const

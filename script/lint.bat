@@ -3,7 +3,7 @@
 @REM 
 @REM SPDX-License-Identifier: MIT
 @REM ------------------------------------------------------------------------------
-@REM Check base code for issues.
+@REM Check code for issues.
 
 @ECHO off
 SETLOCAL ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION 
@@ -19,7 +19,10 @@ FOR /D %%i IN ("%~dp0") DO (
 )
 
 PUSHD %PROJ_DIR%
-	gitlint || EXIT /b 1
+    echo Check commit-msg
+    gitlint || EXIT /b 1
+
+    echo Check commit
 	pre-commit run --all-files || EXIT /b 1
 POPD
 

@@ -1,0 +1,25 @@
+{
+  "guid": "AEDAA6EC-B6E0-4D5F-A97C-0B8312C4D86D",
+  "name": "Advanced decvpp infer",
+  "categories": ["Toolkit/Intel® oneAPI Base Toolkit/oneVPL"],
+  "description": "Sample that shows how to use the oneAPI Video Processing Library (oneVPL) to
+  perform a simple video decode and resize and inference using OpenVINO to show the device surface sharing (zerocopy)",
+  "dependencies": ["vpl", "openvino"],
+  "os": ["linux"],
+  "languages": [{"cpp":{}}],
+  "builder": [ "ide", "cmake"],
+  "targetDevice": ["GPU"],
+  "ciTests": {
+    "linux": [
+      { "id": "builds and runs successfully with CMake",
+        "env": [ ],
+        "steps": [
+          "mkdir build",
+          "cd build",
+          "cmake ..",
+          "cmake --build .",
+          "cmake --build . --target run"
+        ] }
+    ]
+  }
+}

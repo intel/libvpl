@@ -385,11 +385,19 @@ mfxStatus InitParamsVPP(MfxVideoParamsWrapper* pParams, sInputParams* pInParams,
     pParams->vpp.In.CropY = pInParams->frameInfoIn[paramID].CropY;
     pParams->vpp.In.CropW = pInParams->frameInfoIn[paramID].CropW;
     pParams->vpp.In.CropH = pInParams->frameInfoIn[paramID].CropH;
+
     pParams->vpp.In.Width = MSDK_ALIGN16(pInParams->frameInfoIn[paramID].nWidth);
     pParams->vpp.In.Height =
         (MFX_PICSTRUCT_PROGRESSIVE == pInParams->frameInfoIn[paramID].PicStruct)
             ? MSDK_ALIGN16(pInParams->frameInfoIn[paramID].nHeight)
             : MSDK_ALIGN32(pInParams->frameInfoIn[paramID].nHeight);
+
+#if (MFX_VERSION >= 2000)
+    if (MFX_IMPL_SOFTWARE == pInParams->ImpLib) {
+        pParams->vpp.In.Width  = pInParams->frameInfoIn[paramID].nWidth;
+        pParams->vpp.In.Height = pInParams->frameInfoIn[paramID].nHeight;
+    }
+#endif
 
     // width must be a multiple of 16
     // height must be a multiple of 16 in case of frame picture and
@@ -441,6 +449,7 @@ mfxStatus InitParamsVPP(MfxVideoParamsWrapper* pParams, sInputParams* pInParams,
         (MFX_PICSTRUCT_PROGRESSIVE == pInParams->frameInfoOut[paramID].PicStruct)
             ? MSDK_ALIGN16(pInParams->frameInfoOut[paramID].nHeight)
             : MSDK_ALIGN32(pInParams->frameInfoOut[paramID].nHeight);
+
 #if (MFX_VERSION >= 2000)
     if (MFX_IMPL_SOFTWARE == pInParams->ImpLib) {
         pParams->vpp.Out.Width  = pInParams->frameInfoOut[paramID].nWidth;
@@ -615,7 +624,46 @@ mfxStatus CreateFrameProcessor(sFrameProcessor* pProcessor,
                 reinterpret_cast<mfxU8*>(const_cast<char*>("mfxImplDescription.Impl")),
                 implValue);
 
+            // call MFXSetConfigFilterProperty with correct AccelerationMode
+            // map mfxIMPL to MemType (vaapi overloads D3D9 in sample params)
+            MemType memType = SYSTEM_MEMORY;
+            if (((pInParams->ImpLib & IMPL_VIA_MASK) == MFX_IMPL_VIA_D3D9) ||
+                ((pInParams->ImpLib & IMPL_VIA_MASK) == MFX_IMPL_VIA_VAAPI))
+                memType = D3D9_MEMORY;
+            else if ((pInParams->ImpLib & IMPL_VIA_MASK) == MFX_IMPL_VIA_D3D11)
+                memType = D3D11_MEMORY;
+
+            sts = VPL_SetAccelMode(pProcessor->loader, memType);
+
+            mfxImplDescription* implDesc = nullptr;
+            if (pInParams->bUseAdapterNum) {
+                mfxVariant adapterValue;
+                cfg = MFXCreateConfig(pProcessor->loader);
+
+                adapterValue.Type     = MFX_VARIANT_TYPE_U32;
+                adapterValue.Data.U32 = pInParams->adapterNum;
+                sts                   = MFXSetConfigFilterProperty(
+                    cfg,
+                    reinterpret_cast<mfxU8*>(const_cast<char*>("mfxImplDescription.VendorImplID")),
+                    adapterValue);
+
+                sts = MFXEnumImplementations(pProcessor->loader,
+                                             0,
+                                             MFX_IMPLCAPS_IMPLDESCSTRUCTURE,
+                                             reinterpret_cast<mfxHDL*>(&implDesc));
+                MSDK_CHECK_STATUS(sts, "MFXEnumImplementations failed");
+
+                printf("\nmfxImplDescription for loaded impl:\n");
+                printf("  AccelerationMode = 0x%08x\n", implDesc->AccelerationMode);
+                printf("  VendorImplID     = 0x%08x\n", implDesc->VendorImplID);
+                printf("  DeviceID         = %s\n", implDesc->Dev.DeviceID);
+                printf("\n");
+            }
             sts = MFXCreateSession(pProcessor->loader, 0, pProcessor->mfxSession.getSessionPtr());
+            MSDK_CHECK_STATUS(sts, "MFXCreateSession failed");
+
+            if (pInParams->bUseAdapterNum)
+                MFXDispReleaseImplDescription(pProcessor->loader, implDesc);
         }
         else {
             sts = pProcessor->mfxSession.Init(impl, &version);
@@ -1090,6 +1138,58 @@ void CRawVideoReader::Close() {
         m_fSrc = 0;
     }
     m_SurfacesList.clear();
+}
+
+mfxStatus CRawVideoReader::LoadNextFrame2(mfxFrameSurface1* pSurface,
+                                          int bytes_to_read,
+                                          mfxU8* buf_read) {
+    // check if reader is initialized
+    MSDK_CHECK_POINTER(pSurface, MFX_ERR_NULL_PTR);
+
+    int nBytesRead = static_cast<int>(fread(buf_read, 1, bytes_to_read, m_fSrc));
+
+    if (bytes_to_read != nBytesRead) {
+        return MFX_ERR_MORE_DATA;
+    }
+
+    mfxU16 w, h;
+    mfxFrameInfo* pInfo = &pSurface->Info;
+    mfxFrameData* pData = &pSurface->Data;
+
+    w = pInfo->Width;
+    h = pInfo->Height;
+
+    switch (pInfo->FourCC) {
+        case MFX_FOURCC_NV12:
+            pData->Y  = buf_read;
+            pData->UV = pData->Y + w * h;
+            break;
+        case MFX_FOURCC_I420:
+            pData->Y = buf_read;
+            pData->U = pData->Y + w * h;
+            pData->V = pData->U + ((w / 2) * (h / 2));
+            break;
+
+        case MFX_FOURCC_P010:
+            pData->Y  = buf_read;
+            pData->UV = pData->Y + w * 2 * h;
+            break;
+        case MFX_FOURCC_I010:
+            pData->Y = buf_read;
+            pData->U = pData->Y + w * 2 * h;
+            pData->V = pData->U + (w * (h / 2));
+            break;
+
+        case MFX_FOURCC_RGB4:
+            // read luminance plane (Y)
+            //pitch    = pData->Pitch;
+            pData->B = buf_read;
+            break;
+        default:
+            break;
+    }
+
+    return MFX_ERR_NONE;
 }
 
 mfxStatus CRawVideoReader::LoadNextFrame(mfxFrameData* pData, mfxFrameInfo* pInfo) {
@@ -1597,6 +1697,35 @@ mfxStatus CRawVideoReader::GetNextInputFrame2(sFrameProcessor* pProcessor,
 
     return sts;
 }
+
+mfxStatus CRawVideoReader::GetNextInputFrame2(sFrameProcessor* pProcessor,
+                                              mfxFrameInfo* pInfo,
+                                              mfxFrameSurfaceWrap** pSurface,
+                                              int bytes_to_read,
+                                              mfxU8* buf_read) {
+    mfxStatus sts;
+    sts = pProcessor->pmfxMemory->GetSurfaceForVPPIn((mfxFrameSurface1**)pSurface);
+    MSDK_CHECK_STATUS(sts, "GetSurfaceForVPPIn failed");
+
+    // Map makes surface writable by CPU for all implementations
+    sts = (*pSurface)->FrameInterface->Map(*pSurface, MFX_MAP_WRITE);
+    MSDK_CHECK_STATUS(sts, "mfxFrameSurfaceInterface->Map failed");
+
+    mfxFrameSurfaceWrap* pCurSurf = *pSurface;
+    if (buf_read)
+        sts = LoadNextFrame2(*pSurface, bytes_to_read, buf_read);
+    else
+        sts = LoadNextFrame(&pCurSurf->Data, pInfo);
+
+    // Unmap/release returns local device access for all implementations
+    mfxStatus lsts = (*pSurface)->FrameInterface->Unmap(*pSurface);
+    MSDK_CHECK_STATUS(lsts, "mfxFrameSurfaceInterface->Unmap failed");
+
+    lsts = (*pSurface)->FrameInterface->Release(*pSurface);
+    MSDK_CHECK_STATUS(lsts, "mfxFrameSurfaceInterface->Release failed");
+
+    return sts;
+}
 #endif
 
 mfxStatus CRawVideoReader::GetPreAllocFrame(mfxFrameSurfaceWrap** pSurface) {
@@ -1746,10 +1875,10 @@ mfxStatus CRawVideoWriter::PutNextFrame2(mfxFrameInfo* pInfo, mfxFrameSurfaceWra
 
         sts = WriteFrame(&(pSurface->Data), pInfo);
         MSDK_CHECK_NOT_EQUAL(sts, MFX_ERR_NONE, MFX_ERR_ABORTED);
-    }
 
-    sts = pSurface->FrameInterface->Unmap(pSurface);
-    MSDK_CHECK_NOT_EQUAL(sts, MFX_ERR_NONE, MFX_ERR_ABORTED);
+        sts = pSurface->FrameInterface->Unmap(pSurface);
+        MSDK_CHECK_NOT_EQUAL(sts, MFX_ERR_NONE, MFX_ERR_ABORTED);
+    }
 
     sts = pSurface->FrameInterface->Release(pSurface);
     MSDK_CHECK_NOT_EQUAL(sts, MFX_ERR_NONE, MFX_ERR_ABORTED);

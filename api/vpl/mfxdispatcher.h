@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -64,66 +64,6 @@ mfxConfig MFX_CDECL MFXCreateConfig(mfxLoader loader);
           One mfxConfig properties can hold only single filter property.
           @note Each new call with the same parameter name will overwrite the previously set value. This may invalidate other properties.
           @note Each new call with another parameter name will delete the previous property and create a new property based on new name's value.
-
-          Simple usage example:
-          @code
-             mfxLoader loader = MFXLoad();
-             mfxConfig cfg = MFXCreateConfig(loader);
-             mfxVariant ImplValue;
-             ImplValue.Type = MFX_VARIANT_TYPE_U32;
-             ImplValue.Data.U32 = MFX_IMPL_TYPE_HARDWARE;
-             MFXSetConfigFilterProperty(cfg,"mfxImplDescription.Impl",ImplValue);
-             MFXCreateSession(loader,0,&session);
-          @endcode
-
-          Usage example with two sessions (multiple loaders):
-          @code
-             // Create session with software based implementation
-             mfxLoader loader1 = MFXLoad();
-             mfxConfig cfg1 = MFXCreateConfig(loader1);
-             mfxVariant ImplValueSW;
-             ImplValueSW.Type = MFX_VARIANT_TYPE_U32;
-             ImplValueSW.Data.U32 = MFX_IMPL_TYPE_SOFTWARE;
-             MFXSetConfigFilterProperty(cfg1,"mfxImplDescription.Impl",ImplValueSW);
-             MFXCreateSession(loader1,0,&sessionSW);
-
-             // Create session with hardware based implementation
-             mfxLoader loader2 = MFXLoad();
-             mfxConfig cfg2 = MFXCreateConfig(loader2);
-             mfxVariant ImplValueHW;
-             ImplValueHW.Type = MFX_VARIANT_TYPE_U32;
-             ImplValueHW.Data.U32 = MFX_IMPL_TYPE_HARDWARE;
-             MFXSetConfigFilterProperty(cfg2,"mfxImplDescription.Impl",ImplValueHW);
-             MFXCreateSession(loader2,0,&sessionHW);
-
-             // use both sessionSW and sessionHW
-             // ...
-             // Close everything
-             MFXClose(sessionSW);
-             MFXClose(sessionHW);
-             MFXUnload(loader1); // cfg1 will be destroyed here.
-             MFXUnload(loader2); // cfg2 will be destroyed here.
-          @endcode
-
-          Usage example with two decoders (multiple config objects):
-          @code
-             mfxLoader loader = MFXLoad();
-
-             mfxConfig cfg1 = MFXCreateConfig(loader);
-             mfxVariant ImplValue;
-             val.Type = MFX_VARIANT_TYPE_U32;
-             val.Data.U32 = MFX_CODEC_AVC;
-             MFXSetConfigFilterProperty(cfg1,"mfxImplDescription.mfxDecoderDescription.decoder.CodecID",ImplValue);
-
-             mfxConfig cfg2 = MFXCreateConfig(loader);
-             mfxVariant ImplValue;
-             val.Type = MFX_VARIANT_TYPE_U32;
-             val.Data.U32 = MFX_CODEC_HEVC;
-             MFXSetConfigFilterProperty(cfg2,"mfxImplDescription.mfxDecoderDescription.decoder.CodecID",ImplValue);
-
-             MFXCreateSession(loader,0,&sessionAVC);
-             MFXCreateSession(loader,0,&sessionHEVC);
-          @endcode
 
    @param[in] config Config handle.
    @param[in] name Name of the parameter (see mfxImplDescription structure and example).
@@ -193,7 +133,7 @@ mfxStatus MFX_CDECL MFXCreateSession(mfxLoader loader, mfxU32 i, mfxSession* ses
 
 /*!
    @brief
-      Destroys handle allocated by the MFXQueryImplsCapabilities function.
+      Destroys handle allocated by the MFXEnumImplementations function.
 
    @param[in] loader   Loader handle.
    @param[in] hdl      Handle to destroy. Can be equal to NULL.

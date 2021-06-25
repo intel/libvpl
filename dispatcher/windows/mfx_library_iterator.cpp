@@ -35,7 +35,8 @@ const wchar_t apiVersionName[]  = L"APIVersion";
 mfxStatus SelectImplementationType(const mfxU32 adapterNum,
                                    mfxIMPL *pImplInterface,
                                    mfxU32 *pVendorID,
-                                   mfxU32 *pDeviceID) {
+                                   mfxU32 *pDeviceID,
+                                   mfxU64 *pLUID) {
     if (NULL == pImplInterface) {
         return MFX_ERR_NULL_PTR;
     }
@@ -80,6 +81,33 @@ mfxStatus SelectImplementationType(const mfxU32 adapterNum,
         *pVendorID = dxvaDevice.GetVendorID();
         *pDeviceID = dxvaDevice.GetDeviceID();
     }
+
+    if (pLUID) {
+        *pLUID = dxvaDevice.GetLUID();
+    }
+
+    return MFX_ERR_NONE;
+}
+
+mfxStatus SelectImplementationType(const mfxU32 adapterNum,
+                                   mfxIMPL *pImplInterface,
+                                   mfxU32 *pVendorID,
+                                   mfxU32 *pDeviceID) {
+    // do not return LUID
+    return SelectImplementationType(adapterNum, pImplInterface, pVendorID, pDeviceID, nullptr);
+}
+
+mfxStatus GetNumDXGIAdapters(mfxU32 &numAdaptersD3D9, mfxU32 &numAdaptersDXGI1) {
+    numAdaptersD3D9  = 0;
+    numAdaptersDXGI1 = 0;
+
+    DXVA2Device dxvaDevice9;
+    if (dxvaDevice9.InitD3D9(0))
+        numAdaptersD3D9 = dxvaDevice9.GetAdapterCount();
+
+    DXVA2Device dxvaDevice11;
+    if (dxvaDevice11.InitDXGI1(0))
+        numAdaptersDXGI1 = dxvaDevice11.GetAdapterCount();
 
     return MFX_ERR_NONE;
 }
@@ -211,11 +239,10 @@ mfxStatus MFXLibraryIterator::Init(eMfxImplType implType,
     #endif
 
 #endif
-    wchar_t sMediaSDKPath[msdk_disp_path_len] = {};
-
     if (storageID == MFX_DRIVER_STORE) {
-        if (!m_driverStoreLoader.GetDriverStorePath(sMediaSDKPath,
-                                                    sizeof(sMediaSDKPath),
+        m_driverStoreDir[0] = 0;
+        if (!m_driverStoreLoader.GetDriverStorePath(m_driverStoreDir,
+                                                    sizeof(m_driverStoreDir),
                                                     m_deviceID,
                                                     L"DriverStorePathForMediaSDK")) {
             return MFX_ERR_UNSUPPORTED;
@@ -231,7 +258,7 @@ mfxStatus MFXLibraryIterator::Init(eMfxImplType implType,
             return MFX_ERR_UNSUPPORTED;
         }
     }
-    else if (!GetImplPath(storageID, sMediaSDKPath)) {
+    else if (!GetImplPath(storageID, m_driverStoreDir)) {
         return MFX_ERR_UNSUPPORTED;
     }
 
@@ -241,7 +268,7 @@ mfxStatus MFXLibraryIterator::Init(eMfxImplType implType,
         return MFX_ERR_NONE;
     }
 
-    return InitFolder(implType, sMediaSDKPath, storageID);
+    return InitFolder(implType, m_driverStoreDir, storageID);
 
 } // mfxStatus MFXLibraryIterator::Init(eMfxImplType implType, const mfxU32 adapterNum, int storageID)
 
@@ -570,12 +597,13 @@ bool MFXLibraryIterator::GetSubKeyName(wchar_t *subKeyName, size_t length) const
 // static functions - create their own MFXLibraryIterator, get paths, then release object
 mfxStatus MFXLibraryIterator::GetDriverStoreDir(std::wstring &driverStoreDir,
                                                 size_t length,
-                                                mfxU32 adapterID) {
+                                                mfxU32 adapterID,
+                                                int storageID) {
     mfxStatus sts = MFX_ERR_UNSUPPORTED;
     MFX::MFXLibraryIterator libIterator;
 
     driverStoreDir.clear();
-    sts = libIterator.Init(MFX_LIB_HARDWARE, 0, adapterID, MFX::MFX_DRIVER_STORE_ONEVPL);
+    sts = libIterator.Init(MFX_LIB_HARDWARE, 0, adapterID, storageID);
     if (sts)
         return MFX_ERR_UNSUPPORTED;
 

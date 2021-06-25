@@ -16,7 +16,12 @@ CALL %~dp0%\_buildopts.bat ^
 IF DEFINED HELP_OPT ( EXIT /b 0 )
 
 PUSHD %PROJ_DIR%
-  ECHO No dependencies for base.
+  py -3 -m venv _build-venv
+  call %PROJ_DIR%\_build-venv\Scripts\activate.bat
+  python -m pip install -r "%PROJ_DIR%\requirements.txt"
+
+  @REM Add pybind11 to CMake Module Path
+  FOR /F "tokens=*" %%g IN ('python -m pybind11 --cmakedir') do (SET pybind11_DIR=%%g)
 POPD
 
-ENDLOCAL
+ENDLOCAL & set pybind11_DIR=%pybind11_DIR%

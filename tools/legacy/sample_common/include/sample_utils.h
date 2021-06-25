@@ -32,6 +32,7 @@
 #include "vpl/mfxstructures.h"
 #include "vpl/mfxvideo++.h"
 #include "vpl/mfxvideo.h"
+#include "vpl_implementation_loader.h"
 
 #include "vm/atomic_defs.h"
 #include "vm/file_defs.h"
@@ -46,6 +47,7 @@
 #include "avc_headers.h"
 #include "avc_nal_spl.h"
 #include "avc_spl.h"
+#include "vpl_implementation_loader.h"
 
 // A macro to disallow the copy constructor and operator= functions
 // This should be used in the private: declarations for a class
@@ -76,6 +78,12 @@ class no_copy : no_assign {
 public:
     //! Allow default construction
     no_copy() {}
+};
+
+enum MemType {
+    SYSTEM_MEMORY = 0x00,
+    D3D9_MEMORY   = 0x01,
+    D3D11_MEMORY  = 0x02,
 };
 
 enum {
@@ -486,6 +494,13 @@ struct mfx_ext_buffer_id<mfxExtFeiPPS> {
     enum { id = MFX_EXTBUFF_FEI_PPS };
 };
 #endif
+#if (MFX_VERSION >= 2000)
+template <>
+struct mfx_ext_buffer_id<mfxExtHyperModeParam> {
+    enum { id = MFX_EXTBUFF_HYPER_MODE_PARAM };
+};
+#endif
+
 constexpr uint16_t max_num_ext_buffers =
     63 * 2; // '*2' is for max estimation if all extBuffer were 'paired'
 
@@ -653,7 +668,7 @@ public:
     TB* GetExtBuffer(uint32_t fieldId = 0) const {
         return (TB*)FindExtBuffer(mfx_ext_buffer_id<TB>::id, fieldId);
     }
-
+#if 0
     template <typename TB>
     operator TB*() {
         return (TB*)FindExtBuffer(mfx_ext_buffer_id<TB>::id, 0);
@@ -663,7 +678,7 @@ public:
     operator TB*() const {
         return (TB*)FindExtBuffer(mfx_ext_buffer_id<TB>::id, 0);
     }
-
+#endif
 private:
     mfxExtBuffer* AddExtBuffer(mfxU32 id, mfxU32 size, bool isPairedExtBuffer) {
         if (!size || !id)
@@ -830,6 +845,9 @@ public:
                            bool shouldShiftP010 = false);
     virtual mfxStatus SkipNframesFromBeginning(mfxU16 w, mfxU16 h, mfxU32 viewId, mfxU32 nframes);
     virtual mfxStatus LoadNextFrame(mfxFrameSurface1* pSurface);
+    virtual mfxStatus LoadNextFrame2(mfxFrameSurface1* pSurface,
+                                     int bytes_to_read,
+                                     mfxU8* buf_read);
     virtual void Reset();
     mfxU32 m_ColorFormat; // color format of input YUV data, YUV420 or NV12
 
@@ -846,10 +864,12 @@ public:
     virtual ~CSmplBitstreamWriter();
 
     virtual mfxStatus Init(const msdk_char* strFileName);
+    virtual void ForceInitStatus(bool status);
     virtual mfxStatus WriteNextFrame(mfxBitstream* pMfxBitstream, bool isPrint = true);
     virtual mfxStatus Reset();
     virtual void Close();
     mfxU32 m_nProcessedFramesNum;
+    bool m_bSkipWriting;
 
 protected:
     FILE* m_fSink;
@@ -998,6 +1018,9 @@ public:
                            const mfxU32 fr_denom);
     virtual mfxStatus WriteNextFrame(mfxBitstream* pMfxBitstream, bool isPrint = true);
     virtual void Close();
+    mfxU64 GetProcessedFrame() {
+        return m_frameNum;
+    }
 
 protected:
     /* 32 bytes for stream header
@@ -1300,7 +1323,9 @@ bool skip(const Buf_t*& buf, Length_t& length, Length_t step) {
 //do not link MediaSDK dispatched if class not used
 struct MSDKAdapter {
     // returns the number of adapter associated with MSDK session, 0 for SW session
-    static mfxU32 GetNumber(mfxSession session, mfxIMPL implVia = 0) {
+    static mfxU32 GetNumber(mfxSession session,
+                            VPLImplementationLoader* loader = nullptr,
+                            mfxIMPL implVia                 = 0) {
         mfxU32 adapterNum = 0; // default
         mfxIMPL impl      = MFX_IMPL_SOFTWARE; // default in case no HW IMPL is found
 
@@ -1313,8 +1338,15 @@ struct MSDKAdapter {
             mfxSession auxSession;
             memset(&auxSession, 0, sizeof(auxSession));
 
-            mfxVersion ver = { { 1, 1 } }; // minimum API version which supports multiple devices
-            MFXInit(MFX_IMPL_HARDWARE_ANY | implVia, &ver, &auxSession);
+            if (loader) {
+                MFXCreateSession(loader->GetLoader(), loader->GetImplIndex(), &auxSession);
+            }
+            else {
+                // minimum API version which supports multiple devices
+                mfxVersion ver = { { 1, 1 } };
+                MFXInit(MFX_IMPL_HARDWARE_ANY | implVia, &ver, &auxSession);
+            }
+
             MFXQueryIMPL(auxSession, &impl);
             MFXClose(auxSession);
         }
@@ -1358,6 +1390,14 @@ struct APIChangeFeatures {
     bool AudioDecode;
     bool SupportCodecPluginAPI;
 };
+
+inline mfxU32 MakeVersion(const mfxU16 major, const mfxU16 minor) {
+    return major * 1000 + minor;
+}
+
+inline mfxU32 MakeVersion(const mfxVersion version) {
+    return MakeVersion(version.Major, version.Minor);
+}
 
 mfxVersion getMinimalRequiredVersion(const APIChangeFeatures& features);
 
@@ -1433,5 +1473,11 @@ void WaitForDeviceToBecomeFree(MFXVideoSession& session,
                                mfxStatus& currentStatus);
 
 mfxU16 FourCCToChroma(mfxU32 fourCC);
+
+#if (MFX_VERSION >= 2000)
+    #include "vpl/mfxdispatcher.h"
+
+mfxStatus VPL_SetAccelMode(mfxLoader loader, MemType memType);
+#endif // MFX_VERSION >= 2000
 
 #endif //__SAMPLE_UTILS_H__

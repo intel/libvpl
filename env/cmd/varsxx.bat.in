@@ -1,0 +1,41 @@
+::------------------------------------------------------------------------------
+:: Copyright (C) Intel Corporation
+::
+:: SPDX-License-Identifier: MIT
+::------------------------------------------------------------------------------
+:: Configure environment variables
+@echo off
+FOR /D %%i IN ("%~dp0\@env_rel_prefix@") DO (
+  set VPL_PREFIX=%%~fi
+)
+
+IF DEFINED INCLUDE (
+  set "INCLUDE=%VPL_PREFIX%\@_install_includedir@;%INCLUDE%"
+) ELSE (
+  set "INCLUDE=%VPL_PREFIX%\@_install_includedir@"
+)
+
+IF DEFINED LIB (
+  set "LIB=%VPL_PREFIX%\@_install_libdir@;%LIB%"
+) ELSE (
+  set "LIB=%VPL_PREFIX%\@_install_libdir@"
+)
+
+IF DEFINED PATH (
+  set "PATH=%VPL_PREFIX%\@_install_bindir@;%PATH%"
+) ELSE (
+  set "PATH=%VPL_PREFIX%\@_install_bindir@"
+)
+
+IF DEFINED CMAKE_PREFIX_PATH (
+  set "CMAKE_PREFIX_PATH=%VPL_PREFIX%;%CMAKE_PREFIX_PATH%"
+) ELSE (
+  set "CMAKE_PREFIX_PATH=%VPL_PREFIX%"
+)
+
+IF DEFINED PKG_CONFIG_PATH (
+  set "PKG_CONFIG_PATH=%VPL_PREFIX%\@_install_libdir@\pkgconfig;%PKG_CONFIG_PATH%"
+) ELSE (
+  set "PKG_CONFIG_PATH=%VPL_PREFIX%\@_install_libdir@\pkgconfig"
+)
+set VPL_PREFIX=

@@ -14,8 +14,8 @@
 // leave table formatting alone
 // clang-format off
 
-static const mfxChar strImplName[MFX_IMPL_NAME_LEN] = "MSDK RT (compatibility mode)";
-static const mfxChar strLicense[MFX_STRFIELD_LEN]   = "MIT";
+static const mfxChar strImplName[MFX_IMPL_NAME_LEN] = "mfxhw64";
+static const mfxChar strLicense[MFX_STRFIELD_LEN]   = "";
 
 #if defined _M_IX86
 static const mfxChar strKeywords[MFX_STRFIELD_LEN] = "MSDK,x86";
@@ -23,11 +23,17 @@ static const mfxChar strKeywords[MFX_STRFIELD_LEN] = "MSDK,x86";
 static const mfxChar strKeywords[MFX_STRFIELD_LEN] = "MSDK,x64";
 #endif
 
+static const mfxIMPL msdkImplTab[MAX_NUM_IMPL_MSDK] = {
+    MFX_IMPL_HARDWARE,
+    MFX_IMPL_HARDWARE2,
+    MFX_IMPL_HARDWARE3,
+    MFX_IMPL_HARDWARE4,
+};
+
 static const mfxAccelerationMode MSDKAccelModes[] = {
 #ifdef __linux__
     MFX_ACCEL_MODE_VIA_VAAPI,
 #else
-    MFX_ACCEL_MODE_VIA_D3D9,
     MFX_ACCEL_MODE_VIA_D3D11,
 #endif
 };
@@ -86,15 +92,9 @@ static const mfxImplementedFunctions msdkImplFuncs = {
 // end table formatting
 // clang-format on
 
-static const mfxIMPL hwImplTypes[] = {
-    MFX_IMPL_HARDWARE,
-    MFX_IMPL_HARDWARE2,
-    MFX_IMPL_HARDWARE3,
-    MFX_IMPL_HARDWARE4,
-};
-
 LoaderCtxMSDK::LoaderCtxMSDK()
-        : msdkAdapter(),
+        : m_msdkAdapter(),
+          m_msdkAdapterD3D9(),
           m_libNameFull(),
           m_id(),
           m_accelMode(),
@@ -147,19 +147,21 @@ mfxAccelerationMode LoaderCtxMSDK::CvtAccelType(mfxIMPL implType, mfxIMPL implMe
     return MFX_ACCEL_MODE_NA;
 }
 
-mfxStatus LoaderCtxMSDK::GetDefaultAccelType(mfxU32 adapterID, mfxIMPL* implDefault) {
+mfxStatus LoaderCtxMSDK::GetDefaultAccelType(mfxU32 adapterID, mfxIMPL* implDefault, mfxU64* luid) {
 #ifdef __linux__
     // VAAPI only
     *implDefault = MFX_IMPL_VIA_VAAPI;
+    *luid        = 0;
     return MFX_ERR_NONE;
 #else
-    // get default acceleration modes
+    // Windows - D3D11 only
     mfxU32 VendorID = 0, DeviceID = 0;
     mfxIMPL implTest;
     mfxStatus sts;
 
-    implTest = MFX_IMPL_VIA_ANY;
-    sts      = MFX::SelectImplementationType(adapterID, &implTest, &VendorID, &DeviceID);
+    // check whether adapterID supports D3D11 and has correct VendorID
+    implTest = MFX_IMPL_VIA_D3D11;
+    sts      = MFX::SelectImplementationType(adapterID, &implTest, &VendorID, &DeviceID, luid);
 
     if (sts != MFX_ERR_NONE || VendorID != 0x8086) {
         implTest = MFX_IMPL_UNSUPPORTED;
@@ -172,38 +174,65 @@ mfxStatus LoaderCtxMSDK::GetDefaultAccelType(mfxU32 adapterID, mfxIMPL* implDefa
 #endif
 }
 
-mfxStatus LoaderCtxMSDK::CheckAccelType(mfxU32 adapterID, mfxIMPL implTest) {
-#ifdef __linux__
-    // VAAPI only
-    if (implTest != MFX_IMPL_VIA_VAAPI)
-        return MFX_ERR_UNSUPPORTED;
-
-    return MFX_ERR_NONE;
-#else
-    // get default acceleration modes
-    mfxU32 VendorID = 0, DeviceID = 0;
+mfxStatus LoaderCtxMSDK::QueryAPIVersion(STRING_TYPE libNameFull, mfxVersion* msdkVersion) {
     mfxStatus sts;
+    mfxSession session = nullptr;
 
-    sts = MFX::SelectImplementationType(adapterID, &implTest, &VendorID, &DeviceID);
+    mfxVersion reqVersion;
+    reqVersion.Major = MSDK_MIN_VERSION_MAJOR;
+    reqVersion.Minor = MSDK_MIN_VERSION_MINOR;
 
-    if (sts != MFX_ERR_NONE || VendorID != 0x8086)
-        return MFX_ERR_UNSUPPORTED;
+    // try creating a session with each adapter in order to get MSDK API version
+    // stop with first successful session creation
+    for (mfxU32 adapterID = 0; adapterID < MAX_NUM_IMPL_MSDK; adapterID++) {
+        // try HW session, default acceleration mode
+        mfxIMPL hwImpl      = msdkImplTab[adapterID];
+        mfxIMPL implDefault = MFX_IMPL_UNSUPPORTED;
+        mfxU64 luid;
 
-    return MFX_ERR_NONE;
-#endif
+        // if not a valid HW device, try next adapter
+        sts = GetDefaultAccelType(adapterID, &implDefault, &luid);
+        if (sts != MFX_ERR_NONE)
+            continue;
+
+        // set acceleration mode - will be mapped to 1.x API
+        mfxInitializationParam vplParam = {};
+        vplParam.AccelerationMode =
+            (mfxAccelerationMode)CvtAccelType(MFX_IMPL_HARDWARE, implDefault & 0xFF00);
+
+        mfxU16 deviceID;
+        sts = MFXInitEx2(reqVersion,
+                         vplParam,
+                         hwImpl,
+                         &session,
+                         &deviceID,
+                         (CHAR_TYPE*)libNameFull.c_str());
+
+        if (sts == MFX_ERR_NONE) {
+            sts = MFXQueryVersion(session, msdkVersion);
+            MFXClose(session);
+
+            if (sts == MFX_ERR_NONE)
+                return sts;
+        }
+    }
+
+    return MFX_ERR_UNSUPPORTED;
 }
 
 mfxStatus LoaderCtxMSDK::QueryMSDKCaps(STRING_TYPE libNameFull,
                                        mfxImplDescription** implDesc,
                                        mfxImplementedFunctions** implFuncs,
-                                       mfxIMPL* msdkAdapter) {
+                                       mfxU32 adapterID) {
+#ifdef DISABLE_MSDK_COMPAT
+    // disable support for legacy MSDK
+    return MFX_ERR_UNSUPPORTED;
+#endif
+
     mfxStatus sts;
-    mfxSession session;
+    mfxSession session = nullptr;
 
     m_libNameFull = libNameFull;
-
-    mfxIMPL msdkImplType = MFX_IMPL_UNSUPPORTED;
-    *msdkAdapter         = MFX_IMPL_UNSUPPORTED;
 
 #ifdef __linux__
     // require pthreads to be linked in for MSDK RT to load
@@ -213,48 +242,23 @@ mfxStatus LoaderCtxMSDK::QueryMSDKCaps(STRING_TYPE libNameFull,
     }
 #endif
 
-    // try HW session, default acceleration mode, search for first supported device
-    mfxIMPL hwImpl      = MFX_IMPL_AUTO;
+    // try HW session, default acceleration mode
+    mfxIMPL hwImpl      = msdkImplTab[adapterID];
     mfxIMPL implDefault = MFX_IMPL_UNSUPPORTED;
-    for (mfxU32 i = 0; i < TAB_SIZE(mfxIMPL, hwImplTypes); i++) {
-        hwImpl = hwImplTypes[i];
+    mfxU64 luid         = 0;
 
-        sts = GetDefaultAccelType(i, &implDefault);
-        if (sts != MFX_ERR_NONE) {
-            // unsupported
-            continue;
-        }
-
-        sts =
-            OpenSession(&session,
-                        m_libNameFull,
-                        (mfxAccelerationMode)CvtAccelType(MFX_IMPL_HARDWARE, implDefault & 0xFF00),
-                        hwImpl);
-
-        if (sts == MFX_ERR_NONE) {
-            // hwImpl now indicates which adapter succeeded
-            msdkImplType = MFX_IMPL_HARDWARE;
-            break;
-        }
-    }
-
-#ifdef ENABLE_MSDK_SW_FALLBACK
-    // if HW failed, try SW session
-    if (msdkImplType == MFX_IMPL_UNSUPPORTED) {
-        sts = OpenSession(&session, m_libNameFull, MFX_ACCEL_MODE_NA, MFX_IMPL_SOFTWARE);
-        if (sts == MFX_ERR_NONE) {
-            msdkImplType = MFX_IMPL_SOFTWARE;
-        }
-    }
-#endif
-
-    // failed to initialize with any impl type
-    if (msdkImplType == MFX_IMPL_UNSUPPORTED)
+    sts = GetDefaultAccelType(adapterID, &implDefault, &luid);
+    if (sts != MFX_ERR_NONE)
         return MFX_ERR_UNSUPPORTED;
 
-    // failed to initialize with any impl type
+    sts = OpenSession(&session,
+                      m_libNameFull,
+                      (mfxAccelerationMode)CvtAccelType(MFX_IMPL_HARDWARE, implDefault & 0xFF00),
+                      hwImpl);
+
+    // adapter unsupported
     if (sts != MFX_ERR_NONE)
-        return sts;
+        return MFX_ERR_UNSUPPORTED;
 
     // return list of implemented functions
     *implFuncs = (mfxImplementedFunctions*)(&msdkImplFuncs);
@@ -265,90 +269,45 @@ mfxStatus LoaderCtxMSDK::QueryMSDKCaps(STRING_TYPE libNameFull,
 
     // fill in top-level capabilities
     m_id.Version.Version = MFX_IMPLDESCRIPTION_VERSION;
+    m_id.Impl            = MFX_IMPL_TYPE_HARDWARE;
 
     // query API version
     sts = MFXQueryVersion(session, &m_id.ApiVersion);
-    if (sts != MFX_ERR_NONE)
+    if (sts != MFX_ERR_NONE) {
+        CloseSession(&session);
         return sts;
+    }
+
+    // set default acceleration mode
+    m_id.AccelerationMode = CvtAccelType(MFX_IMPL_HARDWARE, implDefault & 0xFF00);
 
     // fill in acceleration description struct
     mfxAccelerationModeDescription* accelDesc = &(m_id.AccelerationModeDescription);
     accelDesc->Version.Version                = MFX_ACCELERATIONMODESCRIPTION_VERSION;
-    accelDesc->NumAccelerationModes           = 0;
-    accelDesc->Mode                           = m_accelMode;
 
-    if (msdkImplType == MFX_IMPL_HARDWARE) {
-        // query actual implementation for this session
-        mfxIMPL actualImpl = {};
-        sts                = MFXQueryIMPL(session, &actualImpl);
-        if (sts != MFX_ERR_NONE)
-            return sts;
+    // fill in mode description with just the single (default) mode
+    accelDesc->NumAccelerationModes = 1;
+    accelDesc->Mode                 = m_accelMode;
+    accelDesc->Mode[0]              = m_id.AccelerationMode;
 
-        // return HW accelerator - required by MFXCreateSession
-        *msdkAdapter = hwImpl;
+    // return HW accelerator - required by MFXCreateSession
+    m_msdkAdapter = hwImpl;
 
-        // map MFX HW number to VendorImplID
-        m_id.VendorImplID = 0;
-        switch (hwImpl) {
-            case MFX_IMPL_HARDWARE:
-                m_id.VendorImplID = 0;
-                break;
-            case MFX_IMPL_HARDWARE2:
-                m_id.VendorImplID = 1;
-                break;
-            case MFX_IMPL_HARDWARE3:
-                m_id.VendorImplID = 2;
-                break;
-            case MFX_IMPL_HARDWARE4:
-                m_id.VendorImplID = 3;
-                break;
-        }
-
-        // set default acceleration mode
-        m_id.AccelerationMode = CvtAccelType(MFX_IMPL_HARDWARE, implDefault & 0xFF00);
-
-        CloseSession(&session);
-
-        // hardware - test for all supported acceleration modes
-        m_id.Impl = MFX_IMPL_TYPE_HARDWARE;
-        for (mfxU32 i = 0; i < TAB_SIZE(mfxAccelerationMode, MSDKAccelModes); i++) {
-            // check if this accelerator type is supported
-            if (CheckAccelType(m_id.VendorImplID, MSDKAccelModes[i]) != MFX_ERR_NONE)
-                continue;
-
-            sts = OpenSession(&session, m_libNameFull, MSDKAccelModes[i], hwImpl);
-
-            if (sts == MFX_ERR_NONE) {
-                mfxU16 m = accelDesc->NumAccelerationModes;
-
-                accelDesc->Mode[m] = MSDKAccelModes[i];
-                accelDesc->NumAccelerationModes++;
-
-                CloseSession(&session);
-            }
-        }
-
-        // at least one acceleration mode must be supported
-        if (accelDesc->NumAccelerationModes == 0)
-            return MFX_ERR_UNSUPPORTED;
-
-        // if QueryIMPL did not set VIA flag, set default to first supported mode
-        if (!m_id.AccelerationMode)
-            m_id.AccelerationMode = accelDesc->Mode[0];
-
-        // reopen session with default mode
-        sts = OpenSession(&session, m_libNameFull, m_id.AccelerationMode, hwImpl);
-        if (sts != MFX_ERR_NONE)
-            return sts;
-    }
-    else {
-        // software - set default accel mode
-        m_id.Impl             = MFX_IMPL_TYPE_SOFTWARE;
-        m_id.AccelerationMode = MFX_ACCEL_MODE_NA;
-        m_id.VendorImplID     = 0;
-
-        accelDesc->NumAccelerationModes = 1;
-        accelDesc->Mode[0]              = MFX_ACCEL_MODE_NA;
+    // map MFX HW number to VendorImplID
+    m_id.VendorImplID = 0;
+    switch (hwImpl) {
+        case MFX_IMPL_HARDWARE:
+            m_id.VendorImplID = 0;
+            break;
+        case MFX_IMPL_HARDWARE2:
+            m_id.VendorImplID = 1;
+            break;
+        case MFX_IMPL_HARDWARE3:
+            m_id.VendorImplID = 2;
+            break;
+        case MFX_IMPL_HARDWARE4:
+            m_id.VendorImplID = 3;
+            break;
     }
 
     // fill in strings
@@ -378,11 +337,75 @@ mfxStatus LoaderCtxMSDK::QueryMSDKCaps(STRING_TYPE libNameFull,
     if (deviceID == 0)
         deviceID = m_loaderDeviceID;
 
+    // store DeviceID as "DevID" (hex) / "AdapterIdx" (dec) to match GPU RT
     Dev->Version.Version = MFX_DEVICEDESCRIPTION_VERSION;
-    snprintf(Dev->DeviceID, sizeof(Dev->DeviceID), "%04x", deviceID);
+    snprintf(Dev->DeviceID, sizeof(Dev->DeviceID), "%x/%d", deviceID, m_id.VendorImplID);
     Dev->NumSubDevices = 0;
 
     CloseSession(&session);
 
+#if defined(_WIN32) || defined(_WIN64)
+    mfxIMPL implD3D9;
+    m_msdkAdapterD3D9 = MFX_IMPL_UNSUPPORTED;
+
+    sts = CheckD3D9Support(luid, libNameFull, &implD3D9);
+    if (sts == MFX_ERR_NONE) {
+        m_msdkAdapterD3D9 = implD3D9;
+
+        accelDesc->Mode[accelDesc->NumAccelerationModes] = MFX_ACCEL_MODE_VIA_D3D9;
+        accelDesc->NumAccelerationModes++;
+    }
+#endif
+
     return MFX_ERR_NONE;
+}
+
+mfxStatus LoaderCtxMSDK::CheckD3D9Support(mfxU64 luid, STRING_TYPE libNameFull, mfxIMPL* implD3D9) {
+#if defined(_WIN32) || defined(_WIN64)
+    mfxU32 VendorID = 0, DeviceID = 0;
+    mfxIMPL implTest = MFX_IMPL_VIA_D3D9;
+
+    mfxStatus sts;
+    mfxSession session = nullptr;
+
+    mfxVersion reqVersion;
+    reqVersion.Major = MSDK_MIN_VERSION_MAJOR;
+    reqVersion.Minor = MSDK_MIN_VERSION_MINOR;
+
+    *implD3D9 = MFX_IMPL_UNSUPPORTED;
+
+    mfxU32 idx;
+    for (idx = 0; idx < MAX_NUM_IMPL_MSDK; idx++) {
+        mfxU64 luidD3D9 = 0;
+        sts = MFX::SelectImplementationType(idx, &implTest, &VendorID, &DeviceID, &luidD3D9);
+
+        if (sts != MFX_ERR_NONE || VendorID != 0x8086 || luid != luidD3D9)
+            continue;
+
+        // matching LUID - try creating a D3D9 session
+        mfxInitializationParam vplParam = {};
+        vplParam.AccelerationMode       = MFX_ACCEL_MODE_VIA_D3D9;
+
+        mfxU16 deviceID;
+        sts = MFXInitEx2(reqVersion,
+                         vplParam,
+                         msdkImplTab[idx],
+                         &session,
+                         &deviceID,
+                         (CHAR_TYPE*)libNameFull.c_str());
+
+        if (sts == MFX_ERR_NONE) {
+            *implD3D9 = msdkImplTab[idx];
+            MFXClose(session);
+            return MFX_ERR_NONE;
+        }
+
+        break; // D3D9 not supported
+    }
+
+    // this adapter (input luid) does not support D3D9
+    return MFX_ERR_UNSUPPORTED;
+#else
+    return MFX_ERR_UNSUPPORTED;
+#endif
 }

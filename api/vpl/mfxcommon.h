@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) 2018-2020 Intel Corporation
+  # Copyright Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -172,7 +172,7 @@ typedef struct {
 } mfxExtThreadsParam;
 MFX_PACK_END()
 
-/*! The PlatformCodeName enumerator itemizes microarchitecture code names for the Legacy mode. 
+/*! The PlatformCodeName enumerator itemizes product code names for platforms. 
     For details about Intel code names, see ark.intel.com. */
 enum {
     MFX_PLATFORM_UNKNOWN        = 0,  /*!< Unknown platform. */
@@ -192,6 +192,11 @@ enum {
     MFX_PLATFORM_JASPERLAKE     = 32, /*!< Code name Jasper Lake. */
     MFX_PLATFORM_ELKHARTLAKE    = 33, /*!< Code name Elkhart Lake. */
     MFX_PLATFORM_TIGERLAKE      = 40, /*!< Code name Tiger Lake. */
+    MFX_PLATFORM_ROCKETLAKE     = 42, /*!< Code name Rocket Lake. */
+    MFX_PLATFORM_ALDERLAKE_S    = 43, /*!< Code name Alder Lake S. */
+    MFX_PLATFORM_ALDERLAKE_P    = 44, /*!< Code name Alder Lake P. */
+    MFX_PLATFORM_ARCTICSOUND_P  = 45,
+    MFX_PLATFORM_XEHP_SDV       = 45, /*!< Code name XeHP SDV. */
     MFX_PLATFORM_KEEMBAY        = 50, /*!< Code name Keem Bay. */
 };
 
@@ -370,7 +375,6 @@ typedef enum {
     MFX_ACCEL_MODE_VIA_HDDLUNITE    = 0x0500,  /*!< Hardware acceleration goes through the HDDL* Unite*. */
 } mfxAccelerationMode;
 
-
 #define MFX_ACCELERATIONMODESCRIPTION_VERSION MFX_STRUCT_VERSION(1, 0)
 
 MFX_PACK_BEGIN_STRUCT_W_PTR()
@@ -427,7 +431,10 @@ MFX_PACK_END()
 /* The mfxImplCapsDeliveryFormat enumerator specifies delivery format of the implementation capability. */
 typedef enum {
     MFX_IMPLCAPS_IMPLDESCSTRUCTURE       = 1,  /*!< Deliver capabilities as mfxImplDescription structure. */
-    MFX_IMPLCAPS_IMPLEMENTEDFUNCTIONS    = 2   /*!< Deliver capabilities as mfxImplementedFunctions structure. */
+    MFX_IMPLCAPS_IMPLEMENTEDFUNCTIONS    = 2,  /*!< Deliver capabilities as mfxImplementedFunctions structure. */
+    MFX_IMPLCAPS_IMPLPATH                = 3   /*!< Deliver pointer to the null-terminated string with the path to the
+                                                    implementation. String is delivered in a form of buffer of
+                                                    mfxChar type. */
 } mfxImplCapsDeliveryFormat;
 
 MFX_PACK_BEGIN_STRUCT_W_PTR()
@@ -438,7 +445,7 @@ typedef struct {
     mfxU16  reserved[3];                     /*!< Reserved for future use. */
     mfxU16  NumExtParam;                     /*!< The number of extra configuration structures attached to this structure. */
     mfxExtBuffer **ExtParam;                 /*!< Points to an array of pointers to the extra configuration structures; see the ExtendedBufferID enumerator for a list of extended configurations. */
-    mfxU32                 VendorImplID;     /*!< Vendor specific number with given implementation ID. Represents the same filed from mfxImplDescription. */
+    mfxU32      VendorImplID;                /*!< Vendor specific number with given implementation ID. Represents the same field from mfxImplDescription. */
     mfxU32      reserved2[3];                /*!< Reserved for future use. */
 } mfxInitializationParam;
 MFX_PACK_END()

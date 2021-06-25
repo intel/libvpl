@@ -1,8 +1,12 @@
+# pre-commit configuration file
+# You may automatically run pre-commit when committing
+# by installing hooks as follows:
+# pre-commit install
+# pre-commit install --hook-type commit-msg
 ---
 fail_fast: false
 default_language_version:
   python: python3
-exclude: ^test/unit/googletest/
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v2.5.0
@@ -12,25 +16,33 @@ repos:
     rev: v0.29.0
     hooks:
       - id: yapf
-  - repo: https://github.com/pocc/pre-commit-hooks
-    rev: python
-    hooks:
-      - id: clang-format
-  - repo: https://github.com/iconmaster5326/cmake-format-pre-commit-hook
-    rev: master
-    hooks:
-      - id: cmake-format
-  - repo: local
+  - repo: https://github.com/PyCQA/pylint
+    rev: v2.8.2
     hooks:
       - id: pylint
-        name: pylint
-        entry: pylint
-        language: system
-        types: [python]
-  - repo: local
+        args:
+          [
+            "--disable=import-error,no-name-in-module,duplicate-code",
+          ]
+  - repo: https://github.com/iconmaster5326/cmake-format-pre-commit-hook
+    rev: v0.6.9
+    hooks:
+      - id: cmake-format
+  - repo: https://github.com/pocc/pre-commit-hooks
+    rev: v1.1.1
+    hooks:
+      - id: clang-format
+        args: [-i]
+  - repo: https://github.com/cpplint/cpplint
+    rev: 1.5.5
     hooks:
       - id: cpplint
-        name: cpplint
-        entry: cpplint
-        language: system
         files: \.(h|hh|hpp|hxx|h|c|cc|cpp|cxx|c)$
+  - repo: https://github.com/jorisroovers/gitlint
+    rev: v0.15.1
+    hooks:
+      - id: gitlint
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.0
+    hooks:
+    - id: bandit

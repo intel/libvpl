@@ -48,11 +48,8 @@ void PrintHelp(msdk_char* strAppName, const msdk_char* strErrorMessage, ...) {
     msdk_printf(MSDK_STRING("\n"));
     msdk_printf(MSDK_STRING("Supported codecs, <msdk-codecid>:\n"));
     msdk_printf(
-#if (MFX_VERSION >= 2000)
-        MSDK_STRING("   <codecid>=h264|h265|mpeg2|vc1|mvc|jpeg|av1 - built-in Media SDK codecs\n"));
-#else
-        MSDK_STRING("   <codecid>=h264|h265|mpeg2|vc1|mvc|jpeg - built-in Media SDK codecs\n"));
-#endif
+
+        MSDK_STRING("   <codecid>=h264|h265|mpeg2|vc1|mvc|jpeg|av1 \n"));
 
     msdk_printf(MSDK_STRING("   If codecid is jpeg, -q option is mandatory.)\n"));
     msdk_printf(MSDK_STRING("Options: \n"));
@@ -70,6 +67,12 @@ void PrintHelp(msdk_char* strAppName, const msdk_char* strErrorMessage, ...) {
         MSDK_STRING("   [-dGfx] - preffer processing on dGfx (by default system decides)\n"));
     msdk_printf(
         MSDK_STRING("   [-iGfx] - preffer processing on iGfx (by default system decides)\n"));
+    #if (MFX_VERSION >= 2000)
+    msdk_printf(MSDK_STRING(
+        "   [-dual_gfx::<on,off,adaptive>] - prefer processing on both iGfx and dGfx simultaneously.\n"));
+    msdk_printf(MSDK_STRING(
+        "                                    Can be used along with -iGfx/-dGfx to select the primary graphics.\n"));
+    #endif
 #endif
     msdk_printf(MSDK_STRING(
         "   [-nv12|yuy2|uyvy|ayuv|rgb4|p010|y210|y410|a2rgb10|p016|y216] - input color format (by default YUV420 is expected).\n"));
@@ -312,7 +315,10 @@ void PrintHelp(msdk_char* strAppName, const msdk_char* strErrorMessage, ...) {
         MSDK_STRING("   [-api2x_internalmem]      - specifies internal memory mode of vpl 2.x\n"));
     msdk_printf(
         MSDK_STRING("   [-api2x_dispatcher]       - specifies 2.x API smart dispatcher\n\n"));
+    msdk_printf(MSDK_STRING(
+        "   [-api2x_perf]             - aligns the measurement with reference tool to compare\n\n"));
 #endif
+    msdk_printf(MSDK_STRING("   [-adapterNum n]           - use adapter number n\n"));
     msdk_printf(MSDK_STRING(
         "   [-viewoutput] - instruct the MVC encoder to output each view in separate bitstream buffer. Depending on the number of -o options behaves as follows:\n"));
     msdk_printf(MSDK_STRING("                   1: two views are encoded in single file\n"));
@@ -420,6 +426,31 @@ mfxStatus ParseAdditionalParams(msdk_char* strInput[],
         pParams->EncodeFourCC    = MFX_FOURCC_Y216;
     }
 #endif
+#if (MFX_VERSION >= 2000)
+    else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-api2x_internalmem"))) {
+        pParams->api2xInternalMem = true;
+    }
+    else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-api2x_dispatcher"))) {
+        pParams->api2xDispatcher = true;
+    }
+    else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-api2x_perf"))) {
+        pParams->api2xPerf = true;
+    }
+    #if (defined(_WIN64) || defined(_WIN32))
+    else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-dual_gfx::on"))) {
+        pParams->isDualMode = true;
+        pParams->hyperMode  = MFX_HYPERMODE_ON;
+    }
+    else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-dual_gfx::off"))) {
+        pParams->isDualMode = true;
+        pParams->hyperMode  = MFX_HYPERMODE_OFF;
+    }
+    else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-dual_gfx::adaptive"))) {
+        pParams->isDualMode = true;
+        pParams->hyperMode  = MFX_HYPERMODE_ADAPTIVE;
+    }
+    #endif
+#endif
     else {
         return MFX_ERR_NOT_FOUND;
     }
@@ -454,6 +485,12 @@ mfxStatus ParseInputString(msdk_char* strInput[], mfxU8 nArgNum, sInputParams* p
     pParams->MipiPort   = -1;
     pParams->MipiMode   = NONE;
     pParams->v4l2Format = NO_FORMAT;
+#endif
+
+    pParams->bUseAdapterNum = false;
+    pParams->adapterNum     = 0;
+#if ((defined(_WIN64) || defined(_WIN32)) && MFX_VERSION >= 2000)
+    pParams->isDualMode = false;
 #endif
 
     // parse command line parameters
@@ -504,10 +541,22 @@ mfxStatus ParseInputString(msdk_char* strInput[], mfxU8 nArgNum, sInputParams* p
 #endif
 #if (defined(_WIN64) || defined(_WIN32)) && (MFX_VERSION >= 1031)
         else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-dGfx"))) {
-            pParams->bPrefferdGfx = true;
+            if (pParams->bUseAdapterNum) {
+                msdk_printf(MSDK_STRING(
+                    "Options -adapterNum and -dGfx are incompatible, -dGfx will be ignored\n"));
+            }
+            else {
+                pParams->bPrefferdGfx = true;
+            }
         }
         else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-iGfx"))) {
-            pParams->bPrefferiGfx = true;
+            if (pParams->bUseAdapterNum) {
+                msdk_printf(MSDK_STRING(
+                    "Options -adapterNum and -iGfx are incompatible, -iGfx will be ignored\n"));
+            }
+            else {
+                pParams->bPrefferiGfx = true;
+            }
         }
 #endif
         else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-trows"))) {
@@ -540,8 +589,8 @@ mfxStatus ParseInputString(msdk_char* strInput[], mfxU8 nArgNum, sInputParams* p
         }
 #if (MFX_VERSION >= 2000)
         else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-i420"))) {
-            pParams->FileInputFourCC = MFX_FOURCC_IYUV;
-            pParams->EncodeFourCC    = MFX_FOURCC_IYUV;
+            pParams->FileInputFourCC = MFX_FOURCC_I420;
+            pParams->EncodeFourCC    = MFX_FOURCC_I420;
         }
         else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-i010"))) {
             pParams->FileInputFourCC = MFX_FOURCC_I010;
@@ -730,15 +779,18 @@ mfxStatus ParseInputString(msdk_char* strInput[], mfxU8 nArgNum, sInputParams* p
 
 #if D3D_SURFACES_SUPPORT
         else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-d3d"))) {
-            pParams->memType = D3D9_MEMORY;
+            pParams->memType          = D3D9_MEMORY;
+            pParams->accelerationMode = MFX_ACCEL_MODE_VIA_D3D9;
         }
         else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-d3d11"))) {
-            pParams->memType = D3D11_MEMORY;
+            pParams->memType          = D3D11_MEMORY;
+            pParams->accelerationMode = MFX_ACCEL_MODE_VIA_D3D11;
         }
 #endif
 #ifdef LIBVA_SUPPORT
         else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-vaapi"))) {
-            pParams->memType = D3D9_MEMORY;
+            pParams->memType          = D3D9_MEMORY;
+            pParams->accelerationMode = MFX_ACCEL_MODE_VIA_VAAPI;
         }
 #endif
         else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-async"))) {
@@ -1172,14 +1224,29 @@ mfxStatus ParseInputString(msdk_char* strInput[], mfxU8 nArgNum, sInputParams* p
             pParams->UseRegionEncode = true;
         }
 #endif
-#if (MFX_VERSION >= 2000)
-        else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-api2x_internalmem"))) {
-            pParams->api2xInternalMem = true;
-        }
-        else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-api2x_dispatcher"))) {
-            pParams->api2xDispatcher = true;
-        }
+        else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-adapterNum"))) {
+#if (defined(_WIN64) || defined(_WIN32))
+            if (pParams->bPrefferiGfx || pParams->bPrefferdGfx) {
+                msdk_printf(MSDK_STRING(
+                    "Options -iGfx/-dGfx and -adapterNum are incompatible, -adapterNum will be ignored\n"));
+                ++i;
+            }
+            else
 #endif
+            {
+                if (i + 1 >= nArgNum) {
+                    PrintHelp(strInput[0],
+                              MSDK_STRING("Not enough parameters for -adapterNum key"));
+                    return MFX_ERR_UNSUPPORTED;
+                }
+                if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->adapterNum)) {
+                    PrintHelp(strInput[0], MSDK_STRING("adapterNum is invalid"));
+                    return MFX_ERR_UNSUPPORTED;
+                }
+
+                pParams->bUseAdapterNum = true;
+            }
+        }
 
 #if defined(ENABLE_V4L2_SUPPORT)
         else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-d"))) {
@@ -1275,11 +1342,7 @@ mfxStatus ParseInputString(msdk_char* strInput[], mfxU8 nArgNum, sInputParams* p
 
     if (MFX_CODEC_MPEG2 != pParams->CodecId && MFX_CODEC_AVC != pParams->CodecId &&
         MFX_CODEC_JPEG != pParams->CodecId && MFX_CODEC_HEVC != pParams->CodecId &&
-        MFX_CODEC_VP9 != pParams->CodecId
-#if (MFX_VERSION >= 2000)
-        && MFX_CODEC_AV1 != pParams->CodecId
-#endif
-    ) {
+        MFX_CODEC_VP9 != pParams->CodecId && MFX_CODEC_AV1 != pParams->CodecId) {
         PrintHelp(strInput[0], MSDK_STRING("Unknown codec"));
         return MFX_ERR_UNSUPPORTED;
     }
@@ -1571,6 +1634,9 @@ int main(int argc, char* argv[])
         return 0;
     }
 
+    // start timer
+    auto t1 = std::chrono::high_resolution_clock::now();
+
     for (;;) {
         sts = pPipeline->Run();
 
@@ -1591,6 +1657,21 @@ int main(int argc, char* argv[])
     }
 
     pPipeline->CaptureStopV4L2Pipeline();
+
+    if (Params.api2xPerf && sts == MFX_ERR_NONE) {
+        mfxU32 nFrames = pPipeline->GetProcessedFramesNum();
+        if (nFrames && pPipeline->GetElapsedTime()) {
+            printf("Frame number: %d, fps: %0.3f",
+                   (int)nFrames,
+                   (1.0e6 / pPipeline->GetElapsedTime()) * nFrames);
+        }
+        else {
+            msdk_printf(MSDK_STRING("There's no processed frame\n"));
+        }
+    }
+    else {
+        pPipeline->PrintPerFrameStat();
+    }
 
     pPipeline->Close();
 

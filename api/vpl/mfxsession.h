@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) 2017-2020 Intel Corporation
+  # Copyright Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -49,6 +49,9 @@ typedef struct _mfxSession *mfxSession;
       MFX_ERR_UNSUPPORTED The function cannot find the desired legacy Intel(r) Media SDK implementation or version.
    
    @since This function is available since API version 1.0.
+
+   @deprecated Deprecated in API version 2.3. Use MFXLoad and MFXCreateSession to initialize the session.
+               Use MFX_DEPRECATED_OFF macro to turn off the deprecation message visualization.
 */
 MFX_DEPRECATED mfxStatus MFX_CDECL MFXInit(mfxIMPL impl, mfxVersion *ver, mfxSession *session);
 
@@ -56,8 +59,7 @@ MFX_DEPRECATED mfxStatus MFX_CDECL MFXInit(mfxIMPL impl, mfxVersion *ver, mfxSes
    @brief
       Creates and initializes a session in the legacy mode for compatibility with Intel(r) Media SDK applications. 
       This function is deprecated starting from API version 2.0, applications must use MFXLoad with mfxCreateSession 
-      to select the implementation and initialize the session. 
- 
+      to select the implementation and initialize the session.
 
       Call this function before calling any other API functions.
       If the desired implementation specified by ``par`` is MFX_IMPL_AUTO, the function will search for
@@ -72,7 +74,7 @@ MFX_DEPRECATED mfxStatus MFX_CDECL MFXInit(mfxIMPL impl, mfxVersion *ver, mfxSes
       For example, if an application uses only H.264 decoding as described in API v1.0, the application should initialize the library with API v1.0. This ensures backward compatibility.
 
       The argument ``par.ExternalThreads`` specifies threading mode. Value 0 means that the implementation should create and
-      handle work threads internally (this is essentially the equivalent of the regular MFXInit). I
+      handle work threads internally (this is essentially the equivalent of the regular MFXInit).
 
    @param[in]  par     mfxInitParam structure that indicates the desired implementation, minimum library version and desired threading mode.
    @param[out] session Pointer to the session handle.
@@ -82,6 +84,9 @@ MFX_DEPRECATED mfxStatus MFX_CDECL MFXInit(mfxIMPL impl, mfxVersion *ver, mfxSes
       MFX_ERR_UNSUPPORTED The function cannot find the desired implementation or version.
 
    @since This function is available since API version 1.14.
+
+   @deprecated Deprecated in API version 2.3. Use MFXLoad and MFXCreateSession to initialize the session.
+               Use MFX_DEPRECATED_OFF macro to turn off the deprecation message visualization.
 */
 MFX_DEPRECATED mfxStatus MFX_CDECL MFXInitEx(mfxInitParam par, mfxSession *session);
 

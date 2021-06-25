@@ -8,6 +8,7 @@
 #define DISPATCHER_VPL_MFX_DISPATCHER_VPL_H_
 
 #include <algorithm>
+#include <cstdlib>
 #include <list>
 #include <memory>
 #include <sstream>
@@ -15,6 +16,8 @@
 
 #include "vpl/mfxdispatcher.h"
 #include "vpl/mfxvideo.h"
+
+#include "./mfx_dispatcher_vpl_log.h"
 
 #if defined(_WIN32) || defined(_WIN64)
     #include <windows.h>
@@ -33,6 +36,7 @@ typedef wchar_t CHAR_TYPE;
     #include <dirent.h>
     #include <dlfcn.h>
     #include <string.h>
+    #include <unistd.h>
 
     // use standard char on Linux
     #define MAKE_STRING(x) x
@@ -47,19 +51,14 @@ typedef char CHAR_TYPE;
 
 #define MAX_WINDOWS_ADAPTER_ID 3 // check adapterID in range [0,3]
 
+#define MAX_NUM_IMPL_MSDK 4
+
 #define MAX_VPL_SEARCH_PATH 4096
 
-// OS-specific environment variables for implementation
-//   search paths as defined by spec
-#if defined(_WIN32) || defined(_WIN64)
-    #define ENV_ONEVPL_SEARCH_PATH  L"ONEVPL_SEARCH_PATH"
-    #define ENV_ONEVPL_PACKAGE_PATH L"VPL_BIN"
-    #define ENV_OS_PATH             L"PATH"
-#else
-    #define ENV_ONEVPL_SEARCH_PATH  "ONEVPL_SEARCH_PATH"
-    #define ENV_ONEVPL_PACKAGE_PATH "VPL_BIN"
-    #define ENV_OS_PATH             "LD_LIBRARY_PATH"
-#endif
+#define MAX_ENV_VAR_LEN 32768
+
+#define DEVICE_ID_UNKNOWN   0xffffffff
+#define ADAPTER_IDX_UNKNOWN 0xffffffff
 
 #define TAB_SIZE(type, tab) (sizeof(tab) / sizeof(type))
 #define MAKE_MFX_VERSION(major, minor) \
@@ -125,11 +124,13 @@ struct VPLFunctionDesc {
 
 // priority of runtime loading, based on oneAPI-spec
 enum LibPriority {
-    LIB_PRIORITY_USER_DEFINED = 1,
-    LIB_PRIORITY_VPL_PACKAGE  = 2,
-    LIB_PRIORITY_OS_PATH      = 3,
-    LIB_PRIORITY_SYS_DEFAULT  = 4,
-    LIB_PRIORITY_MSDK_PACKAGE = 5,
+    LIB_PRIORITY_01 = 1,
+    LIB_PRIORITY_02 = 2,
+    LIB_PRIORITY_03 = 3,
+    LIB_PRIORITY_04 = 4,
+    LIB_PRIORITY_05 = 5,
+
+    LIB_PRIORITY_LEGACY = 9999,
 };
 
 enum CfgPropState {
@@ -137,6 +138,21 @@ enum CfgPropState {
     CFG_PROP_STATE_SUPPORTED,
     CFG_PROP_STATE_UNSUPPORTED,
 };
+
+enum PropRanges {
+    PROP_RANGE_DEC_W = 0,
+    PROP_RANGE_DEC_H,
+    PROP_RANGE_ENC_W,
+    PROP_RANGE_ENC_H,
+    PROP_RANGE_VPP_W,
+    PROP_RANGE_VPP_H,
+
+    NUM_PROP_RANGES
+};
+
+// must match eProp_TotalProps, is checked with static_assert in _config.cpp
+//   (should throw error at compile time if !=)
+#define NUM_TOTAL_FILTER_PROPS 38
 
 // typedef child structures for easier reading
 typedef struct mfxDecoderDescription::decoder DecCodec;
@@ -189,10 +205,20 @@ struct VPPConfig {
 // these are updated with every call to ValidateConfig() and may
 //   be used in MFXCreateSession()
 struct SpecialConfig {
+    bool bIsSet_deviceHandleType;
     mfxHandleType deviceHandleType;
+
+    bool bIsSet_deviceHandle;
     mfxHDL deviceHandle;
+
+    bool bIsSet_accelerationMode;
     mfxAccelerationMode accelerationMode;
+
+    bool bIsSet_ApiVersion;
     mfxVersion ApiVersion;
+
+    bool bIsSet_dxgiAdapterIdx;
+    mfxU32 dxgiAdapterIdx;
 };
 
 // config class implementation
@@ -205,11 +231,14 @@ public:
     mfxStatus SetFilterProperty(const mfxU8* name, mfxVariant value);
 
     // compare library caps vs. set of configuration filters
-    static mfxStatus ValidateConfig(mfxImplDescription* libImplDesc,
-                                    mfxImplementedFunctions* libImplFuncs,
+    static mfxStatus ValidateConfig(const mfxImplDescription* libImplDesc,
+                                    const mfxImplementedFunctions* libImplFuncs,
                                     std::list<ConfigCtxVPL*> configCtxList,
                                     LibType libType,
                                     SpecialConfig* specialConfig);
+
+    // parse deviceID for x86 devices
+    static bool ParseDeviceIDx86(mfxChar* cDeviceID, mfxU32& deviceID, mfxU32& adapterIdx);
 
     // loader object this config is associated with - needed to
     //   rebuild valid implementation list after each calling
@@ -217,49 +246,51 @@ public:
     class LoaderCtxVPL* m_parentLoader;
 
 private:
-    __inline std::string GetNextProp(std::list<std::string>* s) {
-        if (s->empty())
+    static __inline std::string GetNextProp(std::list<std::string>& s) {
+        if (s.empty())
             return "";
-        std::string t = s->front();
-        s->pop_front();
+        std::string t = s.front();
+        s.pop_front();
         return t;
     }
 
     mfxStatus ValidateAndSetProp(mfxI32 idx, mfxVariant value);
-    mfxStatus SetFilterPropertyDec(mfxVariant value);
-    mfxStatus SetFilterPropertyEnc(mfxVariant value);
-    mfxStatus SetFilterPropertyVPP(mfxVariant value);
+    mfxStatus SetFilterPropertyDec(std::list<std::string>& propParsedString, mfxVariant value);
+    mfxStatus SetFilterPropertyEnc(std::list<std::string>& propParsedString, mfxVariant value);
+    mfxStatus SetFilterPropertyVPP(std::list<std::string>& propParsedString, mfxVariant value);
 
-    static mfxStatus GetFlatDescriptionsDec(mfxImplDescription* libImplDesc,
+    static mfxStatus GetFlatDescriptionsDec(const mfxImplDescription* libImplDesc,
                                             std::list<DecConfig>& decConfigList);
 
-    static mfxStatus GetFlatDescriptionsEnc(mfxImplDescription* libImplDesc,
+    static mfxStatus GetFlatDescriptionsEnc(const mfxImplDescription* libImplDesc,
                                             std::list<EncConfig>& encConfigList);
 
-    static mfxStatus GetFlatDescriptionsVPP(mfxImplDescription* libImplDesc,
+    static mfxStatus GetFlatDescriptionsVPP(const mfxImplDescription* libImplDesc,
                                             std::list<VPPConfig>& vppConfigList);
 
-    static mfxStatus CheckPropsGeneral(mfxVariant cfgPropsAll[], mfxImplDescription* libImplDesc);
+    static mfxStatus CheckPropsGeneral(const mfxVariant cfgPropsAll[],
+                                       const mfxImplDescription* libImplDesc);
 
-    static mfxStatus CheckPropsDec(mfxVariant cfgPropsAll[], std::list<DecConfig> decConfigList);
+    static mfxStatus CheckPropsDec(const mfxVariant cfgPropsAll[],
+                                   std::list<DecConfig> decConfigList);
 
-    static mfxStatus CheckPropsEnc(mfxVariant cfgPropsAll[], std::list<EncConfig> encConfigList);
+    static mfxStatus CheckPropsEnc(const mfxVariant cfgPropsAll[],
+                                   std::list<EncConfig> encConfigList);
 
-    static mfxStatus CheckPropsVPP(mfxVariant cfgPropsAll[], std::list<VPPConfig> vppConfigList);
+    static mfxStatus CheckPropsVPP(const mfxVariant cfgPropsAll[],
+                                   std::list<VPPConfig> vppConfigList);
 
-    static mfxStatus CheckPropString(mfxChar* implString, std::string filtString);
+    static mfxStatus CheckPropString(const mfxChar* implString, const std::string filtString);
 
-    std::string m_propName;
-    mfxVariant m_propValue;
-    mfxI32 m_propIdx;
-    std::list<std::string> m_propParsedString;
+    mfxVariant m_propVar[NUM_TOTAL_FILTER_PROPS];
 
     // special containers for properties which are passed by pointer
-    //   (save a copy of the whole object based on m_propName)
-    mfxRange32U m_propRange32U;
+    //   (save a copy of the whole object based on property name)
+    mfxRange32U m_propRange32U[NUM_PROP_RANGES];
     std::string m_implName;
     std::string m_implLicense;
     std::string m_implKeywords;
+    std::string m_deviceIdStr;
     std::string m_implFunctionName;
 };
 
@@ -274,10 +305,13 @@ public:
     mfxStatus QueryMSDKCaps(STRING_TYPE libNameFull,
                             mfxImplDescription** implDesc,
                             mfxImplementedFunctions** implFuncs,
-                            mfxIMPL* msdkAdapter);
+                            mfxU32 adapterID);
+
+    static mfxStatus QueryAPIVersion(STRING_TYPE libNameFull, mfxVersion* msdkVersion);
 
     // required by MFXCreateSession
-    mfxIMPL msdkAdapter;
+    mfxIMPL m_msdkAdapter;
+    mfxIMPL m_msdkAdapterD3D9;
 
 private:
     // session management
@@ -288,9 +322,9 @@ private:
     void CloseSession(mfxSession* session);
 
     // utility functions
-    mfxAccelerationMode CvtAccelType(mfxIMPL implType, mfxIMPL implMethod);
-    mfxStatus GetDefaultAccelType(mfxU32 adapterID, mfxIMPL* implDefault);
-    mfxStatus CheckAccelType(mfxU32 adapterID, mfxIMPL implTest);
+    static mfxAccelerationMode CvtAccelType(mfxIMPL implType, mfxIMPL implMethod);
+    static mfxStatus GetDefaultAccelType(mfxU32 adapterID, mfxIMPL* implDefault, mfxU64* luid);
+    static mfxStatus CheckD3D9Support(mfxU64 luid, STRING_TYPE libNameFull, mfxIMPL* implD3D9);
 
     // internal state variables
     STRING_TYPE m_libNameFull;
@@ -325,7 +359,15 @@ struct LibInfo {
 
     // select MSDK functions for 1.x style caps query
     VPLFunctionPtr msdkFuncTable[NumMSDKFunctions]; // NOLINT
-    class LoaderCtxMSDK* msdkCtx;
+
+    // loader context for legacy MSDK
+    LoaderCtxMSDK msdkCtx[MAX_NUM_IMPL_MSDK];
+
+    // API version of legacy MSDK
+    mfxVersion msdkVersion;
+
+    // user-friendly version of path for MFX_IMPLCAPS_IMPLPATH query
+    mfxChar implCapsPath[MAX_VPL_SEARCH_PATH];
 
     // avoid warnings
     LibInfo()
@@ -336,12 +378,14 @@ struct LibInfo {
               hModuleVPL(nullptr),
               vplFuncTable(),
               msdkFuncTable(),
-              msdkCtx() {}
+              msdkCtx(),
+              msdkVersion(),
+              implCapsPath() {}
 
-    ~LibInfo() {
-        if (msdkCtx)
-            delete msdkCtx;
-    }
+private:
+    // make this class non-copyable
+    LibInfo(const LibInfo&);
+    void operator=(const LibInfo&);
 };
 
 struct ImplInfo {
@@ -358,6 +402,12 @@ struct ImplInfo {
     mfxInitializationParam vplParam;
     mfxVersion version;
 
+    // if MSDK library, index of corresponding adapter (i.e. which LoaderCtxMSDK)
+    mfxU32 msdkImplIdx;
+
+    // adapter index in multi-adapter systems
+    mfxU32 adapterIdx;
+
     // local index for libraries with more than one implementation
     mfxU32 libImplIdx;
 
@@ -371,6 +421,8 @@ struct ImplInfo {
               implFuncs(nullptr),
               vplParam(),
               version(),
+              msdkImplIdx(0),
+              adapterIdx(ADAPTER_IDX_UNKNOWN),
               libImplIdx(0),
               validImplIdx(-1) {}
 };
@@ -402,12 +454,22 @@ public:
     ConfigCtxVPL* AddConfigFilter();
     mfxStatus FreeConfigFilters();
 
+    // manage logging
+    mfxStatus InitDispatcherLog();
+    DispatcherLogVPL* GetLogger();
+
 private:
     // helper functions
     mfxStatus LoadSingleLibrary(LibInfo* libInfo);
     mfxStatus UnloadSingleLibrary(LibInfo* libInfo);
     mfxStatus UnloadSingleImplementation(ImplInfo* implInfo);
     VPLFunctionPtr GetFunctionAddr(void* hModuleVPL, const char* pName);
+
+    mfxU32 GetSearchPathsDriverStore(std::list<STRING_TYPE>& searchDirs);
+    mfxU32 GetSearchPathsSystemDefault(std::list<STRING_TYPE>& searchDirs);
+    mfxU32 GetSearchPathsCurrentExe(std::list<STRING_TYPE>& searchDirs);
+    mfxU32 GetSearchPathsCurrentDir(std::list<STRING_TYPE>& searchDirs);
+    mfxU32 GetSearchPathsLegacy(std::list<STRING_TYPE>& searchDirs);
 
     mfxU32 ParseEnvSearchPaths(const CHAR_TYPE* envVarName, std::list<STRING_TYPE>& searchDirs);
     mfxU32 ParseLegacySearchPaths(std::list<STRING_TYPE>& searchDirs);
@@ -417,21 +479,21 @@ private:
                                mfxU32 priority);
 
     mfxStatus ValidateAPIExports(VPLFunctionPtr* vplFuncTable, mfxVersion reportedVersion);
+    bool IsValidX86GPU(ImplInfo* implInfo, mfxU32& deviceID, mfxU32& adapterIdx);
+    mfxStatus UpdateImplPath(LibInfo* libInfo);
 
     std::list<LibInfo*> m_libInfoList;
     std::list<ImplInfo*> m_implInfoList;
     std::list<ConfigCtxVPL*> m_configCtxList;
 
-    std::list<STRING_TYPE> m_userSearchDirs;
-    std::list<STRING_TYPE> m_packageSearchDirs;
-    std::list<STRING_TYPE> m_pathSearchDirs;
-    std::list<STRING_TYPE> m_legacySearchDirs;
-    STRING_TYPE m_vplPackageDir;
-    STRING_TYPE m_driverStoreDir;
     SpecialConfig m_specialConfig;
 
     mfxU32 m_implIdxNext;
     bool m_bKeepCapsUntilUnload;
+    CHAR_TYPE m_envVar[MAX_ENV_VAR_LEN];
+
+    // logger object - enabled with ONEVPL_DISPATCHER_LOG environment variable
+    DispatcherLogVPL m_dispLog;
 };
 
 #endif // DISPATCHER_VPL_MFX_DISPATCHER_VPL_H_

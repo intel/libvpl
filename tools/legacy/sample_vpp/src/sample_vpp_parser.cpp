@@ -426,8 +426,10 @@ void vppPrintHelp(const msdk_char *strAppName, const msdk_char *strErrorMessage)
         "   [-api2x_internalmem]          - specifies internal memory mode of vpl 2.x\n\n"));
     msdk_printf(
         MSDK_STRING("   [-api2x_dispatcher]           - specifies 2.x API smart dispatcher\n\n"));
+    msdk_printf(MSDK_STRING(
+        "   [-api2x_perf]                 - aligns the measurement with reference tool to compare\n\n"));
 #endif
-
+    msdk_printf(MSDK_STRING("   [-adapterNum n]               - use adapter number n\n"));
     msdk_printf(MSDK_STRING("\n"));
 
     msdk_printf(
@@ -1975,10 +1977,22 @@ mfxStatus vppParseInputString(msdk_char *strInput[],
             else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-api2x_dispatcher"))) {
                 pParams->api2xDispatcher = true;
             }
+            else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-api2x_perf"))) {
+                pParams->api2xPerf = true;
+            }
 #endif
             else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-cf_disable"))) {
                 pParams->colorfillParam[0].mode   = VPP_FILTER_ENABLED_CONFIGURED;
                 pParams->colorfillParam[0].Enable = MFX_CODINGOPTION_OFF;
+            }
+            else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-adapterNum"))) {
+                if (i + 1 >= nArgNum) {
+                    return MFX_ERR_UNSUPPORTED;
+                }
+                if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->adapterNum)) {
+                    return MFX_ERR_UNSUPPORTED;
+                }
+                pParams->bUseAdapterNum = true;
             }
             else {
                 msdk_printf(MSDK_STRING("Unknown option: %s\n"), strInput[i]);
@@ -1993,7 +2007,7 @@ mfxStatus vppParseInputString(msdk_char *strInput[],
 #ifdef LIBVA_SUPPORT
                           MFX_IMPL_VIA_VAAPI;
 #else
-                          MFX_IMPL_VIA_D3D9;
+                          MFX_IMPL_VIA_D3D11;
 #endif
     }
 
@@ -2029,11 +2043,15 @@ mfxStatus vppParseInputString(msdk_char *strInput[],
 
     if (1 != pParams->strDstFiles.size() &&
         (pParams->resetFrmNums.size() + 1) != pParams->strDstFiles.size()) {
+#if (MFX_VERSION < 2000)
         vppPrintHelp(
             strInput[0],
             MSDK_STRING(
                 "Destination file name should be declared once or for each parameter set (reset case)"));
         return MFX_ERR_UNSUPPORTED;
+#else
+        MSDK_STRING("Destination file is not declared");
+#endif
     };
 
     if (0 == pParams->IOPattern) {

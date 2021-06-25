@@ -149,6 +149,7 @@ public:
     mfxU32 GetVendorID(void) const;
     mfxU32 GetDeviceID(void) const;
     mfxU64 GetDriverVersion(void) const;
+    mfxU64 GetLUID(void) const;
 
     // Provide the number of available adapters
     mfxU32 GetAdapterCount(void) const;
@@ -169,6 +170,8 @@ protected:
     mfxU32 m_deviceID;
     //x.x.x.x
     mfxU64 m_driverVersion;
+    // LUID
+    mfxU64 m_luid;
 
 private:
     // unimplemented by intent to make this class non-copyable

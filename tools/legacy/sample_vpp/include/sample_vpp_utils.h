@@ -246,9 +246,13 @@ struct sInputParams {
 
     mfxU32 fccSource;
 
+    bool bUseAdapterNum;
+    mfxU32 adapterNum;
+
     #if (MFX_VERSION >= 2000)
     bool api2xInternalMem;
     bool api2xDispatcher;
+    bool api2xPerf;
     #endif
     sInputParams()
             : steParam(),
@@ -321,7 +325,10 @@ struct sInputParams {
     #if (MFX_VERSION >= 2000)
         api2xInternalMem = false;
         api2xDispatcher  = false;
+        api2xPerf        = false;
     #endif
+        bUseAdapterNum = false;
+        adapterNum     = 0;
     }
 };
 
@@ -400,9 +407,16 @@ public:
     mfxStatus GetNextInputFrame2(sFrameProcessor* pProcessor,
                                  mfxFrameInfo* pInfo,
                                  mfxFrameSurfaceWrap** pSurface);
+
+    mfxStatus GetNextInputFrame2(sFrameProcessor* pProcessor,
+                                 mfxFrameInfo* pInfo,
+                                 mfxFrameSurfaceWrap** pSurface,
+                                 int bytes_to_read,
+                                 mfxU8* buf_read);
     #endif
 
     mfxStatus LoadNextFrame(mfxFrameData* pData, mfxFrameInfo* pInfo);
+    mfxStatus LoadNextFrame2(mfxFrameSurface1* pSurface, int bytes_to_read, mfxU8* buf_read);
 
 private:
     mfxStatus GetPreAllocFrame(mfxFrameSurfaceWrap** pSurface);

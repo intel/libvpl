@@ -34,9 +34,14 @@ endif()
 
 add_definitions(-DMFX_DEPRECATED_OFF)
 
-list(APPEND SOURCES vpl/mfx_dispatcher_vpl.cpp
-     vpl/mfx_dispatcher_vpl_loader.cpp vpl/mfx_dispatcher_vpl_config.cpp
-     vpl/mfx_dispatcher_vpl_msdk.cpp)
+list(
+  APPEND
+  SOURCES
+  vpl/mfx_dispatcher_vpl.cpp
+  vpl/mfx_dispatcher_vpl_loader.cpp
+  vpl/mfx_dispatcher_vpl_config.cpp
+  vpl/mfx_dispatcher_vpl_log.cpp
+  vpl/mfx_dispatcher_vpl_msdk.cpp)
 
 add_library(${TARGET} SHARED "")
 
@@ -78,26 +83,43 @@ endif()
 target_include_directories(${TARGET} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
                                              ${CMAKE_CURRENT_BINARY_DIR})
 
-install(
-  TARGETS ${TARGET}
-  # EXPORT mfxTargets
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT runtime
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime
-  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT dev)
+if(BUILD_DISPATCHER)
+  install(
+    TARGETS ${TARGET}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            COMPONENT runtime
+            NAMELINK_SKIP
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime)
+endif()
 
-# export(PACKAGE VPL)
+if(BUILD_DEV)
+  install(
+    TARGETS ${TARGET}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            COMPONENT dev
+            NAMELINK_ONLY)
+  if(WIN32)
+    install(TARGETS ${TARGET} ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+                                      COMPONENT dev)
+  endif()
 
-configure_file(cmake/VPLConfig.cmake.in cmake/VPLConfig.cmake @ONLY)
-configure_file(cmake/VPLConfigVersion.cmake.in cmake/VPLConfigVersion.cmake
-               @ONLY)
-install(
-  FILES "${CMAKE_CURRENT_BINARY_DIR}/cmake/VPLConfig.cmake"
-        "${CMAKE_CURRENT_BINARY_DIR}/cmake/VPLConfigVersion.cmake"
-  DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/vpl"
-  COMPONENT dev)
+  configure_file(cmake/VPLConfig.cmake.in cmake/VPLConfig.cmake @ONLY)
+  configure_file(cmake/VPLConfigVersion.cmake.in cmake/VPLConfigVersion.cmake
+                 @ONLY)
 
-configure_file("pkgconfig/vpl.pc.in" "pkgconfig/vpl.pc" @ONLY)
-install(
-  FILES "${CMAKE_CURRENT_BINARY_DIR}/pkgconfig/vpl.pc"
-  DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig"
-  COMPONENT dev)
+  install(
+    FILES "${CMAKE_CURRENT_BINARY_DIR}/cmake/VPLConfig.cmake"
+          "${CMAKE_CURRENT_BINARY_DIR}/cmake/VPLConfigVersion.cmake"
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/vpl"
+    COMPONENT dev)
+
+  file(RELATIVE_PATH pc_rel_prefix ${CMAKE_INSTALL_FULL_LIBDIR}/pkgconfig
+       ${CMAKE_INSTALL_PREFIX})
+  set(pc_rel_prefix "$\{pcfiledir}/${pc_rel_prefix}")
+
+  configure_file("pkgconfig/vpl.pc.in" "pkgconfig/vpl.pc" @ONLY)
+  install(
+    FILES "${CMAKE_CURRENT_BINARY_DIR}/pkgconfig/vpl.pc"
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig"
+    COMPONENT dev)
+endif()

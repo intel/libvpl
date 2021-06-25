@@ -5,42 +5,26 @@
 ::------------------------------------------------------------------------------
 :: Configure environment variables
 @echo off
-FOR /D %%i IN ("%~dp0\..") DO (
-  set VPL_ROOT=%%~fi
-)
-FOR /D %%i IN ("%~dp0\..\..") DO (
-  set VPL_PREFIX=%%~fi
-)
-set "VPL_INCLUDE=%VPL_ROOT%\include"
-set "VPL_LIB=%VPL_ROOT%\lib"
-set "VPL_BIN=%VPL_ROOT%\bin"
+setlocal
+set VPL_TARGET_ARCH=intel64
+for %%Q in ("%~dp0\.") DO set "script_dir=%%~fQ"
 
-IF DEFINED INCLUDE (
-  set "INCLUDE=%VPL_INCLUDE%;%INCLUDE%"
-) ELSE (
-  set "INCLUDE=%VPL_INCLUDE%"
-)
+:ParseArgs
+if /i "%1"==""         goto EndParseArgs
+if /i "%1"=="ia32"     (set VPL_TARGET_ARCH=ia32)    & shift & goto ParseArgs
+if /i "%1"=="intel64"  (set VPL_TARGET_ARCH=intel64) & shift & goto ParseArgs
+shift & goto ParseArgs
+:EndParseArgs
 
-IF DEFINED LIB (
-  set "LIB=%VPL_LIB%;%LIB%"
+IF "%VPL_TARGET_ARCH%"=="ia32" (
+  endlocal
+  call "%script_dir%\vars32.bat" %*
+  setlocal
+  set vpl_vars_errorlevel=%errorlevel%
 ) ELSE (
-  set "LIB=%VPL_LIB%"
+  endlocal
+  call "%script_dir%\vars64.bat" %*
+  setlocal
+  set vpl_vars_errorlevel=%errorlevel%
 )
-
-IF DEFINED PATH (
-  set "PATH=%VPL_BIN%;%PATH%"
-) ELSE (
-  set "PATH=%VPL_BIN%"
-)
-
-IF DEFINED CMAKE_PREFIX_PATH (
-  set "CMAKE_PREFIX_PATH=%VPL_PREFIX%;%CMAKE_PREFIX_PATH%"
-) ELSE (
-  set "CMAKE_PREFIX_PATH=%VPL_PREFIX%"
-)
-set VPL_PREFIX=
-IF DEFINED PKG_CONFIG_PATH (
-  set "PKG_CONFIG_PATH=%VPL_LIB%\pkgconfig;%PKG_CONFIG_PATH%"
-) ELSE (
-  set "PKG_CONFIG_PATH=%VPL_LIB%\pkgconfig"
-)
+exit /B %vpl_vars_errorlevel%

@@ -71,12 +71,6 @@ enum {
     MVC_VIEWOUTPUT = 0x2, // 2 output bitstreams
 };
 
-enum MemType {
-    SYSTEM_MEMORY = 0x00,
-    D3D9_MEMORY   = 0x01,
-    D3D11_MEMORY  = 0x02,
-};
-
 struct sInputParams {
     mfxU16 nTargetUsage;
     mfxU32 CodecId;
@@ -113,12 +107,18 @@ struct sInputParams {
 
     MemType memType;
     bool bUseHWLib; // true if application wants to use HW MSDK library
+    mfxAccelerationMode accelerationMode;
 
     std::string strDevicePath;
 
-#if (defined(_WIN64) || defined(_WIN32)) && (MFX_VERSION >= 1031)
+#if (defined(_WIN64) || defined(_WIN32))
     bool bPrefferdGfx;
     bool bPrefferiGfx;
+
+    #if (MFX_VERSION >= 2000)
+    bool isDualMode;
+    mfxHyperMode hyperMode;
+    #endif
 #endif
 
     std::list<msdk_string> InputFiles;
@@ -128,6 +128,7 @@ struct sInputParams {
 #if (MFX_VERSION >= 2000)
     bool api2xInternalMem;
     bool api2xDispatcher;
+    bool api2xPerf;
 #endif
 
     std::vector<msdk_char*> dstFileBuff;
@@ -233,6 +234,9 @@ struct sInputParams {
     int MipiPort;
     enum AtomISPMode MipiMode;
 #endif
+
+    bool bUseAdapterNum;
+    mfxU32 adapterNum;
 };
 
 #if (MFX_VERSION < 2000)
@@ -248,6 +252,8 @@ struct sTask {
     mfxEncodeCtrlWrap encCtrl;
 #if (MFX_VERSION < 2000)
     PreEncAuxBuffer* pAux;
+#else // >= 2000
+    bool bUseHWLib;
 #endif
     mfxSyncPoint EncSyncP;
     std::list<mfxSyncPoint> DependentVppTasks;
@@ -257,7 +263,14 @@ struct sTask {
     sTask();
     mfxStatus WriteBitstream();
     mfxStatus Reset();
-    mfxStatus Init(mfxU32 nBufferSize, mfxU32 nCodecID, void* pWriter = NULL);
+    mfxStatus Init(mfxU32 nBufferSize,
+                   mfxU32 nCodecID,
+                   void* pWriter = NULL
+#if (MFX_VERSION >= 2000)
+                   ,
+                   bool bHWLib = false
+#endif
+    );
     mfxStatus Close();
 };
 
@@ -277,7 +290,12 @@ public:
                            mfxU32 nPoolSize,
                            mfxU32 nBufferSize,
                            mfxU32 CodecID,
-                           void* pOtherWriter = NULL);
+                           void* pOtherWriter = NULL
+#if (MFX_VERSION >= 2000)
+                           ,
+                           bool bUseHWLib = false
+#endif
+    );
     virtual mfxStatus GetFreeTask(sTask** ppTask);
     virtual mfxStatus SynchronizeFirstTask();
 
@@ -314,6 +332,7 @@ public:
     virtual mfxStatus Init(sInputParams* pParams);
     virtual mfxStatus Run();
     virtual void Close();
+    virtual void PrintPerFrameStat();
     virtual mfxStatus ResetMFXComponents(sInputParams* pParams);
     virtual mfxStatus ResetDevice();
 
@@ -330,6 +349,13 @@ public:
 
     virtual mfxStatus OpenRoundingOffsetFile(sInputParams* pInParams);
     mfxStatus InitEncFrameParams(sTask* pTask);
+    mfxU32 GetProcessedFramesNum();
+#if (MFX_VERSION >= 2000)
+    mfxU32 GetSurfaceSize(mfxU32 FourCC, mfxU32 width, mfxU32 height);
+    mfxF64 GetElapsedTime() {
+        return m_api2xPerfLoopTime;
+    }
+#endif
 
 #if defined(ENABLE_V4L2_SUPPORT)
     v4l2Device v4l2Pipeline;
@@ -345,13 +371,16 @@ protected:
     CEncTaskPool m_TaskPool;
     QPFile::Reader m_QPFileReader;
 
-    MFXVideoSession2 m_mfxSession;
+    MainVideoSession m_mfxSession;
     MFXVideoENCODE* m_pmfxENC;
     MFXVideoVPP* m_pmfxVPP;
 #if (MFX_VERSION >= 2000)
-    mfxLoader m_mfxLoader;
+    std::unique_ptr<VPLImplementationLoader> m_pLoader;
     MFXMemory* m_pmfxMemory;
     bool m_bAPI2XInternalMem;
+    bool m_bAPI2XPerf;
+    bool m_bNoOutFile;
+    mfxF64 m_api2xPerfLoopTime;
 #endif
     //MFXVideoENC* m_pmfxPreENC;
 
@@ -420,7 +449,10 @@ protected:
 #if (defined(_WIN64) || defined(_WIN32)) && (MFX_VERSION >= 1031)
     mfxU32 GetPreferredAdapterNum(const mfxAdaptersInfo& adapters, const sInputParams& params);
 #endif
-    mfxStatus GetImpl(const sInputParams& params, mfxIMPL& impl);
+    mfxStatus GetImplAndAdapterNum(const sInputParams& params,
+                                   mfxIMPL& impl,
+                                   mfxU32& adapterNum,
+                                   mfxU16& deviceID);
 
     //virtual mfxStatus InitMfxPreEncParams(sInputParams *pParams);
     virtual mfxStatus InitMfxEncParams(sInputParams* pParams);
@@ -429,6 +461,9 @@ protected:
     virtual mfxStatus InitFileWriters(sInputParams* pParams);
     virtual void FreeFileWriters();
     virtual mfxStatus InitFileWriter(CSmplBitstreamWriter** ppWriter, const msdk_char* filename);
+    virtual mfxStatus InitFileWriter(CSmplBitstreamWriter** ppWriter,
+                                     const msdk_char* filename,
+                                     bool no_outfile);
 
 #if (MFX_VERSION >= 2000)
     virtual mfxStatus InitIVFFileWriter(CIVFFrameWriter** ppWriter,
@@ -436,7 +471,8 @@ protected:
                                         const mfxU16 w,
                                         const mfxU16 h,
                                         const mfxU32 fr_nom,
-                                        const mfxU32 fr_denom);
+                                        const mfxU32 fr_denom,
+                                        const bool no_outfile);
 #endif
 
     virtual mfxStatus InitVppFilters();
@@ -456,6 +492,7 @@ protected:
     virtual mfxStatus AllocateSufficientBuffer(mfxBitstreamWrapper& bs);
     virtual mfxStatus FillBuffers();
     virtual mfxStatus LoadNextFrame(mfxFrameSurface1* pSurf);
+    virtual mfxStatus LoadNextFrame2(mfxFrameSurface1* pSurf, int bytes_to_read, mfxU8* buf_read);
     virtual void LoadNextControl(mfxEncodeCtrl*& pCtrl, mfxU32 encSurfIdx);
 
     //virtual PreEncAuxBuffer* GetFreePreEncAuxBuffer();
@@ -480,6 +517,9 @@ protected:
     //virtual mfxU32 FileFourCC2EncFourCC(mfxU32 fcc);
 
     void InitExtMVCBuffers(mfxExtMVCSeqDesc* mvcBuffer) const;
+#if (MFX_VERSION >= 2000)
+    mfxStatus QueryParams();
+#endif
 };
 
 #endif // __PIPELINE_ENCODE_H__

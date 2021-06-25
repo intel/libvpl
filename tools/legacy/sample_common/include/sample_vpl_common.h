@@ -49,44 +49,6 @@ public:
     }
 };
 
-class MFXVideoDECODE_VPP {
-public:
-    explicit MFXVideoDECODE_VPP(mfxSession session) {
-        m_session = session;
-    }
-    virtual ~MFXVideoDECODE_VPP(void) {}
-
-    virtual mfxStatus Init(mfxVideoParam *decode_par,
-                           mfxVideoChannelParam **vpp_par_array,
-                           mfxU32 num_vpp_par) {
-        return MFXVideoDECODE_VPP_Init(m_session, decode_par, vpp_par_array, num_vpp_par);
-    }
-
-    virtual mfxStatus DecodeFrameAsync(mfxBitstream *bs,
-                                       mfxU32 *skip_channels,
-                                       mfxU32 num_skip_channels,
-                                       mfxSurfaceArray **surf_array_out) {
-        return MFXVideoDECODE_VPP_DecodeFrameAsync(m_session,
-                                                   bs,
-                                                   skip_channels,
-                                                   num_skip_channels,
-                                                   surf_array_out);
-    }
-
-    virtual mfxStatus Reset(mfxVideoParam *decode_par,
-                            mfxVideoChannelParam **vpp_par_array,
-                            mfxU32 num_vpp_par) {
-        return MFXVideoDECODE_VPP_Reset(m_session, decode_par, vpp_par_array, num_vpp_par);
-    }
-
-    virtual mfxStatus GetChannelParam(mfxVideoChannelParam *par, mfxU32 channel_id) {
-        return MFXVideoDECODE_VPP_GetChannelParam(m_session, par, channel_id);
-    }
-
-protected:
-    mfxSession m_session; // (mfxSession) handle to the owning session
-};
-
 #endif
 
 #endif //__SAMPLE_VPL_COMMON_H__

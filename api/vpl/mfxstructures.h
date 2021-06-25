@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) 2018-2021 Intel Corporation
+  # Copyright Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -40,13 +40,13 @@ MFX_PACK_BEGIN_USUAL_STRUCT()
 /*! Specifies properties of video frames. See also "Configuration Parameter Constraints" chapter. */
 typedef struct {
     mfxU32  reserved[4]; /*!< Reserved for future use. */
-    /*! The unique ID of each VPP channel set by application. It's required that during Init/Reset application fills ChannelId for 
-        each mfxVideoChannelParam provided by the application and the SDK sets it back to the correspondent 
-        mfxSurfaceArray::mfxFrameSurface1 to distinguish different channels. It's expected that surfaces for some channels might be 
-        returned with some delay so application has to use mfxFrameInfo::ChannelId to distinguish what returned surface belongs to 
-        what VPP channel. Decoder's initialization parameters are always sent through channel with mfxFrameInfo::ChannelId equals to 
+    /*! The unique ID of each VPP channel set by application. It's required that during Init/Reset application fills ChannelId for
+        each mfxVideoChannelParam provided by the application and the SDK sets it back to the correspondent
+        mfxSurfaceArray::mfxFrameSurface1 to distinguish different channels. It's expected that surfaces for some channels might be
+        returned with some delay so application has to use mfxFrameInfo::ChannelId to distinguish what returned surface belongs to
+        what VPP channel. Decoder's initialization parameters are always sent through channel with mfxFrameInfo::ChannelId equals to
         zero. It's allowed to skip setting of decoder's parameters for simplified decoding procedure */
-    mfxU16  ChannelId; 
+    mfxU16  ChannelId;
     /*! Number of bits used to represent luma samples.
         @note Not all codecs and implementations support this value. Use the Query API function to check if this feature is supported. */
     mfxU16  BitDepthLuma;
@@ -166,6 +166,8 @@ enum {
     MFX_FOURCC_I010         = MFX_MAKEFOURCC('I', '0', '1', '0'), /*!< 10-bit YUV 4:2:0, each component has its own plane. */
     MFX_FOURCC_I420         = MFX_FOURCC_IYUV,                 /*!< Alias for the IYUV color format. */
     MFX_FOURCC_BGRA         = MFX_FOURCC_RGB4,                 /*!< Alias for the RGB4 color format. */
+    /*! BGR 24 bit planar layout (3 separate channels, 8-bits per sample each). This format should be mapped to VA_FOURCC_BGRP. */
+    MFX_FOURCC_BGRP         = MFX_MAKEFOURCC('B','G','R','P'),
 };
 
 /* PicStruct */
@@ -552,23 +554,42 @@ typedef struct mfxFrameSurfaceInterface {
      MFX_ERR_UNKNOWN            Any internal error.
     */
     mfxStatus           (MFX_CDECL *Synchronize)(mfxFrameSurface1* surface, mfxU32 wait);
-    
+
     /*! @brief
-    The library calls the function after complete of associated video operation 
-    notifying the application that frame surface is ready. 
-    
-    @attention This is callback function and intended to be called by 
-               the library only. 
-    
-    It is expected that the function is low-intrusive designed otherwise it may 
-    impact performance. 
+    The library calls the function after complete of associated video operation
+    notifying the application that frame surface is ready.
+
+    @attention This is callback function and intended to be called by
+               the library only.
+
+    It is expected that the function is low-intrusive designed otherwise it may
+    impact performance.
 
     @param[in] sts  The status of completed operation.
 
     */
     void               (MFX_CDECL *OnComplete)(mfxStatus sts);
     
-    mfxHDL              reserved2[3];
+   /*! @brief
+    Returns an interface defined by the GUID. If the returned interface is a reference 
+    counted object the caller should release the obtained interface to avoid memory leaks.
+
+    @param[in]  surface   Valid surface.
+    @param[in]  guid      GUID of the requested interface.
+    @param[out] iface     Interface.
+
+
+    @return
+     MFX_ERR_NONE               If no error. \n
+     MFX_ERR_NULL_PTR           If interface or surface is NULL. \n
+     MFX_ERR_UNSUPPORTED        If requested interface is not supported. \n
+     MFX_ERR_NOT_IMPLEMENTED    If requested interface is not implemented. \n
+     MFX_ERR_NOT_INITIALIZED    If requested interface is not available (not created or already deleted). \n
+     MFX_ERR_UNKNOWN            Any internal error.
+    */
+    mfxStatus           (MFX_CDECL *QueryInterface)(mfxFrameSurface1* surface, mfxGUID guid, mfxHDL* iface); 
+
+    mfxHDL              reserved2[2];
 } mfxFrameSurfaceInterface;
 MFX_PACK_END()
 
@@ -719,22 +740,22 @@ typedef struct {
                 return MFX_ERR_REALLOC_SURFACE. See the CodingOptionValue enumerator for values of this option. Use the Query API
                 function to check if this feature is supported. */
             mfxU16  EnableReallocRequest;
-            /*! Special parameter for AV1 decoder. Indicates presence/absence of film grain parameters in bitstream. 
-                Also controls decoding behavior for streams with film grain parameters. MFXVideoDECODE_DecodeHeader returns nonzero FilmGrain 
+            /*! Special parameter for AV1 decoder. Indicates presence/absence of film grain parameters in bitstream.
+                Also controls decoding behavior for streams with film grain parameters. MFXVideoDECODE_DecodeHeader returns nonzero FilmGrain
                 for streams with film grain parameters and zero for streams w/o them. Decoding with film grain requires additional output surfaces.
                 If FilmGrain` is non-zero then MFXVideoDECODE_QueryIOSurf will request more surfaces in case of external allocated video memory at decoder output.
                 FilmGrain is passed to MFXVideoDECODE_Init function to control decoding operation for AV1 streams with film grain parameters.
-                If FilmGrain is nonzero decoding of each frame require two output surfaces (one for reconstructed frame and one for output frame with film grain applied). 
+                If FilmGrain is nonzero decoding of each frame require two output surfaces (one for reconstructed frame and one for output frame with film grain applied).
                 The decoder returns MFX_ERR_MORE_SURFACE from MFXVideoDECODE_DecodeFrameAsync if it has insufficient output surfaces to decode frame.
-                Application can forcibly disable the feature passing zero value of `FilmGrain` to `MFXVideoDECODE_Init`. 
-                In this case the decoder will output reconstructed frames w/o film grain applied. 
+                Application can forcibly disable the feature passing zero value of `FilmGrain` to `MFXVideoDECODE_Init`.
+                In this case the decoder will output reconstructed frames w/o film grain applied.
                 Application can retrieve film grain parameters for a frame by attaching extended buffer mfxExtAV1FilmGrainParam to mfxFrameSurface1.
                 If stream has no film grain parameters `FilmGrain` passed to `MFXVideoDECODE_Init` is ignored by the decoder. */
             mfxU16  FilmGrain;
             /*! If not zero, it forces SDK to attempt to decode bitstream even if a decoder may not support all features associated with given CodecLevel. Decoder may produce visual artifacts. Only AVC decoder supports this field. */
             mfxU16  IgnoreLevelConstrain;
             /*! This flag is used to disable output of main decoding channel. When it's ON SkipOutput = MFX_CODINGOPTION_ON decoder outputs only video processed channels. For pure decode this flag should be always disabled. */
-            mfxU16  SkipOutput; 
+            mfxU16  SkipOutput;
             mfxU16  reserved2[4];
         };
         struct {   /* JPEG Decoding Options */
@@ -898,7 +919,7 @@ enum {
     MFX_LEVEL_AVC_6                         =60,
     MFX_LEVEL_AVC_61                        =61,
     MFX_LEVEL_AVC_62                        =62,
-        /*! @} */
+    /*! @} */
 
     /*! @{ */
     /* MPEG2 Profiles. */
@@ -1484,8 +1505,7 @@ typedef struct {
     mfxU16      WinBRCSize;
 
     /*! When rate control method is MFX_RATECONTROL_QVBR, this parameter specifies quality factor.
-Values are in the 1 to 51 range, 
-        where 1 corresponds to the best quality.
+        Values are in the 1 to 51 range, where 1 corresponds to the best quality.
     */
     mfxU16      QVBRQuality;
     /*!
@@ -1664,12 +1684,16 @@ Values are in the 1 to 51 range,
        @note Not all codecs and implementations support this value. Use the Query API function to check if this feature is supported.
     */
     mfxU16      EnableNalUnitType;
-    /*!
-       Turn OFF to prevent Adaptive marking of Long Term Reference Frames when using ExtBRC. When set to ON and using ExtBRC, encoders will mark,
-       modify, or remove LTR frames based on encoding parameters and content properties. The application must set each input frame's
-       mfxFrameData::FrameOrder for correct operation of LTR.
-    */
-    mfxU16      ExtBrcAdaptiveLTR;         /* Tri-state option for ExtBRC. */
+
+    union {
+        mfxU16      ExtBrcAdaptiveLTR; /* Deprecated */
+        
+        /*!
+            If this flag is set to ON, encoder will mark, modify, or remove LTR frames based on encoding parameters and content          
+            properties. Turn OFF to prevent Adaptive marking of Long Term Reference Frames. 
+        */
+        mfxU16      AdaptiveLTR;
+    };
     /*!
        If this flag is set to ON, encoder adaptively selects one of implementation-defined quantization matrices for each frame.
        Non-default quantization matrices aim to improve subjective visual quality under certain conditions.
@@ -1678,7 +1702,13 @@ Values are in the 1 to 51 range,
        This parameter is valid only during initialization.
     */
     mfxU16      AdaptiveCQM;
-    mfxU16      reserved[162];
+    /*!
+       If this flag is set to ON, encoder adaptively selects list of reference frames to imrove encoding quality.
+       Enabling of the flag can increase computation complexity and introduce additional delay.
+       If this flag is set to OFF, regular reference frames are used for encoding.
+    */
+    mfxU16      AdaptiveRef;
+    mfxU16      reserved[161];
 } mfxExtCodingOption3;
 MFX_PACK_END()
 
@@ -2024,13 +2054,21 @@ enum {
        See the mfxExtInCrops structure for details.
     */
     MFX_EXTBUFF_CROPS = MFX_MAKEFOURCC('C', 'R', 'O', 'P'),
-    
+
     /*!
        See the mfxExtAV1FilmGrainParam structure for more details.
     */
-    MFX_EXTBUFF_AV1_FILM_GRAIN_PARAM = MFX_MAKEFOURCC('A','1','F','G')
+    MFX_EXTBUFF_AV1_FILM_GRAIN_PARAM = MFX_MAKEFOURCC('A','1','F','G'),
 
-    
+    /*!
+       See the mfxExtHyperModeParam structure for more details.
+    */
+    MFX_EXTBUFF_HYPER_MODE_PARAM = MFX_MAKEFOURCC('H', 'Y', 'P', 'M'),
+
+    /*!
+       See the mfxExtVPP3DLut structure for more details.
+    */
+    MFX_EXTBUFF_VPP_3DLUT = MFX_MAKEFOURCC('T','D','L','T'),
 };
 
 /* VPP Conf: Do not use certain algorithms  */
@@ -2086,6 +2124,94 @@ typedef struct {
                                  the larger the change is.  */
     mfxU16  reserved[15];
 } mfxExtVPPDenoise2;
+MFX_PACK_END()
+
+/*! The mfx3DLutChannelMapping enumerator specifies the channel mapping of 3DLUT. */
+typedef enum {
+    MFX_3DLUT_CHANNEL_MAPPING_DEFAULT            = 0,   /*!< Default 3DLUT channel mapping. The library selects the most appropriate 3DLUT channel mapping. */
+    MFX_3DLUT_CHANNEL_MAPPING_RGB_RGB            = 1,   /*!< 3DLUT RGB channels map to RGB channels. */
+    MFX_3DLUT_CHANNEL_MAPPING_YUV_RGB            = 2,   /*!< 3DLUT YUV channels map to RGB channels. */
+    MFX_3DLUT_CHANNEL_MAPPING_VUY_RGB            = 3,   /*!< 3DLUT VUY channels map to RGB channels. */
+} mfx3DLutChannelMapping;
+
+/*! The mfx3DLutMemoryLayout enumerator specifies the memory layout of 3DLUT. */
+typedef enum {
+    MFX_3DLUT_MEMORY_LAYOUT_DEFAULT                        = 0,          /*!< Default 3DLUT memory layout. The library selects the most appropriate 3DLUT memory layout.*/
+
+    MFX_3DLUT_MEMORY_LAYOUT_VENDOR                         = 0x1000,     /*!< The enumeration to separate default above and vendor specific.*/
+    /*!
+       Intel specific memory layout. The enumerator indicates the attributes and memory layout of 3DLUT.
+       3DLUT size is 17(the number of elements per dimension), 4 channels(3 valid channels, 1 channel is reserved), every channel must be 16-bit unsigned integer.
+       3DLUT contains 17x17x32 entries with holes that are not filled. Take RGB as example, the nodes RxGx17 to RxGx31 are not filled, are "don't care" bits, and not accessed for the 17x17x17 nodes.
+    */
+    MFX_3DLUT_MEMORY_LAYOUT_INTEL_17LUT                    = MFX_3DLUT_MEMORY_LAYOUT_VENDOR + 1,
+    /*!
+       Intel specific memory layout. The enumerator indicates the attributes and memory layout of 3DLUT.
+       3DLUT size is 33(the number of elements per dimension), 4 channels(3 valid channels, 1 channel is reserved), every channel must be 16-bit unsigned integer.
+       3DLUT contains 33x33x64 entries with holes that are not filled. Take RGB as example, the nodes RxGx33 to RxGx63 are not filled, are "don't care" bits, and not accessed for the 33x33x33 nodes.
+    */
+    MFX_3DLUT_MEMORY_LAYOUT_INTEL_33LUT                    = MFX_3DLUT_MEMORY_LAYOUT_VENDOR + 2,
+    /*!
+       Intel specific memory layout. The enumerator indicates the attributes and memory layout of 3DLUT.
+       3DLUT size is 65(the number of elements per dimension), 4 channels(3 valid channels, 1 channel is reserved), every channel must be 16-bit unsigned integer.
+       3DLUT contains 65x65x128 entries with holes that are not filled. Take RGB as example, the nodes RxGx65 to RxGx127 are not filled, are "don't care" bits, and not accessed for the 65x65x65 nodes.
+    */
+    MFX_3DLUT_MEMORY_LAYOUT_INTEL_65LUT                    = MFX_3DLUT_MEMORY_LAYOUT_VENDOR + 3,
+} mfx3DLutMemoryLayout;
+
+MFX_PACK_BEGIN_STRUCT_W_PTR()
+/*!
+    A hint structure that configures the data channel.
+*/
+typedef struct {
+    mfxDataType  DataType;                /*!< Data type, mfxDataType enumerator.*/
+    mfxU32       Size;                    /*!< Size of Look up table, the number of elements per dimension.*/
+    union
+    {
+        mfxU8*     Data;                  /*!< The pointer to 3DLUT data, 8 bit unsigned integer.*/
+        mfxU16*    Data16;                /*!< The pointer to 3DLUT data, 16 bit unsigned integer.*/
+    };
+    mfxU32       reserved[4];             /*!< Reserved for future extension.*/
+} mfxChannel;
+MFX_PACK_END()
+
+MFX_PACK_BEGIN_USUAL_STRUCT()
+/*!
+    A hint structure that configures 3DLUT system buffer.
+*/
+typedef struct {
+    mfxChannel           Channel[3];        /*!< 3 Channels, can be RGB or YUV, mfxChannel structure.*/
+    mfxU32               reserved[8];       /*!< Reserved for future extension.*/
+} mfx3DLutSystemBuffer;
+MFX_PACK_END()
+
+MFX_PACK_BEGIN_USUAL_STRUCT()
+/*!
+    A hint structure that configures 3DLUT video buffer.
+*/
+typedef struct {
+    mfxDataType                DataType;       /*!< Data type, mfxDataType enumerator.*/
+    mfx3DLutMemoryLayout       MemLayout;      /*!< Indicates 3DLUT memory layout. mfx3DLutMemoryLayout enumerator.*/
+    mfxMemId                   MemId;          /*!< Memory ID for holding the lookup table data. One MemID is dedicated for one instance of VPP.*/
+    mfxU32                     reserved[8];    /*!< Reserved for future extension.*/
+} mfx3DLutVideoBuffer;
+MFX_PACK_END()
+
+MFX_PACK_BEGIN_USUAL_STRUCT()
+/*!
+    A hint structure that configures 3DLUT filter.
+*/
+typedef struct {
+    mfxExtBuffer             Header;           /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_VPP_3DLUT..*/
+    mfx3DLutChannelMapping   ChannelMapping;   /*!< Indicates 3DLUT channel mapping. mfx3DLutChannelMapping enumerator.*/
+    mfxResourceType          BufferType;       /*!< Indicates 3DLUT buffer type. mfxResourceType enumerator, can be system memory, VA surface, DX11 texture/buffer etc.*/
+    union
+    {
+        mfx3DLutSystemBuffer SystemBuffer;     /*!< The 3DLUT system buffer. mfx3DLutSystemBuffer structure describes the details of the buffer.*/
+        mfx3DLutVideoBuffer  VideoBuffer;      /*!< The 3DLUT video buffer. mfx3DLutVideoBuffer describes the details of 3DLUT video buffer.*/
+    };
+    mfxU32                   reserved[4];      /*!< Reserved for future extension.*/
+} mfxExtVPP3DLut;
 MFX_PACK_END()
 
 MFX_PACK_BEGIN_USUAL_STRUCT()
@@ -2488,10 +2614,10 @@ MFX_PACK_BEGIN_STRUCT_W_PTR()
    Each filter may be included in the pipeline in one of two different ways:
 
    @li Adding a filter ID to this structure. In this method,
-   the default filter parameters are used. 
-   
+   the default filter parameters are used.
+
    @li Attaching a filter configuration structure directly to the mfxVideoParam structure.
-   In this method, adding filter ID to the mfxExtVPPDoUse structure is optional. 
+   In this method, adding filter ID to the mfxExtVPPDoUse structure is optional.
 
    See Table “Configurable VPP filters” for complete list of
    configurable filters, their IDs, and configuration structures.
@@ -2590,7 +2716,7 @@ MFX_PACK_BEGIN_USUAL_STRUCT()
 
    On some platforms this filter is not supported. To query its support, the application should use the same approach that it uses
    to configure VPP filters: adding the filter ID to the mfxExtVPPDoUse structure or by attaching the mfxExtVPPImageStab structure
-   directly to the mfxVideoParam structure and calling the MFXVideoVPP_Query function. 
+   directly to the mfxVideoParam structure and calling the MFXVideoVPP_Query function.
 
    If this filter is supported, the function returns a MFX_ERR_NONE
    status and copies the content of the input structure to the output structure. If the filter is not supported, the function returns MFX_WRN_FILTER_SKIPPED, removes the
@@ -2617,14 +2743,14 @@ enum {
 
 MFX_PACK_BEGIN_USUAL_STRUCT()
 /*!
-   Configures the HDR SEI message. 
+   Configures the HDR SEI message.
 
    If the application attaches this structure to the mfxEncodeCtrl structure
-   at runtime, the encoder inserts the HDR SEI message for the current frame and ignores InsertPayloadToggle. 
+   at runtime, the encoder inserts the HDR SEI message for the current frame and ignores InsertPayloadToggle.
 
    If the application attaches this
    structure to the mfxVideoParam structure during initialization or reset, the encoder inserts the HDR SEI message based on InsertPayloadToggle.
-   
+
    Field semantics are defined in ITU-T* H.265 Annex D.
 */
 typedef struct {
@@ -2633,10 +2759,10 @@ typedef struct {
 
     mfxU16 InsertPayloadToggle;  /*!< InsertHDRPayload enumerator value. */
     mfxU16 DisplayPrimariesX[3]; /*!< Color primaries for a video source in increments of 0.00002. Consist of RGB x coordinates and
-                                       define how to convert colors from RGB color space to CIE XYZ color space. Fields range is 
+                                       define how to convert colors from RGB color space to CIE XYZ color space. Fields range is
                                        0 to 50000. */
     mfxU16 DisplayPrimariesY[3]; /*!< Color primaries for a video source in increments of 0.00002. Consists of RGB y coordinates and
-                                       defines how to convert colors from RGB color space to CIE XYZ color space. Field range is 
+                                       defines how to convert colors from RGB color space to CIE XYZ color space. Field range is
                                        0 to 50000. */
     mfxU16 WhitePointX;          /*!< White point X coordinate. */
     mfxU16 WhitePointY;          /*!< White point Y coordinate. */
@@ -2649,14 +2775,14 @@ MFX_PACK_END()
 
 MFX_PACK_BEGIN_USUAL_STRUCT()
 /*!
-   Configures the HDR SEI message. 
+   Configures the HDR SEI message.
 
    If the application attaches this structure to the mfxEncodeCtrl
-   structure at runtime, the encoder inserts the HDR SEI message for the current frame and ignores InsertPayloadToggle. 
+   structure at runtime, the encoder inserts the HDR SEI message for the current frame and ignores InsertPayloadToggle.
 
    If the application
    attaches this structure to the mfxVideoParam structure during initialization or reset, the encoder inserts the HDR SEI message based on
-   InsertPayloadToggle. 
+   InsertPayloadToggle.
 
    Field semantics are defined in ITU-T* H.265 Annex D.
 */
@@ -3659,12 +3785,8 @@ enum {
     MFX_SCALING_MODE_DEFAULT    = 0, /*!< Default scaling mode. The library selects the most appropriate scaling method. */
     MFX_SCALING_MODE_LOWPOWER   = 1, /*!< Low power scaling mode which is applicable for library implementations.
                                          The exact scaling algorithm is defined by the library. */
-    MFX_SCALING_MODE_QUALITY    = 2,  /*!< The best quality scaling mode. */
-        
-    
+    MFX_SCALING_MODE_QUALITY    = 2, /*!< The best quality scaling mode. */
     MFX_SCALING_MODE_VENDOR = 1000, /*!< The enumeration to separate common scaling controls above and vendor specific. */ 
-    
-
     MFX_SCALING_MODE_INTEL_GEN_COMPUTE  = MFX_SCALING_MODE_VENDOR + 1, /*! The mode to run scaling operation on Execution Units (EUs). */
     MFX_SCALING_MODE_INTEL_GEN_VDBOX = MFX_SCALING_MODE_VENDOR + 2, /*! The special optimization mode where scaling operation running on SFC (Scaler & Format Converter) is coupled with VDBOX (also known as Multi-Format Codec fixed-function engine). This mode is applicable for DECODE_VPP domain functions. */ 
     MFX_SCALING_MODE_INTEL_GEN_VEBOX = MFX_SCALING_MODE_VENDOR + 3 /*! The special optimization mode where scaling operation running on SFC is coupled with VEBOX (HW video processing pipe). */ 
@@ -4040,14 +4162,14 @@ MFX_PACK_BEGIN_USUAL_STRUCT()
 */
 typedef struct {
     mfxExtBuffer Header;         /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_VPP_MCTF. */
-    mfxU16       FilterStrength; /*!< Value in range of 0 to 20 (inclusive) to indicate the filter strength of MCTF. 
+    mfxU16       FilterStrength; /*!< Value in range of 0 to 20 (inclusive) to indicate the filter strength of MCTF.
 
                                     The strength of the MCTF process controls the degree of possible change of pixel values eligible for MCTF - the greater the strength value, the larger the change. It is a dimensionless quantity - values in the range of 1 to 20 inclusively imply strength; value 0 stands for AUTO mode and is
                                       valid during initialization or reset only
 
                                     If an invalid value is given, it is fixed to the default value of 0.
                                       If the field value is in the range of 1 to 20 inclusive, MCTF operates in fixed-strength mode with the given strength of MCTF process.
-                                      
+
                                       At runtime, values of 0 and greater than 20 are ignored. */
     mfxU16       reserved[27];
 } mfxExtVppMctf;
@@ -4160,7 +4282,7 @@ typedef struct {
 } mfxExtDeviceAffinityMask;
 MFX_PACK_END()
 
-/*! The FilmGrainFlags enumerator itemizes flags in AV1 film grain parameters. 
+/*! The FilmGrainFlags enumerator itemizes flags in AV1 film grain parameters.
     The flags are equivalent to respective syntax elements from film_grain_params() section of uncompressed header. */
 enum {
     MFX_FILM_GRAIN_NO                       =       0, /*!< Film grain isn't added to this frame. */
@@ -4196,7 +4318,7 @@ typedef struct {
     mfxAV1FilmGrainPoint PointCb[10]; /*!< The array of points for Cb component. */
     mfxAV1FilmGrainPoint PointCr[10]; /*!< The array of points for Cr component. */
 
-    mfxU8 GrainScalingMinus8; /*!< The shift – 8 applied to the values of the chroma component. The grain_scaling_minus_8 can take values of 0..3 and 
+    mfxU8 GrainScalingMinus8; /*!< The shift – 8 applied to the values of the chroma component. The grain_scaling_minus_8 can take values of 0..3 and
                                    determines the range and quantization step of the standard deviation of film grain.*/
     mfxU8 ArCoeffLag;         /*!< The number of auto-regressive coefficients for luma and chroma.*/
 
@@ -4204,8 +4326,8 @@ typedef struct {
     mfxU8 ArCoeffsCbPlus128[25]; /*!< Auto-regressive coefficients used for the Cb plane. */
     mfxU8 ArCoeffsCrPlus128[25]; /*!< The number of points for the piece-wise linear scaling function of the Cr component.*/
 
-    mfxU8 ArCoeffShiftMinus6;  /*!< The range of the auto-regressive coefficients. 
-                                    Values of 0, 1, 2, and 3 correspond to the ranges for auto-regressive coefficients of 
+    mfxU8 ArCoeffShiftMinus6;  /*!< The range of the auto-regressive coefficients.
+                                    Values of 0, 1, 2, and 3 correspond to the ranges for auto-regressive coefficients of
                                     [-2, 2), [-1, 1), [-0.5, 0.5) and [-0.25, 0.25) respectively.*/
     mfxU8 GrainScaleShift;     /*!< Downscaling factor of the grain synthesis process for the Gaussian random numbers .*/
 
@@ -4229,8 +4351,8 @@ MFX_PACK_BEGIN_STRUCT_W_PTR()
 typedef struct mfxSurfaceArray
 {
     mfxHDL              Context; /*!< The context of the memory interface. User should not touch (change, set, null) this pointer. */
-    mfxStructVersion    Version; /*!< The version of the structure. */                                        
-    mfxU16 reserved[3];  
+    mfxStructVersion    Version; /*!< The version of the structure. */
+    mfxU16 reserved[3];
     /*! @brief
     Increments the internal reference counter of the surface. The surface is not destroyed until the surface is released using the (*Release) function. (*AddRef) should be used each time a new link to the surface is created (for example, copy structure) for proper surface management.
 
@@ -4242,11 +4364,11 @@ typedef struct mfxSurfaceArray
      MFX_ERR_INVALID_HANDLE    If mfxSurfaceArray->Context is invalid (for example NULL). \n
      MFX_ERR_UNKNOWN           Any internal error.
 
-    */                                                  
-    mfxStatus (*AddRef)(struct mfxSurfaceArray*  surface_array);   
+    */
+    mfxStatus (*AddRef)(struct mfxSurfaceArray*  surface_array);
     /*! @brief
-    Decrements the internal reference counter of the surface. (*Release) should be called after using the (*AddRef) function to add a 
-    surface or when allocation logic requires it. 
+    Decrements the internal reference counter of the surface. (*Release) should be called after using the (*AddRef) function to add a
+    surface or when allocation logic requires it.
 
     @param[in]  surface_array  Valid mfxSurfaceArray.
 
@@ -4257,7 +4379,7 @@ typedef struct mfxSurfaceArray
      MFX_ERR_UNDEFINED_BEHAVIOR If Reference Counter of surface is zero before call. \n
      MFX_ERR_UNKNOWN            Any internal error.
     */
-    mfxStatus (*Release)(struct mfxSurfaceArray*  surface_array);  
+    mfxStatus (*Release)(struct mfxSurfaceArray*  surface_array);
 
     /*! @brief
     Returns current reference counter of mfxSurfaceArray structure.
@@ -4270,10 +4392,10 @@ typedef struct mfxSurfaceArray
      MFX_ERR_NULL_PTR           If surface or counter is NULL. \n
      MFX_ERR_INVALID_HANDLE     If mfxSurfaceArray->Context is invalid (for example NULL). \n
      MFX_ERR_UNKNOWN            Any internal error.
-    */             
+    */
     mfxStatus (*GetRefCounter)(struct mfxSurfaceArray*  surface_array, mfxU32* counter);
 
-    mfxFrameSurface1** Surfaces; /*!< The array of pointers to mfxFrameSurface1. mfxFrameSurface1 surfaces are allocated by the same 
+    mfxFrameSurface1** Surfaces; /*!< The array of pointers to mfxFrameSurface1. mfxFrameSurface1 surfaces are allocated by the same
     agent who allocates mfxSurfaceArray. */
     mfxU32 NumSurfaces; /*!<The size of array of pointers to mfxFrameSurface1. */
     mfxU32 reserved1;
@@ -4299,7 +4421,7 @@ MFX_PACK_BEGIN_USUAL_STRUCT()
         mfxU16  Top;    /*!< Y coordinate of region of top-left corner of rectangle. */
         mfxU16  Right;  /*!< X coordinate of region of bottom-right corner of rectangle. */
         mfxU16  Bottom; /*!< Y coordinate of region of bottom-right corner of rectangle. */
-    } mfxRect; 
+    } mfxRect;
 MFX_PACK_END()
 
 MFX_PACK_BEGIN_USUAL_STRUCT()
@@ -4311,6 +4433,22 @@ typedef struct {
     mfxRect          Crops;  /*!< Crops parameters for letterboxing operations. */
     mfxU32           reserved[4];
 }mfxExtInCrops;
+MFX_PACK_END()
+
+/*! The mfxHyperMode enumerator describes HyperMode implementation behavior. */
+typedef enum {
+    MFX_HYPERMODE_OFF = 0x0,        /*!< Don't use HyperMode implementation. */
+    MFX_HYPERMODE_ON = 0x1,         /*!< Enable HyperMode implementation and return error if some issue on initialization. */
+    MFX_HYPERMODE_ADAPTIVE = 0x2,   /*!< Enable HyperMode implementation and switch to single fallback if some issue on initialization. */
+} mfxHyperMode;
+
+MFX_PACK_BEGIN_USUAL_STRUCT()
+/*! The structure is used for HyperMode initialization. */
+typedef struct {
+    mfxExtBuffer    Header; /*!< Extension buffer header. BufferId must be equal to MFX_EXTBUFF_HYPER_MODE_PARAM. */
+    mfxHyperMode    Mode;   /*!< HyperMode implementation behavior. */
+    mfxU16          reserved[19];
+} mfxExtHyperModeParam;
 MFX_PACK_END()
 
 #ifdef __cplusplus

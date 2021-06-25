@@ -80,7 +80,7 @@ SET "BOOTSTRAP_OPT="
 IF DEFINED HELP_OPT (
   ECHO Usage: %ORIG_SCRIPT_NAME% [options]
   ECHO   --gpl            Include componentes using GPL licensing
-  ECHO   --config CONFIG  Build coniguration
+  ECHO   --config CONFIG  Build configuration
   ECHO   -A ARCH          Target architecture
   ECHO   --bootstrap      Include bootstrap steps
   ECHO   --help, -h       Show this help message

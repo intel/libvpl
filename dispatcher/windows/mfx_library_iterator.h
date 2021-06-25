@@ -48,11 +48,19 @@ enum {
 };
 
 // Try to initialize using given implementation type. Select appropriate type automatically in case of MFX_IMPL_VIA_ANY.
-// Params: adapterNum - in, pImplInterface - in/out, pVendorID - out, pDeviceID - out
+// Params: adapterNum - in, pImplInterface - in/out, pVendorID - out, pDeviceID - out, pLUID - out (optional)
 mfxStatus SelectImplementationType(const mfxU32 adapterNum,
                                    mfxIMPL *pImplInterface,
                                    mfxU32 *pVendorID,
                                    mfxU32 *pDeviceID);
+
+mfxStatus SelectImplementationType(const mfxU32 adapterNum,
+                                   mfxIMPL *pImplInterface,
+                                   mfxU32 *pVendorID,
+                                   mfxU32 *pDeviceID,
+                                   mfxU64 *pLUID);
+
+mfxStatus GetNumDXGIAdapters(mfxU32 &numAdaptersD3D9, mfxU32 &numAdaptersDXGI1);
 
 bool GetImplPath(int storageID, wchar_t *sImplPath);
 
@@ -89,7 +97,8 @@ public:
 
     static mfxStatus GetDriverStoreDir(std::wstring &driverStoreDir,
                                        size_t length,
-                                       mfxU32 adapterID);
+                                       mfxU32 adapterID,
+                                       int storageID);
     static mfxStatus GetRegkeyDir(std::wstring &regDir, size_t length, int storageID);
 
 protected:

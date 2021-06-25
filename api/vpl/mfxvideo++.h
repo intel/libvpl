@@ -1,8 +1,8 @@
-/*###########################################################################
-  # Copyright (C) 2017-2020 Intel Corporation
+/*############################################################################
+  # Copyright Intel Corporation
   #
   # SPDX-License-Identifier: MIT
-  ###########################################################################*/
+  ############################################################################*/
 
 #ifndef __MFXVIDEOPLUSPLUS_H
 #define __MFXVIDEOPLUSPLUS_H
@@ -71,6 +71,19 @@ public:
         return MFXVideoCORE_SyncOperation(m_session, syncp, wait);
     }
 
+    virtual mfxStatus GetSurfaceForEncode(mfxFrameSurface1** output_surf) {
+        return MFXMemory_GetSurfaceForEncode(m_session, output_surf);
+    }
+    virtual mfxStatus GetSurfaceForDecode(mfxFrameSurface1** output_surf) {
+        return MFXMemory_GetSurfaceForDecode(m_session, output_surf);
+    }
+    virtual mfxStatus GetSurfaceForVPP   (mfxFrameSurface1** output_surf) {
+        return MFXMemory_GetSurfaceForVPP   (m_session, output_surf);
+    }
+    virtual mfxStatus GetSurfaceForVPPOut(mfxFrameSurface1** output_surf) {
+        return MFXMemory_GetSurfaceForVPPOut(m_session, output_surf);
+    }
+
     virtual operator mfxSession(void) {
         return m_session;
     }
@@ -119,6 +132,10 @@ public:
                                        mfxBitstream *bs,
                                        mfxSyncPoint *syncp) {
         return MFXVideoENCODE_EncodeFrameAsync(m_session, ctrl, surface, bs, syncp);
+    }
+
+    virtual mfxStatus GetSurface(mfxFrameSurface1** output_surf) {
+        return MFXMemory_GetSurfaceForEncode(m_session, output_surf);
     }
 
 protected:
@@ -173,6 +190,10 @@ public:
         return MFXVideoDECODE_DecodeFrameAsync(m_session, bs, surface_work, surface_out, syncp);
     }
 
+    virtual mfxStatus GetSurface(mfxFrameSurface1** output_surf) {
+        return MFXMemory_GetSurfaceForDecode(m_session, output_surf);
+    }
+
 protected:
     mfxSession m_session; // (mfxSession) handle to the owning session
 };
@@ -213,6 +234,61 @@ public:
                                        mfxExtVppAuxData *aux,
                                        mfxSyncPoint *syncp) {
         return MFXVideoVPP_RunFrameVPPAsync(m_session, in, out, aux, syncp);
+    }
+
+    virtual mfxStatus GetSurfaceIn(mfxFrameSurface1** output_surf) {
+        return MFXMemory_GetSurfaceForVPP(m_session, output_surf);
+    }
+    virtual mfxStatus GetSurfaceOut(mfxFrameSurface1** output_surf) {
+        return MFXMemory_GetSurfaceForVPPOut(m_session, output_surf);
+    }
+
+    virtual mfxStatus ProcessFrameAsync(mfxFrameSurface1 *in, mfxFrameSurface1 **out) {
+        return MFXVideoVPP_ProcessFrameAsync(m_session, in, out);
+    }
+
+protected:
+    mfxSession m_session; // (mfxSession) handle to the owning session
+};
+
+class MFXVideoDECODE_VPP
+{
+public:
+    explicit MFXVideoDECODE_VPP(mfxSession session) { m_session = session; }
+    virtual ~MFXVideoDECODE_VPP(void) {
+        Close();
+    }
+
+    virtual mfxStatus Init(mfxVideoParam* decode_par, mfxVideoChannelParam** vpp_par_array, mfxU32 num_channel_par) {
+        return MFXVideoDECODE_VPP_Init(m_session, decode_par, vpp_par_array, num_channel_par);
+    }
+    virtual mfxStatus Reset(mfxVideoParam* decode_par, mfxVideoChannelParam** vpp_par_array, mfxU32 num_channel_par) {
+        return MFXVideoDECODE_VPP_Reset(m_session, decode_par, vpp_par_array, num_channel_par);
+    }
+    virtual mfxStatus GetChannelParam(mfxVideoChannelParam *par, mfxU32 channel_id) {
+        return MFXVideoDECODE_VPP_GetChannelParam(m_session, par, channel_id);
+    }
+    virtual mfxStatus DecodeFrameAsync(mfxBitstream *bs, mfxU32* skip_channels, mfxU32 num_skip_channels, mfxSurfaceArray **surf_array_out) {
+        return MFXVideoDECODE_VPP_DecodeFrameAsync(m_session, bs, skip_channels, num_skip_channels, surf_array_out);
+    }
+
+    virtual mfxStatus DecodeHeader(mfxBitstream *bs, mfxVideoParam *par) {
+        return MFXVideoDECODE_VPP_DecodeHeader(m_session, bs, par);
+    }
+    virtual mfxStatus Close(void) {
+        return MFXVideoDECODE_VPP_Close(m_session);
+    }
+    virtual mfxStatus GetVideoParam(mfxVideoParam *par) {
+        return MFXVideoDECODE_VPP_GetVideoParam(m_session, par);
+    }
+    virtual mfxStatus GetDecodeStat(mfxDecodeStat *stat) {
+        return MFXVideoDECODE_VPP_GetDecodeStat(m_session, stat);
+    }
+    virtual mfxStatus GetPayload(mfxU64 *ts, mfxPayload *payload) {
+        return MFXVideoDECODE_VPP_GetPayload(m_session, ts, payload);
+    }
+    virtual mfxStatus SetSkipMode(mfxSkipMode mode) {
+        return MFXVideoDECODE_VPP_SetSkipMode(m_session, mode);
     }
 
 protected:

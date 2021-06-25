@@ -8,6 +8,6 @@ cmake_minimum_required(VERSION 3.10.2)
 if(UNIX)
   install(
     PROGRAMS vpl
-    DESTINATION ${CMAKE_INSTALL_MODDIR}
+    DESTINATION ${ONEAPI_INSTALL_MODFILEDIR}
     COMPONENT dev)
 endif()

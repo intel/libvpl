@@ -54,7 +54,7 @@ enum eMFXHWType {
 enum eMFXGTConfig { MFX_GT_UNKNOWN = 0, MFX_GT1 = 1, MFX_GT2 = 2, MFX_GT3 = 3, MFX_GT4 = 4 };
 
 typedef struct {
-    int device_id;
+    unsigned int device_id;
     eMFXHWType platform;
     eMFXGTConfig config;
 } mfx_device_item;
@@ -406,12 +406,12 @@ static const mfx_device_item listLegalDevIDs[] = {
 };
 
 typedef struct {
-    int vendor_id;
-    int device_id;
+    unsigned int vendor_id;
+    unsigned int device_id;
     eMFXHWType platform;
 } Device;
 
-static inline eMFXHWType get_platform(int device_id) {
+static inline eMFXHWType get_platform(unsigned int device_id) {
     for (unsigned i = 0; i < sizeof(listLegalDevIDs) / sizeof(listLegalDevIDs[0]); ++i) {
         if (listLegalDevIDs[i].device_id == device_id) {
             return listLegalDevIDs[i].platform;
@@ -435,9 +435,9 @@ static mfxStatus get_devices(std::vector<Device> &allDevices) {
         if (!file)
             continue;
         ret = fscanf(file, "%x", &device.vendor_id);
+        fclose(file);
         if (ret != 1)
             continue;
-        fclose(file);
 
         // Filter out non-Intel devices
         if (device.vendor_id != 0x8086)
@@ -448,9 +448,9 @@ static mfxStatus get_devices(std::vector<Device> &allDevices) {
         if (!file)
             continue;
         ret = fscanf(file, "%x", &device.device_id);
+        fclose(file);
         if (ret != 1)
             continue;
-        fclose(file);
 
         device.platform = get_platform(device.device_id);
 

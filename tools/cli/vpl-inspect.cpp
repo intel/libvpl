@@ -25,8 +25,8 @@
 
 const char *_print_Impl(mfxIMPL impl) {
     switch (impl) {
-        STRING_OPTION(MFX_IMPL_SOFTWARE);
-        STRING_OPTION(MFX_IMPL_HARDWARE);
+        STRING_OPTION(MFX_IMPL_TYPE_SOFTWARE);
+        STRING_OPTION(MFX_IMPL_TYPE_HARDWARE);
     }
 
     return "<unknown implementation>";
@@ -195,10 +195,20 @@ int main(int argc, char *argv[]) {
                                                   reinterpret_cast<mfxHDL *>(&idesc))) {
         printf("\nImplementation: %s\n", idesc->ImplName);
 
+        // get path if supported (available starting with API 2.4)
+        mfxHDL hImplPath = nullptr;
+        if (MFX_ERR_NONE == MFXEnumImplementations(loader, i, MFX_IMPLCAPS_IMPLPATH, &hImplPath)) {
+            if (hImplPath) {
+                printf("\nImplementation path: %s\n\n", reinterpret_cast<mfxChar *>(hImplPath));
+                MFXDispReleaseImplDescription(loader, hImplPath);
+            }
+        }
+
         printf("  Version: %hu.%hu\n", idesc->Version.Major, idesc->Version.Minor);
         printf("  Impl: %s\n", _print_Impl(idesc->Impl));
         printf("  AccelerationMode: %s\n", _print_AccelMode(idesc->AccelerationMode));
         printf("  ApiVersion: %hu.%hu\n", idesc->ApiVersion.Major, idesc->ApiVersion.Minor);
+        printf("  ImplName: %s\n", idesc->ImplName);
         printf("  License: %s\n", idesc->License);
         printf("  Keywords: %s\n", idesc->Keywords);
         printf("  VendorID: 0x%04X\n", idesc->VendorID);

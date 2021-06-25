@@ -54,11 +54,13 @@ CDecodingPipeline::CDecodingPipeline() : m_mfxBS(8 * 1024 * 1024), m_VppSurfaceE
     m_pmfxVPP            = NULL;
 
 #if (MFX_VERSION >= 2000)
+    m_api2xPerfLoopTime  = 0;
     m_pmfxMemory         = NULL;
     m_pmfxDecVPP         = NULL;
     m_mfxLoader          = NULL;
     m_bAPI2XInternalMem  = false;
     m_bAPI2XDecVPP       = false;
+    m_bAPI2XPerf         = false;
     m_pmfxVPPChParams    = NULL;
     m_pDecVPPOutSurfaces = NULL;
 #endif
@@ -416,7 +418,41 @@ mfxStatus CDecodingPipeline::Init(sInputParams *pParams) {
             cfg,
             reinterpret_cast<mfxU8 *>(const_cast<char *>("mfxImplDescription.Impl")),
             implValue);
+
+        // call MFXSetConfigFilterProperty with correct AccelerationMode
+        if (pParams->bUseHWLib)
+            sts = VPL_SetAccelMode(m_mfxLoader, pParams->memType);
+
+        mfxImplDescription *implDesc = nullptr;
+        if (pParams->bUseAdapterNum) {
+            mfxVariant adapterValue;
+            cfg = MFXCreateConfig(m_mfxLoader);
+
+            adapterValue.Type     = MFX_VARIANT_TYPE_U32;
+            adapterValue.Data.U32 = pParams->adapterNum;
+            sts                   = MFXSetConfigFilterProperty(
+                cfg,
+                reinterpret_cast<mfxU8 *>(const_cast<char *>("mfxImplDescription.VendorImplID")),
+                adapterValue);
+
+            sts = MFXEnumImplementations(m_mfxLoader,
+                                         0,
+                                         MFX_IMPLCAPS_IMPLDESCSTRUCTURE,
+                                         reinterpret_cast<mfxHDL *>(&implDesc));
+            MSDK_CHECK_STATUS(sts, "MFXEnumImplementations failed");
+
+            printf("\nmfxImplDescription for loaded impl:\n");
+            printf("  AccelerationMode = 0x%08x\n", implDesc->AccelerationMode);
+            printf("  VendorImplID     = 0x%08x\n", implDesc->VendorImplID);
+            printf("  DeviceID         = %s\n", implDesc->Dev.DeviceID);
+            printf("\n");
+        }
+
         sts = MFXCreateSession(m_mfxLoader, 0, m_mfxSession.getSessionPtr());
+        MSDK_CHECK_STATUS(sts, "MFXCreateSession failed");
+
+        if (pParams->bUseAdapterNum)
+            MFXDispReleaseImplDescription(m_mfxLoader, implDesc);
     }
     else {
         sts = m_mfxSession.InitEx(initPar);
@@ -515,6 +551,8 @@ mfxStatus CDecodingPipeline::Init(sInputParams *pParams) {
 
     // enable fused decvpp in decode + vpp pipeline pathway
     m_bAPI2XDecVPP = pParams->api2xDecVPP;
+    // simple way to get avg. fps for vpl performance comparison
+    m_bAPI2XPerf = pParams->api2xPerf;
 #endif
 
     // set video type in parameters
@@ -638,12 +676,6 @@ mfxStatus CDecodingPipeline::Init(sInputParams *pParams) {
 
         sts = m_pmfxDecVPP->Init(&m_mfxVideoParams, &m_pmfxVPPChParams, m_numVPPCh);
         MSDK_CHECK_STATUS(sts, "m_pmfxDecVPP.Init failed");
-
-        // output frames will be delivered in m_pDecVPPOutSurfaces->Surfaces[]
-        // m_pDecVPPOutSurfaces->Surfaces[0]    : decode output
-        // m_pDecVPPOutSurfaces->Surfaces[1]    : vpp output
-        m_pDecVPPOutSurfaces = new mfxSurfaceArray;
-        MSDK_CHECK_POINTER(m_pDecVPPOutSurfaces, MFX_ERR_MEMORY_ALLOC);
     }
     else {
 #endif
@@ -721,7 +753,6 @@ void CDecodingPipeline::Close() {
         MSDK_SAFE_DELETE(m_pmfxMemory);
     }
     if (m_bAPI2XDecVPP == true) {
-        MSDK_SAFE_DELETE(m_pDecVPPOutSurfaces);
         MSDK_SAFE_DELETE(m_pmfxDecVPP);
         MSDK_SAFE_DELETE_ARRAY(m_pmfxVPPChParams);
     }
@@ -1617,7 +1648,11 @@ mfxStatus CDecodingPipeline::DeliverOutput(mfxFrameSurface1 *frame) {
         m_bResetFileWriter = false;
     }
 
+#if (MFX_VERSION >= 2000)
+    if (m_bExternalAlloc == true && m_bAPI2XInternalMem == false) {
+#else
     if (m_bExternalAlloc) {
+#endif
         if (m_eWorkMode == MODE_FILE_DUMP) {
             res = m_pGeneralAllocator->Lock(m_pGeneralAllocator->pthis,
                                             frame->Data.MemId,
@@ -1740,7 +1775,8 @@ mfxStatus CDecodingPipeline::SyncOutputSurface(mfxU32 wait) {
             m_vLatency.push_back(m_timer_overall.Sync() - m_pCurrentOutputSurface->surface->submit);
         }
         else {
-            PrintPerFrameStat();
+            if (m_bAPI2XPerf == false)
+                PrintPerFrameStat();
         }
 
 #if (MFX_VERSION >= 2000)
@@ -1806,6 +1842,10 @@ mfxStatus CDecodingPipeline::RunDecoding() {
 
         deliverThread = std::thread(&CDecodingPipeline::DeliverLoop, this);
     }
+
+#if (MFX_VERSION >= 2000)
+    auto api2x_perf_t1 = std::chrono::high_resolution_clock::now();
+#endif
 
     while (((sts == MFX_ERR_NONE) || (MFX_ERR_MORE_DATA == sts) || (MFX_ERR_MORE_SURFACE == sts)) &&
            (m_nFrames > m_output_count)) {
@@ -2232,6 +2272,13 @@ mfxStatus CDecodingPipeline::RunDecoding() {
         }
     } //while processing
 
+#if (MFX_VERSION >= 2000)
+    auto api2x_perf_t2  = std::chrono::high_resolution_clock::now();
+    m_api2xPerfLoopTime = static_cast<double>(
+        std::chrono::duration_cast<std::chrono::microseconds>(api2x_perf_t2 - api2x_perf_t1)
+            .count());
+#endif
+
     if (m_nFrames == m_output_count) {
         if (sts != MFX_ERR_NONE)
             msdk_printf(
@@ -2242,7 +2289,8 @@ mfxStatus CDecodingPipeline::RunDecoding() {
         sts = MFX_ERR_NONE;
     }
 
-    PrintPerFrameStat(true);
+    if (m_bAPI2XPerf == false)
+        PrintPerFrameStat(true);
 
     if (m_bPrintLatency && m_vLatency.size() > 0) {
         unsigned int frame_idx = 0;

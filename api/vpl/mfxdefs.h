@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) 2019-2020 Intel Corporation
+  # Copyright Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -8,7 +8,7 @@
 #define __MFXDEFS_H__
 
 #define MFX_VERSION_MAJOR 2
-#define MFX_VERSION_MINOR 2
+#define MFX_VERSION_MINOR 4
 
 // MFX_VERSION - version of API that 'assumed' by build may be provided externally
 // if it omitted then latest stable API derived from Major.Minor is assumed
@@ -27,7 +27,7 @@
 /*! The corresponding version of the Intel(r) Media SDK legacy API that is used as a basis
    for the current API. */
 
-#define MFX_LEGACY_VERSION 1034
+#define MFX_LEGACY_VERSION 1035
 
 
 #ifdef __cplusplus
@@ -85,52 +85,48 @@ extern "C"
 
 #define MFX_INFINITE 0xFFFFFFFF
 
-#if !defined(MFX_DEPRECATED_OFF) && (MFX_VERSION < MFX_VERSION_NEXT)
-#define MFX_DEPRECATED_OFF
-#endif
-
 #ifndef MFX_DEPRECATED_OFF
-  #if defined(__cplusplus) && __cplusplus >= 201402L
-    #define MFX_DEPRECATED [[deprecated]]
-    #define MFX_DEPRECATED_ENUM_FIELD_INSIDE(arg) arg [[deprecated]]
-    #define MFX_DEPRECATED_ENUM_FIELD_OUTSIDE(arg)
-  #elif defined(__clang__)
-    #define MFX_DEPRECATED __attribute__((deprecated))
-    #define MFX_DEPRECATED_ENUM_FIELD_INSIDE(arg) arg __attribute__((deprecated))
-    #define MFX_DEPRECATED_ENUM_FIELD_OUTSIDE(arg)
-  #elif defined(__INTEL_COMPILER)
-    #if (defined(_WIN32) || defined(_WIN64))
-      #define MFX_DEPRECATED __declspec(deprecated)
-      #define MFX_DEPRECATED_ENUM_FIELD_INSIDE(arg) arg
-      #define MFX_DEPRECATED_ENUM_FIELD_OUTSIDE(arg) __pragma(deprecated(arg))
-    #elif defined(__linux__)
-      #define MFX_DEPRECATED __attribute__((deprecated))
-      #if defined(__cplusplus)
-        #define MFX_DEPRECATED_ENUM_FIELD_INSIDE(arg) arg __attribute__((deprecated))
-      #else
-        #define MFX_DEPRECATED_ENUM_FIELD_INSIDE(arg) arg
-      #endif
-      #define MFX_DEPRECATED_ENUM_FIELD_OUTSIDE(arg)
-    #endif
-  #elif defined(_MSC_VER) && _MSC_VER > 1200 // VS 6 doesn't support deprecation
-    #define MFX_DEPRECATED __declspec(deprecated)
-    #define MFX_DEPRECATED_ENUM_FIELD_INSIDE(arg) arg
-    #define MFX_DEPRECATED_ENUM_FIELD_OUTSIDE(arg) __pragma(deprecated(arg))
-  #elif defined(__GNUC__)
-    #define MFX_DEPRECATED __attribute__((deprecated))
-    #define MFX_DEPRECATED_ENUM_FIELD_INSIDE(arg) arg __attribute__((deprecated))
-    #define MFX_DEPRECATED_ENUM_FIELD_OUTSIDE(arg)
-  #else
-    #define MFX_DEPRECATED
-    #define MFX_DEPRECATED_ENUM_FIELD_INSIDE(arg) arg
-    #define MFX_DEPRECATED_ENUM_FIELD_OUTSIDE(arg)
-  #endif
-#else
-  #define MFX_DEPRECATED
-  #define MFX_DEPRECATED_ENUM_FIELD_INSIDE(arg) arg
-  #define MFX_DEPRECATED_ENUM_FIELD_OUTSIDE(arg)
-#endif
-    
+   #if defined(__cplusplus) && __cplusplus >= 201402L
+     #define MFX_DEPRECATED [[deprecated]]
+     #define MFX_DEPRECATED_ENUM_FIELD_INSIDE(arg) arg [[deprecated]]
+     #define MFX_DEPRECATED_ENUM_FIELD_OUTSIDE(arg)
+   #elif defined(__clang__)
+     #define MFX_DEPRECATED __attribute__((deprecated))
+     #define MFX_DEPRECATED_ENUM_FIELD_INSIDE(arg) arg __attribute__((deprecated))
+     #define MFX_DEPRECATED_ENUM_FIELD_OUTSIDE(arg)
+   #elif defined(__INTEL_COMPILER)
+     #if (defined(_WIN32) || defined(_WIN64))
+       #define MFX_DEPRECATED __declspec(deprecated)
+       #define MFX_DEPRECATED_ENUM_FIELD_INSIDE(arg) arg
+       #define MFX_DEPRECATED_ENUM_FIELD_OUTSIDE(arg) __pragma(deprecated(arg))
+     #elif defined(__linux__)
+       #define MFX_DEPRECATED __attribute__((deprecated))
+       #if defined(__cplusplus)
+         #define MFX_DEPRECATED_ENUM_FIELD_INSIDE(arg) arg __attribute__((deprecated))
+       #else
+         #define MFX_DEPRECATED_ENUM_FIELD_INSIDE(arg) arg
+       #endif
+       #define MFX_DEPRECATED_ENUM_FIELD_OUTSIDE(arg)
+     #endif
+   #elif defined(_MSC_VER) && _MSC_VER > 1200 // VS 6 doesn't support deprecation
+     #define MFX_DEPRECATED __declspec(deprecated)
+     #define MFX_DEPRECATED_ENUM_FIELD_INSIDE(arg) arg
+     #define MFX_DEPRECATED_ENUM_FIELD_OUTSIDE(arg) __pragma(deprecated(arg))
+   #elif defined(__GNUC__)
+     #define MFX_DEPRECATED __attribute__((deprecated))
+     #define MFX_DEPRECATED_ENUM_FIELD_INSIDE(arg) arg __attribute__((deprecated))
+     #define MFX_DEPRECATED_ENUM_FIELD_OUTSIDE(arg)
+   #else
+     #define MFX_DEPRECATED
+     #define MFX_DEPRECATED_ENUM_FIELD_INSIDE(arg) arg
+     #define MFX_DEPRECATED_ENUM_FIELD_OUTSIDE(arg)
+   #endif
+ #else
+   #define MFX_DEPRECATED
+   #define MFX_DEPRECATED_ENUM_FIELD_INSIDE(arg) arg
+   #define MFX_DEPRECATED_ENUM_FIELD_OUTSIDE(arg)
+ #endif
+ 
 typedef unsigned char       mfxU8;         /*!< Unsigned integer, 8 bit type. */
 typedef char                mfxI8;         /*!< Signed integer, 8 bit type. */
 typedef short               mfxI16;        /*!< Signed integer, 16 bit type. */
@@ -180,20 +176,35 @@ MFX_PACK_END()
 
 #define MFX_VARIANT_VERSION MFX_STRUCT_VERSION(1, 0)
 
-/*! The mfxVariantType enumerator data types for mfxVarianf type. */
+/*! The mfxDataType enumerates data type for mfxDataType. */
 typedef enum {
-    MFX_VARIANT_TYPE_UNSET = 0, /*!< Undefined type. */
-    MFX_VARIANT_TYPE_U8 = 1,   /*!< 8-bit unsigned integer. */
-    MFX_VARIANT_TYPE_I8,       /*!< 8-bit signed integer. */
-    MFX_VARIANT_TYPE_U16,      /*!< 16-bit unsigned integer. */
-    MFX_VARIANT_TYPE_I16,      /*!< 16-bit signed integer. */
-    MFX_VARIANT_TYPE_U32,      /*!< 32-bit unsigned integer. */
-    MFX_VARIANT_TYPE_I32,      /*!< 32-bit signed integer. */
-    MFX_VARIANT_TYPE_U64,      /*!< 64-bit unsigned integer. */
-    MFX_VARIANT_TYPE_I64,      /*!< 64-bit signed integer. */
-    MFX_VARIANT_TYPE_F32,      /*!< 32-bit single precision floating point. */
-    MFX_VARIANT_TYPE_F64,      /*!< 64-bit double precision floating point. */
-    MFX_VARIANT_TYPE_PTR,      /*!< Generic type pointer. */
+    MFX_DATA_TYPE_UNSET   = 0,            /*!< Undefined type. */
+    MFX_DATA_TYPE_U8,                     /*!< 8-bit unsigned integer. */
+    MFX_DATA_TYPE_I8,                     /*!< 8-bit signed integer. */
+    MFX_DATA_TYPE_U16,                    /*!< 16-bit unsigned integer. */
+    MFX_DATA_TYPE_I16,                    /*!< 16-bit signed integer. */
+    MFX_DATA_TYPE_U32,                    /*!< 32-bit unsigned integer. */
+    MFX_DATA_TYPE_I32,                    /*!< 32-bit signed integer. */
+    MFX_DATA_TYPE_U64,                    /*!< 64-bit unsigned integer. */
+    MFX_DATA_TYPE_I64,                    /*!< 64-bit signed integer. */
+    MFX_DATA_TYPE_F32,                    /*!< 32-bit single precision floating point. */
+    MFX_DATA_TYPE_F64,                    /*!< 64-bit double precision floating point. */
+}mfxDataType;
+
+/*! The mfxVariantType enumerator data types for mfxVariantType. */
+typedef enum {
+    MFX_VARIANT_TYPE_UNSET = MFX_DATA_TYPE_UNSET,                        /*!< Undefined type. */
+    MFX_VARIANT_TYPE_U8    = MFX_DATA_TYPE_U8,                           /*!< 8-bit unsigned integer. */
+    MFX_VARIANT_TYPE_I8    = MFX_DATA_TYPE_I8,                           /*!< 8-bit signed integer. */
+    MFX_VARIANT_TYPE_U16   = MFX_DATA_TYPE_U16,                          /*!< 16-bit unsigned integer. */
+    MFX_VARIANT_TYPE_I16   = MFX_DATA_TYPE_I16,                          /*!< 16-bit signed integer. */
+    MFX_VARIANT_TYPE_U32   = MFX_DATA_TYPE_U32,                          /*!< 32-bit unsigned integer. */
+    MFX_VARIANT_TYPE_I32   = MFX_DATA_TYPE_I32,                          /*!< 32-bit signed integer. */
+    MFX_VARIANT_TYPE_U64   = MFX_DATA_TYPE_U64,                          /*!< 64-bit unsigned integer. */
+    MFX_VARIANT_TYPE_I64   = MFX_DATA_TYPE_I64,                          /*!< 64-bit signed integer. */
+    MFX_VARIANT_TYPE_F32   = MFX_DATA_TYPE_F32,                          /*!< 32-bit single precision floating point. */
+    MFX_VARIANT_TYPE_F64   = MFX_DATA_TYPE_F64,                          /*!< 64-bit double precision floating point. */
+    MFX_VARIANT_TYPE_PTR,                                                /*!< Generic type pointer. */
 } mfxVariantType;
 
 MFX_PACK_BEGIN_STRUCT_W_PTR()
@@ -296,6 +307,17 @@ typedef enum
     MFX_ERR_MORE_DATA_SUBMIT_TASK       = -10000, /*!< Return MFX_ERR_MORE_DATA but submit internal asynchronous task. */
 
 } mfxStatus;
+
+
+MFX_PACK_BEGIN_USUAL_STRUCT()
+/*! Represents Globally Unique Identifier (GUID) with memory layout 
+    compliant to RFC 4122. See https://www.rfc-editor.org/info/rfc4122 for details. */
+typedef struct
+{
+    mfxU8 Data[16]; /*!< Array to keep GUID. */
+} mfxGUID;
+MFX_PACK_END()
+
 
 
 // Application

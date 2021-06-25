@@ -8,23 +8,31 @@
 
 #include <assert.h>
 
+#include <regex>
+
 // implementation of config context (mfxConfig)
 // each loader instance can have one or more configs
 //   associated with it - used for filtering implementations
 //   based on what they support (codec types, etc.)
 ConfigCtxVPL::ConfigCtxVPL()
-        : m_propName(),
-          m_propValue(),
-          m_propIdx(),
-          m_propParsedString(),
+        : m_propVar(),
           m_propRange32U(),
           m_implName(),
           m_implLicense(),
           m_implKeywords(),
+          m_deviceIdStr(),
           m_implFunctionName() {
-    m_propValue.Version.Version = MFX_VARIANT_VERSION;
-    m_propValue.Type            = MFX_VARIANT_TYPE_UNSET;
-    m_parentLoader              = nullptr;
+    // initially set Type = unset (invalid)
+    // if valid property string and value are passed in,
+    //   this will be updated
+    // otherwise loader will ignore this cfg during EnumImplementations
+    for (mfxU32 idx = 0; idx < NUM_TOTAL_FILTER_PROPS; idx++) {
+        m_propVar[idx].Version.Version = MFX_VARIANT_VERSION;
+        m_propVar[idx].Type            = MFX_VARIANT_TYPE_UNSET;
+        m_propVar[idx].Data.U64        = 0;
+    }
+
+    m_parentLoader = nullptr;
     return;
 }
 
@@ -52,6 +60,7 @@ enum PropIdx {
 
     // settable config properties for mfxDeviceDescription
     ePropDevice_DeviceID,
+    ePropDevice_DeviceIDStr,
 
     // settable config properties for mfxDecoderDescription
     ePropDec_CodecID,
@@ -84,6 +93,7 @@ enum PropIdx {
     // special properties not part of description struct
     ePropSpecial_HandleType,
     ePropSpecial_Handle,
+    ePropSpecial_DXGIAdapterIndex,
 
     // functions which must report as implemented
     ePropFunc_FunctionName,
@@ -109,7 +119,8 @@ static const PropVariant PropIdxTab[] = {
     { "ePropMain_VendorID",                 MFX_VARIANT_TYPE_U32 },
     { "ePropMain_VendorImplID",             MFX_VARIANT_TYPE_U32 },
 
-    { "ePropDevice_DeviceID",                 MFX_VARIANT_TYPE_U16 },
+    { "ePropDevice_DeviceID",               MFX_VARIANT_TYPE_U16 },
+    { "ePropDevice_DeviceIDStr",            MFX_VARIANT_TYPE_PTR },
 
     { "ePropDec_CodecID",                   MFX_VARIANT_TYPE_U32 },
     { "ePropDec_MaxcodecLevel",             MFX_VARIANT_TYPE_U16 },
@@ -138,6 +149,7 @@ static const PropVariant PropIdxTab[] = {
 
     { "ePropSpecial_HandleType",            MFX_VARIANT_TYPE_U32 },
     { "ePropSpecial_Handle",                MFX_VARIANT_TYPE_PTR },
+    { "ePropSpecial_DXGIAdapterIndex",      MFX_VARIANT_TYPE_U32 },
 
     { "ePropFunc_FunctionName",             MFX_VARIANT_TYPE_PTR },
 };
@@ -149,6 +161,9 @@ static const PropVariant PropIdxTab[] = {
 static_assert((sizeof(PropIdxTab) / sizeof(PropVariant)) == eProp_TotalProps,
               "PropIdx and PropIdxTab are misaligned");
 
+static_assert(NUM_TOTAL_FILTER_PROPS == eProp_TotalProps,
+              "NUM_TOTAL_FILTER_PROPS and eProp_TotalProps are misaligned");
+
 mfxStatus ConfigCtxVPL::ValidateAndSetProp(mfxI32 idx, mfxVariant value) {
     if (idx < 0 || idx >= eProp_TotalProps)
         return MFX_ERR_NOT_FOUND;
@@ -156,38 +171,60 @@ mfxStatus ConfigCtxVPL::ValidateAndSetProp(mfxI32 idx, mfxVariant value) {
     if (value.Type != PropIdxTab[idx].Type)
         return MFX_ERR_UNSUPPORTED;
 
-    m_propIdx        = idx;
-    m_propValue.Type = value.Type;
+    m_propVar[idx].Version.Version = MFX_VARIANT_VERSION;
+    m_propVar[idx].Type            = value.Type;
 
     if (value.Type == MFX_VARIANT_TYPE_PTR) {
-        if (value.Data.Ptr == nullptr)
+        if (value.Data.Ptr == nullptr) {
+            // unset property to avoid possibly dereferencing null if app ignores error code
+            m_propVar[idx].Type = MFX_VARIANT_TYPE_UNSET;
             return MFX_ERR_NULL_PTR;
+        }
 
         // save copy of data passed by pointer, into object of the appropriate type
-        switch (m_propIdx) {
+        switch (idx) {
             case ePropDec_Width:
+                m_propRange32U[PROP_RANGE_DEC_W] = *((mfxRange32U *)(value.Data.Ptr));
+                m_propVar[idx].Data.Ptr          = &(m_propRange32U[PROP_RANGE_DEC_W]);
+                break;
             case ePropDec_Height:
+                m_propRange32U[PROP_RANGE_DEC_H] = *((mfxRange32U *)(value.Data.Ptr));
+                m_propVar[idx].Data.Ptr          = &(m_propRange32U[PROP_RANGE_DEC_H]);
+                break;
             case ePropEnc_Width:
+                m_propRange32U[PROP_RANGE_ENC_W] = *((mfxRange32U *)(value.Data.Ptr));
+                m_propVar[idx].Data.Ptr          = &(m_propRange32U[PROP_RANGE_ENC_W]);
+                break;
             case ePropEnc_Height:
+                m_propRange32U[PROP_RANGE_ENC_H] = *((mfxRange32U *)(value.Data.Ptr));
+                m_propVar[idx].Data.Ptr          = &(m_propRange32U[PROP_RANGE_ENC_H]);
+                break;
             case ePropVPP_Width:
+                m_propRange32U[PROP_RANGE_VPP_W] = *((mfxRange32U *)(value.Data.Ptr));
+                m_propVar[idx].Data.Ptr          = &(m_propRange32U[PROP_RANGE_VPP_W]);
+                break;
             case ePropVPP_Height:
-                m_propRange32U       = *((mfxRange32U *)(value.Data.Ptr));
-                m_propValue.Data.Ptr = &(m_propRange32U);
+                m_propRange32U[PROP_RANGE_VPP_H] = *((mfxRange32U *)(value.Data.Ptr));
+                m_propVar[idx].Data.Ptr          = &(m_propRange32U[PROP_RANGE_VPP_H]);
                 break;
             case ePropSpecial_Handle:
-                m_propValue.Data.Ptr = (mfxHDL)(value.Data.Ptr);
+                m_propVar[idx].Data.Ptr = (mfxHDL)(value.Data.Ptr);
                 break;
             case ePropMain_ImplName:
-                m_implName           = (char *)(value.Data.Ptr);
-                m_propValue.Data.Ptr = &(m_implName);
+                m_implName              = (char *)(value.Data.Ptr);
+                m_propVar[idx].Data.Ptr = &(m_implName);
                 break;
             case ePropMain_License:
-                m_implLicense        = (char *)(value.Data.Ptr);
-                m_propValue.Data.Ptr = &(m_implLicense);
+                m_implLicense           = (char *)(value.Data.Ptr);
+                m_propVar[idx].Data.Ptr = &(m_implLicense);
                 break;
             case ePropMain_Keywords:
-                m_implKeywords       = (char *)(value.Data.Ptr);
-                m_propValue.Data.Ptr = &(m_implKeywords);
+                m_implKeywords          = (char *)(value.Data.Ptr);
+                m_propVar[idx].Data.Ptr = &(m_implKeywords);
+                break;
+            case ePropDevice_DeviceIDStr:
+                m_deviceIdStr           = (char *)(value.Data.Ptr);
+                m_propVar[idx].Data.Ptr = &(m_deviceIdStr);
                 break;
             case ePropFunc_FunctionName:
                 // no need to save Data.Ptr - parsed in main loop
@@ -198,23 +235,24 @@ mfxStatus ConfigCtxVPL::ValidateAndSetProp(mfxI32 idx, mfxVariant value) {
         }
     }
     else {
-        m_propValue.Data = value.Data;
+        m_propVar[idx].Data = value.Data;
     }
 
     return MFX_ERR_NONE;
 }
 
-mfxStatus ConfigCtxVPL::SetFilterPropertyDec(mfxVariant value) {
+mfxStatus ConfigCtxVPL::SetFilterPropertyDec(std::list<std::string> &propParsedString,
+                                             mfxVariant value) {
     std::string nextProp;
 
-    nextProp = GetNextProp(&m_propParsedString);
+    nextProp = GetNextProp(propParsedString);
 
     // no settable top-level members
     if (nextProp != "decoder")
         return MFX_ERR_NOT_FOUND;
 
     // parse 'decoder'
-    nextProp = GetNextProp(&m_propParsedString);
+    nextProp = GetNextProp(propParsedString);
     if (nextProp == "CodecID") {
         return ValidateAndSetProp(ePropDec_CodecID, value);
     }
@@ -226,7 +264,7 @@ mfxStatus ConfigCtxVPL::SetFilterPropertyDec(mfxVariant value) {
     }
 
     // parse 'decprofile'
-    nextProp = GetNextProp(&m_propParsedString);
+    nextProp = GetNextProp(propParsedString);
     if (nextProp == "Profile") {
         return ValidateAndSetProp(ePropDec_Profile, value);
     }
@@ -235,7 +273,7 @@ mfxStatus ConfigCtxVPL::SetFilterPropertyDec(mfxVariant value) {
     }
 
     // parse 'decmemdesc'
-    nextProp = GetNextProp(&m_propParsedString);
+    nextProp = GetNextProp(propParsedString);
     if (nextProp == "MemHandleType") {
         return ValidateAndSetProp(ePropDec_MemHandleType, value);
     }
@@ -253,17 +291,18 @@ mfxStatus ConfigCtxVPL::SetFilterPropertyDec(mfxVariant value) {
     return MFX_ERR_NOT_FOUND;
 }
 
-mfxStatus ConfigCtxVPL::SetFilterPropertyEnc(mfxVariant value) {
+mfxStatus ConfigCtxVPL::SetFilterPropertyEnc(std::list<std::string> &propParsedString,
+                                             mfxVariant value) {
     std::string nextProp;
 
-    nextProp = GetNextProp(&m_propParsedString);
+    nextProp = GetNextProp(propParsedString);
 
     // no settable top-level members
     if (nextProp != "encoder")
         return MFX_ERR_NOT_FOUND;
 
     // parse 'encoder'
-    nextProp = GetNextProp(&m_propParsedString);
+    nextProp = GetNextProp(propParsedString);
     if (nextProp == "CodecID") {
         return ValidateAndSetProp(ePropEnc_CodecID, value);
     }
@@ -278,7 +317,7 @@ mfxStatus ConfigCtxVPL::SetFilterPropertyEnc(mfxVariant value) {
     }
 
     // parse 'encprofile'
-    nextProp = GetNextProp(&m_propParsedString);
+    nextProp = GetNextProp(propParsedString);
     if (nextProp == "Profile") {
         return ValidateAndSetProp(ePropEnc_Profile, value);
     }
@@ -287,7 +326,7 @@ mfxStatus ConfigCtxVPL::SetFilterPropertyEnc(mfxVariant value) {
     }
 
     // parse 'encmemdesc'
-    nextProp = GetNextProp(&m_propParsedString);
+    nextProp = GetNextProp(propParsedString);
     if (nextProp == "MemHandleType") {
         return ValidateAndSetProp(ePropEnc_MemHandleType, value);
     }
@@ -305,17 +344,18 @@ mfxStatus ConfigCtxVPL::SetFilterPropertyEnc(mfxVariant value) {
     return MFX_ERR_NOT_FOUND;
 }
 
-mfxStatus ConfigCtxVPL::SetFilterPropertyVPP(mfxVariant value) {
+mfxStatus ConfigCtxVPL::SetFilterPropertyVPP(std::list<std::string> &propParsedString,
+                                             mfxVariant value) {
     std::string nextProp;
 
-    nextProp = GetNextProp(&m_propParsedString);
+    nextProp = GetNextProp(propParsedString);
 
     // no settable top-level members
     if (nextProp != "filter")
         return MFX_ERR_NOT_FOUND;
 
     // parse 'filter'
-    nextProp = GetNextProp(&m_propParsedString);
+    nextProp = GetNextProp(propParsedString);
     if (nextProp == "FilterFourCC") {
         return ValidateAndSetProp(ePropVPP_FilterFourCC, value);
     }
@@ -327,7 +367,7 @@ mfxStatus ConfigCtxVPL::SetFilterPropertyVPP(mfxVariant value) {
     }
 
     // parse 'memdesc'
-    nextProp = GetNextProp(&m_propParsedString);
+    nextProp = GetNextProp(propParsedString);
     if (nextProp == "MemHandleType") {
         return ValidateAndSetProp(ePropVPP_MemHandleType, value);
     }
@@ -342,7 +382,7 @@ mfxStatus ConfigCtxVPL::SetFilterPropertyVPP(mfxVariant value) {
     }
 
     // parse 'format'
-    nextProp = GetNextProp(&m_propParsedString);
+    nextProp = GetNextProp(propParsedString);
     if (nextProp == "InFormat") {
         return ValidateAndSetProp(ePropVPP_InFormat, value);
     }
@@ -361,27 +401,19 @@ mfxStatus ConfigCtxVPL::SetFilterProperty(const mfxU8 *name, mfxVariant value) {
     if (!name)
         return MFX_ERR_NULL_PTR;
 
-    m_propName = std::string((char *)name);
-
-    m_propValue.Version.Version = MFX_VARIANT_VERSION;
-
-    // initially set Type = unset (invalid)
-    // if valid property string and value are passed in,
-    //   this will be updated
-    // otherwise loader will ignore this cfg during EnumImplementations
-    m_propValue.Type     = MFX_VARIANT_TYPE_UNSET;
-    m_propValue.Data.U32 = 0;
+    std::list<std::string> propParsedString;
 
     // parse property string into individual properties,
     //   separated by '.'
     std::stringstream prop((char *)name);
     std::string s;
+    propParsedString.clear();
     while (getline(prop, s, '.')) {
-        m_propParsedString.push_back(s);
+        propParsedString.push_back(s);
     }
 
     // get first property descriptor
-    std::string nextProp = GetNextProp(&m_propParsedString);
+    std::string nextProp = GetNextProp(propParsedString);
 
     // check for special-case properties, not part of mfxImplDescription
     if (nextProp == "mfxHandleType") {
@@ -390,11 +422,19 @@ mfxStatus ConfigCtxVPL::SetFilterProperty(const mfxU8 *name, mfxVariant value) {
     else if (nextProp == "mfxHDL") {
         return ValidateAndSetProp(ePropSpecial_Handle, value);
     }
+    else if (nextProp == "DXGIAdapterIndex") {
+#if defined(_WIN32) || defined(_WIN64)
+        // this property is only valid on Windows
+        return ValidateAndSetProp(ePropSpecial_DXGIAdapterIndex, value);
+#else
+        return MFX_ERR_NOT_FOUND;
+#endif
+    }
 
     // to require that a specific function is implemented, use the property name
     //   "mfxImplementedFunctions.FunctionsName"
     if (nextProp == "mfxImplementedFunctions") {
-        nextProp = GetNextProp(&m_propParsedString);
+        nextProp = GetNextProp(propParsedString);
         if (nextProp == "FunctionsName") {
             return ValidateAndSetProp(ePropFunc_FunctionName, value);
         }
@@ -407,7 +447,7 @@ mfxStatus ConfigCtxVPL::SetFilterProperty(const mfxU8 *name, mfxVariant value) {
     }
 
     // get next property descriptor
-    nextProp = GetNextProp(&m_propParsedString);
+    nextProp = GetNextProp(propParsedString);
 
     // property is a top-level member of mfxImplDescription
     if (nextProp == "Impl") {
@@ -418,7 +458,7 @@ mfxStatus ConfigCtxVPL::SetFilterProperty(const mfxU8 *name, mfxVariant value) {
     }
     else if (nextProp == "ApiVersion") {
         // ApiVersion may be passed as single U32 (Version) or two U16's (Major, Minor)
-        nextProp = GetNextProp(&m_propParsedString);
+        nextProp = GetNextProp(propParsedString);
         if (nextProp == "Version")
             return ValidateAndSetProp(ePropMain_ApiVersion, value);
         else if (nextProp == "Major")
@@ -447,27 +487,33 @@ mfxStatus ConfigCtxVPL::SetFilterProperty(const mfxU8 *name, mfxVariant value) {
     // property is a member of mfxDeviceDescription
     // currently only settable parameter is DeviceID
     if (nextProp == "mfxDeviceDescription") {
-        nextProp = GetNextProp(&m_propParsedString);
-        if (nextProp == "device") {
-            nextProp = GetNextProp(&m_propParsedString);
-            if (nextProp == "DeviceID") {
+        nextProp = GetNextProp(propParsedString);
+        // old version of table in spec had extra "device", just skip if present
+        if (nextProp == "device")
+            nextProp = GetNextProp(propParsedString);
+
+        // special case - deviceID may be passed as U16 (default) or string (since API 2.4)
+        // for compatibility, both are supported (value.Type distinguishes between them)
+        if (nextProp == "DeviceID") {
+            if (value.Type == MFX_VARIANT_TYPE_PTR)
+                return ValidateAndSetProp(ePropDevice_DeviceIDStr, value);
+            else
                 return ValidateAndSetProp(ePropDevice_DeviceID, value);
-            }
         }
         return MFX_ERR_NOT_FOUND;
     }
 
     // property is a member of mfxDecoderDescription
     if (nextProp == "mfxDecoderDescription") {
-        return SetFilterPropertyDec(value);
+        return SetFilterPropertyDec(propParsedString, value);
     }
 
     if (nextProp == "mfxEncoderDescription") {
-        return SetFilterPropertyEnc(value);
+        return SetFilterPropertyEnc(propParsedString, value);
     }
 
     if (nextProp == "mfxVPPDescription") {
-        return SetFilterPropertyVPP(value);
+        return SetFilterPropertyVPP(propParsedString, value);
     }
 
     return MFX_ERR_NOT_FOUND;
@@ -480,7 +526,7 @@ mfxStatus ConfigCtxVPL::SetFilterProperty(const mfxU8 *name, mfxVariant value) {
         continue;                   \
     }
 
-mfxStatus ConfigCtxVPL::GetFlatDescriptionsDec(mfxImplDescription *libImplDesc,
+mfxStatus ConfigCtxVPL::GetFlatDescriptionsDec(const mfxImplDescription *libImplDesc,
                                                std::list<DecConfig> &decConfigList) {
     mfxU32 codecIdx   = 0;
     mfxU32 profileIdx = 0;
@@ -522,7 +568,7 @@ mfxStatus ConfigCtxVPL::GetFlatDescriptionsDec(mfxImplDescription *libImplDesc,
     return MFX_ERR_NONE;
 }
 
-mfxStatus ConfigCtxVPL::GetFlatDescriptionsEnc(mfxImplDescription *libImplDesc,
+mfxStatus ConfigCtxVPL::GetFlatDescriptionsEnc(const mfxImplDescription *libImplDesc,
                                                std::list<EncConfig> &encConfigList) {
     mfxU32 codecIdx   = 0;
     mfxU32 profileIdx = 0;
@@ -565,7 +611,7 @@ mfxStatus ConfigCtxVPL::GetFlatDescriptionsEnc(mfxImplDescription *libImplDesc,
     return MFX_ERR_NONE;
 }
 
-mfxStatus ConfigCtxVPL::GetFlatDescriptionsVPP(mfxImplDescription *libImplDesc,
+mfxStatus ConfigCtxVPL::GetFlatDescriptionsVPP(const mfxImplDescription *libImplDesc,
                                                std::list<VPPConfig> &vppConfigList) {
     mfxU32 filterIdx = 0;
     mfxU32 memIdx    = 0;
@@ -612,8 +658,8 @@ mfxStatus ConfigCtxVPL::GetFlatDescriptionsVPP(mfxImplDescription *libImplDesc,
         (cfgPropsAll[(idx)].Data.type != val))                 \
         isCompatible = false;
 
-mfxStatus ConfigCtxVPL::CheckPropsGeneral(mfxVariant cfgPropsAll[],
-                                          mfxImplDescription *libImplDesc) {
+mfxStatus ConfigCtxVPL::CheckPropsGeneral(const mfxVariant cfgPropsAll[],
+                                          const mfxImplDescription *libImplDesc) {
     bool isCompatible = true;
 
     // check if this implementation includes
@@ -622,25 +668,8 @@ mfxStatus ConfigCtxVPL::CheckPropsGeneral(mfxVariant cfgPropsAll[],
     CHECK_PROP(ePropMain_VendorID, U32, libImplDesc->VendorID);
     CHECK_PROP(ePropMain_VendorImplID, U32, libImplDesc->VendorImplID);
 
-    // confirm that API version of this implementation is >= requested version
-    mfxU32 versionRequested = 0;
-    if (cfgPropsAll[ePropMain_ApiVersion].Type != MFX_VARIANT_TYPE_UNSET) {
-        // version was passed as U32 = (Major | Minor)
-        versionRequested = (mfxU32)(cfgPropsAll[ePropMain_ApiVersion].Data.U32);
-    }
-    else if (cfgPropsAll[ePropMain_ApiVersion_Major].Type != MFX_VARIANT_TYPE_UNSET &&
-             cfgPropsAll[ePropMain_ApiVersion_Minor].Type != MFX_VARIANT_TYPE_UNSET) {
-        // version was passed as 2x U16
-        mfxVersion ver   = {};
-        ver.Major        = (mfxU16)(cfgPropsAll[ePropMain_ApiVersion_Major].Data.U16);
-        ver.Minor        = (mfxU16)(cfgPropsAll[ePropMain_ApiVersion_Minor].Data.U16);
-        versionRequested = (mfxU32)ver.Version;
-    }
-
-    if (versionRequested) {
-        if (libImplDesc->ApiVersion.Version < versionRequested)
-            isCompatible = false;
-    }
+    // check API version in calling function since major and minor may be passed
+    //   in separate cfg objects
 
     if (libImplDesc->AccelerationModeDescription.NumAccelerationModes > 0) {
         if (cfgPropsAll[ePropMain_AccelerationMode].Type != MFX_VARIANT_TYPE_UNSET) {
@@ -698,13 +727,21 @@ mfxStatus ConfigCtxVPL::CheckPropsGeneral(mfxVariant cfgPropsAll[],
             isCompatible = false;
     }
 
+    if (cfgPropsAll[ePropDevice_DeviceIDStr].Type != MFX_VARIANT_TYPE_UNSET) {
+        // since API 2.4 - pass DeviceID as string (do string match)
+        std::string filtDeviceID = *(std::string *)(cfgPropsAll[ePropDevice_DeviceIDStr].Data.Ptr);
+        std::string implDeviceID = libImplDesc->Dev.DeviceID;
+        if (filtDeviceID != implDeviceID)
+            isCompatible = false;
+    }
+
     if (isCompatible == true)
         return MFX_ERR_NONE;
 
     return MFX_ERR_UNSUPPORTED;
 }
 
-mfxStatus ConfigCtxVPL::CheckPropsDec(mfxVariant cfgPropsAll[],
+mfxStatus ConfigCtxVPL::CheckPropsDec(const mfxVariant cfgPropsAll[],
                                       std::list<DecConfig> decConfigList) {
     auto it = decConfigList.begin();
     while (it != decConfigList.end()) {
@@ -729,7 +766,8 @@ mfxStatus ConfigCtxVPL::CheckPropsDec(mfxVariant cfgPropsAll[],
                 (width.Step < dc.Width.Step))
                 isCompatible = false;
         }
-        else if (cfgPropsAll[ePropDec_Height].Type != MFX_VARIANT_TYPE_UNSET) {
+
+        if (cfgPropsAll[ePropDec_Height].Type != MFX_VARIANT_TYPE_UNSET) {
             mfxRange32U height = {};
             if (cfgPropsAll[ePropDec_Height].Data.Ptr)
                 height = *((mfxRange32U *)(cfgPropsAll[ePropDec_Height].Data.Ptr));
@@ -748,7 +786,7 @@ mfxStatus ConfigCtxVPL::CheckPropsDec(mfxVariant cfgPropsAll[],
     return MFX_ERR_UNSUPPORTED;
 }
 
-mfxStatus ConfigCtxVPL::CheckPropsEnc(mfxVariant cfgPropsAll[],
+mfxStatus ConfigCtxVPL::CheckPropsEnc(const mfxVariant cfgPropsAll[],
                                       std::list<EncConfig> encConfigList) {
     auto it = encConfigList.begin();
     while (it != encConfigList.end()) {
@@ -774,7 +812,8 @@ mfxStatus ConfigCtxVPL::CheckPropsEnc(mfxVariant cfgPropsAll[],
                 (width.Step < ec.Width.Step))
                 isCompatible = false;
         }
-        else if (cfgPropsAll[ePropEnc_Height].Type != MFX_VARIANT_TYPE_UNSET) {
+
+        if (cfgPropsAll[ePropEnc_Height].Type != MFX_VARIANT_TYPE_UNSET) {
             mfxRange32U height = {};
             if (cfgPropsAll[ePropEnc_Height].Data.Ptr)
                 height = *((mfxRange32U *)(cfgPropsAll[ePropEnc_Height].Data.Ptr));
@@ -793,7 +832,7 @@ mfxStatus ConfigCtxVPL::CheckPropsEnc(mfxVariant cfgPropsAll[],
     return MFX_ERR_UNSUPPORTED;
 }
 
-mfxStatus ConfigCtxVPL::CheckPropsVPP(mfxVariant cfgPropsAll[],
+mfxStatus ConfigCtxVPL::CheckPropsVPP(const mfxVariant cfgPropsAll[],
                                       std::list<VPPConfig> vppConfigList) {
     auto it = vppConfigList.begin();
     while (it != vppConfigList.end()) {
@@ -803,7 +842,7 @@ mfxStatus ConfigCtxVPL::CheckPropsVPP(mfxVariant cfgPropsAll[],
         // check if this filter description includes
         //   all of the required VPP properties
         CHECK_PROP(ePropVPP_FilterFourCC, U32, vc.FilterFourCC);
-        CHECK_PROP(ePropVPP_MaxDelayInFrames, U32, vc.MaxDelayInFrames);
+        CHECK_PROP(ePropVPP_MaxDelayInFrames, U16, vc.MaxDelayInFrames);
         CHECK_PROP(ePropVPP_MemHandleType, U32, vc.MemHandleType);
         CHECK_PROP(ePropVPP_InFormat, U32, vc.InFormat);
         CHECK_PROP(ePropVPP_OutFormat, U32, vc.OutFormat);
@@ -818,7 +857,8 @@ mfxStatus ConfigCtxVPL::CheckPropsVPP(mfxVariant cfgPropsAll[],
                 (width.Step < vc.Width.Step))
                 isCompatible = false;
         }
-        else if (cfgPropsAll[ePropVPP_Height].Type != MFX_VARIANT_TYPE_UNSET) {
+
+        if (cfgPropsAll[ePropVPP_Height].Type != MFX_VARIANT_TYPE_UNSET) {
             mfxRange32U height = {};
             if (cfgPropsAll[ePropVPP_Height].Data.Ptr)
                 height = *((mfxRange32U *)(cfgPropsAll[ePropVPP_Height].Data.Ptr));
@@ -840,7 +880,7 @@ mfxStatus ConfigCtxVPL::CheckPropsVPP(mfxVariant cfgPropsAll[],
 // implString = string from implDesc - one or more comma-separated tokens
 // filtString = string user is looking for - one or more comma-separated tokens
 // we parse filtString into tokens, then check if all of them are present in implString
-mfxStatus ConfigCtxVPL::CheckPropString(mfxChar *implString, std::string filtString) {
+mfxStatus ConfigCtxVPL::CheckPropString(const mfxChar *implString, const std::string filtString) {
     std::list<std::string> tokenString;
     std::string s;
 
@@ -861,16 +901,17 @@ mfxStatus ConfigCtxVPL::CheckPropString(mfxChar *implString, std::string filtStr
     return MFX_ERR_NONE;
 }
 
-mfxStatus ConfigCtxVPL::ValidateConfig(mfxImplDescription *libImplDesc,
-                                       mfxImplementedFunctions *libImplFuncs,
+mfxStatus ConfigCtxVPL::ValidateConfig(const mfxImplDescription *libImplDesc,
+                                       const mfxImplementedFunctions *libImplFuncs,
                                        std::list<ConfigCtxVPL *> configCtxList,
                                        LibType libType,
                                        SpecialConfig *specialConfig) {
     mfxU32 idx;
-    mfxStatus sts     = MFX_ERR_NONE;
     bool decRequested = false;
     bool encRequested = false;
     bool vppRequested = false;
+
+    bool bImplValid = true;
 
     if (!libImplDesc)
         return MFX_ERR_NULL_PTR;
@@ -879,58 +920,133 @@ mfxStatus ConfigCtxVPL::ValidateConfig(mfxImplDescription *libImplDesc,
     std::list<EncConfig> encConfigList;
     std::list<VPPConfig> vppConfigList;
 
+    // generate "flat" descriptions of each combination
+    //   (e.g. multiple profiles from the same codec)
+    GetFlatDescriptionsDec(libImplDesc, decConfigList);
+    GetFlatDescriptionsEnc(libImplDesc, encConfigList);
+    GetFlatDescriptionsVPP(libImplDesc, vppConfigList);
+
     // list of functions required to be implemented
     std::list<std::string> implFunctionList;
     implFunctionList.clear();
 
-    // save list when multiple filters apply to the the same property
-    //   (e.g two mfxConfig objects with different values for CodecID)
-    std::list<ConfigCtxVPL *> configCtxListDups;
-
-    // initially all properties are unset
-    mfxVariant cfgPropsAll[eProp_TotalProps] = {};
-    for (idx = 0; idx < eProp_TotalProps; idx++) {
-        cfgPropsAll[idx].Type = MFX_VARIANT_TYPE_UNSET;
-    }
+    // check requested API version
+    mfxVersion reqVersion = {};
+    bool bVerSetMajor     = false;
+    bool bVerSetMinor     = false;
 
     // iterate through all filters and populate cfgPropsAll
-    std::list<ConfigCtxVPL *>::iterator it = configCtxList.begin();
+    auto it = configCtxList.begin();
+
     while (it != configCtxList.end()) {
         ConfigCtxVPL *config = (*it);
-
-        idx = config->m_propIdx;
         it++;
 
-        //if index is invalid continue to the next filter
-        if (idx >= eProp_TotalProps)
-            continue;
-
-        // if property is required function, add to list which will be checked below
-        if (idx == ePropFunc_FunctionName) {
-            implFunctionList.push_back(config->m_implFunctionName);
-            continue;
+        // initially all properties are unset
+        mfxVariant cfgPropsAll[eProp_TotalProps] = {};
+        for (idx = 0; idx < eProp_TotalProps; idx++) {
+            cfgPropsAll[idx].Type = MFX_VARIANT_TYPE_UNSET;
         }
 
-        // ignore config objects that were never assigned a property
-        if (config->m_propValue.Type == MFX_VARIANT_TYPE_UNSET)
-            continue;
+        for (idx = 0; idx < eProp_TotalProps; idx++) {
+            // ignore unset properties
+            if (config->m_propVar[idx].Type == MFX_VARIANT_TYPE_UNSET)
+                continue;
 
-        // save duplicates for check in second pass (prop has already been set)
-        if (cfgPropsAll[idx].Type != MFX_VARIANT_TYPE_UNSET) {
-            configCtxListDups.push_back(config);
-            continue;
+            // if property is required function, add to list which will be checked below
+            if (idx == ePropFunc_FunctionName) {
+                implFunctionList.push_back(config->m_implFunctionName);
+                continue;
+            }
+
+            cfgPropsAll[idx].Type = config->m_propVar[idx].Type;
+            cfgPropsAll[idx].Data = config->m_propVar[idx].Data;
+
+            if (idx >= ePropDec_CodecID && idx <= ePropDec_ColorFormats)
+                decRequested = true;
+            else if (idx >= ePropEnc_CodecID && idx <= ePropEnc_ColorFormats)
+                encRequested = true;
+            else if (idx >= ePropVPP_FilterFourCC && idx <= ePropVPP_OutFormat)
+                vppRequested = true;
         }
 
-        cfgPropsAll[idx].Type = config->m_propValue.Type;
-        cfgPropsAll[idx].Data = config->m_propValue.Data;
+        // if already marked invalid, no need to check props again
+        // however we still need to iterate over all of the config objects
+        //   to get any non-filtering properties (returned in SpecialConfig)
+        if (bImplValid == true) {
+            if (CheckPropsGeneral(cfgPropsAll, libImplDesc))
+                bImplValid = false;
 
-        if (idx >= ePropDec_CodecID && idx <= ePropDec_ColorFormats)
-            decRequested = true;
-        else if (idx >= ePropEnc_CodecID && idx <= ePropEnc_ColorFormats)
-            encRequested = true;
-        else if (idx >= ePropVPP_FilterFourCC && idx <= ePropVPP_OutFormat)
-            vppRequested = true;
+            // MSDK RT compatibility mode (1.x) does not provide Dec/Enc/VPP caps
+            // ignore these filters if set (do not use them to _exclude_ the library)
+            if (libType != LibTypeMSDK) {
+                if (decRequested && CheckPropsDec(cfgPropsAll, decConfigList))
+                    bImplValid = false;
+
+                if (encRequested && CheckPropsEnc(cfgPropsAll, encConfigList))
+                    bImplValid = false;
+
+                if (vppRequested && CheckPropsVPP(cfgPropsAll, vppConfigList))
+                    bImplValid = false;
+            }
+        }
+
+        // update any special (including non-filtering) properties, for use by caller
+        // if multiple cfg objects set the same non-filtering property, the last (most recent) one is used
+        if (cfgPropsAll[ePropSpecial_HandleType].Type != MFX_VARIANT_TYPE_UNSET) {
+            specialConfig->deviceHandleType =
+                (mfxHandleType)cfgPropsAll[ePropSpecial_HandleType].Data.U32;
+            specialConfig->bIsSet_deviceHandleType = true;
+        }
+
+        if (cfgPropsAll[ePropSpecial_Handle].Type != MFX_VARIANT_TYPE_UNSET) {
+            specialConfig->deviceHandle        = (mfxHDL)cfgPropsAll[ePropSpecial_Handle].Data.Ptr;
+            specialConfig->bIsSet_deviceHandle = true;
+        }
+
+        if (cfgPropsAll[ePropSpecial_DXGIAdapterIndex].Type != MFX_VARIANT_TYPE_UNSET) {
+            specialConfig->dxgiAdapterIdx =
+                (mfxU32)cfgPropsAll[ePropSpecial_DXGIAdapterIndex].Data.U32;
+            specialConfig->bIsSet_dxgiAdapterIdx = true;
+        }
+
+        if (cfgPropsAll[ePropMain_AccelerationMode].Type != MFX_VARIANT_TYPE_UNSET) {
+            specialConfig->accelerationMode =
+                (mfxAccelerationMode)cfgPropsAll[ePropMain_AccelerationMode].Data.U32;
+            specialConfig->bIsSet_accelerationMode = true;
+        }
+
+        // special handling for API version which may be passed either as single U32 (Version)
+        //   or two U16 (Major, Minor) which could come in separate cfg objects
+        if (cfgPropsAll[ePropMain_ApiVersion].Type != MFX_VARIANT_TYPE_UNSET) {
+            reqVersion.Version = (mfxU32)cfgPropsAll[ePropMain_ApiVersion].Data.U32;
+            bVerSetMajor       = true;
+            bVerSetMinor       = true;
+        }
+        else {
+            if (cfgPropsAll[ePropMain_ApiVersion_Major].Type != MFX_VARIANT_TYPE_UNSET) {
+                reqVersion.Major = (mfxU32)cfgPropsAll[ePropMain_ApiVersion_Major].Data.U16;
+                bVerSetMajor     = true;
+            }
+
+            if (cfgPropsAll[ePropMain_ApiVersion_Minor].Type != MFX_VARIANT_TYPE_UNSET) {
+                reqVersion.Minor = (mfxU32)cfgPropsAll[ePropMain_ApiVersion_Minor].Data.U16;
+                bVerSetMinor     = true;
+            }
+        }
     }
+
+    if (bVerSetMajor && bVerSetMinor) {
+        // require both Major and Minor to be set if filtering this way
+        if (libImplDesc->ApiVersion.Version < reqVersion.Version)
+            bImplValid = false;
+
+        specialConfig->ApiVersion.Version = reqVersion.Version;
+        specialConfig->bIsSet_ApiVersion  = true;
+    }
+
+    if (bImplValid == false)
+        return MFX_ERR_UNSUPPORTED;
 
     // check whether required functions are implemented
     if (!implFunctionList.empty()) {
@@ -955,98 +1071,55 @@ mfxStatus ConfigCtxVPL::ValidateConfig(mfxImplDescription *libImplDesc,
         }
     }
 
-    // update any special (including non-filtering) properties, for use by caller
-    if (cfgPropsAll[ePropSpecial_HandleType].Type != MFX_VARIANT_TYPE_UNSET)
-        specialConfig->deviceHandleType =
-            (mfxHandleType)cfgPropsAll[ePropSpecial_HandleType].Data.U32;
-
-    if (cfgPropsAll[ePropSpecial_Handle].Type != MFX_VARIANT_TYPE_UNSET)
-        specialConfig->deviceHandle = (mfxHDL)cfgPropsAll[ePropSpecial_Handle].Data.Ptr;
-
-    if (cfgPropsAll[ePropMain_ApiVersion].Type != MFX_VARIANT_TYPE_UNSET) {
-        specialConfig->ApiVersion.Version = (mfxU32)cfgPropsAll[ePropMain_ApiVersion].Data.U32;
-    }
-    else if (cfgPropsAll[ePropMain_ApiVersion_Major].Type != MFX_VARIANT_TYPE_UNSET &&
-             cfgPropsAll[ePropMain_ApiVersion_Minor].Type != MFX_VARIANT_TYPE_UNSET) {
-        specialConfig->ApiVersion.Major = cfgPropsAll[ePropMain_ApiVersion_Major].Data.U16;
-        specialConfig->ApiVersion.Minor = cfgPropsAll[ePropMain_ApiVersion_Minor].Data.U16;
-    }
-
-    if (cfgPropsAll[ePropMain_AccelerationMode].Type != MFX_VARIANT_TYPE_UNSET)
-        specialConfig->accelerationMode =
-            (mfxAccelerationMode)cfgPropsAll[ePropMain_AccelerationMode].Data.U32;
-
-    // generate "flat" descriptions of each combination
-    //   (e.g. multiple profiles from the same codec)
-    GetFlatDescriptionsDec(libImplDesc, decConfigList);
-    GetFlatDescriptionsEnc(libImplDesc, encConfigList);
-    GetFlatDescriptionsVPP(libImplDesc, vppConfigList);
-
-    sts = CheckPropsGeneral(cfgPropsAll, libImplDesc);
-    if (sts)
-        return sts;
-
-    // early exit - MSDK RT compatibility mode (1.x) does not provide Dec/Enc/VPP caps
-    // ignore these filters if set (do not use them to _exclude_ the library)
-    if (libType == LibTypeMSDK)
-        return MFX_ERR_NONE;
-
-    if (decRequested) {
-        sts = CheckPropsDec(cfgPropsAll, decConfigList);
-        if (sts)
-            return sts;
-    }
-
-    if (encRequested) {
-        sts = CheckPropsEnc(cfgPropsAll, encConfigList);
-        if (sts)
-            return sts;
-    }
-
-    if (vppRequested) {
-        sts = CheckPropsVPP(cfgPropsAll, vppConfigList);
-        if (sts)
-            return sts;
-    }
-
-    // second pass - if multiple filters were set with the same property,
-    //   confirm that implementation supports all of them
-    //
-    // NOTE: the order of calling MFXSetConfigFilterProperty() can affect
-    //   the logic here if user does something unusual such as setting
-    //   two CodecId's AND two Profiles - how do we know which profile
-    //   is associated with which codec? (it is just some integer)
-    // Probably need to add more information to the spec to clarify
-    //   allowable combinations of filter properties.
-    std::list<ConfigCtxVPL *>::iterator it2 = configCtxListDups.begin();
-    while (it2 != configCtxListDups.end()) {
-        ConfigCtxVPL *config = (*it2);
-
-        idx = config->m_propIdx;
-        sts = MFX_ERR_NONE;
-        it2++;
-
-        //if index is invalid continue to the next filter
-        if (idx >= eProp_TotalProps)
-            continue;
-
-        cfgPropsAll[idx].Type = config->m_propValue.Type;
-        cfgPropsAll[idx].Data = config->m_propValue.Data;
-
-        // re-test based on the type of parameter (e.g. a second decoder
-        //   type just requires checking the decoder configurations)
-        // no need to test general (top-level) properties, as they can
-        //   only have a single value
-        if (idx >= ePropDec_CodecID && idx <= ePropDec_ColorFormats)
-            sts = CheckPropsDec(cfgPropsAll, decConfigList);
-        else if (idx >= ePropEnc_CodecID && idx <= ePropEnc_ColorFormats)
-            sts = CheckPropsEnc(cfgPropsAll, encConfigList);
-        else if (idx >= ePropVPP_FilterFourCC && idx <= ePropVPP_OutFormat)
-            sts = CheckPropsVPP(cfgPropsAll, vppConfigList);
-
-        if (sts)
-            return sts;
-    }
-
     return MFX_ERR_NONE;
+}
+
+bool ConfigCtxVPL::ParseDeviceIDx86(mfxChar *cDeviceID, mfxU32 &deviceID, mfxU32 &adapterIdx) {
+    std::string strDevID(cDeviceID);
+    std::regex reDevIDAll("[0-9a-fA-F]+/[0-9]+");
+    std::regex reDevIDMin("[0-9a-fA-F]+");
+
+    deviceID   = DEVICE_ID_UNKNOWN;
+    adapterIdx = ADAPTER_IDX_UNKNOWN;
+
+    bool bHasAdapterIdx = false;
+    if (std::regex_match(strDevID, reDevIDAll)) {
+        // check for DeviceID in format "devID/adapterIdx"
+        //   devID = hex value
+        //   adapterIdx = decimal integer
+        bHasAdapterIdx = true;
+    }
+    else if (std::regex_match(strDevID, reDevIDMin)) {
+        // check for DeviceID in format "devID"
+        //   (no adpaterIdx)
+        bHasAdapterIdx = false;
+    }
+    else {
+        // invalid format
+        return false;
+    }
+
+    // get deviceID (value before the slash, if present)
+    try {
+        deviceID = std::stoi(strDevID, 0, 16);
+    }
+    catch (...) {
+        return false;
+    }
+
+    if (bHasAdapterIdx) {
+        // get adapter index (value after the slash)
+        size_t idx = strDevID.rfind('/');
+        if (idx == std::string::npos)
+            return false;
+
+        try {
+            adapterIdx = std::stoi(strDevID.substr(idx + 1));
+        }
+        catch (...) {
+            return false;
+        }
+    }
+
+    return true;
 }

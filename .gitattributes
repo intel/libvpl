@@ -3,6 +3,7 @@
 
 # force line endings for scripts
 *.sh eol=lf
+*.sh.in eol=lf
 *.py eol=lf
 script/* eol=lf
 *.bat eol=crlf
