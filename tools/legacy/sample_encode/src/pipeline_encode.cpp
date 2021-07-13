@@ -1958,7 +1958,7 @@ mfxStatus CEncodingPipeline::Init(sInputParams *pParams) {
     // create preprocessor if resizing was requested from command line
     // or if different FourCC is set
     if (pParams->nWidth != pParams->nDstWidth || pParams->nHeight != pParams->nDstHeight ||
-        pParams->FileInputFourCC != pParams->EncodeFourCC)
+        m_InputFourCC != pParams->EncodeFourCC)
 
     {
         bVpp = true;
