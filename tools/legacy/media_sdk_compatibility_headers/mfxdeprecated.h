@@ -25,24 +25,24 @@ enum {
 };
 
 mfxStatus MFX_CDECL MFXVideoVPP_RunFrameVPPAsyncEx(mfxSession session,
-                                                   mfxFrameSurface1 *in,
-                                                   mfxFrameSurface1 *surface_work,
-                                                   mfxFrameSurface1 **surface_out,
-                                                   mfxSyncPoint *syncp);
+                                                   mfxFrameSurface1* in,
+                                                   mfxFrameSurface1* surface_work,
+                                                   mfxFrameSurface1** surface_out,
+                                                   mfxSyncPoint* syncp);
 
 MFX_PACK_BEGIN_STRUCT_W_PTR()
 typedef struct {
     mfxU32 reserved[4];
     mfxHDL pthis;
-    mfxStatus(MFX_CDECL *Alloc)(mfxHDL pthis, mfxU32 nbytes, mfxU16 type, mfxMemId *mid);
-    mfxStatus(MFX_CDECL *Lock)(mfxHDL pthis, mfxMemId mid, mfxU8 **ptr);
-    mfxStatus(MFX_CDECL *Unlock)(mfxHDL pthis, mfxMemId mid);
-    mfxStatus(MFX_CDECL *Free)(mfxHDL pthis, mfxMemId mid);
+    mfxStatus(MFX_CDECL* Alloc)(mfxHDL pthis, mfxU32 nbytes, mfxU16 type, mfxMemId* mid);
+    mfxStatus(MFX_CDECL* Lock)(mfxHDL pthis, mfxMemId mid, mfxU8** ptr);
+    mfxStatus(MFX_CDECL* Unlock)(mfxHDL pthis, mfxMemId mid);
+    mfxStatus(MFX_CDECL* Free)(mfxHDL pthis, mfxMemId mid);
 } mfxBufferAllocator;
 MFX_PACK_END()
 
 mfxStatus MFX_CDECL MFXVideoCORE_SetBufferAllocator(mfxSession session,
-                                                    mfxBufferAllocator *allocator);
+                                                    mfxBufferAllocator* allocator);
 
     #if defined(MFX_ENABLE_OPAQUE_MEMORY)
         //Sanity check
@@ -62,7 +62,7 @@ typedef struct {
     mfxExtBuffer Header;
     mfxU32 reserved1[2];
     struct {
-        mfxFrameSurface1 **Surfaces;
+        mfxFrameSurface1** Surfaces;
         mfxU32 reserved2[5];
         mfxU16 Type;
         mfxU16 NumSurface;
@@ -72,12 +72,12 @@ MFX_PACK_END()
 
 mfxStatus MFX_CDECL MFXDoWork(mfxSession session);
 
-mfxStatus MFX_CDECL MFXVideoENC_Query(mfxSession session, mfxVideoParam *in, mfxVideoParam *out);
+mfxStatus MFX_CDECL MFXVideoENC_Query(mfxSession session, mfxVideoParam* in, mfxVideoParam* out);
 mfxStatus MFX_CDECL MFXVideoENC_QueryIOSurf(mfxSession session,
-                                            mfxVideoParam *par,
-                                            mfxFrameAllocRequest *request);
-mfxStatus MFX_CDECL MFXVideoENC_Init(mfxSession session, mfxVideoParam *par);
-mfxStatus MFX_CDECL MFXVideoENC_Reset(mfxSession session, mfxVideoParam *par);
+                                            mfxVideoParam* par,
+                                            mfxFrameAllocRequest* request);
+mfxStatus MFX_CDECL MFXVideoENC_Init(mfxSession session, mfxVideoParam* par);
+mfxStatus MFX_CDECL MFXVideoENC_Reset(mfxSession session, mfxVideoParam* par);
 mfxStatus MFX_CDECL MFXVideoENC_Close(mfxSession session);
 
 typedef struct _mfxENCInput {
@@ -85,11 +85,11 @@ typedef struct _mfxENCInput {
 typedef struct _mfxENCOutput {
 } mfxENCOutput;
 mfxStatus MFX_CDECL MFXVideoENC_ProcessFrameAsync(mfxSession session,
-                                                  mfxENCInput *in,
-                                                  mfxENCOutput *out,
-                                                  mfxSyncPoint *syncp);
+                                                  mfxENCInput* in,
+                                                  mfxENCOutput* out,
+                                                  mfxSyncPoint* syncp);
 
-mfxStatus MFX_CDECL MFXVideoENC_GetVideoParam(mfxSession session, mfxVideoParam *par);
+mfxStatus MFX_CDECL MFXVideoENC_GetVideoParam(mfxSession session, mfxVideoParam* par);
 
 MFX_PACK_BEGIN_STRUCT_W_PTR()
 typedef struct {
@@ -101,20 +101,20 @@ typedef struct {
 } mfxPAKOutput;
 MFX_PACK_END()
 
-mfxStatus MFX_CDECL MFXVideoPAK_Query(mfxSession session, mfxVideoParam *in, mfxVideoParam *out);
+mfxStatus MFX_CDECL MFXVideoPAK_Query(mfxSession session, mfxVideoParam* in, mfxVideoParam* out);
 mfxStatus MFX_CDECL MFXVideoPAK_QueryIOSurf(mfxSession session,
-                                            mfxVideoParam *par,
+                                            mfxVideoParam* par,
                                             mfxFrameAllocRequest request[2]);
-mfxStatus MFX_CDECL MFXVideoPAK_Init(mfxSession session, mfxVideoParam *par);
-mfxStatus MFX_CDECL MFXVideoPAK_Reset(mfxSession session, mfxVideoParam *par);
+mfxStatus MFX_CDECL MFXVideoPAK_Init(mfxSession session, mfxVideoParam* par);
+mfxStatus MFX_CDECL MFXVideoPAK_Reset(mfxSession session, mfxVideoParam* par);
 mfxStatus MFX_CDECL MFXVideoPAK_Close(mfxSession session);
 
 mfxStatus MFX_CDECL MFXVideoPAK_ProcessFrameAsync(mfxSession session,
-                                                  mfxPAKInput *in,
-                                                  mfxPAKOutput *out,
-                                                  mfxSyncPoint *syncp);
+                                                  mfxPAKInput* in,
+                                                  mfxPAKOutput* out,
+                                                  mfxSyncPoint* syncp);
 
-mfxStatus MFX_CDECL MFXVideoPAK_GetVideoParam(mfxSession session, mfxVideoParam *par);
+mfxStatus MFX_CDECL MFXVideoPAK_GetVideoParam(mfxSession session, mfxVideoParam* par);
 
 enum {
     /*!

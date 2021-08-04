@@ -74,7 +74,7 @@ public:
     /// @param[out] frame data storage
     /// @return True if data was read
     virtual bool get_data(std::shared_ptr<frame_surface> frame) {
-        auto [info, data] = frame->map(memory_access::write);
+        auto data = frame->map_data(memory_access::write);
 
         /// @todo verify buffer availability
 
@@ -105,7 +105,7 @@ public:
             }
             case oneapi::vpl::color_format_fourcc::bgra: {
                 pitch    = data.get_pitch();
-                auto [R, G, B, A] = data.get_plane_ptrs_4();
+                auto B = data.get_plane_ptrs_1_BGRA();
 
                 read_blob(B, pitch, width_ * 4, heigth_);
             }
@@ -181,7 +181,7 @@ public:
     /// @param[out] frame data storage
     /// @return True if data was read
     virtual bool get_data(std::shared_ptr<frame_surface> frame) {
-        auto [info, data] = frame->map(memory_access::write);
+        auto data = frame->map_data(memory_access::write);
 
         /// @todo verify buffer avialability
         uint32_t pitch = 0;
@@ -211,7 +211,7 @@ public:
             }
             case oneapi::vpl::color_format_fourcc::bgra: {
                 pitch    = data.get_pitch();
-                auto [R, G, B, A] = data.get_plane_ptrs_4();
+                auto B = data.get_plane_ptrs_1_BGRA();
 
                 read_blob(B, pitch, width_ * 4, heigth_);
             }

@@ -108,6 +108,7 @@ void InferFrame(mfxFrameSurface1 *surface,
 int main(int argc, char *argv[]) {
     FILE *source                    = NULL;
     FILE *sink                      = NULL;
+    int accel_fd                    = 0;
     mfxSession session              = NULL;
     mfxFrameSurface1 *decSurfaceOut = NULL;
     void *accelHandle               = NULL;
@@ -184,7 +185,7 @@ int main(int argc, char *argv[]) {
     ShowImplementationInfo(loader, 0);
 
     // Convenience function to initialize available accelerator(s)
-    accelHandle = InitAcceleratorHandle(session);
+    accelHandle = InitAcceleratorHandle(session, &accel_fd);
 
     // Prepare input bitstream and start decoding
     bitstream.MaxLength = BITSTREAM_BUFFER_SIZE;
@@ -247,7 +248,17 @@ int main(int argc, char *argv[]) {
                     sts = decSurfaceOut->FrameInterface->Synchronize(decSurfaceOut,
                                                                      WAIT_100_MILLISECONDS);
                     if (MFX_ERR_NONE == sts) {
+                        decSurfaceOut->FrameInterface->Map(decSurfaceOut, MFX_MAP_READ);
+                        VERIFY(MFX_ERR_NONE == sts, "mfxFrameSurfaceInterface->Map failed");
+
                         InferFrame(decSurfaceOut, &infer_request, input_name, output_name);
+
+                        sts = decSurfaceOut->FrameInterface->Unmap(decSurfaceOut);
+                        VERIFY(MFX_ERR_NONE == sts, "mfxFrameSurfaceInterface->Unmap failed");
+
+                        sts = decSurfaceOut->FrameInterface->Release(decSurfaceOut);
+                        VERIFY(MFX_ERR_NONE == sts, "mfxFrameSurfaceInterface->Release failed");
+
                         frameNum++;
                     }
                 } while (sts == MFX_WRN_IN_EXECUTION);
@@ -312,7 +323,7 @@ end:
         free(bitstream.Data);
 
     if (accelHandle)
-        FreeAcceleratorHandle(accelHandle);
+        FreeAcceleratorHandle(accelHandle, accel_fd);
 
     return 0;
 }

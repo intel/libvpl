@@ -46,7 +46,7 @@ public:
         m_mid_to_report = (mfxMemId)((uintptr_t)&m_mid | ((uintptr_t)1 << bits_offset));
         if (0 != ((uintptr_t)mid >> bits_offset)) {
             //it points to extended structure
-            mfxMedIdEx *pMemIdExt = reinterpret_cast<mfxMedIdEx *>((uintptr_t)mid & clear_mask);
+            mfxMedIdEx* pMemIdExt = reinterpret_cast<mfxMedIdEx*>((uintptr_t)mid & clear_mask);
             m_mid.pId             = pMemIdExt->pId;
             if (reuse == flag) {
                 m_mid.read_write = pMemIdExt->read_write;
@@ -97,7 +97,7 @@ struct ID3D11VideoDevice;
 struct ID3D11VideoContext;
 
 struct D3D11AllocatorParams : mfxAllocatorParams {
-    ID3D11Device *pDevice;
+    ID3D11Device* pDevice;
     bool bUseSingleTexture;
     DWORD uncompressedResourceMiscFlags;
 
@@ -109,40 +109,40 @@ public:
     D3D11FrameAllocator();
     virtual ~D3D11FrameAllocator();
 
-    virtual mfxStatus Init(mfxAllocatorParams *pParams);
+    virtual mfxStatus Init(mfxAllocatorParams* pParams);
     virtual mfxStatus Close();
-    virtual ID3D11Device *GetD3D11Device() {
+    virtual ID3D11Device* GetD3D11Device() {
         return m_initParams.pDevice;
     };
-    virtual mfxStatus LockFrame(mfxMemId mid, mfxFrameData *ptr);
-    virtual mfxStatus UnlockFrame(mfxMemId mid, mfxFrameData *ptr);
-    virtual mfxStatus GetFrameHDL(mfxMemId mid, mfxHDL *handle);
+    virtual mfxStatus LockFrame(mfxMemId mid, mfxFrameData* ptr);
+    virtual mfxStatus UnlockFrame(mfxMemId mid, mfxFrameData* ptr);
+    virtual mfxStatus GetFrameHDL(mfxMemId mid, mfxHDL* handle);
 
 protected:
     static DXGI_FORMAT ConverColortFormat(mfxU32 fourcc);
-    virtual mfxStatus CheckRequestType(mfxFrameAllocRequest *request);
-    virtual mfxStatus ReleaseResponse(mfxFrameAllocResponse *response);
-    virtual mfxStatus AllocImpl(mfxFrameAllocRequest *request, mfxFrameAllocResponse *response);
+    virtual mfxStatus CheckRequestType(mfxFrameAllocRequest* request);
+    virtual mfxStatus ReleaseResponse(mfxFrameAllocResponse* response);
+    virtual mfxStatus AllocImpl(mfxFrameAllocRequest* request, mfxFrameAllocResponse* response);
     virtual mfxStatus ReallocImpl(mfxMemId midIn,
-                                  const mfxFrameInfo *info,
+                                  const mfxFrameInfo* info,
                                   mfxU16 memType,
-                                  mfxMemId *midOut);
+                                  mfxMemId* midOut);
 
     D3D11AllocatorParams m_initParams;
-    ID3D11DeviceContext *m_pDeviceContext;
+    ID3D11DeviceContext* m_pDeviceContext;
 
     struct TextureResource {
         std::vector<mfxMemId> outerMids;
-        std::vector<ID3D11Texture2D *> textures;
-        std::vector<ID3D11Texture2D *> stagingTexture;
+        std::vector<ID3D11Texture2D*> textures;
+        std::vector<ID3D11Texture2D*> stagingTexture;
         bool bAlloc;
 
         TextureResource() : outerMids(), textures(), stagingTexture(), bAlloc(true) {}
 
-        static bool isAllocated(TextureResource &that) {
+        static bool isAllocated(TextureResource& that) {
             return that.bAlloc;
         }
-        ID3D11Texture2D *GetTexture(mfxMemId id) {
+        ID3D11Texture2D* GetTexture(mfxMemId id) {
             if (outerMids.empty())
                 return NULL;
 
@@ -171,13 +171,13 @@ protected:
         }
     };
     class TextureSubResource {
-        TextureResource *m_pTarget;
-        ID3D11Texture2D *m_pTexture;
-        ID3D11Texture2D *m_pStaging;
+        TextureResource* m_pTarget;
+        ID3D11Texture2D* m_pTexture;
+        ID3D11Texture2D* m_pStaging;
         UINT m_subResource;
 
     public:
-        TextureSubResource(TextureResource *pTarget = NULL, mfxMemId id = 0)
+        TextureSubResource(TextureResource* pTarget = NULL, mfxMemId id = 0)
                 : m_pTarget(pTarget),
                   m_pTexture(),
                   m_subResource(),
@@ -191,10 +191,10 @@ protected:
                     m_pTarget->stagingTexture.empty() ? NULL : m_pTarget->stagingTexture[idx];
             }
         }
-        ID3D11Texture2D *GetStaging() const {
+        ID3D11Texture2D* GetStaging() const {
             return m_pStaging;
         }
-        ID3D11Texture2D *GetTexture() const {
+        ID3D11Texture2D* GetTexture() const {
             return m_pTexture;
         }
         UINT GetSubResource() const {

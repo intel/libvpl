@@ -35,6 +35,7 @@ void Usage(void) {
 int main(int argc, char *argv[]) {
     FILE *source                    = NULL;
     FILE *sink                      = NULL;
+    int accel_fd                    = 0;
     mfxSession session              = NULL;
     mfxVideoParam encodeParams      = {};
     mfxFrameSurface1 *encSurfaceIn  = NULL;
@@ -43,7 +44,6 @@ int main(int argc, char *argv[]) {
     void *accelHandle               = NULL;
     mfxBitstream bitstream          = { 0 };
     mfxSyncPoint syncp              = { 0 };
-    mfxVersion version              = { 0, 1 };
     mfxFrameAllocRequest encRequest = {};
     mfxU32 framenum                 = 0;
     bool isDraining                 = false;
@@ -51,6 +51,11 @@ int main(int argc, char *argv[]) {
     int nIndex                      = -1;
     mfxStatus sts                   = MFX_ERR_NONE;
     Params cliParams                = { 0 };
+
+    // variables used only in 2.x version
+    mfxConfig cfg[2];
+    mfxVariant cfgVal[2];
+    mfxLoader loader = NULL;
 
     //Parse command line args to cliParams
     if (ParseArgsAndValidate(argc, argv, &cliParams, PARAMS_DECODE) == false) {
@@ -65,14 +70,37 @@ int main(int argc, char *argv[]) {
     VERIFY(sink, "Could not create output file");
 
     // Initialize VPL session
-    sts = MFXInit(cliParams.impl, &version, &session);
-    VERIFY(MFX_ERR_NONE == sts, "Not able to create VPL session");
+    loader = MFXLoad();
+    VERIFY(NULL != loader, "MFXLoad failed -- is implementation in path?");
+
+    // Implementation used must be the type requested from command line
+    cfg[0] = MFXCreateConfig(loader);
+    VERIFY(NULL != cfg[0], "MFXCreateConfig failed")
+
+    sts =
+        MFXSetConfigFilterProperty(cfg[0], (mfxU8 *)"mfxImplDescription.Impl", cliParams.implValue);
+    VERIFY(MFX_ERR_NONE == sts, "MFXSetConfigFilterProperty failed for Impl");
+
+    // Implementation must provide an HEVC encoder
+    cfg[1] = MFXCreateConfig(loader);
+    VERIFY(NULL != cfg[1], "MFXCreateConfig failed")
+    cfgVal[1].Type     = MFX_VARIANT_TYPE_U32;
+    cfgVal[1].Data.U32 = MFX_CODEC_HEVC;
+    sts                = MFXSetConfigFilterProperty(
+        cfg[1],
+        (mfxU8 *)"mfxImplDescription.mfxEncoderDescription.encoder.CodecID",
+        cfgVal[1]);
+    VERIFY(MFX_ERR_NONE == sts, "MFXSetConfigFilterProperty failed for encoder CodecID");
+
+    sts = MFXCreateSession(loader, 0, &session);
+    VERIFY(MFX_ERR_NONE == sts,
+           "Cannot create session -- no implementations meet selection criteria");
 
     // Print info about implementation loaded
-    ShowImplInfo(session);
+    ShowImplementationInfo(loader, 0);
 
     // Convenience function to initialize available accelerator(s)
-    accelHandle = InitAcceleratorHandle(session);
+    accelHandle = InitAcceleratorHandle(session, &accel_fd);
 
     // Initialize encode parameters
     encodeParams.mfx.CodecId                 = MFX_CODEC_HEVC;
@@ -199,7 +227,10 @@ end:
         fclose(sink);
 
     if (accelHandle)
-        FreeAcceleratorHandle(accelHandle);
+        FreeAcceleratorHandle(accelHandle, accel_fd);
+
+    if (loader)
+        MFXUnload(loader);
 
     return 0;
 }

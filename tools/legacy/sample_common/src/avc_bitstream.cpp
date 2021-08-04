@@ -9,9 +9,9 @@
 
 namespace ProtectedLibrary {
 
-mfxStatus DecodeExpGolombOne(mfxU32 **ppBitStream,
-                             mfxI32 *pBitOffset,
-                             mfxI32 *pDst,
+mfxStatus DecodeExpGolombOne(mfxU32** ppBitStream,
+                             mfxI32* pBitOffset,
+                             mfxI32* pDst,
                              mfxI32 isSigned);
 
 enum { SCLFLAT16 = 0, SCLDEFAULT = 1, SCLREDEFINED = 2 };
@@ -157,22 +157,22 @@ const mfxI32 hp_scan8x8[2][64] = {
         (data) = x & bits_data[nbits];               \
     }
 
-inline void FillFlatScalingList4x4(AVCScalingList4x4 *scl) {
+inline void FillFlatScalingList4x4(AVCScalingList4x4* scl) {
     for (mfxI32 i = 0; i < 16; i++)
         scl->ScalingListCoeffs[i] = 16;
 }
 
-inline void FillFlatScalingList8x8(AVCScalingList8x8 *scl) {
+inline void FillFlatScalingList8x8(AVCScalingList8x8* scl) {
     for (mfxI32 i = 0; i < 64; i++)
         scl->ScalingListCoeffs[i] = 16;
 }
 
-inline void FillScalingList4x4(AVCScalingList4x4 *scl_dst, mfxU8 *coefs_src) {
+inline void FillScalingList4x4(AVCScalingList4x4* scl_dst, mfxU8* coefs_src) {
     for (mfxI32 i = 0; i < 16; i++)
         scl_dst->ScalingListCoeffs[i] = coefs_src[i];
 }
 
-inline void FillScalingList8x8(AVCScalingList8x8 *scl_dst, mfxU8 *coefs_src) {
+inline void FillScalingList8x8(AVCScalingList8x8* scl_dst, mfxU8* coefs_src) {
     for (mfxI32 i = 0; i < 64; i++)
         scl_dst->ScalingListCoeffs[i] = coefs_src[i];
 }
@@ -181,29 +181,29 @@ AVCBaseBitstream::AVCBaseBitstream() {
     Reset(0, 0);
 }
 
-AVCBaseBitstream::AVCBaseBitstream(mfxU8 *const pb, const mfxU32 maxsize) {
+AVCBaseBitstream::AVCBaseBitstream(mfxU8* const pb, const mfxU32 maxsize) {
     Reset(pb, maxsize);
 }
 
 AVCBaseBitstream::~AVCBaseBitstream() {}
 
-void AVCBaseBitstream::Reset(mfxU8 *const pb, const mfxU32 maxsize) {
-    m_pbs       = (mfxU32 *)pb;
-    m_pbsBase   = (mfxU32 *)pb;
+void AVCBaseBitstream::Reset(mfxU8* const pb, const mfxU32 maxsize) {
+    m_pbs       = (mfxU32*)pb;
+    m_pbsBase   = (mfxU32*)pb;
     m_bitOffset = 31;
     m_maxBsSize = maxsize;
 
 } // void Reset(mfxU8 * const pb, const mfxU32 maxsize)
 
-void AVCBaseBitstream::Reset(mfxU8 *const pb, mfxI32 offset, const mfxU32 maxsize) {
-    m_pbs       = (mfxU32 *)pb;
-    m_pbsBase   = (mfxU32 *)pb;
+void AVCBaseBitstream::Reset(mfxU8* const pb, mfxI32 offset, const mfxU32 maxsize) {
+    m_pbs       = (mfxU32*)pb;
+    m_pbsBase   = (mfxU32*)pb;
     m_bitOffset = offset;
     m_maxBsSize = maxsize;
 
 } // void Reset(mfxU8 * const pb, mfxI32 offset, const mfxU32 maxsize)
 
-mfxStatus AVCBaseBitstream::GetNALUnitType(NAL_Unit_Type &uNALUnitType, mfxU8 &uNALStorageIDC) {
+mfxStatus AVCBaseBitstream::GetNALUnitType(NAL_Unit_Type& uNALUnitType, mfxU8& uNALStorageIDC) {
     mfxU32 code;
     avcGetBits8(m_pbs, m_bitOffset, code);
 
@@ -230,7 +230,7 @@ void AVCBaseBitstream::AlignPointerRight(void) {
 
 bool AVCBaseBitstream::More_RBSP_Data() {
     mfxI32 code, tmp;
-    mfxU32 *ptr_state = m_pbs;
+    mfxU32* ptr_state = m_pbs;
     mfxI32 bit_state  = m_bitOffset;
 
     SAMPLE_ASSERT(m_bitOffset >= 0 && m_bitOffset <= 31);
@@ -278,14 +278,14 @@ bool AVCBaseBitstream::More_RBSP_Data() {
 
 AVCHeadersBitstream::AVCHeadersBitstream() : AVCBaseBitstream() {}
 
-AVCHeadersBitstream::AVCHeadersBitstream(mfxU8 *const pb, const mfxU32 maxsize)
+AVCHeadersBitstream::AVCHeadersBitstream(mfxU8* const pb, const mfxU32 maxsize)
         : AVCBaseBitstream(pb, maxsize) {}
 
 // ---------------------------------------------------------------------------
 //  AVCBitstream::GetSequenceParamSet()
 //    Read sequence parameter set data from bitstream.
 // ---------------------------------------------------------------------------
-mfxStatus AVCHeadersBitstream::GetSequenceParamSet(AVCSeqParamSet *sps) {
+mfxStatus AVCHeadersBitstream::GetSequenceParamSet(AVCSeqParamSet* sps) {
     // Not all members of the seq param set structure are contained in all
     // seq param sets. So start by init all to zero.
     mfxStatus ps = MFX_ERR_NONE;
@@ -401,90 +401,86 @@ mfxStatus AVCHeadersBitstream::GetSequenceParamSet(AVCSeqParamSet *sps) {
             // 0
             if (Get1Bit()) {
                 GetScalingList4x4(&sps->ScalingLists4x4[0],
-                                  (mfxU8 *)default_intra_scaling_list4x4,
+                                  (mfxU8*)default_intra_scaling_list4x4,
                                   &sps->type_of_scaling_list_used[0]);
             }
             else {
-                FillScalingList4x4(&sps->ScalingLists4x4[0],
-                                   (mfxU8 *)default_intra_scaling_list4x4);
+                FillScalingList4x4(&sps->ScalingLists4x4[0], (mfxU8*)default_intra_scaling_list4x4);
                 sps->type_of_scaling_list_used[0] = SCLDEFAULT;
             }
             // 1
             if (Get1Bit()) {
                 GetScalingList4x4(&sps->ScalingLists4x4[1],
-                                  (mfxU8 *)default_intra_scaling_list4x4,
+                                  (mfxU8*)default_intra_scaling_list4x4,
                                   &sps->type_of_scaling_list_used[1]);
             }
             else {
                 FillScalingList4x4(&sps->ScalingLists4x4[1],
-                                   (mfxU8 *)sps->ScalingLists4x4[0].ScalingListCoeffs);
+                                   (mfxU8*)sps->ScalingLists4x4[0].ScalingListCoeffs);
                 sps->type_of_scaling_list_used[1] = SCLDEFAULT;
             }
             // 2
             if (Get1Bit()) {
                 GetScalingList4x4(&sps->ScalingLists4x4[2],
-                                  (mfxU8 *)default_intra_scaling_list4x4,
+                                  (mfxU8*)default_intra_scaling_list4x4,
                                   &sps->type_of_scaling_list_used[2]);
             }
             else {
                 FillScalingList4x4(&sps->ScalingLists4x4[2],
-                                   (mfxU8 *)sps->ScalingLists4x4[1].ScalingListCoeffs);
+                                   (mfxU8*)sps->ScalingLists4x4[1].ScalingListCoeffs);
                 sps->type_of_scaling_list_used[2] = SCLDEFAULT;
             }
             // 3
             if (Get1Bit()) {
                 GetScalingList4x4(&sps->ScalingLists4x4[3],
-                                  (mfxU8 *)default_inter_scaling_list4x4,
+                                  (mfxU8*)default_inter_scaling_list4x4,
                                   &sps->type_of_scaling_list_used[3]);
             }
             else {
-                FillScalingList4x4(&sps->ScalingLists4x4[3],
-                                   (mfxU8 *)default_inter_scaling_list4x4);
+                FillScalingList4x4(&sps->ScalingLists4x4[3], (mfxU8*)default_inter_scaling_list4x4);
                 sps->type_of_scaling_list_used[3] = SCLDEFAULT;
             }
             // 4
             if (Get1Bit()) {
                 GetScalingList4x4(&sps->ScalingLists4x4[4],
-                                  (mfxU8 *)default_inter_scaling_list4x4,
+                                  (mfxU8*)default_inter_scaling_list4x4,
                                   &sps->type_of_scaling_list_used[4]);
             }
             else {
                 FillScalingList4x4(&sps->ScalingLists4x4[4],
-                                   (mfxU8 *)sps->ScalingLists4x4[3].ScalingListCoeffs);
+                                   (mfxU8*)sps->ScalingLists4x4[3].ScalingListCoeffs);
                 sps->type_of_scaling_list_used[4] = SCLDEFAULT;
             }
             // 5
             if (Get1Bit()) {
                 GetScalingList4x4(&sps->ScalingLists4x4[5],
-                                  (mfxU8 *)default_inter_scaling_list4x4,
+                                  (mfxU8*)default_inter_scaling_list4x4,
                                   &sps->type_of_scaling_list_used[5]);
             }
             else {
                 FillScalingList4x4(&sps->ScalingLists4x4[5],
-                                   (mfxU8 *)sps->ScalingLists4x4[4].ScalingListCoeffs);
+                                   (mfxU8*)sps->ScalingLists4x4[4].ScalingListCoeffs);
                 sps->type_of_scaling_list_used[5] = SCLDEFAULT;
             }
 
             // 0
             if (Get1Bit()) {
                 GetScalingList8x8(&sps->ScalingLists8x8[0],
-                                  (mfxU8 *)default_intra_scaling_list8x8,
+                                  (mfxU8*)default_intra_scaling_list8x8,
                                   &sps->type_of_scaling_list_used[6]);
             }
             else {
-                FillScalingList8x8(&sps->ScalingLists8x8[0],
-                                   (mfxU8 *)default_intra_scaling_list8x8);
+                FillScalingList8x8(&sps->ScalingLists8x8[0], (mfxU8*)default_intra_scaling_list8x8);
                 sps->type_of_scaling_list_used[6] = SCLDEFAULT;
             }
             // 1
             if (Get1Bit()) {
                 GetScalingList8x8(&sps->ScalingLists8x8[1],
-                                  (mfxU8 *)default_inter_scaling_list8x8,
+                                  (mfxU8*)default_inter_scaling_list8x8,
                                   &sps->type_of_scaling_list_used[7]);
             }
             else {
-                FillScalingList8x8(&sps->ScalingLists8x8[1],
-                                   (mfxU8 *)default_inter_scaling_list8x8);
+                FillScalingList8x8(&sps->ScalingLists8x8[1], (mfxU8*)default_inter_scaling_list8x8);
                 sps->type_of_scaling_list_used[7] = SCLDEFAULT;
             }
         }
@@ -586,7 +582,7 @@ mfxStatus AVCHeadersBitstream::GetSequenceParamSet(AVCSeqParamSet *sps) {
     return ps;
 } // GetSequenceParamSet
 
-mfxStatus AVCHeadersBitstream::GetVUIParam(AVCSeqParamSet *sps) {
+mfxStatus AVCHeadersBitstream::GetVUIParam(AVCSeqParamSet* sps) {
     mfxStatus ps                        = MFX_ERR_NONE;
     sps->aspect_ratio_info_present_flag = (mfxU8)Get1Bit();
 
@@ -659,7 +655,7 @@ mfxStatus AVCHeadersBitstream::GetVUIParam(AVCSeqParamSet *sps) {
     return ps;
 }
 
-mfxStatus AVCHeadersBitstream::GetHRDParam(AVCSeqParamSet *sps) {
+mfxStatus AVCHeadersBitstream::GetHRDParam(AVCSeqParamSet* sps) {
     mfxStatus ps   = MFX_ERR_NONE;
     mfxI32 cpb_cnt = GetVLCElement(false) + 1;
 
@@ -686,7 +682,7 @@ mfxStatus AVCHeadersBitstream::GetHRDParam(AVCSeqParamSet *sps) {
 // ---------------------------------------------------------------------------
 //    Read sequence parameter set extension data from bitstream.
 // ---------------------------------------------------------------------------
-mfxStatus AVCHeadersBitstream::GetSequenceParamSetExtension(AVCSeqParamSetExtension *sps_ex) {
+mfxStatus AVCHeadersBitstream::GetSequenceParamSetExtension(AVCSeqParamSetExtension* sps_ex) {
     // Not all members of the seq param set structure are contained in all
     // seq param sets. So start by init all to zero.
     mfxStatus ps = MFX_ERR_NONE;
@@ -724,7 +720,7 @@ mfxStatus AVCHeadersBitstream::GetSequenceParamSetExtension(AVCSeqParamSetExtens
     return ps;
 } // GetSequenceParamSetExtension
 
-mfxStatus AVCHeadersBitstream::GetPictureParamSetPart1(AVCPicParamSet *pps) {
+mfxStatus AVCHeadersBitstream::GetPictureParamSetPart1(AVCPicParamSet* pps) {
     // Not all members of the pic param set structure are contained in all
     // pic param sets. So start by init all to zero.
     pps->Reset();
@@ -752,8 +748,8 @@ static const mfxU8 SGIdBits[7] = { 1, 2, 2, 3, 3, 3, 3 };
 // ---------------------------------------------------------------------------
 //    Read picture parameter set data from bitstream.
 // ---------------------------------------------------------------------------
-mfxStatus AVCHeadersBitstream::GetPictureParamSetPart2(AVCPicParamSet *pps,
-                                                       const AVCSeqParamSet *sps) {
+mfxStatus AVCHeadersBitstream::GetPictureParamSetPart2(AVCPicParamSet* pps,
+                                                       const AVCSeqParamSet* sps) {
     pps->entropy_coding_mode = (mfxU8)Get1Bit();
 
     pps->pic_order_present_flag = (mfxU8)Get1Bit();
@@ -895,67 +891,67 @@ mfxStatus AVCHeadersBitstream::GetPictureParamSetPart2(AVCPicParamSet *pps,
                 // 0
                 if (Get1Bit()) {
                     GetScalingList4x4(&pps->ScalingLists4x4[0],
-                                      (mfxU8 *)default_intra_scaling_list4x4,
+                                      (mfxU8*)default_intra_scaling_list4x4,
                                       &pps->type_of_scaling_list_used[0]);
                 }
                 else {
                     FillScalingList4x4(&pps->ScalingLists4x4[0],
-                                       (mfxU8 *)sps->ScalingLists4x4[0].ScalingListCoeffs);
+                                       (mfxU8*)sps->ScalingLists4x4[0].ScalingListCoeffs);
                     pps->type_of_scaling_list_used[0] = SCLDEFAULT;
                 }
                 // 1
                 if (Get1Bit()) {
                     GetScalingList4x4(&pps->ScalingLists4x4[1],
-                                      (mfxU8 *)default_intra_scaling_list4x4,
+                                      (mfxU8*)default_intra_scaling_list4x4,
                                       &pps->type_of_scaling_list_used[1]);
                 }
                 else {
                     FillScalingList4x4(&pps->ScalingLists4x4[1],
-                                       (mfxU8 *)pps->ScalingLists4x4[0].ScalingListCoeffs);
+                                       (mfxU8*)pps->ScalingLists4x4[0].ScalingListCoeffs);
                     pps->type_of_scaling_list_used[1] = SCLDEFAULT;
                 }
                 // 2
                 if (Get1Bit()) {
                     GetScalingList4x4(&pps->ScalingLists4x4[2],
-                                      (mfxU8 *)default_intra_scaling_list4x4,
+                                      (mfxU8*)default_intra_scaling_list4x4,
                                       &pps->type_of_scaling_list_used[2]);
                 }
                 else {
                     FillScalingList4x4(&pps->ScalingLists4x4[2],
-                                       (mfxU8 *)pps->ScalingLists4x4[1].ScalingListCoeffs);
+                                       (mfxU8*)pps->ScalingLists4x4[1].ScalingListCoeffs);
                     pps->type_of_scaling_list_used[2] = SCLDEFAULT;
                 }
                 // 3
                 if (Get1Bit()) {
                     GetScalingList4x4(&pps->ScalingLists4x4[3],
-                                      (mfxU8 *)default_inter_scaling_list4x4,
+                                      (mfxU8*)default_inter_scaling_list4x4,
                                       &pps->type_of_scaling_list_used[3]);
                 }
                 else {
                     FillScalingList4x4(&pps->ScalingLists4x4[3],
-                                       (mfxU8 *)sps->ScalingLists4x4[3].ScalingListCoeffs);
+                                       (mfxU8*)sps->ScalingLists4x4[3].ScalingListCoeffs);
                     pps->type_of_scaling_list_used[3] = SCLDEFAULT;
                 }
                 // 4
                 if (Get1Bit()) {
                     GetScalingList4x4(&pps->ScalingLists4x4[4],
-                                      (mfxU8 *)default_inter_scaling_list4x4,
+                                      (mfxU8*)default_inter_scaling_list4x4,
                                       &pps->type_of_scaling_list_used[4]);
                 }
                 else {
                     FillScalingList4x4(&pps->ScalingLists4x4[4],
-                                       (mfxU8 *)pps->ScalingLists4x4[3].ScalingListCoeffs);
+                                       (mfxU8*)pps->ScalingLists4x4[3].ScalingListCoeffs);
                     pps->type_of_scaling_list_used[4] = SCLDEFAULT;
                 }
                 // 5
                 if (Get1Bit()) {
                     GetScalingList4x4(&pps->ScalingLists4x4[5],
-                                      (mfxU8 *)default_inter_scaling_list4x4,
+                                      (mfxU8*)default_inter_scaling_list4x4,
                                       &pps->type_of_scaling_list_used[5]);
                 }
                 else {
                     FillScalingList4x4(&pps->ScalingLists4x4[5],
-                                       (mfxU8 *)pps->ScalingLists4x4[4].ScalingListCoeffs);
+                                       (mfxU8*)pps->ScalingLists4x4[4].ScalingListCoeffs);
                     pps->type_of_scaling_list_used[5] = SCLDEFAULT;
                 }
 
@@ -963,23 +959,23 @@ mfxStatus AVCHeadersBitstream::GetPictureParamSetPart2(AVCPicParamSet *pps,
                     // 0
                     if (Get1Bit()) {
                         GetScalingList8x8(&pps->ScalingLists8x8[0],
-                                          (mfxU8 *)default_intra_scaling_list8x8,
+                                          (mfxU8*)default_intra_scaling_list8x8,
                                           &pps->type_of_scaling_list_used[6]);
                     }
                     else {
                         FillScalingList8x8(&pps->ScalingLists8x8[0],
-                                           (mfxU8 *)sps->ScalingLists8x8[0].ScalingListCoeffs);
+                                           (mfxU8*)sps->ScalingLists8x8[0].ScalingListCoeffs);
                         pps->type_of_scaling_list_used[6] = SCLDEFAULT;
                     }
                     // 1
                     if (Get1Bit()) {
                         GetScalingList8x8(&pps->ScalingLists8x8[1],
-                                          (mfxU8 *)default_inter_scaling_list8x8,
+                                          (mfxU8*)default_inter_scaling_list8x8,
                                           &pps->type_of_scaling_list_used[7]);
                     }
                     else {
                         FillScalingList8x8(&pps->ScalingLists8x8[1],
-                                           (mfxU8 *)sps->ScalingLists8x8[1].ScalingListCoeffs);
+                                           (mfxU8*)sps->ScalingLists8x8[1].ScalingListCoeffs);
                         pps->type_of_scaling_list_used[7] = SCLDEFAULT;
                     }
                 }
@@ -988,14 +984,14 @@ mfxStatus AVCHeadersBitstream::GetPictureParamSetPart2(AVCPicParamSet *pps,
                 mfxI32 i;
                 for (i = 0; i < 6; i++) {
                     FillScalingList4x4(&pps->ScalingLists4x4[i],
-                                       (mfxU8 *)sps->ScalingLists4x4[i].ScalingListCoeffs);
+                                       (mfxU8*)sps->ScalingLists4x4[i].ScalingListCoeffs);
                     pps->type_of_scaling_list_used[i] = sps->type_of_scaling_list_used[i];
                 }
 
                 if (pps->transform_8x8_mode_flag) {
                     for (i = 0; i < 2; i++) {
                         FillScalingList8x8(&pps->ScalingLists8x8[i],
-                                           (mfxU8 *)sps->ScalingLists8x8[i].ScalingListCoeffs);
+                                           (mfxU8*)sps->ScalingLists8x8[i].ScalingListCoeffs);
                         pps->type_of_scaling_list_used[i] = sps->type_of_scaling_list_used[i];
                     }
                 }
@@ -1007,67 +1003,67 @@ mfxStatus AVCHeadersBitstream::GetPictureParamSetPart2(AVCPicParamSet *pps,
                 // 0
                 if (Get1Bit()) {
                     GetScalingList4x4(&pps->ScalingLists4x4[0],
-                                      (mfxU8 *)default_intra_scaling_list4x4,
+                                      (mfxU8*)default_intra_scaling_list4x4,
                                       &pps->type_of_scaling_list_used[0]);
                 }
                 else {
                     FillScalingList4x4(&pps->ScalingLists4x4[0],
-                                       (mfxU8 *)default_intra_scaling_list4x4);
+                                       (mfxU8*)default_intra_scaling_list4x4);
                     pps->type_of_scaling_list_used[0] = SCLDEFAULT;
                 }
                 // 1
                 if (Get1Bit()) {
                     GetScalingList4x4(&pps->ScalingLists4x4[1],
-                                      (mfxU8 *)default_intra_scaling_list4x4,
+                                      (mfxU8*)default_intra_scaling_list4x4,
                                       &pps->type_of_scaling_list_used[1]);
                 }
                 else {
                     FillScalingList4x4(&pps->ScalingLists4x4[1],
-                                       (mfxU8 *)pps->ScalingLists4x4[0].ScalingListCoeffs);
+                                       (mfxU8*)pps->ScalingLists4x4[0].ScalingListCoeffs);
                     pps->type_of_scaling_list_used[1] = SCLDEFAULT;
                 }
                 // 2
                 if (Get1Bit()) {
                     GetScalingList4x4(&pps->ScalingLists4x4[2],
-                                      (mfxU8 *)default_intra_scaling_list4x4,
+                                      (mfxU8*)default_intra_scaling_list4x4,
                                       &pps->type_of_scaling_list_used[2]);
                 }
                 else {
                     FillScalingList4x4(&pps->ScalingLists4x4[2],
-                                       (mfxU8 *)pps->ScalingLists4x4[1].ScalingListCoeffs);
+                                       (mfxU8*)pps->ScalingLists4x4[1].ScalingListCoeffs);
                     pps->type_of_scaling_list_used[2] = SCLDEFAULT;
                 }
                 // 3
                 if (Get1Bit()) {
                     GetScalingList4x4(&pps->ScalingLists4x4[3],
-                                      (mfxU8 *)default_inter_scaling_list4x4,
+                                      (mfxU8*)default_inter_scaling_list4x4,
                                       &pps->type_of_scaling_list_used[3]);
                 }
                 else {
                     FillScalingList4x4(&pps->ScalingLists4x4[3],
-                                       (mfxU8 *)default_inter_scaling_list4x4);
+                                       (mfxU8*)default_inter_scaling_list4x4);
                     pps->type_of_scaling_list_used[3] = SCLDEFAULT;
                 }
                 // 4
                 if (Get1Bit()) {
                     GetScalingList4x4(&pps->ScalingLists4x4[4],
-                                      (mfxU8 *)default_inter_scaling_list4x4,
+                                      (mfxU8*)default_inter_scaling_list4x4,
                                       &pps->type_of_scaling_list_used[4]);
                 }
                 else {
                     FillScalingList4x4(&pps->ScalingLists4x4[4],
-                                       (mfxU8 *)pps->ScalingLists4x4[3].ScalingListCoeffs);
+                                       (mfxU8*)pps->ScalingLists4x4[3].ScalingListCoeffs);
                     pps->type_of_scaling_list_used[4] = SCLDEFAULT;
                 }
                 // 5
                 if (Get1Bit()) {
                     GetScalingList4x4(&pps->ScalingLists4x4[5],
-                                      (mfxU8 *)default_inter_scaling_list4x4,
+                                      (mfxU8*)default_inter_scaling_list4x4,
                                       &pps->type_of_scaling_list_used[5]);
                 }
                 else {
                     FillScalingList4x4(&pps->ScalingLists4x4[5],
-                                       (mfxU8 *)pps->ScalingLists4x4[4].ScalingListCoeffs);
+                                       (mfxU8*)pps->ScalingLists4x4[4].ScalingListCoeffs);
                     pps->type_of_scaling_list_used[5] = SCLDEFAULT;
                 }
 
@@ -1075,23 +1071,23 @@ mfxStatus AVCHeadersBitstream::GetPictureParamSetPart2(AVCPicParamSet *pps,
                     // 0
                     if (Get1Bit()) {
                         GetScalingList8x8(&pps->ScalingLists8x8[0],
-                                          (mfxU8 *)default_intra_scaling_list8x8,
+                                          (mfxU8*)default_intra_scaling_list8x8,
                                           &pps->type_of_scaling_list_used[6]);
                     }
                     else {
                         FillScalingList8x8(&pps->ScalingLists8x8[0],
-                                           (mfxU8 *)default_intra_scaling_list8x8);
+                                           (mfxU8*)default_intra_scaling_list8x8);
                         pps->type_of_scaling_list_used[6] = SCLDEFAULT;
                     }
                     // 1
                     if (Get1Bit()) {
                         GetScalingList8x8(&pps->ScalingLists8x8[1],
-                                          (mfxU8 *)default_inter_scaling_list8x8,
+                                          (mfxU8*)default_inter_scaling_list8x8,
                                           &pps->type_of_scaling_list_used[7]);
                     }
                     else {
                         FillScalingList8x8(&pps->ScalingLists8x8[1],
-                                           (mfxU8 *)default_inter_scaling_list8x8);
+                                           (mfxU8*)default_inter_scaling_list8x8);
                         pps->type_of_scaling_list_used[7] = SCLDEFAULT;
                     }
                 }
@@ -1100,14 +1096,14 @@ mfxStatus AVCHeadersBitstream::GetPictureParamSetPart2(AVCPicParamSet *pps,
                 mfxI32 i;
                 for (i = 0; i < 6; i++) {
                     FillScalingList4x4(&pps->ScalingLists4x4[i],
-                                       (mfxU8 *)sps->ScalingLists4x4[i].ScalingListCoeffs);
+                                       (mfxU8*)sps->ScalingLists4x4[i].ScalingListCoeffs);
                     pps->type_of_scaling_list_used[i] = sps->type_of_scaling_list_used[i];
                 }
 
                 if (pps->transform_8x8_mode_flag) {
                     for (i = 0; i < 2; i++) {
                         FillScalingList8x8(&pps->ScalingLists8x8[i],
-                                           (mfxU8 *)sps->ScalingLists8x8[i].ScalingListCoeffs);
+                                           (mfxU8*)sps->ScalingLists8x8[i].ScalingListCoeffs);
                         pps->type_of_scaling_list_used[i] = sps->type_of_scaling_list_used[i];
                     }
                 }
@@ -1120,14 +1116,14 @@ mfxStatus AVCHeadersBitstream::GetPictureParamSetPart2(AVCPicParamSet *pps,
         mfxI32 i;
         for (i = 0; i < 6; i++) {
             FillScalingList4x4(&pps->ScalingLists4x4[i],
-                               (mfxU8 *)sps->ScalingLists4x4[i].ScalingListCoeffs);
+                               (mfxU8*)sps->ScalingLists4x4[i].ScalingListCoeffs);
             pps->type_of_scaling_list_used[i] = sps->type_of_scaling_list_used[i];
         }
 
         if (pps->transform_8x8_mode_flag) {
             for (i = 0; i < 2; i++) {
                 FillScalingList8x8(&pps->ScalingLists8x8[i],
-                                   (mfxU8 *)sps->ScalingLists8x8[i].ScalingListCoeffs);
+                                   (mfxU8*)sps->ScalingLists8x8[i].ScalingListCoeffs);
                 pps->type_of_scaling_list_used[i] = sps->type_of_scaling_list_used[i];
             }
         }
@@ -1160,7 +1156,7 @@ mfxStatus AVCHeadersBitstream::GetPictureParamSetPart2(AVCPicParamSet *pps,
     return MFX_ERR_NONE;
 } // GetPictureParamSet
 
-mfxStatus AVCHeadersBitstream::GetNalUnitPrefix(AVCNalExtension *pExt, mfxU32) {
+mfxStatus AVCHeadersBitstream::GetNalUnitPrefix(AVCNalExtension* pExt, mfxU32) {
     mfxStatus ps = MFX_ERR_NONE;
 
     ps = GetNalUnitExtension(pExt);
@@ -1171,7 +1167,7 @@ mfxStatus AVCHeadersBitstream::GetNalUnitPrefix(AVCNalExtension *pExt, mfxU32) {
     return ps;
 }
 
-mfxStatus AVCHeadersBitstream::GetNalUnitExtension(AVCNalExtension *pExt) {
+mfxStatus AVCHeadersBitstream::GetNalUnitExtension(AVCNalExtension* pExt) {
     pExt->extension_present = 1;
 
     // decode the type of the extension
@@ -1215,7 +1211,7 @@ mfxStatus AVCHeadersBitstream::GetNalUnitExtension(AVCNalExtension *pExt) {
 //    not be reported.
 //
 // ---------------------------------------------------------------------------
-mfxStatus AVCHeadersBitstream::GetSliceHeaderPart1(AVCSliceHeader *hdr) {
+mfxStatus AVCHeadersBitstream::GetSliceHeaderPart1(AVCSliceHeader* hdr) {
     mfxU32 val;
 
     // decode NAL extension
@@ -1271,9 +1267,9 @@ mfxStatus AVCHeadersBitstream::GetSliceHeaderPart1(AVCSliceHeader *hdr) {
 } // mfxStatus GetSliceHeaderPart1(AVCSliceHeader *pSliceHeader)
 
 mfxStatus AVCHeadersBitstream::GetSliceHeaderPart2(
-    AVCSliceHeader *hdr, // slice header read goes here
-    const AVCPicParamSet *pps,
-    const AVCSeqParamSet *sps) // from slice header NAL unit
+    AVCSliceHeader* hdr, // slice header read goes here
+    const AVCPicParamSet* pps,
+    const AVCSeqParamSet* sps) // from slice header NAL unit
 {
     hdr->frame_num = GetBits(sps->log2_max_frame_num);
 
@@ -1327,14 +1323,14 @@ mfxStatus AVCHeadersBitstream::GetSliceHeaderPart2(
 // ---------------------------------------------------------------------------
 
 mfxStatus AVCHeadersBitstream::GetSliceHeaderPart3(
-    AVCSliceHeader *hdr, // slice header read goes here
-    PredWeightTable *pPredWeight_L0, // L0 weight table goes here
-    PredWeightTable *pPredWeight_L1, // L1 weight table goes here
-    RefPicListReorderInfo *pReorderInfo_L0,
-    RefPicListReorderInfo *pReorderInfo_L1,
-    AdaptiveMarkingInfo *pAdaptiveMarkingInfo,
-    const AVCPicParamSet *pps,
-    const AVCSeqParamSet *sps,
+    AVCSliceHeader* hdr, // slice header read goes here
+    PredWeightTable* pPredWeight_L0, // L0 weight table goes here
+    PredWeightTable* pPredWeight_L1, // L1 weight table goes here
+    RefPicListReorderInfo* pReorderInfo_L0,
+    RefPicListReorderInfo* pReorderInfo_L1,
+    AdaptiveMarkingInfo* pAdaptiveMarkingInfo,
+    const AVCPicParamSet* pps,
+    const AVCSeqParamSet* sps,
     mfxU8 NALRef_idc) // from slice header NAL unit
 {
     mfxU8 ref_pic_list_reordering_flag_l0 = 0;
@@ -1626,7 +1622,7 @@ mfxStatus AVCHeadersBitstream::GetSliceHeaderPart3(
     return MFX_ERR_NONE;
 } // GetSliceHeaderPart3()
 
-void AVCHeadersBitstream::GetScalingList4x4(AVCScalingList4x4 *scl, mfxU8 *def, mfxU8 *scl_type) {
+void AVCHeadersBitstream::GetScalingList4x4(AVCScalingList4x4* scl, mfxU8* def, mfxU8* scl_type) {
     mfxU32 lastScale   = 8;
     mfxU32 nextScale   = 8;
     bool DefaultMatrix = false;
@@ -1653,7 +1649,7 @@ void AVCHeadersBitstream::GetScalingList4x4(AVCScalingList4x4 *scl, mfxU8 *def, 
     return;
 }
 
-void AVCHeadersBitstream::GetScalingList8x8(AVCScalingList8x8 *scl, mfxU8 *def, mfxU8 *scl_type) {
+void AVCHeadersBitstream::GetScalingList8x8(AVCScalingList8x8* scl, mfxU8* def, mfxU8* scl_type) {
     mfxU32 lastScale   = 8;
     mfxU32 nextScale   = 8;
     bool DefaultMatrix = false;
@@ -1680,7 +1676,7 @@ void AVCHeadersBitstream::GetScalingList8x8(AVCScalingList8x8 *scl, mfxU8 *def, 
     return;
 }
 
-void SetDefaultScalingLists(AVCSeqParamSet *sps) {
+void SetDefaultScalingLists(AVCSeqParamSet* sps) {
     mfxI32 i;
 
     for (i = 0; i < 6; i += 1) {
@@ -1691,9 +1687,9 @@ void SetDefaultScalingLists(AVCSeqParamSet *sps) {
     }
 }
 
-mfxStatus DecodeExpGolombOne(mfxU32 **ppBitStream,
-                             mfxI32 *pBitOffset,
-                             mfxI32 *pDst,
+mfxStatus DecodeExpGolombOne(mfxU32** ppBitStream,
+                             mfxI32* pBitOffset,
+                             mfxI32* pDst,
                              mfxI32 isSigned) {
     mfxU32 code;
     mfxU32 info             = 0;
@@ -1744,9 +1740,9 @@ mfxStatus DecodeExpGolombOne(mfxU32 **ppBitStream,
     return MFX_ERR_NONE;
 }
 
-mfxI32 AVCHeadersBitstream::GetSEI(const HeaderSet<AVCSeqParamSet> &sps,
+mfxI32 AVCHeadersBitstream::GetSEI(const HeaderSet<AVCSeqParamSet>& sps,
                                    mfxI32 current_sps,
-                                   AVCSEIPayLoad *spl) {
+                                   AVCSEIPayLoad* spl) {
     mfxU32 code;
     mfxI32 payloadType = 0;
 
@@ -1789,7 +1785,7 @@ mfxI32 AVCHeadersBitstream::GetSEI(const HeaderSet<AVCSeqParamSet> &sps,
         throw AVC_exception(MFX_ERR_UNDEFINED_BEHAVIOR);
     }
 
-    mfxU32 *pbs;
+    mfxU32* pbs;
     mfxU32 bitOffsetU;
     mfxI32 bitOffset;
 
@@ -1809,9 +1805,9 @@ mfxI32 AVCHeadersBitstream::GetSEI(const HeaderSet<AVCSeqParamSet> &sps,
     return ret;
 }
 
-mfxI32 AVCHeadersBitstream::GetSEIPayload(const HeaderSet<AVCSeqParamSet> &sps,
+mfxI32 AVCHeadersBitstream::GetSEIPayload(const HeaderSet<AVCSeqParamSet>& sps,
                                           mfxI32 current_sps,
-                                          AVCSEIPayLoad *spl) {
+                                          AVCSEIPayLoad* spl) {
     switch (spl->payLoadType) {
         case SEI_RECOVERY_POINT_TYPE:
             return recovery_point(sps, current_sps, spl);
@@ -1820,18 +1816,18 @@ mfxI32 AVCHeadersBitstream::GetSEIPayload(const HeaderSet<AVCSeqParamSet> &sps,
     }
 }
 
-mfxI32 AVCHeadersBitstream::reserved_sei_message(const HeaderSet<AVCSeqParamSet> &,
+mfxI32 AVCHeadersBitstream::reserved_sei_message(const HeaderSet<AVCSeqParamSet>&,
                                                  mfxI32 current_sps,
-                                                 AVCSEIPayLoad *spl) {
+                                                 AVCSEIPayLoad* spl) {
     for (mfxU32 i = 0; i < spl->payLoadSize; i++)
         avcSkipNBits(m_pbs, m_bitOffset, 8) AlignPointerRight();
     return current_sps;
 }
 
-mfxI32 AVCHeadersBitstream::recovery_point(const HeaderSet<AVCSeqParamSet> &,
+mfxI32 AVCHeadersBitstream::recovery_point(const HeaderSet<AVCSeqParamSet>&,
                                            mfxI32 current_sps,
-                                           AVCSEIPayLoad *spl) {
-    AVCSEIPayLoad::SEIMessages::RecoveryPoint *recPoint = &(spl->SEI_messages.recovery_point);
+                                           AVCSEIPayLoad* spl) {
+    AVCSEIPayLoad::SEIMessages::RecoveryPoint* recPoint = &(spl->SEI_messages.recovery_point);
 
     recPoint->recovery_frame_cnt = (mfxU8)GetVLCElement(false);
 

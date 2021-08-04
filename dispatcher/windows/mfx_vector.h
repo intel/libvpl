@@ -14,32 +14,32 @@ class iterator_tmpl {
     template <class U>
     friend class MFXVector;
     mfxU32 mIndex;
-    T* mRecords;
-    iterator_tmpl(mfxU32 index, T* records) : mIndex(index), mRecords(records) {}
+    T *mRecords;
+    iterator_tmpl(mfxU32 index, T *records) : mIndex(index), mRecords(records) {}
 
 public:
     iterator_tmpl() : mIndex(), mRecords() {}
-    bool operator==(const iterator_tmpl<T>& that) const {
+    bool operator==(const iterator_tmpl<T> &that) const {
         return mIndex == that.mIndex;
     }
-    bool operator!=(const iterator_tmpl<T>& that) const {
+    bool operator!=(const iterator_tmpl<T> &that) const {
         return mIndex != that.mIndex;
     }
-    mfxU32 operator-(const iterator_tmpl<T>& that) const {
+    mfxU32 operator-(const iterator_tmpl<T> &that) const {
         return mIndex - that.mIndex;
     }
-    iterator_tmpl<T>& operator++() {
+    iterator_tmpl<T> &operator++() {
         mIndex++;
         return *this;
     }
-    iterator_tmpl<T>& operator++(int) {
+    iterator_tmpl<T> &operator++(int) {
         mIndex++;
         return *this;
     }
-    T& operator*() {
+    T &operator*() {
         return mRecords[mIndex];
     }
-    T* operator->() {
+    T *operator->() {
         return mRecords + mIndex;
     }
 };
@@ -48,15 +48,15 @@ class MFXVectorRangeError : public std::exception {};
 
 template <class T>
 class MFXVector {
-    T* mRecords;
+    T *mRecords;
     mfxU32 mNrecords;
 
 public:
     MFXVector() : mRecords(), mNrecords() {}
-    MFXVector(const MFXVector& rhs) : mRecords(), mNrecords() {
+    MFXVector(const MFXVector &rhs) : mRecords(), mNrecords() {
         insert(end(), rhs.begin(), rhs.end());
     }
-    MFXVector& operator=(const MFXVector& rhs) {
+    MFXVector &operator=(const MFXVector &rhs) {
         if (this != &rhs) {
             clear();
             insert(end(), rhs.begin(), rhs.end());
@@ -83,7 +83,7 @@ public:
             throw MFXVectorRangeError();
         }
 
-        T* newRecords = new T[mNrecords + elementsToInsert]();
+        T *newRecords = new T[mNrecords + elementsToInsert]();
         mfxU32 i      = 0;
 
         // save left
@@ -105,11 +105,11 @@ public:
         mRecords  = newRecords;
         mNrecords = i;
     }
-    T& operator[](mfxU32 idx) {
+    T &operator[](mfxU32 idx) {
         return mRecords[idx];
     }
-    void push_back(const T& obj) {
-        T* newRecords = new T[mNrecords + 1]();
+    void push_back(const T &obj) {
+        T *newRecords = new T[mNrecords + 1]();
         mfxU32 i      = 0;
         for (; i < mNrecords; i++) {
             newRecords[i] = mRecords[i];
@@ -133,7 +133,7 @@ public:
         mRecords[i] = T();
     }
     void resize(mfxU32 nSize) {
-        T* newRecords = new T[nSize]();
+        T *newRecords = new T[nSize]();
         for (mfxU32 i = 0; i < mNrecords; i++) {
             newRecords[i] = mRecords[i];
         }
@@ -152,7 +152,7 @@ public:
     bool empty() {
         return !mRecords;
     }
-    T* data() const {
+    T *data() const {
         return mRecords;
     }
 };

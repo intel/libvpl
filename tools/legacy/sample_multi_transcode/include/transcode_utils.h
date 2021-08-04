@@ -52,45 +52,45 @@ msdk_tick GetTick();
 mfxF64 GetTime(msdk_tick start);
 
 void PrintHelp();
-void PrintError(const msdk_char *strErrorMessage, ...);
-void PrintInfo(mfxU32 session_number, sInputParams *pParams, mfxVersion *pVer);
+void PrintError(const msdk_char* strErrorMessage, ...);
+void PrintInfo(mfxU32 session_number, sInputParams* pParams, mfxVersion* pVer);
 
-bool PrintDllInfo(msdk_char *buf, mfxU32 buf_size, sInputParams *pParams);
+bool PrintDllInfo(msdk_char* buf, mfxU32 buf_size, sInputParams* pParams);
 
 class CmdProcessor {
 public:
     CmdProcessor();
     virtual ~CmdProcessor();
-    mfxStatus ParseCmdLine(int argc, msdk_char *argv[]);
-    bool GetNextSessionParams(TranscodingSample::sInputParams &InputParams);
-    FILE *GetPerformanceFile() {
+    mfxStatus ParseCmdLine(int argc, msdk_char* argv[]);
+    bool GetNextSessionParams(TranscodingSample::sInputParams& InputParams);
+    FILE* GetPerformanceFile() {
         return m_PerfFILE;
     };
     void PrintParFileName();
     msdk_string GetLine(mfxU32 n);
 
 protected:
-    mfxStatus ParseParFile(FILE *file);
-    mfxStatus TokenizeLine(msdk_char *pLine, mfxU32 length);
-    mfxU32 GetStringLength(msdk_char *pTempLine, mfxU32 length);
+    mfxStatus ParseParFile(FILE* file);
+    mfxStatus TokenizeLine(msdk_char* pLine, mfxU32 length);
+    mfxU32 GetStringLength(msdk_char* pTempLine, mfxU32 length);
 
 #if MFX_VERSION >= 1022
     static bool isspace(char a);
     static bool is_not_allowed_char(char a);
-    bool ParseROIFile(msdk_char const *roi_file_name, std::vector<mfxExtEncoderROI> &m_ROIData);
+    bool ParseROIFile(msdk_char const* roi_file_name, std::vector<mfxExtEncoderROI>& m_ROIData);
 #endif //MFX_VERSION >= 1022
 
-    mfxStatus ParseParamsForOneSession(mfxU32 argc, msdk_char *argv[]);
-    mfxStatus ParseOption__set(msdk_char *strCodecType, msdk_char *strPluginPath);
-    mfxStatus VerifyAndCorrectInputParams(TranscodingSample::sInputParams &InputParams);
+    mfxStatus ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[]);
+    mfxStatus ParseOption__set(msdk_char* strCodecType, msdk_char* strPluginPath);
+    mfxStatus VerifyAndCorrectInputParams(TranscodingSample::sInputParams& InputParams);
     mfxU32 m_SessionParamId;
     std::vector<TranscodingSample::sInputParams> m_SessionArray;
     std::map<mfxU32, sPluginParams> m_decoderPlugins;
     std::map<mfxU32, sPluginParams> m_encoderPlugins;
-    FILE *m_PerfFILE;
-    msdk_char *m_parName;
+    FILE* m_PerfFILE;
+    msdk_char* m_parName;
     mfxU32 statisticsWindowSize;
-    FILE *statisticsLogFile;
+    FILE* statisticsLogFile;
     //store a name of a Logfile
     msdk_tstring DumpLogFileName;
     mfxU32 m_nTimeout;

@@ -20,11 +20,11 @@ struct SliceSplitterInfo {
 };
 
 struct FrameSplitterInfo {
-    SliceSplitterInfo *Slice; // array
+    SliceSplitterInfo* Slice; // array
     mfxU32 SliceNum;
     mfxU32 FirstFieldSliceNum;
 
-    mfxU8 *Data; // including data of slices
+    mfxU8* Data; // including data of slices
     mfxU32 DataLength;
     mfxU64 TimeStamp;
 };
@@ -37,9 +37,9 @@ public:
 
     virtual mfxStatus Reset() = 0;
 
-    virtual mfxStatus GetFrame(mfxBitstream *bs_in, FrameSplitterInfo **frame) = 0;
+    virtual mfxStatus GetFrame(mfxBitstream* bs_in, FrameSplitterInfo** frame) = 0;
 
-    virtual mfxStatus PostProcessing(FrameSplitterInfo *frame, mfxU32 sliceNum) = 0;
+    virtual mfxStatus PostProcessing(FrameSplitterInfo* frame, mfxU32 sliceNum) = 0;
 
     virtual void ResetCurrentState() = 0;
 };

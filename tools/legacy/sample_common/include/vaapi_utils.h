@@ -33,17 +33,17 @@ namespace MfxLoader {
 
 class SimpleLoader {
 public:
-    SimpleLoader(const char *name);
+    SimpleLoader(const char* name);
 
-    void *GetFunction(const char *name);
+    void* GetFunction(const char* name);
 
     ~SimpleLoader();
 
 private:
-    SimpleLoader(SimpleLoader &);
-    void operator=(SimpleLoader &);
+    SimpleLoader(SimpleLoader&);
+    void operator=(SimpleLoader&);
 
-    void *so_handle;
+    void* so_handle;
 };
 
     #ifdef LIBVA_SUPPORT
@@ -52,58 +52,58 @@ private:
     SimpleLoader lib; // should appear first in member list
 
 public:
-    typedef VAStatus (*vaInitialize_type)(VADisplay, int *, int *);
+    typedef VAStatus (*vaInitialize_type)(VADisplay, int*, int*);
     typedef VAStatus (*vaTerminate_type)(VADisplay);
     typedef VAStatus (*vaCreateSurfaces_type)(VADisplay,
                                               unsigned int,
                                               unsigned int,
                                               unsigned int,
-                                              VASurfaceID *,
+                                              VASurfaceID*,
                                               unsigned int,
-                                              VASurfaceAttrib *,
+                                              VASurfaceAttrib*,
                                               unsigned int);
-    typedef VAStatus (*vaDestroySurfaces_type)(VADisplay, VASurfaceID *, int);
+    typedef VAStatus (*vaDestroySurfaces_type)(VADisplay, VASurfaceID*, int);
     typedef VAStatus (*vaCreateBuffer_type)(VADisplay,
                                             VAContextID,
                                             VABufferType,
                                             unsigned int,
                                             unsigned int,
-                                            void *,
-                                            VABufferID *);
+                                            void*,
+                                            VABufferID*);
     typedef VAStatus (*vaDestroyBuffer_type)(VADisplay, VABufferID);
-    typedef VAStatus (*vaMapBuffer_type)(VADisplay, VABufferID, void **pbuf);
+    typedef VAStatus (*vaMapBuffer_type)(VADisplay, VABufferID, void** pbuf);
     typedef VAStatus (*vaUnmapBuffer_type)(VADisplay, VABufferID);
     typedef VAStatus (*vaSyncSurface_type)(VADisplay, VASurfaceID);
-    typedef VAStatus (*vaDeriveImage_type)(VADisplay, VASurfaceID, VAImage *);
+    typedef VAStatus (*vaDeriveImage_type)(VADisplay, VASurfaceID, VAImage*);
     typedef VAStatus (*vaDestroyImage_type)(VADisplay, VAImageID);
-    typedef VAStatus (*vaGetLibFunc_type)(VADisplay, const char *func);
-    typedef VAStatus (*vaAcquireBufferHandle_type)(VADisplay, VABufferID, VABufferInfo *);
+    typedef VAStatus (*vaGetLibFunc_type)(VADisplay, const char* func);
+    typedef VAStatus (*vaAcquireBufferHandle_type)(VADisplay, VABufferID, VABufferInfo*);
     typedef VAStatus (*vaReleaseBufferHandle_type)(VADisplay, VABufferID);
     typedef VAStatus (*vaMaxNumEntrypoints_type)(VADisplay dpy);
     typedef VAStatus (*vaQueryConfigEntrypoints_type)(VADisplay dpy,
                                                       VAProfile profile,
-                                                      VAEntrypoint *entrypoint_list,
-                                                      int *num_entrypoints);
+                                                      VAEntrypoint* entrypoint_list,
+                                                      int* num_entrypoints);
     typedef VAStatus (*vaGetConfigAttributes_type)(VADisplay dpy,
                                                    VAProfile profile,
                                                    VAEntrypoint entrypoint,
-                                                   VAConfigAttrib *attrib_list,
+                                                   VAConfigAttrib* attrib_list,
                                                    int num_attribs);
     typedef VAStatus (*vaCreateConfig_type)(VADisplay dpy,
                                             VAProfile profile,
                                             VAEntrypoint entrypoint,
-                                            VAConfigAttrib *attrib_list,
+                                            VAConfigAttrib* attrib_list,
                                             int num_attribs,
-                                            VAConfigID *config_id);
+                                            VAConfigID* config_id);
 
     typedef VAStatus (*vaCreateContext_type)(VADisplay dpy,
                                              VAConfigID config_id,
                                              int picture_width,
                                              int picture_height,
                                              int flag,
-                                             VASurfaceID *render_targets,
+                                             VASurfaceID* render_targets,
                                              int num_render_targets,
-                                             VAContextID *context);
+                                             VAContextID* context);
     typedef VAStatus (*vaDestroyConfig_type)(VADisplay dpy, VAConfigID config_id);
     typedef VAStatus (*vaDestroyContext_type)(VADisplay dpy, VAContextID context);
 
@@ -140,7 +140,7 @@ private:
     SimpleLoader lib; // should appear first in member list
 
 public:
-    typedef int (*drmIoctl_type)(int fd, unsigned long request, void *arg);
+    typedef int (*drmIoctl_type)(int fd, unsigned long request, void* arg);
     typedef int (*drmModeAddFB_type)(int fd,
                                      uint32_t width,
                                      uint32_t height,
@@ -148,7 +148,7 @@ public:
                                      uint8_t bpp,
                                      uint32_t pitch,
                                      uint32_t bo_handle,
-                                     uint32_t *buf_id);
+                                     uint32_t* buf_id);
     typedef void (*drmModeFreeConnector_type)(drmModeConnectorPtr ptr);
     typedef void (*drmModeFreeCrtc_type)(drmModeCrtcPtr ptr);
     typedef void (*drmModeFreeEncoder_type)(drmModeEncoderPtr ptr);
@@ -167,7 +167,7 @@ public:
                                        uint32_t bufferId,
                                        uint32_t x,
                                        uint32_t y,
-                                       uint32_t *connectors,
+                                       uint32_t* connectors,
                                        int count,
                                        drmModeModeInfoPtr mode);
     typedef int (*drmSetMaster_type)(int fd);
@@ -217,13 +217,13 @@ private:
     SimpleLoader lib; // should appear first in member list
 
 public:
-    typedef drm_intel_bo *(*drm_intel_bo_gem_create_from_prime_type)(drm_intel_bufmgr *bufmgr,
+    typedef drm_intel_bo* (*drm_intel_bo_gem_create_from_prime_type)(drm_intel_bufmgr* bufmgr,
                                                                      int prime_fd,
                                                                      int size);
-    typedef void (*drm_intel_bo_unreference_type)(drm_intel_bo *bo);
-    typedef drm_intel_bufmgr *(*drm_intel_bufmgr_gem_init_type)(int fd, int batch_size);
-    typedef int (*drm_intel_bo_gem_export_to_prime_type)(drm_intel_bo *, int *);
-    typedef void (*drm_intel_bufmgr_destroy_type)(drm_intel_bufmgr *);
+    typedef void (*drm_intel_bo_unreference_type)(drm_intel_bo* bo);
+    typedef drm_intel_bufmgr* (*drm_intel_bufmgr_gem_init_type)(int fd, int batch_size);
+    typedef int (*drm_intel_bo_gem_export_to_prime_type)(drm_intel_bo*, int*);
+    typedef void (*drm_intel_bufmgr_destroy_type)(drm_intel_bufmgr*);
 
     DrmIntel_Proxy();
     ~DrmIntel_Proxy();
@@ -263,7 +263,7 @@ private:
     SimpleLoader lib; // should appear first in member list
 
 public:
-    typedef Wayland *(*WaylandCreate_type)(void);
+    typedef Wayland* (*WaylandCreate_type)(void);
 
     VA_WaylandClientProxy();
     ~VA_WaylandClientProxy();
@@ -279,7 +279,7 @@ private:
     SimpleLoader lib; // should appear first in member list
 
 public:
-    typedef VADisplay (*vaGetDisplay_type)(Display *);
+    typedef VADisplay (*vaGetDisplay_type)(Display*);
     typedef VAStatus (*vaPutSurface_type)(VADisplay,
                                           VASurfaceID,
                                           Drawable,
@@ -291,7 +291,7 @@ public:
                                           short,
                                           unsigned short,
                                           unsigned short,
-                                          VARectangle *,
+                                          VARectangle*,
                                           unsigned int,
                                           unsigned int);
 
@@ -307,9 +307,9 @@ private:
     SimpleLoader lib; // should appear first in member list
 
 public:
-    typedef Display *(*XOpenDisplay_type)(const char *);
-    typedef int (*XCloseDisplay_type)(Display *);
-    typedef Window (*XCreateSimpleWindow_type)(Display *,
+    typedef Display* (*XOpenDisplay_type)(const char*);
+    typedef int (*XCloseDisplay_type)(Display*);
+    typedef Window (*XCreateSimpleWindow_type)(Display*,
                                                Window,
                                                int,
                                                int,
@@ -318,20 +318,20 @@ public:
                                                unsigned int,
                                                unsigned long,
                                                unsigned long);
-    typedef int (*XMapWindow_type)(Display *, Window);
-    typedef int (*XSync_type)(Display *, Bool);
-    typedef int (*XDestroyWindow_type)(Display *, Window);
-    typedef int (*XResizeWindow_type)(Display *, Window, unsigned int, unsigned int);
+    typedef int (*XMapWindow_type)(Display*, Window);
+    typedef int (*XSync_type)(Display*, Bool);
+    typedef int (*XDestroyWindow_type)(Display*, Window);
+    typedef int (*XResizeWindow_type)(Display*, Window, unsigned int, unsigned int);
         #if defined(X11_DRI3_SUPPORT)
-    typedef Status (*XGetGeometry_type)(Display *,
+    typedef Status (*XGetGeometry_type)(Display*,
                                         Drawable,
-                                        Window *,
-                                        int *,
-                                        int *,
-                                        unsigned int *,
-                                        unsigned int *,
-                                        unsigned int *,
-                                        unsigned int *);
+                                        Window*,
+                                        int*,
+                                        int*,
+                                        unsigned int*,
+                                        unsigned int*,
+                                        unsigned int*,
+                                        unsigned int*);
         #endif // X11_DRI3_SUPPORT
     XLib_Proxy();
     ~XLib_Proxy();
@@ -355,7 +355,7 @@ private:
     SimpleLoader lib; // should appear first in member list
 
 public:
-    typedef xcb_void_cookie_t (*xcb_dri3_pixmap_from_buffer_type)(xcb_connection_t *,
+    typedef xcb_void_cookie_t (*xcb_dri3_pixmap_from_buffer_type)(xcb_connection_t*,
                                                                   xcb_pixmap_t,
                                                                   xcb_drawable_t,
                                                                   uint32_t,
@@ -378,10 +378,10 @@ private:
     SimpleLoader lib; // should appear first in member list
 
 public:
-    typedef uint32_t (*xcb_generate_id_type)(xcb_connection_t *);
-    typedef xcb_void_cookie_t (*xcb_free_pixmap_type)(xcb_connection_t *, xcb_pixmap_t);
-    typedef int (*xcb_flush_type)(xcb_connection_t *);
-    typedef xcb_generic_error_t *(*xcb_request_check_type)(xcb_connection_t *c,
+    typedef uint32_t (*xcb_generate_id_type)(xcb_connection_t*);
+    typedef xcb_void_cookie_t (*xcb_free_pixmap_type)(xcb_connection_t*, xcb_pixmap_t);
+    typedef int (*xcb_flush_type)(xcb_connection_t*);
+    typedef xcb_generic_error_t* (*xcb_request_check_type)(xcb_connection_t* c,
                                                            xcb_void_cookie_t cookie);
 
     Xcb_Proxy();
@@ -398,7 +398,7 @@ private:
     SimpleLoader lib; // should appear first in member list
 
 public:
-    typedef xcb_connection_t *(*XGetXCBConnection_type)(Display *dpy);
+    typedef xcb_connection_t* (*XGetXCBConnection_type)(Display* dpy);
 
     X11_Xcb_Proxy();
     ~X11_Xcb_Proxy();
@@ -411,7 +411,7 @@ private:
     SimpleLoader lib;
 
 public:
-    typedef xcb_void_cookie_t (*xcb_present_pixmap_type)(xcb_connection_t *,
+    typedef xcb_void_cookie_t (*xcb_present_pixmap_type)(xcb_connection_t*,
                                                          xcb_window_t,
                                                          xcb_pixmap_t,
                                                          uint32_t,
@@ -427,7 +427,7 @@ public:
                                                          uint64_t,
                                                          uint64_t,
                                                          uint32_t,
-                                                         const xcb_present_notify_t *);
+                                                         const xcb_present_notify_t*);
     typedef xcb_present_pixmap_type xcb_present_pixmap_checked_type;
 
     Xcbpresent_Proxy();
@@ -445,12 +445,12 @@ class CLibVA {
 public:
     virtual ~CLibVA(void){};
 
-    VAStatus AcquireVASurface(void **pctx,
+    VAStatus AcquireVASurface(void** pctx,
                               VADisplay dpy1,
                               VASurfaceID srf1,
                               VADisplay dpy2,
-                              VASurfaceID *srf2);
-    void ReleaseVASurface(void *actx,
+                              VASurfaceID* srf2);
+    void ReleaseVASurface(void* actx,
                           VADisplay dpy1,
                           VASurfaceID /*srf1*/,
                           VADisplay dpy2,
@@ -473,14 +473,14 @@ private:
     DISALLOW_COPY_AND_ASSIGN(CLibVA);
 };
 
-CLibVA *CreateLibVA(const std::string &devicePath = "", int type = MFX_LIBVA_DRM);
+CLibVA* CreateLibVA(const std::string& devicePath = "", int type = MFX_LIBVA_DRM);
 
-VAStatus AcquireVASurface(void **ctx,
+VAStatus AcquireVASurface(void** ctx,
                           VADisplay dpy1,
                           VASurfaceID srf1,
                           VADisplay dpy2,
-                          VASurfaceID *srf2);
-void ReleaseVASurface(void *actx,
+                          VASurfaceID* srf2);
+void ReleaseVASurface(void* actx,
                       VADisplay dpy1,
                       VASurfaceID srf1,
                       VADisplay dpy2,

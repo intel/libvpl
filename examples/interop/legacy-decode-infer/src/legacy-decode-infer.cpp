@@ -105,6 +105,7 @@ void InferFrame(mfxFrameSurface1 *surface,
 
 int main(int argc, char *argv[]) {
     FILE *source                    = NULL;
+    int accel_fd                    = 0;
     mfxSession session              = NULL;
     mfxFrameSurface1 *decSurfaceOut = NULL;
     mfxFrameSurface1 *decSurfPool   = NULL;
@@ -148,7 +149,7 @@ int main(int argc, char *argv[]) {
     ShowImplInfo(session);
 
     // Convenience function to initialize available accelerator(s)
-    accelHandle = InitAcceleratorHandle(session);
+    accelHandle = InitAcceleratorHandle(session, &accel_fd);
 
     // Prepare input bitstream and start decoding
     bitstream.MaxLength = BITSTREAM_BUFFER_SIZE;
@@ -291,7 +292,7 @@ end:
     FreeExternalSystemMemorySurfacePool(decOutBuf, decSurfPool);
 
     if (accelHandle)
-        FreeAcceleratorHandle(accelHandle);
+        FreeAcceleratorHandle(accelHandle, accel_fd);
 
     return 0;
 }

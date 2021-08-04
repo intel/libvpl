@@ -14,7 +14,7 @@ namespace ProtectedLibrary {
 
 class BytesSwapper {
 public:
-    static void SwapMemory(mfxU8 *pDestination, mfxU32 &nDstSize, mfxU8 *pSource, mfxU32 nSrcSize);
+    static void SwapMemory(mfxU8* pDestination, mfxU32& nDstSize, mfxU8* pSource, mfxU32 nSrcSize);
 };
 
 class StartCodeIterator {
@@ -23,30 +23,30 @@ public:
 
     void Reset();
 
-    mfxI32 Init(mfxBitstream *source);
+    mfxI32 Init(mfxBitstream* source);
 
     void SetSuggestedSize(mfxU32 size);
 
-    mfxI32 CheckNalUnitType(mfxBitstream *source);
+    mfxI32 CheckNalUnitType(mfxBitstream* source);
 
-    mfxI32 GetNALUnit(mfxBitstream *source, mfxBitstream *destination);
+    mfxI32 GetNALUnit(mfxBitstream* source, mfxBitstream* destination);
 
-    mfxI32 EndOfStream(mfxBitstream *destination);
+    mfxI32 EndOfStream(mfxBitstream* destination);
 
 private:
     std::vector<mfxU8> m_prev;
     mfxU32 m_code;
     mfxU64 m_pts;
 
-    mfxU8 *m_pSource;
+    mfxU8* m_pSource;
     mfxU32 m_nSourceSize;
 
-    mfxU8 *m_pSourceBase;
+    mfxU8* m_pSourceBase;
     mfxU32 m_nSourceBaseSize;
 
     mfxU32 m_suggestedSize;
 
-    mfxI32 FindStartCode(mfxU8 *(&pb), mfxU32 &data_size, mfxI32 &startCodeSize);
+    mfxI32 FindStartCode(mfxU8*(&pb), mfxU32& data_size, mfxI32& startCodeSize);
 };
 
 class NALUnitSplitter {
@@ -58,8 +58,8 @@ public:
     virtual void Init();
     virtual void Release();
 
-    virtual mfxI32 CheckNalUnitType(mfxBitstream *source);
-    virtual mfxI32 GetNalUnits(mfxBitstream *source, mfxBitstream *&destination);
+    virtual mfxI32 CheckNalUnitType(mfxBitstream* source);
+    virtual mfxI32 GetNalUnits(mfxBitstream* source, mfxBitstream*& destination);
 
     virtual void Reset();
 
@@ -73,9 +73,9 @@ protected:
     mfxBitstream m_bitstream;
 };
 
-void SwapMemoryAndRemovePreventingBytes(mfxU8 *pDestination,
-                                        mfxU32 &nDstSize,
-                                        mfxU8 *pSource,
+void SwapMemoryAndRemovePreventingBytes(mfxU8* pDestination,
+                                        mfxU32& nDstSize,
+                                        mfxU8* pSource,
                                         mfxU32 nSrcSize);
 
 } //namespace ProtectedLibrary

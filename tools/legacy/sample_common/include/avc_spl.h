@@ -23,24 +23,24 @@ class AVCSlice : public SliceSplitterInfo {
 public:
     AVCSlice();
 
-    AVCSliceHeader *GetSliceHeader();
+    AVCSliceHeader* GetSliceHeader();
 
     bool IsField() const {
         return m_sliceHeader.field_pic_flag != 0;
     }
 
-    mfxI32 RetrievePicParamSetNumber(mfxU8 *pSource, mfxU32 nSourceSize);
+    mfxI32 RetrievePicParamSetNumber(mfxU8* pSource, mfxU32 nSourceSize);
 
-    bool DecodeHeader(mfxU8 *pSource, mfxU32 nSourceSize);
+    bool DecodeHeader(mfxU8* pSource, mfxU32 nSourceSize);
 
-    AVCHeadersBitstream *GetBitStream(void) {
+    AVCHeadersBitstream* GetBitStream(void) {
         return &m_bitStream;
     }
 
-    AVCPicParamSet *m_picParamSet;
-    AVCSeqParamSet *m_seqParamSet;
-    AVCSeqParamSet *m_seqParamSetMvcEx;
-    AVCSeqParamSetExtension *m_seqParamSetEx;
+    AVCPicParamSet* m_picParamSet;
+    AVCSeqParamSet* m_seqParamSet;
+    AVCSeqParamSet* m_seqParamSetMvcEx;
+    AVCSeqParamSetExtension* m_seqParamSetEx;
 
     mfxU64 m_dTime;
 
@@ -57,7 +57,7 @@ public:
 
     void Reset();
 
-    AVCSlice *m_slice;
+    AVCSlice* m_slice;
     mfxU32 m_index;
 };
 
@@ -69,9 +69,9 @@ public:
 
     virtual mfxStatus Reset();
 
-    virtual mfxStatus GetFrame(mfxBitstream *bs_in, FrameSplitterInfo **frame);
+    virtual mfxStatus GetFrame(mfxBitstream* bs_in, FrameSplitterInfo** frame);
 
-    virtual mfxStatus PostProcessing(FrameSplitterInfo *frame, mfxU32 sliceNum);
+    virtual mfxStatus PostProcessing(FrameSplitterInfo* frame, mfxU32 sliceNum);
 
     void ResetCurrentState();
 
@@ -82,31 +82,31 @@ protected:
 
     void Close();
 
-    mfxStatus ProcessNalUnit(mfxI32 nalType, mfxBitstream *destination);
+    mfxStatus ProcessNalUnit(mfxI32 nalType, mfxBitstream* destination);
 
-    mfxStatus DecodeHeader(mfxBitstream *nalUnit);
-    mfxStatus DecodeSEI(mfxBitstream *nalUnit);
-    AVCSlice *DecodeSliceHeader(mfxBitstream *nalUnit);
-    mfxStatus AddSlice(AVCSlice *pSlice);
+    mfxStatus DecodeHeader(mfxBitstream* nalUnit);
+    mfxStatus DecodeSEI(mfxBitstream* nalUnit);
+    AVCSlice* DecodeSliceHeader(mfxBitstream* nalUnit);
+    mfxStatus AddSlice(AVCSlice* pSlice);
 
-    AVCFrameInfo *GetFreeFrame();
+    AVCFrameInfo* GetFreeFrame();
 
-    mfxU8 *GetMemoryForSwapping(mfxU32 size);
+    mfxU8* GetMemoryForSwapping(mfxU32 size);
 
-    mfxStatus AddNalUnit(mfxBitstream *nalUnit);
-    mfxStatus AddSliceNalUnit(mfxBitstream *nalUnit, AVCSlice *pSlice);
-    bool IsFieldOfOneFrame(AVCFrameInfo *frame,
-                           const AVCSliceHeader *slice1,
-                           const AVCSliceHeader *slice2);
+    mfxStatus AddNalUnit(mfxBitstream* nalUnit);
+    mfxStatus AddSliceNalUnit(mfxBitstream* nalUnit, AVCSlice* pSlice);
+    bool IsFieldOfOneFrame(AVCFrameInfo* frame,
+                           const AVCSliceHeader* slice1,
+                           const AVCSliceHeader* slice2);
 
     bool m_WaitForIDR;
 
     AVCHeaders m_headers;
     std::unique_ptr<AVCFrameInfo> m_AUInfo;
-    AVCFrameInfo *m_currentInfo;
-    AVCSlice *m_pLastSlice;
+    AVCFrameInfo* m_currentInfo;
+    AVCSlice* m_pLastSlice;
 
-    mfxBitstream *m_lastNalUnit;
+    mfxBitstream* m_lastNalUnit;
 
     enum { BUFFER_SIZE = 1024 * 1024 };
 

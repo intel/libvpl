@@ -16,12 +16,40 @@
 #include "vpl/mfxvp8.h"
 
 #define DECODE_FOURCC(ch) ch & 0xff, ch >> 8 & 0xff, ch >> 16 & 0xff, ch >> 24 & 0xff
+
+#define DECODE_FOURCC_2(ch, s) \
+    s[0] = ch & 0xff;          \
+    s[1] = ch >> 8 & 0xff;     \
+    s[2] = ch >> 16 & 0xff;    \
+    s[3] = ch >> 24 & 0xff;
+
 #define MAKEFOURCC(ch0, ch1, ch2, ch3)                                                   \
     ((mfxU32)(mfxU8)(ch0) | ((mfxU32)(mfxU8)(ch1) << 8) | ((mfxU32)(mfxU8)(ch2) << 16) | \
      ((mfxU32)(mfxU8)(ch3) << 24))
 #define STRING_OPTION(x) \
     case x:              \
         return #x
+
+const char *_print_fourcc(int ch) {
+    static char str[5];
+    if (0 == ch) {
+        str[0] = 'U';
+        str[1] = 'N';
+        str[2] = 'K';
+        str[3] = 'N';
+        str[4] = '\0';
+    }
+    else if (41 == ch) {
+        str[0] = 'P';
+        str[1] = '8';
+        str[2] = '\0';
+    }
+    else {
+        DECODE_FOURCC_2(ch, str);
+        str[4] = '\0';
+    }
+    return str;
+}
 
 const char *_print_Impl(mfxIMPL impl) {
     switch (impl) {
@@ -183,8 +211,14 @@ int main(int argc, char *argv[]) {
     }
 
     bool bPrintImplementedFunctions = false;
-    if (argc == 2 && !strncmp(argv[1], "-f", 2)) {
-        bPrintImplementedFunctions = true;
+    bool bFullInfo                  = true;
+    if (argc == 2) {
+        if (!strncmp(argv[1], "-f", 2)) {
+            bPrintImplementedFunctions = true;
+        }
+        else if (!strncmp(argv[1], "-b", 2)) {
+            bFullInfo = false;
+        }
     }
 
     int i = 0;
@@ -193,170 +227,223 @@ int main(int argc, char *argv[]) {
                                                   i,
                                                   MFX_IMPLCAPS_IMPLDESCSTRUCTURE,
                                                   reinterpret_cast<mfxHDL *>(&idesc))) {
-        printf("\nImplementation: %s\n", idesc->ImplName);
+        printf("\nImplementation #%d: %s\n", i, idesc->ImplName);
 
         // get path if supported (available starting with API 2.4)
         mfxHDL hImplPath = nullptr;
         if (MFX_ERR_NONE == MFXEnumImplementations(loader, i, MFX_IMPLCAPS_IMPLPATH, &hImplPath)) {
             if (hImplPath) {
-                printf("\nImplementation path: %s\n\n", reinterpret_cast<mfxChar *>(hImplPath));
+                printf("%2sLibrary path: %s\n", "", reinterpret_cast<mfxChar *>(hImplPath));
                 MFXDispReleaseImplDescription(loader, hImplPath);
             }
         }
 
-        printf("  Version: %hu.%hu\n", idesc->Version.Major, idesc->Version.Minor);
-        printf("  Impl: %s\n", _print_Impl(idesc->Impl));
-        printf("  AccelerationMode: %s\n", _print_AccelMode(idesc->AccelerationMode));
-        printf("  ApiVersion: %hu.%hu\n", idesc->ApiVersion.Major, idesc->ApiVersion.Minor);
-        printf("  ImplName: %s\n", idesc->ImplName);
-        printf("  License: %s\n", idesc->License);
-        printf("  Keywords: %s\n", idesc->Keywords);
-        printf("  VendorID: 0x%04X\n", idesc->VendorID);
-        printf("  VendorImplID: 0x%04X\n", idesc->VendorImplID);
+        printf("%2sAccelerationMode: %s\n", "", _print_AccelMode(idesc->AccelerationMode));
+        printf("%2sApiVersion: %hu.%hu\n", "", idesc->ApiVersion.Major, idesc->ApiVersion.Minor);
+        printf("%2sImpl: %s\n", "", _print_Impl(idesc->Impl));
+        printf("%2sVendorImplID: 0x%04X\n", "", idesc->VendorImplID);
+        printf("%2sImplName: %s\n", "", idesc->ImplName);
+        printf("%2sLicense: %s\n", "", idesc->License);
+        printf("%2sVersion: %hu.%hu\n", "", idesc->Version.Major, idesc->Version.Minor);
+        printf("%2sKeywords: %s\n", "", idesc->Keywords);
+        printf("%2sVendorID: 0x%04X\n", "", idesc->VendorID);
 
         /* mfxAccelerationModeDescription */
         mfxAccelerationModeDescription *accel = &idesc->AccelerationModeDescription;
-        printf("\n mfxAccelerationModeDescription:\n");
-        printf("    Version: %hu.%hu\n", accel->Version.Major, accel->Version.Minor);
+        printf("%2smfxAccelerationModeDescription:\n", "");
+        printf("%4sVersion: %hu.%hu\n", "", accel->Version.Major, accel->Version.Minor);
         for (int mode = 0; mode < accel->NumAccelerationModes; mode++) {
-            printf("    Mode: %s\n", _print_AccelMode(accel->Mode[mode]));
+            printf("%4sMode: %s\n", "", _print_AccelMode(accel->Mode[mode]));
         }
 
         /* mfxDeviceDescription */
         mfxDeviceDescription *dev = &idesc->Dev;
-        printf("\n mfxDeviceDescription:\n");
-        printf("    Version: %hu.%hu\n", dev->Version.Major, dev->Version.Minor);
-        printf("    DeviceID: %s\n", dev->DeviceID);
+        printf("%2smfxDeviceDescription:\n", "");
+        printf("%4sDeviceID: %s\n", "", dev->DeviceID);
+        printf("%4sVersion: %hu.%hu\n", "", dev->Version.Major, dev->Version.Minor);
         for (int subdevice = 0; subdevice < dev->NumSubDevices; subdevice++) {
-            printf("    Index: %u\n", dev->SubDevices[subdevice].Index);
-            printf("    SubDeviceID: %s\n", dev->SubDevices[subdevice].SubDeviceID);
+            printf("%4sIndex: %u\n", "", dev->SubDevices[subdevice].Index);
+            printf("%4sSubDeviceID: %s\n", "", dev->SubDevices[subdevice].SubDeviceID);
         }
 
-        /* mfxDecoderDescription */
-        mfxDecoderDescription *dec = &idesc->Dec;
-        printf("\n  mfxDecoderDescription:\n");
-        printf("    Version: %hu.%hu\n", dec->Version.Major, dec->Version.Minor);
-        for (int codec = 0; codec < dec->NumCodecs; codec++) {
-            printf("    CodecID: %c%c%c%c\n", DECODE_FOURCC(dec->Codecs[codec].CodecID));
-            printf("    MaxcodecLevel: %hu\n", dec->Codecs[codec].MaxcodecLevel);
-            for (int profile = 0; profile < dec->Codecs[codec].NumProfiles; profile++) {
-                printf("      Profile: %s\n",
-                       _print_ProfileType(dec->Codecs[codec].CodecID,
-                                          dec->Codecs[codec].Profiles[profile].Profile));
-                for (int memtype = 0; memtype < dec->Codecs[codec].Profiles[profile].NumMemTypes;
-                     memtype++) {
-                    printf(
-                        "        MemHandleType: %s\n",
-                        _print_ResourceType(
-                            dec->Codecs[codec].Profiles[profile].MemDesc[memtype].MemHandleType));
-                    printf("        Width Min: %u\n",
-                           dec->Codecs[codec].Profiles[profile].MemDesc[memtype].Width.Min);
-                    printf("        Width Max: %u\n",
-                           dec->Codecs[codec].Profiles[profile].MemDesc[memtype].Width.Max);
-                    printf("        Width Step: %u\n",
-                           dec->Codecs[codec].Profiles[profile].MemDesc[memtype].Width.Step);
-                    printf("        Height Min: %u\n",
-                           dec->Codecs[codec].Profiles[profile].MemDesc[memtype].Height.Min);
-                    printf("        Height Max: %u\n",
-                           dec->Codecs[codec].Profiles[profile].MemDesc[memtype].Height.Max);
-                    printf("        Height Step: %u\n",
-                           dec->Codecs[codec].Profiles[profile].MemDesc[memtype].Height.Step);
-                    for (int colorformat = 0;
-                         colorformat <
-                         dec->Codecs[codec].Profiles[profile].MemDesc[memtype].NumColorFormats;
-                         colorformat++) {
-                        printf("        ColorFormat: %c%c%c%c\n",
-                               DECODE_FOURCC(dec->Codecs[codec]
-                                                 .Profiles[profile]
-                                                 .MemDesc[memtype]
-                                                 .ColorFormats[colorformat]));
+        if (bFullInfo) {
+            /* mfxDecoderDescription */
+            mfxDecoderDescription *dec = &idesc->Dec;
+            printf("%2smfxDecoderDescription:\n", "");
+            printf("%4sVersion: %hu.%hu\n", "", dec->Version.Major, dec->Version.Minor);
+            for (int codec = 0; codec < dec->NumCodecs; codec++) {
+                printf("%4sCodecID: %c%c%c%c\n", "", DECODE_FOURCC(dec->Codecs[codec].CodecID));
+                printf("%4sMaxcodecLevel: %hu\n", "", dec->Codecs[codec].MaxcodecLevel);
+                for (int profile = 0; profile < dec->Codecs[codec].NumProfiles; profile++) {
+                    printf("%6sProfile: %s\n",
+                           "",
+                           _print_ProfileType(dec->Codecs[codec].CodecID,
+                                              dec->Codecs[codec].Profiles[profile].Profile));
+                    for (int memtype = 0;
+                         memtype < dec->Codecs[codec].Profiles[profile].NumMemTypes;
+                         memtype++) {
+                        printf("%8sMemHandleType: %s\n",
+                               "",
+                               _print_ResourceType(dec->Codecs[codec]
+                                                       .Profiles[profile]
+                                                       .MemDesc[memtype]
+                                                       .MemHandleType));
+                        printf("%10sWidth Min: %u\n",
+                               "",
+                               dec->Codecs[codec].Profiles[profile].MemDesc[memtype].Width.Min);
+                        printf("%10sWidth Max: %u\n",
+                               "",
+                               dec->Codecs[codec].Profiles[profile].MemDesc[memtype].Width.Max);
+                        printf("%10sWidth Step: %u\n",
+                               "",
+                               dec->Codecs[codec].Profiles[profile].MemDesc[memtype].Width.Step);
+                        printf("%10sHeight Min: %u\n",
+                               "",
+                               dec->Codecs[codec].Profiles[profile].MemDesc[memtype].Height.Min);
+                        printf("%10sHeight Max: %u\n",
+                               "",
+                               dec->Codecs[codec].Profiles[profile].MemDesc[memtype].Height.Max);
+                        printf("%10sHeight Step: %u\n",
+                               "",
+                               dec->Codecs[codec].Profiles[profile].MemDesc[memtype].Height.Step);
+                        printf("%10sColorFormats: ", "");
+                        for (int colorformat = 0;
+                             colorformat <
+                             dec->Codecs[codec].Profiles[profile].MemDesc[memtype].NumColorFormats;
+                             colorformat++) {
+                            if (0 != colorformat)
+                                printf(", ");
+                            printf("%s",
+                                   _print_fourcc(dec->Codecs[codec]
+                                                     .Profiles[profile]
+                                                     .MemDesc[memtype]
+                                                     .ColorFormats[colorformat]));
+                        }
+                        printf("\n");
                     }
                 }
             }
-        }
 
-        /* mfxEncoderDescription */
-        mfxEncoderDescription *enc = &idesc->Enc;
-        printf("\n  mfxEncoderDescription:\n");
-        printf("    Version: %hu.%hu\n", enc->Version.Major, enc->Version.Minor);
-        for (int codec = 0; codec < enc->NumCodecs; codec++) {
-            printf("    CodecID: %c%c%c%c\n", DECODE_FOURCC(enc->Codecs[codec].CodecID));
-            printf("    MaxcodecLevel: %hu\n", enc->Codecs[codec].MaxcodecLevel);
-            printf("    BiDirectionalPrediction: %hu\n",
-                   enc->Codecs[codec].BiDirectionalPrediction);
-            for (int profile = 0; profile < enc->Codecs[codec].NumProfiles; profile++) {
-                printf("      Profile: %s\n",
-                       _print_ProfileType(enc->Codecs[codec].CodecID,
-                                          enc->Codecs[codec].Profiles[profile].Profile));
-                for (int memtype = 0; memtype < enc->Codecs[codec].Profiles[profile].NumMemTypes;
-                     memtype++) {
-                    printf(
-                        "        MemHandleType: %s\n",
-                        _print_ResourceType(
-                            enc->Codecs[codec].Profiles[profile].MemDesc[memtype].MemHandleType));
-                    printf("        Width Min: %u\n",
-                           enc->Codecs[codec].Profiles[profile].MemDesc[memtype].Width.Min);
-                    printf("        Width Max: %u\n",
-                           enc->Codecs[codec].Profiles[profile].MemDesc[memtype].Width.Max);
-                    printf("        Width Step: %u\n",
-                           enc->Codecs[codec].Profiles[profile].MemDesc[memtype].Width.Step);
-                    printf("        Height Min: %u\n",
-                           enc->Codecs[codec].Profiles[profile].MemDesc[memtype].Height.Min);
-                    printf("        Height Max: %u\n",
-                           enc->Codecs[codec].Profiles[profile].MemDesc[memtype].Height.Max);
-                    printf("        Height Step: %u\n",
-                           enc->Codecs[codec].Profiles[profile].MemDesc[memtype].Height.Step);
-                    for (int colorformat = 0;
-                         colorformat <
-                         enc->Codecs[codec].Profiles[profile].MemDesc[memtype].NumColorFormats;
-                         colorformat++) {
-                        printf("        ColorFormat: %c%c%c%c\n",
-                               DECODE_FOURCC(enc->Codecs[codec]
-                                                 .Profiles[profile]
-                                                 .MemDesc[memtype]
-                                                 .ColorFormats[colorformat]));
+            /* mfxEncoderDescription */
+            mfxEncoderDescription *enc = &idesc->Enc;
+            printf("%2smfxEncoderDescription:\n", "");
+            printf("%4sVersion: %hu.%hu\n", "", enc->Version.Major, enc->Version.Minor);
+            for (int codec = 0; codec < enc->NumCodecs; codec++) {
+                printf("%4sCodecID: %c%c%c%c\n", "", DECODE_FOURCC(enc->Codecs[codec].CodecID));
+                printf("%4sMaxcodecLevel: %hu\n", "", enc->Codecs[codec].MaxcodecLevel);
+                printf("%4sBiDirectionalPrediction: %hu\n",
+                       "",
+                       enc->Codecs[codec].BiDirectionalPrediction);
+                for (int profile = 0; profile < enc->Codecs[codec].NumProfiles; profile++) {
+                    printf("%6sProfile: %s\n",
+                           "",
+                           _print_ProfileType(enc->Codecs[codec].CodecID,
+                                              enc->Codecs[codec].Profiles[profile].Profile));
+                    for (int memtype = 0;
+                         memtype < enc->Codecs[codec].Profiles[profile].NumMemTypes;
+                         memtype++) {
+                        printf("%8sMemHandleType: %s\n",
+                               "",
+                               _print_ResourceType(enc->Codecs[codec]
+                                                       .Profiles[profile]
+                                                       .MemDesc[memtype]
+                                                       .MemHandleType));
+                        printf("%10sWidth Min: %u\n",
+                               "",
+                               enc->Codecs[codec].Profiles[profile].MemDesc[memtype].Width.Min);
+                        printf("%10sWidth Max: %u\n",
+                               "",
+                               enc->Codecs[codec].Profiles[profile].MemDesc[memtype].Width.Max);
+                        printf("%10sWidth Step: %u\n",
+                               "",
+                               enc->Codecs[codec].Profiles[profile].MemDesc[memtype].Width.Step);
+                        printf("%10sHeight Min: %u\n",
+                               "",
+                               enc->Codecs[codec].Profiles[profile].MemDesc[memtype].Height.Min);
+                        printf("%10sHeight Max: %u\n",
+                               "",
+                               enc->Codecs[codec].Profiles[profile].MemDesc[memtype].Height.Max);
+                        printf("%10sHeight Step: %u\n",
+                               "",
+                               enc->Codecs[codec].Profiles[profile].MemDesc[memtype].Height.Step);
+                        printf("%10sColorFormats: ", "");
+                        for (int colorformat = 0;
+                             colorformat <
+                             enc->Codecs[codec].Profiles[profile].MemDesc[memtype].NumColorFormats;
+                             colorformat++) {
+                            if (0 != colorformat)
+                                printf(", ");
+                            printf("%s",
+                                   _print_fourcc(enc->Codecs[codec]
+                                                     .Profiles[profile]
+                                                     .MemDesc[memtype]
+                                                     .ColorFormats[colorformat]));
+                        }
+                        printf("\n");
                     }
                 }
             }
-        }
 
-        /* mfxVPPDescription */
-        mfxVPPDescription *vpp = &idesc->VPP;
-        printf("\n  mfxVPPDescription:\n");
-        printf("    Version: %hu.%hu\n", vpp->Version.Major, vpp->Version.Minor);
-        for (int filter = 0; filter < vpp->NumFilters; filter++) {
-            printf("    FilterFourCC: %c%c%c%c\n",
-                   DECODE_FOURCC(vpp->Filters[filter].FilterFourCC));
-            printf("    MaxDelayInFrames: %hu\n", vpp->Filters[filter].MaxDelayInFrames);
-            for (int memtype = 0; memtype < vpp->Filters[filter].NumMemTypes; memtype++) {
-                printf("      MemHandleType: %s\n",
-                       _print_ResourceType(vpp->Filters[filter].MemDesc[memtype].MemHandleType));
-                printf("      Width Min: %u\n", vpp->Filters[filter].MemDesc[memtype].Width.Min);
-                printf("      Width Max: %u\n", vpp->Filters[filter].MemDesc[memtype].Width.Max);
-                printf("      Width Step: %u\n", vpp->Filters[filter].MemDesc[memtype].Width.Step);
-                printf("      Height Min: %u\n", vpp->Filters[filter].MemDesc[memtype].Width.Min);
-                printf("      Height Max: %u\n", vpp->Filters[filter].MemDesc[memtype].Width.Max);
-                printf("      Height Step: %u\n", vpp->Filters[filter].MemDesc[memtype].Width.Step);
-                for (int informat = 0;
-                     informat < vpp->Filters[filter].MemDesc[memtype].NumInFormats;
-                     informat++) {
-                    printf("          InFormat: %c%c%c%c\n",
-                           DECODE_FOURCC(
-                               vpp->Filters[filter].MemDesc[memtype].Formats[informat].InFormat));
-                    for (int outformat = 0;
-                         outformat <
-                         vpp->Filters[filter].MemDesc[memtype].Formats[informat].NumOutFormat;
-                         outformat++)
-                        printf("            OutFormat: %c%c%c%c\n",
-                               DECODE_FOURCC(vpp->Filters[filter]
-                                                 .MemDesc[memtype]
-                                                 .Formats[informat]
-                                                 .OutFormats[outformat]));
+            /* mfxVPPDescription */
+            mfxVPPDescription *vpp = &idesc->VPP;
+            printf("%2smfxVPPDescription:\n", "");
+            printf("%4sVersion: %hu.%hu\n", "", vpp->Version.Major, vpp->Version.Minor);
+            for (int filter = 0; filter < vpp->NumFilters; filter++) {
+                printf("%4sFilterFourCC: %c%c%c%c\n",
+                       "",
+                       DECODE_FOURCC(vpp->Filters[filter].FilterFourCC));
+                printf("%4sMaxDelayInFrames: %hu\n", "", vpp->Filters[filter].MaxDelayInFrames);
+                for (int memtype = 0; memtype < vpp->Filters[filter].NumMemTypes; memtype++) {
+                    printf(
+                        "%6sMemHandleType: %s\n",
+                        "",
+                        _print_ResourceType(vpp->Filters[filter].MemDesc[memtype].MemHandleType));
+                    printf("%6sWidth Min: %u\n",
+                           "",
+                           vpp->Filters[filter].MemDesc[memtype].Width.Min);
+                    printf("%6sWidth Max: %u\n",
+                           "",
+                           vpp->Filters[filter].MemDesc[memtype].Width.Max);
+                    printf("%6sWidth Step: %u\n",
+                           "",
+                           vpp->Filters[filter].MemDesc[memtype].Width.Step);
+                    printf("%6sHeight Min: %u\n",
+                           "",
+                           vpp->Filters[filter].MemDesc[memtype].Width.Min);
+                    printf("%6sHeight Max: %u\n",
+                           "",
+                           vpp->Filters[filter].MemDesc[memtype].Width.Max);
+                    printf("%6sHeight Step: %u\n",
+                           "",
+                           vpp->Filters[filter].MemDesc[memtype].Width.Step);
+                    for (int informat = 0;
+                         informat < vpp->Filters[filter].MemDesc[memtype].NumInFormats;
+                         informat++) {
+                        printf(
+                            "%8sInFormat: %s\n",
+                            "",
+                            _print_fourcc(
+                                vpp->Filters[filter].MemDesc[memtype].Formats[informat].InFormat));
+                        printf("%10sOutFormats: ", "");
+                        for (int outformat = 0;
+                             outformat <
+                             vpp->Filters[filter].MemDesc[memtype].Formats[informat].NumOutFormat;
+                             outformat++) {
+                            if (0 != outformat)
+                                printf(", ");
+                            printf("%s",
+                                   _print_fourcc(vpp->Filters[filter]
+                                                     .MemDesc[memtype]
+                                                     .Formats[informat]
+                                                     .OutFormats[outformat]));
+                        }
+                        printf("\n");
+                    }
                 }
             }
-        }
 
-        printf("\n  NumExtParam: %d\n", idesc->NumExtParam);
+            printf("%2sNumExtParam: %d\n", "", idesc->NumExtParam);
+        }
 
         MFXDispReleaseImplDescription(loader, idesc);
 
@@ -370,18 +457,17 @@ int main(int argc, char *argv[]) {
 
             if (sts == MFX_ERR_NONE) {
                 // print out list of functions' name
-                printf("\nImplemented functions:\n");
+                printf("%2sImplemented functions:\n", "");
                 std::for_each(fdesc->FunctionsName,
                               fdesc->FunctionsName + fdesc->NumFunctions,
                               [](mfxChar *functionName) {
-                                  printf("  %s\n", functionName);
+                                  printf("%4s%s\n", "", functionName);
                               });
-                printf("\n");
 
                 MFXDispReleaseImplDescription(loader, fdesc);
             }
             else {
-                printf("Warning - MFX_IMPLCAPS_IMPLEMENTEDFUNCTIONS not supported\n");
+                printf("%2sWarning - MFX_IMPLCAPS_IMPLEMENTEDFUNCTIONS not supported\n", "");
             }
         }
 

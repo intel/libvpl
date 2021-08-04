@@ -288,7 +288,7 @@ private:
     /// @brief Add item
     /// @param subname Subname
     constexpr void add_item(std::string_view subname) {
-        int i = 0;
+        unsigned int i = 0;
         ID_   = check_value(subname, level_, ID_);
 
         for (i = 0; i < subname.size(); i++) {

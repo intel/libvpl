@@ -15,8 +15,13 @@ CALL %~dp0%\_buildopts.bat ^
     -- %*
 IF DEFINED HELP_OPT ( EXIT /b 0 )
 
+SET PY_VER=-3-64
+IF "%ARCH_OPT%"=="x86_32" (
+  SET PY_VER=-3-32
+)
+
 PUSHD %PROJ_DIR%
-  py -3 -m venv _build-venv
+  py %PY_VER% -m venv _build-venv
   call %PROJ_DIR%\_build-venv\Scripts\activate.bat
   python -m pip install -r "%PROJ_DIR%\requirements.txt"
 
@@ -24,4 +29,4 @@ PUSHD %PROJ_DIR%
   FOR /F "tokens=*" %%g IN ('python -m pybind11 --cmakedir') do (SET pybind11_DIR=%%g)
 POPD
 
-ENDLOCAL & set pybind11_DIR=%pybind11_DIR%
+ENDLOCAL & set pybind11_DIR=%pybind11_DIR% & call %PROJ_DIR%\_build-venv\Scripts\activate.bat

@@ -18,7 +18,11 @@ PROJ_DIR="$( dirname "${SCRIPT_DIR}" )"
 result_all=0
 
 pushd "${PROJ_DIR}"
-    # No tests defined
+  BUILD_DIR=_build
+  pushd "${BUILD_DIR}"
+    ctest  --config "${COFIG_OPT}"
+    result_all=$?
+  popd
 popd
 
 exit $result_all

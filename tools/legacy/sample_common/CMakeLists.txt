@@ -73,23 +73,52 @@ if(UNIX)
   pkg_check_modules(PKG_LIBDRM libdrm)
   pkg_check_modules(PKG_X11 x11)
   pkg_check_modules(PKG_LIBVA_X11 libva-x11>=1.10.0)
+  pkg_check_modules(PKG_XCB xcb xcb-dri3 x11-xcb xcb-present)
+  pkg_check_modules(PKG_WAYLAND_CLIENT wayland-client)
   if(PKG_LIBVA_FOUND)
     target_compile_definitions(${TARGET} PUBLIC -DLIBVA_SUPPORT)
-    target_compile_definitions(${TARGET} PUBLIC -DLIBVA_DRM_SUPPORT)
     target_include_directories(${TARGET} PUBLIC ${PKG_LIBVA_INCLUDE_DIRS})
+
+    if(PKG_LIBDRM_FOUND)
+      target_compile_definitions(${TARGET} PUBLIC -DLIBVA_DRM_SUPPORT)
+      target_include_directories(${TARGET} PUBLIC ${PKG_LIBDRM_INCLUDE_DIRS})
+
+      if(PKG_WAYLAND_CLIENT_FOUND)
+        target_compile_definitions(${TARGET} PUBLIC -DLIBVA_WAYLAND_SUPPORT)
+        target_include_directories(${TARGET}
+                                   PUBLIC ${PKG_WAYLAND_CLIENT_LIBRARY_DIRS})
+        target_include_directories(
+          ${TARGET}
+          PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../sample_misc/wayland/include)
+      else()
+        message(
+          WARNING
+            "Wayland modules not found: building sample-common without Wayland support"
+        )
+      endif()
+    else()
+      message(
+        WARNING
+          "libva-drm not found: building sample-common without libVA DRM support"
+      )
+    endif()
+
+    if(PKG_X11_FOUND)
+      target_compile_definitions(${TARGET} PUBLIC -DLIBVA_X11_SUPPORT)
+      target_include_directories(${TARGET} PUBLIC ${PKG_X11_LIBRARY_DIRS})
+      if(PKG_XCB_FOUND)
+        target_compile_definitions(${TARGET} PUBLIC -DX11_DRI3_SUPPORT)
+      endif()
+    else()
+      message(
+        WARNING
+          "x11 modules not found: building sample-common without libVA X11 support"
+      )
+    endif()
   else()
-    message(WARNING "libva not found: building without libVA support")
-  endif()
-  if(PKG_LIBDRM_FOUND)
-    target_include_directories(${TARGET} PUBLIC ${PKG_LIBDRM_INCLUDE_DIRS})
-  else()
-    message(WARNING "libva-drm not found: building without libVA DRM support")
-  endif()
-  if(PKG_X11_FOUND)
-    target_compile_definitions(${TARGET} PUBLIC -DLIBVA_X11_SUPPORT)
-    target_include_directories(${TARGET} PUBLIC ${PKG_X11_LIBRARY_DIRS})
-  else()
-    message(WARNING "x11 modules not found: building without libVA X11 support")
+    message(
+      WARNING "libva not found: building sample* tools without hardware support"
+    )
   endif()
 
   target_link_libraries(${TARGET} ${CMAKE_DL_LIBS})

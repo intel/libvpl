@@ -8,31 +8,45 @@
 # Set installation directories
 #
 
+if(WIN32 AND CMAKE_SIZEOF_VOID_P EQUAL 4)
+  if(NOT CMAKE_INSTALL_BINDIR)
+    set(BINARCH x86)
+  endif()
+  if(NOT CMAKE_INSTALL_LIBDIR)
+    set(LIBARCH x86)
+  endif()
+endif()
+
+if(USE_ONEAPI_INSTALL_LAYOUT)
+  set(CMAKE_INSTALL_DOCDIR "documentation")
+  if(NOT WIN32)
+    set(CMAKE_INSTALL_LIBDIR "lib")
+  endif()
+  set(ONEAPI_INSTALL_ENVDIR "env")
+  set(ONEAPI_INSTALL_SYSCHECKDIR "sys_check")
+  set(ONEAPI_INSTALL_MODFILEDIR "modulefiles")
+  set(ONEAPI_INSTALL_EXAMPLEDIR "examples")
+  set(ONEAPI_INSTALL_LICENSEDIR "licensing/oneVPL")
+  set(ONEAPI_INSTALL_PYTHONDIR "python/lib")
+endif()
+
 # See https://cmake.org/cmake/help/latest/module/GNUInstallDirs.html for
 # variables GNUInstallDirs exposes. This project commonly uses:
 # CMAKE_INSTALL_INCLUDEDIR CMAKE_INSTALL_DOCDIR CMAKE_INSTALL_BINDIR
 # CMAKE_INSTALL_LIBDIR
 include(GNUInstallDirs)
 
-if(NOT ONEAPI_INSTALL_BIN32DIR)
-  if(WIN32)
-    set(ONEAPI_INSTALL_BIN32DIR "${CMAKE_INSTALL_BINDIR}/x86")
-  else()
-    set(ONEAPI_INSTALL_BIN32DIR bin32)
-  endif()
-endif()
-
-if(NOT ONEAPI_INSTALL_LIB32DIR)
-  if(WIN32)
-    set(ONEAPI_INSTALL_LIB32DIR "${CMAKE_INSTALL_LIBDIR}/x86")
-  else()
-    set(ONEAPI_INSTALL_LIB32DIR lib32)
-  endif()
-endif()
-
-if(WIN32 AND "${CMAKE_SIZEOF_VOID_P}" STREQUAL "4")
-  set(CMAKE_INSTALL_BINDIR ${ONEAPI_INSTALL_BIN32DIR})
-  set(CMAKE_INSTALL_LIBDIR ${ONEAPI_INSTALL_LIB32DIR})
+if(WIN32 AND CMAKE_SIZEOF_VOID_P EQUAL 4)
+  set(CMAKE_INSTALL_BINDIR
+      ${CMAKE_INSTALL_BINDIR}/${BINARCH}
+      CACHE PATH "user executables" FORCE)
+  set(CMAKE_INSTALL_LIBDIR
+      ${CMAKE_INSTALL_LIBDIR}/${LIBARCH}
+      CACHE PATH "Object code libraries" FORCE)
+  foreach(dir LIBDIR BINDIR)
+    gnuinstalldirs_get_absolute_install_dir(CMAKE_INSTALL_FULL_${dir}
+                                            CMAKE_INSTALL_${dir} ${dir})
+  endforeach()
 endif()
 
 if(NOT ONEAPI_INSTALL_ENVDIR)
@@ -59,16 +73,7 @@ if(NOT ONEAPI_INSTALL_PYTHONDIR)
       ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/python/lib)
 endif()
 
-foreach(
-  dir
-  BIN32DIR
-  LIB32DIR
-  ENVDIR
-  SYSCHECKDIR
-  MODFILEDIR
-  EXAMPLEDIR
-  LICENSEDIR
-  PYTHONDIR)
+foreach(dir ENVDIR SYSCHECKDIR MODFILEDIR EXAMPLEDIR LICENSEDIR PYTHONDIR)
   gnuinstalldirs_get_absolute_install_dir(ONEAPI_INSTALL_FULL_${dir}
                                           ONEAPI_INSTALL_${dir} ${dir})
 endforeach()

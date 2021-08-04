@@ -14,7 +14,7 @@
     #error MFX_VERSION not defined
 #endif
 
-void PrintHelp(msdk_char *strAppName, const msdk_char *strErrorMessage) {
+void PrintHelp(msdk_char* strAppName, const msdk_char* strErrorMessage) {
     msdk_printf(MSDK_STRING("Decoding Sample Version %s\n\n"), GetMSDKSampleVersion().c_str());
 
     if (strErrorMessage) {
@@ -200,7 +200,7 @@ void PrintHelp(msdk_char *strAppName, const msdk_char *strErrorMessage) {
                 strAppName);
 }
 
-mfxStatus ParseInputString(msdk_char *strInput[], mfxU8 nArgNum, sInputParams *pParams) {
+mfxStatus ParseInputString(msdk_char* strInput[], mfxU8 nArgNum, sInputParams* pParams) {
     if (1 == nArgNum) {
         PrintHelp(strInput[0], NULL);
         return MFX_ERR_UNSUPPORTED;
@@ -739,9 +739,9 @@ mfxStatus ParseInputString(msdk_char *strInput[], mfxU8 nArgNum, sInputParams *p
 }
 
 #if defined(_WIN32) || defined(_WIN64)
-int _tmain(int argc, TCHAR *argv[])
+int _tmain(int argc, TCHAR* argv[])
 #else
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 #endif
 {
     sInputParams Params = {}; // input parameters from command line
@@ -815,7 +815,7 @@ int main(int argc, char *argv[])
     if (Params.api2xPerf && sts == MFX_ERR_NONE) {
         if (Pipeline.m_output_count && Pipeline.GetElapsedTime()) {
             printf("Frame number: %d, fps: %0.3f",
-                   Pipeline.m_output_count,
+                   (int)Pipeline.m_output_count,
                    (1.0e6 / Pipeline.GetElapsedTime()) * Pipeline.m_output_count);
         }
     }

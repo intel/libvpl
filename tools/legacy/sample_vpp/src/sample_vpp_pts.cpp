@@ -32,7 +32,7 @@ PTSMaker::PTSMaker()
           m_IsJump(false),
           m_bIsAdvancedMode(false) {}
 
-mfxStatus PTSMaker::Init(mfxVideoParam *par,
+mfxStatus PTSMaker::Init(mfxVideoParam* par,
                          mfxU32 asyncDeep,
                          bool isAdvancedMode,
                          bool isFrameCorrespond) {
@@ -71,7 +71,7 @@ mfxStatus PTSMaker::Init(mfxVideoParam *par,
     return MFX_ERR_NONE;
 }
 
-bool PTSMaker::SetPTS(mfxFrameSurface1 *pSurface) {
+bool PTSMaker::SetPTS(mfxFrameSurface1* pSurface) {
     mfxF64 ts;
     mfxF64 pts_noise = 0; // 10% of timing noise
 
@@ -100,11 +100,11 @@ bool PTSMaker::SetPTS(mfxFrameSurface1 *pSurface) {
     return true;
 }
 
-bool PTSMaker::CheckPTS(mfxFrameSurface1 *pSurface) {
+bool PTSMaker::CheckPTS(mfxFrameSurface1* pSurface) {
     return m_bIsAdvancedMode ? CheckAdvancedPTS(pSurface) : CheckBasicPTS(pSurface);
 }
 
-bool PTSMaker::CheckBasicPTS(mfxFrameSurface1 *pSurface) {
+bool PTSMaker::CheckBasicPTS(mfxFrameSurface1* pSurface) {
     std::list<mfxU64>::iterator it;
     // -1 valid value
     if (-1 == static_cast<int>(pSurface->Data.TimeStamp))
@@ -128,7 +128,7 @@ bool PTSMaker::CheckBasicPTS(mfxFrameSurface1 *pSurface) {
     PrintDumpInfo();
     return false;
 }
-bool PTSMaker::CheckAdvancedPTS(mfxFrameSurface1 *pSurface) {
+bool PTSMaker::CheckAdvancedPTS(mfxFrameSurface1* pSurface) {
     mfxF64 ts = (mfxF64)pSurface->Data.TimeStamp / MFX_TIME_STAMP_FREQUENCY;
     mfxF64 ref =
         (mfxF64)m_NumFrame_Out * m_FRateExtD_Out / m_FRateExtN_Out + m_TimeOffset + m_CurrTime;

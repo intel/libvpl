@@ -18,6 +18,7 @@ FOR /D %%i IN ("%~dp0") DO (
 @REM Clear options
 SET "HELP_OPT="
 SET "GPL_OPT="
+SET "WARNING_AS_ERROR_OPT="
 SET COFIG_OPT=Release
 SET ARCH_OPT=x86_64
 SET "BOOTSTRAP_OPT="
@@ -53,6 +54,8 @@ SET "BOOTSTRAP_OPT="
     SET GPL_OPT=yes
   ) ELSE IF "%~1"=="gpl" (
     SET GPL_OPT=yes
+  ) ELSE IF "%~1"=="--warning_as_error" (
+    SET WARNING_AS_ERROR_OPT=yes
   ) ELSE IF "%~1"=="--config" (
     SET COFIG_OPT=%~2
     SHIFT
@@ -79,15 +82,16 @@ SET "BOOTSTRAP_OPT="
 @REM Print usage message
 IF DEFINED HELP_OPT (
   ECHO Usage: %ORIG_SCRIPT_NAME% [options]
-  ECHO   --gpl            Include componentes using GPL licensing
-  ECHO   --config CONFIG  Build configuration
-  ECHO   -A ARCH          Target architecture
-  ECHO   --bootstrap      Include bootstrap steps
-  ECHO   --help, -h       Show this help message
+  ECHO   --gpl                Include componentes using GPL licensing
+  ECHO   --warning_as_error   Treat compiler warnings as errors
+  ECHO   --config CONFIG      Build configuration
+  ECHO   -A ARCH              Target architecture
+  ECHO   --bootstrap          Include bootstrap steps
+  ECHO   --help, -h           Show this help message
   ECHO.
   ECHO Depricated options
-  ECHO   debug            same as "--config Debug"
-  ECHO   gpl              same as "--gpl"
+  ECHO   debug                same as "--config Debug"
+  ECHO   gpl                  same as "--gpl"
   ECHO.
   ECHO CONFIG may be: Release, Debug
   ECHO ARCH may be: x86_64, x86_32
@@ -100,6 +104,9 @@ IF DEFINED HELP_OPT (
 SET "FORWARD_OPTS="
 IF DEFINED GPL_OPT (
   SET FORWARD_OPTS=%FORWARD_OPTS% --gpl
+)
+IF DEFINED WARNING_AS_ERROR_OPT (
+  SET FORWARD_OPTS=%FORWARD_OPTS% --warning_as_error
 )
 IF DEFINED COFIG_OPT (
   SET FORWARD_OPTS=%FORWARD_OPTS% --config %COFIG_OPT%
@@ -120,6 +127,7 @@ IF DEFINED BOOTSTRAP_OPT (
 @REM ECHO Option Summary:
 @REM CALL :print_var HELP_OPT
 @REM CALL :print_var GPL_OPT
+@REM CALL :print_var WARNING_AS_ERROR_OPT
 @REM CALL :print_var COFIG_OPT
 @REM CALL :print_var ARCH_OPT
 @REM CALL :print_var BOOTSTRAP_OPT

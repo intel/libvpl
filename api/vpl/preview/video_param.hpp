@@ -420,6 +420,12 @@ public:
         return param_.R;
     }
 
+    /// @brief Gets pointer for formats with 1 plane (BGRA).
+    /// @return Pointer for formats with 1 plane (BGRA).
+    auto get_plane_ptrs_1_BGRA() const {
+        return param_.B;
+    }
+
     /// @brief Gets pointer for formats with 2 planes.
     /// @return Pointers for formats with 2 planes. Pointers for planes layout is: Y, UV.
     auto get_plane_ptrs_2() const {

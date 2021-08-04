@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: MIT
 # ##############################################################################
 cmake_minimum_required(VERSION 3.10.2)
-project(hello-decode-infer-preview)
+project(hello-decode-infer)
 
 # Default install places 64 bit runtimes in the environment, so we want to do a
 # 64 bit build by default.
@@ -17,7 +17,7 @@ if(WIN32)
   endif()
 endif()
 
-set(TARGET hello-decode-infer-prefix)
+set(TARGET hello-decode-infer)
 set(SOURCES src/hello-decode-infer.cpp)
 set(CONTENTPATH ${CMAKE_CURRENT_SOURCE_DIR}/../../content)
 set(RUNARGS -sw -i ${CONTENTPATH}/cars_128x96.h265 -m

@@ -65,8 +65,8 @@ LoaderCtxVPL::~LoaderCtxVPL() {
 }
 
 // creates ordered list of user-specified directories to search
-mfxU32 LoaderCtxVPL::ParseEnvSearchPaths(const CHAR_TYPE* envVarName,
-                                         std::list<STRING_TYPE>& searchDirs) {
+mfxU32 LoaderCtxVPL::ParseEnvSearchPaths(const CHAR_TYPE *envVarName,
+                                         std::list<STRING_TYPE> &searchDirs) {
     searchDirs.clear();
 
 #if defined(_WIN32) || defined(_WIN64)
@@ -78,18 +78,18 @@ mfxU32 LoaderCtxVPL::ParseEnvSearchPaths(const CHAR_TYPE* envVarName,
         return 0; // environment variable not defined or string too long
 
     // parse env variable into individual directories
-    std::wstringstream envPath((CHAR_TYPE*)m_envVar);
+    std::wstringstream envPath((CHAR_TYPE *)m_envVar);
     STRING_TYPE s;
     while (std::getline(envPath, s, L';')) {
         searchDirs.push_back(s);
     }
 #else
-    CHAR_TYPE* envVar = getenv(envVarName);
+    CHAR_TYPE *envVar = getenv(envVarName);
     if (!envVar)
         return 0; // environment variable not defined
 
     // parse env variable into individual directories
-    std::stringstream envPath((CHAR_TYPE*)envVar);
+    std::stringstream envPath((CHAR_TYPE *)envVar);
     STRING_TYPE s;
     while (std::getline(envPath, s, ':')) {
         searchDirs.push_back(s);
@@ -102,7 +102,7 @@ mfxU32 LoaderCtxVPL::ParseEnvSearchPaths(const CHAR_TYPE* envVarName,
 #define NUM_LIB_PREFIXES 2
 
 mfxStatus LoaderCtxVPL::SearchDirForLibs(STRING_TYPE searchDir,
-                                         std::list<LibInfo*>& libInfoList,
+                                         std::list<LibInfo *> &libInfoList,
                                          mfxU32 priority) {
     // okay to call with empty searchDir
     if (searchDir.empty())
@@ -125,7 +125,7 @@ mfxStatus LoaderCtxVPL::SearchDirForLibs(STRING_TYPE searchDir,
         if (hTestFile != INVALID_HANDLE_VALUE) {
             do {
                 wchar_t libNameFull[MAX_VPL_SEARCH_PATH];
-                wchar_t* libNameBase;
+                wchar_t *libNameBase;
 
                 // special case: do not include dispatcher itself (libmfx.dll, libvpl.dll)
                 if (wcsstr(testFileData.cFileName, L"libmfx.dll") ||
@@ -143,13 +143,13 @@ mfxStatus LoaderCtxVPL::SearchDirForLibs(STRING_TYPE searchDir,
 
                 // skip duplicates
                 auto libFound =
-                    std::find_if(libInfoList.begin(), libInfoList.end(), [&](LibInfo* li) {
+                    std::find_if(libInfoList.begin(), libInfoList.end(), [&](LibInfo *li) {
                         return (li->libNameFull == libNameFull);
                     });
                 if (libFound != libInfoList.end())
                     continue;
 
-                LibInfo* libInfo = new LibInfo;
+                LibInfo *libInfo = new LibInfo;
                 if (!libInfo)
                     return MFX_ERR_MEMORY_ALLOC;
 
@@ -169,8 +169,8 @@ mfxStatus LoaderCtxVPL::SearchDirForLibs(STRING_TYPE searchDir,
         SetCurrentDirectoryW(currDir);
 
 #else
-    DIR* pSearchDir;
-    struct dirent* currFile;
+    DIR *pSearchDir;
+    struct dirent *currFile;
 
     pSearchDir = opendir(searchDir.c_str());
     if (pSearchDir) {
@@ -200,7 +200,7 @@ mfxStatus LoaderCtxVPL::SearchDirForLibs(STRING_TYPE searchDir,
                          "%s/%s",
                          searchDir.c_str(),
                          currFile->d_name);
-                char* fullPath = realpath(filePathC, NULL);
+                char *fullPath = realpath(filePathC, NULL);
 
                 // unknown error - skip it and move on to next file
                 if (!fullPath)
@@ -208,7 +208,7 @@ mfxStatus LoaderCtxVPL::SearchDirForLibs(STRING_TYPE searchDir,
 
                 // skip duplicates
                 auto libFound =
-                    std::find_if(libInfoList.begin(), libInfoList.end(), [&](LibInfo* li) {
+                    std::find_if(libInfoList.begin(), libInfoList.end(), [&](LibInfo *li) {
                         return (li->libNameFull == fullPath);
                     });
                 if (libFound != libInfoList.end()) {
@@ -216,7 +216,7 @@ mfxStatus LoaderCtxVPL::SearchDirForLibs(STRING_TYPE searchDir,
                     continue;
                 }
 
-                LibInfo* libInfo = new LibInfo;
+                LibInfo *libInfo = new LibInfo;
                 if (!libInfo)
                     return MFX_ERR_MEMORY_ALLOC;
 
@@ -235,7 +235,7 @@ mfxStatus LoaderCtxVPL::SearchDirForLibs(STRING_TYPE searchDir,
     return MFX_ERR_NONE;
 }
 
-mfxU32 LoaderCtxVPL::GetSearchPathsDriverStore(std::list<STRING_TYPE>& searchDirs) {
+mfxU32 LoaderCtxVPL::GetSearchPathsDriverStore(std::list<STRING_TYPE> &searchDirs) {
     searchDirs.clear();
 
 #if defined(_WIN32) || defined(_WIN64)
@@ -271,7 +271,7 @@ mfxU32 LoaderCtxVPL::GetSearchPathsDriverStore(std::list<STRING_TYPE>& searchDir
     return (mfxU32)searchDirs.size();
 }
 
-mfxU32 LoaderCtxVPL::GetSearchPathsCurrentExe(std::list<STRING_TYPE>& searchDirs) {
+mfxU32 LoaderCtxVPL::GetSearchPathsCurrentExe(std::list<STRING_TYPE> &searchDirs) {
     searchDirs.clear();
 
 #if defined(_WIN32) || defined(_WIN64)
@@ -293,7 +293,7 @@ mfxU32 LoaderCtxVPL::GetSearchPathsCurrentExe(std::list<STRING_TYPE>& searchDirs
     return (mfxU32)searchDirs.size();
 }
 
-mfxU32 LoaderCtxVPL::GetSearchPathsCurrentDir(std::list<STRING_TYPE>& searchDirs) {
+mfxU32 LoaderCtxVPL::GetSearchPathsCurrentDir(std::list<STRING_TYPE> &searchDirs) {
     searchDirs.clear();
 
 #if defined(_WIN32) || defined(_WIN64)
@@ -313,7 +313,7 @@ mfxU32 LoaderCtxVPL::GetSearchPathsCurrentDir(std::list<STRING_TYPE>& searchDirs
 
 // get legacy MSDK dispatcher search paths
 // see "oneVPL Session" section in spec
-mfxU32 LoaderCtxVPL::GetSearchPathsLegacy(std::list<STRING_TYPE>& searchDirs) {
+mfxU32 LoaderCtxVPL::GetSearchPathsLegacy(std::list<STRING_TYPE> &searchDirs) {
     searchDirs.clear();
 
 #if defined(_WIN32) || defined(_WIN64)
@@ -369,7 +369,7 @@ mfxU32 LoaderCtxVPL::GetSearchPathsLegacy(std::list<STRING_TYPE>& searchDirs) {
     return (mfxU32)searchDirs.size();
 }
 
-mfxU32 LoaderCtxVPL::GetSearchPathsSystemDefault(std::list<STRING_TYPE>& searchDirs) {
+mfxU32 LoaderCtxVPL::GetSearchPathsSystemDefault(std::list<STRING_TYPE> &searchDirs) {
     searchDirs.clear();
 
 #ifdef __linux__
@@ -516,13 +516,13 @@ mfxStatus LoaderCtxVPL::BuildListOfCandidateLibs() {
 mfxU32 LoaderCtxVPL::CheckValidLibraries() {
     DISP_LOG_FUNCTION(&m_dispLog);
 
-    LibInfo* msdkLibBest = nullptr;
+    LibInfo *msdkLibBest = nullptr;
 
     // load all libraries
-    std::list<LibInfo*>::iterator it = m_libInfoList.begin();
+    std::list<LibInfo *>::iterator it = m_libInfoList.begin();
     while (it != m_libInfoList.end()) {
         mfxU32 i         = 0;
-        LibInfo* libInfo = (*it);
+        LibInfo *libInfo = (*it);
         mfxStatus sts    = MFX_ERR_NONE;
 
         // load DLL
@@ -550,15 +550,19 @@ mfxU32 LoaderCtxVPL::CheckValidLibraries() {
         }
 
         // not a valid 2.x runtime - check for 1.x API (legacy caps query)
+        i = 0;
         if (sts == MFX_ERR_NONE && libInfo->hModuleVPL) {
-            for (i = 0; i < NumMSDKFunctions; i += 1) {
-                VPLFunctionPtr pProc =
-                    (VPLFunctionPtr)GetFunctionAddr(libInfo->hModuleVPL,
-                                                    MSDKCompatFunctions[i].pName);
-                if (pProc)
-                    libInfo->msdkFuncTable[i] = pProc;
-                else
-                    break;
+            if (libInfo->libNameFull.find(MSDK_LIB_NAME) != std::string::npos) {
+                // legacy runtime must be named libmfxhw64 (or 32)
+                for (i = 0; i < NumMSDKFunctions; i += 1) {
+                    VPLFunctionPtr pProc =
+                        (VPLFunctionPtr)GetFunctionAddr(libInfo->hModuleVPL,
+                                                        MSDKCompatFunctions[i].pName);
+                    if (pProc)
+                        libInfo->msdkFuncTable[i] = pProc;
+                    else
+                        break;
+                }
             }
         }
 
@@ -588,7 +592,7 @@ mfxU32 LoaderCtxVPL::CheckValidLibraries() {
     // prune duplicate MSDK libraries (only keep one with highest API version)
     it = m_libInfoList.begin();
     while (it != m_libInfoList.end()) {
-        LibInfo* libInfo = (*it);
+        LibInfo *libInfo = (*it);
 
         if (libInfo->libType == LibTypeMSDK && libInfo != msdkLibBest) {
             UnloadSingleLibrary(libInfo);
@@ -603,7 +607,7 @@ mfxU32 LoaderCtxVPL::CheckValidLibraries() {
     return (mfxU32)m_libInfoList.size();
 }
 
-VPLFunctionPtr LoaderCtxVPL::GetFunctionAddr(void* hModuleVPL, const char* pName) {
+VPLFunctionPtr LoaderCtxVPL::GetFunctionAddr(void *hModuleVPL, const char *pName) {
     VPLFunctionPtr pProc = nullptr;
 
     if (hModuleVPL) {
@@ -618,7 +622,7 @@ VPLFunctionPtr LoaderCtxVPL::GetFunctionAddr(void* hModuleVPL, const char* pName
 }
 
 // load single runtime
-mfxStatus LoaderCtxVPL::LoadSingleLibrary(LibInfo* libInfo) {
+mfxStatus LoaderCtxVPL::LoadSingleLibrary(LibInfo *libInfo) {
     if (!libInfo)
         return MFX_ERR_NULL_PTR;
 
@@ -635,7 +639,7 @@ mfxStatus LoaderCtxVPL::LoadSingleLibrary(LibInfo* libInfo) {
 }
 
 // unload single runtime
-mfxStatus LoaderCtxVPL::UnloadSingleLibrary(LibInfo* libInfo) {
+mfxStatus LoaderCtxVPL::UnloadSingleLibrary(LibInfo *libInfo) {
     if (libInfo) {
         if (libInfo->hModuleVPL) {
 #if defined(_WIN32) || defined(_WIN64)
@@ -657,9 +661,9 @@ mfxStatus LoaderCtxVPL::UnloadSingleLibrary(LibInfo* libInfo) {
 mfxStatus LoaderCtxVPL::UnloadAllLibraries() {
     DISP_LOG_FUNCTION(&m_dispLog);
 
-    std::list<ImplInfo*>::iterator it2 = m_implInfoList.begin();
+    std::list<ImplInfo *>::iterator it2 = m_implInfoList.begin();
     while (it2 != m_implInfoList.end()) {
-        ImplInfo* implInfo = (*it2);
+        ImplInfo *implInfo = (*it2);
 
         if (implInfo) {
             UnloadSingleImplementation(implInfo);
@@ -668,9 +672,9 @@ mfxStatus LoaderCtxVPL::UnloadAllLibraries() {
     }
 
     // lastly, unload and destroy LibInfo for each library
-    std::list<LibInfo*>::iterator it = m_libInfoList.begin();
+    std::list<LibInfo *>::iterator it = m_libInfoList.begin();
     while (it != m_libInfoList.end()) {
-        LibInfo* libInfo = (*it);
+        LibInfo *libInfo = (*it);
 
         if (libInfo) {
             UnloadSingleLibrary(libInfo);
@@ -683,9 +687,9 @@ mfxStatus LoaderCtxVPL::UnloadAllLibraries() {
 
 // unload single implementation
 // each runtime library may contain 1 or more implementations
-mfxStatus LoaderCtxVPL::UnloadSingleImplementation(ImplInfo* implInfo) {
+mfxStatus LoaderCtxVPL::UnloadSingleImplementation(ImplInfo *implInfo) {
     if (implInfo && implInfo->libInfo) {
-        LibInfo* libInfo     = implInfo->libInfo;
+        LibInfo *libInfo     = implInfo->libInfo;
         VPLFunctionPtr pFunc = libInfo->vplFuncTable[IdxMFXReleaseImplDescription];
 
         // call MFXReleaseImplDescription() for this implementation if it
@@ -695,13 +699,13 @@ mfxStatus LoaderCtxVPL::UnloadSingleImplementation(ImplInfo* implInfo) {
         if (libInfo->libType == LibTypeVPL) {
             if (implInfo->implDesc) {
                 // MFX_IMPLCAPS_IMPLDESCSTRUCTURE;
-                (*(mfxStatus(MFX_CDECL*)(mfxHDL))pFunc)(implInfo->implDesc);
+                (*(mfxStatus(MFX_CDECL *)(mfxHDL))pFunc)(implInfo->implDesc);
                 implInfo->implDesc = nullptr;
             }
 
             if (implInfo->implFuncs) {
                 // MFX_IMPLCAPS_IMPLEMENTEDFUNCTIONS;
-                (*(mfxStatus(MFX_CDECL*)(mfxHDL))pFunc)(implInfo->implFuncs);
+                (*(mfxStatus(MFX_CDECL *)(mfxHDL))pFunc)(implInfo->implFuncs);
                 implInfo->implFuncs = nullptr;
             }
 
@@ -716,7 +720,7 @@ mfxStatus LoaderCtxVPL::UnloadSingleImplementation(ImplInfo* implInfo) {
 }
 
 // check that all functions for this API version are available in library
-mfxStatus LoaderCtxVPL::ValidateAPIExports(VPLFunctionPtr* vplFuncTable,
+mfxStatus LoaderCtxVPL::ValidateAPIExports(VPLFunctionPtr *vplFuncTable,
                                            mfxVersion reportedVersion) {
     for (mfxU32 i = 0; i < NumVPLFunctions; i += 1) {
         if (!vplFuncTable[i] && (FunctionDesc2[i].apiVersion.Version <= reportedVersion.Version))
@@ -727,7 +731,7 @@ mfxStatus LoaderCtxVPL::ValidateAPIExports(VPLFunctionPtr* vplFuncTable,
 }
 
 // convert full path into char* for MFX_IMPLCAPS_IMPLPATH query
-mfxStatus LoaderCtxVPL::UpdateImplPath(LibInfo* libInfo) {
+mfxStatus LoaderCtxVPL::UpdateImplPath(LibInfo *libInfo) {
 #if defined(_WIN32) || defined(_WIN64)
     // Windows - strings are 16-bit
     size_t nCvt = 0;
@@ -748,8 +752,8 @@ mfxStatus LoaderCtxVPL::UpdateImplPath(LibInfo* libInfo) {
     return MFX_ERR_NONE;
 }
 
-bool LoaderCtxVPL::IsValidX86GPU(ImplInfo* implInfo, mfxU32& deviceID, mfxU32& adapterIdx) {
-    mfxImplDescription* implDesc = (mfxImplDescription*)(implInfo->implDesc);
+bool LoaderCtxVPL::IsValidX86GPU(ImplInfo *implInfo, mfxU32 &deviceID, mfxU32 &adapterIdx) {
+    mfxImplDescription *implDesc = (mfxImplDescription *)(implInfo->implDesc);
 
     if (implInfo->validImplIdx >= 0 && implDesc->VendorID == 0x8086 &&
         implDesc->Impl == MFX_IMPL_TYPE_HARDWARE) {
@@ -770,18 +774,18 @@ mfxStatus LoaderCtxVPL::QueryLibraryCaps() {
 
     mfxStatus sts = MFX_ERR_NONE;
 
-    std::list<LibInfo*>::iterator it = m_libInfoList.begin();
+    std::list<LibInfo *>::iterator it = m_libInfoList.begin();
     while (it != m_libInfoList.end()) {
-        LibInfo* libInfo = (*it);
+        LibInfo *libInfo = (*it);
 
         if (libInfo->libType == LibTypeVPL) {
             VPLFunctionPtr pFunc = libInfo->vplFuncTable[IdxMFXQueryImplsDescription];
 
             // call MFXQueryImplsDescription() for this implementation
             // return handle to description in requested format
-            mfxHDL* hImpl;
+            mfxHDL *hImpl;
             mfxU32 numImpls = 0;
-            hImpl           = (*(mfxHDL * (MFX_CDECL*)(mfxImplCapsDeliveryFormat, mfxU32*))
+            hImpl           = (*(mfxHDL * (MFX_CDECL *)(mfxImplCapsDeliveryFormat, mfxU32 *))
                          pFunc)(MFX_IMPLCAPS_IMPLDESCSTRUCTURE, &numImpls);
 
             // validate description pointer for each implementation
@@ -809,16 +813,16 @@ mfxStatus LoaderCtxVPL::QueryLibraryCaps() {
             // query for list of implemented functions
             // prior to API 2.2, this will return null since the format was not defined yet
             //   so we need to check whether the returned handle is valid before attempting to use it
-            mfxHDL* hImplFuncs   = nullptr;
+            mfxHDL *hImplFuncs   = nullptr;
             mfxU32 numImplsFuncs = 0;
-            hImplFuncs           = (*(mfxHDL * (MFX_CDECL*)(mfxImplCapsDeliveryFormat, mfxU32*))
+            hImplFuncs           = (*(mfxHDL * (MFX_CDECL *)(mfxImplCapsDeliveryFormat, mfxU32 *))
                               pFunc)(MFX_IMPLCAPS_IMPLEMENTEDFUNCTIONS, &numImplsFuncs);
 
             // save user-friendly path for MFX_IMPLCAPS_IMPLPATH query (API >= 2.4)
             UpdateImplPath(libInfo);
 
             for (mfxU32 i = 0; i < numImpls; i++) {
-                ImplInfo* implInfo = new ImplInfo;
+                ImplInfo *implInfo = new ImplInfo;
                 if (!implInfo)
                     return MFX_ERR_MEMORY_ALLOC;
 
@@ -834,7 +838,7 @@ mfxStatus LoaderCtxVPL::QueryLibraryCaps() {
 
                 // fill out mfxInitParam struct for when we call MFXInitEx
                 //   in CreateSession()
-                mfxImplDescription* implDesc = reinterpret_cast<mfxImplDescription*>(hImpl[i]);
+                mfxImplDescription *implDesc = reinterpret_cast<mfxImplDescription *>(hImpl[i]);
 
                 // fill out mfxInitializationParam for use in CreateSession (MFXInitialize path)
                 memset(&(implInfo->vplParam), 0, sizeof(mfxInitializationParam));
@@ -871,10 +875,10 @@ mfxStatus LoaderCtxVPL::QueryLibraryCaps() {
 
             mfxU32 numImplMSDK = 0;
             for (mfxU32 i = 0; i < MAX_NUM_IMPL_MSDK; i++) {
-                mfxImplDescription* implDesc       = nullptr;
-                mfxImplementedFunctions* implFuncs = nullptr;
+                mfxImplDescription *implDesc       = nullptr;
+                mfxImplementedFunctions *implFuncs = nullptr;
 
-                LoaderCtxMSDK* msdkCtx = &(libInfo->msdkCtx[i]);
+                LoaderCtxMSDK *msdkCtx = &(libInfo->msdkCtx[i]);
 
                 sts = msdkCtx->QueryMSDKCaps(libInfo->libNameFull, &implDesc, &implFuncs, i);
 
@@ -883,7 +887,7 @@ mfxStatus LoaderCtxVPL::QueryLibraryCaps() {
                     continue;
                 }
 
-                ImplInfo* implInfo = new ImplInfo;
+                ImplInfo *implInfo = new ImplInfo;
                 if (!implInfo)
                     return MFX_ERR_MEMORY_ALLOC;
 
@@ -941,9 +945,9 @@ mfxStatus LoaderCtxVPL::QueryLibraryCaps() {
     }
 
     if (!m_implInfoList.empty()) {
-        std::list<ImplInfo*>::iterator it2 = m_implInfoList.begin();
+        std::list<ImplInfo *>::iterator it2 = m_implInfoList.begin();
         while (it2 != m_implInfoList.end()) {
-            ImplInfo* implInfo = (*it2);
+            ImplInfo *implInfo = (*it2);
 
             mfxU32 deviceID   = 0;
             mfxU32 adapterIdx = 0;
@@ -959,8 +963,8 @@ mfxStatus LoaderCtxVPL::QueryLibraryCaps() {
                     m_implInfoList.begin(),
                     m_implInfoList.end(),
 
-                    [](const ImplInfo* t) {
-                        mfxImplDescription* implDesc = (mfxImplDescription*)(t->implDesc);
+                    [](const ImplInfo *t) {
+                        mfxImplDescription *implDesc = (mfxImplDescription *)(t->implDesc);
 
                         return (t->libInfo->libType == LibTypeVPL && implDesc != nullptr &&
                                 implDesc->Impl == MFX_IMPL_TYPE_HARDWARE);
@@ -981,14 +985,14 @@ mfxStatus LoaderCtxVPL::QueryLibraryCaps() {
 }
 
 // query implementation i
-mfxStatus LoaderCtxVPL::QueryImpl(mfxU32 idx, mfxImplCapsDeliveryFormat format, mfxHDL* idesc) {
+mfxStatus LoaderCtxVPL::QueryImpl(mfxU32 idx, mfxImplCapsDeliveryFormat format, mfxHDL *idesc) {
     DISP_LOG_FUNCTION(&m_dispLog);
 
     *idesc = nullptr;
 
-    std::list<ImplInfo*>::iterator it = m_implInfoList.begin();
+    std::list<ImplInfo *>::iterator it = m_implInfoList.begin();
     while (it != m_implInfoList.end()) {
-        ImplInfo* implInfo = (*it);
+        ImplInfo *implInfo = (*it);
         if (implInfo->validImplIdx == (mfxI32)idx) {
             if (format == MFX_IMPLCAPS_IMPLDESCSTRUCTURE) {
                 *idesc = implInfo->implDesc;
@@ -1024,9 +1028,9 @@ mfxStatus LoaderCtxVPL::ReleaseImpl(mfxHDL idesc) {
     // all we get from the application is a handle to the descriptor,
     //   not the implementation associated with it, so we search
     //   through the full list until we find a match
-    std::list<ImplInfo*>::iterator it = m_implInfoList.begin();
+    std::list<ImplInfo *>::iterator it = m_implInfoList.begin();
     while (it != m_implInfoList.end()) {
-        ImplInfo* implInfo                   = (*it);
+        ImplInfo *implInfo                   = (*it);
         mfxImplCapsDeliveryFormat capsFormat = (mfxImplCapsDeliveryFormat)0; // unknown format
 
         // determine type of descriptor so we know which handle to
@@ -1059,11 +1063,11 @@ mfxStatus LoaderCtxVPL::ReleaseImpl(mfxHDL idesc) {
             VPLFunctionPtr pFunc = implInfo->libInfo->vplFuncTable[IdxMFXReleaseImplDescription];
 
             if (capsFormat == MFX_IMPLCAPS_IMPLDESCSTRUCTURE) {
-                sts                = (*(mfxStatus(MFX_CDECL*)(mfxHDL))pFunc)(implInfo->implDesc);
+                sts                = (*(mfxStatus(MFX_CDECL *)(mfxHDL))pFunc)(implInfo->implDesc);
                 implInfo->implDesc = nullptr;
             }
             else if (capsFormat == MFX_IMPLCAPS_IMPLEMENTEDFUNCTIONS) {
-                sts                 = (*(mfxStatus(MFX_CDECL*)(mfxHDL))pFunc)(implInfo->implFuncs);
+                sts                 = (*(mfxStatus(MFX_CDECL *)(mfxHDL))pFunc)(implInfo->implFuncs);
                 implInfo->implFuncs = nullptr;
             }
 
@@ -1086,9 +1090,9 @@ mfxStatus LoaderCtxVPL::UpdateValidImplList(void) {
 
     // iterate over all libraries and update list of those that
     //   meet current current set of config props
-    std::list<ImplInfo*>::iterator it = m_implInfoList.begin();
+    std::list<ImplInfo *>::iterator it = m_implInfoList.begin();
     while (it != m_implInfoList.end()) {
-        ImplInfo* implInfo = (*it);
+        ImplInfo *implInfo = (*it);
 
         // already invalidated by previous filter
         if (implInfo->validImplIdx == -1) {
@@ -1097,8 +1101,8 @@ mfxStatus LoaderCtxVPL::UpdateValidImplList(void) {
         }
 
         // compare caps from this library vs. config filters
-        sts = ConfigCtxVPL::ValidateConfig((mfxImplDescription*)implInfo->implDesc,
-                                           (mfxImplementedFunctions*)implInfo->implFuncs,
+        sts = ConfigCtxVPL::ValidateConfig((mfxImplDescription *)implInfo->implDesc,
+                                           (mfxImplementedFunctions *)implInfo->implFuncs,
                                            m_configCtxList,
                                            implInfo->libInfo->libType,
                                            &m_specialConfig);
@@ -1141,24 +1145,24 @@ mfxStatus LoaderCtxVPL::PrioritizeImplList(void) {
     // stable sort - work from lowest to highest priority conditions
 
     // 4 - sort by search path priority
-    m_implInfoList.sort([](const ImplInfo* impl1, const ImplInfo* impl2) {
+    m_implInfoList.sort([](const ImplInfo *impl1, const ImplInfo *impl2) {
         // prioritize lowest value for libPriority (1 = highest priority)
         return (impl1->libInfo->libPriority < impl2->libInfo->libPriority);
     });
 
     // 3 - sort by API version
-    m_implInfoList.sort([](const ImplInfo* impl1, const ImplInfo* impl2) {
-        mfxImplDescription* implDesc1 = (mfxImplDescription*)(impl1->implDesc);
-        mfxImplDescription* implDesc2 = (mfxImplDescription*)(impl2->implDesc);
+    m_implInfoList.sort([](const ImplInfo *impl1, const ImplInfo *impl2) {
+        mfxImplDescription *implDesc1 = (mfxImplDescription *)(impl1->implDesc);
+        mfxImplDescription *implDesc2 = (mfxImplDescription *)(impl2->implDesc);
 
         // prioritize greatest API version
         return (implDesc1->ApiVersion.Version > implDesc2->ApiVersion.Version);
     });
 
     // 2 - sort by general HW vs. VSI
-    m_implInfoList.sort([](const ImplInfo* impl1, const ImplInfo* impl2) {
-        mfxImplDescription* implDesc1 = (mfxImplDescription*)(impl1->implDesc);
-        mfxImplDescription* implDesc2 = (mfxImplDescription*)(impl2->implDesc);
+    m_implInfoList.sort([](const ImplInfo *impl1, const ImplInfo *impl2) {
+        mfxImplDescription *implDesc1 = (mfxImplDescription *)(impl1->implDesc);
+        mfxImplDescription *implDesc2 = (mfxImplDescription *)(impl2->implDesc);
 
         // prioritize general HW accelerator over VSI (if none, i.e. SW, will be sorted in final step)
         return (implDesc1->AccelerationMode != MFX_ACCEL_MODE_VIA_HDDLUNITE &&
@@ -1166,9 +1170,9 @@ mfxStatus LoaderCtxVPL::PrioritizeImplList(void) {
     });
 
     // 1 - sort by implementation type (HW > SW)
-    m_implInfoList.sort([](const ImplInfo* impl1, const ImplInfo* impl2) {
-        mfxImplDescription* implDesc1 = (mfxImplDescription*)(impl1->implDesc);
-        mfxImplDescription* implDesc2 = (mfxImplDescription*)(impl2->implDesc);
+    m_implInfoList.sort([](const ImplInfo *impl1, const ImplInfo *impl2) {
+        mfxImplDescription *implDesc1 = (mfxImplDescription *)(impl1->implDesc);
+        mfxImplDescription *implDesc2 = (mfxImplDescription *)(impl2->implDesc);
 
         // prioritize greatest Impl value (HW = 2, SW = 1)
         return (implDesc1->Impl > implDesc2->Impl);
@@ -1176,10 +1180,10 @@ mfxStatus LoaderCtxVPL::PrioritizeImplList(void) {
 
     // final pass - update index to match new priority order
     // validImplIdx will be the index associated with MFXEnumImplememntations()
-    mfxI32 validImplIdx               = 0;
-    std::list<ImplInfo*>::iterator it = m_implInfoList.begin();
+    mfxI32 validImplIdx                = 0;
+    std::list<ImplInfo *>::iterator it = m_implInfoList.begin();
     while (it != m_implInfoList.end()) {
-        ImplInfo* implInfo = (*it);
+        ImplInfo *implInfo = (*it);
 
         if (implInfo->validImplIdx >= 0) {
             implInfo->validImplIdx = validImplIdx++;
@@ -1190,7 +1194,7 @@ mfxStatus LoaderCtxVPL::PrioritizeImplList(void) {
     return MFX_ERR_NONE;
 }
 
-mfxStatus LoaderCtxVPL::CreateSession(mfxU32 idx, mfxSession* session) {
+mfxStatus LoaderCtxVPL::CreateSession(mfxU32 idx, mfxSession *session) {
     DISP_LOG_FUNCTION(&m_dispLog);
 
     mfxStatus sts = MFX_ERR_NONE;
@@ -1198,18 +1202,18 @@ mfxStatus LoaderCtxVPL::CreateSession(mfxU32 idx, mfxSession* session) {
     // find library with given implementation index
     // list of valid implementations (and associated indices) is updated
     //   every time a filter property is added/modified
-    std::list<ImplInfo*>::iterator it = m_implInfoList.begin();
+    std::list<ImplInfo *>::iterator it = m_implInfoList.begin();
     while (it != m_implInfoList.end()) {
-        ImplInfo* implInfo = (*it);
+        ImplInfo *implInfo = (*it);
 
         if (implInfo->validImplIdx == (mfxI32)idx) {
-            LibInfo* libInfo = implInfo->libInfo;
+            LibInfo *libInfo = implInfo->libInfo;
             mfxU16 deviceID  = 0;
 
             if (sts == MFX_ERR_NONE) {
                 // pass VendorImplID for this implementation (disambiguate if one
                 //   library contains multiple implementations)
-                mfxImplDescription* implDesc = (mfxImplDescription*)(implInfo->implDesc);
+                mfxImplDescription *implDesc = (mfxImplDescription *)(implInfo->implDesc);
 
                 // should not happen in normal circumstances, but avoid using nullptr if something went wrong
                 if (!implDesc)
@@ -1237,7 +1241,7 @@ mfxStatus LoaderCtxVPL::CreateSession(mfxU32 idx, mfxSession* session) {
                                  msdkImpl,
                                  session,
                                  &deviceID,
-                                 (CHAR_TYPE*)libInfo->libNameFull.c_str());
+                                 (CHAR_TYPE *)libInfo->libNameFull.c_str());
             }
 
             // optionally call MFXSetHandle() if present via SetConfigProperty
@@ -1258,7 +1262,7 @@ mfxStatus LoaderCtxVPL::CreateSession(mfxU32 idx, mfxSession* session) {
     return MFX_ERR_NOT_FOUND;
 }
 
-ConfigCtxVPL* LoaderCtxVPL::AddConfigFilter() {
+ConfigCtxVPL *LoaderCtxVPL::AddConfigFilter() {
     DISP_LOG_FUNCTION(&m_dispLog);
 
     // create new config filter context and add
@@ -1271,7 +1275,7 @@ ConfigCtxVPL* LoaderCtxVPL::AddConfigFilter() {
         return nullptr;
     }
 
-    ConfigCtxVPL* config   = (ConfigCtxVPL*)(configCtx.release());
+    ConfigCtxVPL *config   = (ConfigCtxVPL *)(configCtx.release());
     config->m_parentLoader = this;
 
     m_configCtxList.push_back(config);
@@ -1282,10 +1286,10 @@ ConfigCtxVPL* LoaderCtxVPL::AddConfigFilter() {
 mfxStatus LoaderCtxVPL::FreeConfigFilters() {
     DISP_LOG_FUNCTION(&m_dispLog);
 
-    std::list<ConfigCtxVPL*>::iterator it = m_configCtxList.begin();
+    std::list<ConfigCtxVPL *>::iterator it = m_configCtxList.begin();
 
     while (it != m_configCtxList.end()) {
-        ConfigCtxVPL* config = (*it);
+        ConfigCtxVPL *config = (*it);
         if (config)
             delete config;
         it++;
@@ -1317,13 +1321,13 @@ mfxStatus LoaderCtxVPL::InitDispatcherLog() {
     }
 
 #else
-    const char* logEnabled = std::getenv("ONEVPL_DISPATCHER_LOG");
+    const char *logEnabled = std::getenv("ONEVPL_DISPATCHER_LOG");
     if (!logEnabled)
         return MFX_ERR_UNSUPPORTED;
 
     strLogEnabled = logEnabled;
 
-    const char* logFile = std::getenv("ONEVPL_DISPATCHER_LOG_FILE");
+    const char *logFile = std::getenv("ONEVPL_DISPATCHER_LOG_FILE");
     if (logFile)
         strLogFile = logFile;
 #endif
@@ -1338,6 +1342,6 @@ mfxStatus LoaderCtxVPL::InitDispatcherLog() {
 
 // public function to return logger object
 // allows logging from C API functions outside of loaderCtx
-DispatcherLogVPL* LoaderCtxVPL::GetLogger() {
+DispatcherLogVPL *LoaderCtxVPL::GetLogger() {
     return &m_dispLog;
 }

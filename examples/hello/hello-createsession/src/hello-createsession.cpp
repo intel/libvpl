@@ -16,7 +16,7 @@
 
 void Usage(void) {
     printf("\n");
-    printf("   Usage  :  legacy-createsession\n");
+    printf("   Usage  :  hello-createsession\n");
     printf("     -hw        use hardware implementation\n");
     printf("     -sw        use software implementation\n");
     printf("   Initializes oneVPL session\n\n");
@@ -28,6 +28,7 @@ int main(int argc, char *argv[]) {
     mfxSession session = NULL;
     mfxStatus sts      = MFX_ERR_NONE;
     void *accelHandle  = NULL;
+    int accel_fd       = 0;
     Params cliParams;
 
 #ifdef USE_MEDIASDK1
@@ -67,14 +68,14 @@ int main(int argc, char *argv[]) {
     ShowImplInfo(session);
 
     // Convenience function to initialize available accelerator(s)
-    accelHandle = InitAcceleratorHandle(session);
+    accelHandle = InitAcceleratorHandle(session, &accel_fd);
 
 end:
 
     MFXClose(session);
 
     if (accelHandle)
-        FreeAcceleratorHandle(accelHandle);
+        FreeAcceleratorHandle(accelHandle, accel_fd);
 
 #ifndef USE_MEDIASDK1
     if (loader)

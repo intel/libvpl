@@ -50,7 +50,6 @@ int main(int argc, char *argv[]) {
     std::ofstream sink;
     uint32_t frame_num = 0;
     bool is_stillgoing = true;
-    mfxIMPL impl;
     mfxImplType impl_type;
 
     impl_type = (mfxImplType)cliParams.implValue.Data.U32;

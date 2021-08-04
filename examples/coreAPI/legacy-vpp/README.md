@@ -16,9 +16,9 @@ perform a simple video processing using 1.x common APIs.
 
 This sample is a command line application that takes a file containing a raw
 native format video elementary stream as an argument, processes it with oneVPL
-writes the resized output to `out.raw` in I420 raw video format.
+writes the resized output to `out.raw` in BGRA raw video format.
 
-Native raw frame format: CPU=I420, GPU=NV12.
+Native raw input frame format: CPU=I420, GPU=NV12.
 
 ## Key Implementation details
 
@@ -26,7 +26,7 @@ Native raw frame format: CPU=I420, GPU=NV12.
 | ----------------- | ----------------------------------
 | Target device     | CPU
 | Input format      | I420
-| Output format     | I420
+| Output format     | BGRA
 | Output resolution | 640 x 480
 
 
@@ -116,12 +116,14 @@ The instructions given above run the sample executable with the argument
 ### Example of Output
 
 ```
-Implementation info
-      version = 2.2
-      impl = Software
-Decoding legacy-vpp/../content/cars_128x96.i420 -> out.raw
-Processed 60 frames
+Implementation details:
+  ApiVersion:           2.4  
+  Implementation type:  SW
+  AccelerationMode via: NA 
+  Path: /opt/intel/oneapi/vpl/2021.4.0/lib/libvplswref64.so.1
 
+Processing ../../../content/cars_128x96.nv12 -> out.raw
+Processed 60 frames
 ```
 
 You can find the output file `out.raw` in the build directory and its size is `640x480`.
@@ -130,5 +132,5 @@ You can display the output with a video player that supports raw streams such as
 FFplay. You can use the following command to display the output with FFplay:
 
 ```
-ffplay -video_size 640x480 -pixel_format yuv420p -f rawvideo out.raw
+ffplay -video_size 640x480 -pixel_format bgra -f rawvideo out.raw
 ```

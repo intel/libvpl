@@ -61,7 +61,8 @@ public:
 
     /// @brief Copy ctor.
     /// @param[in] other Object to copy.
-    payload(const payload& other) {
+    payload(const payload& other) :
+        codec_id_(other.codec_id_) {
         ctor_helper(other.get_payload_data(),
                     other.payload_.NumBit,
                     other.payload_.Type,
@@ -76,6 +77,7 @@ public:
         payload_.NumBit    = other.payload_.NumBit;
         payload_.BufSize   = other.payload_.BufSize;
         payload_.Data      = other.payload_.Data;
+        codec_id_ = other.codec_id_;
 
         other.payload_.Data = 0;
     }
@@ -94,6 +96,7 @@ public:
                     other.payload_.NumBit,
                     other.payload_.Type,
                     other.payload_.CtrlFlags);
+        codec_id_ = other.codec_id_;
         return *this;
     }
 
@@ -112,7 +115,7 @@ public:
         payload_.NumBit    = other.payload_.NumBit;
         payload_.BufSize   = other.payload_.BufSize;
         payload_.Data      = other.payload_.Data;
-
+        codec_id_ = other.codec_id_;
         other.payload_.Data = 0;
         return *this;
     }

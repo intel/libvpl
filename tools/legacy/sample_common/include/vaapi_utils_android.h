@@ -18,7 +18,7 @@ public:
     virtual ~AndroidLibVA(void);
 
 protected:
-    void *m_display;
+    void* m_display;
 
 private:
     DISALLOW_COPY_AND_ASSIGN(AndroidLibVA);

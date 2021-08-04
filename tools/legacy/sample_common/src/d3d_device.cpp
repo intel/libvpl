@@ -86,7 +86,7 @@ CD3D9Device::CD3D9Device() {
 bool CD3D9Device::CheckOverlaySupport() {
     D3DCAPS9 d3d9caps;
     D3DOVERLAYCAPS d3doverlaycaps             = { 0 };
-    IDirect3D9ExOverlayExtension *d3d9overlay = NULL;
+    IDirect3D9ExOverlayExtension* d3d9overlay = NULL;
     bool overlaySupported                     = false;
 
     memset(&d3d9caps, 0, sizeof(d3d9caps));
@@ -122,7 +122,7 @@ bool CD3D9Device::CheckOverlaySupport() {
     return overlaySupported;
 }
 
-mfxStatus CD3D9Device::FillD3DPP(mfxHDL hWindow, mfxU16 nViews, D3DPRESENT_PARAMETERS &D3DPP) {
+mfxStatus CD3D9Device::FillD3DPP(mfxHDL hWindow, mfxU16 nViews, D3DPRESENT_PARAMETERS& D3DPP) {
     mfxStatus sts = MFX_ERR_NONE;
 
     D3DPP.Windowed      = true;
@@ -262,7 +262,7 @@ CD3D9Device::~CD3D9Device() {
     Close();
 }
 
-mfxStatus CD3D9Device::GetHandle(mfxHandleType type, mfxHDL *pHdl) {
+mfxStatus CD3D9Device::GetHandle(mfxHandleType type, mfxHDL* pHdl) {
     if (MFX_HANDLE_DIRECT3D_DEVICE_MANAGER9 == type && pHdl != NULL) {
         *pHdl = m_pDeviceManager9;
 
@@ -280,7 +280,7 @@ mfxStatus CD3D9Device::SetHandle(mfxHandleType type, mfxHDL hdl) {
     return MFX_ERR_UNSUPPORTED;
 }
 
-mfxStatus CD3D9Device::RenderFrame(mfxFrameSurface1 *pSurface, mfxFrameAllocator *pmfxAlloc) {
+mfxStatus CD3D9Device::RenderFrame(mfxFrameSurface1* pSurface, mfxFrameAllocator* pmfxAlloc) {
     HRESULT hr = S_OK;
 
     // Rendering of MVC is not supported
@@ -313,9 +313,9 @@ mfxStatus CD3D9Device::RenderFrame(mfxFrameSurface1 *pSurface, mfxFrameAllocator
     CComPtr<IDirect3DSurface9> pBackBuffer;
     hr = m_pD3DD9->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &pBackBuffer);
 
-    mfxHDLPair *dxMemId = (mfxHDLPair *)pSurface->Data.MemId;
+    mfxHDLPair* dxMemId = (mfxHDLPair*)pSurface->Data.MemId;
 
-    hr = m_pD3DD9->StretchRect((IDirect3DSurface9 *)dxMemId->first,
+    hr = m_pD3DD9->StretchRect((IDirect3DSurface9*)dxMemId->first,
                                NULL,
                                pBackBuffer,
                                NULL,
@@ -341,7 +341,7 @@ mfxStatus CD3D9Device::CreateVideoProcessors() {
     HRESULT hr;
 
     ZeroMemory(&m_backBufferDesc, sizeof(m_backBufferDesc));
-    IDirect3DSurface9 *backBufferTmp = NULL;
+    IDirect3DSurface9* backBufferTmp = NULL;
     hr = m_pD3DD9->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &backBufferTmp);
     if (NULL != backBufferTmp)
         backBufferTmp->GetDesc(&m_backBufferDesc);
@@ -351,7 +351,7 @@ mfxStatus CD3D9Device::CreateVideoProcessors() {
         // Create DXVA2 Video Processor Service.
         hr = DXVA2CreateVideoService(m_pD3DD9,
                                      IID_IDirectXVideoProcessorService,
-                                     (void **)&m_pDXVAVPS);
+                                     (void**)&m_pDXVAVPS);
     }
 
     if (SUCCEEDED(hr)) {

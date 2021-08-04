@@ -31,18 +31,18 @@ public:
     /// @param[in] name Name of the property
     /// @param[in] value Value
     template <typename T>
-    property(property_name &name, T value) : value_(value),
-                                             name_(name.get_name()) {}
+    property(property_name &name, T value) : name_(name.get_name()), 
+                                             value_(value) {}
     /// @brief Constucts property with given name and the value
     /// @tparam T Type of the value
     /// @param[in] name Name of the property
     /// @param[in] value Value
     template <typename T>
-    property(std::string &name, T value) : value_(value),
-                                           name_(name) {}
+    property(std::string &name, T value) : name_(name),
+                                           value_(value) {}
     /// @brief Copy ctor
     /// @param[in] other another object to use as data source
-    property(const property &other) : value_(other.value_), name_(other.name_) {}
+    property(const property &other) : name_(other.name_), value_(other.value_) {}
     /// @brief Dtor
     virtual ~property() {}
 

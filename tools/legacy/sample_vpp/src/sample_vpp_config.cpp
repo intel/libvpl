@@ -94,8 +94,7 @@ mfxStatus ConfigVideoEnhancementFilters(sInputParams* pParams,
     }
 
     if (VPP_FILTER_ENABLED_CONFIGURED == pParams->colorfillParam[paramID].mode) {
-        auto colorfillConfig = pVppParam->AddExtBuffer<mfxExtVPPColorFill>();
-        colorfillConfig      = &pParams->colorfillParam[paramID];
+        pVppParam->AddExtBuffer<mfxExtVPPColorFill>();
     }
 
     if (VPP_FILTER_ENABLED_CONFIGURED == pParams->procampParam[paramID].mode) {

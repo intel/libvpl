@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: MIT
 # ##############################################################################
 cmake_minimum_required(VERSION 3.10.2)
-project(legacy-encode-preview)
+project(legacy-encode)
 
 # Default install places 64 bit runtimes in the environment, so we want to do a
 # 64 bit build by default.
@@ -17,7 +17,7 @@ if(WIN32)
   endif()
 endif()
 
-set(TARGET legacy-encode-preview)
+set(TARGET legacy-encode)
 set(SOURCES src/legacy-encode.cpp)
 set(CONTENTPATH ${CMAKE_CURRENT_SOURCE_DIR}/../../content)
 set(RUNARGS

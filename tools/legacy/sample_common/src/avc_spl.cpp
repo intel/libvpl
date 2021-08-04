@@ -68,21 +68,21 @@ mfxStatus AVC_Spl::Reset() {
     return MFX_ERR_NONE;
 }
 
-mfxU8 *AVC_Spl::GetMemoryForSwapping(mfxU32 size) {
+mfxU8* AVC_Spl::GetMemoryForSwapping(mfxU32 size) {
     if (m_swappingMemory.size() <= size + 8)
         m_swappingMemory.resize(size + 8);
 
     return &(m_swappingMemory[0]);
 }
 
-mfxStatus AVC_Spl::DecodeHeader(mfxBitstream *nalUnit) {
+mfxStatus AVC_Spl::DecodeHeader(mfxBitstream* nalUnit) {
     mfxStatus umcRes = MFX_ERR_NONE;
 
     AVCHeadersBitstream bitStream;
 
     try {
         mfxU32 swappingSize   = nalUnit->DataLength;
-        mfxU8 *swappingMemory = GetMemoryForSwapping(swappingSize);
+        mfxU8* swappingMemory = GetMemoryForSwapping(swappingSize);
 
         BytesSwapper::SwapMemory(swappingMemory,
                                  swappingSize,
@@ -102,7 +102,7 @@ mfxStatus AVC_Spl::DecodeHeader(mfxBitstream *nalUnit) {
                 AVCSeqParamSet sps;
                 umcRes = bitStream.GetSequenceParamSet(&sps);
                 if (umcRes == MFX_ERR_NONE) {
-                    AVCSeqParamSet *temp =
+                    AVCSeqParamSet* temp =
                         m_headers.m_SeqParams.GetHeader(sps.seq_parameter_set_id);
                     m_headers.m_SeqParams.AddHeader(&sps);
 
@@ -138,7 +138,7 @@ mfxStatus AVC_Spl::DecodeHeader(mfxBitstream *nalUnit) {
                 // Get id
                 umcRes = bitStream.GetPictureParamSetPart1(&pps);
                 if (MFX_ERR_NONE == umcRes) {
-                    AVCSeqParamSet *pRefsps =
+                    AVCSeqParamSet* pRefsps =
                         m_headers.m_SeqParams.GetHeader(pps.seq_parameter_set_id);
 
                     if (!pRefsps || pRefsps->seq_parameter_set_id >= MAX_NUM_SEQ_PARAM_SETS) {
@@ -170,7 +170,7 @@ mfxStatus AVC_Spl::DecodeHeader(mfxBitstream *nalUnit) {
                 if ((AVC_PROFILE_MULTIVIEW_HIGH == sps.profile_idc) ||
                     (AVC_PROFILE_STEREO_HIGH == sps.profile_idc)) {
                     AVCSeqParamSet spsMvcExt;
-                    AVCSeqParamSet *sps_temp = &spsMvcExt;
+                    AVCSeqParamSet* sps_temp = &spsMvcExt;
 
                     *sps_temp = sps;
 
@@ -190,7 +190,7 @@ mfxStatus AVC_Spl::DecodeHeader(mfxBitstream *nalUnit) {
                 break;
         }
     }
-    catch (const AVC_exception &) {
+    catch (const AVC_exception&) {
         return MFX_ERR_UNDEFINED_BEHAVIOR;
     }
     catch (...) {
@@ -200,7 +200,7 @@ mfxStatus AVC_Spl::DecodeHeader(mfxBitstream *nalUnit) {
     return MFX_ERR_NONE;
 }
 
-mfxStatus AVC_Spl::DecodeSEI(mfxBitstream *nalUnit) {
+mfxStatus AVC_Spl::DecodeSEI(mfxBitstream* nalUnit) {
     if (m_headers.m_SeqParams.GetCurrrentID() == -1)
         return MFX_ERR_NONE;
 
@@ -208,7 +208,7 @@ mfxStatus AVC_Spl::DecodeSEI(mfxBitstream *nalUnit) {
 
     try {
         mfxU32 swappingSize   = nalUnit->DataLength;
-        mfxU8 *swappingMemory = GetMemoryForSwapping(swappingSize);
+        mfxU8* swappingMemory = GetMemoryForSwapping(swappingSize);
 
         BytesSwapper::SwapMemory(swappingMemory,
                                  swappingSize,
@@ -242,12 +242,12 @@ mfxStatus AVC_Spl::DecodeSEI(mfxBitstream *nalUnit) {
     return MFX_ERR_NONE;
 }
 
-AVCSlice *AVC_Spl::DecodeSliceHeader(mfxBitstream *nalUnit) {
+AVCSlice* AVC_Spl::DecodeSliceHeader(mfxBitstream* nalUnit) {
     m_slicesStorage.push_back(AVCSlice());
-    AVCSlice *pSlice = &m_slicesStorage.back();
+    AVCSlice* pSlice = &m_slicesStorage.back();
 
     mfxU32 swappingSize   = nalUnit->DataLength;
-    mfxU8 *swappingMemory = GetMemoryForSwapping(swappingSize);
+    mfxU8* swappingMemory = GetMemoryForSwapping(swappingSize);
 
     BytesSwapper::SwapMemory(swappingMemory,
                              swappingSize,
@@ -259,7 +259,7 @@ AVCSlice *AVC_Spl::DecodeSliceHeader(mfxBitstream *nalUnit) {
         return 0;
     }
 
-    AVCSEIPayLoad *spl = m_headers.m_SEIParams.GetHeader(SEI_RECOVERY_POINT_TYPE);
+    AVCSEIPayLoad* spl = m_headers.m_SEIParams.GetHeader(SEI_RECOVERY_POINT_TYPE);
 
     if (m_WaitForIDR) {
         if (pSlice->GetSliceHeader()->slice_type != INTRASLICE && !spl) {
@@ -309,7 +309,7 @@ AVCSlice *AVC_Spl::DecodeSliceHeader(mfxBitstream *nalUnit) {
     return pSlice;
 }
 
-AVCFrameInfo *AVC_Spl::GetFreeFrame() {
+AVCFrameInfo* AVC_Spl::GetFreeFrame() {
     return m_AUInfo.get();
 }
 
@@ -323,9 +323,9 @@ void AVC_Spl::ResetCurrentState() {
     }
 }
 
-bool AVC_Spl::IsFieldOfOneFrame(AVCFrameInfo *frame,
-                                const AVCSliceHeader *slice1,
-                                const AVCSliceHeader *slice2) {
+bool AVC_Spl::IsFieldOfOneFrame(AVCFrameInfo* frame,
+                                const AVCSliceHeader* slice1,
+                                const AVCSliceHeader* slice2) {
     if (frame && frame->m_index)
         return false;
 
@@ -342,7 +342,7 @@ bool AVC_Spl::IsFieldOfOneFrame(AVCFrameInfo *frame,
     return true;
 }
 
-inline bool IsSlicesOfOneAU(const AVCSliceHeader *pOne, const AVCSliceHeader *pTwo) {
+inline bool IsSlicesOfOneAU(const AVCSliceHeader* pOne, const AVCSliceHeader* pTwo) {
     if (!pOne || !pTwo)
         return true;
 
@@ -388,7 +388,7 @@ inline bool IsSlicesOfOneAU(const AVCSliceHeader *pOne, const AVCSliceHeader *pT
     return true;
 }
 
-mfxStatus AVC_Spl::AddSlice(AVCSlice *pSlice) {
+mfxStatus AVC_Spl::AddSlice(AVCSlice* pSlice) {
     m_pLastSlice = 0;
 
     if (!pSlice) {
@@ -397,7 +397,7 @@ mfxStatus AVC_Spl::AddSlice(AVCSlice *pSlice) {
     }
 
     if (m_currentInfo) {
-        AVCSlice *pFirstFrameSlice = m_currentInfo->m_slice;
+        AVCSlice* pFirstFrameSlice = m_currentInfo->m_slice;
 
         if (pFirstFrameSlice && (false == IsSlicesOfOneAU(pFirstFrameSlice->GetSliceHeader(),
                                                           pSlice->GetSliceHeader()))) {
@@ -437,7 +437,7 @@ mfxStatus AVC_Spl::AddSlice(AVCSlice *pSlice) {
     return MFX_ERR_MORE_DATA;
 }
 
-mfxStatus AVC_Spl::AddNalUnit(mfxBitstream *nalUnit) {
+mfxStatus AVC_Spl::AddNalUnit(mfxBitstream* nalUnit) {
     static mfxU8 start_code_prefix[] = { 0, 0, 1 };
 
     if (m_frame.DataLength + nalUnit->DataLength + sizeof(start_code_prefix) >= BUFFER_SIZE)
@@ -459,7 +459,7 @@ mfxStatus AVC_Spl::AddNalUnit(mfxBitstream *nalUnit) {
     return MFX_ERR_NONE;
 }
 
-mfxStatus AVC_Spl::AddSliceNalUnit(mfxBitstream *nalUnit, AVCSlice *slice) {
+mfxStatus AVC_Spl::AddSliceNalUnit(mfxBitstream* nalUnit, AVCSlice* slice) {
     static mfxU8 start_code_prefix[] = { 0, 0, 1 };
 
     mfxU32 sliceLength = (mfxU32)(nalUnit->DataLength + sizeof(start_code_prefix));
@@ -489,14 +489,14 @@ mfxStatus AVC_Spl::AddSliceNalUnit(mfxBitstream *nalUnit, AVCSlice *slice) {
         m_frame.Slice = &m_slices[0];
     }
 
-    SliceSplitterInfo &newSlice = m_slices[m_frame.SliceNum - 1];
+    SliceSplitterInfo& newSlice = m_slices[m_frame.SliceNum - 1];
 
-    AVCHeadersBitstream *bs = slice->GetBitStream();
+    AVCHeadersBitstream* bs = slice->GetBitStream();
 
     newSlice.HeaderLength = (mfxU32)bs->BytesDecoded();
 
     // add number of 003 sequence to HeaderLength
-    for (mfxU8 *ptr = nalUnit->Data + sizeof(start_code_prefix);
+    for (mfxU8* ptr = nalUnit->Data + sizeof(start_code_prefix);
          ptr < nalUnit->Data + sizeof(start_code_prefix) + newSlice.HeaderLength;
          ptr++) {
         if (ptr[0] == 0 && ptr[1] == 0 && ptr[2] == 3) {
@@ -523,7 +523,7 @@ mfxStatus AVC_Spl::AddSliceNalUnit(mfxBitstream *nalUnit, AVCSlice *slice) {
     return MFX_ERR_NONE;
 }
 
-mfxStatus AVC_Spl::ProcessNalUnit(mfxI32 nalType, mfxBitstream *nalUnit) {
+mfxStatus AVC_Spl::ProcessNalUnit(mfxI32 nalType, mfxBitstream* nalUnit) {
     if (!nalUnit)
         return MFX_ERR_MORE_DATA;
 
@@ -531,7 +531,7 @@ mfxStatus AVC_Spl::ProcessNalUnit(mfxI32 nalType, mfxBitstream *nalUnit) {
         case NAL_UT_IDR_SLICE:
         case NAL_UT_SLICE:
         case NAL_UT_CODED_SLICE_EXTENSION: {
-            AVCSlice *pSlice = DecodeSliceHeader(nalUnit);
+            AVCSlice* pSlice = DecodeSliceHeader(nalUnit);
             if (pSlice) {
                 mfxStatus sts = AddSlice(pSlice);
                 if (sts == MFX_ERR_NOT_ENOUGH_BUFFER) {
@@ -587,12 +587,12 @@ mfxStatus AVC_Spl::ProcessNalUnit(mfxI32 nalType, mfxBitstream *nalUnit) {
     return MFX_ERR_MORE_DATA;
 }
 
-mfxStatus AVC_Spl::GetFrame(mfxBitstream *bs_in, FrameSplitterInfo **frame) {
+mfxStatus AVC_Spl::GetFrame(mfxBitstream* bs_in, FrameSplitterInfo** frame) {
     *frame = 0;
 
     do {
         if (m_pLastSlice) {
-            AVCSlice *pSlice = m_pLastSlice;
+            AVCSlice* pSlice = m_pLastSlice;
             mfxStatus sts    = AddSlice(pSlice);
             if (!m_lastNalUnit) {
                 msdk_printf(MSDK_STRING("ERROR: m_lastNalUnit=NULL\n"));
@@ -604,7 +604,7 @@ mfxStatus AVC_Spl::GetFrame(mfxBitstream *bs_in, FrameSplitterInfo **frame) {
                 return MFX_ERR_NONE;
         }
 
-        mfxBitstream *destination = NULL;
+        mfxBitstream* destination = NULL;
         mfxI32 nalType            = m_pNALSplitter->GetNalUnits(bs_in, destination);
         mfxStatus sts             = ProcessNalUnit(nalType, destination);
 
@@ -632,11 +632,11 @@ void AVCSlice::Reset() {
     memset(&m_sliceHeader, 0, sizeof(m_sliceHeader));
 }
 
-AVCSliceHeader *AVCSlice::GetSliceHeader() {
+AVCSliceHeader* AVCSlice::GetSliceHeader() {
     return &m_sliceHeader;
 }
 
-mfxI32 AVCSlice::RetrievePicParamSetNumber(mfxU8 *pSource, mfxU32 nSourceSize) {
+mfxI32 AVCSlice::RetrievePicParamSetNumber(mfxU8* pSource, mfxU32 nSourceSize) {
     if (!nSourceSize)
         return -1;
 
@@ -661,7 +661,7 @@ mfxI32 AVCSlice::RetrievePicParamSetNumber(mfxU8 *pSource, mfxU32 nSourceSize) {
     return m_sliceHeader.pic_parameter_set_id;
 }
 
-bool AVCSlice::DecodeHeader(mfxU8 *pSource, mfxU32 nSourceSize) {
+bool AVCSlice::DecodeHeader(mfxU8* pSource, mfxU32 nSourceSize) {
     m_bitStream.Reset(pSource, nSourceSize);
 
     if (!nSourceSize)
@@ -710,7 +710,7 @@ bool AVCSlice::DecodeHeader(mfxU8 *pSource, mfxU32 nSourceSize) {
         if (m_picParamSet->entropy_coding_mode)
             m_bitStream.AlignPointerRight();
     }
-    catch (const AVC_exception &) {
+    catch (const AVC_exception&) {
         return false;
     }
     catch (...) {
@@ -720,7 +720,7 @@ bool AVCSlice::DecodeHeader(mfxU8 *pSource, mfxU32 nSourceSize) {
     return (MFX_ERR_NONE == umcRes);
 }
 
-mfxStatus AVC_Spl::PostProcessing(FrameSplitterInfo *frame, mfxU32 sliceNum) {
+mfxStatus AVC_Spl::PostProcessing(FrameSplitterInfo* frame, mfxU32 sliceNum) {
     UNREFERENCED_PARAMETER(frame);
     UNREFERENCED_PARAMETER(sliceNum);
     return MFX_ERR_NONE;

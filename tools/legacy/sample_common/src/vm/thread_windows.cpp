@@ -11,7 +11,7 @@
     #include <new>
     #include "vm/thread_defs.h"
 
-MSDKSemaphore::MSDKSemaphore(mfxStatus &sts, mfxU32 count) {
+MSDKSemaphore::MSDKSemaphore(mfxStatus& sts, mfxU32 count) {
     sts         = MFX_ERR_NONE;
     m_semaphore = CreateSemaphore(NULL, count, LONG_MAX, 0);
     if (!m_semaphore)
@@ -33,7 +33,7 @@ mfxStatus MSDKSemaphore::Wait(void) {
 
 /* ****************************************************************************** */
 
-MSDKEvent::MSDKEvent(mfxStatus &sts, bool manual, bool state) {
+MSDKEvent::MSDKEvent(mfxStatus& sts, bool manual, bool state) {
     sts     = MFX_ERR_NONE;
     m_event = CreateEvent(NULL, manual, state, NULL);
     if (!m_event)
@@ -73,9 +73,9 @@ mfxStatus MSDKEvent::TimedWait(mfxU32 msec) {
     return mfx_res;
 }
 
-MSDKThread::MSDKThread(mfxStatus &sts, msdk_thread_callback func, void *arg) {
+MSDKThread::MSDKThread(mfxStatus& sts, msdk_thread_callback func, void* arg) {
     sts      = MFX_ERR_NONE;
-    m_thread = (void *)_beginthreadex(NULL, 0, func, arg, 0, NULL);
+    m_thread = (void*)_beginthreadex(NULL, 0, func, arg, 0, NULL);
     if (!m_thread)
         throw std::bad_alloc();
 }

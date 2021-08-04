@@ -27,12 +27,21 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 # Project options
-set(BUILD_DISPATCHER
-    ON
-    CACHE BOOL "Build dispatcher.")
+option(BUILD_SHARED_LIBS "Build shared instead of static libraries." ON)
+option(BUILD_TESTS "Build tests." OFF)
+
 set(BUILD_DEV
     ON
     CACHE BOOL "Build files that are only needed for development.")
+set(BUILD_DISPATCHER
+    ON
+    CACHE BOOL "Build dispatcher.")
+set(BUILD_TOOLS
+    ON
+    CACHE BOOL "Build Tools.")
+set(BUILD_EXAMPLES
+    ON
+    CACHE BOOL "Build examples when building dev package.")
 
 # Off by default while this is a preview
 set(BUILD_PYTHON_BINDING
@@ -49,6 +58,7 @@ if(BUILD_DISPATCHER_ONLY)
 endif()
 if(BUILD_DEV_ONLY)
   set(BUILD_DISPATCHER OFF)
+  set(BUILD_TOOLS OFF)
   set(BUILD_PYTHON_BINDING OFF)
 endif()
 if(BUILD_PYTHON_BINDING_ONLY)
@@ -57,17 +67,6 @@ if(BUILD_PYTHON_BINDING_ONLY)
 endif()
 
 option(USE_ONEAPI_INSTALL_LAYOUT "Use oneAPI install layout instead of FHS" OFF)
-
-if(USE_ONEAPI_INSTALL_LAYOUT)
-  set(CMAKE_INSTALL_DOCDIR "documentation")
-  set(CMAKE_INSTALL_LIBDIR "lib")
-  set(ONEAPI_INSTALL_ENVDIR "env")
-  set(ONEAPI_INSTALL_SYSCHECKDIR "sys_check")
-  set(ONEAPI_INSTALL_MODFILEDIR "modulefiles")
-  set(ONEAPI_INSTALL_EXAMPLEDIR "examples")
-  set(ONEAPI_INSTALL_LICENSEDIR "licensing/oneVPL")
-  set(ONEAPI_INSTALL_PYTHONDIR "python/lib")
-endif()
 
 # Set output directories
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
@@ -81,12 +80,19 @@ set(CMAKE_INSTALL_SO_NO_EXE 0)
 
 include(cmake/CompileOptions.cmake)
 
+if(BUILD_TESTS)
+  include(Dart)
+  enable_testing()
+endif()
+
 add_subdirectory(api)
 add_subdirectory(dispatcher)
+if(BUILD_TOOLS)
+  add_subdirectory(tools)
+endif()
 if(BUILD_DEV)
   add_subdirectory(env)
   add_subdirectory(modulefiles)
-  add_subdirectory(tools)
   add_subdirectory(examples)
 endif()
 add_subdirectory(preview)
@@ -158,10 +164,6 @@ message(
 message(
   STATUS "  CMAKE_INSTALL_FULL_DOCDIR      : ${CMAKE_INSTALL_FULL_DOCDIR}")
 message(
-  STATUS "  ONEAPI_INSTALL_FULL_BIN32DIR   : ${ONEAPI_INSTALL_FULL_BIN32DIR}")
-message(
-  STATUS "  ONEAPI_INSTALL_FULL_LIB32DIR   : ${ONEAPI_INSTALL_FULL_LIB32DIR}")
-message(
   STATUS "  ONEAPI_INSTALL_FULL_ENVDIR     : ${ONEAPI_INSTALL_FULL_ENVDIR}")
 message(
   STATUS "  ONEAPI_INSTALL_FULL_SYSCHECKDIR: ${ONEAPI_INSTALL_FULL_SYSCHECKDIR}"
@@ -177,3 +179,8 @@ message(
 message(STATUS "Build:")
 message(STATUS "  BUILD_DEV                      : ${BUILD_DEV}")
 message(STATUS "  BUILD_DISPATCHER               : ${BUILD_DISPATCHER}")
+message(STATUS "  BUILD_TOOLS                    : ${BUILD_TOOLS}")
+message(STATUS "  BUILD_SHARED_LIBS              : ${BUILD_SHARED_LIBS}")
+message(STATUS "  BUILD_TESTS                    : ${BUILD_TESTS}")
+message(STATUS "  BUILD_EXAMPLES                 : ${BUILD_EXAMPLES}")
+message(STATUS "  BUILD_PYTHON_BINDING           : ${BUILD_PYTHON_BINDING}")

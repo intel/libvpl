@@ -17,7 +17,8 @@ find_package(VPL REQUIRED)
 if(UNIX)
   find_package(PkgConfig REQUIRED)
   pkg_check_modules(PKG_LIBVA libva>=1.2 libva-drm>=1.2)
-  if(PKG_LIBVA_FOUND)
+  pkg_check_modules(PKG_LIBDRM libdrm)
+  if(PKG_LIBVA_FOUND AND PKG_LIBDRM_FOUND)
     add_executable(
       ${TARGET} src/pipeline_transcode.cpp src/sample_multi_transcode.cpp
                 src/transcode_utils.cpp)
@@ -31,7 +32,7 @@ if(UNIX)
     install(TARGETS ${TARGET} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
                                       COMPONENT dev)
   else()
-    message("Skipping sample_multi_transcode build.  Requires libva.")
+    message("Skipping sample_multi_transcode build.  Requires libva/libva-drm.")
   endif()
 else()
   add_executable(

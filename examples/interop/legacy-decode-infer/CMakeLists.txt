@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: MIT
 # ##############################################################################
 cmake_minimum_required(VERSION 3.10.2)
-project(legacy-decode-infer-preview)
+project(legacy-decode-infer)
 
 # Default install places 64 bit runtimes in the environment, so we want to do a
 # 64 bit build by default.

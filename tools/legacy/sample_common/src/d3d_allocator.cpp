@@ -102,9 +102,9 @@ D3DFrameAllocator::~D3DFrameAllocator() {
         MSDK_SAFE_FREE(m_midsAllocated[i]);
 }
 
-mfxStatus D3DFrameAllocator::Init(mfxAllocatorParams *pParams) {
-    D3DAllocatorParams *pd3dParams = 0;
-    pd3dParams                     = dynamic_cast<D3DAllocatorParams *>(pParams);
+mfxStatus D3DFrameAllocator::Init(mfxAllocatorParams* pParams) {
+    D3DAllocatorParams* pd3dParams = 0;
+    pd3dParams                     = dynamic_cast<D3DAllocatorParams*>(pParams);
     if (!pd3dParams)
         return MFX_ERR_NOT_INITIALIZED;
 
@@ -130,12 +130,12 @@ mfxStatus D3DFrameAllocator::Close() {
     return BaseFrameAllocator::Close();
 }
 
-mfxStatus D3DFrameAllocator::LockFrame(mfxMemId mid, mfxFrameData *ptr) {
+mfxStatus D3DFrameAllocator::LockFrame(mfxMemId mid, mfxFrameData* ptr) {
     if (!ptr || !mid)
         return MFX_ERR_NULL_PTR;
 
-    mfxHDLPair *dxmid           = (mfxHDLPair *)mid;
-    IDirect3DSurface9 *pSurface = static_cast<IDirect3DSurface9 *>(dxmid->first);
+    mfxHDLPair* dxmid           = (mfxHDLPair*)mid;
+    IDirect3DSurface9* pSurface = static_cast<IDirect3DSurface9*>(dxmid->first);
     if (pSurface == 0)
         return MFX_ERR_INVALID_HANDLE;
 
@@ -172,59 +172,59 @@ mfxStatus D3DFrameAllocator::LockFrame(mfxMemId mid, mfxFrameData *ptr) {
         case D3DFMT_P016:
     #endif
             ptr->Pitch = (mfxU16)locked.Pitch;
-            ptr->Y     = (mfxU8 *)locked.pBits;
-            ptr->U     = (mfxU8 *)locked.pBits + desc.Height * locked.Pitch;
+            ptr->Y     = (mfxU8*)locked.pBits;
+            ptr->U     = (mfxU8*)locked.pBits + desc.Height * locked.Pitch;
             ptr->V     = (desc.Format == D3DFMT_P010) ? ptr->U + 2 : ptr->U + 1;
             break;
         case D3DFMT_YV12:
             ptr->Pitch = (mfxU16)locked.Pitch;
-            ptr->Y     = (mfxU8 *)locked.pBits;
+            ptr->Y     = (mfxU8*)locked.pBits;
             ptr->V     = ptr->Y + desc.Height * locked.Pitch;
             ptr->U     = ptr->V + (desc.Height * locked.Pitch) / 4;
             break;
         case D3DFMT_YUY2:
             ptr->Pitch = (mfxU16)locked.Pitch;
-            ptr->Y     = (mfxU8 *)locked.pBits;
+            ptr->Y     = (mfxU8*)locked.pBits;
             ptr->U     = ptr->Y + 1;
             ptr->V     = ptr->Y + 3;
             break;
         case D3DFMT_R8G8B8:
             ptr->Pitch = (mfxU16)locked.Pitch;
-            ptr->B     = (mfxU8 *)locked.pBits;
+            ptr->B     = (mfxU8*)locked.pBits;
             ptr->G     = ptr->B + 1;
             ptr->R     = ptr->B + 2;
             break;
         case D3DFMT_A8R8G8B8:
         case D3DFMT_A2R10G10B10:
             ptr->Pitch = (mfxU16)locked.Pitch;
-            ptr->B     = (mfxU8 *)locked.pBits;
+            ptr->B     = (mfxU8*)locked.pBits;
             ptr->G     = ptr->B + 1;
             ptr->R     = ptr->B + 2;
             ptr->A     = ptr->B + 3;
             break;
         case D3DFMT_P8:
             ptr->Pitch = (mfxU16)locked.Pitch;
-            ptr->Y     = (mfxU8 *)locked.pBits;
+            ptr->Y     = (mfxU8*)locked.pBits;
             ptr->U     = 0;
             ptr->V     = 0;
             break;
         case D3DFMT_A16B16G16R16:
-            ptr->V16       = (mfxU16 *)locked.pBits;
+            ptr->V16       = (mfxU16*)locked.pBits;
             ptr->U16       = ptr->V16 + 1;
             ptr->Y16       = ptr->V16 + 2;
-            ptr->A         = (mfxU8 *)(ptr->V16 + 3);
+            ptr->A         = (mfxU8*)(ptr->V16 + 3);
             ptr->PitchHigh = (mfxU16)((mfxU32)locked.Pitch / (1 << 16));
             ptr->PitchLow  = (mfxU16)((mfxU32)locked.Pitch % (1 << 16));
             break;
         case D3DFMT_IMC3:
             ptr->Pitch = (mfxU16)locked.Pitch;
-            ptr->Y     = (mfxU8 *)locked.pBits;
+            ptr->Y     = (mfxU8*)locked.pBits;
             ptr->V     = ptr->Y + desc.Height * locked.Pitch;
             ptr->U     = ptr->Y + desc.Height * locked.Pitch * 2;
             break;
         case D3DFMT_AYUV:
             ptr->Pitch = (mfxU16)locked.Pitch;
-            ptr->V     = (mfxU8 *)locked.pBits;
+            ptr->V     = (mfxU8*)locked.pBits;
             ptr->U     = ptr->V + 1;
             ptr->Y     = ptr->V + 2;
             ptr->A     = ptr->V + 3;
@@ -232,23 +232,23 @@ mfxStatus D3DFrameAllocator::LockFrame(mfxMemId mid, mfxFrameData *ptr) {
     #if (MFX_VERSION >= 1031)
         case D3DFMT_Y416:
             ptr->Pitch = (mfxU16)locked.Pitch;
-            ptr->U16   = (mfxU16 *)locked.pBits;
+            ptr->U16   = (mfxU16*)locked.pBits;
             ptr->Y16   = ptr->U16 + 1;
             ptr->V16   = ptr->Y16 + 1;
-            ptr->A     = (mfxU8 *)(ptr->V16 + 1);
+            ptr->A     = (mfxU8*)(ptr->V16 + 1);
             break;
         case D3DFMT_Y216:
     #endif
     #if (MFX_VERSION >= 1027)
         case D3DFMT_Y210:
             ptr->Pitch = (mfxU16)locked.Pitch;
-            ptr->Y16   = (mfxU16 *)locked.pBits;
+            ptr->Y16   = (mfxU16*)locked.pBits;
             ptr->U16   = ptr->Y16 + 1;
             ptr->V16   = ptr->Y16 + 3;
             break;
         case D3DFMT_Y410:
             ptr->Pitch = (mfxU16)locked.Pitch;
-            ptr->Y410  = (mfxY410 *)locked.pBits;
+            ptr->Y410  = (mfxY410*)locked.pBits;
             ptr->Y     = 0;
             ptr->V     = 0;
             ptr->A     = 0;
@@ -259,12 +259,12 @@ mfxStatus D3DFrameAllocator::LockFrame(mfxMemId mid, mfxFrameData *ptr) {
     return MFX_ERR_NONE;
 }
 
-mfxStatus D3DFrameAllocator::UnlockFrame(mfxMemId mid, mfxFrameData *ptr) {
+mfxStatus D3DFrameAllocator::UnlockFrame(mfxMemId mid, mfxFrameData* ptr) {
     if (!mid)
         return MFX_ERR_NULL_PTR;
 
-    mfxHDLPair *dxmid           = (mfxHDLPair *)mid;
-    IDirect3DSurface9 *pSurface = static_cast<IDirect3DSurface9 *>(dxmid->first);
+    mfxHDLPair* dxmid           = (mfxHDLPair*)mid;
+    IDirect3DSurface9* pSurface = static_cast<IDirect3DSurface9*>(dxmid->first);
     if (pSurface == 0)
         return MFX_ERR_INVALID_HANDLE;
 
@@ -280,16 +280,16 @@ mfxStatus D3DFrameAllocator::UnlockFrame(mfxMemId mid, mfxFrameData *ptr) {
     return MFX_ERR_NONE;
 }
 
-mfxStatus D3DFrameAllocator::GetFrameHDL(mfxMemId mid, mfxHDL *handle) {
+mfxStatus D3DFrameAllocator::GetFrameHDL(mfxMemId mid, mfxHDL* handle) {
     if (!mid || !handle)
         return MFX_ERR_NULL_PTR;
 
-    mfxHDLPair *dxMid = (mfxHDLPair *)mid;
+    mfxHDLPair* dxMid = (mfxHDLPair*)mid;
     *handle           = dxMid->first;
     return MFX_ERR_NONE;
 }
 
-mfxStatus D3DFrameAllocator::CheckRequestType(mfxFrameAllocRequest *request) {
+mfxStatus D3DFrameAllocator::CheckRequestType(mfxFrameAllocRequest* request) {
     mfxStatus sts = BaseFrameAllocator::CheckRequestType(request);
     if (MFX_ERR_NONE != sts)
         return sts;
@@ -301,7 +301,7 @@ mfxStatus D3DFrameAllocator::CheckRequestType(mfxFrameAllocRequest *request) {
         return MFX_ERR_UNSUPPORTED;
 }
 
-mfxStatus D3DFrameAllocator::ReleaseResponse(mfxFrameAllocResponse *response) {
+mfxStatus D3DFrameAllocator::ReleaseResponse(mfxFrameAllocResponse* response) {
     if (!response)
         return MFX_ERR_NULL_PTR;
 
@@ -309,13 +309,13 @@ mfxStatus D3DFrameAllocator::ReleaseResponse(mfxFrameAllocResponse *response) {
 
     if (response->mids) {
         for (mfxU32 i = 0; i < response->NumFrameActual; i++) {
-            if (response->mids[i]) {
-                mfxHDLPair *dxMids = (mfxHDLPair *)response->mids[i];
+            mfxHDLPair* dxMids = (mfxHDLPair*)response->mids[i];
+            if (dxMids) {
                 if (dxMids->first) {
-                    static_cast<IDirect3DSurface9 *>(dxMids->first)->Release();
+                    static_cast<IDirect3DSurface9*>(dxMids->first)->Release();
                 }
-                MSDK_SAFE_FREE(dxMids);
             }
+            MSDK_SAFE_FREE(dxMids);
         }
     }
 
@@ -323,9 +323,9 @@ mfxStatus D3DFrameAllocator::ReleaseResponse(mfxFrameAllocResponse *response) {
 }
 
 mfxStatus D3DFrameAllocator::ReallocImpl(mfxMemId /*mid*/,
-                                         const mfxFrameInfo *info,
+                                         const mfxFrameInfo* info,
                                          mfxU16 /*memType*/,
-                                         mfxMemId *midOut) {
+                                         mfxMemId* midOut) {
     if (!info || !midOut)
         return MFX_ERR_NULL_PTR;
 
@@ -333,8 +333,8 @@ mfxStatus D3DFrameAllocator::ReallocImpl(mfxMemId /*mid*/,
     return MFX_ERR_UNSUPPORTED;
 }
 
-mfxStatus D3DFrameAllocator::AllocImpl(mfxFrameAllocRequest *request,
-                                       mfxFrameAllocResponse *response) {
+mfxStatus D3DFrameAllocator::AllocImpl(mfxFrameAllocRequest* request,
+                                       mfxFrameAllocResponse* response) {
     HRESULT hr;
 
     MSDK_CHECK_POINTER(request, MFX_ERR_NULL_PTR);
@@ -360,7 +360,7 @@ mfxStatus D3DFrameAllocator::AllocImpl(mfxFrameAllocRequest *request,
     else
         return MFX_ERR_UNSUPPORTED;
 
-    IDirectXVideoAccelerationService *videoService = NULL;
+    IDirectXVideoAccelerationService* videoService = NULL;
 
     if (target == DXVA2_VideoProcessorRenderTarget) {
         if (!m_hProcessor) {
@@ -370,7 +370,7 @@ mfxStatus D3DFrameAllocator::AllocImpl(mfxFrameAllocRequest *request,
 
             hr = m_manager->GetVideoService(m_hProcessor,
                                             IID_IDirectXVideoProcessorService,
-                                            (void **)&m_processorService);
+                                            (void**)&m_processorService);
             if (FAILED(hr))
                 return MFX_ERR_MEMORY_ALLOC;
         }
@@ -384,27 +384,26 @@ mfxStatus D3DFrameAllocator::AllocImpl(mfxFrameAllocRequest *request,
 
             hr = m_manager->GetVideoService(m_hDecoder,
                                             IID_IDirectXVideoDecoderService,
-                                            (void **)&m_decoderService);
+                                            (void**)&m_decoderService);
             if (FAILED(hr))
                 return MFX_ERR_MEMORY_ALLOC;
         }
         videoService = m_decoderService;
     }
 
-    mfxHDLPair **dxMidPtrs =
-        (mfxHDLPair **)calloc(request->NumFrameSuggested, sizeof(mfxHDLPair *));
+    mfxHDLPair** dxMidPtrs = (mfxHDLPair**)calloc(request->NumFrameSuggested, sizeof(mfxHDLPair*));
     if (!dxMidPtrs)
         return MFX_ERR_MEMORY_ALLOC;
 
     for (int i = 0; i < request->NumFrameSuggested; i++) {
-        dxMidPtrs[i] = (mfxHDLPair *)calloc(1, sizeof(mfxHDLPair));
+        dxMidPtrs[i] = (mfxHDLPair*)calloc(1, sizeof(mfxHDLPair));
         if (!dxMidPtrs[i]) {
             DeallocateMids(dxMidPtrs, i);
             return MFX_ERR_MEMORY_ALLOC;
         }
     }
 
-    response->mids           = (mfxMemId *)dxMidPtrs;
+    response->mids           = (mfxMemId*)dxMidPtrs;
     response->NumFrameActual = request->NumFrameSuggested;
 
     if (request->Type & MFX_MEMTYPE_EXTERNAL_FRAME) {
@@ -416,7 +415,7 @@ mfxStatus D3DFrameAllocator::AllocImpl(mfxFrameAllocRequest *request,
                                              D3DPOOL_DEFAULT,
                                              m_surfaceUsage,
                                              target,
-                                             (IDirect3DSurface9 **)&dxMidPtrs[i]->first,
+                                             (IDirect3DSurface9**)&dxMidPtrs[i]->first,
                                              &dxMidPtrs[i]->second);
             if (FAILED(hr)) {
                 ReleaseResponse(response);
@@ -425,8 +424,8 @@ mfxStatus D3DFrameAllocator::AllocImpl(mfxFrameAllocRequest *request,
         }
     }
     else {
-        std::unique_ptr<IDirect3DSurface9 *[]> dxSrf(
-            new (std::nothrow) IDirect3DSurface9 *[request->NumFrameSuggested]);
+        std::unique_ptr<IDirect3DSurface9*[]> dxSrf(
+            new (std::nothrow) IDirect3DSurface9*[request->NumFrameSuggested]);
         if (!dxSrf.get()) {
             DeallocateMids(dxMidPtrs, request->NumFrameSuggested);
             return MFX_ERR_MEMORY_ALLOC;
@@ -453,7 +452,7 @@ mfxStatus D3DFrameAllocator::AllocImpl(mfxFrameAllocRequest *request,
     return MFX_ERR_NONE;
 }
 
-void D3DFrameAllocator::DeallocateMids(mfxHDLPair **pair, int n) {
+void D3DFrameAllocator::DeallocateMids(mfxHDLPair** pair, int n) {
     for (int i = 0; i < n; i++) {
         MSDK_SAFE_FREE(pair[i]);
     }

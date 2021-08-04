@@ -235,6 +235,7 @@ mfxStatus OutputProcessFrame(sAppResources* Resources,
 #if (MFX_VERSION >= 2000)
         if (Resources->pParams->api2xPerf == false)
 #endif
+        {
             if (!Resources->pParams->bPerf) {
                 msdk_printf(MSDK_STRING("Frame number: %d\r"), nFrames);
             }
@@ -242,6 +243,7 @@ mfxStatus OutputProcessFrame(sAppResources* Resources,
                 if (!(nFrames % 100))
                     msdk_printf(MSDK_STRING("."));
             }
+        }
     }
     return MFX_ERR_NONE;
 
@@ -648,11 +650,11 @@ int main(int argc, msdk_char* argv[])
         (Params.resetFrmNums.size() > 0) ? Params.resetFrmNums[0] : NOT_INIT_VALUE;
 
 #if (MFX_VERSION >= 2000)
-    mfxF64 api2xPerfLoopTime;
-    mfxU32 frame_size = GetSurfaceSize(realFrameInfoIn[0].FourCC,
+    mfxF64 api2xPerfLoopTime = 0;
+    mfxU32 frame_size        = GetSurfaceSize(realFrameInfoIn[0].FourCC,
                                        realFrameInfoIn[0].Width,
                                        realFrameInfoIn[0].Height);
-    mfxU8* buf_read   = NULL;
+    mfxU8* buf_read          = NULL;
 
     if (Params.api2xPerf) {
         buf_read = reinterpret_cast<mfxU8*>(malloc(frame_size));
@@ -706,7 +708,7 @@ int main(int argc, msdk_char* argv[])
                 }
             }
 
-            msdk_printf(MSDK_STRING("VPP reseted at frame number %d\n"), numGetFrames);
+            msdk_printf(MSDK_STRING("VPP reseted at frame number %d\n"), (int)numGetFrames);
         }
 
 #if (MFX_VERSION >= 2000)
@@ -932,7 +934,7 @@ int main(int argc, msdk_char* argv[])
             surfStore.m_SyncPoints.push_back(SurfaceVPPStore::SyncPair(syncPoint, pOutSurf));
             IncreaseReference(&pOutSurf->Data);
             if (surfStore.m_SyncPoints.size() !=
-                (size_t)(Params.asyncNum * Params.multiViewParam[paramID].viewCount)) {
+                ((size_t)(Params.asyncNum) * Params.multiViewParam[paramID].viewCount)) {
                 continue;
             }
             sts = OutputProcessFrame(&Resources, &realFrameInfoOut, nFrames, paramID);
@@ -1054,12 +1056,14 @@ int main(int argc, msdk_char* argv[])
 #if (MFX_VERSION >= 2000)
             if (Params.api2xPerf == false)
 #endif
+            {
                 if (!Params.bPerf)
-                    msdk_printf(MSDK_STRING("Frame number: %d\r"), nFrames);
+                    msdk_printf(MSDK_STRING("Frame number: %d\r"), (int)nFrames);
                 else {
                     if (!(nFrames % 100))
                         msdk_printf(MSDK_STRING("."));
                 }
+            }
         }
 #if (MFX_VERSION >= 2000)
         if (Params.api2xPerf) {
@@ -1086,7 +1090,7 @@ int main(int argc, msdk_char* argv[])
     msdk_printf(MSDK_STRING("\nVPP finished\n"));
     msdk_printf(MSDK_STRING("\n"));
 
-    msdk_printf(MSDK_STRING("Total frames %d \n"), nFrames);
+    msdk_printf(MSDK_STRING("Total frames %d \n"), (int)nFrames);
 
 #if (MFX_VERSION >= 2000)
     if (Params.api2xPerf) {
@@ -1097,9 +1101,9 @@ int main(int argc, msdk_char* argv[])
         }
     }
     else {
-        msdk_printf(MSDK_STRING("Total time %.2f sec \n"), statTimer.GetTotalTime());
+        msdk_printf(MSDK_STRING("Total time %.2f sec \n"), (double)statTimer.GetTotalTime());
         msdk_printf(MSDK_STRING("Frames per second %.3f fps \n"),
-                    nFrames / statTimer.GetTotalTime());
+                    (double)(nFrames / statTimer.GetTotalTime()));
 
         PutPerformanceToFile(Params, nFrames / statTimer.GetTotalTime());
     }

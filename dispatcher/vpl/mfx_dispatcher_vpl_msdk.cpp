@@ -102,7 +102,7 @@ LoaderCtxMSDK::LoaderCtxMSDK()
 
 LoaderCtxMSDK::~LoaderCtxMSDK() {}
 
-mfxStatus LoaderCtxMSDK::OpenSession(mfxSession* session,
+mfxStatus LoaderCtxMSDK::OpenSession(mfxSession *session,
                                      STRING_TYPE libNameFull,
                                      mfxAccelerationMode accelMode,
                                      mfxIMPL hwImpl) {
@@ -120,11 +120,11 @@ mfxStatus LoaderCtxMSDK::OpenSession(mfxSession* session,
                       hwImpl,
                       session,
                       &m_loaderDeviceID,
-                      (CHAR_TYPE*)libNameFull.c_str());
+                      (CHAR_TYPE *)libNameFull.c_str());
 }
 
 // safe to call more than once (sets/checks for null session)
-void LoaderCtxMSDK::CloseSession(mfxSession* session) {
+void LoaderCtxMSDK::CloseSession(mfxSession *session) {
     if (*session)
         MFXClose(*session);
 
@@ -147,7 +147,7 @@ mfxAccelerationMode LoaderCtxMSDK::CvtAccelType(mfxIMPL implType, mfxIMPL implMe
     return MFX_ACCEL_MODE_NA;
 }
 
-mfxStatus LoaderCtxMSDK::GetDefaultAccelType(mfxU32 adapterID, mfxIMPL* implDefault, mfxU64* luid) {
+mfxStatus LoaderCtxMSDK::GetDefaultAccelType(mfxU32 adapterID, mfxIMPL *implDefault, mfxU64 *luid) {
 #ifdef __linux__
     // VAAPI only
     *implDefault = MFX_IMPL_VIA_VAAPI;
@@ -174,7 +174,7 @@ mfxStatus LoaderCtxMSDK::GetDefaultAccelType(mfxU32 adapterID, mfxIMPL* implDefa
 #endif
 }
 
-mfxStatus LoaderCtxMSDK::QueryAPIVersion(STRING_TYPE libNameFull, mfxVersion* msdkVersion) {
+mfxStatus LoaderCtxMSDK::QueryAPIVersion(STRING_TYPE libNameFull, mfxVersion *msdkVersion) {
     mfxStatus sts;
     mfxSession session = nullptr;
 
@@ -206,7 +206,7 @@ mfxStatus LoaderCtxMSDK::QueryAPIVersion(STRING_TYPE libNameFull, mfxVersion* ms
                          hwImpl,
                          &session,
                          &deviceID,
-                         (CHAR_TYPE*)libNameFull.c_str());
+                         (CHAR_TYPE *)libNameFull.c_str());
 
         if (sts == MFX_ERR_NONE) {
             sts = MFXQueryVersion(session, msdkVersion);
@@ -221,8 +221,8 @@ mfxStatus LoaderCtxMSDK::QueryAPIVersion(STRING_TYPE libNameFull, mfxVersion* ms
 }
 
 mfxStatus LoaderCtxMSDK::QueryMSDKCaps(STRING_TYPE libNameFull,
-                                       mfxImplDescription** implDesc,
-                                       mfxImplementedFunctions** implFuncs,
+                                       mfxImplDescription **implDesc,
+                                       mfxImplementedFunctions **implFuncs,
                                        mfxU32 adapterID) {
 #ifdef DISABLE_MSDK_COMPAT
     // disable support for legacy MSDK
@@ -261,7 +261,7 @@ mfxStatus LoaderCtxMSDK::QueryMSDKCaps(STRING_TYPE libNameFull,
         return MFX_ERR_UNSUPPORTED;
 
     // return list of implemented functions
-    *implFuncs = (mfxImplementedFunctions*)(&msdkImplFuncs);
+    *implFuncs = (mfxImplementedFunctions *)(&msdkImplFuncs);
 
     // clear new 2.0 style description struct
     memset(&m_id, 0, sizeof(mfxImplDescription));
@@ -282,7 +282,7 @@ mfxStatus LoaderCtxMSDK::QueryMSDKCaps(STRING_TYPE libNameFull,
     m_id.AccelerationMode = CvtAccelType(MFX_IMPL_HARDWARE, implDefault & 0xFF00);
 
     // fill in acceleration description struct
-    mfxAccelerationModeDescription* accelDesc = &(m_id.AccelerationModeDescription);
+    mfxAccelerationModeDescription *accelDesc = &(m_id.AccelerationModeDescription);
     accelDesc->Version.Version                = MFX_ACCELERATIONMODESCRIPTION_VERSION;
 
     // fill in mode description with just the single (default) mode
@@ -319,7 +319,7 @@ mfxStatus LoaderCtxMSDK::QueryMSDKCaps(STRING_TYPE libNameFull,
     m_id.NumExtParam = 0;
 
     // fill in device description
-    mfxDeviceDescription* Dev = &(m_id.Dev);
+    mfxDeviceDescription *Dev = &(m_id.Dev);
     memset(Dev, 0, sizeof(mfxDeviceDescription)); // initially empty
 
     // query for underlying deviceID (requires API >= 1.19)
@@ -360,7 +360,7 @@ mfxStatus LoaderCtxMSDK::QueryMSDKCaps(STRING_TYPE libNameFull,
     return MFX_ERR_NONE;
 }
 
-mfxStatus LoaderCtxMSDK::CheckD3D9Support(mfxU64 luid, STRING_TYPE libNameFull, mfxIMPL* implD3D9) {
+mfxStatus LoaderCtxMSDK::CheckD3D9Support(mfxU64 luid, STRING_TYPE libNameFull, mfxIMPL *implD3D9) {
 #if defined(_WIN32) || defined(_WIN64)
     mfxU32 VendorID = 0, DeviceID = 0;
     mfxIMPL implTest = MFX_IMPL_VIA_D3D9;
@@ -392,7 +392,7 @@ mfxStatus LoaderCtxMSDK::CheckD3D9Support(mfxU64 luid, STRING_TYPE libNameFull, 
                          msdkImplTab[idx],
                          &session,
                          &deviceID,
-                         (CHAR_TYPE*)libNameFull.c_str());
+                         (CHAR_TYPE *)libNameFull.c_str());
 
         if (sts == MFX_ERR_NONE) {
             *implD3D9 = msdkImplTab[idx];

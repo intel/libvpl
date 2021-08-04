@@ -19,7 +19,7 @@
 #else // #if defined(_WIN32) || defined(_WIN64)
     #include <unistd.h>
 
-    #define MSDK_FOPEN(file, name, mode) !(file = fopen(name, mode))
+    #define MSDK_FOPEN(file, name, mode) (file = fopen(name, mode))
 
     #define msdk_fgets fgets
 #endif // #if defined(_WIN32) || defined(_WIN64)

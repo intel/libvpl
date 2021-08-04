@@ -18,23 +18,23 @@ public:
     }
     virtual ~MFXMemory(void) {}
 
-    virtual mfxStatus GetSurfaceForVPP(mfxFrameSurface1 **surface) {
+    virtual mfxStatus GetSurfaceForVPP(mfxFrameSurface1** surface) {
         return MFXMemory_GetSurfaceForVPP(m_session, surface);
     }
 
-    virtual mfxStatus GetSurfaceForVPPIn(mfxFrameSurface1 **surface) {
+    virtual mfxStatus GetSurfaceForVPPIn(mfxFrameSurface1** surface) {
         return GetSurfaceForVPP(surface);
     }
 
-    virtual mfxStatus GetSurfaceForVPPOut(mfxFrameSurface1 **surface) {
+    virtual mfxStatus GetSurfaceForVPPOut(mfxFrameSurface1** surface) {
         return MFXMemory_GetSurfaceForVPPOut(m_session, surface);
     }
 
-    virtual mfxStatus GetSurfaceForEncode(mfxFrameSurface1 **surface) {
+    virtual mfxStatus GetSurfaceForEncode(mfxFrameSurface1** surface) {
         return MFXMemory_GetSurfaceForEncode(m_session, surface);
     }
 
-    virtual mfxStatus GetSurfaceForDecode(mfxFrameSurface1 **surface) {
+    virtual mfxStatus GetSurfaceForDecode(mfxFrameSurface1** surface) {
         return MFXMemory_GetSurfaceForDecode(m_session, surface);
     }
 
@@ -44,7 +44,7 @@ protected:
 
 class MFXVideoSession2 : public MFXVideoSession {
 public:
-    mfxSession *getSessionPtr() {
+    mfxSession* getSessionPtr() {
         return &m_session;
     }
 };

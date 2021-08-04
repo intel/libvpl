@@ -66,7 +66,6 @@ int main(int argc, char *argv[]) {
 
     int frame_num      = 0;
     bool is_stillgoing = true;
-    mfxIMPL impl;
     mfxImplType impl_type;
     impl_type = (mfxImplType)cliParams.implValue.Data.U32;
 
@@ -80,7 +79,6 @@ int main(int argc, char *argv[]) {
     // Default implementation selector. Selects first impl based on property list.
     vpl::default_selector impl_sel({ opt1, opt2 });
 
-    vpl::status ret = vpl::status::Ok;
     vpl::ExtDecodeErrorReport err_report;
     vpl::color_format_fourcc input_fourcc = (impl_type == MFX_IMPL_TYPE_SOFTWARE)
                                                 ? vpl::color_format_fourcc::i420

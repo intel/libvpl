@@ -51,7 +51,7 @@ using namespace TranscodingSample;
 
 #ifdef ENABLE_MCTF
 namespace TranscodingSample {
-const sMctfRunTimeParam *sMctfRunTimeParams::GetCurParam() {
+const sMctfRunTimeParam* sMctfRunTimeParams::GetCurParam() {
     if (CurIdx >= RunTimeParams.size())
         return NULL;
     else
@@ -74,10 +74,16 @@ void sMctfRunTimeParams::Reset() {
 } // namespace TranscodingSample
 #endif
 
-void IncreaseReference(mfxFrameSurface1 &surf);
-void DecreaseReference(mfxFrameSurface1 &surf);
+void IncreaseReference(mfxFrameSurface1& surf);
+void DecreaseReference(mfxFrameSurface1& surf);
 
-mfxFrameInfo GetFrameInfo(const MfxVideoParamsWrapper &param) {
+ExtendedSurface::ExtendedSurface()
+        : TargetID(0),
+          pSurface(NULL),
+          pAuxCtrl(NULL),
+          pEncCtrl(NULL),
+          Syncp{ 0 } {}
+mfxFrameInfo GetFrameInfo(const MfxVideoParamsWrapper& param) {
     mfxFrameInfo frameInfo = param.mfx.FrameInfo;
     auto decPostProc       = param.GetExtBuffer<mfxExtDecVideoProcessing>();
     if (decPostProc) {
@@ -90,8 +96,171 @@ mfxFrameInfo GetFrameInfo(const MfxVideoParamsWrapper &param) {
     return frameInfo;
 }
 
+__sInputParams::__sInputParams()
+        : TargetID(0),
+          CascadeScaler(false),
+          EnableTracing(false),
+          bIsJoin(false),
+          priority(MFX_PRIORITY_LOW),
+          libType(0)
+#if defined(LINUX32) || defined(LINUX64)
+          ,
+          strDevicePath()
+#endif
+#if (defined(_WIN32) || defined(_WIN64)) && (MFX_VERSION >= 1031)
+          ,
+          bPrefferiGfx(false),
+          bPrefferdGfx(false),
+          dGfxIdx(0)
+#endif
+          ,
+          bIsPerf(false),
+          nThreadsNum(0),
+          bRobustFlag(false),
+          bSoftRobustFlag(false),
+          EncodeId(0),
+          DecodeId(0),
+          strSrcFile(),
+          strDstFile(),
+          strDumpVppCompFile(),
+          strMfxParamsDumpFile(),
+          nTargetUsage(0),
+          dDecoderFrameRateOverride(0),
+          dEncoderFrameRateOverride(0),
+          EncoderPicstructOverride(0),
+          dVPPOutFramerate(0),
+          nBitRate(0),
+          nBitRateMultiplier(0),
+          nQuality(0),
+          nDstWidth(0),
+          nDstHeight(0),
+          nEncTileRows(0),
+          nEncTileCols(0),
+          bEnableDeinterlacing(false),
+          DeinterlacingMode(0),
+          DenoiseLevel(0),
+          DetailLevel(0),
+          FRCAlgorithm(0),
+          fieldProcessingMode(FC_NONE),
+          ScalingMode(0),
+          nAsyncDepth(0),
+          eMode(Native),
+          eModeExt(Native),
+          FrameNumberPreference(0),
+          MaxFrameNumber(0),
+          numSurf4Comp(0),
+          numTiles4Comp(0),
+          nSlices(0),
+          nMaxSliceSize(0),
+          WinBRCMaxAvgKbps(0),
+          WinBRCSize(0),
+          BufferSizeInKB(0),
+          GopPicSize(0),
+          GopRefDist(0),
+          NumRefFrame(0),
+          nBRefType(0),
+          RepartitionCheckMode(0),
+          GPB(0),
+          nTransformSkip(0),
+          CodecLevel(0),
+          CodecProfile(0),
+          MaxKbps(0),
+          InitialDelayInKB(0),
+          GopOptFlag(0),
+          AdaptiveI(0),
+          AdaptiveB(0),
+          WeightedPred(0),
+          WeightedBiPred(0),
+          ExtBrcAdaptiveLTR(0),
+          bExtMBQP(false),
+          bIsMVC(false),
+          numViews(0),
+          nRotationAngle(0),
+          strVPPPluginDLLPath(),
+          decoderPluginParams(),
+          encoderPluginParams(),
+          nTimeout(0),
+          nFPS(0),
+          statisticsWindowSize(0),
+          statisticsLogFile(NULL),
+          bLABRC(false),
+          nLADepth(0),
+          bEnableExtLA(false),
+          bEnableBPyramid(false),
+          nRateControlMethod(0),
+          nQPI(0),
+          nQPP(0),
+          nQPB(0),
+          bDisableQPOffset(false),
+          nAvcTemp(0),
+          nBaseLayerPID(0),
+          nAvcTemporalLayers{ 0 },
+          nSPSId(0),
+          nPPSId(0),
+          nPicTimingSEI(0),
+          nNalHrdConformance(0),
+          nVuiNalHrdParameters(0),
+          bOpenCL(false),
+          reserved{ 0 },
+          nVppCompDstX(0),
+          nVppCompDstY(0),
+          nVppCompDstW(0),
+          nVppCompDstH(0),
+          nVppCompSrcW(0),
+          nVppCompSrcH(0),
+          nVppCompTileId(0),
+          DecoderFourCC(0),
+          EncoderFourCC(0),
+          pVppCompDstRects(NULL),
+          bForceSysMem(false),
+          DecOutPattern(0),
+          VppOutPattern(0),
+          nGpuCopyMode(0),
+          nRenderColorForamt(0),
+          monitorType(0),
+          shouldUseGreedyFormula(false),
+          enableQSVFF(false),
+          bSingleTexture(false),
+          nExtBRC(EXTBRC_DEFAULT),
+          nAdaptiveMaxFrameSize(0),
+          LowDelayBRC(0),
+          IntRefType(0),
+          IntRefCycleSize(0),
+          IntRefQPDelta(0),
+          IntRefCycleDist(0),
+          nMaxFrameSize(0),
+          BitrateLimit(0)
+#if (MFX_VERSION >= 1025)
+          ,
+          numMFEFrames(0),
+          MFMode(0),
+          mfeTimeout(0)
+#endif
+#if (MFX_VERSION >= 1027)
+          ,
+          TargetBitDepthLuma(0),
+          TargetBitDepthChroma(0)
+#endif
+#if defined(LIBVA_WAYLAND_SUPPORT)
+          ,
+          nRenderWinX(0),
+          nRenderWinY(0),
+          bPerfMode(false)
+#endif
+#if defined(LIBVA_SUPPORT)
+          ,
+          libvaBackend(0)
+#endif // defined(MFX_LIBVA_SUPPORT)
+          ,
+          m_hwdev(NULL),
+          PresetMode(PRESET_DEFAULT),
+          shouldPrintPresets(false),
+          rawInput(false),
+          nMemoryModel(0) {
+}
+
 // set structure to define values
-sInputParams::sInputParams() : __sInputParams(), m_ROIData(), DumpLogFileName() {
+sInputParams::sInputParams() : __sInputParams(), DumpLogFileName(), m_ROIData() {
 #ifdef ENABLE_MCTF
     mctfParam.mode                  = VPP_FILTER_DISABLED;
     mctfParam.params.FilterStrength = 0;
@@ -132,17 +301,70 @@ sInputParams::sInputParams() : __sInputParams(), m_ROIData(), DumpLogFileName() 
 
 CTranscodingPipeline::CTranscodingPipeline()
         : m_pmfxBS(NULL),
+          m_Version{ 0 },
+          m_mfxLoader(),
+          m_pmfxCSSession(),
+          m_pmfxCSVPP(),
+          m_pmfxSession(),
+          m_pmfxDEC(),
+          m_pmfxENC(),
+          m_pmfxVPP()
+#if !defined(MFX_ONEVPL)
+          ,
+          m_pmfxPreENC(),
+          m_pUserDecoderModule(),
+          m_pUserEncoderModule(),
+          m_pUserEncModule(),
+          m_pUserDecoderPlugin(),
+          m_pUserEncoderPlugin(),
+          m_pUserEncPlugin()
+#endif //!MFX_ONEVPL
+          ,
+          m_mfxDecResponse{ 0 },
+          m_mfxEncResponse{ 0 },
           m_pMFXAllocator(NULL),
           m_hdl(NULL),
+          m_bIsInterOrJoined(false),
+          m_numEncoders(0),
           m_encoderFourCC(0),
-          m_vppCompDumpRenderMode(0),
-          m_hwdev4Rendering(NULL),
+          m_dumpVppCompFileWriter(),
+          m_vppCompDumpRenderMode(0)
+#if defined(_WIN32) || defined(_WIN64)
+          ,
+          m_hwdev4Rendering(NULL)
+#else
+          ,
+          m_hwdev4Rendering(NULL)
+#endif
+          ,
+          m_pSurfaceDecPool(),
+          m_pSurfaceEncPool(),
+          m_CSSurfacePools(),
           m_EncSurfaceType(0),
           m_DecSurfaceType(0),
+          m_pPreEncAuxPool(),
+          m_BSPool(),
+          m_initPar(),
+          m_bForceStop(false),
+          m_decoderPluginParams(),
+          m_encoderPluginParams(),
+          m_mfxDecParams(),
+          m_mfxEncParams(),
+          m_mfxVppParams(),
+          m_mfxCSVppParams(),
+          m_mfxPluginParams(),
           m_bIsVpp(false),
+          m_bIsFieldWeaving(false),
+          m_bIsFieldSplitting(false),
           m_bIsPlugin(false),
+          m_RotateParam{ 0 },
+          m_mfxPreEncParams(),
           m_nTimeout(0),
+          m_bUseOverlay(false),
+          m_bROIasQPMAP(false),
+          m_bExtMBQP(false),
           m_bOwnMVCSeqDescMemory(true),
+          m_tabDoUseAlg{ 0 },
           m_nID(0),
           m_AsyncDepth(0),
           m_nProcessedFramesNum(0),
@@ -150,90 +372,72 @@ CTranscodingPipeline::CTranscodingPipeline()
           m_bDecodeEnable(true),
           m_bEncodeEnable(true),
           m_nVPPCompEnable(0),
+          m_libvaBackend(0),
           m_MemoryModel(UNKNOWN_ALLOC),
-          m_LastDecSyncPoint(0),
+          m_LastDecSyncPoint(NULL),
           m_pBuffer(NULL),
           m_pParentPipeline(NULL),
+          m_Request{ 0 },
           m_bIsInit(false),
           m_NumFramesForReset(0),
+          m_mReset(),
+          m_mStopSession(),
+          m_bRobustFlag(false),
+          m_bSoftGpuHangRecovery(false),
           isHEVCSW(false),
           m_bInsertIDR(false),
           m_rawInput(false),
+          m_pBSStore(),
           m_FrameNumberPreference(0xFFFFFFFF),
           m_MaxFramesForTranscode(0xFFFFFFFF),
           m_pBSProcessor(NULL),
           m_nReqFrameTime(0),
+          statisticsWindowSize(0),
           m_nOutputFramesNum(0),
-          shouldUseGreedyFormula(false),
-          m_nRotationAngle(0),
-          m_pmfxENC(),
-          m_pmfxCSVPP(),
-          m_extBuffPtrStorage(),
-          m_mStopSession(),
-          m_qpMapStorage(),
-          m_ROIData(),
-          m_mfxLoader(),
-          m_mfxCSVppParams(),
-          m_strMfxParamsDumpFile(),
-          m_pSurfaceDecPool(),
-          m_pmfxCSSession(),
-          encControlStorage(),
-          m_BSPool(),
-          m_pmfxSession(),
-          m_pBSStore(),
-          m_pPreEncAuxPool(),
-          m_pSurfaceEncPool(),
-          m_pmfxDEC(),
-          m_sGenericPluginPath(),
-          m_CSSurfacePools(),
-          m_pmfxVPP(),
-#if (defined(_WIN32) || defined(_WIN64)) && (MFX_VERSION >= 1031)
-          bPrefferdGfx(),
-          bPrefferiGfx(),
-          dGfxIdx(),
-#endif
-          m_bufExtMBQP(),
-          m_mReset() {
-    MSDK_ZERO_MEMORY(m_RotateParam);
-    MSDK_ZERO_MEMORY(m_mfxDecResponse);
-    MSDK_ZERO_MEMORY(m_mfxEncResponse);
-    MSDK_ZERO_MEMORY(m_Request);
-
+          inputStatistics(),
+          outputStatistics(),
+          shouldUseGreedyFormula(false)
 #if MFX_VERSION >= 1022
-    m_bUseQPMap           = 0;
-    m_QPmapWidth          = 0;
-    m_QPmapHeight         = 0;
-    m_GOPSize             = 0;
-    m_QPforI              = 0;
-    m_QPforP              = 0;
-    m_nSubmittedFramesNum = 0;
+          ,
+          m_ROIData(),
+          m_nSubmittedFramesNum(0),
+          m_bUseQPMap(false),
+          m_bufExtMBQP(),
+          m_qpMapStorage(),
+          m_extBuffPtrStorage(),
+          encControlStorage(),
+          m_QPmapWidth(0),
+          m_QPmapHeight(0),
+          m_GOPSize(0),
+          m_QPforI(0),
+          m_QPforP(0),
+          m_sGenericPluginPath(),
+          m_nRotationAngle(0),
+          m_strMfxParamsDumpFile()
 #endif //MFX_VERSION >= 1022
-
+#ifdef ENABLE_MCTF
+          ,
+          m_MctfRTParams()
+#endif
+#if (defined(_WIN32) || defined(_WIN64)) && (MFX_VERSION >= 1031)
+          ,
+          bPrefferiGfx(false),
+          bPrefferdGfx(false),
+          dGfxIdx(0)
+#endif
+          ,
+          TargetID(0),
+          m_ScalerConfig() {
     inputStatistics.SetDirection(MSDK_STRING("Input"));
     outputStatistics.SetDirection(MSDK_STRING("Output"));
-
-    m_numEncoders          = 0;
-    m_encoderFourCC        = 0;
-    m_libvaBackend         = 0;
-    statisticsWindowSize   = 0;
-    m_bIsFieldWeaving      = false;
-    m_bIsFieldSplitting    = false;
-    m_bUseOverlay          = false;
-    m_bForceStop           = false;
-    m_bIsInterOrJoined     = false;
-    m_bRobustFlag          = false;
-    m_bSoftGpuHangRecovery = false;
-    m_nRotationAngle       = 0;
-    m_bROIasQPMAP          = false;
-    m_bExtMBQP             = false;
 } //CTranscodingPipeline::CTranscodingPipeline()
 
 CTranscodingPipeline::~CTranscodingPipeline() {
     Close();
 } //CTranscodingPipeline::CTranscodingPipeline()
 
-mfxStatus CTranscodingPipeline::CheckRequiredAPIVersion(mfxVersion &version,
-                                                        sInputParams *pParams) {
+mfxStatus CTranscodingPipeline::CheckRequiredAPIVersion(mfxVersion& version,
+                                                        sInputParams* pParams) {
     MSDK_CHECK_POINTER(pParams, MFX_ERR_NULL_PTR);
 
     if (pParams->bIsMVC && !CheckVersion(&version, MSDK_FEATURE_MVC)) {
@@ -269,7 +473,7 @@ mfxStatus CTranscodingPipeline::CheckRequiredAPIVersion(mfxVersion &version,
 }
 
 // initialize decode part
-mfxStatus CTranscodingPipeline::DecodePreInit(sInputParams *pParams) {
+mfxStatus CTranscodingPipeline::DecodePreInit(sInputParams* pParams) {
     // initialize decode pert
     mfxStatus sts = MFX_ERR_NONE;
 
@@ -342,14 +546,14 @@ mfxStatus CTranscodingPipeline::DecodePreInit(sInputParams *pParams) {
             MSDK_CHECK_STATUS(sts, "InitDecMfxParams failed");
         }
     }
-#if !defined(MFX_ONEVPL)
     else {
-        m_mfxDecParams         = m_pParentPipeline->GetDecodeParam(TargetID);
+        m_mfxDecParams = m_pParentPipeline->GetDecodeParam(TargetID);
+#if !defined(MFX_ONEVPL)
         auto mvc               = m_mfxDecParams.AddExtBuffer<mfxExtMVCSeqDesc>();
         *mvc                   = m_pParentPipeline->GetDecMVCSeqDesc();
         m_bOwnMVCSeqDescMemory = false;
-    }
 #endif
+    }
 
     if (pParams->nFPS) {
         this->m_nReqFrameTime = 1000000 / pParams->nFPS;
@@ -359,7 +563,7 @@ mfxStatus CTranscodingPipeline::DecodePreInit(sInputParams *pParams) {
 
 } //mfxStatus CTranscodingPipeline::Init(sInputParams *pParams)
 
-mfxStatus CTranscodingPipeline::VPPPreInit(sInputParams *pParams) {
+mfxStatus CTranscodingPipeline::VPPPreInit(sInputParams* pParams) {
     mfxStatus sts            = MFX_ERR_NONE;
     bool bVppCompInitRequire = false;
     m_bIsFieldWeaving        = false;
@@ -427,8 +631,8 @@ mfxStatus CTranscodingPipeline::VPPPreInit(sInputParams *pParams) {
             MSDK_CHECK_STATUS(sts, "InitVppMfxParams failed");
 
             if (m_ScalerConfig.CascadeScalerRequired && TargetID == DecoderTargetID) {
-                for (const auto &p : m_ScalerConfig.Pools) {
-                    const auto &PoolDesc = p.second;
+                for (const auto& p : m_ScalerConfig.Pools) {
+                    const auto& PoolDesc = p.second;
                     if (PoolDesc.ID == DecoderPoolID) {
                         continue;
                     }
@@ -455,9 +659,9 @@ mfxStatus CTranscodingPipeline::VPPPreInit(sInputParams *pParams) {
             m_pmfxVPP.reset(new MFXVideoMultiVPP(*m_pmfxSession.get()));
 
             if (m_ScalerConfig.CascadeScalerRequired && TargetID == DecoderTargetID) {
-                for (const auto &p : m_ScalerConfig.Pools) {
+                for (const auto& p : m_ScalerConfig.Pools) {
                     //pool descriptor
-                    const auto &PoolDesc = p.second;
+                    const auto& PoolDesc = p.second;
                     if (PoolDesc.ID == DecoderPoolID) {
                         continue;
                     }
@@ -473,7 +677,7 @@ mfxStatus CTranscodingPipeline::VPPPreInit(sInputParams *pParams) {
 
 } //mfxStatus CTranscodingPipeline::VPPInit(sInputParams *pParams)
 
-mfxStatus CTranscodingPipeline::EncodePreInit(sInputParams *pParams) {
+mfxStatus CTranscodingPipeline::EncodePreInit(sInputParams* pParams) {
     mfxStatus sts = MFX_ERR_NONE;
 
     if (m_bEncodeEnable) {
@@ -583,7 +787,7 @@ mfxStatus CTranscodingPipeline::EncodePreInit(sInputParams *pParams) {
 } // mfxStatus CTranscodingPipeline::EncodeInit(sInputParams *pParams)
 
 #if !defined(MFX_ONEVPL)
-mfxStatus CTranscodingPipeline::PreEncPreInit(sInputParams *pParams) {
+mfxStatus CTranscodingPipeline::PreEncPreInit(sInputParams* pParams) {
     mfxStatus sts = MFX_ERR_NONE;
     // PreInit is allowed in decoder session only
     if (pParams->bEnableExtLA && m_bDecodeEnable) {
@@ -613,7 +817,7 @@ mfxStatus CTranscodingPipeline::PreEncPreInit(sInputParams *pParams) {
 
 mfxVideoParam CTranscodingPipeline::GetDecodeParam(mfxU32 ID) {
     if (TargetID == DecoderTargetID && m_ScalerConfig.CascadeScalerRequired) {
-        const auto &desc = m_ScalerConfig.GetDesc(ID);
+        const auto& desc = m_ScalerConfig.GetDesc(ID);
         if (desc.PoolID == DecoderPoolID) {
             return m_mfxDecParams;
         }
@@ -640,12 +844,12 @@ mfxVideoParam CTranscodingPipeline::GetDecodeParam(mfxU32 ID) {
 // 1 ms provides better result in range [0..5] ms
 enum { TIME_TO_SLEEP = 1 };
 
-mfxStatus CTranscodingPipeline::DecodeOneFrame(ExtendedSurface *pExtSurface) {
+mfxStatus CTranscodingPipeline::DecodeOneFrame(ExtendedSurface* pExtSurface) {
     MFX_ITT_TASK("DecodeOneFrame");
     MSDK_CHECK_POINTER(pExtSurface, MFX_ERR_NULL_PTR);
 
     mfxStatus sts                 = MFX_ERR_MORE_SURFACE;
-    mfxFrameSurface1 *pmfxSurface = NULL;
+    mfxFrameSurface1* pmfxSurface = NULL;
     pExtSurface->pSurface         = NULL;
 
     //--- Time measurements
@@ -755,9 +959,9 @@ mfxStatus CTranscodingPipeline::DecodeOneFrame(ExtendedSurface *pExtSurface) {
     return sts;
 
 } // mfxStatus CTranscodingPipeline::DecodeOneFrame(ExtendedSurface *pExtSurface)
-mfxStatus CTranscodingPipeline::DecodeLastFrame(ExtendedSurface *pExtSurface) {
+mfxStatus CTranscodingPipeline::DecodeLastFrame(ExtendedSurface* pExtSurface) {
     MFX_ITT_TASK("DecodeLastFrame");
-    mfxFrameSurface1 *pmfxSurface = NULL;
+    mfxFrameSurface1* pmfxSurface = NULL;
     mfxStatus sts                 = MFX_ERR_MORE_SURFACE;
 
     //--- Time measurements
@@ -831,12 +1035,12 @@ mfxStatus CTranscodingPipeline::DecodeLastFrame(ExtendedSurface *pExtSurface) {
     return sts;
 }
 
-mfxStatus CTranscodingPipeline::VPPOneFrame(ExtendedSurface *pSurfaceIn,
-                                            ExtendedSurface *pExtSurface,
+mfxStatus CTranscodingPipeline::VPPOneFrame(ExtendedSurface* pSurfaceIn,
+                                            ExtendedSurface* pExtSurface,
                                             mfxU32 ID) {
     MFX_ITT_TASK("VPPOneFrame");
     MSDK_CHECK_POINTER(pExtSurface, MFX_ERR_NULL_PTR);
-    mfxFrameSurface1 *out_surface = NULL;
+    mfxFrameSurface1* out_surface = NULL;
     mfxStatus sts                 = MFX_ERR_NONE;
 
     if (m_MemoryModel == GENERAL_ALLOC || m_MemoryModel == VISIBLE_INT_ALLOC) {
@@ -871,7 +1075,7 @@ mfxStatus CTranscodingPipeline::VPPOneFrame(ExtendedSurface *pSurfaceIn,
     bool applyMCTF          = !!MCTFCurParam;
 
     if (applyMCTF && pSurfaceIn->pSurface) {
-        auto surface = static_cast<mfxFrameSurfaceWrap *>(pSurfaceIn->pSurface);
+        auto surface = static_cast<mfxFrameSurfaceWrap*>(pSurfaceIn->pSurface);
 
         auto mctf            = surface->AddExtBuffer<mfxExtVppMctf>();
         mctf->FilterStrength = MCTFCurParam->FilterStrength;
@@ -983,8 +1187,8 @@ mfxStatus CTranscodingPipeline::VPPOneFrame(ExtendedSurface *pSurfaceIn,
 
 } // mfxStatus CTranscodingPipeline::DecodeOneFrame(ExtendedSurface *pExtSurface)
 
-mfxStatus CTranscodingPipeline::EncodeOneFrame(ExtendedSurface *pExtSurface,
-                                               mfxBitstreamWrapper *pBS) {
+mfxStatus CTranscodingPipeline::EncodeOneFrame(ExtendedSurface* pExtSurface,
+                                               mfxBitstreamWrapper* pBS) {
     mfxStatus sts = MFX_ERR_NONE;
 
     if (!pBS->Data) {
@@ -1043,10 +1247,10 @@ mfxStatus CTranscodingPipeline::EncodeOneFrame(ExtendedSurface *pExtSurface,
 } //CTranscodingPipeline::EncodeOneFrame(ExtendedSurface *pExtSurface)
 
 #if !defined(MFX_ONEVPL)
-mfxStatus CTranscodingPipeline::PreEncOneFrame(ExtendedSurface *pInSurface,
-                                               ExtendedSurface *pOutSurface) {
+mfxStatus CTranscodingPipeline::PreEncOneFrame(ExtendedSurface* pInSurface,
+                                               ExtendedSurface* pOutSurface) {
     mfxStatus sts         = MFX_ERR_NONE;
-    PreEncAuxBuffer *pAux = NULL;
+    PreEncAuxBuffer* pAux = NULL;
 
     for (mfxU32 i = 0; i < MSDK_WAIT_INTERVAL; i += TIME_TO_SLEEP) {
         pAux = GetFreePreEncAuxBuffer();
@@ -1075,7 +1279,7 @@ mfxStatus CTranscodingPipeline::PreEncOneFrame(ExtendedSurface *pInSurface,
             MSDK_CHECK_POINTER(pAux->encOutput.ExtParam, MFX_ERR_NULL_PTR);
             MSDK_CHECK_NOT_EQUAL(pAux->encOutput.NumExtParam, 1, MFX_ERR_UNSUPPORTED);
             pOutSurface->pSurface =
-                ((mfxExtLAFrameStatistics *)pAux->encOutput.ExtParam[0])->OutSurface;
+                ((mfxExtLAFrameStatistics*)pAux->encOutput.ExtParam[0])->OutSurface;
             sts = MFX_ERR_NONE; // ignore warnings if output is available
             break;
         }
@@ -1089,7 +1293,7 @@ mfxStatus CTranscodingPipeline::PreEncOneFrame(ExtendedSurface *pInSurface,
 
 // signal that there are no more frames
 void CTranscodingPipeline::NoMoreFramesSignal() {
-    SafetySurfaceBuffer *pNextBuffer = m_pBuffer;
+    SafetySurfaceBuffer* pNextBuffer = m_pBuffer;
 
     // For transcoding pipelines (PipelineMode::Native) this pointer is null
     if (!pNextBuffer)
@@ -1124,14 +1328,14 @@ bool CTranscodingPipeline::IsOverlayUsed() {
 mfxStatus CTranscodingPipeline::Decode() {
     mfxStatus sts = MFX_ERR_NONE;
 
-    ExtendedSurface DecExtSurface    = { 0 };
-    ExtendedSurface VppExtSurface    = { 0 };
-    ExtendedSurface PreEncExtSurface = { 0 };
-    bool shouldReadNextFrame         = true;
+    ExtendedSurface DecExtSurface;
+    ExtendedSurface VppExtSurface;
+    ExtendedSurface PreEncExtSurface;
+    bool shouldReadNextFrame = true;
 
     std::vector<ExtendedSurface> OutSurfaces;
 
-    SafetySurfaceBuffer *pNextBuffer = m_pBuffer;
+    SafetySurfaceBuffer* pNextBuffer = m_pBuffer;
     bool bEndOfFile                  = false;
     bool bLastCycle                  = false;
     time_t start                     = time(0);
@@ -1366,7 +1570,7 @@ mfxStatus CTranscodingPipeline::Decode() {
         // add surfaces in queue for all sinks
         if (m_ScalerConfig.CascadeScalerRequired) {
             //unlock out surfaces
-            for (auto &s : OutSurfaces) {
+            for (auto& s : OutSurfaces) {
                 auto desc = m_ScalerConfig.GetDesc(s.TargetID);
                 if (desc.CascadeScaler) {
                     DecreaseReference(*s.pSurface);
@@ -1374,7 +1578,7 @@ mfxStatus CTranscodingPipeline::Decode() {
             }
 
             //build list of output buffers and reverse it to match order of output surfaces
-            std::vector<SafetySurfaceBuffer *> buf;
+            std::vector<SafetySurfaceBuffer*> buf;
             do {
                 buf.push_back(pNextBuffer);
                 pNextBuffer = pNextBuffer->m_pNext;
@@ -1470,11 +1674,11 @@ mfxStatus CTranscodingPipeline::Encode() {
     mfxStatus sts                  = MFX_ERR_NONE;
     ExtendedSurface DecExtSurface  = {};
     ExtendedSurface VppExtSurface  = {};
-    ExtendedBS *pBS                = NULL;
+    ExtendedBS* pBS                = NULL;
     bool isQuit                    = false;
     bool bPollFlag                 = false;
     int nFramesAlreadyPut          = 0;
-    SafetySurfaceBuffer *curBuffer = m_pBuffer;
+    SafetySurfaceBuffer* curBuffer = m_pBuffer;
 
     bool shouldReadNextFrame = true;
     while (MFX_ERR_NONE == sts || MFX_ERR_MORE_DATA == sts) {
@@ -1686,7 +1890,7 @@ mfxStatus CTranscodingPipeline::Encode() {
          * SYNC have not done by driver !!! */
         if ((m_nVPPCompEnable == VppCompOnly) || (m_nVPPCompEnable == VppCompOnlyEncode)) {
             if (m_BSPool.size()) {
-                ExtendedBS *pBitstreamEx_temp = m_BSPool.front();
+                ExtendedBS* pBitstreamEx_temp = m_BSPool.front();
 
                 // get result coded stream
                 ////Note! Better to do rendering before encode
@@ -1753,7 +1957,7 @@ mfxStatus CTranscodingPipeline::Encode() {
     // Clean up decoder buffers to avoid locking them (if some decoder still have some data to decode, but does not have enough surfaces)
     if (m_nVPPCompEnable != 0) {
         // Composition case - we have to clean up all buffers (all of them have data from decoders)
-        for (SafetySurfaceBuffer *buf = m_pBuffer; buf != NULL; buf = buf->m_pNext) {
+        for (SafetySurfaceBuffer* buf = m_pBuffer; buf != NULL; buf = buf->m_pNext) {
             while (buf->GetSurface(DecExtSurface) != MFX_ERR_MORE_SURFACE) {
                 buf->ReleaseSurface(DecExtSurface.pSurface);
                 buf->CancelBuffering();
@@ -1782,7 +1986,7 @@ mfxStatus CTranscodingPipeline::Encode() {
 } // mfxStatus CTranscodingPipeline::Encode()
 
 #if MFX_VERSION >= 1022
-void CTranscodingPipeline::FillMBQPBuffer(mfxExtMBQP &qpMap, mfxU16 pictStruct) {
+void CTranscodingPipeline::FillMBQPBuffer(mfxExtMBQP& qpMap, mfxU16 pictStruct) {
     // External MBQP case
     if (m_bExtMBQP) {
         // Use simplistic approach to fill in QP buffer
@@ -1800,7 +2004,7 @@ void CTranscodingPipeline::FillMBQPBuffer(mfxExtMBQP &qpMap, mfxU16 pictStruct) 
         //        printf("QP expectation: %d, map PTR %lld\n",fQP,(long long int)qpMap.QP);
 
         if (m_ROIData.size() > m_nSubmittedFramesNum) {
-            mfxExtEncoderROI &roi = m_ROIData[m_nSubmittedFramesNum];
+            mfxExtEncoderROI& roi = m_ROIData[m_nSubmittedFramesNum];
             for (mfxI32 i = roi.NumROI - 1; i >= 0; i--) {
                 mfxU32 l = (roi.ROI[i].Left) >> 4, t = (roi.ROI[i].Top) >> 4,
                        r = (roi.ROI[i].Right + 15) >> 4, b = (roi.ROI[i].Bottom + 15) >> 4;
@@ -1841,7 +2045,7 @@ void CTranscodingPipeline::FillMBQPBuffer(mfxExtMBQP &qpMap, mfxU16 pictStruct) 
         for (int fld = 0; fld <= 1; fld++) {
             std::memset(qpMap.QP + fOff[fld], fQP[fld], qpMap.NumQPAlloc / 2);
             if (m_ROIData.size() > fIdx[fld]) {
-                mfxExtEncoderROI &roi = m_ROIData[fIdx[fld]];
+                mfxExtEncoderROI& roi = m_ROIData[fIdx[fld]];
                 for (mfxI32 i = roi.NumROI - 1; i >= 0; i--) {
                     mfxU32 l = (roi.ROI[i].Left) >> 4, t = (roi.ROI[i].Top) >> 5,
                            r = (roi.ROI[i].Right + 15) >> 4, b = (roi.ROI[i].Bottom + 31) >> 5;
@@ -1870,7 +2074,7 @@ void CTranscodingPipeline::FillMBQPBuffer(mfxExtMBQP &qpMap, mfxU16 pictStruct) 
 }
 #endif //MFX_VERSION >= 1022
 
-void CTranscodingPipeline::SetEncCtrlRT(ExtendedSurface &extSurface, bool bInsertIDR) {
+void CTranscodingPipeline::SetEncCtrlRT(ExtendedSurface& extSurface, bool bInsertIDR) {
     extSurface.pEncCtrl = NULL;
     if (extSurface.pAuxCtrl) {
         extSurface.pEncCtrl = &extSurface.pAuxCtrl->encCtrl;
@@ -1879,11 +2083,11 @@ void CTranscodingPipeline::SetEncCtrlRT(ExtendedSurface &extSurface, bool bInser
 #if MFX_VERSION >= 1022
 
     if (extSurface.pSurface) {
-        void *keyId = (void *)extSurface.pSurface;
+        void* keyId = (void*)extSurface.pSurface;
 
         // Use encoded surface pointer to find placeholders for run-time structures in maps
         if (m_bUseQPMap && m_bufExtMBQP.find(keyId) == m_bufExtMBQP.end()) {
-            m_extBuffPtrStorage[keyId] = std::vector<mfxExtBuffer *>();
+            m_extBuffPtrStorage[keyId] = std::vector<mfxExtBuffer*>();
 
             m_qpMapStorage[keyId] = std::vector<mfxU8>();
             m_qpMapStorage[keyId].resize(m_QPmapWidth * m_QPmapHeight);
@@ -1897,7 +2101,7 @@ void CTranscodingPipeline::SetEncCtrlRT(ExtendedSurface &extSurface, bool bInser
         }
 
         // Initialize *pCtrl optionally copying content of the pExtSurface.pAuxCtrl.encCtrl
-        mfxEncodeCtrl &ctrl = encControlStorage[keyId];
+        mfxEncodeCtrl& ctrl = encControlStorage[keyId];
         MSDK_ZERO_MEMORY(ctrl);
 
         if (extSurface.pEncCtrl) {
@@ -1916,13 +2120,13 @@ void CTranscodingPipeline::SetEncCtrlRT(ExtendedSurface &extSurface, bool bInser
         if (m_bUseQPMap) {
     #if (MFX_VERSION >= 1022)
             FillMBQPBuffer(m_bufExtMBQP[keyId], extSurface.pSurface->Info.PicStruct);
-            m_extBuffPtrStorage[keyId].push_back((mfxExtBuffer *)&m_bufExtMBQP[keyId]);
+            m_extBuffPtrStorage[keyId].push_back((mfxExtBuffer*)&m_bufExtMBQP[keyId]);
     #endif
         }
         else {
             if (m_ROIData.size() > m_nSubmittedFramesNum)
                 m_extBuffPtrStorage[keyId].push_back(
-                    (mfxExtBuffer *)&m_ROIData[m_nSubmittedFramesNum]);
+                    (mfxExtBuffer*)&m_ROIData[m_nSubmittedFramesNum]);
         }
 
         // Replace the buffers pointer to pre-allocated storage
@@ -1938,7 +2142,7 @@ void CTranscodingPipeline::SetEncCtrlRT(ExtendedSurface &extSurface, bool bInser
 
     if (bInsertIDR && extSurface.pSurface) {
         if (extSurface.pEncCtrl == NULL) {
-            mfxEncodeCtrl &ctrl = encControlStorage[(void *)extSurface.pSurface];
+            mfxEncodeCtrl& ctrl = encControlStorage[(void*)extSurface.pSurface];
             MSDK_ZERO_MEMORY(ctrl);
             extSurface.pEncCtrl = &ctrl;
         }
@@ -1952,14 +2156,14 @@ void CTranscodingPipeline::SetEncCtrlRT(ExtendedSurface &extSurface, bool bInser
 }
 
 mfxStatus CTranscodingPipeline::Transcode() {
-    mfxStatus sts                 = MFX_ERR_NONE;
-    ExtendedSurface DecExtSurface = { 0 };
-    ExtendedSurface VppExtSurface = { 0 };
-    ExtendedBS *pBS               = NULL;
-    bool bNeedDecodedFrames       = true; // indicates if we need to decode frames
-    bool bEndOfFile               = false;
-    bool bLastCycle               = false;
-    bool shouldReadNextFrame      = true;
+    mfxStatus sts = MFX_ERR_NONE;
+    ExtendedSurface DecExtSurface;
+    ExtendedSurface VppExtSurface;
+    ExtendedBS* pBS          = NULL;
+    bool bNeedDecodedFrames  = true; // indicates if we need to decode frames
+    bool bEndOfFile          = false;
+    bool bLastCycle          = false;
+    bool shouldReadNextFrame = true;
 
     time_t start = time(0);
     while (MFX_ERR_NONE == sts) {
@@ -2188,7 +2392,7 @@ mfxStatus CTranscodingPipeline::Transcode() {
 
 mfxStatus CTranscodingPipeline::PutBS() {
     mfxStatus sts            = MFX_ERR_NONE;
-    ExtendedBS *pBitstreamEx = m_BSPool.front();
+    ExtendedBS* pBitstreamEx = m_BSPool.front();
     MSDK_CHECK_POINTER(pBitstreamEx, MFX_ERR_NULL_PTR);
 
     // get result coded stream, synchronize only if we still have sync point
@@ -2232,7 +2436,7 @@ mfxStatus CTranscodingPipeline::PutBS() {
     return sts;
 } //mfxStatus CTranscodingPipeline::PutBS()
 
-mfxStatus CTranscodingPipeline::DumpSurface2File(mfxFrameSurface1 *pSurf) {
+mfxStatus CTranscodingPipeline::DumpSurface2File(mfxFrameSurface1* pSurf) {
     mfxStatus sts = MFX_ERR_NONE;
 
     if (m_MemoryModel == GENERAL_ALLOC) {
@@ -2263,8 +2467,8 @@ mfxStatus CTranscodingPipeline::DumpSurface2File(mfxFrameSurface1 *pSurf) {
     return sts;
 } // mfxStatus CTranscodingPipeline::DumpSurface2File(ExtendedSurface* pSurf)
 
-mfxStatus CTranscodingPipeline::Surface2BS(ExtendedSurface *pSurf,
-                                           mfxBitstreamWrapper *pBS,
+mfxStatus CTranscodingPipeline::Surface2BS(ExtendedSurface* pSurf,
+                                           mfxBitstreamWrapper* pBS,
                                            mfxU32 fourCC) {
     mfxStatus sts = MFX_ERR_MORE_DATA;
     // get result coded stream
@@ -2326,10 +2530,10 @@ mfxStatus CTranscodingPipeline::Surface2BS(ExtendedSurface *pSurf,
     return sts;
 }
 
-mfxStatus CTranscodingPipeline::NV12asI420toBS(mfxFrameSurface1 *pSurface,
-                                               mfxBitstreamWrapper *pBS) {
-    mfxFrameInfo &info = pSurface->Info;
-    mfxFrameData &data = pSurface->Data;
+mfxStatus CTranscodingPipeline::NV12asI420toBS(mfxFrameSurface1* pSurface,
+                                               mfxBitstreamWrapper* pBS) {
+    mfxFrameInfo& info = pSurface->Info;
+    mfxFrameData& data = pSurface->Data;
     if ((int)pBS->MaxLength - (int)pBS->DataLength < (int)(info.CropH * info.CropW * 3 / 2)) {
         pBS->Extend(pBS->DataLength + (int)(info.CropH * info.CropW * 3 / 2));
     }
@@ -2357,9 +2561,9 @@ mfxStatus CTranscodingPipeline::NV12asI420toBS(mfxFrameSurface1 *pSurface,
     return MFX_ERR_NONE;
 }
 
-mfxStatus CTranscodingPipeline::NV12toBS(mfxFrameSurface1 *pSurface, mfxBitstreamWrapper *pBS) {
-    mfxFrameInfo &info = pSurface->Info;
-    mfxFrameData &data = pSurface->Data;
+mfxStatus CTranscodingPipeline::NV12toBS(mfxFrameSurface1* pSurface, mfxBitstreamWrapper* pBS) {
+    mfxFrameInfo& info = pSurface->Info;
+    mfxFrameData& data = pSurface->Data;
     if ((int)pBS->MaxLength - (int)pBS->DataLength < (int)(info.CropH * info.CropW * 3 / 2)) {
         pBS->Extend(pBS->DataLength + (int)(info.CropH * info.CropW * 3 / 2));
     }
@@ -2381,9 +2585,9 @@ mfxStatus CTranscodingPipeline::NV12toBS(mfxFrameSurface1 *pSurface, mfxBitstrea
     return MFX_ERR_NONE;
 }
 
-mfxStatus CTranscodingPipeline::RGB4toBS(mfxFrameSurface1 *pSurface, mfxBitstreamWrapper *pBS) {
-    mfxFrameInfo &info = pSurface->Info;
-    mfxFrameData &data = pSurface->Data;
+mfxStatus CTranscodingPipeline::RGB4toBS(mfxFrameSurface1* pSurface, mfxBitstreamWrapper* pBS) {
+    mfxFrameInfo& info = pSurface->Info;
+    mfxFrameData& data = pSurface->Data;
     if ((int)pBS->MaxLength - (int)pBS->DataLength < (int)(info.CropH * info.CropW * 4)) {
         pBS->Extend(pBS->DataLength + (int)(info.CropH * info.CropW * 4));
     }
@@ -2398,9 +2602,9 @@ mfxStatus CTranscodingPipeline::RGB4toBS(mfxFrameSurface1 *pSurface, mfxBitstrea
     return MFX_ERR_NONE;
 }
 
-mfxStatus CTranscodingPipeline::YUY2toBS(mfxFrameSurface1 *pSurface, mfxBitstreamWrapper *pBS) {
-    mfxFrameInfo &info = pSurface->Info;
-    mfxFrameData &data = pSurface->Data;
+mfxStatus CTranscodingPipeline::YUY2toBS(mfxFrameSurface1* pSurface, mfxBitstreamWrapper* pBS) {
+    mfxFrameInfo& info = pSurface->Info;
+    mfxFrameData& data = pSurface->Data;
     if ((int)pBS->MaxLength - (int)pBS->DataLength < (int)(info.CropH * info.CropW * 4)) {
         pBS->Extend(pBS->DataLength + (int)(info.CropH * info.CropW * 4));
     }
@@ -2431,7 +2635,7 @@ mfxStatus CTranscodingPipeline::AllocMVCSeqDesc() {
 }
 
 void CTranscodingPipeline::FreeMVCSeqDesc() {
-    mfxExtMVCSeqDesc *mvc = m_mfxDecParams;
+    mfxExtMVCSeqDesc* mvc = m_mfxDecParams;
     if (m_bOwnMVCSeqDescMemory && mvc) {
         MSDK_SAFE_DELETE_ARRAY(mvc->View);
         MSDK_SAFE_DELETE_ARRAY(mvc->ViewId);
@@ -2439,7 +2643,7 @@ void CTranscodingPipeline::FreeMVCSeqDesc() {
     }
 }
 #endif
-mfxStatus CTranscodingPipeline::InitDecMfxParams(sInputParams *pInParams) {
+mfxStatus CTranscodingPipeline::InitDecMfxParams(sInputParams* pInParams) {
     mfxStatus sts = MFX_ERR_NONE;
     MSDK_CHECK_POINTER(pInParams, MFX_ERR_NULL_PTR);
 
@@ -2579,7 +2783,7 @@ mfxStatus CTranscodingPipeline::InitDecMfxParams(sInputParams *pInParams) {
     return MFX_ERR_NONE;
 } // mfxStatus CTranscodingPipeline::InitDecMfxParams()
 
-void CTranscodingPipeline::FillFrameInfoForEncoding(mfxFrameInfo &info, sInputParams *pInParams) {
+void CTranscodingPipeline::FillFrameInfoForEncoding(mfxFrameInfo& info, sInputParams* pInParams) {
     // Getting parameters from previous blocks
     if (m_bIsVpp) {
         MSDK_MEMCPY_VAR(info, &m_mfxVppParams.vpp.Out, sizeof(mfxFrameInfo));
@@ -2601,7 +2805,7 @@ void CTranscodingPipeline::FillFrameInfoForEncoding(mfxFrameInfo &info, sInputPa
     }
 }
 
-mfxStatus CTranscodingPipeline::InitEncMfxParams(sInputParams *pInParams) {
+mfxStatus CTranscodingPipeline::InitEncMfxParams(sInputParams* pInParams) {
     MSDK_CHECK_POINTER(pInParams, MFX_ERR_NULL_PTR);
 
     FillFrameInfoForEncoding(m_mfxEncParams.mfx.FrameInfo, pInParams);
@@ -2943,19 +3147,19 @@ mfxStatus CTranscodingPipeline::AllocPreEncAuxPool() {
         memset(&m_pPreEncAuxPool[i], 0, sizeof(m_pPreEncAuxPool[i]));
 
         m_pPreEncAuxPool[i].encCtrl.NumExtParam = 1;
-        m_pPreEncAuxPool[i].encCtrl.ExtParam    = new mfxExtBuffer *[1];
+        m_pPreEncAuxPool[i].encCtrl.ExtParam    = new mfxExtBuffer*[1];
 
-        char *pBuff = new char[buff_size];
+        char* pBuff = new char[buff_size];
         memset(pBuff, 0, buff_size);
 
-        m_pPreEncAuxPool[i].encCtrl.ExtParam[0] = (mfxExtBuffer *)pBuff;
-        mfxExtLAFrameStatistics *pExtBuffer     = (mfxExtLAFrameStatistics *)pBuff;
+        m_pPreEncAuxPool[i].encCtrl.ExtParam[0] = (mfxExtBuffer*)pBuff;
+        mfxExtLAFrameStatistics* pExtBuffer     = (mfxExtLAFrameStatistics*)pBuff;
 
-        pExtBuffer                  = (mfxExtLAFrameStatistics *)pBuff;
+        pExtBuffer                  = (mfxExtLAFrameStatistics*)pBuff;
         pExtBuffer->Header.BufferId = MFX_EXTBUFF_LOOKAHEAD_STAT;
         pExtBuffer->Header.BufferSz = buff_size;
         pExtBuffer->NumAlloc        = num_resolutions * laCtrl->LookAheadDepth;
-        pExtBuffer->FrameStat       = (mfxLAFrameInfo *)(pBuff + sizeof(mfxExtLAFrameStatistics));
+        pExtBuffer->FrameStat       = (mfxLAFrameInfo*)(pBuff + sizeof(mfxExtLAFrameStatistics));
 
         m_pPreEncAuxPool[i].encOutput.NumExtParam = 1;
         m_pPreEncAuxPool[i].encOutput.ExtParam    = m_pPreEncAuxPool[i].encCtrl.ExtParam;
@@ -2976,7 +3180,7 @@ void CTranscodingPipeline::FreePreEncAuxPool() {
 
 mfxStatus TranscodingSample::CTranscodingPipeline::LoadStaticSurface() {
     if (m_bUseOverlay) {
-        mfxFrameSurface1 *pSurf = m_pSurfaceDecPool[0];
+        mfxFrameSurface1* pSurf = m_pSurfaceDecPool[0];
         mfxStatus sts           = m_pMFXAllocator->LockFrame(pSurf->Data.MemId, &pSurf->Data);
         MSDK_CHECK_STATUS(sts, "m_pMFXAllocator->LockFrame failed");
         sts = m_pBSProcessor->GetInputFrame(pSurf);
@@ -2988,11 +3192,11 @@ mfxStatus TranscodingSample::CTranscodingPipeline::LoadStaticSurface() {
 }
 
 #if !defined(MFX_ONEVPL)
-mfxStatus CTranscodingPipeline::InitPreEncMfxParams(sInputParams *pInParams) {
+mfxStatus CTranscodingPipeline::InitPreEncMfxParams(sInputParams* pInParams) {
     MSDK_CHECK_ERROR(pInParams->bEnableExtLA, false, MFX_ERR_INVALID_VIDEO_PARAM);
     MSDK_CHECK_POINTER(pInParams, MFX_ERR_NULL_PTR);
 
-    mfxVideoParam &param = m_mfxPreEncParams;
+    mfxVideoParam& param = m_mfxPreEncParams;
 
     param.AsyncDepth = m_AsyncDepth;
 
@@ -3064,8 +3268,8 @@ mfxU32 CTranscodingPipeline::FileFourCC2EncFourCC(mfxU32 fcc) {
         return fcc;
 }
 
-mfxStatus CTranscodingPipeline::InitVppMfxParams(MfxVideoParamsWrapper &par,
-                                                 sInputParams *pInParams,
+mfxStatus CTranscodingPipeline::InitVppMfxParams(MfxVideoParamsWrapper& par,
+                                                 sInputParams* pInParams,
                                                  mfxU32 ID) {
     MSDK_CHECK_POINTER(pInParams, MFX_ERR_NULL_PTR);
     par.AsyncDepth = m_AsyncDepth;
@@ -3216,8 +3420,8 @@ mfxStatus CTranscodingPipeline::InitVppMfxParams(MfxVideoParamsWrapper &par,
 
         auto vppCompPar            = par.AddExtBuffer<mfxExtVPPComposite>();
         vppCompPar->NumInputStream = (mfxU16)pInParams->numSurf4Comp;
-        vppCompPar->InputStream    = (mfxVPPCompInputStream *)malloc(sizeof(mfxVPPCompInputStream) *
-                                                                  vppCompPar->NumInputStream);
+        vppCompPar->InputStream    = (mfxVPPCompInputStream*)malloc(sizeof(mfxVPPCompInputStream) *
+                                                                 vppCompPar->NumInputStream);
         MSDK_CHECK_POINTER(vppCompPar->InputStream, MFX_ERR_NULL_PTR);
 
         // stream params
@@ -3357,7 +3561,7 @@ mfxStatus CTranscodingPipeline::InitVppMfxParams(MfxVideoParamsWrapper &par,
 
 } //mfxStatus CTranscodingPipeline::InitMfxVppParams(sInputParams *pInParams)
 
-mfxStatus CTranscodingPipeline::InitPluginMfxParams(sInputParams *pInParams) {
+mfxStatus CTranscodingPipeline::InitPluginMfxParams(sInputParams* pInParams) {
     MSDK_CHECK_POINTER(pInParams, MFX_ERR_NULL_PTR);
 
     mfxU16 parentPattern = m_bIsVpp ? m_mfxVppParams.IOPattern : m_mfxDecParams.IOPattern;
@@ -3391,7 +3595,7 @@ mfxStatus CTranscodingPipeline::InitPluginMfxParams(sInputParams *pInParams) {
 
 } //mfxStatus CTranscodingPipeline::InitMfxVppParams(sInputParams *pInParams)
 
-mfxStatus CTranscodingPipeline::AllocFrames(mfxFrameAllocRequest *pRequest, bool isDecAlloc) {
+mfxStatus CTranscodingPipeline::AllocFrames(mfxFrameAllocRequest* pRequest, bool isDecAlloc) {
     mfxStatus sts = MFX_ERR_NONE;
 
     mfxU16 nSurfNum = 0; // number of surfaces
@@ -3402,7 +3606,7 @@ mfxStatus CTranscodingPipeline::AllocFrames(mfxFrameAllocRequest *pRequest, bool
                 isDecAlloc ? MSDK_STRING("DecPool") : MSDK_STRING("EncPool"),
                 nSurfNum);
 
-    mfxFrameAllocResponse *pResponse = isDecAlloc ? &m_mfxDecResponse : &m_mfxEncResponse;
+    mfxFrameAllocResponse* pResponse = isDecAlloc ? &m_mfxDecResponse : &m_mfxEncResponse;
 
     sts = m_pMFXAllocator->Alloc(m_pMFXAllocator->pthis, pRequest, pResponse);
     MSDK_CHECK_STATUS(sts, "m_pMFXAllocator->Alloc failed");
@@ -3437,8 +3641,8 @@ mfxStatus CTranscodingPipeline::AllocFramesForCS() {
         return MFX_ERR_MEMORY_ALLOC;
     }
 
-    for (auto &p : m_ScalerConfig.Pools) {
-        auto &PoolDesc = p.second;
+    for (auto& p : m_ScalerConfig.Pools) {
+        auto& PoolDesc = p.second;
 
         if (PoolDesc.ID == DecoderPoolID) {
             continue;
@@ -3451,7 +3655,7 @@ mfxStatus CTranscodingPipeline::AllocFramesForCS() {
 
         SurfPointersArray pool;
         for (mfxU32 i = 0; i < PoolDesc.AllocResp.NumFrameActual; i++) {
-            mfxFrameSurface1 *surface = new mfxFrameSurface1();
+            mfxFrameSurface1* surface = new mfxFrameSurface1();
             MSDK_CHECK_POINTER(surface, MFX_ERR_MEMORY_ALLOC);
             surface->Info       = PoolDesc.AllocReq.Info;
             surface->Data.MemId = PoolDesc.AllocResp.mids[i];
@@ -3465,11 +3669,11 @@ mfxStatus CTranscodingPipeline::AllocFramesForCS() {
 } // mfxStatus CTranscodingPipeline::AllocFrames(Component* pComp, mfxFrameAllocResponse* pMfxResponse, mfxVideoParam* pMfxVideoParam)
 
 //return true if correct
-static bool CheckAsyncDepth(mfxFrameAllocRequest &curReq, mfxU16 asyncDepth) {
+static bool CheckAsyncDepth(mfxFrameAllocRequest& curReq, mfxU16 asyncDepth) {
     return (curReq.NumFrameSuggested >= asyncDepth);
 }
 
-static mfxStatus CorrectAsyncDepth(mfxFrameAllocRequest &curReq, mfxU16 asyncDepth) {
+static mfxStatus CorrectAsyncDepth(mfxFrameAllocRequest& curReq, mfxU16 asyncDepth) {
     mfxStatus sts = MFX_ERR_NONE;
     if (!CheckAsyncDepth(curReq, asyncDepth)) {
         sts = MFX_ERR_MEMORY_ALLOC;
@@ -3485,7 +3689,7 @@ static mfxStatus CorrectAsyncDepth(mfxFrameAllocRequest &curReq, mfxU16 asyncDep
     return sts;
 }
 
-static void SumAllocRequest(mfxFrameAllocRequest &curReq, mfxFrameAllocRequest &newReq) {
+static void SumAllocRequest(mfxFrameAllocRequest& curReq, mfxFrameAllocRequest& newReq) {
     curReq.NumFrameSuggested = curReq.NumFrameSuggested + newReq.NumFrameSuggested;
     curReq.NumFrameMin       = curReq.NumFrameSuggested;
     curReq.Type              = curReq.Type | newReq.Type;
@@ -3616,10 +3820,10 @@ mfxStatus CTranscodingPipeline::AllocFrames() {
     return MFX_ERR_NONE;
 }
 
-mfxStatus CTranscodingPipeline::CalculateNumberOfReqFrames(mfxFrameAllocRequest &pDecOut,
-                                                           mfxFrameAllocRequest &pVPPOut) {
+mfxStatus CTranscodingPipeline::CalculateNumberOfReqFrames(mfxFrameAllocRequest& pDecOut,
+                                                           mfxFrameAllocRequest& pVPPOut) {
     mfxStatus sts                     = MFX_ERR_NONE;
-    mfxFrameAllocRequest *pSumRequest = &pDecOut;
+    mfxFrameAllocRequest* pSumRequest = &pDecOut;
 
     memset(&pDecOut, 0, sizeof(pDecOut));
     memset(&pVPPOut, 0, sizeof(pVPPOut));
@@ -3646,8 +3850,8 @@ mfxStatus CTranscodingPipeline::CalculateNumberOfReqFrames(mfxFrameAllocRequest 
 
     if (m_pmfxVPP.get()) {
         if (m_ScalerConfig.CascadeScalerRequired && TargetID == DecoderTargetID) {
-            for (auto &p : m_ScalerConfig.Pools) {
-                auto &PoolDesc = p.second;
+            for (auto& p : m_ScalerConfig.Pools) {
+                auto& PoolDesc = p.second;
                 if (PoolDesc.ID == DecoderPoolID) {
                     continue;
                 }
@@ -3740,10 +3944,10 @@ mfxStatus CTranscodingPipeline::CalculateNumberOfReqFrames(mfxFrameAllocRequest 
     return MFX_ERR_NONE;
 }
 
-void CTranscodingPipeline::CorrectNumberOfAllocatedFrames(mfxFrameAllocRequest *pNewReq,
+void CTranscodingPipeline::CorrectNumberOfAllocatedFrames(mfxFrameAllocRequest* pNewReq,
                                                           mfxU32 ID) {
     if (m_ScalerConfig.CascadeScalerRequired && TargetID == DecoderTargetID) {
-        const auto &desc = m_ScalerConfig.GetDesc(ID);
+        const auto& desc = m_ScalerConfig.GetDesc(ID);
         if (desc.PoolID == DecoderPoolID) {
             SumAllocRequest(m_Request, *pNewReq);
         }
@@ -3785,14 +3989,14 @@ void CTranscodingPipeline::CorrectNumberOfAllocatedFrames(mfxFrameAllocRequest *
 }
 
 void CTranscodingPipeline::FreeFrames() {
-    std::for_each(m_pSurfaceDecPool.begin(), m_pSurfaceDecPool.end(), [](mfxFrameSurface1 *s) {
-        auto surface = static_cast<mfxFrameSurfaceWrap *>(s);
+    std::for_each(m_pSurfaceDecPool.begin(), m_pSurfaceDecPool.end(), [](mfxFrameSurface1* s) {
+        auto surface = static_cast<mfxFrameSurfaceWrap*>(s);
         delete surface;
     });
     m_pSurfaceDecPool.clear();
 
-    std::for_each(m_pSurfaceEncPool.begin(), m_pSurfaceEncPool.end(), [](mfxFrameSurface1 *s) {
-        auto surface = static_cast<mfxFrameSurfaceWrap *>(s);
+    std::for_each(m_pSurfaceEncPool.begin(), m_pSurfaceEncPool.end(), [](mfxFrameSurface1* s) {
+        auto surface = static_cast<mfxFrameSurfaceWrap*>(s);
         delete surface;
     });
     m_pSurfaceEncPool.clear();
@@ -3802,8 +4006,8 @@ void CTranscodingPipeline::FreeFrames() {
         m_pMFXAllocator->Free(m_pMFXAllocator->pthis, &m_mfxDecResponse);
     }
 
-    for (auto &p : m_ScalerConfig.Pools) {
-        auto &PoolDesc = p.second;
+    for (auto& p : m_ScalerConfig.Pools) {
+        auto& PoolDesc = p.second;
 
         if (PoolDesc.ID == DecoderPoolID) {
             continue;
@@ -3816,14 +4020,14 @@ void CTranscodingPipeline::FreeFrames() {
     }
 } // CTranscodingPipeline::FreeFrames()
 
-mfxStatus CTranscodingPipeline::Init(sInputParams *pParams,
-                                     MFXFrameAllocator *pMFXAllocator,
-                                     void *hdl,
-                                     CTranscodingPipeline *pParentPipeline,
-                                     SafetySurfaceBuffer *pBuffer,
-                                     FileBitstreamProcessor *pBSProc,
-                                     VPLImplementationLoader *mfxLoader,
-                                     CascadeScalerConfig &CSConfig) {
+mfxStatus CTranscodingPipeline::Init(sInputParams* pParams,
+                                     MFXFrameAllocator* pMFXAllocator,
+                                     void* hdl,
+                                     CTranscodingPipeline* pParentPipeline,
+                                     SafetySurfaceBuffer* pBuffer,
+                                     FileBitstreamProcessor* pBSProc,
+                                     VPLImplementationLoader* mfxLoader,
+                                     CascadeScalerConfig& CSConfig) {
     MSDK_CHECK_POINTER(pParams, MFX_ERR_NULL_PTR);
     MSDK_CHECK_POINTER(pMFXAllocator, MFX_ERR_NULL_PTR);
     MSDK_CHECK_POINTER(pBSProc, MFX_ERR_NULL_PTR);
@@ -4013,8 +4217,8 @@ mfxStatus CTranscodingPipeline::Init(sInputParams *pParams,
 
     // common session settings
     if (TargetID == DecoderTargetID && m_ScalerConfig.CascadeScalerRequired) {
-        for (const auto &p : m_ScalerConfig.Pools) {
-            const auto &PoolDesc = p.second;
+        for (const auto& p : m_ScalerConfig.Pools) {
+            const auto& PoolDesc = p.second;
             if (PoolDesc.ID == DecoderPoolID) {
                 continue;
             }
@@ -4043,8 +4247,8 @@ mfxStatus CTranscodingPipeline::Init(sInputParams *pParams,
     }
 
     if (!m_pmfxCSSession.empty()) {
-        for (const auto &s : m_pmfxCSSession) {
-            const auto &CSSession = s.second;
+        for (const auto& s : m_pmfxCSSession) {
+            const auto& CSSession = s.second;
             sts                   = Join(CSSession.get());
             MSDK_CHECK_STATUS(sts, "m_pmfxCSSession Join failed");
         }
@@ -4259,17 +4463,14 @@ mfxStatus CTranscodingPipeline::CompleteInit() {
             sts = m_pmfxVPP->Init(&m_mfxPluginParams);
         else {
             if (m_ScalerConfig.CascadeScalerRequired && TargetID == DecoderTargetID) {
-                for (const auto &p : m_ScalerConfig.Pools) {
-                    const auto &PoolDesc = p.second;
+                for (const auto& p : m_ScalerConfig.Pools) {
+                    const auto& PoolDesc = p.second;
                     if (PoolDesc.ID == DecoderPoolID) {
                         continue;
                     }
 
                     sts = m_pmfxCSVPP[PoolDesc.ID].get()->Init(&m_mfxCSVppParams[PoolDesc.ID]);
                     MSDK_CHECK_STATUS(sts, "m_pmfxCSVPP->Init failed");
-
-                    const mfxVideoParam &par = m_mfxCSVppParams[PoolDesc.ID];
-                    par;
                 }
             }
             else {
@@ -4305,8 +4506,8 @@ mfxStatus CTranscodingPipeline::CompleteInit() {
 
     return sts;
 } // mfxStatus CTranscodingPipeline::CompleteInit()
-mfxFrameSurface1 *CTranscodingPipeline::GetFreeSurface(bool isDec, mfxU64 timeout) {
-    mfxFrameSurface1 *pSurf = NULL;
+mfxFrameSurface1* CTranscodingPipeline::GetFreeSurface(bool isDec, mfxU64 timeout) {
+    mfxFrameSurface1* pSurf = NULL;
 
     CTimer t;
     t.Start();
@@ -4320,10 +4521,10 @@ mfxFrameSurface1 *CTranscodingPipeline::GetFreeSurface(bool isDec, mfxU64 timeou
             }
         }
 
-        SurfPointersArray &workArray = isDec ? m_pSurfaceDecPool : m_pSurfaceEncPool;
+        SurfPointersArray& workArray = isDec ? m_pSurfaceDecPool : m_pSurfaceEncPool;
 
         int available =
-            (int)std::count_if(workArray.begin(), workArray.end(), [](mfxFrameSurface1 *s) {
+            (int)std::count_if(workArray.begin(), workArray.end(), [](mfxFrameSurface1* s) {
                 return s->Data.Locked == 0;
             });
         m_ScalerConfig.Tracer->AddCounterEvent(
@@ -4349,12 +4550,12 @@ mfxFrameSurface1 *CTranscodingPipeline::GetFreeSurface(bool isDec, mfxU64 timeou
     return pSurf;
 } // mfxFrameSurface1* CTranscodingPipeline::GetFreeSurface(bool isDec)
 
-mfxFrameSurface1 *CTranscodingPipeline::GetFreeSurfaceForCS(bool isDec, mfxU64 timeout, mfxU32 ID) {
+mfxFrameSurface1* CTranscodingPipeline::GetFreeSurfaceForCS(bool isDec, mfxU64 timeout, mfxU32 ID) {
     if (ID == 0) {
         return GetFreeSurface(isDec, timeout);
     }
 
-    mfxFrameSurface1 *pSurf = NULL;
+    mfxFrameSurface1* pSurf = NULL;
 
     CTimer t;
     t.Start();
@@ -4369,10 +4570,10 @@ mfxFrameSurface1 *CTranscodingPipeline::GetFreeSurfaceForCS(bool isDec, mfxU64 t
         }
 
         auto desc                    = m_ScalerConfig.GetDesc(ID);
-        SurfPointersArray &workArray = m_CSSurfacePools[desc.PoolID];
+        SurfPointersArray& workArray = m_CSSurfacePools[desc.PoolID];
 
         int available =
-            (int)std::count_if(workArray.begin(), workArray.end(), [](mfxFrameSurface1 *s) {
+            (int)std::count_if(workArray.begin(), workArray.end(), [](mfxFrameSurface1* s) {
                 return s->Data.Locked == 0;
             });
         m_ScalerConfig.Tracer->AddCounterEvent(SMTTracer::ThreadType::CSVPP,
@@ -4398,7 +4599,7 @@ mfxFrameSurface1 *CTranscodingPipeline::GetFreeSurfaceForCS(bool isDec, mfxU64 t
 } // mfxFrameSurface1* CTranscodingPipeline::GetFreeSurface(bool isDec)
 
 mfxU32 CTranscodingPipeline::GetFreeSurfacesCount(bool isDec) {
-    SurfPointersArray &workArray = isDec ? m_pSurfaceDecPool : m_pSurfaceEncPool;
+    SurfPointersArray& workArray = isDec ? m_pSurfaceDecPool : m_pSurfaceEncPool;
     mfxU32 count                 = 0;
     for (mfxU32 i = 0; i < workArray.size(); i++) {
         if (!workArray[i]->Data.Locked) {
@@ -4408,7 +4609,7 @@ mfxU32 CTranscodingPipeline::GetFreeSurfacesCount(bool isDec) {
     return count;
 }
 
-PreEncAuxBuffer *CTranscodingPipeline::GetFreePreEncAuxBuffer() {
+PreEncAuxBuffer* CTranscodingPipeline::GetFreePreEncAuxBuffer() {
     for (mfxU32 i = 0; i < m_pPreEncAuxPool.size(); i++) {
         if (!m_pPreEncAuxPool[i].Locked)
             return &(m_pPreEncAuxPool[i]);
@@ -4416,7 +4617,7 @@ PreEncAuxBuffer *CTranscodingPipeline::GetFreePreEncAuxBuffer() {
     return NULL;
 }
 
-void CTranscodingPipeline::LockPreEncAuxBuffer(PreEncAuxBuffer *pBuff) {
+void CTranscodingPipeline::LockPreEncAuxBuffer(PreEncAuxBuffer* pBuff) {
     if (!pBuff)
         return;
     for (mfxU32 i = 0; i < m_numEncoders; i++) {
@@ -4424,7 +4625,7 @@ void CTranscodingPipeline::LockPreEncAuxBuffer(PreEncAuxBuffer *pBuff) {
     }
 }
 
-void CTranscodingPipeline::UnPreEncAuxBuffer(PreEncAuxBuffer *pBuff) {
+void CTranscodingPipeline::UnPreEncAuxBuffer(PreEncAuxBuffer* pBuff) {
     if (!pBuff)
         return;
     msdk_atomic_dec16(&pBuff->Locked);
@@ -4440,7 +4641,7 @@ void CTranscodingPipeline::SetNumFramesForReset(mfxU32 nFrames) {
     m_NumFramesForReset = nFrames;
 }
 
-void CTranscodingPipeline::HandlePossibleGpuHang(mfxStatus &sts) {
+void CTranscodingPipeline::HandlePossibleGpuHang(mfxStatus& sts) {
     if (sts == MFX_ERR_GPU_HANG && m_bSoftGpuHangRecovery) {
         msdk_printf(MSDK_STRING(
             "[WARNING] GPU hang happened. Inserting an IDR and continuing transcoding.\n"));
@@ -4495,8 +4696,8 @@ mfxStatus CTranscodingPipeline::SetAllocatorAndHandleIfRequired() {
             return MFX_ERR_UNSUPPORTED;
         }
 
-        for (const auto &p : m_ScalerConfig.Pools) {
-            const auto &PoolDesc = p.second;
+        for (const auto& p : m_ScalerConfig.Pools) {
+            const auto& PoolDesc = p.second;
             if (PoolDesc.ID == DecoderPoolID) {
                 continue;
             }
@@ -4519,7 +4720,7 @@ mfxStatus CTranscodingPipeline::LoadGenericPlugin() {
     std::unique_ptr<MFXVideoVPPPlugin> pVPPPlugin(new MFXVideoVPPPlugin(*m_pmfxSession.get()));
     MSDK_CHECK_POINTER(pVPPPlugin.get(), MFX_ERR_NULL_PTR);
 
-    sts = pVPPPlugin->LoadDLL((msdk_char *)m_sGenericPluginPath.c_str());
+    sts = pVPPPlugin->LoadDLL((msdk_char*)m_sGenericPluginPath.c_str());
     MSDK_CHECK_STATUS(sts, "pVPPPlugin->LoadDLL failed");
 
     m_RotateParam.Angle = m_nRotationAngle;
@@ -4563,7 +4764,7 @@ void CTranscodingPipeline::Close() {
     FreeMVCSeqDesc();
     FreePreEncAuxPool();
 
-    mfxExtVPPComposite *vppCompPar = m_mfxVppParams;
+    mfxExtVPPComposite* vppCompPar = m_mfxVppParams;
     if (vppCompPar && vppCompPar->InputStream)
         free(vppCompPar->InputStream);
 #endif
@@ -4587,12 +4788,13 @@ void CTranscodingPipeline::Close() {
 
 } // void CTranscodingPipeline::Close()
 
-mfxStatus CTranscodingPipeline::Reset(VPLImplementationLoader *mfxLoader) {
+mfxStatus CTranscodingPipeline::Reset(VPLImplementationLoader* mfxLoader) {
     mfxStatus sts = MFX_ERR_NONE;
     bool isDec = m_pmfxDEC.get() ? true : false, isEnc = m_pmfxENC.get() ? true : false,
-         isVPP = m_pmfxVPP.get() ? true : false, isGenericPLugin = m_nRotationAngle ? true : false
+         isVPP = m_pmfxVPP.get() ? true : false
 #if !defined(MFX_ONEVPL)
         ,
+         isGenericPLugin = m_nRotationAngle ? true : false,
          isPreEnc        = m_pmfxPreENC.get() ? true : false,
          isDecoderPlugin = m_pUserDecoderPlugin.get() ? true : false,
          isEncoderPlugin = m_pUserEncoderPlugin.get() ? true : false,
@@ -4649,7 +4851,7 @@ mfxStatus CTranscodingPipeline::Reset(VPLImplementationLoader *mfxLoader) {
     }
 
     // Release all safety buffers
-    SafetySurfaceBuffer *sptr = m_pBuffer;
+    SafetySurfaceBuffer* sptr = m_pBuffer;
     while (sptr) {
         sptr->ReleaseSurfaceAll();
         sptr = sptr->m_pNext;
@@ -4806,8 +5008,8 @@ mfxStatus CTranscodingPipeline::Reset(VPLImplementationLoader *mfxLoader) {
     return sts;
 }
 
-mfxStatus CTranscodingPipeline::AllocAndInitVppDoNotUse(MfxVideoParamsWrapper &par,
-                                                        sInputParams *pInParams) {
+mfxStatus CTranscodingPipeline::AllocAndInitVppDoNotUse(MfxVideoParamsWrapper& par,
+                                                        sInputParams* pInParams) {
     std::vector<mfxU32> filtersDisabled;
     if (pInParams->DenoiseLevel == -1) {
         filtersDisabled.push_back(MFX_EXTBUFF_VPP_DENOISE); // turn off denoising (on by default)
@@ -4837,7 +5039,7 @@ void CTranscodingPipeline::FreeVppDoNotUse() {
 #endif
 }
 
-mfxStatus CTranscodingPipeline::AllocateSufficientBuffer(mfxBitstreamWrapper *pBS) {
+mfxStatus CTranscodingPipeline::AllocateSufficientBuffer(mfxBitstreamWrapper* pBS) {
     MSDK_CHECK_POINTER(pBS, MFX_ERR_NULL_PTR);
 
     mfxVideoParam par;
@@ -4869,7 +5071,7 @@ mfxStatus CTranscodingPipeline::AllocateSufficientBuffer(mfxBitstreamWrapper *pB
     return MFX_ERR_NONE;
 } // CTranscodingPipeline::AllocateSufficientBuffer(mfxBitstreamWrapper* pBS)
 
-mfxStatus CTranscodingPipeline::Join(MFXVideoSession *pChildSession) {
+mfxStatus CTranscodingPipeline::Join(MFXVideoSession* pChildSession) {
     mfxStatus sts = MFX_ERR_NONE;
     MSDK_CHECK_POINTER(pChildSession, MFX_ERR_NULL_PTR);
     sts              = m_pmfxSession->JoinSession(*pChildSession);
@@ -4905,8 +5107,8 @@ mfxStatus CTranscodingPipeline::Run() {
     return sts;
 }
 
-void IncreaseReference(mfxFrameSurface1 &surf) {
-    msdk_atomic_inc16((volatile mfxU16 *)(&surf.Data.Locked));
+void IncreaseReference(mfxFrameSurface1& surf) {
+    msdk_atomic_inc16((volatile mfxU16*)(&surf.Data.Locked));
 #if defined(MFX_ONEVPL)
     if (surf.FrameInterface) {
         std::ignore = surf.FrameInterface->AddRef(&surf);
@@ -4914,8 +5116,8 @@ void IncreaseReference(mfxFrameSurface1 &surf) {
 #endif
 }
 
-void DecreaseReference(mfxFrameSurface1 &surf) {
-    msdk_atomic_dec16((volatile mfxU16 *)&surf.Data.Locked);
+void DecreaseReference(mfxFrameSurface1& surf) {
+    msdk_atomic_dec16((volatile mfxU16*)&surf.Data.Locked);
 #if defined(MFX_ONEVPL)
     if (surf.FrameInterface) {
         std::ignore = surf.FrameInterface->Release(&surf);
@@ -4923,12 +5125,12 @@ void DecreaseReference(mfxFrameSurface1 &surf) {
 #endif
 }
 
-SafetySurfaceBuffer::SafetySurfaceBuffer(SafetySurfaceBuffer *pNext)
+SafetySurfaceBuffer::SafetySurfaceBuffer(SafetySurfaceBuffer* pNext)
         : m_pNext(pNext),
-          m_IsBufferingAllowed(true),
-          pInsEvent(nullptr),
           m_mutex(),
-          m_SList() {
+          m_SList(),
+          m_IsBufferingAllowed(true),
+          pInsEvent(nullptr) {
     mfxStatus sts = MFX_ERR_NONE;
     pRelEvent     = nullptr;
     pInsEvent     = nullptr;
@@ -5003,7 +5205,7 @@ void SafetySurfaceBuffer::AddSurface(ExtendedSurface Surf) {
 
 } // SafetySurfaceBuffer::AddSurface(mfxFrameSurface1 *pSurf)
 
-mfxStatus SafetySurfaceBuffer::GetSurface(ExtendedSurface &Surf) {
+mfxStatus SafetySurfaceBuffer::GetSurface(ExtendedSurface& Surf) {
     std::lock_guard<std::mutex> guard(m_mutex);
 
     // no ready surfaces
@@ -5020,7 +5222,7 @@ mfxStatus SafetySurfaceBuffer::GetSurface(ExtendedSurface &Surf) {
 
 } // SafetySurfaceBuffer::GetSurface()
 
-mfxStatus SafetySurfaceBuffer::ReleaseSurface(mfxFrameSurface1 *pSurf) {
+mfxStatus SafetySurfaceBuffer::ReleaseSurface(mfxFrameSurface1* pSurf) {
     if (!pRelEvent) {
         return MFX_ERR_NULL_PTR;
     }
@@ -5076,26 +5278,26 @@ FileBitstreamProcessor::~FileBitstreamProcessor() {
         m_pFileWriter->Close();
 }
 
-mfxStatus FileBitstreamProcessor::SetReader(std::unique_ptr<CSmplYUVReader> &reader) {
+mfxStatus FileBitstreamProcessor::SetReader(std::unique_ptr<CSmplYUVReader>& reader) {
     m_pYUVFileReader = std::move(reader);
 
     return MFX_ERR_NONE;
 }
 
-mfxStatus FileBitstreamProcessor::SetReader(std::unique_ptr<CSmplBitstreamReader> &reader) {
+mfxStatus FileBitstreamProcessor::SetReader(std::unique_ptr<CSmplBitstreamReader>& reader) {
     m_pFileReader = std::move(reader);
     m_Bitstream.Extend(1024 * 1024);
 
     return MFX_ERR_NONE;
 }
 
-mfxStatus FileBitstreamProcessor::SetWriter(std::unique_ptr<CSmplBitstreamWriter> &writer) {
+mfxStatus FileBitstreamProcessor::SetWriter(std::unique_ptr<CSmplBitstreamWriter>& writer) {
     m_pFileWriter = std::move(writer);
 
     return MFX_ERR_NONE;
 }
 
-mfxStatus FileBitstreamProcessor::GetInputBitstream(mfxBitstreamWrapper **pBitstream) {
+mfxStatus FileBitstreamProcessor::GetInputBitstream(mfxBitstreamWrapper** pBitstream) {
     if (!m_pFileReader.get()) {
         return MFX_ERR_UNSUPPORTED;
     }
@@ -5107,7 +5309,7 @@ mfxStatus FileBitstreamProcessor::GetInputBitstream(mfxBitstreamWrapper **pBitst
     return sts;
 }
 
-mfxStatus FileBitstreamProcessor::GetInputFrame(mfxFrameSurface1 *pSurface) {
+mfxStatus FileBitstreamProcessor::GetInputFrame(mfxFrameSurface1* pSurface) {
     //MSDK_CHECK_POINTER(pSurface);
     if (!m_pYUVFileReader.get()) {
         return MFX_ERR_UNSUPPORTED;
@@ -5115,7 +5317,7 @@ mfxStatus FileBitstreamProcessor::GetInputFrame(mfxFrameSurface1 *pSurface) {
     return m_pYUVFileReader->LoadNextFrame(pSurface);
 }
 
-mfxStatus FileBitstreamProcessor::ProcessOutputBitstream(mfxBitstreamWrapper *pBitstream) {
+mfxStatus FileBitstreamProcessor::ProcessOutputBitstream(mfxBitstreamWrapper* pBitstream) {
     if (m_pFileWriter.get())
         return m_pFileWriter->WriteNextFrame(pBitstream, false);
 
@@ -5142,7 +5344,7 @@ mfxStatus FileBitstreamProcessor::ResetOutput() {
     return MFX_ERR_NONE;
 }
 
-void CTranscodingPipeline::ModifyParamsUsingPresets(sInputParams &params,
+void CTranscodingPipeline::ModifyParamsUsingPresets(sInputParams& params,
                                                     mfxF64 fps,
                                                     mfxU32 width,
                                                     mfxU32 height) {

@@ -703,8 +703,8 @@ struct AVCSEIPayLoadBase {
             mfxU8 delta_spare_frame_num[16];
             mfxU8 spare_bottom_field_flag[16];
             mfxU8 spare_area_idc[16];
-            mfxU8 *spare_unit_flag[16];
-            mfxU8 *zero_run_length[16];
+            mfxU8* spare_unit_flag[16];
+            mfxU8* zero_run_length[16];
         } spare_pic;
 
         struct SceneInfo {
@@ -921,30 +921,30 @@ extern mfxI32 lock_failed;
 #pragma pack()
 
 template <typename T>
-inline T *AVC_new_array_throw(mfxI32 size) {
-    T *t = new T[size];
+inline T* AVC_new_array_throw(mfxI32 size) {
+    T* t = new T[size];
     if (!t)
         throw AVC_exception(MFX_ERR_MEMORY_ALLOC);
     return t;
 }
 
 template <typename T>
-inline T *AVC_new_throw() {
-    T *t = new T();
+inline T* AVC_new_throw() {
+    T* t = new T();
     if (!t)
         throw AVC_exception(MFX_ERR_MEMORY_ALLOC);
     return t;
 }
 
 template <typename T, typename T1>
-inline T *AVC_new_throw_1(T1 t1) {
-    T *t = new T(t1);
+inline T* AVC_new_throw_1(T1 t1) {
+    T* t = new T(t1);
     if (!t)
         throw AVC_exception(MFX_ERR_MEMORY_ALLOC);
     return t;
 }
 
-inline mfxU32 CalculateSuggestedSize(const AVCSeqParamSet *sps) {
+inline mfxU32 CalculateSuggestedSize(const AVCSeqParamSet* sps) {
     mfxU32 base_size = sps->frame_width_in_mbs * sps->frame_height_in_mbs * 256;
     mfxU32 size      = 0;
 

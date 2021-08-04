@@ -194,6 +194,18 @@ public:
         return std::pair(frame_info(surface_->Info), frame_data(surface_->Data));
     }
 
+    /// @brief Maps data to the system memory.
+    /// @param flags Data access flag: read or write.
+    /// @return Pointers to the surface data strucuture in the system memory
+    auto map_data(memory_access flags) {
+        wait();
+        detail::c_api_invoker(detail::default_checker,
+                                surface_->FrameInterface->Map,
+                                surface_,
+                                (mfxMemoryFlags)flags);
+        return frame_data(surface_->Data);
+    }
+
     /// @brief Unmaps data to the system memory.
     void unmap() {
         detail::c_api_invoker(detail::default_checker, surface_->FrameInterface->Unmap, surface_);

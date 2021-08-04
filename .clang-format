@@ -53,7 +53,7 @@ ConstructorInitializerAllOnOneLineOrOnePerLine: true
 ConstructorInitializerIndentWidth: 8
 ContinuationIndentWidth: 4
 Cpp11BracedListStyle: false
-DerivePointerAlignment: true
+DerivePointerAlignment: false
 DisableFormat: false
 FixNamespaceComments: true
 ForEachMacros:
@@ -88,7 +88,7 @@ PenaltyBreakString: 1000
 PenaltyBreakTemplateDeclaration: 10
 PenaltyExcessCharacter: 1000000
 PenaltyReturnTypeOnItsOwnLine: 200
-PointerAlignment: Left
+PointerAlignment: Right
 RawStringFormats:
   - Language: Cpp
     Delimiters:

@@ -179,7 +179,8 @@ void PrintInfo(sInputParams* pParams, mfxVideoParam* pMfxParams, MFXVideoSession
                 Info.CropY,
                 Info.CropW,
                 Info.CropH);
-    msdk_printf(MSDK_STRING("Frame rate\t%.2f\n"), (mfxF64)Info.FrameRateExtN / Info.FrameRateExtD);
+    msdk_printf(MSDK_STRING("Frame rate\t%.2f\n"),
+                (double)((mfxF64)Info.FrameRateExtN / Info.FrameRateExtD));
     msdk_printf(MSDK_STRING("PicStruct\t%s\n"), PicStruct2Str(Info.PicStruct));
 
     Info = pMfxParams->vpp.Out;
@@ -190,7 +191,8 @@ void PrintInfo(sInputParams* pParams, mfxVideoParam* pMfxParams, MFXVideoSession
                 Info.CropY,
                 Info.CropW,
                 Info.CropH);
-    msdk_printf(MSDK_STRING("Frame rate\t%.2f\n"), (mfxF64)Info.FrameRateExtN / Info.FrameRateExtD);
+    msdk_printf(MSDK_STRING("Frame rate\t%.2f\n"),
+                (double)((mfxF64)Info.FrameRateExtN / Info.FrameRateExtD));
     msdk_printf(MSDK_STRING("PicStruct\t%s\n"), PicStruct2Str(Info.PicStruct));
 
     msdk_printf(MSDK_STRING("\n"));
@@ -262,9 +264,9 @@ void PrintInfo(sInputParams* pParams, mfxVideoParam* pMfxParams, MFXVideoSession
 
     msdk_printf(MSDK_STRING("IOpattern type               \t%s\n"),
                 IOpattern2Str(pParams->IOPattern));
-    msdk_printf(MSDK_STRING("Number of asynchronious tasks\t%d\n"), pParams->asyncNum);
+    msdk_printf(MSDK_STRING("Number of asynchronious tasks\t%d\n"), (int)pParams->asyncNum);
     if (pParams->bInitEx) {
-        msdk_printf(MSDK_STRING("GPU Copy mode                \t%d\n"), pParams->GPUCopyValue);
+        msdk_printf(MSDK_STRING("GPU Copy mode                \t%d\n"), (int)pParams->GPUCopyValue);
     }
     msdk_printf(MSDK_STRING("Time stamps checking         \t%s\n"),
                 pParams->ptsCheck ? MSDK_STRING("ON") : MSDK_STRING("OFF"));
@@ -1107,7 +1109,7 @@ void WipeParams(sInputParams* pParams) {
 
 /* ******************************************************************* */
 
-CRawVideoReader::CRawVideoReader() {
+CRawVideoReader::CRawVideoReader() : m_it(), m_SurfacesList() {
     m_fSrc       = 0;
     m_isPerfMode = false;
     m_Repeat     = 0;

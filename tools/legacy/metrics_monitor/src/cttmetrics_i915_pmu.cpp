@@ -48,7 +48,7 @@ static int get_engine_id(uint64_t config) {
     return config & 0xffff0;
 }
 
-static inline int perf_event_open(struct perf_event_attr *attr,
+static inline int perf_event_open(struct perf_event_attr* attr,
                                   pid_t pid,
                                   int cpu,
                                   int group_fd,
@@ -66,7 +66,7 @@ static inline int perf_event_open(struct perf_event_attr *attr,
     return syscall(__NR_perf_event_open, attr, pid, cpu, group_fd, flags);
 }
 
-static char *bus_address(int i915, char *path, int pathlen) {
+static char* bus_address(int i915, char* path, int pathlen) {
     struct stat st = {};
     if (fstat(i915, &st) || !S_ISCHR(st.st_mode))
         return NULL;
@@ -85,15 +85,15 @@ static char *bus_address(int i915, char *path, int pathlen) {
     path[len] = '\0';
 
     /* strip off the relative path */
-    char *s = strrchr(path, '/');
+    char* s = strrchr(path, '/');
     if (s)
         memmove(path, s + 1, len - (s - path) + 1);
 
     return path;
 }
 
-static const char *i915_perf_device(int i915, char *buf, long unsigned int buflen) {
-    static const char *prefix    = "i915_";
+static const char* i915_perf_device(int i915, char* buf, long unsigned int buflen) {
+    static const char* prefix    = "i915_";
     const long unsigned int plen = strlen(prefix);
 
     if (!buf || buflen < plen)
@@ -106,14 +106,14 @@ static const char *i915_perf_device(int i915, char *buf, long unsigned int bufle
         buf[plen - 1] = '\0';
 
     /* Convert all colons in the address to '_' */
-    for (char *s = buf; *s; s++)
+    for (char* s = buf; *s; s++)
         if (*s == ':')
             *s = '_';
 
     return buf;
 }
 
-static uint64_t i915_type_id(const char *device) {
+static uint64_t i915_type_id(const char* device) {
     if (!device)
         return 0;
 
@@ -175,7 +175,7 @@ struct pmu_metrics {
     int read_format;
     uint64_t num_metrics;
     uint64_t num_groups;
-    struct metrics_group *groups;
+    struct metrics_group* groups;
 };
 
 struct i915_pmu_collector_ctx_t {
@@ -197,13 +197,13 @@ struct i915_pmu_collector_ctx_t {
 /* Order of metrics in configs[] is important:
   - don't mix samples of different engines;
   - don't mix global metrics and engine metrics; */
-static int perf_init(struct i915_pmu_collector_ctx_t *ctx, int num_configs, int configs[]) {
+static int perf_init(struct i915_pmu_collector_ctx_t* ctx, int num_configs, int configs[]) {
     int i, res = -1;
 
     memset(&ctx->pm, 0, sizeof(struct pmu_metrics));
     ctx->pm.fd          = -1;
     ctx->pm.read_format = PERF_FORMAT_TOTAL_TIME_ENABLED | PERF_FORMAT_GROUP;
-    ctx->pm.groups      = (struct metrics_group *)calloc(num_configs, sizeof(struct metrics_group));
+    ctx->pm.groups      = (struct metrics_group*)calloc(num_configs, sizeof(struct metrics_group));
     if (!ctx->pm.groups)
         return -1;
 
@@ -255,7 +255,7 @@ static int perf_init(struct i915_pmu_collector_ctx_t *ctx, int num_configs, int 
     return 0;
 }
 
-static void perf_close(struct pmu_metrics *pm) {
+static void perf_close(struct pmu_metrics* pm) {
     if (pm->fd != -1) {
         close(pm->fd);
         pm->fd = -1;
@@ -275,7 +275,7 @@ struct perf_read_format {
     } values[1024];
 };
 
-static int perf_read(struct pmu_metrics *pm) {
+static int perf_read(struct pmu_metrics* pm) {
     int read_format = PERF_FORMAT_TOTAL_TIME_ENABLED | PERF_FORMAT_GROUP;
     struct perf_read_format data;
     ssize_t len;
@@ -306,11 +306,11 @@ static int perf_read(struct pmu_metrics *pm) {
     return 0;
 }
 
-static uint64_t perf_elapsed(struct metric *m) {
+static uint64_t perf_elapsed(struct metric* m) {
     return m->end.value - m->start.value;
 }
 
-static uint64_t perf_elapsed_time(struct metric *m) {
+static uint64_t perf_elapsed_time(struct metric* m) {
     return m->end.time - m->start.time;
 }
 
@@ -318,7 +318,7 @@ static i915_pmu_collector_ctx_t g_ctx = {
     .initialized = false,
 };
 
-extern "C" cttStatus CTTMetrics_PMU_Init(const char *device) {
+extern "C" cttStatus CTTMetrics_PMU_Init(const char* device) {
     /* When adding new condigs, don't mix metrics from different groups!*/
     int configs[] = {
         /* Render engine metrics */
@@ -437,7 +437,7 @@ extern "C" cttStatus CTTMetrics_PMU_SetSampleCount(unsigned int in_num) {
     return CTT_ERR_NONE;
 }
 
-extern "C" cttStatus CTTMetrics_PMU_GetMetricCount(unsigned int *out_count) {
+extern "C" cttStatus CTTMetrics_PMU_GetMetricCount(unsigned int* out_count) {
     if (!g_ctx.initialized)
         return CTT_ERR_NOT_INITIALIZED;
 
@@ -448,7 +448,7 @@ extern "C" cttStatus CTTMetrics_PMU_GetMetricCount(unsigned int *out_count) {
     return CTT_ERR_NONE;
 }
 
-extern "C" cttStatus CTTMetrics_PMU_GetMetricInfo(unsigned int count, cttMetric *out_metric_ids) {
+extern "C" cttStatus CTTMetrics_PMU_GetMetricInfo(unsigned int count, cttMetric* out_metric_ids) {
     if (!g_ctx.initialized)
         return CTT_ERR_NOT_INITIALIZED;
 
@@ -465,7 +465,7 @@ extern "C" cttStatus CTTMetrics_PMU_GetMetricInfo(unsigned int count, cttMetric 
     return CTT_ERR_NONE;
 }
 
-extern "C" cttStatus CTTMetrics_PMU_Subscribe(unsigned int count, cttMetric *in_metric_ids) {
+extern "C" cttStatus CTTMetrics_PMU_Subscribe(unsigned int count, cttMetric* in_metric_ids) {
     if (!g_ctx.initialized)
         return CTT_ERR_NOT_INITIALIZED;
 
@@ -492,7 +492,7 @@ extern "C" cttStatus CTTMetrics_PMU_Subscribe(unsigned int count, cttMetric *in_
     return (na_metric_cnt) ? CTT_WRN_METRIC_UNAVAILABLE : CTT_ERR_NONE;
 }
 
-extern "C" cttStatus CTTMetrics_PMU_GetValue(unsigned int count, float *out_metric_values) {
+extern "C" cttStatus CTTMetrics_PMU_GetValue(unsigned int count, float* out_metric_values) {
     if (!g_ctx.initialized)
         return CTT_ERR_NOT_INITIALIZED;
 
@@ -514,7 +514,7 @@ extern "C" cttStatus CTTMetrics_PMU_GetValue(unsigned int count, float *out_metr
     if (g_ctx.pm.num_groups && 0 != perf_read(&g_ctx.pm))
         return CTT_ERR_DRIVER_NO_INSTRUMENTATION;
 
-    metrics_group *group = NULL;
+    metrics_group* group = NULL;
 
     for (unsigned int i = 0; i < count; ++i) {
         metric_idx = g_ctx.user_idx_map[i];

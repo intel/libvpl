@@ -74,10 +74,10 @@ mfxStatus GetFrameLength(mfxU16 width, mfxU16 height, mfxU32 ColorFormat, mfxU32
 }
 
 CSmplYUVReader::CSmplYUVReader()
-        : m_files(),
-          m_bInited(false),
-          m_ColorFormat(MFX_FOURCC_YV12),
-          shouldShift10BitsHigh(false) {}
+        : m_ColorFormat(MFX_FOURCC_YV12),
+          m_files(),
+          shouldShift10BitsHigh(false),
+          m_bInited(false) {}
 
 mfxStatus CSmplYUVReader::Init(std::list<msdk_string> inputs,
                                mfxU32 ColorFormat,
@@ -545,7 +545,7 @@ mfxStatus CSmplYUVReader::LoadNextFrame(mfxFrameSurface1* pSurface) {
     return MFX_ERR_NONE;
 }
 
-CSmplBitstreamWriter::CSmplBitstreamWriter() {
+CSmplBitstreamWriter::CSmplBitstreamWriter() : m_sFile() {
     m_fSink               = NULL;
     m_bInited             = false;
     m_nProcessedFramesNum = 0;
@@ -619,7 +619,7 @@ mfxStatus CSmplBitstreamWriter::WriteNextFrame(mfxBitstream* pMfxBitstream, bool
     // print encoding progress to console every certain number of frames (not to affect performance too much)
     if (m_bSkipWriting == false) {
         if (isPrint && (1 == m_nProcessedFramesNum || (0 == (m_nProcessedFramesNum % 100)))) {
-            msdk_printf(MSDK_STRING("Frame number: %u\r"), m_nProcessedFramesNum);
+            msdk_printf(MSDK_STRING("Frame number: %u\r"), (unsigned int)m_nProcessedFramesNum);
         }
     }
 
@@ -967,7 +967,7 @@ void CIVFFrameWriter::Close() {
 }
 #endif
 
-CSmplYUVWriter::CSmplYUVWriter() {
+CSmplYUVWriter::CSmplYUVWriter() : m_sFile() {
     m_bInited         = false;
     m_bIsMultiView    = false;
     m_fDest           = NULL;
@@ -2577,10 +2577,13 @@ mfxI32 getMonitorType(msdk_char* str) {
 CH264FrameReader::CH264FrameReader()
         : CSmplBitstreamReader(),
           m_processedBS(0),
+          m_originalBS(),
           m_isEndOfStream(false),
+          m_pNALSplitter(),
           m_frame(0),
           m_plainBuffer(0),
-          m_plainBufferSize(0) {}
+          m_plainBufferSize(0),
+          m_outBS() {}
 
 CH264FrameReader::~CH264FrameReader() {}
 

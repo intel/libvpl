@@ -28,7 +28,7 @@ void signal_handler(int signo) {
     }
 }
 
-static void usage(const char *appname) {
+static void usage(const char* appname) {
     printf(
         "metrics_monitor - Monitors GPU usage per engine\n"
         "\n"
@@ -50,7 +50,7 @@ static void usage(const char *appname) {
         DEFAULT_PERIOD_MS);
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
     cttStatus status        = CTT_ERR_NONE;
     cttMetric metrics_ids[] = { CTT_USAGE_RENDER,
                                 CTT_USAGE_VIDEO,
@@ -61,7 +61,7 @@ int main(int argc, char *argv[]) {
 
     unsigned int num_samples = DEFAULT_NUMSAMPLES;
     unsigned int period_ms   = DEFAULT_PERIOD_MS;
-    char *device_path        = NULL;
+    char* device_path        = NULL;
     int ch;
 
     /* Parse options */

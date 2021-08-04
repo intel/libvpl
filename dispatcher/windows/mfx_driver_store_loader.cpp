@@ -50,7 +50,7 @@ DriverStoreLoader::~DriverStoreLoader(void) {}
 bool DriverStoreLoader::GetDriverStorePath(wchar_t *path,
                                            DWORD dwPathSize,
                                            mfxU32 deviceID,
-                                           wchar_t *driverKey) {
+                                           const wchar_t *driverKey) {
     if (path == NULL || dwPathSize == 0) {
         return false;
     }

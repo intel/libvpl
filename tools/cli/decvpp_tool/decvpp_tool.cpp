@@ -31,7 +31,7 @@ void Usage(void) {
     printf("     -vmem          use video memory\n\n");
     printf("   Example: \n");
     printf(
-        "     decvpp_tool h265 -i cars_128x96.h265 -o dec.yuv -sw -vpp_num 2 -vpp_params 320x240_i420,640x480_bgra -vpp_out o1.yuv,o2.yuv -o o.yuv\n\n");
+        "     decvpp_tool h265 -i cars_128x96.h265 -o dec.yuv -sw -vpp_num 2 -vpp_params 320x240_i420,640x480_bgra -vpp_out o1.yuv,o2.yuv\n\n");
     printf("     this will generate 1 decode output file and 2 vpp output files\n");
     printf("     dec.yuv  : decode output  : 128 x 96,  i420\n");
     printf("     vpp1.yuv : 1st vpp output : 320 x 240, i420\n");
@@ -47,6 +47,7 @@ int main(int argc, char *argv[]) {
     FILE *sinkDec                         = NULL; // for decoded frames
     FILE **sinkVPP                        = NULL; // for vpp output
     FILE *source                          = NULL;
+    int accel_fd                          = 0;
     mfxBitstream bitstream                = {};
     mfxSession session                    = NULL;
     mfxStatus sts                         = MFX_ERR_NONE;
@@ -67,6 +68,7 @@ int main(int argc, char *argv[]) {
     //Parse command line args to cliParams
     if (ParseArgsAndValidate(argc, argv, &cliParams, PARAMS_DECVPP) == false) {
         Usage();
+        delete[] cliParams.vppOutConfigs;
         return 1; // return 1 as error code
     }
 
@@ -125,7 +127,7 @@ int main(int argc, char *argv[]) {
     VERIFY(version.Major > 1, "ERROR - Sample requires 2.x API implementation, exiting");
 
     // Convenience function to initialize available accelerator(s)
-    sts = InitAcceleratorHandle(session);
+    sts = InitAcceleratorHandle(session, &accel_fd);
     VERIFY(MFX_ERR_NONE == sts, "ERROR - Not able to create hw device");
 
     // Prepare input bitstream and start decoding
@@ -160,6 +162,15 @@ int main(int argc, char *argv[]) {
     cliParams.srcFourCC = mfxDecParams.mfx.FrameInfo.FourCC;
     cliParams.srcWidth  = mfxDecParams.mfx.FrameInfo.CropW;
     cliParams.srcHeight = mfxDecParams.mfx.FrameInfo.CropH;
+
+    // Workaround. For some bitstreams, DecoderHeader can't obtain FrameRate from the header
+    // but VPP requires it to be non zero.
+    // In that case, let's set it to some fixed value of 30 fps.
+    if (0 == mfxDecParams.mfx.FrameInfo.FrameRateExtN &&
+        0 == mfxDecParams.mfx.FrameInfo.FrameRateExtD) {
+        mfxDecParams.mfx.FrameInfo.FrameRateExtN = 30;
+        mfxDecParams.mfx.FrameInfo.FrameRateExtD = 1;
+    }
 
     mfxVPPChParams = new mfxVideoChannelParam *[cliParams.vppNum];
     for (mfxU16 i = 0; i < cliParams.vppNum; i++) {
@@ -215,35 +226,41 @@ int main(int argc, char *argv[]) {
         switch (sts) {
             case MFX_ERR_NONE:
                 // decode output
-                aSurf = outSurfaces->Surfaces[0];
-                sts   = aSurf->FrameInterface->Synchronize(aSurf, SYNC_TIMEOUT);
-                if (sts == MFX_ERR_NONE) {
-                    if (cliParams.decOutFileName) {
-                        sts = WriteRawFrame_InternalMem(aSurf, sinkDec);
-                        VERIFY(MFX_ERR_NONE == sts, "ERROR - Could not write decode output");
-                    }
-                    else {
-                        sts = aSurf->FrameInterface->Release(aSurf);
-                        VERIFY(MFX_ERR_NONE == sts,
-                               "ERROR - mfxFrameSurfaceInterface->Release failed");
-                    }
+                if (outSurfaces == nullptr) {
+                    printf("ERROR -empty array of surfaces.\n");
+                    isStillGoing = false;
+                    continue;
+                }
 
-                    // vpp output
-                    for (mfxU16 i = 0; i < cliParams.vppNum; i++) {
-                        aSurf = outSurfaces->Surfaces[i + 1];
+                for (mfxU32 i = 0; i < outSurfaces->NumSurfaces; i++) {
+                    aSurf = outSurfaces->Surfaces[i];
+
+                    sts = aSurf->FrameInterface->Synchronize(aSurf, SYNC_TIMEOUT);
+                    VERIFY(MFX_ERR_NONE == sts, "ERROR - FrameInterface->Synchronizee failed");
+
+                    if (aSurf->Info.ChannelId == 0) { // decoder output
+                        if (cliParams.decOutFileName) {
+                            sts = WriteRawFrame_InternalMem(aSurf, sinkDec);
+                            VERIFY(MFX_ERR_NONE == sts, "ERROR - Could not write decode output");
+                        }
+                    }
+                    else { // VPP filter output
                         if (cliParams.bIsAvailableVPPOutFileName) {
-                            sts = WriteRawFrame_InternalMem(aSurf, sinkVPP[i]);
+                            sts = WriteRawFrame_InternalMem(aSurf,
+                                                            sinkVPP[aSurf->Info.ChannelId - 1]);
                             VERIFY(MFX_ERR_NONE == sts, "ERROR - Could not write vpp output");
                         }
-                        else {
-                            sts = aSurf->FrameInterface->Release(aSurf);
-                            VERIFY(MFX_ERR_NONE == sts,
-                                   "ERROR - mfxFrameSurfaceInterface->Release failed");
-                        }
                     }
 
-                    framenum++;
+                    sts = aSurf->FrameInterface->Release(aSurf);
+                    VERIFY(MFX_ERR_NONE == sts, "ERROR - mfxFrameSurfaceInterface->Release failed");
                 }
+
+                framenum++;
+                sts = outSurfaces->Release(outSurfaces);
+                VERIFY(MFX_ERR_NONE == sts, "ERROR - mfxSurfaceArray->Release failed");
+
+                outSurfaces = nullptr;
                 break;
             case MFX_ERR_MORE_DATA:
                 // The function requires more bitstream at input before decoding can proceed
@@ -327,9 +344,10 @@ end:
         free(bitstream.Data);
 
     if (accelHandle)
-        FreeAcceleratorHandle(accelHandle);
+        FreeAcceleratorHandle(accelHandle, accel_fd);
 
     if (loader)
         MFXUnload(loader);
+    delete[] cliParams.vppOutConfigs;
     return 0;
 }

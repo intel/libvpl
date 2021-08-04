@@ -24,9 +24,9 @@ static constexpr uint32_t ignore_ID_list[IGNORE_LIST_LEN] = { 0, MFX_EXTBUFF_VPP
 class buffer_list {
 public:
     /// @brief default ctor
-    buffer_list() : mfxBuffers_(0), extBuffers_() {}
+    buffer_list() : extBuffers_() , mfxBuffers_(0) {}
 
-    buffer_list(const buffer_list& other) : mfxBuffers_(0), extBuffers_(other.extBuffers_){}
+    buffer_list(const buffer_list& other) : extBuffers_(other.extBuffers_), mfxBuffers_(0){}
     buffer_list& operator=(const buffer_list& other){
         if(mfxBuffers_ != other.mfxBuffers_){
             if(mfxBuffers_){

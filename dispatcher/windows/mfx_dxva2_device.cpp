@@ -12,6 +12,11 @@
 
 using namespace MFX;
 
+// convert LUID to mfxU64
+mfxU64 LUIDtomfxU64(LUID luid) {
+    return (((mfxU64)luid.HighPart << 32) | ((mfxU64)luid.LowPart));
+}
+
 DXDevice::DXDevice(void) {
     m_hModule = (HMODULE)0;
 
@@ -20,7 +25,7 @@ DXDevice::DXDevice(void) {
     m_vendorID      = 0;
     m_deviceID      = 0;
     m_driverVersion = 0;
-    m_luid          = 0;
+    m_luid          = {};
 
 } // DXDevice::DXDevice(void)
 
@@ -62,7 +67,7 @@ void DXDevice::Close(void) {
 
     m_vendorID = 0;
     m_deviceID = 0;
-    m_luid     = 0;
+    m_luid     = {};
 
 } // void DXDevice::Close(void)
 
@@ -209,7 +214,7 @@ bool D3D9Device::Init(const mfxU32 adapterNum) {
                 return true;
             }
             // copy the LUID
-            *((LUID *)&m_luid) = d3d9LUID;
+            m_luid = LUIDtomfxU64(d3d9LUID);
         }
         else {
             DXVA2DEVICE_TRACE_OPERATION({
@@ -341,9 +346,9 @@ bool DXGI1Device::Init(const mfxU32 adapterNum) {
     }
 
     // save the parameters
-    m_vendorID         = desc.VendorId;
-    m_deviceID         = desc.DeviceId;
-    *((LUID *)&m_luid) = desc.AdapterLuid;
+    m_vendorID = desc.VendorId;
+    m_deviceID = desc.DeviceId;
+    m_luid     = LUIDtomfxU64(desc.AdapterLuid);
 
     return true;
 
@@ -357,7 +362,7 @@ DXVA2Device::DXVA2Device(void) {
 
     m_driverVersion = 0;
 
-    m_luid = 0;
+    m_luid = {};
 } // DXVA2Device::DXVA2Device(void)
 
 DXVA2Device::~DXVA2Device(void) {
@@ -439,13 +444,12 @@ bool DXVA2Device::InitDXGI1(const mfxU32 adapterNum) {
 
 #ifdef MFX_D3D9_ENABLED
 void DXVA2Device::UseAlternativeWay(const D3D9Device *pD3D9Device) {
-    mfxU64 d3d9LUID = pD3D9Device->GetLUID();
-
+    mfxU64 d3d9LUID     = pD3D9Device->GetLUID();
+    mfxU64 kInvalidLUID = {};
     // work only with valid LUIDs
-    if (0 == d3d9LUID) {
+    if (kInvalidLUID == d3d9LUID) {
         return;
     }
-
     DXGI1Device dxgi1Device;
     mfxU32 curDevice = 0;
     bool bRes        = false;

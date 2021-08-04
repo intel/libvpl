@@ -45,12 +45,12 @@ typedef struct _Buffer {
     int fd, index;
 } Buffer;
 
-extern Buffer *buffers;
-void *PollingThread(void *data);
+extern Buffer* buffers;
+void* PollingThread(void* data);
 
 class v4l2Device {
 public:
-    v4l2Device(const char *devname               = "/dev/video0",
+    v4l2Device(const char* devname               = "/dev/video0",
                uint32_t width                    = 1920,
                uint32_t height                   = 1080,
                uint32_t num_buffer               = 4,
@@ -59,7 +59,7 @@ public:
 
     ~v4l2Device();
 
-    void Init(const char *devname,
+    void Init(const char* devname,
               uint32_t width,
               uint32_t height,
               uint32_t num_buffer,
@@ -69,10 +69,10 @@ public:
 
     void V4L2Init();
     void V4L2Alloc();
-    int blockIOCTL(int handle, int request, void *args);
+    int blockIOCTL(int handle, int request, void* args);
     int GetAtomISPModes(enum AtomISPMode mode);
-    void V4L2QueueBuffer(Buffer *buffer);
-    Buffer *V4L2DeQueueBuffer(Buffer *buffer);
+    void V4L2QueueBuffer(Buffer* buffer);
+    Buffer* V4L2DeQueueBuffer(Buffer* buffer);
     void V4L2StartCapture();
     void V4L2StopCapture();
     int GetV4L2TerminationSignal();
@@ -88,7 +88,7 @@ public:
     }
 
 protected:
-    const char *m_devname;
+    const char* m_devname;
     uint32_t m_height;
     uint32_t m_width;
     uint32_t m_num_buffers;

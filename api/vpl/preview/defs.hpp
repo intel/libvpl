@@ -210,44 +210,6 @@ enum class frame_type : uint16_t {
 
 ENABLE_BIT_OPERATORS_WITH_ENUM(frame_type);
 
-static status mfxstatus_to_onevplstatus(mfxStatus s) {
-    switch (s) {
-        case MFX_ERR_NONE:
-            return status::Ok;
-        case MFX_WRN_IN_EXECUTION:
-            return status::ExecutionInProgress;
-        case MFX_WRN_DEVICE_BUSY:
-            return status::DeviceBusy;
-        case MFX_WRN_VIDEO_PARAM_CHANGED:
-            return status::VideoParamChanged;
-        case MFX_WRN_PARTIAL_ACCELERATION:
-            return status::PartialAcceleration;
-        case MFX_WRN_INCOMPATIBLE_VIDEO_PARAM:
-            return status::IncompartibleVideoParam;
-        case MFX_WRN_VALUE_NOT_CHANGED:
-            return status::ValueNotChanged;
-        case MFX_WRN_OUT_OF_RANGE:
-            return status::OutOfRange;
-        case MFX_TASK_WORKING:
-            return status::TaskWorking;
-        case MFX_TASK_BUSY:
-            return status::TaskBusy;
-        case MFX_WRN_FILTER_SKIPPED:
-            return status::FilterSkipped;
-        case MFX_ERR_NONE_PARTIAL_OUTPUT:
-            return status::PartialOutput;
-        //// Errors but they need to be treat as positive status in some cases.
-        case MFX_ERR_NOT_ENOUGH_BUFFER:
-            return status::NotEnoughBuffer;
-        case MFX_ERR_MORE_DATA:
-            return status::NotEnoughData;
-        case MFX_ERR_MORE_SURFACE:
-            return status::NotEnoughSurface;
-        default:
-            return status::Unknown;
-    }
-}
-
 enum class implementation : uint32_t {
     automatic        = MFX_IMPL_AUTO,
     unsupported      = MFX_IMPL_UNSUPPORTED,

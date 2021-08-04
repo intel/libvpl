@@ -9,7 +9,7 @@
         #error MFX_VERSION not defined
     #endif
 
-mfxStatus CUserPipeline::InitRotateParam(sInputParams *pInParams) {
+mfxStatus CUserPipeline::InitRotateParam(sInputParams* pInParams) {
     MSDK_CHECK_POINTER(pInParams, MFX_ERR_NULL_PTR);
 
     MSDK_ZERO_MEMORY(m_pluginVideoParams);
@@ -144,7 +144,7 @@ CUserPipeline::~CUserPipeline() {
     Close();
 }
 
-mfxStatus CUserPipeline::Init(sInputParams *pParams) {
+mfxStatus CUserPipeline::Init(sInputParams* pParams) {
     MSDK_CHECK_POINTER(pParams, MFX_ERR_NULL_PTR);
 
     mfxStatus sts = MFX_ERR_NONE;
@@ -265,7 +265,7 @@ void CUserPipeline::Close() {
     }
 }
 
-mfxStatus CUserPipeline::ResetMFXComponents(sInputParams *pParams) {
+mfxStatus CUserPipeline::ResetMFXComponents(sInputParams* pParams) {
     MSDK_CHECK_POINTER(pParams, MFX_ERR_NULL_PTR);
     MSDK_CHECK_POINTER(m_pmfxENC, MFX_ERR_NOT_INITIALIZED);
 
@@ -307,7 +307,7 @@ mfxStatus CUserPipeline::Run() {
 
     mfxStatus sts = MFX_ERR_NONE;
 
-    sTask *pCurrentTask   = NULL; // a pointer to the current task
+    sTask* pCurrentTask   = NULL; // a pointer to the current task
     mfxU16 nEncSurfIdx    = 0; // index of free surface for encoder input
     mfxU16 nRotateSurfIdx = 0; // ~ for rotation plugin input
 
@@ -456,7 +456,7 @@ mfxStatus CUserPipeline::Run() {
 mfxStatus CUserPipeline::FillBuffers() {
     if (m_nPerfOpt) {
         for (mfxU32 i = 0; i < m_nPerfOpt; i++) {
-            mfxFrameSurface1 *surface = &m_pPluginSurfaces[i];
+            mfxFrameSurface1* surface = &m_pPluginSurfaces[i];
 
             mfxStatus sts =
                 m_pMFXAllocator->Lock(m_pMFXAllocator->pthis, surface->Data.MemId, &surface->Data);

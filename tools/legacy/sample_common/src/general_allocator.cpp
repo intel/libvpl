@@ -24,22 +24,22 @@
 // D3D and system surfaces
 GeneralAllocator::GeneralAllocator() : m_Mids(){};
 GeneralAllocator::~GeneralAllocator(){};
-mfxStatus GeneralAllocator::Init(mfxAllocatorParams *pParams) {
+mfxStatus GeneralAllocator::Init(mfxAllocatorParams* pParams) {
     mfxStatus sts = MFX_ERR_NONE;
 
 #if defined(_WIN32) || defined(_WIN64)
-    D3DAllocatorParams *d3dAllocParams = dynamic_cast<D3DAllocatorParams *>(pParams);
+    D3DAllocatorParams* d3dAllocParams = dynamic_cast<D3DAllocatorParams*>(pParams);
     if (d3dAllocParams)
         m_D3DAllocator.reset(new D3DFrameAllocator);
     #if MFX_D3D11_SUPPORT
-    D3D11AllocatorParams *d3d11AllocParams = dynamic_cast<D3D11AllocatorParams *>(pParams);
+    D3D11AllocatorParams* d3d11AllocParams = dynamic_cast<D3D11AllocatorParams*>(pParams);
     if (d3d11AllocParams)
         m_D3DAllocator.reset(new D3D11FrameAllocator);
     #endif
 #endif
 
 #ifdef LIBVA_SUPPORT
-    vaapiAllocatorParams *vaapiAllocParams = dynamic_cast<vaapiAllocatorParams *>(pParams);
+    vaapiAllocatorParams* vaapiAllocParams = dynamic_cast<vaapiAllocatorParams*>(pParams);
     if (vaapiAllocParams)
         m_D3DAllocator.reset(new vaapiFrameAllocator);
 #endif
@@ -68,27 +68,27 @@ mfxStatus GeneralAllocator::Close() {
     return sts;
 }
 
-mfxStatus GeneralAllocator::LockFrame(mfxMemId mid, mfxFrameData *ptr) {
+mfxStatus GeneralAllocator::LockFrame(mfxMemId mid, mfxFrameData* ptr) {
     if (isD3DMid(mid) && m_D3DAllocator.get())
         return m_D3DAllocator.get()->Lock(m_D3DAllocator.get(), mid, ptr);
     else
         return m_SYSAllocator.get()->Lock(m_SYSAllocator.get(), mid, ptr);
 }
-mfxStatus GeneralAllocator::UnlockFrame(mfxMemId mid, mfxFrameData *ptr) {
+mfxStatus GeneralAllocator::UnlockFrame(mfxMemId mid, mfxFrameData* ptr) {
     if (isD3DMid(mid) && m_D3DAllocator.get())
         return m_D3DAllocator.get()->Unlock(m_D3DAllocator.get(), mid, ptr);
     else
         return m_SYSAllocator.get()->Unlock(m_SYSAllocator.get(), mid, ptr);
 }
 
-mfxStatus GeneralAllocator::GetFrameHDL(mfxMemId mid, mfxHDL *handle) {
+mfxStatus GeneralAllocator::GetFrameHDL(mfxMemId mid, mfxHDL* handle) {
     if (isD3DMid(mid) && m_D3DAllocator.get())
         return m_D3DAllocator.get()->GetHDL(m_D3DAllocator.get(), mid, handle);
     else
         return m_SYSAllocator.get()->GetHDL(m_SYSAllocator.get(), mid, handle);
 }
 
-mfxStatus GeneralAllocator::ReleaseResponse(mfxFrameAllocResponse *response) {
+mfxStatus GeneralAllocator::ReleaseResponse(mfxFrameAllocResponse* response) {
     // try to ReleaseResponse via D3D allocator
     if (isD3DMid(response->mids[0]) && m_D3DAllocator.get())
         return m_D3DAllocator.get()->Free(m_D3DAllocator.get(), response);
@@ -97,9 +97,9 @@ mfxStatus GeneralAllocator::ReleaseResponse(mfxFrameAllocResponse *response) {
 }
 
 mfxStatus GeneralAllocator::ReallocImpl(mfxMemId mid,
-                                        const mfxFrameInfo *info,
+                                        const mfxFrameInfo* info,
                                         mfxU16 memType,
-                                        mfxMemId *midOut) {
+                                        mfxMemId* midOut) {
     if (!info || !midOut)
         return MFX_ERR_NULL_PTR;
 
@@ -117,8 +117,8 @@ mfxStatus GeneralAllocator::ReallocImpl(mfxMemId mid,
     return sts;
 }
 
-mfxStatus GeneralAllocator::AllocImpl(mfxFrameAllocRequest *request,
-                                      mfxFrameAllocResponse *response) {
+mfxStatus GeneralAllocator::AllocImpl(mfxFrameAllocRequest* request,
+                                      mfxFrameAllocResponse* response) {
     mfxStatus sts;
     if ((request->Type & MFX_MEMTYPE_VIDEO_MEMORY_DECODER_TARGET ||
          request->Type & MFX_MEMTYPE_VIDEO_MEMORY_PROCESSOR_TARGET) &&
@@ -134,7 +134,7 @@ mfxStatus GeneralAllocator::AllocImpl(mfxFrameAllocRequest *request,
     }
     return sts;
 }
-void GeneralAllocator::StoreFrameMids(bool isD3DFrames, mfxFrameAllocResponse *response) {
+void GeneralAllocator::StoreFrameMids(bool isD3DFrames, mfxFrameAllocResponse* response) {
     for (mfxU32 i = 0; i < response->NumFrameActual; i++)
         m_Mids.insert(std::pair<mfxHDL, bool>(response->mids[i], isD3DFrames));
 }

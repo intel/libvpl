@@ -23,15 +23,7 @@
         #define D3DFMT_NV12 (DXGI_FORMAT) MAKEFOURCC('N', 'V', '1', '2')
         #define D3DFMT_YV12 (DXGI_FORMAT) MAKEFOURCC('Y', 'V', '1', '2')
 
-//for generating sequence of mfx handles
-template <typename T>
 struct sequence {
-    T x;
-    sequence(T seed) : x(seed) {}
-};
-
-template <>
-struct sequence<mfxHDL> {
     mfxHDL x;
     sequence(mfxHDL seed) : x(seed) {}
 
@@ -42,7 +34,11 @@ struct sequence<mfxHDL> {
     }
 };
 
-D3D11FrameAllocator::D3D11FrameAllocator() : m_initParams(), m_pDeviceContext(NULL), m_memIdMap() {}
+D3D11FrameAllocator::D3D11FrameAllocator()
+        : m_initParams(),
+          m_pDeviceContext(NULL),
+          m_memIdMap(),
+          m_resourcesByRequest() {}
 
 D3D11FrameAllocator::~D3D11FrameAllocator() {
     Close();
@@ -55,16 +51,16 @@ D3D11FrameAllocator::TextureSubResource D3D11FrameAllocator::GetResourceFromMid(
         return TextureSubResource();
 
     //reverse iterator dereferencing
-    TextureResource *p = &(*m_memIdMap[index]);
+    TextureResource* p = &(*m_memIdMap[index]);
     if (!p->bAlloc)
         return TextureSubResource();
 
     return TextureSubResource(p, mid);
 }
 
-mfxStatus D3D11FrameAllocator::Init(mfxAllocatorParams *pParams) {
-    D3D11AllocatorParams *pd3d11Params = 0;
-    pd3d11Params                       = dynamic_cast<D3D11AllocatorParams *>(pParams);
+mfxStatus D3D11FrameAllocator::Init(mfxAllocatorParams* pParams) {
+    D3D11AllocatorParams* pd3d11Params = 0;
+    pd3d11Params                       = dynamic_cast<D3D11AllocatorParams*>(pParams);
 
     if (NULL == pd3d11Params || NULL == pd3d11Params->pDevice) {
         return MFX_ERR_NOT_INITIALIZED;
@@ -88,7 +84,7 @@ mfxStatus D3D11FrameAllocator::Close() {
     return sts;
 }
 
-mfxStatus D3D11FrameAllocator::LockFrame(mfxMemId mid, mfxFrameData *ptr) {
+mfxStatus D3D11FrameAllocator::LockFrame(mfxMemId mid, mfxFrameData* ptr) {
     HRESULT hRes = S_OK;
 
     D3D11_TEXTURE2D_DESC desc           = { 0 };
@@ -148,7 +144,8 @@ mfxStatus D3D11FrameAllocator::LockFrame(mfxMemId mid, mfxFrameData *ptr) {
                     hRes =
                         m_pDeviceContext->Map(sr.GetStaging(), 0, mapType, mapFlags, &lockedRect);
                     if (S_OK != hRes && DXGI_ERROR_WAS_STILL_DRAWING != hRes) {
-                        msdk_printf(MSDK_STRING("ERROR: m_pDeviceContext->Map = 0x%08lx\n"), hRes);
+                        msdk_printf(MSDK_STRING("ERROR: m_pDeviceContext->Map = 0x%08lx\n"),
+                                    (unsigned long int)hRes);
                     }
                 } while (DXGI_ERROR_WAS_STILL_DRAWING == hRes);
             }
@@ -165,14 +162,14 @@ mfxStatus D3D11FrameAllocator::LockFrame(mfxMemId mid, mfxFrameData *ptr) {
         #endif
         case DXGI_FORMAT_NV12:
             ptr->Pitch = (mfxU16)lockedRect.RowPitch;
-            ptr->Y     = (mfxU8 *)lockedRect.pData;
-            ptr->U     = (mfxU8 *)lockedRect.pData + desc.Height * lockedRect.RowPitch;
+            ptr->Y     = (mfxU8*)lockedRect.pData;
+            ptr->U     = (mfxU8*)lockedRect.pData + desc.Height * lockedRect.RowPitch;
             ptr->V     = (desc.Format == DXGI_FORMAT_P010) ? ptr->U + 2 : ptr->U + 1;
             break;
 
         case DXGI_FORMAT_420_OPAQUE: // can be unsupported by standard ms guid
             ptr->Pitch = (mfxU16)lockedRect.RowPitch;
-            ptr->Y     = (mfxU8 *)lockedRect.pData;
+            ptr->Y     = (mfxU8*)lockedRect.pData;
             ptr->V     = ptr->Y + desc.Height * lockedRect.RowPitch;
             ptr->U     = ptr->V + (desc.Height * lockedRect.RowPitch) / 4;
 
@@ -180,7 +177,7 @@ mfxStatus D3D11FrameAllocator::LockFrame(mfxMemId mid, mfxFrameData *ptr) {
 
         case DXGI_FORMAT_YUY2:
             ptr->Pitch = (mfxU16)lockedRect.RowPitch;
-            ptr->Y     = (mfxU8 *)lockedRect.pData;
+            ptr->Y     = (mfxU8*)lockedRect.pData;
             ptr->U     = ptr->Y + 1;
             ptr->V     = ptr->Y + 3;
 
@@ -188,7 +185,7 @@ mfxStatus D3D11FrameAllocator::LockFrame(mfxMemId mid, mfxFrameData *ptr) {
 
         case DXGI_FORMAT_P8:
             ptr->Pitch = (mfxU16)lockedRect.RowPitch;
-            ptr->Y     = (mfxU8 *)lockedRect.pData;
+            ptr->Y     = (mfxU8*)lockedRect.pData;
             ptr->U     = 0;
             ptr->V     = 0;
 
@@ -196,7 +193,7 @@ mfxStatus D3D11FrameAllocator::LockFrame(mfxMemId mid, mfxFrameData *ptr) {
 
         case DXGI_FORMAT_AYUV:
             ptr->Pitch = (mfxU16)lockedRect.RowPitch;
-            ptr->V     = (mfxU8 *)lockedRect.pData;
+            ptr->V     = (mfxU8*)lockedRect.pData;
             ptr->U     = ptr->V + 1;
             ptr->Y     = ptr->V + 2;
             ptr->A     = ptr->V + 3;
@@ -204,7 +201,7 @@ mfxStatus D3D11FrameAllocator::LockFrame(mfxMemId mid, mfxFrameData *ptr) {
 
         case DXGI_FORMAT_B8G8R8A8_UNORM:
             ptr->Pitch = (mfxU16)lockedRect.RowPitch;
-            ptr->B     = (mfxU8 *)lockedRect.pData;
+            ptr->B     = (mfxU8*)lockedRect.pData;
             ptr->G     = ptr->B + 1;
             ptr->R     = ptr->B + 2;
             ptr->A     = ptr->B + 3;
@@ -212,24 +209,24 @@ mfxStatus D3D11FrameAllocator::LockFrame(mfxMemId mid, mfxFrameData *ptr) {
             break;
         case DXGI_FORMAT_R10G10B10A2_UNORM:
             ptr->Pitch = (mfxU16)lockedRect.RowPitch;
-            ptr->B     = (mfxU8 *)lockedRect.pData;
+            ptr->B     = (mfxU8*)lockedRect.pData;
             ptr->G     = ptr->B + 1;
             ptr->R     = ptr->B + 2;
             ptr->A     = ptr->B + 3;
 
             break;
         case DXGI_FORMAT_R16G16B16A16_UNORM:
-            ptr->V16       = (mfxU16 *)lockedRect.pData;
+            ptr->V16       = (mfxU16*)lockedRect.pData;
             ptr->U16       = ptr->V16 + 1;
             ptr->Y16       = ptr->V16 + 2;
-            ptr->A         = (mfxU8 *)(ptr->V16 + 3);
+            ptr->A         = (mfxU8*)(ptr->V16 + 3);
             ptr->PitchHigh = (mfxU16)((mfxU32)lockedRect.RowPitch / (1 << 16));
             ptr->PitchLow  = (mfxU16)((mfxU32)lockedRect.RowPitch % (1 << 16));
             break;
         case DXGI_FORMAT_R16_UNORM:
         case DXGI_FORMAT_R16_UINT:
             ptr->Pitch = (mfxU16)lockedRect.RowPitch;
-            ptr->Y16   = (mfxU16 *)lockedRect.pData;
+            ptr->Y16   = (mfxU16*)lockedRect.pData;
             ptr->U16   = 0;
             ptr->V16   = 0;
 
@@ -238,10 +235,10 @@ mfxStatus D3D11FrameAllocator::LockFrame(mfxMemId mid, mfxFrameData *ptr) {
         case DXGI_FORMAT_Y416:
             ptr->PitchHigh = (mfxU16)(lockedRect.RowPitch / (1 << 16));
             ptr->PitchLow  = (mfxU16)(lockedRect.RowPitch % (1 << 16));
-            ptr->U16       = (mfxU16 *)lockedRect.pData;
+            ptr->U16       = (mfxU16*)lockedRect.pData;
             ptr->Y16       = ptr->U16 + 1;
             ptr->V16       = ptr->Y16 + 1;
-            ptr->A         = (mfxU8 *)(ptr->V16 + 1);
+            ptr->A         = (mfxU8*)(ptr->V16 + 1);
             break;
         case DXGI_FORMAT_Y216:
         #endif
@@ -249,7 +246,7 @@ mfxStatus D3D11FrameAllocator::LockFrame(mfxMemId mid, mfxFrameData *ptr) {
         case DXGI_FORMAT_Y210:
             ptr->PitchHigh = (mfxU16)(lockedRect.RowPitch / (1 << 16));
             ptr->PitchLow  = (mfxU16)(lockedRect.RowPitch % (1 << 16));
-            ptr->Y16       = (mfxU16 *)lockedRect.pData;
+            ptr->Y16       = (mfxU16*)lockedRect.pData;
             ptr->U16       = ptr->Y16 + 1;
             ptr->V16       = ptr->Y16 + 3;
 
@@ -258,7 +255,7 @@ mfxStatus D3D11FrameAllocator::LockFrame(mfxMemId mid, mfxFrameData *ptr) {
         case DXGI_FORMAT_Y410:
             ptr->PitchHigh = (mfxU16)(lockedRect.RowPitch / (1 << 16));
             ptr->PitchLow  = (mfxU16)(lockedRect.RowPitch % (1 << 16));
-            ptr->Y410      = (mfxY410 *)lockedRect.pData;
+            ptr->Y410      = (mfxY410*)lockedRect.pData;
             ptr->Y         = 0;
             ptr->V         = 0;
             ptr->A         = 0;
@@ -274,7 +271,7 @@ mfxStatus D3D11FrameAllocator::LockFrame(mfxMemId mid, mfxFrameData *ptr) {
     return MFX_ERR_NONE;
 }
 
-mfxStatus D3D11FrameAllocator::UnlockFrame(mfxMemId mid, mfxFrameData *ptr) {
+mfxStatus D3D11FrameAllocator::UnlockFrame(mfxMemId mid, mfxFrameData* ptr) {
     //check that texture exists
     TextureSubResource sr = GetResourceFromMid(mid);
     if (!sr.GetTexture())
@@ -307,7 +304,7 @@ mfxStatus D3D11FrameAllocator::UnlockFrame(mfxMemId mid, mfxFrameData *ptr) {
     return MFX_ERR_NONE;
 }
 
-mfxStatus D3D11FrameAllocator::GetFrameHDL(mfxMemId mid, mfxHDL *handle) {
+mfxStatus D3D11FrameAllocator::GetFrameHDL(mfxMemId mid, mfxHDL* handle) {
     if (NULL == handle)
         return MFX_ERR_INVALID_HANDLE;
 
@@ -316,7 +313,7 @@ mfxStatus D3D11FrameAllocator::GetFrameHDL(mfxMemId mid, mfxHDL *handle) {
     if (!sr.GetTexture())
         return MFX_ERR_INVALID_HANDLE;
 
-    mfxHDLPair *pPair = (mfxHDLPair *)handle;
+    mfxHDLPair* pPair = (mfxHDLPair*)handle;
 
     pPair->first  = sr.GetTexture();
     pPair->second = (mfxHDL)(UINT_PTR)sr.GetSubResource();
@@ -324,7 +321,7 @@ mfxStatus D3D11FrameAllocator::GetFrameHDL(mfxMemId mid, mfxHDL *handle) {
     return MFX_ERR_NONE;
 }
 
-mfxStatus D3D11FrameAllocator::CheckRequestType(mfxFrameAllocRequest *request) {
+mfxStatus D3D11FrameAllocator::CheckRequestType(mfxFrameAllocRequest* request) {
     mfxStatus sts = BaseFrameAllocator::CheckRequestType(request);
     if (MFX_ERR_NONE != sts)
         return sts;
@@ -336,7 +333,7 @@ mfxStatus D3D11FrameAllocator::CheckRequestType(mfxFrameAllocRequest *request) {
         return MFX_ERR_UNSUPPORTED;
 }
 
-mfxStatus D3D11FrameAllocator::ReleaseResponse(mfxFrameAllocResponse *response) {
+mfxStatus D3D11FrameAllocator::ReleaseResponse(mfxFrameAllocResponse* response) {
     if (NULL == response)
         return MFX_ERR_NULL_PTR;
 
@@ -363,9 +360,9 @@ mfxStatus D3D11FrameAllocator::ReleaseResponse(mfxFrameAllocResponse *response) 
 }
 
 mfxStatus D3D11FrameAllocator::ReallocImpl(mfxMemId /*mid*/,
-                                           const mfxFrameInfo *info,
+                                           const mfxFrameInfo* info,
                                            mfxU16 /*memType*/,
-                                           mfxMemId *midOut) {
+                                           mfxMemId* midOut) {
     if (!info || !midOut)
         return MFX_ERR_NULL_PTR;
 
@@ -373,8 +370,8 @@ mfxStatus D3D11FrameAllocator::ReallocImpl(mfxMemId /*mid*/,
     return MFX_ERR_UNSUPPORTED;
 }
 
-mfxStatus D3D11FrameAllocator::AllocImpl(mfxFrameAllocRequest *request,
-                                         mfxFrameAllocResponse *response) {
+mfxStatus D3D11FrameAllocator::AllocImpl(mfxFrameAllocRequest* request,
+                                         mfxFrameAllocResponse* response) {
     HRESULT hRes;
 
     DXGI_FORMAT colorFormat = ConverColortFormat(request->Info.FourCC);
@@ -397,12 +394,12 @@ mfxStatus D3D11FrameAllocator::AllocImpl(mfxFrameAllocRequest *request,
         desc.MiscFlags           = 0;
         desc.StructureByteStride = 0;
 
-        ID3D11Buffer *buffer = 0;
+        ID3D11Buffer* buffer = 0;
         hRes                 = m_initParams.pDevice->CreateBuffer(&desc, 0, &buffer);
         if (FAILED(hRes))
             return MFX_ERR_MEMORY_ALLOC;
 
-        newTexture.textures.push_back(reinterpret_cast<ID3D11Texture2D *>(buffer));
+        newTexture.textures.push_back(reinterpret_cast<ID3D11Texture2D*>(buffer));
     }
     else {
         D3D11_TEXTURE2D_DESC desc = { 0 };
@@ -451,7 +448,7 @@ mfxStatus D3D11FrameAllocator::AllocImpl(mfxFrameAllocRequest *request,
             desc.BindFlags = 0;
         }
 
-        ID3D11Texture2D *pTexture2D;
+        ID3D11Texture2D* pTexture2D;
 
         for (size_t i = 0; i < request->NumFrameSuggested / desc.ArraySize; i++) {
             hRes = m_initParams.pDevice->CreateTexture2D(&desc, NULL, &pTexture2D);
@@ -459,7 +456,7 @@ mfxStatus D3D11FrameAllocator::AllocImpl(mfxFrameAllocRequest *request,
             if (FAILED(hRes)) {
                 msdk_printf(MSDK_STRING("CreateTexture2D(%lld) failed, hr = 0x%08lx\n"),
                             (long long)i,
-                            hRes);
+                            (unsigned long int)hRes);
                 return MFX_ERR_MEMORY_ALLOC;
             }
             newTexture.textures.push_back(pTexture2D);
@@ -485,7 +482,7 @@ mfxStatus D3D11FrameAllocator::AllocImpl(mfxFrameAllocRequest *request,
     }
 
     // mapping to self created handles array, starting from zero or from last assigned handle + 1
-    sequence<mfxHDL> seq_initializer(
+    sequence seq_initializer(
         m_resourcesByRequest.empty() ? 0 : m_resourcesByRequest.back().outerMids.back());
 
     //incrementing starting index

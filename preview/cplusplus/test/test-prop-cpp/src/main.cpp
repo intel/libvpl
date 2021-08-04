@@ -84,7 +84,7 @@ int main(int argc, char *argv[]) {
     int res;
 
     res = 0;
-    for (int i = 0; i < NUM_PROP_STRINGS; i++) {
+    for (unsigned int i = 0; i < NUM_PROP_STRINGS; i++) {
         res |= TestProperty(PropStrings[i]);
     }
 

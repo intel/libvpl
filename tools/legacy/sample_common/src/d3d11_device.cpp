@@ -18,13 +18,30 @@ CD3D11Device::CD3D11Device()
         : m_nViews(0),
           m_bDefaultStereoEnabled(FALSE),
           m_bIsA2rgb10(FALSE),
-          m_HandleWindow(NULL) {}
+          m_HandleWindow(NULL),
+          m_pD3D11Device(),
+          m_pD3D11Ctx(),
+          m_pDX11VideoDevice(),
+          m_pVideoContext(),
+          m_VideoProcessorEnum(),
+          m_pDXGIDev(),
+          m_pAdapter(),
+          m_pDXGIFactory(),
+          m_pSwapChain(),
+          m_pVideoProcessor(),
+          m_pInputViewLeft(),
+          m_pInputViewRight(),
+          m_pOutputView(),
+          m_pDXGIBackBuffer(),
+          m_pTempTexture(),
+          m_pDisplayControl(),
+          m_pDXGIOutput() {}
 
 CD3D11Device::~CD3D11Device() {
     Close();
 }
 
-mfxStatus CD3D11Device::FillSCD(mfxHDL hWindow, DXGI_SWAP_CHAIN_DESC &scd) {
+mfxStatus CD3D11Device::FillSCD(mfxHDL hWindow, DXGI_SWAP_CHAIN_DESC& scd) {
     scd.Windowed         = TRUE;
     scd.OutputWindow     = (HWND)hWindow;
     scd.SampleDesc.Count = 1;
@@ -36,7 +53,7 @@ mfxStatus CD3D11Device::FillSCD(mfxHDL hWindow, DXGI_SWAP_CHAIN_DESC &scd) {
     return MFX_ERR_NONE;
 }
 
-mfxStatus CD3D11Device::FillSCD1(DXGI_SWAP_CHAIN_DESC1 &scd1) {
+mfxStatus CD3D11Device::FillSCD1(DXGI_SWAP_CHAIN_DESC1& scd1) {
     scd1.Width  = 0; // Use automatic sizing.
     scd1.Height = 0;
     scd1.Format = (m_bIsA2rgb10) ? DXGI_FORMAT_R10G10B10A2_UNORM : DXGI_FORMAT_B8G8R8A8_UNORM;
@@ -67,13 +84,13 @@ mfxStatus CD3D11Device::Init(mfxHDL hWindow, mfxU16 nViews, mfxU32 nAdapterNum) 
                                                  D3D_FEATURE_LEVEL_10_0 };
     D3D_FEATURE_LEVEL pFeatureLevelsOut;
 
-    hres = CreateDXGIFactory(__uuidof(IDXGIFactory2), (void **)(&m_pDXGIFactory));
+    hres = CreateDXGIFactory(__uuidof(IDXGIFactory2), (void**)(&m_pDXGIFactory));
     if (FAILED(hres))
         return MFX_ERR_DEVICE_FAILED;
 
     if (m_nViews == 2) {
         hres = m_pDXGIFactory->QueryInterface(__uuidof(IDXGIDisplayControl),
-                                              (void **)&m_pDisplayControl);
+                                              (void**)&m_pDisplayControl);
         if (FAILED(hres))
             return MFX_ERR_DEVICE_FAILED;
 
@@ -130,7 +147,7 @@ mfxStatus CD3D11Device::Init(mfxHDL hWindow, mfxU16 nViews, mfxU32 nAdapterNum) 
             &swapChainDesc,
             NULL,
             NULL,
-            reinterpret_cast<IDXGISwapChain1 **>(&m_pSwapChain));
+            reinterpret_cast<IDXGISwapChain1**>(&m_pSwapChain));
         if (FAILED(hres))
             return MFX_ERR_DEVICE_FAILED;
     }
@@ -138,7 +155,7 @@ mfxStatus CD3D11Device::Init(mfxHDL hWindow, mfxU16 nViews, mfxU32 nAdapterNum) 
     return sts;
 }
 
-mfxStatus CD3D11Device::CreateVideoProcessor(mfxFrameSurface1 *pSrf) {
+mfxStatus CD3D11Device::CreateVideoProcessor(mfxFrameSurface1* pSrf) {
     HRESULT hres = S_OK;
 
     if (m_VideoProcessorEnum.p || NULL == pSrf)
@@ -189,7 +206,7 @@ mfxStatus CD3D11Device::Reset() {
                                                &swapChainDesc,
                                                NULL,
                                                NULL,
-                                               reinterpret_cast<IDXGISwapChain1 **>(&m_pSwapChain));
+                                               reinterpret_cast<IDXGISwapChain1**>(&m_pSwapChain));
 
     if (FAILED(hres)) {
         if (swapChainDesc.Stereo) {
@@ -207,7 +224,7 @@ mfxStatus CD3D11Device::Reset() {
     return MFX_ERR_NONE;
 }
 
-mfxStatus CD3D11Device::GetHandle(mfxHandleType type, mfxHDL *pHdl) {
+mfxStatus CD3D11Device::GetHandle(mfxHandleType type, mfxHDL* pHdl) {
     if (MFX_HANDLE_D3D11_DEVICE == type) {
         *pHdl = m_pD3D11Device.p;
         return MFX_ERR_NONE;
@@ -224,14 +241,14 @@ mfxStatus CD3D11Device::SetHandle(mfxHandleType type, mfxHDL hdl) {
     return MFX_ERR_UNSUPPORTED;
 }
 
-mfxStatus CD3D11Device::RenderFrame(mfxFrameSurface1 *pSrf, mfxFrameAllocator *pAlloc) {
+mfxStatus CD3D11Device::RenderFrame(mfxFrameSurface1* pSrf, mfxFrameAllocator* pAlloc) {
     HRESULT hres = S_OK;
     mfxStatus sts;
 
     sts = CreateVideoProcessor(pSrf);
     MSDK_CHECK_STATUS(sts, "CreateVideoProcessor failed");
 
-    hres = m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void **)&m_pDXGIBackBuffer.p);
+    hres = m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&m_pDXGIBackBuffer.p);
     if (FAILED(hres))
         return MFX_ERR_DEVICE_FAILED;
 
@@ -274,10 +291,10 @@ mfxStatus CD3D11Device::RenderFrame(mfxFrameSurface1 *pSrf, mfxFrameAllocator *p
     InputViewDesc.Texture2D.ArraySlice = 0;
 
     mfxHDLPair pair = { NULL };
-    sts             = pAlloc->GetHDL(pAlloc->pthis, pSrf->Data.MemId, (mfxHDL *)&pair);
+    sts             = pAlloc->GetHDL(pAlloc->pthis, pSrf->Data.MemId, (mfxHDL*)&pair);
     MSDK_CHECK_STATUS(sts, "pAlloc->GetHDL failed");
 
-    ID3D11Texture2D *pRTTexture2D = reinterpret_cast<ID3D11Texture2D *>(pair.first);
+    ID3D11Texture2D* pRTTexture2D = reinterpret_cast<ID3D11Texture2D*>(pair.first);
     D3D11_TEXTURE2D_DESC RTTexture2DDesc;
 
     if (!m_pTempTexture && m_nViews == 2) {

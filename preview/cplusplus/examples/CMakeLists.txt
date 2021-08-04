@@ -7,8 +7,10 @@
 
 cmake_minimum_required(VERSION 3.10.2)
 
-add_subdirectory(hello-decode-cpp)
-add_subdirectory(hello-encode-cpp)
+if(BUILD_EXAMPLES)
+  add_subdirectory(hello-decode-cpp)
+  add_subdirectory(hello-encode-cpp)
+endif()
 
 install(
   DIRECTORY hello-decode-cpp hello-encode-cpp

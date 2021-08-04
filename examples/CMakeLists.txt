@@ -7,12 +7,14 @@
 
 cmake_minimum_required(VERSION 3.10.2)
 
-add_subdirectory(coreAPI/legacy-decode)
-add_subdirectory(coreAPI/legacy-vpp)
-add_subdirectory(coreAPI/legacy-encode)
-add_subdirectory(hello/hello-decvpp)
-add_subdirectory(hello/hello-createsession)
-add_subdirectory(hello/hello-transcode)
+if(BUILD_EXAMPLES)
+  add_subdirectory(coreAPI/legacy-decode)
+  add_subdirectory(coreAPI/legacy-vpp)
+  add_subdirectory(coreAPI/legacy-encode)
+  add_subdirectory(hello/hello-decvpp)
+  add_subdirectory(hello/hello-createsession)
+  add_subdirectory(hello/hello-transcode)
+endif()
 
 install(
   DIRECTORY content

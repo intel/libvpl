@@ -18,7 +18,7 @@
 enum eTypeHandle { DXVA2_PROCESSOR = 0x00, DXVA2_DECODER = 0x01 };
 
 struct D3DAllocatorParams : mfxAllocatorParams {
-    IDirect3DDeviceManager9 *pManager;
+    IDirect3DDeviceManager9* pManager;
     DWORD surfaceUsage;
 
     D3DAllocatorParams() : pManager(), surfaceUsage() {}
@@ -29,29 +29,29 @@ public:
     D3DFrameAllocator();
     virtual ~D3DFrameAllocator();
 
-    virtual mfxStatus Init(mfxAllocatorParams *pParams);
+    virtual mfxStatus Init(mfxAllocatorParams* pParams);
     virtual mfxStatus Close();
 
-    virtual IDirect3DDeviceManager9 *GetDeviceManager() {
+    virtual IDirect3DDeviceManager9* GetDeviceManager() {
         return m_manager;
     };
 
-    virtual mfxStatus LockFrame(mfxMemId mid, mfxFrameData *ptr);
-    virtual mfxStatus UnlockFrame(mfxMemId mid, mfxFrameData *ptr);
-    virtual mfxStatus GetFrameHDL(mfxMemId mid, mfxHDL *handle);
+    virtual mfxStatus LockFrame(mfxMemId mid, mfxFrameData* ptr);
+    virtual mfxStatus UnlockFrame(mfxMemId mid, mfxFrameData* ptr);
+    virtual mfxStatus GetFrameHDL(mfxMemId mid, mfxHDL* handle);
 
 protected:
-    virtual mfxStatus CheckRequestType(mfxFrameAllocRequest *request);
-    virtual mfxStatus ReleaseResponse(mfxFrameAllocResponse *response);
-    virtual mfxStatus AllocImpl(mfxFrameAllocRequest *request, mfxFrameAllocResponse *response);
+    virtual mfxStatus CheckRequestType(mfxFrameAllocRequest* request);
+    virtual mfxStatus ReleaseResponse(mfxFrameAllocResponse* response);
+    virtual mfxStatus AllocImpl(mfxFrameAllocRequest* request, mfxFrameAllocResponse* response);
     virtual mfxStatus ReallocImpl(mfxMemId midIn,
-                                  const mfxFrameInfo *info,
+                                  const mfxFrameInfo* info,
                                   mfxU16 memType,
-                                  mfxMemId *midOut);
+                                  mfxMemId* midOut);
 
-    void DeallocateMids(mfxHDLPair **pairs, int n);
+    void DeallocateMids(mfxHDLPair** pairs, int n);
 
-    std::vector<mfxHDLPair **> m_midsAllocated;
+    std::vector<mfxHDLPair**> m_midsAllocated;
 
     CComPtr<IDirect3DDeviceManager9> m_manager;
     CComPtr<IDirectXVideoDecoderService> m_decoderService;

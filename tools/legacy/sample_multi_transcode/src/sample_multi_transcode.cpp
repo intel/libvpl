@@ -90,24 +90,26 @@ mfxU32 GetPreferredAdapterNum(const mfxAdaptersInfo& adapters, const sInputParam
 #endif
 
 Launcher::Launcher()
-        : m_StartTime(0),
+        : m_pThreadContextArray(),
+          m_pAllocArray(),
+          m_InputParamsArray(),
+          m_pBufferArray(),
+          m_pExtBSProcArray(),
+          m_pAllocParams(),
+          m_hwdevs(),
+          m_StartTime(0),
           m_eDevType(static_cast<mfxHandleType>(0)),
           m_accelerationMode(MFX_ACCEL_MODE_NA),
-          m_deviceID(),
-          m_pBufferArray(),
-          m_pAllocParams(),
-          m_InputParamsArray(),
-#if (defined(_WIN32) || defined(_WIN64)) && (MFX_VERSION >= 1031)
-          m_DisplaysData(),
-          m_Adapters(),
-#endif
           m_adapterNum(),
-          m_pExtBSProcArray(),
+          m_deviceID(),
           m_pLoader(),
-          m_pThreadContextArray(),
-          m_pAllocArray(),
-          m_VppDstRects(),
-          m_hwdevs() {
+          m_VppDstRects()
+#if (defined(_WIN32) || defined(_WIN64)) && (MFX_VERSION >= 1031)
+          ,
+          m_DisplaysData(),
+          m_Adapters()
+#endif
+{
 } // Launcher::Launcher()
 
 Launcher::~Launcher() {
@@ -186,8 +188,9 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
 
         if (m_eDevType == MFX_HANDLE_D3D9_DEVICE_MANAGER) {
             if (bNeedToCreateDevice) {
-                mfxAllocatorParams* pAllocParam(new D3DAllocatorParams());
-                D3DAllocatorParams* pD3DParams = dynamic_cast<D3DAllocatorParams*>(pAllocParam);
+                std::shared_ptr<mfxAllocatorParams> pAllocParam(new D3DAllocatorParams());
+                D3DAllocatorParams* pD3DParams =
+                    dynamic_cast<D3DAllocatorParams*>(pAllocParam.get());
                 std::unique_ptr<CHWDevice> hwdev(new CD3D9Device());
 
                 /* The last param set in vector always describe VPP+ENCODE or Only VPP
@@ -207,7 +210,7 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
                 // set Device Manager to external dx9 allocator
                 pD3DParams->pManager = (IDirect3DDeviceManager9*)hdl;
 
-                m_pAllocParams.push_back(std::shared_ptr<mfxAllocatorParams>(pAllocParam));
+                m_pAllocParams.push_back(pAllocParam);
                 m_hwdevs.push_back(std::move(hwdev));
                 hdls.push_back(hdl);
             }
@@ -225,9 +228,9 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
     #if MFX_D3D11_SUPPORT
         else if (m_eDevType == MFX_HANDLE_D3D11_DEVICE) {
             if (bNeedToCreateDevice) {
-                mfxAllocatorParams* pAllocParam(new D3D11AllocatorParams());
+                std::shared_ptr<mfxAllocatorParams> pAllocParam(new D3D11AllocatorParams());
                 D3D11AllocatorParams* pD3D11Params =
-                    dynamic_cast<D3D11AllocatorParams*>(pAllocParam);
+                    dynamic_cast<D3D11AllocatorParams*>(pAllocParam.get());
                 std::unique_ptr<CHWDevice> hwdev(new CD3D11Device());
 
                 /* The last param set in vector always describe VPP+ENCODE or Only VPP
@@ -249,7 +252,7 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
                 // set Device to external dx11 allocator
                 pD3D11Params->pDevice = (ID3D11Device*)hdl;
 
-                m_pAllocParams.push_back(std::shared_ptr<mfxAllocatorParams>(pAllocParam));
+                m_pAllocParams.push_back(pAllocParam);
                 m_hwdevs.push_back(std::move(hwdev));
                 hdls.push_back(hdl);
             }
@@ -837,15 +840,15 @@ mfxStatus Launcher::CheckAndFixAdapterDependency(mfxU32 idxSession,
     // Inherited sessions must have the same adapter as parent
     if ((pParentPipeline->IsPrefferiGfx() || pParentPipeline->IsPrefferdGfx()) &&
         !m_InputParamsArray[idxSession].bPrefferiGfx &&
-        !m_InputParamsArray[idxSession].dGfxIdx >= 0) {
+        !(m_InputParamsArray[idxSession].dGfxIdx >= 0)) {
         m_InputParamsArray[idxSession].bPrefferiGfx = pParentPipeline->IsPrefferiGfx();
         m_InputParamsArray[idxSession].dGfxIdx      = pParentPipeline->GetdGfxIdx();
         msdk_stringstream ss;
         ss << MSDK_STRING("\n\n session with index: ") << idxSession
            << MSDK_STRING(" adapter type was forced to ")
-           << (pParentPipeline->IsPrefferiGfx()
-                   ? MSDK_STRING("integrated")
-                   : MSDK_STRING("discrete with index %d", pParentPipeline->GetdGfxIdx()))
+           << (pParentPipeline->IsPrefferiGfx() ? MSDK_STRING("integrated")
+                                                : MSDK_STRING("discrete with index %d"),
+               pParentPipeline->GetdGfxIdx())
            << std::endl
            << std::endl;
         msdk_printf(MSDK_STRING("%s"), ss.str().c_str());
@@ -880,7 +883,7 @@ mfxStatus Launcher::CheckAndFixAdapterDependency(mfxU32 idxSession,
     }
 
     // Inherited sessions must have the same adapter as parent
-    if (pParentPipeline->IsPrefferdGfx() && !m_InputParamsArray[idxSession].dGfxIdx >= 0) {
+    if (pParentPipeline->IsPrefferdGfx() && !(m_InputParamsArray[idxSession].dGfxIdx >= 0)) {
         msdk_stringstream ss;
         ss << MSDK_STRING("\n\n session with index: ") << idxSession
            << MSDK_STRING(" failed because it has different adapter type with parent session [")
@@ -903,9 +906,8 @@ mfxStatus Launcher::VerifyCrossSessionsOptions() {
     bool IsInterOrJoined      = false;
     bool IsNeedToCreateDevice = false;
 
-    mfxU16 minAsyncDepth       = 0;
-    bool bUseExternalAllocator = false;
-    bool bSingleTexture        = false;
+    mfxU16 minAsyncDepth = 0;
+    bool bSingleTexture  = false;
 
 #if (MFX_VERSION >= 1025)
     bool allMFEModesEqual     = true;
@@ -971,7 +973,7 @@ mfxStatus Launcher::VerifyCrossSessionsOptions() {
             m_InputParamsArray[i].bOpenCL || m_InputParamsArray[i].EncoderFourCC ||
             m_InputParamsArray[i].DecoderFourCC || m_InputParamsArray[i].nVppCompSrcH ||
             m_InputParamsArray[i].nVppCompSrcW) {
-            bUseExternalAllocator = true;
+            // bUseExternalAllocator = true;
         }
 
         if (m_InputParamsArray[i].bSingleTexture) {
@@ -1298,7 +1300,7 @@ void TranscodingSample::CascadeScalerConfig::CreatePoolList() {
     }
 }
 
-SMTTracer::SMTTracer() : Log(), AddonLog(), TracerFileMutex(), TraceFile() {
+SMTTracer::SMTTracer() : Log(), AddonLog(), TracerFileMutex() {
     TimeBase = std::chrono::steady_clock::now();
 }
 
@@ -1350,7 +1352,7 @@ void SMTTracer::AddCounterEvent(const ThreadType thType,
 
 void SMTTracer::SaveTrace(mfxU32 FileID) {
     string FileName = "smt_trace_" + to_string(FileID) + ".json";
-    TraceFile.open(FileName, std::ios::out);
+    std::ofstream TraceFile(FileName, std::ios::out);
     if (!TraceFile) {
         return;
     }
@@ -1364,13 +1366,11 @@ void SMTTracer::SaveTrace(mfxU32 FileID) {
     TraceFile << "[" << endl;
 
     for (const Event ev : Log) {
-        WriteEvent(ev);
+        WriteEvent(ev, TraceFile);
     }
     for (const Event ev : AddonLog) {
-        WriteEvent(ev);
+        WriteEvent(ev, TraceFile);
     }
-
-    TraceFile.close();
 }
 
 void SMTTracer::AddEvent(const EventType evType,
@@ -1399,8 +1399,7 @@ void SMTTracer::AddEvent(const EventType evType,
 
 mfxU64 SMTTracer::GetCurrentTS() {
     std::chrono::steady_clock::time_point time = std::chrono::steady_clock::now();
-    double ns = std::chrono::duration<double, std::micro>(time - TimeBase).count();
-    return static_cast<mfxU64>(ns);
+    return static_cast<mfxU64>(std::chrono::duration<double, std::micro>(time - TimeBase).count());
 }
 
 void SMTTracer::AddFlowEvents() {
@@ -1447,80 +1446,80 @@ void SMTTracer::AddFlowEvent(const Event a, const Event b) {
     AddonLog.push_back(ev);
 }
 
-void SMTTracer::WriteEvent(const Event ev) {
+void SMTTracer::WriteEvent(const Event ev, std::ofstream& TraceFile) {
     switch (ev.EvType) {
         case EventType::DurationStart:
         case EventType::DurationEnd:
-            WriteDurationEvent(ev);
+            WriteDurationEvent(ev, TraceFile);
             break;
         case EventType::FlowStart:
         case EventType::FlowEnd:
-            WriteFlowEvent(ev);
+            WriteFlowEvent(ev, TraceFile);
             break;
         case EventType::Counter:
-            WriteCounterEvent(ev);
+            WriteCounterEvent(ev, TraceFile);
             break;
         default:;
     }
 }
 
-void SMTTracer::WriteDurationEvent(const Event ev) {
+void SMTTracer::WriteDurationEvent(const Event ev, std::ofstream& TraceFile) {
     TraceFile << "{";
-    WriteEventPID();
-    WriteComma();
-    WriteEventTID(ev);
-    WriteComma();
-    WriteEventTS(ev);
-    WriteComma();
-    WriteEventPhase(ev);
-    WriteComma();
-    WriteEventName(ev);
-    WriteComma();
-    WriteEventInOutIDs(ev);
+    WriteEventPID(TraceFile);
+    WriteComma(TraceFile);
+    WriteEventTID(ev, TraceFile);
+    WriteComma(TraceFile);
+    WriteEventTS(ev, TraceFile);
+    WriteComma(TraceFile);
+    WriteEventPhase(ev, TraceFile);
+    WriteComma(TraceFile);
+    WriteEventName(ev, TraceFile);
+    WriteComma(TraceFile);
+    WriteEventInOutIDs(ev, TraceFile);
     TraceFile << "}," << endl;
 }
 
-void SMTTracer::WriteFlowEvent(const Event ev) {
+void SMTTracer::WriteFlowEvent(const Event ev, std::ofstream& TraceFile) {
     TraceFile << "{";
-    WriteEventPID();
-    WriteComma();
-    WriteEventTID(ev);
-    WriteComma();
-    WriteEventTS(ev);
-    WriteComma();
-    WriteEventPhase(ev);
-    WriteComma();
-    WriteEventName(ev);
-    WriteComma();
-    WriteBindingPoint(ev);
-    WriteComma();
-    WriteEventCategory();
-    WriteComma();
-    WriteEvID(ev);
+    WriteEventPID(TraceFile);
+    WriteComma(TraceFile);
+    WriteEventTID(ev, TraceFile);
+    WriteComma(TraceFile);
+    WriteEventTS(ev, TraceFile);
+    WriteComma(TraceFile);
+    WriteEventPhase(ev, TraceFile);
+    WriteComma(TraceFile);
+    WriteEventName(ev, TraceFile);
+    WriteComma(TraceFile);
+    WriteBindingPoint(ev, TraceFile);
+    WriteComma(TraceFile);
+    WriteEventCategory(TraceFile);
+    WriteComma(TraceFile);
+    WriteEvID(ev, TraceFile);
     TraceFile << "}," << endl;
 }
 
-void SMTTracer::WriteCounterEvent(const Event ev) {
+void SMTTracer::WriteCounterEvent(const Event ev, std::ofstream& TraceFile) {
     TraceFile << "{";
-    WriteEventPID();
-    WriteComma();
-    WriteEventTID(ev);
-    WriteComma();
-    WriteEventTS(ev);
-    WriteComma();
-    WriteEventPhase(ev);
-    WriteComma();
-    WriteEventName(ev);
-    WriteComma();
-    WriteEventCounter(ev);
+    WriteEventPID(TraceFile);
+    WriteComma(TraceFile);
+    WriteEventTID(ev, TraceFile);
+    WriteComma(TraceFile);
+    WriteEventTS(ev, TraceFile);
+    WriteComma(TraceFile);
+    WriteEventPhase(ev, TraceFile);
+    WriteComma(TraceFile);
+    WriteEventName(ev, TraceFile);
+    WriteComma(TraceFile);
+    WriteEventCounter(ev, TraceFile);
     TraceFile << "}," << endl;
 }
 
-void SMTTracer::WriteEventPID() {
+void SMTTracer::WriteEventPID(std::ofstream& TraceFile) {
     TraceFile << "\"pid\":\"smt\"";
 }
 
-void SMTTracer::WriteEventTID(const Event ev) {
+void SMTTracer::WriteEventTID(const Event ev, std::ofstream& TraceFile) {
     TraceFile << "\"tid\":\"";
     switch (ev.ThType) {
         case ThreadType::DEC:
@@ -1542,11 +1541,11 @@ void SMTTracer::WriteEventTID(const Event ev) {
     TraceFile << "\"";
 }
 
-void SMTTracer::WriteEventTS(const Event ev) {
+void SMTTracer::WriteEventTS(const Event ev, std::ofstream& TraceFile) {
     TraceFile << "\"ts\":" << ev.TS;
 }
 
-void SMTTracer::WriteEventPhase(const Event ev) {
+void SMTTracer::WriteEventPhase(const Event ev, std::ofstream& TraceFile) {
     TraceFile << "\"ph\":\"";
 
     switch (ev.EvType) {
@@ -1572,7 +1571,7 @@ void SMTTracer::WriteEventPhase(const Event ev) {
     TraceFile << "\"";
 }
 
-void SMTTracer::WriteEventName(const Event ev) {
+void SMTTracer::WriteEventName(const Event ev, std::ofstream& TraceFile) {
     TraceFile << "\"name\":\"";
     if (ev.EvType == EventType::FlowStart || ev.EvType == EventType::FlowEnd) {
         TraceFile << "link";
@@ -1631,30 +1630,30 @@ void SMTTracer::WriteEventName(const Event ev) {
     TraceFile << "\"";
 }
 
-void SMTTracer::WriteBindingPoint(const Event ev) {
+void SMTTracer::WriteBindingPoint(const Event ev, std::ofstream& TraceFile) {
     if (ev.EvType != EventType::FlowStart && ev.EvType != EventType::FlowEnd) {
         return;
     }
     TraceFile << "\"bp\":\"e\"";
 }
 
-void SMTTracer::WriteEventInOutIDs(const Event ev) {
+void SMTTracer::WriteEventInOutIDs(const Event ev, std::ofstream& TraceFile) {
     TraceFile << "\"args\":{\"InID\":" << ev.InID << ",\"OutID\":" << ev.OutID << "}";
 }
 
-void SMTTracer::WriteEventCounter(const Event ev) {
+void SMTTracer::WriteEventCounter(const Event ev, std::ofstream& TraceFile) {
     TraceFile << "\"args\":{\"free surfaces\":" << ev.InID << "}";
 }
 
-void SMTTracer::WriteEventCategory() {
+void SMTTracer::WriteEventCategory(std::ofstream& TraceFile) {
     TraceFile << "\"cat\":\"link\"";
 }
 
-void SMTTracer::WriteEvID(const Event ev) {
+void SMTTracer::WriteEvID(const Event ev, std::ofstream& TraceFile) {
     TraceFile << "\"id\":\"id_" << ev.EvID << "\"";
 }
 
-void SMTTracer::WriteComma() {
+void SMTTracer::WriteComma(std::ofstream& TraceFile) {
     TraceFile << ",";
 } // mfxStatus Launcher::CreateSafetyBuffers
 

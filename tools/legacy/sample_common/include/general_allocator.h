@@ -22,22 +22,22 @@ public:
     GeneralAllocator();
     virtual ~GeneralAllocator();
 
-    virtual mfxStatus Init(mfxAllocatorParams *pParams);
+    virtual mfxStatus Init(mfxAllocatorParams* pParams);
     virtual mfxStatus Close();
 
 protected:
-    virtual mfxStatus LockFrame(mfxMemId mid, mfxFrameData *ptr);
-    virtual mfxStatus UnlockFrame(mfxMemId mid, mfxFrameData *ptr);
-    virtual mfxStatus GetFrameHDL(mfxMemId mid, mfxHDL *handle);
+    virtual mfxStatus LockFrame(mfxMemId mid, mfxFrameData* ptr);
+    virtual mfxStatus UnlockFrame(mfxMemId mid, mfxFrameData* ptr);
+    virtual mfxStatus GetFrameHDL(mfxMemId mid, mfxHDL* handle);
 
-    virtual mfxStatus ReleaseResponse(mfxFrameAllocResponse *response);
-    virtual mfxStatus AllocImpl(mfxFrameAllocRequest *request, mfxFrameAllocResponse *response);
+    virtual mfxStatus ReleaseResponse(mfxFrameAllocResponse* response);
+    virtual mfxStatus AllocImpl(mfxFrameAllocRequest* request, mfxFrameAllocResponse* response);
     virtual mfxStatus ReallocImpl(mfxMemId midIn,
-                                  const mfxFrameInfo *info,
+                                  const mfxFrameInfo* info,
                                   mfxU16 memType,
-                                  mfxMemId *midOut);
+                                  mfxMemId* midOut);
 
-    void StoreFrameMids(bool isD3DFrames, mfxFrameAllocResponse *response);
+    void StoreFrameMids(bool isD3DFrames, mfxFrameAllocResponse* response);
     bool isD3DMid(mfxHDL mid);
 
     std::map<mfxHDL, bool> m_Mids;

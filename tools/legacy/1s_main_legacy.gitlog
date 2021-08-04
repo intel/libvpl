@@ -1,0 +1,81 @@
+aa4bb19 Remove embargoed references from legacy tools
+2d50b06 Fix sample_encode seg fault when d3d enabled
+4d7179d Fix Klocwork hits (#105)
+b12fdce Move sample_multi_transcode out of runtime package
+c6de7b9 Sync SMT with GSE master, remove embargoed code
+144940d Remove code mentioning embargoed DG2 AV1e
+afd005c Fix sample_vpp leak
+#this# ffd917e Fix sample_encode i010 input
+f80eb8c Fix AV1 encode when no out file
+#this# 1b754c4 Fix sample_vpp, sample_encode alignment issue
+6245b53 Add X11 support to legacy tools
+19b03ff Skip sample_multi_transcode build if no libva
+9fe1296 Set d3d11 to default in vpp
+8a4cedd Add Hyper Encode (i+i) support to sample_encode
+67362d2 Fix iGfx/dGfx options in legacy samples
+1ad68fa Add SMT and media_sdk_compatibility_headers
+#this# 4fcf0bf Fix NV12 input format in legacy samples
+291760c Fix decvpp sample to align internal memory usage
+822bf56 Update codes to prepare perf test
+2818803 Enable sample_vpp execution w/o dest file set
+75b8bd5 Print fps when there is no out file
+cae734a Add adapter number option to sample* tools
+68a5da2 Move tools to dev package
+6224fd8 Set 2.x AccelerationMode in legacy samples
+de385a1 Fix sample_decode crashing with gen lib
+3f91e93 Skip writing IVF headers during hw av1e
+
+6b29300 Define LIBVA_DRM_SUPPORT correctly
+59ced76 Fix BitDepthLuma setting (#5)
+50475f7 Require libva>=1.2 for VA-API support
+0b74a78 Remove duplicate MFXVideoDECODE_VPP from samples
+7d021bc Add MFX_DEPRECATED, mark MFXInit/Ex as deprecated
+383dc4c Remove libva link dependency for CPU
+c7d2692 Update license for legacy tools
+f9e9fe1 Remove dates from copyright headers
+6e5236f Support building legacy tools without VA-API
+35381bc Fix sample_encode fail with no inputformat arg
+cb44b3d Fix Dispatcher-encode Legacy test fails
+aad2300 Fix av1 ivf pts
+b033ec8 Fix vpp gen test
+797d2c0 Fix vpp bitexact fail w unaligned input
+65d3015 Fix sample_encode bitexact failure
+b1459cb Fix sample encode Jpeg failure
+7692b86 Fix sample_vpp i010 input failure
+6f84445 Fix i010 legacy encode test
+e44b4d1 Resolve Klocwork hits
+fafb504 Enable AV1 encode in sample_encode
+28dc72c Integrate internal mem path in sample_encode
+6a30462 Sync headers with oneAPI-spec (commit 25d54e1)
+d7aec77 Fix sample_decode kw deref failure
+74aa2f4 Fix decvpp leak and crash
+91a46d7 Create hw device optionally
+be18801 Cleanup KW hits
+eb2b6ca Fix sample_decode hw mode
+cecac64 Integrate fused decvpp in sample_decode
+649612b Add 2.x dispatcher support to sample_vpp
+b09d803 Add 2.x dispatcher support to sample_encode
+4a62082 Add 2.x dispatcher support to sample_decode
+f918660 Add 2.x internal mem in sample_decode
+28ca560 Enable internal memory mode in sample_vpp
+eaf82e8 Restore modularity to CMake build
+6c2e3e9 Add sample_encode
+0ff6288 Enable i010 for sample_decode
+eb31baa Fix jpeg decode legacy tool test
+23457c9 Disable metrix_monitor build temporally
+c3f1338 Fix vpl7-700 i420 failure
+647bd44 Enable specifying custom location for API headers
+50180a0 Fix for CMake Metrics Monitor error
+8380ac4 Add metrics monitor/cttmetrics lib
+4e34da3 Use pkg-config to find libva and libdrm deps
+8d417ee Enable sample_vpp build
+6a17c7a Add legacy sample_decode
+f867fda Remove legacy tools
+77249df Fix KW and lint errors
+485e24f Transition to API repository
+7286b05 Add sample_vpp
+6376d32 Apply clang-format new ColumnLength
+4127ed2 Add mfxEncodeCtrl parameter checks
+2f206b3 Remove unused sample_common plugin_utils
+d2061e5 Install legacy command line tools with product
+2aefcdb Install vpl command line tools as part of runtime

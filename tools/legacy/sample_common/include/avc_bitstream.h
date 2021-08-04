@@ -30,12 +30,12 @@ enum { NAL_STORAGE_IDC_BITS = 0x60, NAL_UNITTYPE_BITS = 0x1f };
 class AVCBaseBitstream {
 public:
     AVCBaseBitstream();
-    AVCBaseBitstream(mfxU8 *const pb, const mfxU32 maxsize);
+    AVCBaseBitstream(mfxU8* const pb, const mfxU32 maxsize);
     virtual ~AVCBaseBitstream();
 
     // Reset the bitstream with new data pointer
-    void Reset(mfxU8 *const pb, mfxU32 maxsize);
-    void Reset(mfxU8 *const pb, mfxI32 offset, mfxU32 maxsize);
+    void Reset(mfxU8* const pb, mfxU32 maxsize);
+    void Reset(mfxU8* const pb, mfxI32 offset, mfxU32 maxsize);
 
     inline mfxU32 GetBits(mfxU32 nbits);
 
@@ -54,71 +54,71 @@ public:
 
     inline mfxU32 BytesLeft();
 
-    mfxStatus GetNALUnitType(NAL_Unit_Type &uNALUnitType, mfxU8 &uNALStorageIDC);
+    mfxStatus GetNALUnitType(NAL_Unit_Type& uNALUnitType, mfxU8& uNALStorageIDC);
     void AlignPointerRight(void);
 
 protected:
-    mfxU32 *m_pbs; // pointer to the current position of the buffer.
+    mfxU32* m_pbs; // pointer to the current position of the buffer.
     mfxI32 m_bitOffset; // the bit position (0 to 31) in the dword pointed by m_pbs.
-    mfxU32 *m_pbsBase; // pointer to the first byte of the buffer.
+    mfxU32* m_pbsBase; // pointer to the first byte of the buffer.
     mfxU32 m_maxBsSize; // maximum buffer size in bytes.
 };
 
 class AVCHeadersBitstream : public AVCBaseBitstream {
 public:
     AVCHeadersBitstream();
-    AVCHeadersBitstream(mfxU8 *const pb, const mfxU32 maxsize);
+    AVCHeadersBitstream(mfxU8* const pb, const mfxU32 maxsize);
 
     // Decode sequence parameter set
-    mfxStatus GetSequenceParamSet(AVCSeqParamSet *sps);
+    mfxStatus GetSequenceParamSet(AVCSeqParamSet* sps);
     // Decode sequence parameter set extension
-    mfxStatus GetSequenceParamSetExtension(AVCSeqParamSetExtension *sps_ex);
+    mfxStatus GetSequenceParamSetExtension(AVCSeqParamSetExtension* sps_ex);
 
     // Decoding picture's parameter set functions
-    mfxStatus GetPictureParamSetPart1(AVCPicParamSet *pps);
-    mfxStatus GetPictureParamSetPart2(AVCPicParamSet *pps, const AVCSeqParamSet *sps);
+    mfxStatus GetPictureParamSetPart1(AVCPicParamSet* pps);
+    mfxStatus GetPictureParamSetPart2(AVCPicParamSet* pps, const AVCSeqParamSet* sps);
 
-    mfxStatus GetSliceHeaderPart1(AVCSliceHeader *pSliceHeader);
+    mfxStatus GetSliceHeaderPart1(AVCSliceHeader* pSliceHeader);
     // Decoding slice header functions
-    mfxStatus GetSliceHeaderPart2(AVCSliceHeader *hdr, // slice header read goes here
-                                  const AVCPicParamSet *pps,
-                                  const AVCSeqParamSet *sps); // from slice header NAL unit
+    mfxStatus GetSliceHeaderPart2(AVCSliceHeader* hdr, // slice header read goes here
+                                  const AVCPicParamSet* pps,
+                                  const AVCSeqParamSet* sps); // from slice header NAL unit
 
-    mfxStatus GetSliceHeaderPart3(AVCSliceHeader *hdr, // slice header read goes here
-                                  PredWeightTable *pPredWeight_L0, // L0 weight table goes here
-                                  PredWeightTable *pPredWeight_L1, // L1 weight table goes here
-                                  RefPicListReorderInfo *pReorderInfo_L0,
-                                  RefPicListReorderInfo *pReorderInfo_L1,
-                                  AdaptiveMarkingInfo *pAdaptiveMarkingInfo,
-                                  const AVCPicParamSet *pps,
-                                  const AVCSeqParamSet *sps,
+    mfxStatus GetSliceHeaderPart3(AVCSliceHeader* hdr, // slice header read goes here
+                                  PredWeightTable* pPredWeight_L0, // L0 weight table goes here
+                                  PredWeightTable* pPredWeight_L1, // L1 weight table goes here
+                                  RefPicListReorderInfo* pReorderInfo_L0,
+                                  RefPicListReorderInfo* pReorderInfo_L1,
+                                  AdaptiveMarkingInfo* pAdaptiveMarkingInfo,
+                                  const AVCPicParamSet* pps,
+                                  const AVCSeqParamSet* sps,
                                   mfxU8 NALRef_idc); // from slice header NAL unit
 
-    mfxStatus GetNalUnitPrefix(AVCNalExtension *pExt, mfxU32 NALRef_idc);
+    mfxStatus GetNalUnitPrefix(AVCNalExtension* pExt, mfxU32 NALRef_idc);
 
-    mfxI32 GetSEI(const HeaderSet<AVCSeqParamSet> &sps, mfxI32 current_sps, AVCSEIPayLoad *spl);
+    mfxI32 GetSEI(const HeaderSet<AVCSeqParamSet>& sps, mfxI32 current_sps, AVCSEIPayLoad* spl);
 
 private:
-    mfxStatus GetNalUnitExtension(AVCNalExtension *pExt);
+    mfxStatus GetNalUnitExtension(AVCNalExtension* pExt);
 
-    void GetScalingList4x4(AVCScalingList4x4 *scl, mfxU8 *def, mfxU8 *scl_type);
-    void GetScalingList8x8(AVCScalingList8x8 *scl, mfxU8 *def, mfxU8 *scl_type);
+    void GetScalingList4x4(AVCScalingList4x4* scl, mfxU8* def, mfxU8* scl_type);
+    void GetScalingList8x8(AVCScalingList8x8* scl, mfxU8* def, mfxU8* scl_type);
 
-    mfxI32 GetSEIPayload(const HeaderSet<AVCSeqParamSet> &sps,
+    mfxI32 GetSEIPayload(const HeaderSet<AVCSeqParamSet>& sps,
                          mfxI32 current_sps,
-                         AVCSEIPayLoad *spl);
-    mfxI32 recovery_point(const HeaderSet<AVCSeqParamSet> &sps,
+                         AVCSEIPayLoad* spl);
+    mfxI32 recovery_point(const HeaderSet<AVCSeqParamSet>& sps,
                           mfxI32 current_sps,
-                          AVCSEIPayLoad *spl);
-    mfxI32 reserved_sei_message(const HeaderSet<AVCSeqParamSet> &sps,
+                          AVCSEIPayLoad* spl);
+    mfxI32 reserved_sei_message(const HeaderSet<AVCSeqParamSet>& sps,
                                 mfxI32 current_sps,
-                                AVCSEIPayLoad *spl);
+                                AVCSEIPayLoad* spl);
 
-    mfxStatus GetVUIParam(AVCSeqParamSet *sps);
-    mfxStatus GetHRDParam(AVCSeqParamSet *sps);
+    mfxStatus GetVUIParam(AVCSeqParamSet* sps);
+    mfxStatus GetHRDParam(AVCSeqParamSet* sps);
 };
 
-void SetDefaultScalingLists(AVCSeqParamSet *sps);
+void SetDefaultScalingLists(AVCSeqParamSet* sps);
 
 extern const mfxU32 bits_data[];
 
@@ -189,7 +189,7 @@ inline mfxU32 AVCBaseBitstream::Get1Bit() {
 } // AVCBitstream::Get1Bit()
 
 inline mfxU32 AVCBaseBitstream::BytesDecoded() {
-    return static_cast<mfxU32>((mfxU8 *)m_pbs - (mfxU8 *)m_pbsBase) + ((31 - m_bitOffset) >> 3);
+    return static_cast<mfxU32>((mfxU8*)m_pbs - (mfxU8*)m_pbsBase) + ((31 - m_bitOffset) >> 3);
 }
 
 inline mfxU32 AVCBaseBitstream::BytesLeft() {

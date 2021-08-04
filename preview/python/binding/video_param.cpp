@@ -500,6 +500,18 @@ void init_video_param(const py::module &m) {
                                             "V")
                             };
                         }
+                    case vpl::color_format_fourcc::rgb465:
+                    case vpl::color_format_fourcc::rgbp:
+                    case vpl::color_format_fourcc::rgb3:
+                    case vpl::color_format_fourcc::p8:
+                    case vpl::color_format_fourcc::p8_texture:
+                    case vpl::color_format_fourcc::argb16:
+                    case vpl::color_format_fourcc::abgr16:
+                    case vpl::color_format_fourcc::r16:
+                    case vpl::color_format_fourcc::ayuv_rgb4:
+                    case vpl::color_format_fourcc::nv21:
+                    case vpl::color_format_fourcc::bgrp:
+                        throw std::range_error("Format not known");
                 }
                 throw std::range_error("Format not known");
             },

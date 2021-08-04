@@ -19,7 +19,9 @@
 #include "windows/mfx_vector.h"
 #include "windows/mfxvideo++.h"
 
-#pragma warning(disable : 4355)
+#if _MSC_VER
+    #pragma warning(disable : 4355)
+#endif
 
 MFX_DISP_HANDLE::MFX_DISP_HANDLE(const mfxVersion requiredVersion)
         : _mfxSession(),
@@ -49,25 +51,25 @@ mfxStatus MFX_DISP_HANDLE::Close(void) {
 
     // need to reset dispatcher state after unloading dll
     if (MFX_ERR_NONE == mfxRes) {
-        implType                         = MFX_LIB_SOFTWARE;
-        impl                             = MFX_IMPL_SOFTWARE;
-        loadStatus                       = MFX_ERR_NOT_FOUND;
-        dispVersion.Major                = MFX_DISPATCHER_VERSION_MAJOR;
-        dispVersion.Minor                = MFX_DISPATCHER_VERSION_MINOR;
-        *static_cast<_mfxSession*>(this) = _mfxSession();
-        hModule                          = (mfxModuleHandle)0;
+        implType                          = MFX_LIB_SOFTWARE;
+        impl                              = MFX_IMPL_SOFTWARE;
+        loadStatus                        = MFX_ERR_NOT_FOUND;
+        dispVersion.Major                 = MFX_DISPATCHER_VERSION_MAJOR;
+        dispVersion.Minor                 = MFX_DISPATCHER_VERSION_MINOR;
+        *static_cast<_mfxSession *>(this) = _mfxSession();
+        hModule                           = (mfxModuleHandle)0;
     }
 
     return mfxRes;
 
 } // mfxStatus MFX_DISP_HANDLE::Close(void)
 
-mfxStatus MFX_DISP_HANDLE::LoadSelectedDLL(const wchar_t* pPath,
+mfxStatus MFX_DISP_HANDLE::LoadSelectedDLL(const wchar_t *pPath,
                                            eMfxImplType reqImplType,
                                            mfxIMPL reqImpl,
                                            mfxIMPL reqImplInterface,
-                                           mfxInitParam& par,
-                                           mfxInitializationParam& vplParam) {
+                                           mfxInitParam &par,
+                                           mfxInitializationParam &vplParam) {
     mfxStatus mfxRes = MFX_ERR_NONE;
 
     // check error(s)
@@ -191,8 +193,9 @@ mfxStatus MFX_DISP_HANDLE::LoadSelectedDLL(const wchar_t* pPath,
             mfxFunctionPointer pFunc = callVideoTable2[tableIndex];
 
             // filled-in mfxInitializationParam must be provided for MFXInitialize path
-            mfxRes = (*(mfxStatus(MFX_CDECL*)(mfxInitializationParam, mfxSession*))pFunc)(vplParam,
-                                                                                          &session);
+            mfxRes =
+                (*(mfxStatus(MFX_CDECL *)(mfxInitializationParam, mfxSession *))pFunc)(vplParam,
+                                                                                       &session);
         }
         else {
             // Call old-style MFXInit init for older libraries
@@ -208,7 +211,7 @@ mfxStatus MFX_DISP_HANDLE::LoadSelectedDLL(const wchar_t* pPath,
                                       apiVersion.Minor,
                                       &session));
 
-                mfxRes = (*(mfxStatus(MFX_CDECL*)(mfxIMPL, mfxVersion*, mfxSession*))pFunc)(
+                mfxRes = (*(mfxStatus(MFX_CDECL *)(mfxIMPL, mfxVersion *, mfxSession *))pFunc)(
                     impl | implInterface,
                     &version,
                     &session);
@@ -226,7 +229,7 @@ mfxStatus MFX_DISP_HANDLE::LoadSelectedDLL(const wchar_t* pPath,
                 initPar.Implementation = impl | implInterface;
                 initPar.Version        = version;
                 mfxRes =
-                    (*(mfxStatus(MFX_CDECL*)(mfxInitParam, mfxSession*))pFunc)(initPar, &session);
+                    (*(mfxStatus(MFX_CDECL *)(mfxInitParam, mfxSession *))pFunc)(initPar, &session);
             }
         }
 
@@ -267,7 +270,7 @@ mfxStatus MFX_DISP_HANDLE::UnLoadSelectedDLL(void) {
         mfxFunctionPointer pFunc;
         pFunc = callTable[tableIndex];
 
-        mfxRes = (*(mfxStatus(MFX_CDECL*)(mfxSession))pFunc)(session);
+        mfxRes = (*(mfxStatus(MFX_CDECL *)(mfxSession))pFunc)(session);
         if (MFX_ERR_NONE == mfxRes) {
             session = (mfxSession)0;
         }
@@ -295,7 +298,7 @@ MFX_DISP_HANDLE_EX::MFX_DISP_HANDLE_EX(const mfxVersion requiredVersion)
           mediaAdapterType(MFX_MEDIA_UNKNOWN) {}
 
 #if (defined(_WIN64) || defined(_WIN32)) && (MFX_VERSION >= 1031)
-static mfxStatus InitDummySession(mfxU32 adapter_n, MFXVideoSession& dummy_session) {
+static mfxStatus InitDummySession(mfxU32 adapter_n, MFXVideoSession &dummy_session) {
     mfxInitParam initPar;
     memset(&initPar, 0, sizeof(initPar));
 
@@ -327,20 +330,20 @@ static mfxStatus InitDummySession(mfxU32 adapter_n, MFXVideoSession& dummy_sessi
     return dummy_session.InitEx(initPar);
 }
 
-static inline bool is_iGPU(const mfxAdapterInfo& adapter_info) {
+static inline bool is_iGPU(const mfxAdapterInfo &adapter_info) {
     return adapter_info.Platform.MediaAdapterType == MFX_MEDIA_INTEGRATED;
 }
 
-static inline bool is_dGPU(const mfxAdapterInfo& adapter_info) {
+static inline bool is_dGPU(const mfxAdapterInfo &adapter_info) {
     return adapter_info.Platform.MediaAdapterType == MFX_MEDIA_DISCRETE;
 }
 
 // This function implies that iGPU has higher priority
-static inline mfxI32 iGPU_priority(const void* ll, const void* rr) {
-    const mfxAdapterInfo& l = *(reinterpret_cast<const mfxAdapterInfo*>(ll));
-    const mfxAdapterInfo& r = *(reinterpret_cast<const mfxAdapterInfo*>(rr));
+static inline mfxI32 iGPU_priority(const void *ll, const void *rr) {
+    const mfxAdapterInfo &l = *(reinterpret_cast<const mfxAdapterInfo *>(ll));
+    const mfxAdapterInfo &r = *(reinterpret_cast<const mfxAdapterInfo *>(rr));
 
-    if (is_iGPU(l) && is_iGPU(r) || is_dGPU(l) && is_dGPU(r))
+    if ((is_iGPU(l) && is_iGPU(r)) || (is_dGPU(l) && is_dGPU(r)))
         return 0;
 
     if (is_iGPU(l) && is_dGPU(r))
@@ -350,8 +353,8 @@ static inline mfxI32 iGPU_priority(const void* ll, const void* rr) {
     return 1;
 }
 
-static void RearrangeInPriorityOrder(const mfxComponentInfo& info,
-                                     MFX::MFXVector<mfxAdapterInfo>& vec) {
+static void RearrangeInPriorityOrder(const mfxComponentInfo &info,
+                                     MFX::MFXVector<mfxAdapterInfo> &vec) {
     (void)info;
     {
         // Move iGPU to top priority
@@ -359,9 +362,9 @@ static void RearrangeInPriorityOrder(const mfxComponentInfo& info,
     }
 }
 
-static mfxStatus PrepareAdaptersInfo(const mfxComponentInfo* info,
-                                     MFX::MFXVector<mfxAdapterInfo>& vec,
-                                     mfxAdaptersInfo& adapters) {
+static mfxStatus PrepareAdaptersInfo(const mfxComponentInfo *info,
+                                     MFX::MFXVector<mfxAdapterInfo> &vec,
+                                     mfxAdaptersInfo &adapters) {
     // No suitable adapters on system to handle user's workload
     if (vec.empty()) {
         adapters.NumActual = 0;
@@ -386,7 +389,7 @@ static mfxStatus PrepareAdaptersInfo(const mfxComponentInfo* info,
     return MFX_ERR_NONE;
 }
 
-static inline bool QueryAdapterInfo(mfxU32 adapter_n, mfxU32& VendorID, mfxU32& DeviceID) {
+static inline bool QueryAdapterInfo(mfxU32 adapter_n, mfxU32 &VendorID, mfxU32 &DeviceID) {
     MFX::DXVA2Device dxvaDevice;
 
     if (!dxvaDevice.InitDXGI1(adapter_n))
@@ -402,9 +405,9 @@ static inline mfxU32 MakeVersion(mfxU16 major, mfxU16 minor) {
     return major * 1000 + minor;
 }
 
-mfxStatus MFXQueryAdaptersDecode(mfxBitstream* bitstream,
+mfxStatus MFXQueryAdaptersDecode(mfxBitstream *bitstream,
                                  mfxU32 codec_id,
-                                 mfxAdaptersInfo* adapters) {
+                                 mfxAdaptersInfo *adapters) {
     if (!adapters || !bitstream)
         return MFX_ERR_NULL_PTR;
 
@@ -484,7 +487,7 @@ mfxStatus MFXQueryAdaptersDecode(mfxBitstream* bitstream,
     return PrepareAdaptersInfo(&input_info, obtained_info, *adapters);
 }
 
-mfxStatus MFXQueryAdapters(mfxComponentInfo* input_info, mfxAdaptersInfo* adapters) {
+mfxStatus MFXQueryAdapters(mfxComponentInfo *input_info, mfxAdaptersInfo *adapters) {
     if (!adapters)
         return MFX_ERR_NULL_PTR;
 
@@ -575,7 +578,7 @@ mfxStatus MFXQueryAdapters(mfxComponentInfo* input_info, mfxAdaptersInfo* adapte
     return PrepareAdaptersInfo(input_info, obtained_info, *adapters);
 }
 
-mfxStatus MFXQueryAdaptersNumber(mfxU32* num_adapters) {
+mfxStatus MFXQueryAdaptersNumber(mfxU32 *num_adapters) {
     if (!num_adapters)
         return MFX_ERR_NULL_PTR;
 

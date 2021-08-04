@@ -144,7 +144,7 @@ struct sMctfRunTimeParams {
     std::vector<sMctfRunTimeParam> RunTimeParams;
     // returns rt-param corresponding to CurIdx or NULL if
     // CurIdx is behind available info
-    const sMctfRunTimeParam *GetCurParam();
+    const sMctfRunTimeParam* GetCurParam();
     // move CurIdx forward
     void MoveForward();
     // set CurIdx to the begining; restart indexing;
@@ -174,6 +174,7 @@ enum MemoryModel {
 };
 
 struct __sInputParams {
+    __sInputParams();
     mfxU32 TargetID    = 0;
     bool CascadeScaler = false;
     bool EnableTracing = false;
@@ -280,7 +281,7 @@ struct __sInputParams {
     mfxU32 nFPS; // limit transcoding to the number of frames per second
 
     mfxU32 statisticsWindowSize;
-    FILE *statisticsLogFile;
+    FILE* statisticsLogFile;
 
     bool bLABRC; // use look ahead bitrate control algorithm
     mfxU16 nLADepth; // depth of the look ahead bitrate control  algorithm
@@ -315,7 +316,7 @@ struct __sInputParams {
     mfxU32 DecoderFourCC;
     mfxU32 EncoderFourCC;
 
-    sVppCompDstRect *pVppCompDstRects;
+    sVppCompDstRect* pVppCompDstRects;
 
     bool bForceSysMem;
     mfxU16 DecOutPattern;
@@ -364,7 +365,7 @@ struct __sInputParams {
     mfxI32 libvaBackend;
 #endif // defined(MFX_LIBVA_SUPPORT)
 
-    CHWDevice *m_hwdev;
+    CHWDevice* m_hwdev;
 
     EPresetModes PresetMode;
     bool shouldPrintPresets;
@@ -420,13 +421,13 @@ public:
     void BeginEvent(const ThreadType thType,
                     const mfxU32 thID,
                     const EventName name,
-                    const void *inID,
-                    const void *outID);
+                    const void* inID,
+                    const void* outID);
     void EndEvent(const ThreadType thType,
                   const mfxU32 thID,
                   const EventName name,
-                  const void *inID,
-                  const void *outID);
+                  const void* inID,
+                  const void* outID);
     void AddCounterEvent(const ThreadType thType,
                          const mfxU32 thID,
                          const EventName name,
@@ -438,8 +439,8 @@ private:
                   const ThreadType thType,
                   const mfxU32 thID,
                   const EventName name,
-                  const void *inID,
-                  const void *outID);
+                  const void* inID,
+                  const void* outID);
     mfxU64 GetCurrentTS();
 
     //log generation functions
@@ -448,22 +449,22 @@ private:
     void AddFlowEvents();
     void AddFlowEvent(const Event a, const Event b);
 
-    void WriteEvent(const Event ev);
-    void WriteDurationEvent(const Event ev);
-    void WriteFlowEvent(const Event ev);
-    void WriteCounterEvent(const Event ev);
+    void WriteEvent(const Event ev, std::ofstream& TraceFile);
+    void WriteDurationEvent(const Event ev, std::ofstream& TraceFile);
+    void WriteFlowEvent(const Event ev, std::ofstream& TraceFile);
+    void WriteCounterEvent(const Event ev, std::ofstream& TraceFile);
 
-    void WriteEventPID();
-    void WriteEventTID(const Event ev);
-    void WriteEventTS(const Event ev);
-    void WriteEventPhase(const Event ev);
-    void WriteEventName(const Event ev);
-    void WriteBindingPoint(const Event ev);
-    void WriteEventInOutIDs(const Event ev);
-    void WriteEventCounter(const Event ev);
-    void WriteEventCategory();
-    void WriteEvID(const Event ev);
-    void WriteComma();
+    void WriteEventPID(std::ofstream& TraceFile);
+    void WriteEventTID(const Event ev, std::ofstream& TraceFile);
+    void WriteEventTS(const Event ev, std::ofstream& TraceFile);
+    void WriteEventPhase(const Event ev, std::ofstream& TraceFile);
+    void WriteEventName(const Event ev, std::ofstream& TraceFile);
+    void WriteBindingPoint(const Event ev, std::ofstream& TraceFile);
+    void WriteEventInOutIDs(const Event ev, std::ofstream& TraceFile);
+    void WriteEventCounter(const Event ev, std::ofstream& TraceFile);
+    void WriteEventCategory(std::ofstream& TraceFile);
+    void WriteEvID(const Event ev, std::ofstream& TraceFile);
+    void WriteComma(std::ofstream& TraceFile);
 
     const static mfxU32 TraceBufferSizeInMBytes = 7;
 
@@ -473,7 +474,6 @@ private:
     std::vector<Event> AddonLog;
     std::chrono::steady_clock::time_point TimeBase;
     std::mutex TracerFileMutex;
-    std::ofstream TraceFile;
 };
 
 static const mfxU32 DecoderTargetID = 100;
@@ -525,7 +525,7 @@ public:
     std::map<mfxU32, sInputParams>
         InParams; //key is target ID, copy of par file for cascade VPP initialization
 
-    SMTTracer *Tracer = nullptr;
+    SMTTracer* Tracer = nullptr;
 };
 
 struct PreEncAuxBuffer {
@@ -536,11 +536,11 @@ struct PreEncAuxBuffer {
 };
 
 struct ExtendedSurface {
-    mfxU32 TargetID = 0;
-
-    mfxFrameSurface1 *pSurface;
-    PreEncAuxBuffer *pAuxCtrl;
-    mfxEncodeCtrl *pEncCtrl;
+    ExtendedSurface();
+    mfxU32 TargetID;
+    mfxFrameSurface1* pSurface;
+    PreEncAuxBuffer* pAuxCtrl;
+    mfxEncodeCtrl* pEncCtrl;
     mfxSyncPoint Syncp;
 };
 
@@ -548,7 +548,7 @@ struct ExtendedBS {
     bool IsFree = true;
     mfxBitstreamWrapper Bitstream;
     mfxSyncPoint Syncp     = nullptr;
-    PreEncAuxBuffer *pCtrl = nullptr;
+    PreEncAuxBuffer* pCtrl = nullptr;
 };
 
 class CIOStat : public CTimeStatistics {
@@ -558,18 +558,18 @@ public:
         DumpLogFileName.clear();
     }
 
-    CIOStat(const msdk_char *dir) : CTimeStatistics(), ofile(stdout) {
+    CIOStat(const msdk_char* dir) : CTimeStatistics(), ofile(stdout) {
         msdk_strncopy_s(bufDir, MAX_PREF_LEN, dir, MAX_PREF_LEN - 1);
         bufDir[MAX_PREF_LEN - 1] = 0;
     }
 
     ~CIOStat() {}
 
-    inline void SetOutputFile(FILE *file) {
+    inline void SetOutputFile(FILE* file) {
         ofile = file;
     }
 
-    inline void SetDumpName(const msdk_char *name) {
+    inline void SetDumpName(const msdk_char* name) {
         DumpLogFileName = name;
         if (!DumpLogFileName.empty()) {
             TurnOnDumping();
@@ -579,7 +579,7 @@ public:
         }
     }
 
-    inline void SetDirection(const msdk_char *dir) {
+    inline void SetDirection(const msdk_char* dir) {
         if (dir) {
             msdk_strncopy_s(bufDir, MAX_PREF_LEN, dir, MAX_PREF_LEN - 1);
             bufDir[MAX_PREF_LEN - 1] = 0;
@@ -613,12 +613,13 @@ public:
         }
     }
 
-    inline void DumpDeltas(msdk_char *file_name) {
+    inline void DumpDeltas(msdk_char* file_name) {
         if (m_time_deltas.empty())
             return;
 
-        FILE *dump_file = NULL;
-        if (!MSDK_FOPEN(dump_file, file_name, MSDK_STRING("a"))) {
+        FILE* dump_file = NULL;
+        MSDK_FOPEN(dump_file, file_name, MSDK_STRING("a"));
+        if (dump_file) {
             for (std::vector<mfxF64>::const_iterator it = m_time_deltas.begin();
                  it != m_time_deltas.end();
                  ++it) {
@@ -633,7 +634,7 @@ public:
 
 protected:
     msdk_tstring DumpLogFileName;
-    FILE *ofile;
+    FILE* ofile;
     msdk_char bufDir[MAX_PREF_LEN];
 };
 
@@ -645,7 +646,7 @@ public:
     virtual ~ExtendedBSStore() {
         m_pExtBS.clear();
     }
-    ExtendedBS *GetNext() {
+    ExtendedBS* GetNext() {
         for (mfxU32 i = 0; i < m_pExtBS.size(); i++) {
             if (m_pExtBS[i].IsFree) {
                 m_pExtBS[i].IsFree = false;
@@ -654,7 +655,7 @@ public:
         }
         return NULL;
     }
-    void Release(ExtendedBS *pBS) {
+    void Release(ExtendedBS* pBS) {
         for (mfxU32 i = 0; i < m_pExtBS.size(); i++) {
             if (&m_pExtBS[i] == pBS) {
                 m_pExtBS[i].IsFree = true;
@@ -693,30 +694,31 @@ public:
     mfxU32 TargetID = 0;
 
     struct SurfaceDescriptor {
+        SurfaceDescriptor() : ExtSurface(), Locked(false) {}
         ExtendedSurface ExtSurface;
         mfxU32 Locked;
     };
 
-    SafetySurfaceBuffer(SafetySurfaceBuffer *pNext);
+    SafetySurfaceBuffer(SafetySurfaceBuffer* pNext);
     virtual ~SafetySurfaceBuffer();
 
     mfxU32 GetLength();
     mfxStatus WaitForSurfaceRelease(mfxU32 msec);
     mfxStatus WaitForSurfaceInsertion(mfxU32 msec);
     void AddSurface(ExtendedSurface Surf);
-    mfxStatus GetSurface(ExtendedSurface &Surf);
-    mfxStatus ReleaseSurface(mfxFrameSurface1 *pSurf);
+    mfxStatus GetSurface(ExtendedSurface& Surf);
+    mfxStatus ReleaseSurface(mfxFrameSurface1* pSurf);
     mfxStatus ReleaseSurfaceAll();
     void CancelBuffering();
 
-    SafetySurfaceBuffer *m_pNext;
+    SafetySurfaceBuffer* m_pNext;
 
 protected:
     std::mutex m_mutex;
     std::list<SurfaceDescriptor> m_SList;
     bool m_IsBufferingAllowed;
-    MSDKEvent *pRelEvent;
-    MSDKEvent *pInsEvent;
+    MSDKEvent* pRelEvent;
+    MSDKEvent* pInsEvent;
 
 private:
     DISALLOW_COPY_AND_ASSIGN(SafetySurfaceBuffer);
@@ -726,12 +728,12 @@ class FileBitstreamProcessor {
 public:
     FileBitstreamProcessor();
     virtual ~FileBitstreamProcessor();
-    virtual mfxStatus SetReader(std::unique_ptr<CSmplBitstreamReader> &reader);
-    virtual mfxStatus SetReader(std::unique_ptr<CSmplYUVReader> &reader);
-    virtual mfxStatus SetWriter(std::unique_ptr<CSmplBitstreamWriter> &writer);
-    virtual mfxStatus GetInputBitstream(mfxBitstreamWrapper **pBitstream);
-    virtual mfxStatus GetInputFrame(mfxFrameSurface1 *pSurface);
-    virtual mfxStatus ProcessOutputBitstream(mfxBitstreamWrapper *pBitstream);
+    virtual mfxStatus SetReader(std::unique_ptr<CSmplBitstreamReader>& reader);
+    virtual mfxStatus SetReader(std::unique_ptr<CSmplYUVReader>& reader);
+    virtual mfxStatus SetWriter(std::unique_ptr<CSmplBitstreamWriter>& writer);
+    virtual mfxStatus GetInputBitstream(mfxBitstreamWrapper** pBitstream);
+    virtual mfxStatus GetInputFrame(mfxFrameSurface1* pSurface);
+    virtual mfxStatus ProcessOutputBitstream(mfxBitstreamWrapper* pBitstream);
     virtual mfxStatus ResetInput();
     virtual mfxStatus ResetOutput();
 
@@ -752,20 +754,20 @@ public:
     CTranscodingPipeline();
     virtual ~CTranscodingPipeline();
 
-    virtual mfxStatus Init(sInputParams *pParams,
-                           MFXFrameAllocator *pMFXAllocator,
-                           void *hdl,
-                           CTranscodingPipeline *pParentPipeline,
-                           SafetySurfaceBuffer *pBuffer,
-                           FileBitstreamProcessor *pBSProc,
-                           VPLImplementationLoader *mfxLoader,
-                           CascadeScalerConfig &CSConfig);
+    virtual mfxStatus Init(sInputParams* pParams,
+                           MFXFrameAllocator* pMFXAllocator,
+                           void* hdl,
+                           CTranscodingPipeline* pParentPipeline,
+                           SafetySurfaceBuffer* pBuffer,
+                           FileBitstreamProcessor* pBSProc,
+                           VPLImplementationLoader* mfxLoader,
+                           CascadeScalerConfig& CSConfig);
 
     // frames allocation is suspended for heterogeneous pipeline
     virtual mfxStatus CompleteInit();
     virtual void Close();
-    virtual mfxStatus Reset(VPLImplementationLoader *mfxLoader);
-    virtual mfxStatus Join(MFXVideoSession *pChildSession);
+    virtual mfxStatus Reset(VPLImplementationLoader* mfxLoader);
+    virtual mfxStatus Join(MFXVideoSession* pChildSession);
     virtual mfxStatus Run();
     virtual mfxStatus FlushLastFrames() {
         return MFX_ERR_NONE;
@@ -779,7 +781,7 @@ public:
         return m_bIsJoinSession;
     }
 
-    mfxStatus QueryMFXVersion(mfxVersion *version) {
+    mfxStatus QueryMFXVersion(mfxVersion* version) {
         MSDK_CHECK_POINTER(m_pmfxSession.get(), MFX_ERR_NULL_PTR);
         return m_pmfxSession->QueryVersion(version);
     };
@@ -805,7 +807,7 @@ public:
         bPrefferiGfx = prefferiGfx;
     };
     void SetPrefferdGfx(mfxU32 dGfxIdx = 0) {
-        dGfxIdx = dGfxIdx;
+        this->dGfxIdx = dGfxIdx;
     };
 
     bool IsPrefferiGfx() const {
@@ -819,41 +821,41 @@ public:
     };
 #endif
 protected:
-    virtual mfxStatus CheckRequiredAPIVersion(mfxVersion &version, sInputParams *pParams);
+    virtual mfxStatus CheckRequiredAPIVersion(mfxVersion& version, sInputParams* pParams);
 
     virtual mfxStatus Decode();
     virtual mfxStatus Encode();
     virtual mfxStatus Transcode();
-    virtual mfxStatus DecodeOneFrame(ExtendedSurface *pExtSurface);
-    virtual mfxStatus DecodeLastFrame(ExtendedSurface *pExtSurface);
-    virtual mfxStatus VPPOneFrame(ExtendedSurface *pSurfaceIn,
-                                  ExtendedSurface *pExtSurface,
+    virtual mfxStatus DecodeOneFrame(ExtendedSurface* pExtSurface);
+    virtual mfxStatus DecodeLastFrame(ExtendedSurface* pExtSurface);
+    virtual mfxStatus VPPOneFrame(ExtendedSurface* pSurfaceIn,
+                                  ExtendedSurface* pExtSurface,
                                   mfxU32 ID = 0);
-    virtual mfxStatus EncodeOneFrame(ExtendedSurface *pExtSurface, mfxBitstreamWrapper *pBS);
+    virtual mfxStatus EncodeOneFrame(ExtendedSurface* pExtSurface, mfxBitstreamWrapper* pBS);
 #if !defined(MFX_ONEVPL)
-    virtual mfxStatus PreEncOneFrame(ExtendedSurface *pInSurface, ExtendedSurface *pOutSurface);
+    virtual mfxStatus PreEncOneFrame(ExtendedSurface* pInSurface, ExtendedSurface* pOutSurface);
 #endif
-    virtual mfxStatus DecodePreInit(sInputParams *pParams);
-    virtual mfxStatus VPPPreInit(sInputParams *pParams);
-    virtual mfxStatus EncodePreInit(sInputParams *pParams);
+    virtual mfxStatus DecodePreInit(sInputParams* pParams);
+    virtual mfxStatus VPPPreInit(sInputParams* pParams);
+    virtual mfxStatus EncodePreInit(sInputParams* pParams);
 #if !defined(MFX_ONEVPL)
-    virtual mfxStatus PreEncPreInit(sInputParams *pParams);
+    virtual mfxStatus PreEncPreInit(sInputParams* pParams);
 #endif
     mfxVideoParam GetDecodeParam(mfxU32 ID = 0);
 
 #if !defined(MFX_ONEVPL)
     mfxExtMVCSeqDesc GetDecMVCSeqDesc() {
-        mfxExtMVCSeqDesc *mvc = m_mfxDecParams;
+        mfxExtMVCSeqDesc* mvc = m_mfxDecParams;
         return mvc ? *mvc : mfxExtMVCSeqDesc();
     }
 #endif
-    static void ModifyParamsUsingPresets(sInputParams &params,
+    static void ModifyParamsUsingPresets(sInputParams& params,
                                          mfxF64 fps,
                                          mfxU32 width,
                                          mfxU32 height);
 
     // alloc frames for all component
-    mfxStatus AllocFrames(mfxFrameAllocRequest *pRequest, bool isDecAlloc);
+    mfxStatus AllocFrames(mfxFrameAllocRequest* pRequest, bool isDecAlloc);
     mfxStatus AllocFramesForCS();
     mfxStatus AllocFrames();
 
@@ -864,61 +866,61 @@ protected:
 #endif //!MFX_ONEVPL
 
     // need for heterogeneous pipeline
-    mfxStatus CalculateNumberOfReqFrames(mfxFrameAllocRequest &pRequestDecOut,
-                                         mfxFrameAllocRequest &pRequestVPPOut);
-    void CorrectNumberOfAllocatedFrames(mfxFrameAllocRequest *pNewReq, mfxU32 ID = 0);
+    mfxStatus CalculateNumberOfReqFrames(mfxFrameAllocRequest& pRequestDecOut,
+                                         mfxFrameAllocRequest& pRequestVPPOut);
+    void CorrectNumberOfAllocatedFrames(mfxFrameAllocRequest* pNewReq, mfxU32 ID = 0);
     void FreeFrames();
 
     mfxStatus LoadStaticSurface();
 
-    mfxFrameSurface1 *GetFreeSurface(bool isDec, mfxU64 timeout);
-    mfxFrameSurface1 *GetFreeSurfaceForCS(bool isDec, mfxU64 timeout, mfxU32 ID);
+    mfxFrameSurface1* GetFreeSurface(bool isDec, mfxU64 timeout);
+    mfxFrameSurface1* GetFreeSurfaceForCS(bool isDec, mfxU64 timeout, mfxU32 ID);
     mfxU32 GetFreeSurfacesCount(bool isDec);
-    PreEncAuxBuffer *GetFreePreEncAuxBuffer();
-    void SetEncCtrlRT(ExtendedSurface &extSurface, bool bInsertIDR);
+    PreEncAuxBuffer* GetFreePreEncAuxBuffer();
+    void SetEncCtrlRT(ExtendedSurface& extSurface, bool bInsertIDR);
 
     // parameters configuration functions
-    mfxStatus InitDecMfxParams(sInputParams *pInParams);
-    mfxStatus InitVppMfxParams(MfxVideoParamsWrapper &par, sInputParams *pInParams, mfxU32 ID = 0);
-    virtual mfxStatus InitEncMfxParams(sInputParams *pInParams);
-    mfxStatus InitPluginMfxParams(sInputParams *pInParams);
+    mfxStatus InitDecMfxParams(sInputParams* pInParams);
+    mfxStatus InitVppMfxParams(MfxVideoParamsWrapper& par, sInputParams* pInParams, mfxU32 ID = 0);
+    virtual mfxStatus InitEncMfxParams(sInputParams* pInParams);
+    mfxStatus InitPluginMfxParams(sInputParams* pInParams);
 #if !defined(MFX_ONEVPL)
-    mfxStatus InitPreEncMfxParams(sInputParams *pInParams);
+    mfxStatus InitPreEncMfxParams(sInputParams* pInParams);
 #endif
     virtual mfxU32 FileFourCC2EncFourCC(mfxU32 fcc);
-    void FillFrameInfoForEncoding(mfxFrameInfo &info, sInputParams *pInParams);
+    void FillFrameInfoForEncoding(mfxFrameInfo& info, sInputParams* pInParams);
 
-    mfxStatus AllocAndInitVppDoNotUse(MfxVideoParamsWrapper &par, sInputParams *pInParams);
+    mfxStatus AllocAndInitVppDoNotUse(MfxVideoParamsWrapper& par, sInputParams* pInParams);
     mfxStatus AllocMVCSeqDesc();
 
     void FreeVppDoNotUse();
     void FreeMVCSeqDesc();
 
-    mfxStatus AllocateSufficientBuffer(mfxBitstreamWrapper *pBS);
+    mfxStatus AllocateSufficientBuffer(mfxBitstreamWrapper* pBS);
     mfxStatus PutBS();
 
-    mfxStatus DumpSurface2File(mfxFrameSurface1 *pSurface);
-    mfxStatus Surface2BS(ExtendedSurface *pSurf, mfxBitstreamWrapper *pBS, mfxU32 fourCC);
-    mfxStatus NV12toBS(mfxFrameSurface1 *pSurface, mfxBitstreamWrapper *pBS);
-    mfxStatus NV12asI420toBS(mfxFrameSurface1 *pSurface, mfxBitstreamWrapper *pBS);
-    mfxStatus RGB4toBS(mfxFrameSurface1 *pSurface, mfxBitstreamWrapper *pBS);
-    mfxStatus YUY2toBS(mfxFrameSurface1 *pSurface, mfxBitstreamWrapper *pBS);
+    mfxStatus DumpSurface2File(mfxFrameSurface1* pSurface);
+    mfxStatus Surface2BS(ExtendedSurface* pSurf, mfxBitstreamWrapper* pBS, mfxU32 fourCC);
+    mfxStatus NV12toBS(mfxFrameSurface1* pSurface, mfxBitstreamWrapper* pBS);
+    mfxStatus NV12asI420toBS(mfxFrameSurface1* pSurface, mfxBitstreamWrapper* pBS);
+    mfxStatus RGB4toBS(mfxFrameSurface1* pSurface, mfxBitstreamWrapper* pBS);
+    mfxStatus YUY2toBS(mfxFrameSurface1* pSurface, mfxBitstreamWrapper* pBS);
 
     void NoMoreFramesSignal();
     mfxStatus AddLaStreams(mfxU16 width, mfxU16 height);
 
-    void LockPreEncAuxBuffer(PreEncAuxBuffer *pBuff);
-    void UnPreEncAuxBuffer(PreEncAuxBuffer *pBuff);
+    void LockPreEncAuxBuffer(PreEncAuxBuffer* pBuff);
+    void UnPreEncAuxBuffer(PreEncAuxBuffer* pBuff);
 
     mfxU32 GetNumFramesForReset();
     void SetNumFramesForReset(mfxU32 nFrames);
 
-    void HandlePossibleGpuHang(mfxStatus &sts);
+    void HandlePossibleGpuHang(mfxStatus& sts);
 
     mfxStatus SetAllocatorAndHandleIfRequired();
     mfxStatus LoadGenericPlugin();
 
-    mfxBitstreamWrapper *m_pmfxBS; // contains encoded input data
+    mfxBitstreamWrapper* m_pmfxBS; // contains encoded input data
 
     mfxVersion m_Version; // real API version with which library is initialized
 
@@ -945,8 +947,8 @@ protected:
     mfxFrameAllocResponse m_mfxDecResponse; // memory allocation response for decoder
     mfxFrameAllocResponse m_mfxEncResponse; // memory allocation response for encoder
 
-    MFXFrameAllocator *m_pMFXAllocator;
-    void *m_hdl; // Diret3D device manager
+    MFXFrameAllocator* m_pMFXAllocator;
+    void* m_hdl; // Diret3D device manager
     bool m_bIsInterOrJoined;
 
     mfxU32 m_numEncoders;
@@ -956,12 +958,12 @@ protected:
     mfxU32 m_vppCompDumpRenderMode;
 
 #if defined(_WIN32) || defined(_WIN64)
-    CDecodeD3DRender *m_hwdev4Rendering;
+    CDecodeD3DRender* m_hwdev4Rendering;
 #else
-    CHWDevice *m_hwdev4Rendering;
+    CHWDevice* m_hwdev4Rendering;
 #endif
 
-    typedef std::vector<mfxFrameSurface1 *> SurfPointersArray;
+    typedef std::vector<mfxFrameSurface1*> SurfPointersArray;
     SurfPointersArray m_pSurfaceDecPool;
     SurfPointersArray m_pSurfaceEncPool;
     std::map<mfxU32, SurfPointersArray> m_CSSurfacePools;
@@ -973,7 +975,7 @@ protected:
     PreEncAuxArray m_pPreEncAuxPool;
 
     // transcoding pipeline specific
-    typedef std::list<ExtendedBS *> BSList;
+    typedef std::list<ExtendedBS*> BSList;
     BSList m_BSPool;
 
     mfxInitParamlWrap m_initPar;
@@ -1025,8 +1027,8 @@ protected:
 
     mfxSyncPoint m_LastDecSyncPoint;
 
-    SafetySurfaceBuffer *m_pBuffer;
-    CTranscodingPipeline *m_pParentPipeline;
+    SafetySurfaceBuffer* m_pBuffer;
+    CTranscodingPipeline* m_pParentPipeline;
 
     mfxFrameAllocRequest m_Request;
     bool m_bIsInit;
@@ -1049,7 +1051,7 @@ protected:
     mfxU32 m_MaxFramesForTranscode;
 
     // pointer to already extended bs processor
-    FileBitstreamProcessor *m_pBSProcessor;
+    FileBitstreamProcessor* m_pBSProcessor;
 
     msdk_tick m_nReqFrameTime; // time required to transcode one frame
 
@@ -1069,10 +1071,10 @@ protected:
     // ROI with MBQP map data
     bool m_bUseQPMap;
 
-    std::map<void *, mfxExtMBQP> m_bufExtMBQP;
-    std::map<void *, std::vector<mfxU8>> m_qpMapStorage;
-    std::map<void *, std::vector<mfxExtBuffer *>> m_extBuffPtrStorage;
-    std::map<void *, mfxEncodeCtrl> encControlStorage;
+    std::map<void*, mfxExtMBQP> m_bufExtMBQP;
+    std::map<void*, std::vector<mfxU8>> m_qpMapStorage;
+    std::map<void*, std::vector<mfxExtBuffer*>> m_extBuffPtrStorage;
+    std::map<void*, mfxEncodeCtrl> encControlStorage;
 
     mfxU32 m_QPmapWidth;
     mfxU32 m_QPmapHeight;
@@ -1085,7 +1087,7 @@ protected:
 
     msdk_string m_strMfxParamsDumpFile;
 
-    void FillMBQPBuffer(mfxExtMBQP &qpMap, mfxU16 pictStruct);
+    void FillMBQPBuffer(mfxExtMBQP& qpMap, mfxU16 pictStruct);
 #endif //MFX_VERSION >= 1022
 
 #ifdef ENABLE_MCTF
@@ -1109,7 +1111,7 @@ struct ThreadTranscodeContext {
     // Pointer to the session's pipeline
     std::unique_ptr<CTranscodingPipeline> pPipeline;
     // Pointer to bitstream handling object
-    FileBitstreamProcessor *pBSProcessor = nullptr;
+    FileBitstreamProcessor* pBSProcessor = nullptr;
     // Session implementation type
     mfxIMPL implType = MFX_IMPL_AUTO;
 

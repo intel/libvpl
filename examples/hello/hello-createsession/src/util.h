@@ -173,7 +173,7 @@ bool ParseArgsAndValidate(int argc, char *argv[], Params *params, ParamGroup gro
     return true;
 }
 
-void *InitAcceleratorHandle(mfxSession session) {
+void *InitAcceleratorHandle(mfxSession session, int *fd) {
     mfxIMPL impl;
     mfxStatus sts = MFXQueryIMPL(session, &impl);
     if (sts != MFX_ERR_NONE)
@@ -181,12 +181,13 @@ void *InitAcceleratorHandle(mfxSession session) {
 
 #ifdef LIBVA_SUPPORT
     if ((impl & MFX_IMPL_VIA_VAAPI) == MFX_IMPL_VIA_VAAPI) {
+        if (!fd)
+            return NULL;
         VADisplay va_dpy = NULL;
-        int fd;
         // initialize VAAPI context and set session handle (req in Linux)
-        fd = open("/dev/dri/renderD128", O_RDWR);
-        if (fd >= 0) {
-            va_dpy = vaGetDisplayDRM(fd);
+        *fd = open("/dev/dri/renderD128", O_RDWR);
+        if (*fd >= 0) {
+            va_dpy = vaGetDisplayDRM(*fd);
             if (va_dpy) {
                 int major_version = 0, minor_version = 0;
                 if (VA_STATUS_SUCCESS == vaInitialize(va_dpy, &major_version, &minor_version)) {
@@ -203,9 +204,10 @@ void *InitAcceleratorHandle(mfxSession session) {
     return NULL;
 }
 
-void FreeAcceleratorHandle(void *accelHandle) {
+void FreeAcceleratorHandle(void *accelHandle, int fd) {
 #ifdef LIBVA_SUPPORT
     vaTerminate((VADisplay)accelHandle);
+    close(fd);
 #endif
 }
 

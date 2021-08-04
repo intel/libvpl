@@ -9,6 +9,9 @@
 //
 // implement a table with functions names
 //
+#ifdef __GNUC__
+    #pragma GCC diagnostic ignored "-Wunused-function"
+#endif
 
 #undef FUNCTION
 #define FUNCTION(return_value, func_name, formal_param_list, actual_param_list) \

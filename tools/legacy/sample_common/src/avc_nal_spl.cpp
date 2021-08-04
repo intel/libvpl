@@ -35,7 +35,7 @@ inline bool IsVLCCode(mfxI32 iCode) {
            (NAL_UT_AUXILIARY == (iCode & AVC_NAL_UNITTYPE_BITS_MASK));
 }
 
-static mfxI32 FindStartCode(mfxU8 *(&pb), mfxU32 &nSize) {
+static mfxI32 FindStartCode(mfxU8*(&pb), mfxU32& nSize) {
     // there is no data
     if (nSize < 4)
         return 0;
@@ -52,7 +52,7 @@ static mfxI32 FindStartCode(mfxU8 *(&pb), mfxU32 &nSize) {
     return 0;
 }
 
-mfxStatus MoveBitstream(mfxBitstream *source, mfxI32 moveSize) {
+mfxStatus MoveBitstream(mfxBitstream* source, mfxI32 moveSize) {
     if (!source)
         return MFX_ERR_NULL_PTR;
 
@@ -85,7 +85,7 @@ void StartCodeIterator::Reset() {
     m_prev.clear();
 }
 
-mfxI32 StartCodeIterator::Init(mfxBitstream *source) {
+mfxI32 StartCodeIterator::Init(mfxBitstream* source) {
     Reset();
 
     m_pSourceBase = m_pSource = source->Data + source->DataOffset;
@@ -100,14 +100,14 @@ void StartCodeIterator::SetSuggestedSize(mfxU32 size) {
         m_suggestedSize = size;
 }
 
-mfxI32 StartCodeIterator::CheckNalUnitType(mfxBitstream *source) {
+mfxI32 StartCodeIterator::CheckNalUnitType(mfxBitstream* source) {
     if (!source)
         return 0;
 
     if (!m_code)
         m_prev.clear();
 
-    mfxU8 *src  = source->Data + source->DataOffset;
+    mfxU8* src  = source->Data + source->DataOffset;
     mfxU32 size = source->DataLength;
 
     mfxI32 startCodeSize;
@@ -115,14 +115,14 @@ mfxI32 StartCodeIterator::CheckNalUnitType(mfxBitstream *source) {
     return iCodeNext;
 }
 
-mfxI32 StartCodeIterator::GetNALUnit(mfxBitstream *src, mfxBitstream *dst) {
+mfxI32 StartCodeIterator::GetNALUnit(mfxBitstream* src, mfxBitstream* dst) {
     if (!src)
         return EndOfStream(dst);
 
     if (!m_code)
         m_prev.clear();
 
-    mfxU8 *source = src->Data + src->DataOffset;
+    mfxU8* source = src->Data + src->DataOffset;
     mfxU32 size   = src->DataLength;
 
     if (!size)
@@ -213,7 +213,7 @@ mfxI32 StartCodeIterator::GetNALUnit(mfxBitstream *src, mfxBitstream *dst) {
     return code;
 }
 
-mfxI32 StartCodeIterator::EndOfStream(mfxBitstream *dst) {
+mfxI32 StartCodeIterator::EndOfStream(mfxBitstream* dst) {
     if (!m_code) {
         m_prev.clear();
         return 0;
@@ -234,7 +234,7 @@ mfxI32 StartCodeIterator::EndOfStream(mfxBitstream *dst) {
     return 0;
 }
 
-mfxI32 StartCodeIterator::FindStartCode(mfxU8 *(&pb), mfxU32 &data_size, mfxI32 &startCodeSize) {
+mfxI32 StartCodeIterator::FindStartCode(mfxU8*(&pb), mfxU32& data_size, mfxI32& startCodeSize) {
     mfxU32 zeroCount = 0;
 
     for (mfxU32 i = 0; i < (mfxU32)data_size; i++, pb++) {
@@ -274,9 +274,9 @@ mfxI32 StartCodeIterator::FindStartCode(mfxU8 *(&pb), mfxU32 &data_size, mfxI32 
     return 0;
 }
 
-void BytesSwapper::SwapMemory(mfxU8 *pDestination,
-                              mfxU32 &nDstSize,
-                              mfxU8 *pSource,
+void BytesSwapper::SwapMemory(mfxU8* pDestination,
+                              mfxU32& nDstSize,
+                              mfxU8* pSource,
                               mfxU32 nSrcSize) {
     SwapMemoryAndRemovePreventingBytes(pDestination, nDstSize, pSource, nSrcSize);
 }
@@ -299,11 +299,11 @@ void NALUnitSplitter::Reset() {
 
 void NALUnitSplitter::Release() {}
 
-mfxI32 NALUnitSplitter::CheckNalUnitType(mfxBitstream *source) {
+mfxI32 NALUnitSplitter::CheckNalUnitType(mfxBitstream* source) {
     return m_pStartCodeIter.CheckNalUnitType(source);
 }
 
-mfxI32 NALUnitSplitter::GetNalUnits(mfxBitstream *source, mfxBitstream *&destination) {
+mfxI32 NALUnitSplitter::GetNalUnits(mfxBitstream* source, mfxBitstream*& destination) {
     mfxI32 iCode = m_pStartCodeIter.GetNALUnit(source, &m_bitstream);
 
     if (iCode == 0) {
@@ -325,8 +325,8 @@ public:
         m_iCur     = 0;
     }
 
-    H264DwordPointer_ operator=(void *pDest) {
-        m_pDest    = (mfxU32 *)pDest;
+    H264DwordPointer_ operator=(void* pDest) {
+        m_pDest    = (mfxU32*)pDest;
         m_nByteNum = 0;
         m_iCur     = 0;
 
@@ -334,7 +334,7 @@ public:
     }
 
     // Increment operator
-    H264DwordPointer_ &operator++(void) {
+    H264DwordPointer_& operator++(void) {
         if (4 == ++m_nByteNum) {
             *m_pDest = m_iCur;
             m_pDest += 1;
@@ -354,7 +354,7 @@ public:
     }
 
 protected:
-    mfxU32 *m_pDest; // pointer to destination buffer
+    mfxU32* m_pDest; // pointer to destination buffer
     mfxU32 m_nByteNum; // number of current byte in dword
     mfxU32 m_iCur; // current dword
 };
@@ -368,8 +368,8 @@ public:
         m_nZeros        = 0;
     }
 
-    H264SourcePointer_ &operator=(mfxU8 *pSource) {
-        m_pSource = (mfxU8 *)pSource;
+    H264SourcePointer_& operator=(mfxU8* pSource) {
+        m_pSource = (mfxU8*)pSource;
 
         m_nZeros        = 0;
         m_nRemovedBytes = 0;
@@ -377,7 +377,7 @@ public:
         return *this;
     }
 
-    H264SourcePointer_ &operator++(void) {
+    H264SourcePointer_& operator++(void) {
         mfxU8 bCurByte = m_pSource[0];
 
         if (0 == bCurByte)
@@ -409,14 +409,14 @@ public:
     }
 
 protected:
-    mfxU8 *m_pSource; // pointer to destination buffer
+    mfxU8* m_pSource; // pointer to destination buffer
     mfxU32 m_nZeros; // number of preceding zeros
     mfxU32 m_nRemovedBytes; // number of removed bytes
 };
 
-void SwapMemoryAndRemovePreventingBytes(mfxU8 *pDestination,
-                                        mfxU32 &nDstSize,
-                                        mfxU8 *pSource,
+void SwapMemoryAndRemovePreventingBytes(mfxU8* pDestination,
+                                        mfxU32& nDstSize,
+                                        mfxU8* pSource,
                                         mfxU32 nSrcSize) {
     H264DwordPointer_ pDst;
     H264SourcePointer_ pSrc;

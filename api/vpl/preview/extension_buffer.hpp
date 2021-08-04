@@ -346,8 +346,8 @@ REGISTER_TRIVIAL_EXT_BUFFER(ExtPartialBitstreamParam,
                                                                                                     \
         /*! @brief Dtor. */                                                                         \
         ~className() {                                                                              \
-            delete[] buffer_.ptr;                                                                   \
             buffer_.numElems = 0;                                                                   \
+            delete[] buffer_.ptr;                                                                   \
         }                                                                                           \
         /*! @brief Copy operator. */                                                                \
         /*! @param[in] other another object to use as data source. */                               \
@@ -358,7 +358,7 @@ REGISTER_TRIVIAL_EXT_BUFFER(ExtPartialBitstreamParam,
                                                                                                     \
             if (this->buffer_.ptr)                                                                  \
                 delete[] this->buffer_.ptr;                                                         \
-            this->buffer_ = other.buffer_;                                                          \
+                this->buffer_.ptr = NULL;                                                           \
                                                                                                     \
             if (other.buffer_.numElems) {                                                           \
                 this->buffer_.numElems = other.buffer_.numElems;                                    \
@@ -369,7 +369,6 @@ REGISTER_TRIVIAL_EXT_BUFFER(ExtPartialBitstreamParam,
             }                                                                                       \
             else {                                                                                  \
                 buffer_.numElems = 0;                                                               \
-                buffer_.ptr      = NULL;                                                            \
             }                                                                                       \
                                                                                                     \
             return *this;                                                                           \

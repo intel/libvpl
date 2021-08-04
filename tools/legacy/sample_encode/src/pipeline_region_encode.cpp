@@ -29,7 +29,7 @@
         #error MFX_VERSION not defined
     #endif
 
-mfxStatus CResourcesPool::GetFreeTask(int resourceNum, sTask **ppTask) {
+mfxStatus CResourcesPool::GetFreeTask(int resourceNum, sTask** ppTask) {
     // get a pointer to a free task (bit stream and sync point for encoder)
     mfxStatus sts = m_resources[resourceNum].TaskPool.GetFreeTask(ppTask);
     if (MFX_ERR_NOT_FOUND == sts) {
@@ -46,7 +46,7 @@ mfxStatus CResourcesPool::GetFreeTask(int resourceNum, sTask **ppTask) {
     return sts;
 }
 
-mfxStatus CResourcesPool::Init(int sz, mfxIMPL impl, mfxVersion *pVer) {
+mfxStatus CResourcesPool::Init(int sz, mfxIMPL impl, mfxVersion* pVer) {
     MSDK_CHECK_NOT_EQUAL(m_resources, NULL, MFX_ERR_INVALID_HANDLE);
     this->size  = sz;
     m_resources = new CMSDKResource[sz];
@@ -57,10 +57,10 @@ mfxStatus CResourcesPool::Init(int sz, mfxIMPL impl, mfxVersion *pVer) {
     return MFX_ERR_NONE;
 }
 
-mfxStatus CResourcesPool::InitTaskPools(CSmplBitstreamWriter *pWriter,
+mfxStatus CResourcesPool::InitTaskPools(CSmplBitstreamWriter* pWriter,
                                         mfxU32 nPoolSize,
                                         mfxU32 nBufferSize,
-                                        CSmplBitstreamWriter *pOtherWriter) {
+                                        CSmplBitstreamWriter* pOtherWriter) {
     for (int i = 0; i < size; i++) {
         mfxStatus sts = m_resources[i].TaskPool.Init(&m_resources[i].Session,
                                                      pWriter,
@@ -74,16 +74,16 @@ mfxStatus CResourcesPool::InitTaskPools(CSmplBitstreamWriter *pWriter,
 
 mfxStatus CResourcesPool::CreateEncoders() {
     for (int i = 0; i < size; i++) {
-        MFXVideoENCODE *pEnc = new MFXVideoENCODE(m_resources[i].Session);
+        MFXVideoENCODE* pEnc = new MFXVideoENCODE(m_resources[i].Session);
         MSDK_CHECK_POINTER(pEnc, MFX_ERR_MEMORY_ALLOC);
         m_resources[i].pEncoder = pEnc;
     }
     return MFX_ERR_NONE;
 }
 
-mfxStatus CResourcesPool::CreatePlugins(mfxPluginUID pluginGUID, mfxChar *pluginPath) {
+mfxStatus CResourcesPool::CreatePlugins(mfxPluginUID pluginGUID, mfxChar* pluginPath) {
     for (int i = 0; i < size; i++) {
-        MFXPlugin *pPlugin =
+        MFXPlugin* pPlugin =
             pluginPath
                 ? LoadPlugin(MFX_PLUGINTYPE_VIDEO_ENCODE,
                              m_resources[i].Session,
@@ -112,7 +112,7 @@ void CResourcesPool::CloseAndDeleteEverything() {
 
 //------------------- Pipeline -----------------------------------------------------------------------------
 
-mfxStatus CRegionEncodingPipeline::InitMfxEncParams(sInputParams *pInParams) {
+mfxStatus CRegionEncodingPipeline::InitMfxEncParams(sInputParams* pInParams) {
     CEncodingPipeline::InitMfxEncParams(pInParams);
     m_mfxEncParams.mfx.TargetKbps = pInParams->nBitRate / pInParams->nNumSlice; // in Kbps
 
@@ -170,9 +170,9 @@ mfxStatus CRegionEncodingPipeline::CreateAllocator() {
             m_pMFXAllocator = new D3D11FrameAllocator;
             MSDK_CHECK_POINTER(m_pMFXAllocator, MFX_ERR_MEMORY_ALLOC);
 
-            D3D11AllocatorParams *pd3dAllocParams = new D3D11AllocatorParams;
+            D3D11AllocatorParams* pd3dAllocParams = new D3D11AllocatorParams;
             MSDK_CHECK_POINTER(pd3dAllocParams, MFX_ERR_MEMORY_ALLOC);
-            pd3dAllocParams->pDevice = reinterpret_cast<ID3D11Device *>(hdl);
+            pd3dAllocParams->pDevice = reinterpret_cast<ID3D11Device*>(hdl);
 
             m_pmfxAllocatorParams = pd3dAllocParams;
         }
@@ -182,9 +182,9 @@ mfxStatus CRegionEncodingPipeline::CreateAllocator() {
             m_pMFXAllocator = new D3DFrameAllocator;
             MSDK_CHECK_POINTER(m_pMFXAllocator, MFX_ERR_MEMORY_ALLOC);
 
-            D3DAllocatorParams *pd3dAllocParams = new D3DAllocatorParams;
+            D3DAllocatorParams* pd3dAllocParams = new D3DAllocatorParams;
             MSDK_CHECK_POINTER(pd3dAllocParams, MFX_ERR_MEMORY_ALLOC);
-            pd3dAllocParams->pManager = reinterpret_cast<IDirect3DDeviceManager9 *>(hdl);
+            pd3dAllocParams->pManager = reinterpret_cast<IDirect3DDeviceManager9*>(hdl);
 
             m_pmfxAllocatorParams = pd3dAllocParams;
         }
@@ -217,7 +217,7 @@ mfxStatus CRegionEncodingPipeline::CreateAllocator() {
             m_pMFXAllocator = new vaapiFrameAllocator;
             MSDK_CHECK_POINTER(m_pMFXAllocator, MFX_ERR_MEMORY_ALLOC);
 
-            vaapiAllocatorParams *p_vaapiAllocParams = new vaapiAllocatorParams;
+            vaapiAllocatorParams* p_vaapiAllocParams = new vaapiAllocatorParams;
             MSDK_CHECK_POINTER(p_vaapiAllocParams, MFX_ERR_MEMORY_ALLOC);
 
             p_vaapiAllocParams->m_dpy = (VADisplay)hdl;
@@ -276,7 +276,7 @@ CRegionEncodingPipeline::~CRegionEncodingPipeline() {
     Close();
 }
 
-mfxStatus CRegionEncodingPipeline::Init(sInputParams *pParams) {
+mfxStatus CRegionEncodingPipeline::Init(sInputParams* pParams) {
     MSDK_CHECK_POINTER(pParams, MFX_ERR_NULL_PTR);
 
     mfxStatus sts = MFX_ERR_NONE;
@@ -432,7 +432,7 @@ void CRegionEncodingPipeline::Close() {
     DeleteAllocator();
 }
 
-mfxStatus CRegionEncodingPipeline::ResetMFXComponents(sInputParams *pParams) {
+mfxStatus CRegionEncodingPipeline::ResetMFXComponents(sInputParams* pParams) {
     MSDK_CHECK_POINTER(pParams, MFX_ERR_NULL_PTR);
 
     mfxStatus sts = MFX_ERR_NONE;
@@ -493,9 +493,9 @@ mfxStatus CRegionEncodingPipeline::Run() {
 
     mfxStatus sts = MFX_ERR_NONE;
 
-    mfxFrameSurface1 *pSurf = NULL; // dispatching pointer
+    mfxFrameSurface1* pSurf = NULL; // dispatching pointer
 
-    sTask *pCurrentTask = NULL; // a pointer to the current task
+    sTask* pCurrentTask = NULL; // a pointer to the current task
     mfxU16 nEncSurfIdx  = 0; // index of free surface for encoder input (vpp output)
 
     // Since in sample we support just 2 views

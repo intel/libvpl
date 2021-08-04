@@ -24,7 +24,7 @@ int m_q[5], m_first = 0, m_last = 0, m_numInQ = 0;
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t empty = PTHREAD_MUTEX_INITIALIZER;
 
-v4l2Device::v4l2Device(const char *devname,
+v4l2Device::v4l2Device(const char* devname,
                        uint32_t width,
                        uint32_t height,
                        uint32_t num_buffers,
@@ -45,7 +45,7 @@ v4l2Device::~v4l2Device() {
     }
 }
 
-int v4l2Device::blockIOCTL(int handle, int request, void *args) {
+int v4l2Device::blockIOCTL(int handle, int request, void* args) {
     int ioctlStatus;
     do {
         ioctlStatus = ioctl(handle, request, args);
@@ -98,7 +98,7 @@ int v4l2Device::ConvertToV4L2FourCC() {
     }
 }
 
-void v4l2Device::Init(const char *devname,
+void v4l2Device::Init(const char* devname,
                       uint32_t width,
                       uint32_t height,
                       uint32_t num_buffers,
@@ -175,7 +175,7 @@ void v4l2Device::V4L2Init() {
         "G_FMT(start): width = %u, height = %u, 4cc = %.4s, BPP = %u sizeimage = %d field = %d\n",
         fmt.fmt.pix.width,
         fmt.fmt.pix.height,
-        (char *)&fmt.fmt.pix.pixelformat,
+        (char*)&fmt.fmt.pix.pixelformat,
         fmt.fmt.pix.bytesperline,
         fmt.fmt.pix.sizeimage,
         fmt.fmt.pix.field);
@@ -186,7 +186,7 @@ void v4l2Device::V4L2Init() {
         "G_FMT(pre): width = %u, height = %u, 4cc = %.4s, BPP = %u sizeimage = %d field = %d\n",
         fmt.fmt.pix.width,
         fmt.fmt.pix.height,
-        (char *)&fmt.fmt.pix.pixelformat,
+        (char*)&fmt.fmt.pix.pixelformat,
         fmt.fmt.pix.bytesperline,
         fmt.fmt.pix.sizeimage,
         fmt.fmt.pix.field);
@@ -199,7 +199,7 @@ void v4l2Device::V4L2Init() {
     msdk_printf("G_FMT(final): width = %u, height = %u, 4cc = %.4s, BPP = %u\n",
                 fmt.fmt.pix.width,
                 fmt.fmt.pix.height,
-                (char *)&fmt.fmt.pix.pixelformat,
+                (char*)&fmt.fmt.pix.pixelformat,
                 fmt.fmt.pix.bytesperline);
 
     CLEAR(rqbufs);
@@ -219,10 +219,10 @@ void v4l2Device::V4L2Init() {
 }
 
 void v4l2Device::V4L2Alloc() {
-    buffers = (Buffer *)malloc(sizeof(Buffer) * (int)m_num_buffers);
+    buffers = (Buffer*)malloc(sizeof(Buffer) * (int)m_num_buffers);
 }
 
-void v4l2Device::V4L2QueueBuffer(Buffer *buffer) {
+void v4l2Device::V4L2QueueBuffer(Buffer* buffer) {
     struct v4l2_buffer buf;
     int ret;
 
@@ -241,7 +241,7 @@ void v4l2Device::V4L2QueueBuffer(Buffer *buffer) {
            buffer->index);
 }
 
-Buffer *v4l2Device::V4L2DeQueueBuffer(Buffer *buffer) {
+Buffer* v4l2Device::V4L2DeQueueBuffer(Buffer* buffer) {
     struct v4l2_buffer buf;
     int ret;
 
@@ -305,8 +305,8 @@ static void CtrlCTerminationHandler(int s) {
     CtrlFlag = true;
 }
 
-void *PollingThread(void *data) {
-    v4l2Device *v4l2 = (v4l2Device *)data;
+void* PollingThread(void* data) {
+    v4l2Device* v4l2 = (v4l2Device*)data;
 
     struct sigaction sigIntHandler;
     sigIntHandler.sa_handler = CtrlCTerminationHandler;

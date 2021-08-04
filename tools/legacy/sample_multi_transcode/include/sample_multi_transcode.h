@@ -53,7 +53,7 @@ public:
     Launcher();
     virtual ~Launcher();
 
-    virtual mfxStatus Init(int argc, msdk_char *argv[]);
+    virtual mfxStatus Init(int argc, msdk_char* argv[]);
     virtual void Run();
     virtual mfxStatus ProcessResult();
 
@@ -62,11 +62,11 @@ protected:
     mfxStatus QueryAdapters();
     void ForceImplForSession(mfxU32 idxSession);
     mfxStatus CheckAndFixAdapterDependency(mfxU32 idxSession,
-                                           CTranscodingPipeline *pParentPipeline);
+                                           CTranscodingPipeline* pParentPipeline);
 #endif
     virtual mfxStatus VerifyCrossSessionsOptions();
     virtual mfxStatus CreateSafetyBuffers();
-    CascadeScalerConfig &CreateCascadeScalerConfig();
+    CascadeScalerConfig& CreateCascadeScalerConfig();
     virtual void DoTranscoding();
     virtual void DoRobustTranscoding();
 

@@ -163,7 +163,7 @@ Xcbpresent_Proxy::~Xcbpresent_Proxy() {}
     #if defined(LIBVA_WAYLAND_SUPPORT)
 
 VA_WaylandClientProxy::VA_WaylandClientProxy()
-        : lib("libmfx_wayland.so"),
+        : lib("libvpl_wayland.so"),
           SIMPLE_LOADER_FUNCTION(WaylandCreate) {}
 
 VA_WaylandClientProxy::~VA_WaylandClientProxy() {}

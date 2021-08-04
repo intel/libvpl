@@ -116,9 +116,9 @@ typedef struct _Params {
     mfxVariant implValue;
 #endif
 
-    char *inFileName;
-    char *inModelName;
-    char *decOutFileName;
+    const char *inFileName;
+    const char *inModelName;
+    const char *decOutFileName;
 
     mfxU32 inCodec;
     mfxU16 srcWidth;
@@ -126,14 +126,14 @@ typedef struct _Params {
     mfxU32 srcFourCC;
 
     mfxU16 vppNum;
-    char *cliVPPParams;
-    char *cliVPPOutFileNames;
+    const char *cliVPPParams;
+    const char *cliVPPOutFileNames;
     bool bIsAvailableVPPOutFileName;
     VPPOutConfigs *vppOutConfigs;
     bool bUseVideoMemory;
 } Params;
 
-char *ValidateFileName(char *in) {
+const char *ValidateFileName(const char *in) {
     if (in) {
         if (strnlen(in, MAX_PATH) > MAX_PATH)
             return NULL;
@@ -183,18 +183,30 @@ bool ParseVPPParams(char *str_params, VPPOutConfigs *voc) {
     // width
     int spos = 0;
     memset(param, 0, sizeof(param));
+    if (nres_pos - spos >= (int)sizeof(param)) {
+        printf("ERROR - Width string too long\n");
+        return false;
+    }
     strncpy_s(param, sizeof(param), str_params + spos, nres_pos - spos);
     voc->w = atoi(param);
 
     // height
     spos = nres_pos;
     memset(param, 0, sizeof(param));
+    if (nfourcc_pos - spos >= (int)sizeof(param)) {
+        printf("ERROR - height string too long\n");
+        return false;
+    }
     strncpy_s(param, sizeof(param), str_params + spos, nfourcc_pos - spos);
     voc->h = atoi(param);
 
     // fourcc
     spos = nfourcc_pos;
     memset(param, 0, sizeof(param));
+    if (strlen(str_params) - spos >= sizeof(param)) {
+        printf("ERROR - FourCC string too long\n");
+        return false;
+    }
     strncpy_s(param, sizeof(param), str_params + spos, strlen(str_params) - spos);
     param[sizeof(param) - 1] = 0;
     if (strcmp(param, "i420") == 0) {
@@ -290,7 +302,7 @@ bool GetVPPParams(Params *params) {
 
         len = npos - spos - 1;
 
-        if (len > 0) {
+        if (len > 0 && len < (int)sizeof(str_params)) {
             memset(str_params, 0, sizeof(str_params));
             strncpy_s(str_params, sizeof(str_params), str_cli + spos, len);
 
@@ -343,7 +355,7 @@ bool GetVPPOutputFileName(Params *params) {
 
         len = npos - spos - 1;
 
-        if (len > 0) {
+        if (len > 0 && len < (int)sizeof(voc[i].fileName)) {
             strncpy_s(voc[i].fileName, sizeof(voc[i].fileName), str_cli + spos, len);
 
             if (voc[i].fileName[0] != '\0') {
@@ -520,59 +532,22 @@ IDXGIAdapter *GetIntelDeviceAdapterHandle(mfxIMPL impl) {
 }
 #endif
 
-mfxStatus InitAcceleratorHandle(mfxSession session) {
+mfxStatus InitAcceleratorHandle(mfxSession session, int *fd) {
     mfxIMPL impl;
     mfxStatus sts = MFXQueryIMPL(session, &impl);
     if (sts != MFX_ERR_NONE)
         return sts;
 
-#if defined(_WIN32) || defined(_WIN64)
-    HRESULT hres = S_OK;
-
-    static D3D_FEATURE_LEVEL FeatureLevels[] = { D3D_FEATURE_LEVEL_11_1,
-                                                 D3D_FEATURE_LEVEL_11_0,
-                                                 D3D_FEATURE_LEVEL_10_1,
-                                                 D3D_FEATURE_LEVEL_10_0 };
-    D3D_FEATURE_LEVEL pFeatureLevelsOut;
-    g_pAdapter = GetIntelDeviceAdapterHandle(impl);
-    if (NULL == g_pAdapter)
-        return MFX_ERR_DEVICE_FAILED;
-
-    unsigned int dxFlags = 0;
-    //UINT dxFlags = D3D11_CREATE_DEVICE_DEBUG;
-
-    hres = D3D11CreateDevice(g_pAdapter,
-                             D3D_DRIVER_TYPE_UNKNOWN,
-                             NULL,
-                             dxFlags,
-                             FeatureLevels,
-                             (sizeof(FeatureLevels) / sizeof(FeatureLevels[0])),
-                             D3D11_SDK_VERSION,
-                             &g_pD3D11Device,
-                             &pFeatureLevelsOut,
-                             &g_pD3D11Ctx);
-    if (FAILED(hres))
-        return MFX_ERR_DEVICE_FAILED;
-
-    // turn on multithreading for the DX11 context
-    CComQIPtr<ID3D10Multithread> p_mt(g_pD3D11Ctx);
-    if (p_mt)
-        p_mt->SetMultithreadProtected(true);
-    else
-        return MFX_ERR_DEVICE_FAILED;
-
-    sts = MFXVideoCORE_SetHandle(session,
-                                 static_cast<mfxHandleType>(MFX_HANDLE_VA_DISPLAY),
-                                 (mfxHDL)g_pD3D11Device);
-#elif defined(__linux)
+#if defined(__linux)
     #ifdef LIBVA_SUPPORT
     if ((impl & MFX_IMPL_VIA_VAAPI) == MFX_IMPL_VIA_VAAPI) {
+        if (!fd)
+            return MFX_ERR_NULL_PTR;
         VADisplay va_dpy = NULL;
-        int fd;
         // initialize VAAPI context and set session handle (req in Linux)
-        fd = open("/dev/dri/renderD128", O_RDWR);
-        if (fd >= 0) {
-            va_dpy = vaGetDisplayDRM(fd);
+        *fd = open("/dev/dri/renderD128", O_RDWR);
+        if (*fd >= 0) {
+            va_dpy = vaGetDisplayDRM(*fd);
             if (va_dpy) {
                 int major_version = 0, minor_version = 0;
                 if (VA_STATUS_SUCCESS == vaInitialize(va_dpy, &major_version, &minor_version)) {
@@ -582,7 +557,7 @@ mfxStatus InitAcceleratorHandle(mfxSession session) {
                 }
                 else {
                     sts = MFX_ERR_DEVICE_FAILED;
-                    close(fd);
+                    close(*fd);
                 }
             }
             else {
@@ -600,9 +575,12 @@ mfxStatus InitAcceleratorHandle(mfxSession session) {
     return sts;
 }
 
-void FreeAcceleratorHandle(void *accelHandle) {
-#ifdef LIBVA_SUPPORT
+void FreeAcceleratorHandle(void *accelHandle, int fd) {
+#if defined(__linux)
+    #ifdef LIBVA_SUPPORT
     vaTerminate((VADisplay)accelHandle);
+    close(fd);
+    #endif
 #endif
 }
 
@@ -1012,12 +990,6 @@ mfxStatus WriteRawFrame_InternalMem(mfxFrameSurface1 *surface, FILE *f) {
     sts = surface->FrameInterface->Unmap(surface);
     if (sts != MFX_ERR_NONE) {
         printf("mfxFrameSurfaceInterface->Unmap failed (%d)\n", sts);
-        return sts;
-    }
-
-    sts = surface->FrameInterface->Release(surface);
-    if (sts != MFX_ERR_NONE) {
-        printf("mfxFrameSurfaceInterface->Release failed (%d)\n", sts);
         return sts;
     }
 

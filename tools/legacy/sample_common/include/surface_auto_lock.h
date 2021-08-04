@@ -14,7 +14,7 @@
 */
 class SurfaceAutoLock : private no_copy {
 public:
-    SurfaceAutoLock(mfxFrameAllocator &alloc, mfxFrameSurface1 &srf)
+    SurfaceAutoLock(mfxFrameAllocator& alloc, mfxFrameSurface1& srf)
             : m_alloc(alloc),
               m_srf(srf),
               m_lockRes(MFX_ERR_NONE),
@@ -29,8 +29,8 @@ public:
     }
 
 protected:
-    mfxFrameAllocator &m_alloc;
-    mfxFrameSurface1 &m_srf;
+    mfxFrameAllocator& m_alloc;
+    mfxFrameSurface1& m_srf;
     mfxStatus m_lockRes;
     bool m_bLocked;
 

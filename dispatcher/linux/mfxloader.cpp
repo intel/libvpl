@@ -70,13 +70,13 @@ enum Function2 {
 
 struct FunctionsTable {
     Function id;
-    const char* name;
+    const char *name;
     mfxVersion version;
 };
 
 struct FunctionsTable2 {
     Function2 id;
-    const char* name;
+    const char *name;
     mfxVersion version;
 };
 
@@ -117,17 +117,17 @@ static const FunctionsTable2 g_mfxFuncTable2[] = {
 
 class LoaderCtx {
 public:
-    mfxStatus Init(mfxInitParam& par,
-                   mfxInitializationParam& vplParam,
-                   mfxU16* pDeviceID,
-                   char* dllName);
+    mfxStatus Init(mfxInitParam &par,
+                   mfxInitializationParam &vplParam,
+                   mfxU16 *pDeviceID,
+                   char *dllName);
     mfxStatus Close();
 
-    inline void* getFunction(Function func) const {
+    inline void *getFunction(Function func) const {
         return m_table[func];
     }
 
-    inline void* getFunction2(Function2 func) const {
+    inline void *getFunction2(Function2 func) const {
         return m_table2[func];
     }
 
@@ -148,21 +148,21 @@ private:
     mfxVersion m_version{};
     mfxIMPL m_implementation{};
     mfxSession m_session = nullptr;
-    void* m_table[eFunctionsNum]{};
-    void* m_table2[eFunctionsNum2]{};
+    void *m_table[eFunctionsNum]{};
+    void *m_table2[eFunctionsNum2]{};
 };
 
-std::shared_ptr<void> make_dlopen(const char* filename, int flags) {
-    return std::shared_ptr<void>(dlopen(filename, flags), [](void* handle) {
+std::shared_ptr<void> make_dlopen(const char *filename, int flags) {
+    return std::shared_ptr<void>(dlopen(filename, flags), [](void *handle) {
         if (handle)
             dlclose(handle);
     });
 }
 
-mfxStatus LoaderCtx::Init(mfxInitParam& par,
-                          mfxInitializationParam& vplParam,
-                          mfxU16* pDeviceID,
-                          char* dllName) {
+mfxStatus LoaderCtx::Init(mfxInitParam &par,
+                          mfxInitializationParam &vplParam,
+                          mfxU16 *pDeviceID,
+                          char *dllName) {
     mfxStatus mfx_res = MFX_ERR_NONE;
 
     std::vector<std::string> libs;
@@ -222,7 +222,7 @@ mfxStatus LoaderCtx::Init(mfxInitParam& par,
     // fail if libs is empty (invalid Implementation)
     mfx_res = MFX_ERR_UNSUPPORTED;
 
-    for (auto& lib : libs) {
+    for (auto &lib : libs) {
         std::shared_ptr<void> hdl = make_dlopen(lib.c_str(), RTLD_LOCAL | RTLD_NOW);
         if (hdl) {
             do {
@@ -257,18 +257,18 @@ mfxStatus LoaderCtx::Init(mfxInitParam& par,
                 if (par.Version.Major >= 2) {
                     // for API >= 2.0 call MFXInitialize instead of MFXInitEx
                     mfx_res =
-                        ((decltype(MFXInitialize)*)m_table2[eMFXInitialize])(vplParam, &m_session);
+                        ((decltype(MFXInitialize) *)m_table2[eMFXInitialize])(vplParam, &m_session);
                 }
                 else {
                     if (m_table[eMFXInitEx]) {
                         // initialize with MFXInitEx if present (API >= 1.14)
-                        mfx_res = ((decltype(MFXInitEx)*)m_table[eMFXInitEx])(par, &m_session);
+                        mfx_res = ((decltype(MFXInitEx) *)m_table[eMFXInitEx])(par, &m_session);
                     }
                     else {
                         // initialize with MFXInit for API < 1.14
-                        mfx_res = ((decltype(MFXInit)*)m_table[eMFXInit])(par.Implementation,
-                                                                          &(par.Version),
-                                                                          &m_session);
+                        mfx_res = ((decltype(MFXInit) *)m_table[eMFXInit])(par.Implementation,
+                                                                           &(par.Version),
+                                                                           &m_session);
                     }
                 }
 
@@ -279,7 +279,7 @@ mfxStatus LoaderCtx::Init(mfxInitParam& par,
                 // Below we just get some data and double check that we got what we have expected
                 // to get. Some of these checks are done inside mediasdk init function
                 mfx_res =
-                    ((decltype(MFXQueryVersion)*)m_table[eMFXQueryVersion])(m_session, &m_version);
+                    ((decltype(MFXQueryVersion) *)m_table[eMFXQueryVersion])(m_session, &m_version);
                 if (MFX_ERR_NONE != mfx_res) {
                     break;
                 }
@@ -289,8 +289,8 @@ mfxStatus LoaderCtx::Init(mfxInitParam& par,
                     break;
                 }
 
-                mfx_res =
-                    ((decltype(MFXQueryIMPL)*)m_table[eMFXQueryIMPL])(m_session, &m_implementation);
+                mfx_res = ((decltype(MFXQueryIMPL) *)m_table[eMFXQueryIMPL])(m_session,
+                                                                             &m_implementation);
                 if (MFX_ERR_NONE != mfx_res) {
                     mfx_res = MFX_ERR_UNSUPPORTED;
                     break;
@@ -311,7 +311,7 @@ mfxStatus LoaderCtx::Init(mfxInitParam& par,
 }
 
 mfxStatus LoaderCtx::Close() {
-    auto proc         = (decltype(MFXClose)*)m_table[eMFXClose];
+    auto proc         = (decltype(MFXClose) *)m_table[eMFXClose];
     mfxStatus mfx_res = (proc) ? (*proc)(m_session) : MFX_ERR_NONE;
 
     m_implementation = {};
@@ -328,9 +328,9 @@ mfxStatus LoaderCtx::Close() {
 mfxStatus MFXInitEx2(mfxVersion version,
                      mfxInitializationParam vplParam,
                      mfxIMPL hwImpl,
-                     mfxSession* session,
-                     mfxU16* deviceID,
-                     char* dllName) {
+                     mfxSession *session,
+                     mfxU16 *deviceID,
+                     char *dllName) {
     if (!session)
         return MFX_ERR_NULL_PTR;
 
@@ -387,7 +387,7 @@ mfxStatus MFXInitEx2(mfxVersion version,
 extern "C" {
 #endif
 
-mfxStatus MFXInit(mfxIMPL impl, mfxVersion* ver, mfxSession* session) {
+mfxStatus MFXInit(mfxIMPL impl, mfxVersion *ver, mfxSession *session) {
     mfxInitParam par{};
 
     par.Implementation = impl;
@@ -401,7 +401,7 @@ mfxStatus MFXInit(mfxIMPL impl, mfxVersion* ver, mfxSession* session) {
     return MFXInitEx(par, session);
 }
 
-mfxStatus MFXInitEx(mfxInitParam par, mfxSession* session) {
+mfxStatus MFXInitEx(mfxInitParam par, mfxSession *session) {
     if (!session)
         return MFX_ERR_NULL_PTR;
 
@@ -439,7 +439,7 @@ mfxStatus MFXClose(mfxSession session) {
         return MFX_ERR_INVALID_HANDLE;
 
     try {
-        std::unique_ptr<MFX::LoaderCtx> loader((MFX::LoaderCtx*)session);
+        std::unique_ptr<MFX::LoaderCtx> loader((MFX::LoaderCtx *)session);
         mfxStatus mfx_res = loader->Close();
 
         if (mfx_res == MFX_ERR_UNDEFINED_BEHAVIOR) {
@@ -455,13 +455,13 @@ mfxStatus MFXClose(mfxSession session) {
 }
 
 // passthrough functions to implementation
-mfxStatus MFXMemory_GetSurfaceForVPP(mfxSession session, mfxFrameSurface1** surface) {
+mfxStatus MFXMemory_GetSurfaceForVPP(mfxSession session, mfxFrameSurface1 **surface) {
     if (!session)
         return MFX_ERR_INVALID_HANDLE;
 
-    MFX::LoaderCtx* loader = (MFX::LoaderCtx*)session;
+    MFX::LoaderCtx *loader = (MFX::LoaderCtx *)session;
 
-    auto proc = (decltype(MFXMemory_GetSurfaceForVPP)*)loader->getFunction2(
+    auto proc = (decltype(MFXMemory_GetSurfaceForVPP) *)loader->getFunction2(
         MFX::eMFXMemory_GetSurfaceForVPP);
     if (!proc) {
         return MFX_ERR_INVALID_HANDLE;
@@ -470,13 +470,13 @@ mfxStatus MFXMemory_GetSurfaceForVPP(mfxSession session, mfxFrameSurface1** surf
     return (*proc)(loader->getSession(), surface);
 }
 
-mfxStatus MFXMemory_GetSurfaceForVPPOut(mfxSession session, mfxFrameSurface1** surface) {
+mfxStatus MFXMemory_GetSurfaceForVPPOut(mfxSession session, mfxFrameSurface1 **surface) {
     if (!session)
         return MFX_ERR_INVALID_HANDLE;
 
-    MFX::LoaderCtx* loader = (MFX::LoaderCtx*)session;
+    MFX::LoaderCtx *loader = (MFX::LoaderCtx *)session;
 
-    auto proc = (decltype(MFXMemory_GetSurfaceForVPPOut)*)loader->getFunction2(
+    auto proc = (decltype(MFXMemory_GetSurfaceForVPPOut) *)loader->getFunction2(
         MFX::eMFXMemory_GetSurfaceForVPPOut);
     if (!proc) {
         return MFX_ERR_INVALID_HANDLE;
@@ -485,13 +485,13 @@ mfxStatus MFXMemory_GetSurfaceForVPPOut(mfxSession session, mfxFrameSurface1** s
     return (*proc)(loader->getSession(), surface);
 }
 
-mfxStatus MFXMemory_GetSurfaceForEncode(mfxSession session, mfxFrameSurface1** surface) {
+mfxStatus MFXMemory_GetSurfaceForEncode(mfxSession session, mfxFrameSurface1 **surface) {
     if (!session)
         return MFX_ERR_INVALID_HANDLE;
 
-    MFX::LoaderCtx* loader = (MFX::LoaderCtx*)session;
+    MFX::LoaderCtx *loader = (MFX::LoaderCtx *)session;
 
-    auto proc = (decltype(MFXMemory_GetSurfaceForEncode)*)loader->getFunction2(
+    auto proc = (decltype(MFXMemory_GetSurfaceForEncode) *)loader->getFunction2(
         MFX::eMFXMemory_GetSurfaceForEncode);
     if (!proc) {
         return MFX_ERR_INVALID_HANDLE;
@@ -500,13 +500,13 @@ mfxStatus MFXMemory_GetSurfaceForEncode(mfxSession session, mfxFrameSurface1** s
     return (*proc)(loader->getSession(), surface);
 }
 
-mfxStatus MFXMemory_GetSurfaceForDecode(mfxSession session, mfxFrameSurface1** surface) {
+mfxStatus MFXMemory_GetSurfaceForDecode(mfxSession session, mfxFrameSurface1 **surface) {
     if (!session)
         return MFX_ERR_INVALID_HANDLE;
 
-    MFX::LoaderCtx* loader = (MFX::LoaderCtx*)session;
+    MFX::LoaderCtx *loader = (MFX::LoaderCtx *)session;
 
-    auto proc = (decltype(MFXMemory_GetSurfaceForDecode)*)loader->getFunction2(
+    auto proc = (decltype(MFXMemory_GetSurfaceForDecode) *)loader->getFunction2(
         MFX::eMFXMemory_GetSurfaceForDecode);
     if (!proc) {
         return MFX_ERR_INVALID_HANDLE;
@@ -516,16 +516,16 @@ mfxStatus MFXMemory_GetSurfaceForDecode(mfxSession session, mfxFrameSurface1** s
 }
 
 mfxStatus MFXVideoDECODE_VPP_Init(mfxSession session,
-                                  mfxVideoParam* decode_par,
-                                  mfxVideoChannelParam** vpp_par_array,
+                                  mfxVideoParam *decode_par,
+                                  mfxVideoChannelParam **vpp_par_array,
                                   mfxU32 num_vpp_par) {
     if (!session)
         return MFX_ERR_INVALID_HANDLE;
 
-    MFX::LoaderCtx* loader = (MFX::LoaderCtx*)session;
+    MFX::LoaderCtx *loader = (MFX::LoaderCtx *)session;
 
     auto proc =
-        (decltype(MFXVideoDECODE_VPP_Init)*)loader->getFunction2(MFX::eMFXVideoDECODE_VPP_Init);
+        (decltype(MFXVideoDECODE_VPP_Init) *)loader->getFunction2(MFX::eMFXVideoDECODE_VPP_Init);
     if (!proc) {
         return MFX_ERR_INVALID_HANDLE;
     }
@@ -534,16 +534,16 @@ mfxStatus MFXVideoDECODE_VPP_Init(mfxSession session,
 }
 
 mfxStatus MFXVideoDECODE_VPP_DecodeFrameAsync(mfxSession session,
-                                              mfxBitstream* bs,
-                                              mfxU32* skip_channels,
+                                              mfxBitstream *bs,
+                                              mfxU32 *skip_channels,
                                               mfxU32 num_skip_channels,
-                                              mfxSurfaceArray** surf_array_out) {
+                                              mfxSurfaceArray **surf_array_out) {
     if (!session)
         return MFX_ERR_INVALID_HANDLE;
 
-    MFX::LoaderCtx* loader = (MFX::LoaderCtx*)session;
+    MFX::LoaderCtx *loader = (MFX::LoaderCtx *)session;
 
-    auto proc = (decltype(MFXVideoDECODE_VPP_DecodeFrameAsync)*)loader->getFunction2(
+    auto proc = (decltype(MFXVideoDECODE_VPP_DecodeFrameAsync) *)loader->getFunction2(
         MFX::eMFXVideoDECODE_VPP_DecodeFrameAsync);
     if (!proc) {
         return MFX_ERR_INVALID_HANDLE;
@@ -553,16 +553,16 @@ mfxStatus MFXVideoDECODE_VPP_DecodeFrameAsync(mfxSession session,
 }
 
 mfxStatus MFXVideoDECODE_VPP_Reset(mfxSession session,
-                                   mfxVideoParam* decode_par,
-                                   mfxVideoChannelParam** vpp_par_array,
+                                   mfxVideoParam *decode_par,
+                                   mfxVideoChannelParam **vpp_par_array,
                                    mfxU32 num_vpp_par) {
     if (!session)
         return MFX_ERR_INVALID_HANDLE;
 
-    MFX::LoaderCtx* loader = (MFX::LoaderCtx*)session;
+    MFX::LoaderCtx *loader = (MFX::LoaderCtx *)session;
 
     auto proc =
-        (decltype(MFXVideoDECODE_VPP_Reset)*)loader->getFunction2(MFX::eMFXVideoDECODE_VPP_Reset);
+        (decltype(MFXVideoDECODE_VPP_Reset) *)loader->getFunction2(MFX::eMFXVideoDECODE_VPP_Reset);
     if (!proc) {
         return MFX_ERR_INVALID_HANDLE;
     }
@@ -571,14 +571,14 @@ mfxStatus MFXVideoDECODE_VPP_Reset(mfxSession session,
 }
 
 mfxStatus MFXVideoDECODE_VPP_GetChannelParam(mfxSession session,
-                                             mfxVideoChannelParam* par,
+                                             mfxVideoChannelParam *par,
                                              mfxU32 channel_id) {
     if (!session)
         return MFX_ERR_INVALID_HANDLE;
 
-    MFX::LoaderCtx* loader = (MFX::LoaderCtx*)session;
+    MFX::LoaderCtx *loader = (MFX::LoaderCtx *)session;
 
-    auto proc = (decltype(MFXVideoDECODE_VPP_GetChannelParam)*)loader->getFunction2(
+    auto proc = (decltype(MFXVideoDECODE_VPP_GetChannelParam) *)loader->getFunction2(
         MFX::eMFXVideoDECODE_VPP_GetChannelParam);
     if (!proc) {
         return MFX_ERR_INVALID_HANDLE;
@@ -591,10 +591,10 @@ mfxStatus MFXVideoDECODE_VPP_Close(mfxSession session) {
     if (!session)
         return MFX_ERR_INVALID_HANDLE;
 
-    MFX::LoaderCtx* loader = (MFX::LoaderCtx*)session;
+    MFX::LoaderCtx *loader = (MFX::LoaderCtx *)session;
 
     auto proc =
-        (decltype(MFXVideoDECODE_VPP_Close)*)loader->getFunction2(MFX::eMFXVideoDECODE_VPP_Close);
+        (decltype(MFXVideoDECODE_VPP_Close) *)loader->getFunction2(MFX::eMFXVideoDECODE_VPP_Close);
     if (!proc) {
         return MFX_ERR_INVALID_HANDLE;
     }
@@ -603,14 +603,14 @@ mfxStatus MFXVideoDECODE_VPP_Close(mfxSession session) {
 }
 
 mfxStatus MFXVideoVPP_ProcessFrameAsync(mfxSession session,
-                                        mfxFrameSurface1* in,
-                                        mfxFrameSurface1** out) {
+                                        mfxFrameSurface1 *in,
+                                        mfxFrameSurface1 **out) {
     if (!session)
         return MFX_ERR_INVALID_HANDLE;
 
-    MFX::LoaderCtx* loader = (MFX::LoaderCtx*)session;
+    MFX::LoaderCtx *loader = (MFX::LoaderCtx *)session;
 
-    auto proc = (decltype(MFXVideoVPP_ProcessFrameAsync)*)loader->getFunction2(
+    auto proc = (decltype(MFXVideoVPP_ProcessFrameAsync) *)loader->getFunction2(
         MFX::eMFXVideoVPP_ProcessFrameAsync);
     if (!proc) {
         return MFX_ERR_INVALID_HANDLE;
@@ -624,14 +624,14 @@ mfxStatus MFXJoinSession(mfxSession session, mfxSession child_session) {
         return MFX_ERR_INVALID_HANDLE;
     }
 
-    MFX::LoaderCtx* loader       = (MFX::LoaderCtx*)session;
-    MFX::LoaderCtx* child_loader = (MFX::LoaderCtx*)child_session;
+    MFX::LoaderCtx *loader       = (MFX::LoaderCtx *)session;
+    MFX::LoaderCtx *child_loader = (MFX::LoaderCtx *)child_session;
 
     if (loader->getVersion().Version != child_loader->getVersion().Version) {
         return MFX_ERR_INVALID_HANDLE;
     }
 
-    auto proc = (decltype(MFXJoinSession)*)loader->getFunction(MFX::eMFXJoinSession);
+    auto proc = (decltype(MFXJoinSession) *)loader->getFunction(MFX::eMFXJoinSession);
     if (!proc) {
         return MFX_ERR_INVALID_HANDLE;
     }
@@ -639,11 +639,11 @@ mfxStatus MFXJoinSession(mfxSession session, mfxSession child_session) {
     return (*proc)(loader->getSession(), child_loader->getSession());
 }
 
-mfxStatus MFXCloneSession(mfxSession session, mfxSession* clone) {
+mfxStatus MFXCloneSession(mfxSession session, mfxSession *clone) {
     if (!session)
         return MFX_ERR_INVALID_HANDLE;
 
-    MFX::LoaderCtx* loader = (MFX::LoaderCtx*)session;
+    MFX::LoaderCtx *loader = (MFX::LoaderCtx *)session;
     // initialize the clone session
     mfxVersion version = loader->getVersion();
     mfxStatus mfx_res  = MFXInit(loader->getImpl(), &version, clone);
@@ -663,22 +663,22 @@ mfxStatus MFXCloneSession(mfxSession session, mfxSession* clone) {
 }
 
 #undef FUNCTION
-#define FUNCTION(return_value, func_name, formal_param_list, actual_param_list)   \
-    return_value MFX_CDECL func_name formal_param_list {                          \
-        /* get the function's address and make a call */                          \
-        if (!session)                                                             \
-            return MFX_ERR_INVALID_HANDLE;                                        \
-                                                                                  \
-        MFX::LoaderCtx* loader = (MFX::LoaderCtx*)session;                        \
-                                                                                  \
-        auto proc = (decltype(func_name)*)loader->getFunction(MFX::e##func_name); \
-        if (!proc)                                                                \
-            return MFX_ERR_INVALID_HANDLE;                                        \
-                                                                                  \
-        /* get the real session pointer */                                        \
-        session = loader->getSession();                                           \
-        /* pass down the call */                                                  \
-        return (*proc)actual_param_list;                                          \
+#define FUNCTION(return_value, func_name, formal_param_list, actual_param_list)    \
+    return_value MFX_CDECL func_name formal_param_list {                           \
+        /* get the function's address and make a call */                           \
+        if (!session)                                                              \
+            return MFX_ERR_INVALID_HANDLE;                                         \
+                                                                                   \
+        MFX::LoaderCtx *loader = (MFX::LoaderCtx *)session;                        \
+                                                                                   \
+        auto proc = (decltype(func_name) *)loader->getFunction(MFX::e##func_name); \
+        if (!proc)                                                                 \
+            return MFX_ERR_INVALID_HANDLE;                                         \
+                                                                                   \
+        /* get the real session pointer */                                         \
+        session = loader->getSession();                                            \
+        /* pass down the call */                                                   \
+        return (*proc)actual_param_list;                                           \
     }
 
 #include "linux/mfxvideo_functions.h" // NOLINT(build/include)

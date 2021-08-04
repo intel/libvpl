@@ -90,8 +90,8 @@ vaapiFrameAllocator::~vaapiFrameAllocator() {
     delete m_libva;
 }
 
-mfxStatus vaapiFrameAllocator::Init(mfxAllocatorParams *pParams) {
-    vaapiAllocatorParams *p_vaapiParams = dynamic_cast<vaapiAllocatorParams *>(pParams);
+mfxStatus vaapiFrameAllocator::Init(mfxAllocatorParams* pParams) {
+    vaapiAllocatorParams* p_vaapiParams = dynamic_cast<vaapiAllocatorParams*>(pParams);
 
     if ((NULL == p_vaapiParams) || (NULL == p_vaapiParams->m_dpy))
         return MFX_ERR_NOT_INITIALIZED;
@@ -110,7 +110,7 @@ mfxStatus vaapiFrameAllocator::Init(mfxAllocatorParams *pParams) {
     return MFX_ERR_NONE;
 }
 
-mfxStatus vaapiFrameAllocator::CheckRequestType(mfxFrameAllocRequest *request) {
+mfxStatus vaapiFrameAllocator::CheckRequestType(mfxFrameAllocRequest* request) {
     mfxStatus sts = BaseFrameAllocator::CheckRequestType(request);
     if (MFX_ERR_NONE != sts)
         return sts;
@@ -126,7 +126,7 @@ mfxStatus vaapiFrameAllocator::Close() {
     return BaseFrameAllocator::Close();
 }
 
-static mfxStatus GetVAFourcc(mfxU32 fourcc, unsigned int &va_fourcc) {
+static mfxStatus GetVAFourcc(mfxU32 fourcc, unsigned int& va_fourcc) {
     // VP8 hybrid driver has weird requirements for allocation of surfaces/buffers for VP8 encoding
     // to comply with them additional logic is required to support regular and VP8 hybrid allocation pathes
     mfxU32 mfx_fourcc = ConvertVP8FourccToMfxFourcc(fourcc);
@@ -154,9 +154,9 @@ static mfxStatus GetVAFourcc(mfxU32 fourcc, unsigned int &va_fourcc) {
 }
 
 mfxStatus vaapiFrameAllocator::ReallocImpl(mfxMemId mid,
-                                           const mfxFrameInfo *info,
+                                           const mfxFrameInfo* info,
                                            mfxU16 memType,
-                                           mfxMemId *midOut) {
+                                           mfxMemId* midOut) {
     if (!info || !midOut)
         return MFX_ERR_NULL_PTR;
 
@@ -177,7 +177,7 @@ mfxStatus vaapiFrameAllocator::ReallocImpl(mfxMemId mid,
 
     VASurfaceID surfaces[1];
     VASurfaceAttrib attrib[2];
-    vaapiMemId *vaapiMid = (vaapiMemId *)mid;
+    vaapiMemId* vaapiMid = (vaapiMemId*)mid;
     surfaces[0]          = *vaapiMid->m_surface;
     m_libva->vaDestroySurfaces(m_dpy, surfaces, 1);
 
@@ -223,14 +223,14 @@ mfxStatus vaapiFrameAllocator::ReallocImpl(mfxMemId mid,
     return mfx_res;
 }
 
-mfxStatus vaapiFrameAllocator::AllocImpl(mfxFrameAllocRequest *request,
-                                         mfxFrameAllocResponse *response) {
+mfxStatus vaapiFrameAllocator::AllocImpl(mfxFrameAllocRequest* request,
+                                         mfxFrameAllocResponse* response) {
     mfxStatus mfx_res      = MFX_ERR_NONE;
     VAStatus va_res        = VA_STATUS_SUCCESS;
     unsigned int va_fourcc = 0;
-    VASurfaceID *surfaces  = NULL;
+    VASurfaceID* surfaces  = NULL;
     vaapiMemId *vaapi_mids = NULL, *vaapi_mid = NULL;
-    mfxMemId *mids      = NULL;
+    mfxMemId* mids      = NULL;
     mfxU32 fourcc       = request->Info.FourCC;
     mfxU16 surfaces_num = request->NumFrameSuggested, numAllocated = 0, i = 0;
     bool bCreateSrfSucceeded = false;
@@ -246,9 +246,9 @@ mfxStatus vaapiFrameAllocator::AllocImpl(mfxFrameAllocRequest *request,
     }
 
     if (MFX_ERR_NONE == mfx_res) {
-        surfaces   = (VASurfaceID *)calloc(surfaces_num, sizeof(VASurfaceID));
-        vaapi_mids = (vaapiMemId *)calloc(surfaces_num, sizeof(vaapiMemId));
-        mids       = (mfxMemId *)calloc(surfaces_num, sizeof(mfxMemId));
+        surfaces   = (VASurfaceID*)calloc(surfaces_num, sizeof(VASurfaceID));
+        vaapi_mids = (vaapiMemId*)calloc(surfaces_num, sizeof(vaapiMemId));
+        mids       = (mfxMemId*)calloc(surfaces_num, sizeof(mfxMemId));
         if ((NULL == surfaces) || (NULL == vaapi_mids) || (NULL == mids))
             mfx_res = MFX_ERR_MEMORY_ALLOC;
     }
@@ -412,9 +412,9 @@ mfxStatus vaapiFrameAllocator::AllocImpl(mfxFrameAllocRequest *request,
     return mfx_res;
 }
 
-mfxStatus vaapiFrameAllocator::ReleaseResponse(mfxFrameAllocResponse *response) {
-    vaapiMemId *vaapi_mids = NULL;
-    VASurfaceID *surfaces  = NULL;
+mfxStatus vaapiFrameAllocator::ReleaseResponse(mfxFrameAllocResponse* response) {
+    vaapiMemId* vaapi_mids = NULL;
+    VASurfaceID* surfaces  = NULL;
     mfxU32 i               = 0;
     bool isBitstreamMemory = false;
 
@@ -422,7 +422,7 @@ mfxStatus vaapiFrameAllocator::ReleaseResponse(mfxFrameAllocResponse *response) 
         return MFX_ERR_NULL_PTR;
 
     if (response->mids) {
-        vaapi_mids        = (vaapiMemId *)(response->mids[0]);
+        vaapi_mids        = (vaapiMemId*)(response->mids[0]);
         mfxU32 mfx_fourcc = ConvertVP8FourccToMfxFourcc(vaapi_mids->m_fourcc);
         isBitstreamMemory = (MFX_FOURCC_P8 == mfx_fourcc) ? true : false;
         surfaces          = vaapi_mids->m_surface;
@@ -453,11 +453,11 @@ mfxStatus vaapiFrameAllocator::ReleaseResponse(mfxFrameAllocResponse *response) 
     return MFX_ERR_NONE;
 }
 
-mfxStatus vaapiFrameAllocator::LockFrame(mfxMemId mid, mfxFrameData *ptr) {
+mfxStatus vaapiFrameAllocator::LockFrame(mfxMemId mid, mfxFrameData* ptr) {
     mfxStatus mfx_res     = MFX_ERR_NONE;
     VAStatus va_res       = VA_STATUS_SUCCESS;
-    vaapiMemId *vaapi_mid = (vaapiMemId *)mid;
-    mfxU8 *pBuffer        = 0;
+    vaapiMemId* vaapi_mid = (vaapiMemId*)mid;
+    mfxU8* pBuffer        = 0;
 
     if (!vaapi_mid || !(vaapi_mid->m_surface))
         return MFX_ERR_INVALID_HANDLE;
@@ -466,19 +466,19 @@ mfxStatus vaapiFrameAllocator::LockFrame(mfxMemId mid, mfxFrameData *ptr) {
 
     if (MFX_FOURCC_P8 == mfx_fourcc) // bitstream processing
     {
-        VACodedBufferSegment *coded_buffer_segment;
+        VACodedBufferSegment* coded_buffer_segment;
         if (vaapi_mid->m_fourcc == MFX_FOURCC_VP8_SEGMAP)
-            va_res = m_libva->vaMapBuffer(m_dpy, *(vaapi_mid->m_surface), (void **)(&pBuffer));
+            va_res = m_libva->vaMapBuffer(m_dpy, *(vaapi_mid->m_surface), (void**)(&pBuffer));
         else
             va_res = m_libva->vaMapBuffer(m_dpy,
                                           *(vaapi_mid->m_surface),
-                                          (void **)(&coded_buffer_segment));
+                                          (void**)(&coded_buffer_segment));
         mfx_res = va_to_mfx_status(va_res);
         if (MFX_ERR_NONE == mfx_res) {
             if (vaapi_mid->m_fourcc == MFX_FOURCC_VP8_SEGMAP)
                 ptr->Y = pBuffer;
             else
-                ptr->Y = (mfxU8 *)coded_buffer_segment->buf;
+                ptr->Y = (mfxU8*)coded_buffer_segment->buf;
         }
     }
     else // Image processing
@@ -487,7 +487,7 @@ mfxStatus vaapiFrameAllocator::LockFrame(mfxMemId mid, mfxFrameData *ptr) {
         mfx_res = va_to_mfx_status(va_res);
 
         if (MFX_ERR_NONE == mfx_res) {
-            va_res  = m_libva->vaMapBuffer(m_dpy, vaapi_mid->m_image.buf, (void **)&pBuffer);
+            va_res  = m_libva->vaMapBuffer(m_dpy, vaapi_mid->m_image.buf, (void**)&pBuffer);
             mfx_res = va_to_mfx_status(va_res);
         }
         if (MFX_ERR_NONE == mfx_res) {
@@ -600,8 +600,8 @@ mfxStatus vaapiFrameAllocator::LockFrame(mfxMemId mid, mfxFrameData *ptr) {
                         return MFX_ERR_LOCK_MEMORY;
 
                     {
-                        ptr->Y16 = (mfxU16 *)(pBuffer + vaapi_mid->m_image.offsets[0]);
-                        ptr->U16 = (mfxU16 *)(pBuffer + vaapi_mid->m_image.offsets[1]);
+                        ptr->Y16 = (mfxU16*)(pBuffer + vaapi_mid->m_image.offsets[0]);
+                        ptr->U16 = (mfxU16*)(pBuffer + vaapi_mid->m_image.offsets[1]);
                         ptr->V16 = ptr->U16 + 1;
                     }
                     break;
@@ -625,7 +625,7 @@ mfxStatus vaapiFrameAllocator::LockFrame(mfxMemId mid, mfxFrameData *ptr) {
                         return MFX_ERR_LOCK_MEMORY;
 
                     {
-                        ptr->Y16 = (mfxU16 *)(pBuffer + vaapi_mid->m_image.offsets[0]);
+                        ptr->Y16 = (mfxU16*)(pBuffer + vaapi_mid->m_image.offsets[0]);
                         ptr->U16 = ptr->Y16 + 1;
                         ptr->V16 = ptr->Y16 + 3;
                     }
@@ -635,7 +635,7 @@ mfxStatus vaapiFrameAllocator::LockFrame(mfxMemId mid, mfxFrameData *ptr) {
                         return MFX_ERR_LOCK_MEMORY;
 
                     {
-                        ptr->Y410 = (mfxY410 *)(pBuffer + vaapi_mid->m_image.offsets[0]);
+                        ptr->Y410 = (mfxY410*)(pBuffer + vaapi_mid->m_image.offsets[0]);
                         ptr->Y    = 0;
                         ptr->V    = 0;
                         ptr->A    = 0;
@@ -648,10 +648,10 @@ mfxStatus vaapiFrameAllocator::LockFrame(mfxMemId mid, mfxFrameData *ptr) {
                         return MFX_ERR_LOCK_MEMORY;
 
                     {
-                        ptr->U16 = (mfxU16 *)(pBuffer + vaapi_mid->m_image.offsets[0]);
+                        ptr->U16 = (mfxU16*)(pBuffer + vaapi_mid->m_image.offsets[0]);
                         ptr->Y16 = ptr->U16 + 1;
                         ptr->V16 = ptr->Y16 + 1;
-                        ptr->A   = (mfxU8 *)(ptr->V16 + 1);
+                        ptr->A   = (mfxU8*)(ptr->V16 + 1);
                     }
                     break;
     #endif
@@ -666,8 +666,8 @@ mfxStatus vaapiFrameAllocator::LockFrame(mfxMemId mid, mfxFrameData *ptr) {
     return mfx_res;
 }
 
-mfxStatus vaapiFrameAllocator::UnlockFrame(mfxMemId mid, mfxFrameData *ptr) {
-    vaapiMemId *vaapi_mid = (vaapiMemId *)mid;
+mfxStatus vaapiFrameAllocator::UnlockFrame(mfxMemId mid, mfxFrameData* ptr) {
+    vaapiMemId* vaapi_mid = (vaapiMemId*)mid;
 
     if (!vaapi_mid || !(vaapi_mid->m_surface))
         return MFX_ERR_INVALID_HANDLE;
@@ -695,8 +695,8 @@ mfxStatus vaapiFrameAllocator::UnlockFrame(mfxMemId mid, mfxFrameData *ptr) {
     return MFX_ERR_NONE;
 }
 
-mfxStatus vaapiFrameAllocator::GetFrameHDL(mfxMemId mid, mfxHDL *handle) {
-    vaapiMemId *vaapi_mid = (vaapiMemId *)mid;
+mfxStatus vaapiFrameAllocator::GetFrameHDL(mfxMemId mid, mfxHDL* handle) {
+    vaapiMemId* vaapi_mid = (vaapiMemId*)mid;
 
     if (!handle || !vaapi_mid || !(vaapi_mid->m_surface))
         return MFX_ERR_INVALID_HANDLE;

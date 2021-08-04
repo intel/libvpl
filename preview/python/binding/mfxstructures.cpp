@@ -28,7 +28,7 @@ struct CArrayWrapper {
         pyclass.def("__getitem__", [](List *self, int i) -> Element & {
             if (i < 0)
                 i += static_cast<int>(self->len);
-            if (i < 0 || i >= self->len)
+            if (i < 0 || i >= static_cast<int>(self->len))
                 throw py::index_error();
             return self->base[i];
         });
@@ -56,7 +56,8 @@ void init_mfxstructures(const py::module &m) {
     py::class_<mfxI16Pair>(m, "mfxI16Pair")
         .def(py::init<>())
         .def(py::init<>([](int32_t v) {
-            return new mfxI16Pair{ (v >> 16), (v & 0x00ffff) };
+            return new mfxI16Pair{ static_cast<int16_t>(v >> 16),
+                                   static_cast<int16_t>(v & 0x00ffff) };
         }))
         .def(py::init<>([](int16_t x, int16_t y) {
             return new mfxI16Pair{ x, y };

@@ -35,6 +35,7 @@ int main(int argc, char *argv[]) {
     bool isStillGoing               = true;
     FILE *sink                      = NULL;
     FILE *source                    = NULL;
+    int accel_fd                    = 0;
     mfxBitstream bitstream          = {};
     mfxFrameSurface1 *decSurfaceOut = NULL;
     mfxSession session              = NULL;
@@ -44,13 +45,17 @@ int main(int argc, char *argv[]) {
     Params cliParams                = {};
     void *accelHandle               = NULL;
     mfxVideoParam mfxDecParams      = {};
-    mfxVersion version              = { 0, 1 };
 
     //variables used only in legacy version
     int nIndex                      = -1;
     mfxFrameAllocRequest decRequest = {};
     mfxFrameSurface1 *decSurfPool   = NULL;
     mfxU8 *decOutBuf                = NULL;
+
+    // variables used only in 2.x version
+    mfxConfig cfg[2];
+    mfxVariant cfgVal[2];
+    mfxLoader loader = NULL;
 
     //Parse command line args to cliParams
     if (ParseArgsAndValidate(argc, argv, &cliParams, PARAMS_DECODE) == false) {
@@ -65,14 +70,37 @@ int main(int argc, char *argv[]) {
     VERIFY(sink, "Could not create output file");
 
     // Initialize VPL session
-    sts = MFXInit(cliParams.impl, &version, &session);
-    VERIFY(MFX_ERR_NONE == sts, "Not able to create VPL session");
+    loader = MFXLoad();
+    VERIFY(NULL != loader, "MFXLoad failed -- is implementation in path?");
+
+    // Implementation used must be the type requested from command line
+    cfg[0] = MFXCreateConfig(loader);
+    VERIFY(NULL != cfg[0], "MFXCreateConfig failed")
+
+    sts =
+        MFXSetConfigFilterProperty(cfg[0], (mfxU8 *)"mfxImplDescription.Impl", cliParams.implValue);
+    VERIFY(MFX_ERR_NONE == sts, "MFXSetConfigFilterProperty failed for Impl");
+
+    // Implementation must provide an HEVC decoder
+    cfg[1] = MFXCreateConfig(loader);
+    VERIFY(NULL != cfg[1], "MFXCreateConfig failed")
+    cfgVal[1].Type     = MFX_VARIANT_TYPE_U32;
+    cfgVal[1].Data.U32 = MFX_CODEC_HEVC;
+    sts                = MFXSetConfigFilterProperty(
+        cfg[1],
+        (mfxU8 *)"mfxImplDescription.mfxDecoderDescription.decoder.CodecID",
+        cfgVal[1]);
+    VERIFY(MFX_ERR_NONE == sts, "MFXSetConfigFilterProperty failed for decoder CodecID");
+
+    sts = MFXCreateSession(loader, 0, &session);
+    VERIFY(MFX_ERR_NONE == sts,
+           "Cannot create session -- no implementations meet selection criteria");
 
     // Print info about implementation loaded
-    ShowImplInfo(session);
+    ShowImplementationInfo(loader, 0);
 
     // Convenience function to initialize available accelerator(s)
-    accelHandle = InitAcceleratorHandle(session);
+    accelHandle = InitAcceleratorHandle(session, &accel_fd);
 
     // Prepare input bitstream and start decoding
     bitstream.MaxLength = BITSTREAM_BUFFER_SIZE;
@@ -195,7 +223,10 @@ end:
     FreeExternalSystemMemorySurfacePool(decOutBuf, decSurfPool);
 
     if (accelHandle)
-        FreeAcceleratorHandle(accelHandle);
+        FreeAcceleratorHandle(accelHandle, accel_fd);
+
+    if (loader)
+        MFXUnload(loader);
 
     return 0;
 }

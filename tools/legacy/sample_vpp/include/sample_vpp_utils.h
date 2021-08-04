@@ -255,23 +255,23 @@ struct sInputParams {
     bool api2xPerf;
     #endif
     sInputParams()
-            : steParam(),
-              colorfillParam(),
-              istabParam(),
-              rotate(),
-              tccParam(),
-              deinterlaceParam(),
-              aceParam(),
+            : frameInfoIn(),
               frameInfoOut(),
-              mirroringParam(),
+              deinterlaceParam(),
               denoiseParam(),
-              multiViewParam(),
-              gamutParam(),
-              frcParam(),
-              frameInfoIn(),
-              procampParam(),
-              videoSignalInfoParam(),
               detailParam(),
+              procampParam(),
+              frcParam(),
+              videoSignalInfoParam(),
+              mirroringParam(),
+              gamutParam(),
+              multiViewParam(),
+              tccParam(),
+              aceParam(),
+              steParam(),
+              istabParam(),
+              colorfillParam(),
+              rotate(),
               resetFrmNums() {
         IOPattern           = 0;
         ImpLib              = 0;
@@ -495,7 +495,7 @@ public:
         mfxFrameSurfaceWrap* pSurface;
         mfxExtVppAuxData* pExtVpp;
     };
-    SurfaceVPPStore(){};
+    SurfaceVPPStore() : m_SyncPoints(){};
 
     typedef std::pair<mfxSyncPoint, SurfVPPExt> SyncPair;
     std::list<SyncPair> m_SyncPoints;

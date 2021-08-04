@@ -44,6 +44,19 @@ typedef std::string STRING_TYPE;
 typedef char CHAR_TYPE;
 #endif
 
+#if defined(_WIN32) || defined(_WIN64)
+    #if defined _M_IX86
+        // Windows x86
+        #define MSDK_LIB_NAME L"libmfxhw32."
+    #else
+        // Windows x64
+        #define MSDK_LIB_NAME L"libmfxhw64."
+    #endif
+#elif defined(__linux__)
+    // Linux x64
+    #define MSDK_LIB_NAME "libmfxhw64."
+#endif
+
 #define MSDK_MIN_VERSION_MAJOR 1
 #define MSDK_MIN_VERSION_MINOR 0
 
@@ -72,11 +85,11 @@ enum { MFX_ACCEL_MODE_VIA_HW_ANY = 0x7FFFFFFF };
 mfxStatus MFXInitEx2(mfxVersion version,
                      mfxInitializationParam vplParam,
                      mfxIMPL hwImpl,
-                     mfxSession* session,
-                     mfxU16* deviceID,
-                     CHAR_TYPE* dllName);
+                     mfxSession *session,
+                     mfxU16 *deviceID,
+                     CHAR_TYPE *dllName);
 
-typedef void(MFX_CDECL* VPLFunctionPtr)(void);
+typedef void(MFX_CDECL *VPLFunctionPtr)(void);
 
 enum LibType {
     LibTypeUnknown = -1,
@@ -118,7 +131,7 @@ enum MSDKCompatFunctionIdx {
 
 // both Windows and Linux use char* for function names
 struct VPLFunctionDesc {
-    const char* pName;
+    const char *pName;
     mfxVersion apiVersion;
 };
 
@@ -228,25 +241,25 @@ public:
     ~ConfigCtxVPL();
 
     // set a single filter property (KV pair)
-    mfxStatus SetFilterProperty(const mfxU8* name, mfxVariant value);
+    mfxStatus SetFilterProperty(const mfxU8 *name, mfxVariant value);
 
     // compare library caps vs. set of configuration filters
-    static mfxStatus ValidateConfig(const mfxImplDescription* libImplDesc,
-                                    const mfxImplementedFunctions* libImplFuncs,
-                                    std::list<ConfigCtxVPL*> configCtxList,
+    static mfxStatus ValidateConfig(const mfxImplDescription *libImplDesc,
+                                    const mfxImplementedFunctions *libImplFuncs,
+                                    std::list<ConfigCtxVPL *> configCtxList,
                                     LibType libType,
-                                    SpecialConfig* specialConfig);
+                                    SpecialConfig *specialConfig);
 
     // parse deviceID for x86 devices
-    static bool ParseDeviceIDx86(mfxChar* cDeviceID, mfxU32& deviceID, mfxU32& adapterIdx);
+    static bool ParseDeviceIDx86(mfxChar *cDeviceID, mfxU32 &deviceID, mfxU32 &adapterIdx);
 
     // loader object this config is associated with - needed to
     //   rebuild valid implementation list after each calling
     //   MFXSetConfigFilterProperty()
-    class LoaderCtxVPL* m_parentLoader;
+    class LoaderCtxVPL *m_parentLoader;
 
 private:
-    static __inline std::string GetNextProp(std::list<std::string>& s) {
+    static __inline std::string GetNextProp(std::list<std::string> &s) {
         if (s.empty())
             return "";
         std::string t = s.front();
@@ -255,21 +268,21 @@ private:
     }
 
     mfxStatus ValidateAndSetProp(mfxI32 idx, mfxVariant value);
-    mfxStatus SetFilterPropertyDec(std::list<std::string>& propParsedString, mfxVariant value);
-    mfxStatus SetFilterPropertyEnc(std::list<std::string>& propParsedString, mfxVariant value);
-    mfxStatus SetFilterPropertyVPP(std::list<std::string>& propParsedString, mfxVariant value);
+    mfxStatus SetFilterPropertyDec(std::list<std::string> &propParsedString, mfxVariant value);
+    mfxStatus SetFilterPropertyEnc(std::list<std::string> &propParsedString, mfxVariant value);
+    mfxStatus SetFilterPropertyVPP(std::list<std::string> &propParsedString, mfxVariant value);
 
-    static mfxStatus GetFlatDescriptionsDec(const mfxImplDescription* libImplDesc,
-                                            std::list<DecConfig>& decConfigList);
+    static mfxStatus GetFlatDescriptionsDec(const mfxImplDescription *libImplDesc,
+                                            std::list<DecConfig> &decConfigList);
 
-    static mfxStatus GetFlatDescriptionsEnc(const mfxImplDescription* libImplDesc,
-                                            std::list<EncConfig>& encConfigList);
+    static mfxStatus GetFlatDescriptionsEnc(const mfxImplDescription *libImplDesc,
+                                            std::list<EncConfig> &encConfigList);
 
-    static mfxStatus GetFlatDescriptionsVPP(const mfxImplDescription* libImplDesc,
-                                            std::list<VPPConfig>& vppConfigList);
+    static mfxStatus GetFlatDescriptionsVPP(const mfxImplDescription *libImplDesc,
+                                            std::list<VPPConfig> &vppConfigList);
 
     static mfxStatus CheckPropsGeneral(const mfxVariant cfgPropsAll[],
-                                       const mfxImplDescription* libImplDesc);
+                                       const mfxImplDescription *libImplDesc);
 
     static mfxStatus CheckPropsDec(const mfxVariant cfgPropsAll[],
                                    std::list<DecConfig> decConfigList);
@@ -280,7 +293,7 @@ private:
     static mfxStatus CheckPropsVPP(const mfxVariant cfgPropsAll[],
                                    std::list<VPPConfig> vppConfigList);
 
-    static mfxStatus CheckPropString(const mfxChar* implString, const std::string filtString);
+    static mfxStatus CheckPropString(const mfxChar *implString, const std::string filtString);
 
     mfxVariant m_propVar[NUM_TOTAL_FILTER_PROPS];
 
@@ -303,11 +316,11 @@ public:
     // public function to be called by VPL dispatcher
     // do not allocate any new memory here, so no need for a matching Release functions
     mfxStatus QueryMSDKCaps(STRING_TYPE libNameFull,
-                            mfxImplDescription** implDesc,
-                            mfxImplementedFunctions** implFuncs,
+                            mfxImplDescription **implDesc,
+                            mfxImplementedFunctions **implFuncs,
                             mfxU32 adapterID);
 
-    static mfxStatus QueryAPIVersion(STRING_TYPE libNameFull, mfxVersion* msdkVersion);
+    static mfxStatus QueryAPIVersion(STRING_TYPE libNameFull, mfxVersion *msdkVersion);
 
     // required by MFXCreateSession
     mfxIMPL m_msdkAdapter;
@@ -315,16 +328,16 @@ public:
 
 private:
     // session management
-    mfxStatus OpenSession(mfxSession* session,
+    mfxStatus OpenSession(mfxSession *session,
                           STRING_TYPE libNameFull,
                           mfxAccelerationMode accelMode,
                           mfxIMPL hwImpl);
-    void CloseSession(mfxSession* session);
+    void CloseSession(mfxSession *session);
 
     // utility functions
     static mfxAccelerationMode CvtAccelType(mfxIMPL implType, mfxIMPL implMethod);
-    static mfxStatus GetDefaultAccelType(mfxU32 adapterID, mfxIMPL* implDefault, mfxU64* luid);
-    static mfxStatus CheckD3D9Support(mfxU64 luid, STRING_TYPE libNameFull, mfxIMPL* implD3D9);
+    static mfxStatus GetDefaultAccelType(mfxU32 adapterID, mfxIMPL *implDefault, mfxU64 *luid);
+    static mfxStatus CheckD3D9Support(mfxU64 luid, STRING_TYPE libNameFull, mfxIMPL *implD3D9);
 
     // internal state variables
     STRING_TYPE m_libNameFull;
@@ -354,7 +367,7 @@ struct LibInfo {
 
     // if valid library, store file handle
     //   and table of exported functions
-    void* hModuleVPL;
+    void *hModuleVPL;
     VPLFunctionPtr vplFuncTable[NumVPLFunctions]; // NOLINT
 
     // select MSDK functions for 1.x style caps query
@@ -384,13 +397,13 @@ struct LibInfo {
 
 private:
     // make this class non-copyable
-    LibInfo(const LibInfo&);
-    void operator=(const LibInfo&);
+    LibInfo(const LibInfo &);
+    void operator=(const LibInfo &);
 };
 
 struct ImplInfo {
     // library containing this implementation
-    LibInfo* libInfo;
+    LibInfo *libInfo;
 
     // description of implementation
     mfxHDL implDesc;
@@ -440,7 +453,7 @@ public:
     mfxStatus UnloadAllLibraries();
 
     // query capabilities of each implementation
-    mfxStatus QueryImpl(mfxU32 idx, mfxImplCapsDeliveryFormat format, mfxHDL* idesc);
+    mfxStatus QueryImpl(mfxU32 idx, mfxImplCapsDeliveryFormat format, mfxHDL *idesc);
     mfxStatus ReleaseImpl(mfxHDL idesc);
 
     // update list of valid implementations based on current filter props
@@ -448,43 +461,43 @@ public:
     mfxStatus PrioritizeImplList(void);
 
     // create mfxSession
-    mfxStatus CreateSession(mfxU32 idx, mfxSession* session);
+    mfxStatus CreateSession(mfxU32 idx, mfxSession *session);
 
     // manage configuration filters
-    ConfigCtxVPL* AddConfigFilter();
+    ConfigCtxVPL *AddConfigFilter();
     mfxStatus FreeConfigFilters();
 
     // manage logging
     mfxStatus InitDispatcherLog();
-    DispatcherLogVPL* GetLogger();
+    DispatcherLogVPL *GetLogger();
 
 private:
     // helper functions
-    mfxStatus LoadSingleLibrary(LibInfo* libInfo);
-    mfxStatus UnloadSingleLibrary(LibInfo* libInfo);
-    mfxStatus UnloadSingleImplementation(ImplInfo* implInfo);
-    VPLFunctionPtr GetFunctionAddr(void* hModuleVPL, const char* pName);
+    mfxStatus LoadSingleLibrary(LibInfo *libInfo);
+    mfxStatus UnloadSingleLibrary(LibInfo *libInfo);
+    mfxStatus UnloadSingleImplementation(ImplInfo *implInfo);
+    VPLFunctionPtr GetFunctionAddr(void *hModuleVPL, const char *pName);
 
-    mfxU32 GetSearchPathsDriverStore(std::list<STRING_TYPE>& searchDirs);
-    mfxU32 GetSearchPathsSystemDefault(std::list<STRING_TYPE>& searchDirs);
-    mfxU32 GetSearchPathsCurrentExe(std::list<STRING_TYPE>& searchDirs);
-    mfxU32 GetSearchPathsCurrentDir(std::list<STRING_TYPE>& searchDirs);
-    mfxU32 GetSearchPathsLegacy(std::list<STRING_TYPE>& searchDirs);
+    mfxU32 GetSearchPathsDriverStore(std::list<STRING_TYPE> &searchDirs);
+    mfxU32 GetSearchPathsSystemDefault(std::list<STRING_TYPE> &searchDirs);
+    mfxU32 GetSearchPathsCurrentExe(std::list<STRING_TYPE> &searchDirs);
+    mfxU32 GetSearchPathsCurrentDir(std::list<STRING_TYPE> &searchDirs);
+    mfxU32 GetSearchPathsLegacy(std::list<STRING_TYPE> &searchDirs);
 
-    mfxU32 ParseEnvSearchPaths(const CHAR_TYPE* envVarName, std::list<STRING_TYPE>& searchDirs);
-    mfxU32 ParseLegacySearchPaths(std::list<STRING_TYPE>& searchDirs);
+    mfxU32 ParseEnvSearchPaths(const CHAR_TYPE *envVarName, std::list<STRING_TYPE> &searchDirs);
+    mfxU32 ParseLegacySearchPaths(std::list<STRING_TYPE> &searchDirs);
 
     mfxStatus SearchDirForLibs(STRING_TYPE searchDir,
-                               std::list<LibInfo*>& libInfoList,
+                               std::list<LibInfo *> &libInfoList,
                                mfxU32 priority);
 
-    mfxStatus ValidateAPIExports(VPLFunctionPtr* vplFuncTable, mfxVersion reportedVersion);
-    bool IsValidX86GPU(ImplInfo* implInfo, mfxU32& deviceID, mfxU32& adapterIdx);
-    mfxStatus UpdateImplPath(LibInfo* libInfo);
+    mfxStatus ValidateAPIExports(VPLFunctionPtr *vplFuncTable, mfxVersion reportedVersion);
+    bool IsValidX86GPU(ImplInfo *implInfo, mfxU32 &deviceID, mfxU32 &adapterIdx);
+    mfxStatus UpdateImplPath(LibInfo *libInfo);
 
-    std::list<LibInfo*> m_libInfoList;
-    std::list<ImplInfo*> m_implInfoList;
-    std::list<ConfigCtxVPL*> m_configCtxList;
+    std::list<LibInfo *> m_libInfoList;
+    std::list<ImplInfo *> m_implInfoList;
+    std::list<ConfigCtxVPL *> m_configCtxList;
 
     SpecialConfig m_specialConfig;
 

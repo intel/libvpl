@@ -40,6 +40,11 @@
 
 namespace MFX {
 
+// compare LUIDs
+inline bool operator==(const LUID &lhs, const LUID &rhs) {
+    return (lhs.LowPart == rhs.LowPart && lhs.HighPart == rhs.HighPart);
+}
+
 class DXDevice {
 public:
     // Default constructor

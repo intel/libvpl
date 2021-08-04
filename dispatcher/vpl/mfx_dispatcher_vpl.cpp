@@ -10,12 +10,12 @@
 
 // create unique loader context
 mfxLoader MFXLoad() {
-    LoaderCtxVPL* loaderCtx;
+    LoaderCtxVPL *loaderCtx;
 
     try {
         std::unique_ptr<LoaderCtxVPL> pLoaderCtx;
         pLoaderCtx.reset(new LoaderCtxVPL{});
-        loaderCtx = (LoaderCtxVPL*)pLoaderCtx.release();
+        loaderCtx = (LoaderCtxVPL *)pLoaderCtx.release();
     }
     catch (...) {
         return nullptr;
@@ -23,9 +23,6 @@ mfxLoader MFXLoad() {
 
     // initialize logging if appropriate environment variables are set
     loaderCtx->InitDispatcherLog();
-
-    DispatcherLogVPL* dispLog = loaderCtx->GetLogger();
-    DISP_LOG_FUNCTION(dispLog);
 
     // search directories for candidate implementations based on search order in
     // spec
@@ -57,7 +54,7 @@ mfxLoader MFXLoad() {
 // unload libraries, destroy all created mfxConfig objects, free other memory
 void MFXUnload(mfxLoader loader) {
     if (loader) {
-        LoaderCtxVPL* loaderCtx = (LoaderCtxVPL*)loader;
+        LoaderCtxVPL *loaderCtx = (LoaderCtxVPL *)loader;
 
         loaderCtx->UnloadAllLibraries();
 
@@ -75,10 +72,10 @@ mfxConfig MFXCreateConfig(mfxLoader loader) {
     if (!loader)
         return nullptr;
 
-    LoaderCtxVPL* loaderCtx = (LoaderCtxVPL*)loader;
-    ConfigCtxVPL* configCtx;
+    LoaderCtxVPL *loaderCtx = (LoaderCtxVPL *)loader;
+    ConfigCtxVPL *configCtx;
 
-    DispatcherLogVPL* dispLog = loaderCtx->GetLogger();
+    DispatcherLogVPL *dispLog = loaderCtx->GetLogger();
     DISP_LOG_FUNCTION(dispLog);
 
     try {
@@ -95,14 +92,14 @@ mfxConfig MFXCreateConfig(mfxLoader loader) {
 
 // set a config proprerty to use in enumerating implementations
 // each config context may have only one property
-mfxStatus MFXSetConfigFilterProperty(mfxConfig config, const mfxU8* name, mfxVariant value) {
+mfxStatus MFXSetConfigFilterProperty(mfxConfig config, const mfxU8 *name, mfxVariant value) {
     if (!config)
         return MFX_ERR_NULL_PTR;
 
-    ConfigCtxVPL* configCtx = (ConfigCtxVPL*)config;
-    LoaderCtxVPL* loaderCtx = configCtx->m_parentLoader;
+    ConfigCtxVPL *configCtx = (ConfigCtxVPL *)config;
+    LoaderCtxVPL *loaderCtx = configCtx->m_parentLoader;
 
-    DispatcherLogVPL* dispLog = loaderCtx->GetLogger();
+    DispatcherLogVPL *dispLog = loaderCtx->GetLogger();
     DISP_LOG_FUNCTION(dispLog);
 
     mfxStatus sts = configCtx->SetFilterProperty(name, value);
@@ -121,13 +118,13 @@ mfxStatus MFXSetConfigFilterProperty(mfxConfig config, const mfxU8* name, mfxVar
 mfxStatus MFXEnumImplementations(mfxLoader loader,
                                  mfxU32 i,
                                  mfxImplCapsDeliveryFormat format,
-                                 mfxHDL* idesc) {
+                                 mfxHDL *idesc) {
     if (!loader || !idesc)
         return MFX_ERR_NULL_PTR;
 
-    LoaderCtxVPL* loaderCtx = (LoaderCtxVPL*)loader;
+    LoaderCtxVPL *loaderCtx = (LoaderCtxVPL *)loader;
 
-    DispatcherLogVPL* dispLog = loaderCtx->GetLogger();
+    DispatcherLogVPL *dispLog = loaderCtx->GetLogger();
     DISP_LOG_FUNCTION(dispLog);
 
     mfxStatus sts = loaderCtx->QueryImpl(i, format, idesc);
@@ -136,13 +133,13 @@ mfxStatus MFXEnumImplementations(mfxLoader loader,
 }
 
 // create a new session with implementation i
-mfxStatus MFXCreateSession(mfxLoader loader, mfxU32 i, mfxSession* session) {
+mfxStatus MFXCreateSession(mfxLoader loader, mfxU32 i, mfxSession *session) {
     if (!loader || !session)
         return MFX_ERR_NULL_PTR;
 
-    LoaderCtxVPL* loaderCtx = (LoaderCtxVPL*)loader;
+    LoaderCtxVPL *loaderCtx = (LoaderCtxVPL *)loader;
 
-    DispatcherLogVPL* dispLog = loaderCtx->GetLogger();
+    DispatcherLogVPL *dispLog = loaderCtx->GetLogger();
     DISP_LOG_FUNCTION(dispLog);
 
     mfxStatus sts = loaderCtx->CreateSession(i, session);
@@ -155,9 +152,9 @@ mfxStatus MFXDispReleaseImplDescription(mfxLoader loader, mfxHDL hdl) {
     if (!loader)
         return MFX_ERR_NULL_PTR;
 
-    LoaderCtxVPL* loaderCtx = (LoaderCtxVPL*)loader;
+    LoaderCtxVPL *loaderCtx = (LoaderCtxVPL *)loader;
 
-    DispatcherLogVPL* dispLog = loaderCtx->GetLogger();
+    DispatcherLogVPL *dispLog = loaderCtx->GetLogger();
     DISP_LOG_FUNCTION(dispLog);
 
     mfxStatus sts = loaderCtx->ReleaseImpl(hdl);

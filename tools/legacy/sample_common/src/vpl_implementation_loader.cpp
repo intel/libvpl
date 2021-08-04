@@ -67,17 +67,17 @@ VPLImplementationLoader::~VPLImplementationLoader() {
     MFXUnload(m_Loader);
 }
 
-VPLImplementationLoader::VPLImplementationLoader(const VPLImplementationLoader &) {}
-VPLImplementationLoader &VPLImplementationLoader::operator=(const VPLImplementationLoader &) {
+VPLImplementationLoader::VPLImplementationLoader(const VPLImplementationLoader&) {}
+VPLImplementationLoader& VPLImplementationLoader::operator=(const VPLImplementationLoader&) {
     return *this;
 }
 
-mfxStatus VPLImplementationLoader::CreateConfig(mfxU32 data, const char *propertyName) {
+mfxStatus VPLImplementationLoader::CreateConfig(mfxU32 data, const char* propertyName) {
     mfxConfig cfg = MFXCreateConfig(m_Loader);
     mfxVariant variant;
     variant.Type     = MFX_VARIANT_TYPE_U32;
     variant.Data.U32 = data;
-    mfxStatus sts    = MFXSetConfigFilterProperty(cfg, (mfxU8 *)propertyName, variant);
+    mfxStatus sts    = MFXSetConfigFilterProperty(cfg, (mfxU8*)propertyName, variant);
     MSDK_CHECK_STATUS(sts, "MFXSetConfigFilterProperty failed");
     m_Configs.push_back(cfg);
 
@@ -95,7 +95,7 @@ mfxStatus VPLImplementationLoader::ConfigureImplementation(mfxIMPL impl) {
                                     MFX_IMPL_VIA_D3D11 };
 
     std::vector<mfxU32>::iterator hwImplsIt =
-        std::find_if(hwImpls.begin(), hwImpls.end(), [impl](const mfxU32 &val) {
+        std::find_if(hwImpls.begin(), hwImpls.end(), [impl](const mfxU32& val) {
             return (val == MFX_IMPL_VIA_MASK(impl) || val == MFX_IMPL_BASETYPE(impl));
         });
 
@@ -110,7 +110,7 @@ mfxStatus VPLImplementationLoader::ConfigureImplementation(mfxIMPL impl) {
     }
 
     mfxStatus sts =
-        MFXSetConfigFilterProperty(cfgImpl, (mfxU8 *)"mfxImplDescription.Impl", ImplVariant);
+        MFXSetConfigFilterProperty(cfgImpl, (mfxU8*)"mfxImplDescription.Impl", ImplVariant);
     MSDK_CHECK_STATUS(sts, "MFXSetConfigFilterProperty failed");
     m_Configs.push_back(cfgImpl);
     return sts;
@@ -147,13 +147,13 @@ void VPLImplementationLoader::SetDeviceAndAdapter(mfxU16 deviceID, mfxU32 adapte
 }
 
 mfxStatus VPLImplementationLoader::EnumImplementations(mfxU32 adapterNum) {
-    mfxImplDescription *idesc;
+    mfxImplDescription* idesc;
     mfxStatus sts = MFX_ERR_NONE;
 
-    sts = CreateConfig(adapterNum, const_cast<char *>("mfxImplDescription.VendorImplID"));
+    sts = CreateConfig(adapterNum, const_cast<char*>("mfxImplDescription.VendorImplID"));
     MSDK_CHECK_STATUS(sts, "CreateConfig failed");
 
-    sts = MFXEnumImplementations(m_Loader, 0, MFX_IMPLCAPS_IMPLDESCSTRUCTURE, (mfxHDL *)&idesc);
+    sts = MFXEnumImplementations(m_Loader, 0, MFX_IMPLCAPS_IMPLDESCSTRUCTURE, (mfxHDL*)&idesc);
     MSDK_CHECK_STATUS(sts, "MFXEnumImplementations failed");
     MSDK_CHECK_POINTER(idesc, MFX_ERR_NULL_PTR);
     m_idesc = idesc;
@@ -164,16 +164,14 @@ mfxStatus VPLImplementationLoader::EnumImplementations(mfxU32 adapterNum) {
 }
 
 mfxStatus VPLImplementationLoader::EnumImplementations() {
-    mfxImplDescription *idesc;
+    mfxImplDescription* idesc;
     mfxStatus sts = MFX_ERR_NONE;
 
     int impl    = 0;
-    m_ImplIndex = -1;
+    m_ImplIndex = 0xffffffff;
     while (sts == MFX_ERR_NONE) {
-        sts = MFXEnumImplementations(m_Loader,
-                                     impl,
-                                     MFX_IMPLCAPS_IMPLDESCSTRUCTURE,
-                                     (mfxHDL *)&idesc);
+        sts =
+            MFXEnumImplementations(m_Loader, impl, MFX_IMPLCAPS_IMPLDESCSTRUCTURE, (mfxHDL*)&idesc);
         MSDK_CHECK_STATUS(sts, "MFXEnumImplementations failed");
 
         if (!idesc) {
@@ -198,7 +196,7 @@ mfxStatus VPLImplementationLoader::EnumImplementations() {
         impl++;
     }
 
-    if (m_ImplIndex == -1) {
+    if (m_ImplIndex == 0xffffffff) {
         msdk_printf(MSDK_STRING(
             "Library was not found with required deviceIDAndAdapter, use implemetation: 0 \n"));
         m_ImplIndex = 0;
@@ -232,7 +230,7 @@ mfxU32 VPLImplementationLoader::GetImplIndex() const {
     return m_ImplIndex;
 };
 
-mfxStatus VPLImplementationLoader::GetVersion(mfxVersion *version) {
+mfxStatus VPLImplementationLoader::GetVersion(mfxVersion* version) {
     if (!m_idesc) {
         EnumImplementations();
     }
@@ -247,10 +245,10 @@ mfxStatus VPLImplementationLoader::GetVersion(mfxVersion *version) {
     return MFX_ERR_UNKNOWN;
 }
 
-mfxImplDescription *VPLImplementationLoader::GetImplDesc() {
+mfxImplDescription* VPLImplementationLoader::GetImplDesc() {
     return m_idesc;
 }
 
-mfxStatus MainVideoSession::CreateSession(VPLImplementationLoader *Loader) {
+mfxStatus MainVideoSession::CreateSession(VPLImplementationLoader* Loader) {
     return MFXCreateSession(Loader->GetLoader(), Loader->GetImplIndex(), &m_session);
 }

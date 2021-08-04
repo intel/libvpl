@@ -20,12 +20,12 @@ public:
     /// Reset device.
     virtual mfxStatus Reset() = 0;
     /// Get handle can be used for MFX session SetHandle calls
-    virtual mfxStatus GetHandle(mfxHandleType type, mfxHDL *pHdl) = 0;
+    virtual mfxStatus GetHandle(mfxHandleType type, mfxHDL* pHdl) = 0;
     /** Set handle.
     Particular device implementation may require other objects to operate.
     */
     virtual mfxStatus SetHandle(mfxHandleType type, mfxHDL hdl)                             = 0;
-    virtual mfxStatus RenderFrame(mfxFrameSurface1 *pSurface, mfxFrameAllocator *pmfxAlloc) = 0;
+    virtual mfxStatus RenderFrame(mfxFrameSurface1* pSurface, mfxFrameAllocator* pmfxAlloc) = 0;
     virtual void UpdateTitle(double fps)                                                    = 0;
     virtual void SetMondelloInput(bool isMondelloInputEnabled)                              = 0;
     virtual void Close()                                                                    = 0;

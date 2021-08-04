@@ -24,6 +24,17 @@
 #include <windows.h>
 
 #include <cfgmgr32.h>
+
+// support building in MinGW environments with older versions of cfgmgr32
+#ifdef __MINGW32__
+    #if !defined(CM_GETIDLIST_FILTER_PRESENT)
+        #define CM_GETIDLIST_FILTER_PRESENT 0x00000100
+    #endif
+    #if !defined(CM_GETIDLIST_FILTER_CLASS)
+        #define CM_GETIDLIST_FILTER_CLASS 0x00000200
+    #endif
+#endif
+
 #include <devguid.h>
 
 #include "windows/mfx_dispatcher_defs.h"
@@ -52,7 +63,10 @@ public:
     DriverStoreLoader(void);
     ~DriverStoreLoader(void);
 
-    bool GetDriverStorePath(wchar_t *path, DWORD dwPathSize, mfxU32 deviceID, wchar_t *driverKey);
+    bool GetDriverStorePath(wchar_t *path,
+                            DWORD dwPathSize,
+                            mfxU32 deviceID,
+                            const wchar_t *driverKey);
 
 protected:
     bool LoadCfgMgr();

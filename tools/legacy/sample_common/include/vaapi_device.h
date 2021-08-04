@@ -14,13 +14,13 @@
         #include "vaapi_utils_android.h"
     #endif
 
-CHWDevice *CreateVAAPIDevice(const std::string &devicePath = "", int type = MFX_LIBVA_DRM);
+CHWDevice* CreateVAAPIDevice(const std::string& devicePath = "", int type = MFX_LIBVA_DRM);
 
     #if defined(LIBVA_DRM_SUPPORT)
 /** VAAPI DRM implementation. */
 class CVAAPIDeviceDRM : public CHWDevice {
 public:
-    CVAAPIDeviceDRM(const std::string &devicePath, int type);
+    CVAAPIDeviceDRM(const std::string& devicePath, int type);
     virtual ~CVAAPIDeviceDRM(void);
 
     virtual mfxStatus Init(mfxHDL hWindow, mfxU16 nViews, mfxU32 nAdapterNum);
@@ -32,7 +32,7 @@ public:
     virtual mfxStatus SetHandle(mfxHandleType type, mfxHDL hdl) {
         return MFX_ERR_UNSUPPORTED;
     }
-    virtual mfxStatus GetHandle(mfxHandleType type, mfxHDL *pHdl) {
+    virtual mfxStatus GetHandle(mfxHandleType type, mfxHDL* pHdl) {
         if ((MFX_HANDLE_VA_DISPLAY == type) && (NULL != pHdl)) {
             *pHdl = m_DRMLibVA.GetVADisplay();
 
@@ -41,22 +41,22 @@ public:
         return MFX_ERR_UNSUPPORTED;
     }
 
-    virtual mfxStatus RenderFrame(mfxFrameSurface1 *pSurface, mfxFrameAllocator *pmfxAlloc);
+    virtual mfxStatus RenderFrame(mfxFrameSurface1* pSurface, mfxFrameAllocator* pmfxAlloc);
     virtual void UpdateTitle(double fps) {}
     virtual void SetMondelloInput(bool isMondelloInputEnabled) {}
 
-    inline drmRenderer *getRenderer() {
+    inline drmRenderer* getRenderer() {
         return m_rndr;
     }
 
 protected:
     DRMLibVA m_DRMLibVA;
-    drmRenderer *m_rndr;
+    drmRenderer* m_rndr;
 
 private:
     // no copies allowed
-    CVAAPIDeviceDRM(const CVAAPIDeviceDRM &);
-    void operator=(const CVAAPIDeviceDRM &);
+    CVAAPIDeviceDRM(const CVAAPIDeviceDRM&);
+    void operator=(const CVAAPIDeviceDRM&);
 };
 
     #endif
@@ -86,9 +86,9 @@ public:
     virtual void Close(void);
 
     virtual mfxStatus SetHandle(mfxHandleType type, mfxHDL hdl);
-    virtual mfxStatus GetHandle(mfxHandleType type, mfxHDL *pHdl);
+    virtual mfxStatus GetHandle(mfxHandleType type, mfxHDL* pHdl);
 
-    virtual mfxStatus RenderFrame(mfxFrameSurface1 *pSurface, mfxFrameAllocator *pmfxAlloc);
+    virtual mfxStatus RenderFrame(mfxFrameSurface1* pSurface, mfxFrameAllocator* pmfxAlloc);
     virtual void UpdateTitle(double fps) {}
     virtual void SetMondelloInput(bool isMondelloInputEnabled) {}
 
@@ -104,12 +104,12 @@ private:
     mfxU32 m_nRenderWinH;
         #if defined(X11_DRI3_SUPPORT)
     int m_dri_fd;
-    drm_intel_bufmgr *m_bufmgr;
-    xcb_connection_t *m_xcbconn;
+    drm_intel_bufmgr* m_bufmgr;
+    xcb_connection_t* m_xcbconn;
         #endif
     // no copies allowed
-    CVAAPIDeviceX11(const CVAAPIDeviceX11 &);
-    void operator=(const CVAAPIDeviceX11 &);
+    CVAAPIDeviceX11(const CVAAPIDeviceX11&);
+    void operator=(const CVAAPIDeviceX11&);
 };
 
     #endif
@@ -139,7 +139,7 @@ public:
     virtual mfxStatus SetHandle(mfxHandleType type, mfxHDL hdl) {
         return MFX_ERR_UNSUPPORTED;
     }
-    virtual mfxStatus GetHandle(mfxHandleType type, mfxHDL *pHdl) {
+    virtual mfxStatus GetHandle(mfxHandleType type, mfxHDL* pHdl) {
         if ((MFX_HANDLE_VA_DISPLAY == type) && (NULL != pHdl)) {
             *pHdl = m_DRMLibVA.GetVADisplay();
             return MFX_ERR_NONE;
@@ -147,21 +147,21 @@ public:
 
         return MFX_ERR_UNSUPPORTED;
     }
-    virtual mfxStatus RenderFrame(mfxFrameSurface1 *pSurface, mfxFrameAllocator *pmfxAlloc);
+    virtual mfxStatus RenderFrame(mfxFrameSurface1* pSurface, mfxFrameAllocator* pmfxAlloc);
     virtual void UpdateTitle(double fps) {}
 
     virtual void SetMondelloInput(bool isMondelloInputEnabled) {
         m_isMondelloInputEnabled = isMondelloInputEnabled;
     }
 
-    Wayland *GetWaylandHandle() {
+    Wayland* GetWaylandHandle() {
         return m_Wayland;
     }
 
 protected:
     DRMLibVA m_DRMLibVA;
     MfxLoader::VA_WaylandClientProxy m_WaylandClient;
-    Wayland *m_Wayland;
+    Wayland* m_Wayland;
 
 private:
     mfxU32 m_nRenderWinX;
@@ -172,8 +172,8 @@ private:
     bool m_isMondelloInputEnabled;
 
     // no copies allowed
-    CVAAPIDeviceWayland(const CVAAPIDeviceWayland &);
-    void operator=(const CVAAPIDeviceWayland &);
+    CVAAPIDeviceWayland(const CVAAPIDeviceWayland&);
+    void operator=(const CVAAPIDeviceWayland&);
 };
 
     #endif
@@ -183,7 +183,7 @@ private:
 /** VAAPI Android implementation. */
 class CVAAPIDeviceAndroid : public CHWDevice {
 public:
-    CVAAPIDeviceAndroid(AndroidLibVA *pAndroidLibVA) : m_pAndroidLibVA(pAndroidLibVA) {
+    CVAAPIDeviceAndroid(AndroidLibVA* pAndroidLibVA) : m_pAndroidLibVA(pAndroidLibVA) {
         if (!m_pAndroidLibVA) {
             throw std::bad_alloc();
         }
@@ -203,7 +203,7 @@ public:
     virtual mfxStatus SetHandle(mfxHandleType type, mfxHDL hdl) {
         return MFX_ERR_UNSUPPORTED;
     }
-    virtual mfxStatus GetHandle(mfxHandleType type, mfxHDL *pHdl) {
+    virtual mfxStatus GetHandle(mfxHandleType type, mfxHDL* pHdl) {
         if ((MFX_HANDLE_VA_DISPLAY == type) && (NULL != pHdl)) {
             if (m_pAndroidLibVA)
                 *pHdl = m_pAndroidLibVA->GetVADisplay();
@@ -213,14 +213,14 @@ public:
         return MFX_ERR_UNSUPPORTED;
     }
 
-    virtual mfxStatus RenderFrame(mfxFrameSurface1 *pSurface, mfxFrameAllocator *pmfxAlloc) {
+    virtual mfxStatus RenderFrame(mfxFrameSurface1* pSurface, mfxFrameAllocator* pmfxAlloc) {
         return MFX_ERR_NONE;
     }
     virtual void UpdateTitle(double fps) {}
     virtual void SetMondelloInput(bool isMondelloInputEnabled) {}
 
 protected:
-    AndroidLibVA *m_pAndroidLibVA;
+    AndroidLibVA* m_pAndroidLibVA;
 };
     #endif
 #endif //#if defined(LIBVA_DRM_SUPPORT) || defined(LIBVA_X11_SUPPORT) || defined(LIBVA_ANDROID_SUPPORT)

@@ -19,18 +19,18 @@ public:
 
 #if defined USE_VPP_EX
 
-    mfxStatus QueryIOSurf(mfxVideoParam *par, mfxFrameAllocRequest request[2]);
-    mfxStatus Query(mfxVideoParam *in, mfxVideoParam *out);
-    mfxStatus Init(mfxVideoParam *par);
-    mfxStatus RunFrameVPPAsync(mfxFrameSurface1 *in,
-                               mfxFrameSurface1 *out,
-                               mfxExtVppAuxData *aux,
-                               mfxSyncPoint *syncp);
-    mfxStatus GetVideoParam(mfxVideoParam *par);
+    mfxStatus QueryIOSurf(mfxVideoParam* par, mfxFrameAllocRequest request[2]);
+    mfxStatus Query(mfxVideoParam* in, mfxVideoParam* out);
+    mfxStatus Init(mfxVideoParam* par);
+    mfxStatus RunFrameVPPAsync(mfxFrameSurface1* in,
+                               mfxFrameSurface1* out,
+                               mfxExtVppAuxData* aux,
+                               mfxSyncPoint* syncp);
+    mfxStatus GetVideoParam(mfxVideoParam* par);
     mfxStatus Close(void);
 
 protected:
-    std::vector<mfxFrameSurface1 *> m_LockedSurfacesList;
+    std::vector<mfxFrameSurface1*> m_LockedSurfacesList;
     mfxVideoParam m_VideoParams;
 
     mfxU64 m_nCurrentPTS;

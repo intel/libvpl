@@ -21,48 +21,48 @@ MFXFrameAllocator::MFXFrameAllocator() {
 MFXFrameAllocator::~MFXFrameAllocator() {}
 
 mfxStatus MFXFrameAllocator::Alloc_(mfxHDL pthis,
-                                    mfxFrameAllocRequest *request,
-                                    mfxFrameAllocResponse *response) {
+                                    mfxFrameAllocRequest* request,
+                                    mfxFrameAllocResponse* response) {
     if (0 == pthis)
         return MFX_ERR_MEMORY_ALLOC;
 
-    MFXFrameAllocator &self = *(MFXFrameAllocator *)pthis;
+    MFXFrameAllocator& self = *(MFXFrameAllocator*)pthis;
 
     return self.AllocFrames(request, response);
 }
 
-mfxStatus MFXFrameAllocator::Lock_(mfxHDL pthis, mfxMemId mid, mfxFrameData *ptr) {
+mfxStatus MFXFrameAllocator::Lock_(mfxHDL pthis, mfxMemId mid, mfxFrameData* ptr) {
     if (0 == pthis)
         return MFX_ERR_MEMORY_ALLOC;
 
-    MFXFrameAllocator &self = *(MFXFrameAllocator *)pthis;
+    MFXFrameAllocator& self = *(MFXFrameAllocator*)pthis;
 
     return self.LockFrame(mid, ptr);
 }
 
-mfxStatus MFXFrameAllocator::Unlock_(mfxHDL pthis, mfxMemId mid, mfxFrameData *ptr) {
+mfxStatus MFXFrameAllocator::Unlock_(mfxHDL pthis, mfxMemId mid, mfxFrameData* ptr) {
     if (0 == pthis)
         return MFX_ERR_MEMORY_ALLOC;
 
-    MFXFrameAllocator &self = *(MFXFrameAllocator *)pthis;
+    MFXFrameAllocator& self = *(MFXFrameAllocator*)pthis;
 
     return self.UnlockFrame(mid, ptr);
 }
 
-mfxStatus MFXFrameAllocator::Free_(mfxHDL pthis, mfxFrameAllocResponse *response) {
+mfxStatus MFXFrameAllocator::Free_(mfxHDL pthis, mfxFrameAllocResponse* response) {
     if (0 == pthis)
         return MFX_ERR_MEMORY_ALLOC;
 
-    MFXFrameAllocator &self = *(MFXFrameAllocator *)pthis;
+    MFXFrameAllocator& self = *(MFXFrameAllocator*)pthis;
 
     return self.FreeFrames(response);
 }
 
-mfxStatus MFXFrameAllocator::GetHDL_(mfxHDL pthis, mfxMemId mid, mfxHDL *handle) {
+mfxStatus MFXFrameAllocator::GetHDL_(mfxHDL pthis, mfxMemId mid, mfxHDL* handle) {
     if (0 == pthis)
         return MFX_ERR_MEMORY_ALLOC;
 
-    MFXFrameAllocator &self = *(MFXFrameAllocator *)pthis;
+    MFXFrameAllocator& self = *(MFXFrameAllocator*)pthis;
 
     return self.GetFrameHDL(mid, handle);
 }
@@ -71,7 +71,7 @@ BaseFrameAllocator::BaseFrameAllocator() {}
 
 BaseFrameAllocator::~BaseFrameAllocator() {}
 
-mfxStatus BaseFrameAllocator::CheckRequestType(mfxFrameAllocRequest *request) {
+mfxStatus BaseFrameAllocator::CheckRequestType(mfxFrameAllocRequest* request) {
     if (0 == request)
         return MFX_ERR_NULL_PTR;
 
@@ -83,14 +83,14 @@ mfxStatus BaseFrameAllocator::CheckRequestType(mfxFrameAllocRequest *request) {
 }
 
 mfxStatus BaseFrameAllocator::ReallocFrame(mfxMemId midIn,
-                                           const mfxFrameInfo *info,
+                                           const mfxFrameInfo* info,
                                            mfxU16 memType,
-                                           mfxMemId *midOut) {
+                                           mfxMemId* midOut) {
     return ReallocImpl(midIn, info, memType, midOut);
 }
 
-mfxStatus BaseFrameAllocator::AllocFrames(mfxFrameAllocRequest *request,
-                                          mfxFrameAllocResponse *response) {
+mfxStatus BaseFrameAllocator::AllocFrames(mfxFrameAllocRequest* request,
+                                          mfxFrameAllocResponse* response) {
     if (0 == request || 0 == response || 0 == request->NumFrameSuggested)
         return MFX_ERR_MEMORY_ALLOC;
 
@@ -118,7 +118,7 @@ mfxStatus BaseFrameAllocator::AllocFrames(mfxFrameAllocRequest *request,
 
                 it->m_refCount++;
                 // return existing response
-                *response    = (mfxFrameAllocResponse &)*it;
+                *response    = (mfxFrameAllocResponse&)*it;
                 foundInCache = true;
             }
         }
@@ -153,7 +153,7 @@ mfxStatus BaseFrameAllocator::AllocFrames(mfxFrameAllocRequest *request,
     return sts;
 }
 
-mfxStatus BaseFrameAllocator::FreeFrames(mfxFrameAllocResponse *response) {
+mfxStatus BaseFrameAllocator::FreeFrames(mfxFrameAllocResponse* response) {
     std::lock_guard<std::mutex> lock(mtx);
 
     if (response == 0)
@@ -218,20 +218,20 @@ MFXBufferAllocator::MFXBufferAllocator() {
 
 MFXBufferAllocator::~MFXBufferAllocator() {}
 
-mfxStatus MFXBufferAllocator::Alloc_(mfxHDL pthis, mfxU32 nbytes, mfxU16 type, mfxMemId *mid) {
+mfxStatus MFXBufferAllocator::Alloc_(mfxHDL pthis, mfxU32 nbytes, mfxU16 type, mfxMemId* mid) {
     if (0 == pthis)
         return MFX_ERR_MEMORY_ALLOC;
 
-    MFXBufferAllocator &self = *(MFXBufferAllocator *)pthis;
+    MFXBufferAllocator& self = *(MFXBufferAllocator*)pthis;
 
     return self.AllocBuffer(nbytes, type, mid);
 }
 
-mfxStatus MFXBufferAllocator::Lock_(mfxHDL pthis, mfxMemId mid, mfxU8 **ptr) {
+mfxStatus MFXBufferAllocator::Lock_(mfxHDL pthis, mfxMemId mid, mfxU8** ptr) {
     if (0 == pthis)
         return MFX_ERR_MEMORY_ALLOC;
 
-    MFXBufferAllocator &self = *(MFXBufferAllocator *)pthis;
+    MFXBufferAllocator& self = *(MFXBufferAllocator*)pthis;
 
     return self.LockBuffer(mid, ptr);
 }
@@ -240,7 +240,7 @@ mfxStatus MFXBufferAllocator::Unlock_(mfxHDL pthis, mfxMemId mid) {
     if (0 == pthis)
         return MFX_ERR_MEMORY_ALLOC;
 
-    MFXBufferAllocator &self = *(MFXBufferAllocator *)pthis;
+    MFXBufferAllocator& self = *(MFXBufferAllocator*)pthis;
 
     return self.UnlockBuffer(mid);
 }
@@ -249,7 +249,7 @@ mfxStatus MFXBufferAllocator::Free_(mfxHDL pthis, mfxMemId mid) {
     if (0 == pthis)
         return MFX_ERR_MEMORY_ALLOC;
 
-    MFXBufferAllocator &self = *(MFXBufferAllocator *)pthis;
+    MFXBufferAllocator& self = *(MFXBufferAllocator*)pthis;
 
     return self.FreeBuffer(mid);
 }

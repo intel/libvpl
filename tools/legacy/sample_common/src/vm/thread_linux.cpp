@@ -23,7 +23,10 @@ MSDKSemaphore::MSDKSemaphore(mfxStatus& sts, mfxU32 count) : msdkSemaphoreHandle
     if (!res) {
         res = pthread_mutex_init(&m_mutex, NULL);
         if (res) {
-            pthread_cond_destroy(&m_semaphore);
+            int eres = pthread_cond_destroy(&m_semaphore);
+            if (eres) {
+                // Nothing to do
+            }
         }
     }
     if (res)
@@ -31,8 +34,14 @@ MSDKSemaphore::MSDKSemaphore(mfxStatus& sts, mfxU32 count) : msdkSemaphoreHandle
 }
 
 MSDKSemaphore::~MSDKSemaphore(void) {
-    pthread_mutex_destroy(&m_mutex);
-    pthread_cond_destroy(&m_semaphore);
+    int res = pthread_mutex_destroy(&m_mutex);
+    if (res) {
+        // Nothing to do
+    }
+    res = pthread_cond_destroy(&m_semaphore);
+    if (res) {
+        // Nothing to do
+    }
 }
 
 mfxStatus MSDKSemaphore::Post(void) {
@@ -42,6 +51,9 @@ mfxStatus MSDKSemaphore::Post(void) {
             res = pthread_cond_signal(&m_semaphore);
     }
     int sts = pthread_mutex_unlock(&m_mutex);
+    if (sts) {
+        // Nothing to do
+    }
     if (!res)
         res = sts;
     return (res) ? MFX_ERR_UNKNOWN : MFX_ERR_NONE;
@@ -52,10 +64,16 @@ mfxStatus MSDKSemaphore::Wait(void) {
     if (!res) {
         while (!m_count) {
             res = pthread_cond_wait(&m_semaphore, &m_mutex);
+            if (res) {
+                // Nothing to do
+            }
         }
         if (!res)
             --m_count;
         int sts = pthread_mutex_unlock(&m_mutex);
+        if (sts) {
+            // Nothing to do
+        }
         if (!res)
             res = sts;
     }
@@ -71,7 +89,10 @@ MSDKEvent::MSDKEvent(mfxStatus& sts, bool manual, bool state) : msdkEventHandle(
     if (!res) {
         res = pthread_mutex_init(&m_mutex, NULL);
         if (res) {
-            pthread_cond_destroy(&m_event);
+            int eres = pthread_cond_destroy(&m_event);
+            if (eres) {
+                // Nothing to do
+            }
         }
     }
     if (res)
@@ -79,8 +100,14 @@ MSDKEvent::MSDKEvent(mfxStatus& sts, bool manual, bool state) : msdkEventHandle(
 }
 
 MSDKEvent::~MSDKEvent(void) {
-    pthread_mutex_destroy(&m_mutex);
-    pthread_cond_destroy(&m_event);
+    int res = pthread_mutex_destroy(&m_mutex);
+    if (res) {
+        // Nothing to do
+    }
+    res = pthread_cond_destroy(&m_event);
+    if (res) {
+        // Nothing to do
+    }
 }
 
 mfxStatus MSDKEvent::Signal(void) {
@@ -94,6 +121,9 @@ mfxStatus MSDKEvent::Signal(void) {
                 res = pthread_cond_signal(&m_event);
         }
         int sts = pthread_mutex_unlock(&m_mutex);
+        if (sts) {
+            // Nothing to do
+        }
         if (!res)
             res = sts;
     }
@@ -113,11 +143,18 @@ mfxStatus MSDKEvent::Reset(void) {
 mfxStatus MSDKEvent::Wait(void) {
     int res = pthread_mutex_lock(&m_mutex);
     if (!res) {
-        while (!m_state)
+        while (!m_state) {
             res = pthread_cond_wait(&m_event, &m_mutex);
+            if (res) {
+                // Nothing to do
+            }
+        }
         if (!m_manual)
             m_state = false;
         int sts = pthread_mutex_unlock(&m_mutex);
+        if (sts) {
+            // Nothing to do
+        }
         if (!res)
             res = sts;
     }

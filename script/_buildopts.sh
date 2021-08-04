@@ -33,6 +33,7 @@ PROJ_DIR="$( dirname "${SCRIPT_DIR}" )"
 # option is set. (ex: [ -n "${HELP_OPT}" ])
 unset HELP_OPT
 unset GPL_OPT
+unset WARNING_AS_ERROR_OPT
 COFIG_OPT=Release
 unset ARCH_OPT
 unset BOOTSTRAP_OPT
@@ -73,6 +74,9 @@ while [ $# -gt 0 ]; do
         "gpl" )
             GPL_OPT=yes
             ;;
+        "--warning_as_error" )
+            WARNING_AS_ERROR_OPT=yes
+            ;;
         "--config" )
             COFIG_OPT="$2"
             shift
@@ -110,15 +114,16 @@ done
 if [ -n "${HELP_OPT}" ]
 then
   echo "Usage: ${ORIG_SCRIPT_NAME} [options]"
-  echo "  --gpl            Include componentes using GPL licensing"
-  echo "  --config CONFIG  Build configuration"
-  echo "  -A ARCH          Target architecture"
-  echo "  --bootstrap      Include bootstrap steps"
-  echo "  --help, -h       Show this help message"
+  echo "  --gpl                Include componentes using GPL licensing"
+  echo "  --warning_as_error   Treat compiler warnings as errors"
+  echo "  --config CONFIG      Build configuration"
+  echo "  -A ARCH              Target architecture"
+  echo "  --bootstrap          Include bootstrap steps"
+  echo "  --help, -h           Show this help message"
   echo ""
   echo "Depricated options"
-  echo "  debug            same as \"--config Debug\""
-  echo "  gpl              same as \"--gpl\""
+  echo "  debug                same as \"--config Debug\""
+  echo "  gpl                  same as \"--gpl\""
   echo ""
   echo "CONFIG may be: Release, Debug"
   echo "ARCH may be: x86_64, x86_32"
@@ -132,6 +137,10 @@ FORWARD_OPTS=
 if [ -n "${GPL_OPT}" ]
 then
   FORWARD_OPTS="${FORWARD_OPTS} --gpl"
+fi
+if [ -n "${WARNING_AS_ERROR_OPT}" ]
+then
+  FORWARD_OPTS="${FORWARD_OPTS} --warning_as_error"
 fi
 if [ -n "${COFIG_OPT}" ]
 then
@@ -149,6 +158,7 @@ fi
 # echo "Option Summary:"
 # print_var HELP_OPT
 # print_var GPL_OPT
+# print_var WARNING_AS_ERROR_OPT
 # print_var COFIG_OPT
 # print_var ARCH_OPT
 # print_var BOOTSTRAP_OPT

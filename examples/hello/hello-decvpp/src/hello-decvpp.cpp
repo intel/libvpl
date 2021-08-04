@@ -52,6 +52,7 @@ int main(int argc, char *argv[]) {
     FILE *sinkVPP1                        = NULL; // for decoded output -> 320x240 i420 vpp frames
     FILE *sinkVPP2                        = NULL; // for decoded output -> 128x96 bgra vpp frames
     FILE *source                          = NULL;
+    int accel_fd                          = 0;
     mfxBitstream bitstream                = {};
     mfxSession session                    = NULL;
     mfxStatus sts                         = MFX_ERR_NONE;
@@ -128,7 +129,7 @@ int main(int argc, char *argv[]) {
     ShowImplementationInfo(loader, 0);
 
     // Convenience function to initialize available accelerator(s)
-    accelHandle = InitAcceleratorHandle(session);
+    accelHandle = InitAcceleratorHandle(session, &accel_fd);
 
     // Prepare input bitstream and start decoding
     bitstream.MaxLength = BITSTREAM_BUFFER_SIZE;
@@ -157,6 +158,12 @@ int main(int argc, char *argv[]) {
             printf("Unsupported color format\n");
             goto end;
             break;
+    }
+
+    if (0 == mfxDecParams.mfx.FrameInfo.FrameRateExtN &&
+        0 == mfxDecParams.mfx.FrameInfo.FrameRateExtD) {
+        mfxDecParams.mfx.FrameInfo.FrameRateExtN = 30;
+        mfxDecParams.mfx.FrameInfo.FrameRateExtD = 1;
     }
 
     numVPPCh       = 2;
@@ -227,23 +234,34 @@ int main(int argc, char *argv[]) {
 
         switch (sts) {
             case MFX_ERR_NONE:
-                aSurf = outSurfaces->Surfaces[0];
-                sts   = aSurf->FrameInterface->Synchronize(aSurf, SYNC_TIMEOUT);
-                if (sts == MFX_ERR_NONE) {
-                    // decode output
-                    sts = WriteRawFrame_InternalMem(outSurfaces->Surfaces[0], sinkDec);
-                    VERIFY(MFX_ERR_NONE == sts, "Could not write decode output");
-
-                    // vpp1 output
-                    sts = WriteRawFrame_InternalMem(outSurfaces->Surfaces[1], sinkVPP1);
-                    VERIFY(MFX_ERR_NONE == sts, "Could not write 1st vpp output");
-
-                    // vpp2 output
-                    sts = WriteRawFrame_InternalMem(outSurfaces->Surfaces[2], sinkVPP2);
-                    VERIFY(MFX_ERR_NONE == sts, "Could not write 2nd vpp output");
-
-                    framenum++;
+                // decode output
+                if (outSurfaces == nullptr) {
+                    printf("ERROR - empty array of surfaces.\n");
+                    isStillGoing = false;
+                    continue;
                 }
+
+                for (mfxU32 i = 0; i < outSurfaces->NumSurfaces; i++) {
+                    aSurf = outSurfaces->Surfaces[i];
+
+                    sts = aSurf->FrameInterface->Synchronize(aSurf, SYNC_TIMEOUT);
+                    VERIFY(MFX_ERR_NONE == sts, "ERROR - FrameInterface->Synchronizee failed");
+
+                    if (aSurf->Info.ChannelId == 0) { // decoder output
+                        sts = WriteRawFrame_InternalMem(aSurf, sinkDec);
+                        VERIFY(MFX_ERR_NONE == sts, "ERROR - Could not write decode output");
+                    }
+                    else { // VPP filter output
+                        sts = WriteRawFrame_InternalMem(aSurf, (i == 1) ? sinkVPP1 : sinkVPP2);
+                        VERIFY(MFX_ERR_NONE == sts, "ERROR - Could not write vpp output");
+                    }
+                }
+
+                framenum++;
+                sts = outSurfaces->Release(outSurfaces);
+                VERIFY(MFX_ERR_NONE == sts, "ERROR - mfxSurfaceArray->Release failed");
+
+                outSurfaces = nullptr;
                 break;
             case MFX_ERR_MORE_DATA:
                 // The function requires more bitstream at input before decoding can proceed
@@ -316,7 +334,7 @@ end:
         free(bitstream.Data);
 
     if (accelHandle)
-        FreeAcceleratorHandle(accelHandle);
+        FreeAcceleratorHandle(accelHandle, accel_fd);
 
     if (loader)
         MFXUnload(loader);

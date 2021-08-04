@@ -24,14 +24,14 @@ public:
     PTSMaker();
     virtual ~PTSMaker(){};
     // isAdvancedMode - enable/disable FRC checking based on PTS
-    mfxStatus Init(mfxVideoParam *par,
+    mfxStatus Init(mfxVideoParam* par,
                    mfxU32 asyncDeep,
                    bool isAdvancedMode    = false,
                    bool isFrameCorrespond = false);
     // need to set current time stamp for input surface
-    bool SetPTS(mfxFrameSurface1 *pSurface);
+    bool SetPTS(mfxFrameSurface1* pSurface);
     // need to check
-    bool CheckPTS(mfxFrameSurface1 *pSurface);
+    bool CheckPTS(mfxFrameSurface1* pSurface);
     // sometimes need to pts jumping
     void JumpPTS();
 
@@ -39,9 +39,9 @@ protected:
     void PrintDumpInfo();
 
     // FRC based on Init parameters
-    bool CheckBasicPTS(mfxFrameSurface1 *pSurface);
+    bool CheckBasicPTS(mfxFrameSurface1* pSurface);
     // FRC based on pts
-    bool CheckAdvancedPTS(mfxFrameSurface1 *pSurface);
+    bool CheckAdvancedPTS(mfxFrameSurface1* pSurface);
 
     std::unique_ptr<BaseFRCChecker> m_pFRCChecker;
 

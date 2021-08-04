@@ -93,13 +93,16 @@ def main(args):
                                              args.input) as source:
         with open("out.h265", "wb") as sink:
             opts = []
+            input_fourcc = pyvpl.color_format_fourcc.nv12
             if args.impl == 'sw':
                 opts.append(
                     pyvpl.property("mfxImplDescription.Impl",
                                    pyvpl.implementation.software))
                 input_fourcc = pyvpl.color_format_fourcc.i420
             elif args.impl == 'hw':
-                opts.append(pyvpl.property.HW_ImlpOption)
+                opts.append(
+                    pyvpl.property("mfxImplDescription.Impl",
+                                   pyvpl.implementation.hardware))
                 input_fourcc = pyvpl.color_format_fourcc.nv12
             opts.append(
                 pyvpl.property(

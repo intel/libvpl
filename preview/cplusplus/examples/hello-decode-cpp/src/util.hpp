@@ -234,66 +234,6 @@ IDXGIAdapter *GetIntelDeviceAdapterHandle(mfxIMPL impl) {
 }
 #endif
 
-void InitAcceleratorHandle(mfxIMPL impl, void **handle) {
-#if defined(_WIN32) || defined(_WIN64)
-    HRESULT hres = S_OK;
-
-    static D3D_FEATURE_LEVEL FeatureLevels[] = { D3D_FEATURE_LEVEL_11_1,
-                                                 D3D_FEATURE_LEVEL_11_0,
-                                                 D3D_FEATURE_LEVEL_10_1,
-                                                 D3D_FEATURE_LEVEL_10_0 };
-    D3D_FEATURE_LEVEL pFeatureLevelsOut;
-    g_pAdapter = GetIntelDeviceAdapterHandle(impl);
-    if (NULL == g_pAdapter) {
-        throw std::exception("Unable to get adaptor");
-    }
-
-    unsigned int dxFlags = 0;
-    //UINT dxFlags = D3D11_CREATE_DEVICE_DEBUG;
-
-    hres = D3D11CreateDevice(g_pAdapter,
-                             D3D_DRIVER_TYPE_UNKNOWN,
-                             NULL,
-                             dxFlags,
-                             FeatureLevels,
-                             (sizeof(FeatureLevels) / sizeof(FeatureLevels[0])),
-                             D3D11_SDK_VERSION,
-                             &g_pD3D11Device,
-                             &pFeatureLevelsOut,
-                             &g_pD3D11Ctx);
-    if (FAILED(hres))
-        throw std::exception("Unable to create Direct3D 11 device");
-
-    // turn on multithreading for the DX11 context
-    CComQIPtr<ID3D10Multithread> p_mt(g_pD3D11Ctx);
-    if (p_mt)
-        p_mt->SetMultithreadProtected(true);
-    else
-        throw std::exception("Unable to set multithreading on Direct3D 11 device");
-
-    *handle = g_pD3D11Device;
-
-#elif defined(__linux__)
-    #ifdef LIBVA_SUPPORT
-    if ((impl & MFX_IMPL_VIA_VAAPI) == MFX_IMPL_VIA_VAAPI) {
-        VADisplay va_dpy = NULL;
-        int fd;
-        // initialize VAAPI context and set session handle (req in Linux)
-        fd = open("/dev/dri/renderD128", O_RDWR);
-        if (fd >= 0) {
-            va_dpy = vaGetDisplayDRM(fd);
-            if (va_dpy) {
-                int major_version = 0, minor_version = 0;
-                if (VA_STATUS_SUCCESS == vaInitialize(va_dpy, &major_version, &minor_version)) {
-                    *handle = va_dpy;
-                }
-            }
-        }
-    }
-    #endif
-#endif
-}
-
 void PrepareFrameInfo(mfxFrameInfo *fi, uint32_t format, uint16_t w, uint16_t h) {
     // Video processing input data format
     fi->FourCC        = format;
