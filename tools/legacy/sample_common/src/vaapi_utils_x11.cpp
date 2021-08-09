@@ -10,11 +10,16 @@
     #include "sample_defs.h"
 
     #include <dlfcn.h>
-    #if defined(X11_DRI3_SUPPORT)
-        #include <fcntl.h>
-    #endif
+    #include <fcntl.h>
+    #include <sys/ioctl.h>
 
     #define VAAPI_X_DEFAULT_DISPLAY ":0.0"
+
+    const char* MFX_X11_NODE_RENDER = "/dev/dri/renderD";
+    const char* MFX_X11_DRIVER_NAME = "i915";
+    constexpr mfxU32 MFX_X11_DRIVER_NAME_LEN = 4;
+    constexpr mfxU32 MFX_X11_NODE_INDEX = 128;
+    constexpr mfxU32 MFX_X11_MAX_NODES = 16;
 
 X11LibVA::X11LibVA(void)
         : CLibVA(MFX_LIBVA_X11),
@@ -22,6 +27,7 @@ X11LibVA::X11LibVA(void)
           m_configID(VA_INVALID_ID),
           m_contextID(VA_INVALID_ID) {
     char* currentDisplay = getenv("DISPLAY");
+    int fd = -1;
 
     m_display = (currentDisplay) ? m_x11lib.XOpenDisplay(currentDisplay)
                                  : m_x11lib.XOpenDisplay(VAAPI_X_DEFAULT_DISPLAY);
@@ -32,7 +38,31 @@ X11LibVA::X11LibVA(void)
         throw std::bad_alloc();
     }
 
-    m_va_dpy = m_vax11lib.vaGetDisplay(m_display);
+    for (mfxU32 i = 0; i < MFX_X11_MAX_NODES; ++i) {
+        std::string devPath = MFX_X11_NODE_RENDER + std::to_string(MFX_X11_NODE_INDEX + i);
+        fd = -1;
+        fd = open(devPath.c_str(), O_RDWR);
+        if (fd < 0) continue;
+
+        char driverName[MFX_X11_DRIVER_NAME_LEN + 1] = {};
+        drm_version_t version = {};
+        version.name_len = MFX_X11_DRIVER_NAME_LEN;
+        version.name = driverName;
+
+        if(!ioctl(fd, DRM_IOWR(0, drm_version), &version) &&
+           !strcmp(driverName, MFX_X11_DRIVER_NAME)) {
+            break;
+        }
+        close(fd);
+    }
+
+    if (fd < 0) {
+        m_x11lib.XCloseDisplay(m_display);
+        msdk_printf(MSDK_STRING("Failed to open adapter\n"));
+        throw std::bad_alloc();
+    }
+
+    m_va_dpy = m_vadrmlib.vaGetDisplayDRM(fd);
     if (!m_va_dpy) {
         m_x11lib.XCloseDisplay(m_display);
         msdk_printf(MSDK_STRING("Failed to get VA Display\n"));
