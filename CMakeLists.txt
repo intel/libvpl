@@ -4,7 +4,12 @@
 # SPDX-License-Identifier: MIT
 # ##############################################################################
 # oneAPI Video Processing Library (oneVPL) main build script
-cmake_minimum_required(VERSION 3.10.2)
+if(MSVC)
+  cmake_minimum_required(VERSION 3.15)
+  cmake_policy(SET CMP0091 NEW)
+else()
+  cmake_minimum_required(VERSION 3.10.2)
+endif()
 
 file(STRINGS "version.txt" version_txt)
 project(oneVPL VERSION ${version_txt})
@@ -67,6 +72,13 @@ endif()
 if(BUILD_PYTHON_BINDING_ONLY)
   set(BUILD_DEV OFF)
   set(BUILD_DISPATCHER OFF)
+endif()
+
+option(USE_MSVC_STATIC_RUNTIME
+       "Link MSVC runtime statically to all components." OFF)
+
+if(USE_MSVC_STATIC_RUNTIME)
+  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 endif()
 
 option(USE_ONEAPI_INSTALL_LAYOUT "Use oneAPI install layout instead of FHS" OFF)
@@ -193,3 +205,7 @@ message(STATUS "  BUILD_TESTS                    : ${BUILD_TESTS}")
 message(STATUS "  BUILD_EXAMPLES                 : ${BUILD_EXAMPLES}")
 message(STATUS "  INSTALL_EXAMPLE_CODE           : ${INSTALL_EXAMPLE_CODE}")
 message(STATUS "  BUILD_PYTHON_BINDING           : ${BUILD_PYTHON_BINDING}")
+if(MSVC)
+  message(
+    STATUS "  USE_MSVC_STATIC_RUNTIME        : ${USE_MSVC_STATIC_RUNTIME}")
+endif()
