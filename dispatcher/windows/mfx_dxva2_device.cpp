@@ -9,6 +9,7 @@
 #include <dxgi.h>
 
 #include "windows/mfx_dxva2_device.h"
+#include "windows/mfx_load_dll.h"
 
 using namespace MFX;
 
@@ -353,6 +354,52 @@ bool DXGI1Device::Init(const mfxU32 adapterNum) {
     return true;
 
 } // bool DXGI1Device::Init(const mfxU32 adapterNum)
+
+bool DXGI1Device::GetAdapterList(std::vector<DXGI1DeviceInfo> &adapterInfo) {
+    mfxModuleHandle hModule = MFX::mfx_dll_load(L"dxgi.dll");
+    if (!hModule)
+        return false;
+
+    DXGICreateFactoryFunc pFactoryFunc = NULL;
+    pFactoryFunc = (DXGICreateFactoryFunc)MFX::mfx_dll_get_addr(hModule, "CreateDXGIFactory1");
+    if (pFactoryFunc == NULL)
+        return false;
+
+    IDXGIFactory1 *pFactory = NULL;
+    IDXGIAdapter1 *pAdapter = NULL;
+
+    HRESULT hRes = pFactoryFunc(__uuidof(IDXGIFactory1), (void **)(&pFactory));
+    if (FAILED(hRes))
+        return false;
+
+    bool bEnumSuccess = false;
+    mfxU32 curAdapter = 0;
+    while (pFactory->EnumAdapters1(curAdapter, &pAdapter) == S_OK) {
+        curAdapter++;
+
+        DXGI_ADAPTER_DESC1 desc = {};
+        DXGI1DeviceInfo devInfo = {};
+        if (pAdapter->GetDesc1(&desc) == S_OK) {
+            // save minimal descriptive info
+            devInfo.vendorID = desc.VendorId;
+            devInfo.deviceID = desc.DeviceId;
+            devInfo.luid     = LUIDtomfxU64(desc.AdapterLuid);
+
+            // add to list
+            adapterInfo.emplace_back(devInfo);
+
+            // at least one valid adapter found
+            bEnumSuccess = true;
+        }
+
+        pAdapter->Release();
+    }
+    pFactory->Release();
+
+    mfx_dll_free(hModule);
+
+    return bEnumSuccess;
+}
 
 DXVA2Device::DXVA2Device(void) {
     m_numAdapters = 0;

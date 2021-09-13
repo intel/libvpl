@@ -44,6 +44,7 @@ void init_defs(const py::module &m) {
                       .value("TaskBusy", vpl::status::TaskBusy)
                       .value("FilterSkipped", vpl::status::FilterSkipped)
                       .value("PartialOutput", vpl::status::PartialOutput)
+                      .value("AllocTimeoutExpired", vpl::status::AllocTimeoutExpired)
                       .value("NotEnoughData", vpl::status::NotEnoughData)
                       .value("NotEnoughSurface", vpl::status::NotEnoughSurface)
                       .value("NotEnoughBuffer", vpl::status::NotEnoughBuffer)
@@ -99,7 +100,10 @@ void init_defs(const py::module &m) {
                                    .value("y416", vpl::color_format_fourcc::y416)
                                    .value("nv21", vpl::color_format_fourcc::nv21)
                                    .value("i420", vpl::color_format_fourcc::i420)
-                                   .value("i010", vpl::color_format_fourcc::i010);
+                                   .value("i010", vpl::color_format_fourcc::i010)
+                                   .value("i210", vpl::color_format_fourcc::i210)
+                                   .value("i422", vpl::color_format_fourcc::i422)
+                                   .value("bgrp", vpl::color_format_fourcc::bgrp);
     color_format_fourcc.attr("__str__") = py::cpp_function(
         [](vpl::color_format_fourcc self) {
             return vpl::detail::FourCC2String((uint32_t)self);
@@ -259,4 +263,9 @@ void init_defs(const py::module &m) {
                            .value("va_config_id", vpl::handle_type::va_config_id)
                            .value("va_context_id", vpl::handle_type::va_context_id)
                            .value("cm_device", vpl::handle_type::cm_device);
+
+    auto pool_alloction_policy = py::enum_<vpl::pool_alloction_policy>(m, "pool_alloction_policy")
+                                     .value("optimal", vpl::pool_alloction_policy::optimal)
+                                     .value("unlimited", vpl::pool_alloction_policy::unlimited)
+                                     .value("limited", vpl::pool_alloction_policy::limited);
 }

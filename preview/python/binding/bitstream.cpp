@@ -38,11 +38,15 @@ void init_bitstream(const py::module &m) {
         py::ssize_t sample_pitch;
     };
 
-    py::class_<bitstream_data>(m, "bitstream_data", py::buffer_protocol())
+    py::class_<bitstream_data, std::shared_ptr<bitstream_data>>(m,
+                                                                "bitstream_data",
+                                                                py::buffer_protocol())
         .def_buffer(&bitstream_data::buffer_info);
 
     auto bitstream =
-        py::class_<vpl::bitstream>(m, "bitstream", py::buffer_protocol())
+        py::class_<vpl::bitstream, std::shared_ptr<vpl::bitstream>>(m,
+                                                                    "bitstream",
+                                                                    py::buffer_protocol())
             .def(py::init<>())
             .def(py::init<vpl::codec_format_fourcc>())
             .def(py::init<vpl::codec_format_fourcc, uint32_t>())
@@ -126,7 +130,9 @@ void init_bitstream(const py::module &m) {
             .def("reset", &vpl::bitstream::reset, "Resets data in the buffer.");
 
     auto bitstream_as_src =
-        py::class_<vpl::bitstream_as_src, vpl::bitstream>(m, "bitstream_as_src")
+        py::class_<vpl::bitstream_as_src, vpl::bitstream, std::shared_ptr<vpl::bitstream_as_src>>(
+            m,
+            "bitstream_as_src")
             .def(py::init<>())
             .def(py::init<vpl::codec_format_fourcc>())
             .def(py::init<vpl::codec_format_fourcc, uint32_t>())
@@ -136,9 +142,10 @@ void init_bitstream(const py::module &m) {
                 "Stores maximum possible portion of data in the circular buffer. Data is strored after unused portion of the buffer in the length of avialable space in the buffer.");
 
     auto bitstream_as_dst =
-        py::class_<vpl::bitstream_as_dst, vpl::bitstream>(m,
-                                                          "bitstream_as_dst",
-                                                          py::buffer_protocol())
+        py::class_<vpl::bitstream_as_dst, vpl::bitstream, std::shared_ptr<vpl::bitstream_as_dst>>(
+            m,
+            "bitstream_as_dst",
+            py::buffer_protocol())
             .def(py::init<>())
             .def(py::init<vpl::codec_format_fourcc, uint32_t>())
             .def("wait",

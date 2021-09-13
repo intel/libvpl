@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: MIT
 //==============================================================================
 #include <cstring>
+#include <memory>
 #include <sstream>
 #include <vector>
 
@@ -55,7 +56,7 @@ PYBIND11_MODULE(pyvpl, m) {
     init_stat(m);
     init_video_param(m);
 
-    py::class_<mfxVersion>(m, "mfxVersion")
+    py::class_<mfxVersion, std::shared_ptr<mfxVersion>>(m, "mfxVersion")
         .def_readwrite("Version", &mfxVersion::Version)
         .def_readwrite("Major", &mfxVersion::Major)
         .def_readwrite("Minor", &mfxVersion::Minor);

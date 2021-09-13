@@ -793,7 +793,7 @@ public:
     /// @param[out] out_surface Placeholder for the allocated output surface.
     /// @return Ok or warning
     status process_frame(std::shared_ptr<frame_surface> in_surface,
-                         std::shared_ptr<frame_surface> out_surface) {
+                         std::shared_ptr<frame_surface>& out_surface) {
         mfxSyncPoint sp;
         mfxFrameSurface1 *surf = in_surface.get() ? in_surface->get_raw_ptr() : nullptr;
 
@@ -838,7 +838,7 @@ public:
     /// surface data before accessing.
     /// @param[out] out_surface Placeholder for the allocated output surface.
     /// @return Ok or warning
-    status process_frame(std::shared_ptr<frame_surface> out_surface) {
+    status process_frame(std::shared_ptr<frame_surface>& out_surface) {
         status sts;
         if (!rdr_)
             throw base_exception("NULL reader ptr", MFX_ERR_NULL_PTR);

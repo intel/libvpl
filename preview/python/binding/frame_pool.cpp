@@ -8,7 +8,9 @@
 namespace vpl = oneapi::vpl;
 
 void init_frame_pool(const py::module &m) {
-    py::class_<vpl::temporal_frame_allocator>(m, "temporal_frame_allocator")
+    py::class_<vpl::temporal_frame_allocator, std::shared_ptr<vpl::temporal_frame_allocator>>(
+        m,
+        "temporal_frame_allocator")
         .def(py::init<>())
         .def(
             "attach_frame_info",

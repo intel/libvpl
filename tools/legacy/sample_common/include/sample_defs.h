@@ -8,12 +8,19 @@
 #define __SAMPLE_DEFS_H__
 
 #include <memory.h>
+#include <string.h>
 #include <iostream>
 
 #include "vm/file_defs.h"
 #include "vm/strings_defs.h"
 #include "vm/time_defs.h"
 #include "vpl/mfxdefs.h"
+
+#if defined(WIN32) || defined(WIN64)
+    #define __FILENAME__ (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
+#else
+    #define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+#endif
 
 #if (MFX_VERSION >= 1026)
 //#define ENABLE_MCTF
@@ -102,30 +109,30 @@ enum LibVABackend {
 #define MSDK_MAX_FILENAME_LEN            1024
 #define MSDK_MAX_USER_DATA_UNREG_SEI_LEN 80
 
-#define MSDK_PRINT_RET_MSG(ERR, MSG)                                                            \
-    {                                                                                           \
-        msdk_stringstream tmpStr1;                                                              \
-        tmpStr1 << std::endl                                                                    \
-                << "[ERROR], sts=" << StatusToString(ERR) << "(" << ERR << ")"                  \
-                << ", " << __FUNCTION__ << ", " << MSG << " at " << __FILE__ << ":" << __LINE__ \
-                << std::endl;                                                                   \
-        msdk_err << tmpStr1.str();                                                              \
+#define MSDK_PRINT_RET_MSG(ERR, MSG)                                                    \
+    {                                                                                   \
+        msdk_stringstream tmpStr1;                                                      \
+        tmpStr1 << std::endl                                                            \
+                << "[ERROR], sts=" << StatusToString(ERR) << "(" << ERR << ")"          \
+                << ", " << __FUNCTION__ << ", " << MSG << " at " << __FILENAME__ << ":" \
+                << __LINE__ << std::endl;                                               \
+        msdk_err << tmpStr1.str();                                                      \
     }
 
-#define MSDK_PRINT_WRN_MSG(WRN, MSG)                                                            \
-    {                                                                                           \
-        msdk_stringstream tmpStr1;                                                              \
-        tmpStr1 << std::endl                                                                    \
-                << "[WARNING], sts=" << StatusToString(WRN) << "(" << WRN << ")"                \
-                << ", " << __FUNCTION__ << ", " << MSG << " at " << __FILE__ << ":" << __LINE__ \
-                << std::endl;                                                                   \
-        msdk_err << tmpStr1.str();                                                              \
+#define MSDK_PRINT_WRN_MSG(WRN, MSG)                                                    \
+    {                                                                                   \
+        msdk_stringstream tmpStr1;                                                      \
+        tmpStr1 << std::endl                                                            \
+                << "[WARNING], sts=" << StatusToString(WRN) << "(" << WRN << ")"        \
+                << ", " << __FUNCTION__ << ", " << MSG << " at " << __FILENAME__ << ":" \
+                << __LINE__ << std::endl;                                               \
+        msdk_err << tmpStr1.str();                                                      \
     }
 
-#define MSDK_TRACE_LEVEL(level, ERR)                                                     \
-    if (level <= msdk_trace_get_level()) {                                               \
-        msdk_err << NoFullPath(MSDK_STRING(__FILE__)) << MSDK_STRING(" :") << __LINE__   \
-                 << MSDK_STRING(" [") << level << MSDK_STRING("] ") << ERR << std::endl; \
+#define MSDK_TRACE_LEVEL(level, ERR)                                                            \
+    if (level <= msdk_trace_get_level()) {                                                      \
+        msdk_err << __FILENAME__ << MSDK_STRING(" :") << __LINE__ << MSDK_STRING(" [") << level \
+                 << MSDK_STRING("] ") << ERR << std::endl;                                      \
     }
 
 #define MSDK_TRACE_CRITICAL(ERR) MSDK_TRACE_LEVEL(MSDK_TRACE_LEVEL_CRITICAL, ERR)
@@ -284,7 +291,7 @@ enum LibVABackend {
     {                                                                             \
         msdk_printf(MSDK_STRING("\nReturn on error: error code %d,\t%s\t%d\n\n"), \
                     (int)ERR,                                                     \
-                    MSDK_STRING(__FILE__),                                        \
+                    __FILENAME__,                                                 \
                     __LINE__);                                                    \
     }
 #define MSDK_CHECK_RESULT(P, X, ERR)  \

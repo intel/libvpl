@@ -26,8 +26,11 @@ SimpleLoader::SimpleLoader(const char* name) {
     dlerror();
     so_handle = dlopen(name, RTLD_GLOBAL | RTLD_NOW);
     if (NULL == so_handle) {
-        std::cerr << dlerror() << std::endl;
-        throw std::runtime_error("Can't load library");
+        so_handle = dlopen(basename(name), RTLD_GLOBAL | RTLD_NOW);
+        if (NULL == so_handle) {
+            std::cerr << dlerror() << std::endl;
+            throw std::runtime_error("Can't load library");
+        }
     }
 }
 
@@ -162,8 +165,10 @@ Xcbpresent_Proxy::~Xcbpresent_Proxy() {}
 
     #if defined(LIBVA_WAYLAND_SUPPORT)
 
+        #define WAYLAND_LIB SIMPLE_LOADER_STRINGIFY(_TOOLS_LIB_PATH) "/libvpl_wayland.so"
+
 VA_WaylandClientProxy::VA_WaylandClientProxy()
-        : lib("libvpl_wayland.so"),
+        : lib(WAYLAND_LIB),
           SIMPLE_LOADER_FUNCTION(WaylandCreate) {}
 
 VA_WaylandClientProxy::~VA_WaylandClientProxy() {}

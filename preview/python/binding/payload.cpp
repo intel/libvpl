@@ -8,7 +8,7 @@
 namespace vpl = oneapi::vpl;
 
 void init_payload(const py::module &m) {
-    py::class_<vpl::payload>(m, "payload")
+    py::class_<vpl::payload, std::shared_ptr<vpl::payload>>(m, "payload")
         .def(py::init<std::vector<uint8_t>, uint32_t>())
         .def(py::init<std::vector<uint8_t>, uint32_t, uint16_t>())
         .def(py::init<std::vector<uint8_t>, uint32_t, uint16_t, bool>())

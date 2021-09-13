@@ -77,3 +77,9 @@ foreach(dir ENVDIR SYSCHECKDIR MODFILEDIR EXAMPLEDIR LICENSEDIR PYTHONDIR)
   gnuinstalldirs_get_absolute_install_dir(ONEAPI_INSTALL_FULL_${dir}
                                           ONEAPI_INSTALL_${dir} ${dir})
 endforeach()
+
+if(WIN32)
+  set(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION ${CMAKE_INSTALL_BINDIR})
+else()
+  set(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION ${CMAKE_INSTALL_LIBDIR})
+endif()

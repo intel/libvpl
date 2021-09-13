@@ -1,4 +1,4 @@
-# oneAPI Video Processing Library
+# ![oneAPI](assets/oneapi-logo.png "oneAPI") Video Processing Library
 
 The oneAPI Video Processing Library (oneVPL) provides a single video processing
 API for encode, decode, and video processing that works across a wide range of
@@ -11,9 +11,9 @@ This repository contains the following components of oneVPL:
 - Examples demonstrating API usage
 - oneVPL command line tools
 
-This project is part of the larger [oneAPI](https://www.oneapi.com/) project.
-See the [oneAPI Specification](https://spec.oneapi.com) and the
-[oneVPL Specification](https://spec.oneapi.com/versions/latest/elements/oneVPL/source/index.html) for additional information.
+This project is part of the larger [oneAPI](https://www.oneapi.io/) project.
+See the [oneAPI Specification](https://spec.oneapi.io) and the
+[oneVPL Specification](https://spec.oneapi.io/versions/latest/elements/oneVPL/source/index.html) for additional information.
 
 The version of the oneVPL API is listed in the
 [mfxdefs.h](./api/vpl/mfxdefs.h) file.
@@ -23,10 +23,9 @@ The version of the oneVPL API is listed in the
 You can install oneVPL:
 
 - from [oneVPL home page](https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/onevpl.html) as a part of Intel&reg; oneAPI Base Toolkit.
+- from source code.  See [Installation from Sources](INSTALL.md) for details.
 
-### Installation from Source 
-See [Installation from Sources](INSTALL.md) for details.
-
+For more details on installation options and procedures, see the [Intel® oneAPI Video Processing Library Installation Guide](https://software.intel.com/content/www/us/en/develop/articles/onevpl-installation-guide.html).
 
 ## Developer Usage
 
@@ -52,6 +51,9 @@ Add the following code to your CMakeLists, assuming TARGET is defined as the
 component that wants to use oneVPL:
 
 ```
+if(WIN32 AND CMAKE_SIZEOF_VOID_P EQUAL 4)
+ set(CMAKE_LIBRARY_ARCHITECTURE x86)
+endif()
 find_package(VPL REQUIRED)
 target_link_libraries(${TARGET} VPL::dispatcher)
 ```

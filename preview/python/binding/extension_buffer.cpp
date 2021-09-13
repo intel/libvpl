@@ -12,7 +12,7 @@ class extension_buffer_template {
 public:
     using BaseClass = vpl::extension_buffer_base;
     using Class     = vpl::extension_buffer<T, ID>;
-    using PyClass   = py::class_<Class, BaseClass>;
+    using PyClass   = py::class_<Class, BaseClass, std::shared_ptr<Class>>;
     PyClass pyclass;
     extension_buffer_template(const py::module &m, const std::string &typestr, bool is_base = false)
             : pyclass(m, (std::string("extension_buffer_") + typestr).c_str()) {
@@ -45,7 +45,7 @@ class extension_buffer_trival_template {
 public:
     using BaseClass = vpl::extension_buffer<T, ID>;
     using Class     = vpl::extension_buffer_trival<T, ID>;
-    using PyClass   = py::class_<Class, BaseClass>;
+    using PyClass   = py::class_<Class, BaseClass, std::shared_ptr<Class>>;
     extension_buffer_template<T, ID> base;
     PyClass pyclass;
     extension_buffer_trival_template(const py::module &m,
@@ -84,7 +84,7 @@ class extension_buffer_with_ptrs_template {
 public:
     using Class     = vpl::extension_buffer_with_ptrs<T, ID>;
     using BaseClass = vpl::extension_buffer<T, ID>;
-    using PyClass   = py::class_<Class, BaseClass>;
+    using PyClass   = py::class_<Class, BaseClass, std::shared_ptr<Class>>;
     extension_buffer_template<T, ID> base;
     PyClass pyclass;
     extension_buffer_with_ptrs_template(const py::module &m,
@@ -96,7 +96,9 @@ public:
 
 void init_extension_buffer(const py::module &m) {
     auto extension_buffer_base =
-        py::class_<vpl::extension_buffer_base>(m, "extension_buffer_base")
+        py::class_<vpl::extension_buffer_base, std::shared_ptr<vpl::extension_buffer_base>>(
+            m,
+            "extension_buffer_base")
             .def_property_readonly(
                 "ID",
                 &vpl::extension_buffer_base::get_ID,
@@ -113,33 +115,42 @@ void init_extension_buffer(const py::module &m) {
     [&m]() {                                                                             \
         using Base = ::extension_buffer_trival_template<extBuffer, bufferID>;            \
         Base(m, #className);                                                             \
-        return py::class_<vpl::className, Base::Class>(m, #className).def(py::init<>()); \
+        return py::class_<vpl::className, Base::Class, std::shared_ptr<vpl::className>>( \
+                   m,                                                                    \
+                   #className)                                                           \
+            .def(py::init<>());                                                          \
     }()
 
-#define BIND_TRIVIAL_EXT_BUFFER_NOINIT(className, extBuffer, bufferID)        \
-    [&m]() {                                                                  \
-        using Base = ::extension_buffer_trival_template<extBuffer, bufferID>; \
-        Base(m, #className);                                                  \
-        return py::class_<vpl::className, Base::Class>(m, #className);        \
+#define BIND_TRIVIAL_EXT_BUFFER_NOINIT(className, extBuffer, bufferID)                   \
+    [&m]() {                                                                             \
+        using Base = ::extension_buffer_trival_template<extBuffer, bufferID>;            \
+        Base(m, #className);                                                             \
+        return py::class_<vpl::className, Base::Class, std::shared_ptr<vpl::className>>( \
+            m,                                                                           \
+            #className);                                                                 \
     }()
 
-#define BIND_SINGLE_POINTER_EXT_BUFFER(className, extBuffer, bufferID, ptrType)  \
-    [&m]() {                                                                     \
-        using Base = ::extension_buffer_with_ptrs_template<extBuffer, bufferID>; \
-        Base(m, #className);                                                     \
-        return py::class_<vpl::className, Base::Class>(m, #className)            \
-            .def(py::init<std::vector<ptrType> &>())                             \
-            .def(py::init<>([]() {                                               \
-                std::vector<ptrType> vec;                                        \
-                return new vpl::className(vec);                                  \
-            }));                                                                 \
+#define BIND_SINGLE_POINTER_EXT_BUFFER(className, extBuffer, bufferID, ptrType)          \
+    [&m]() {                                                                             \
+        using Base = ::extension_buffer_with_ptrs_template<extBuffer, bufferID>;         \
+        Base(m, #className);                                                             \
+        return py::class_<vpl::className, Base::Class, std::shared_ptr<vpl::className>>( \
+                   m,                                                                    \
+                   #className)                                                           \
+            .def(py::init<std::vector<ptrType> &>())                                     \
+            .def(py::init<>([]() {                                                       \
+                std::vector<ptrType> vec;                                                \
+                return new vpl::className(vec);                                          \
+            }));                                                                         \
     }()
 
-#define BIND_POINTER_EXT_BUFFER(className, extBuffer, bufferID)                  \
-    [&m]() {                                                                     \
-        using Base = ::extension_buffer_with_ptrs_template<extBuffer, bufferID>; \
-        Base(m, #className);                                                     \
-        return py::class_<vpl::className, Base::Class>(m, #className);           \
+#define BIND_POINTER_EXT_BUFFER(className, extBuffer, bufferID)                          \
+    [&m]() {                                                                             \
+        using Base = ::extension_buffer_with_ptrs_template<extBuffer, bufferID>;         \
+        Base(m, #className);                                                             \
+        return py::class_<vpl::className, Base::Class, std::shared_ptr<vpl::className>>( \
+            m,                                                                           \
+            #className);                                                                 \
     }()
 
     auto ExtCodingOption =
@@ -263,6 +274,45 @@ void init_extension_buffer(const py::module &m) {
     auto ExtPartialBitstreamParam = BIND_TRIVIAL_EXT_BUFFER(ExtPartialBitstreamParam,
                                                             mfxExtPartialBitstreamParam,
                                                             MFX_EXTBUFF_PARTIAL_BITSTREAM_PARAM);
+
+    auto ExtAV1BitstreamParam  = BIND_TRIVIAL_EXT_BUFFER(ExtAV1BitstreamParam,
+                                                        mfxExtAV1BitstreamParam,
+                                                        MFX_EXTBUFF_AV1_BITSTREAM_PARAM);
+    auto ExtAV1ResolutionParam = BIND_TRIVIAL_EXT_BUFFER(ExtAV1ResolutionParam,
+                                                         mfxExtAV1ResolutionParam,
+                                                         MFX_EXTBUFF_AV1_RESOLUTION_PARAM);
+    auto ExtAV1TileParam =
+        BIND_TRIVIAL_EXT_BUFFER(ExtAV1TileParam, mfxExtAV1TileParam, MFX_EXTBUFF_AV1_TILE_PARAM);
+    auto ExtAV1FilmGrainParam = BIND_TRIVIAL_EXT_BUFFER(ExtAV1FilmGrainParam,
+                                                        mfxExtAV1FilmGrainParam,
+                                                        MFX_EXTBUFF_AV1_FILM_GRAIN_PARAM);
+
+    auto ExtAV1Segmentation =
+        BIND_SINGLE_POINTER_EXT_BUFFER(ExtAV1Segmentation,
+                                       mfxExtAV1Segmentation,
+                                       MFX_EXTBUFF_AV1_SEGMENTATION,
+                                       uint8_t)
+            .def("set_NumSegments", &vpl::ExtAV1Segmentation::set_NumSegments, "Set Num Segments")
+            .def("set_SegmentIdBlockSize",
+                 &vpl::ExtAV1Segmentation::set_SegmentIdBlockSize,
+                 "Set Segment ID Block Size")
+            .def(
+                "set_Segment",
+                [](vpl::ExtAV1Segmentation &e, const std::vector<mfxAV1SegmentParam> &value) {
+                    if (value.size() <= 8) {
+                        throw vpl::base_exception("Insufficant data", MFX_ERR_UNKNOWN);
+                    }
+                    e.set_Segment(&value[0]);
+                },
+                "Set Segment");
+
+    auto ExtTemporalLayers = BIND_SINGLE_POINTER_EXT_BUFFER(ExtTemporalLayers,
+                                                            mfxExtTemporalLayers,
+                                                            MFX_EXTBUFF_UNIVERSAL_TEMPORAL_LAYERS,
+                                                            mfxTemporalLayer)
+                                 .def("set_BaseLayerPID",
+                                      &vpl::ExtTemporalLayers::set_BaseLayerPID,
+                                      "Set Base Layer PID");
 
     auto ExtCodingOptionVPS =
         BIND_SINGLE_POINTER_EXT_BUFFER(ExtCodingOptionVPS,

@@ -608,7 +608,7 @@ mfxStatus CreateFrameProcessor(sFrameProcessor* pProcessor,
 
     //MFX session
     if (!pInParams->bInitEx) {
-        if (pInParams->api2xDispatcher) {
+        if (pInParams->api2xDispatcher && pInParams->api2xLowLatency == false) {
             // Initialize VPL session using 2.x smart dispatcher
             // and CLI choice of target implementation
             mfxVariant implValue;
@@ -666,6 +666,18 @@ mfxStatus CreateFrameProcessor(sFrameProcessor* pProcessor,
 
             if (pInParams->bUseAdapterNum)
                 MFXDispReleaseImplDescription(pProcessor->loader, implDesc);
+        }
+        else if (pInParams->api2xDispatcher && pInParams->api2xLowLatency == true) {
+            pProcessor->loader = MFXLoad();
+            MSDK_CHECK_POINTER(pProcessor->loader, MFX_ERR_NULL_PTR);
+
+            sts = VPL_EnableDispatcherLowLatency(
+                pProcessor->loader,
+                (pInParams->bUseAdapterNum ? pInParams->adapterNum : 0));
+            MSDK_CHECK_STATUS(sts, "VPL_EnableDispatcherLowLatency failed");
+
+            sts = MFXCreateSession(pProcessor->loader, 0, pProcessor->mfxSession.getSessionPtr());
+            MSDK_CHECK_STATUS(sts, "MFXCreateSession failed (low latency mode enabled)");
         }
         else {
             sts = pProcessor->mfxSession.Init(impl, &version);

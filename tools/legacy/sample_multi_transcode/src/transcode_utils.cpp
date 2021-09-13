@@ -155,6 +155,8 @@ void TranscodingSample::PrintHelp() {
 #endif
 #if (defined(_WIN64) || defined(_WIN32)) && (MFX_VERSION >= 1031)
     msdk_printf(MSDK_STRING(
+        "   [-dual_gfx::<on,off,adaptive>] - prefer encode processing on both iGfx and dGfx simultaneously\n"));
+    msdk_printf(MSDK_STRING(
         "   [-dGfx] - prefer processing on dGfx (by default system decides), also can be set with index, for example: '-dGfx 1'\n"));
     msdk_printf(
         MSDK_STRING("   [-iGfx] - prefer processing on iGfx (by default system decides)\n"));
@@ -383,6 +385,8 @@ void TranscodingSample::PrintHelp() {
         "  -NalHrdConformance:<on,off>               Enables or disables picture HRD conformance\n"));
     msdk_printf(MSDK_STRING(
         "  -VuiNalHrdParameters:<on,off>             Enables or disables NAL HRD parameters in VUI header\n"));
+    msdk_printf(MSDK_STRING(
+        "   -idr_interval size      idr interval, default 0 means every I is an IDR, 1 means every other I frame is an IDR etc\n"));
 
     msdk_printf(MSDK_STRING("\n"));
     msdk_printf(MSDK_STRING("Pipeline description (vpp options):\n"));
@@ -1401,6 +1405,27 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
     }
     else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-trace"))) {
         InputParams.EnableTracing = true;
+    }
+#if (defined(_WIN64) || defined(_WIN32))
+    else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-dual_gfx::on"))) {
+        InputParams.isDualMode = true;
+        InputParams.hyperMode  = MFX_HYPERMODE_ON;
+    }
+    else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-dual_gfx::off"))) {
+        InputParams.isDualMode = true;
+        InputParams.hyperMode  = MFX_HYPERMODE_OFF;
+    }
+    else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-dual_gfx::adaptive"))) {
+        InputParams.isDualMode = true;
+        InputParams.hyperMode  = MFX_HYPERMODE_ADAPTIVE;
+    }
+#endif
+    else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-idr_interval"))) {
+        VAL_CHECK(i + 1 >= argc, i, argv[i]);
+        if (MFX_ERR_NONE != msdk_opt_read(argv[++i], InputParams.nIdrInterval)) {
+            PrintError(argv[0], MSDK_STRING("IdrInterval is invalid"));
+            return MFX_ERR_UNSUPPORTED;
+        }
     }
     else {
         // no matching argument was found

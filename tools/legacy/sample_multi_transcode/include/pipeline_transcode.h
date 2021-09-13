@@ -188,11 +188,17 @@ struct __sInputParams {
     std::string strDevicePath;
 #endif
 #if (defined(_WIN32) || defined(_WIN64)) && (MFX_VERSION >= 1031)
+    bool isDualMode;
+    mfxHyperMode hyperMode;
+
     //Adapter type
     bool bPrefferiGfx;
     bool bPrefferdGfx;
     mfxI32 dGfxIdx;
 #endif
+
+    mfxU16 nIdrInterval;
+
     bool bIsPerf; // special performance mode. Use pre-allocated bitstreams, output
     mfxU16 nThreadsNum; // number of internal session threads number
     bool bRobustFlag; // Robust transcoding mode. Allows auto-recovery after hardware errors

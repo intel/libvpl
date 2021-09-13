@@ -6,11 +6,11 @@ perform a simple video transcode.
 | Optimized for    | Description
 |----------------- | ----------------------------------------
 | OS               | Ubuntu* 20.04; Windows* 10
-| Hardware         | Intel® Processor Graphics GEN9 or newer
-| Software         | Intel® oneAPI Video Processing Library(oneVPL)
+| Software         | Intel® oneAPI Video Processing Library(oneVPL) CPU implementation
 | What You Will Learn | How to use oneVPL to transcode a MJPEG encoded video file to H.265 encoded video file
 | Time to Complete | 5 minutes
 
+Hello-transcode currently only supports Software mode.  
 
 ## Purpose
 

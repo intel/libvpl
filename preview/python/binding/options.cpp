@@ -23,7 +23,7 @@ void init_options(const py::module &m) {
         return new vpl::property(name, (D)value);          \
     }))
 
-    py::class_<vpl::property>(m, "property")
+    py::class_<vpl::property, std::shared_ptr<vpl::property>>(m, "property")
         .def(py::init<>())
         // Enum overloads must be defined before base types to ensure
         // they are tried for compatibility first.

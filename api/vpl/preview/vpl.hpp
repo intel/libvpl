@@ -23,3 +23,4 @@
 #include "vpl/preview/source_reader.hpp"
 #include "vpl/preview/stat.hpp"
 #include "vpl/preview/video_param.hpp"
+#include "vpl/preview/surface_pool.hpp"

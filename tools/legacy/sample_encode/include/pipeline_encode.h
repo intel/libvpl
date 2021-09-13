@@ -128,6 +128,7 @@ struct sInputParams {
 #if (MFX_VERSION >= 2000)
     bool api2xInternalMem;
     bool api2xDispatcher;
+    bool api2xLowLatency;
     bool api2xPerf;
 #endif
 

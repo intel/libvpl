@@ -412,7 +412,7 @@ mfxStatus CDecodingPipeline::Init(sInputParams* pParams) {
     sts = GetImpl(*pParams, initPar.Implementation);
     MSDK_CHECK_STATUS(sts, "GetImpl failed");
 
-    if (pParams->api2xDispatcher) {
+    if (pParams->api2xDispatcher && pParams->api2xLowLatency == false) {
         // Initialize VPL session using 2.x smart dispatcher
         // and CLI choice of target implementation
         mfxVariant implValue;
@@ -464,6 +464,17 @@ mfxStatus CDecodingPipeline::Init(sInputParams* pParams) {
 
         if (pParams->bUseAdapterNum)
             MFXDispReleaseImplDescription(m_mfxLoader, implDesc);
+    }
+    else if (pParams->api2xDispatcher && pParams->api2xLowLatency == true) {
+        m_mfxLoader = MFXLoad();
+        MSDK_CHECK_POINTER(m_mfxLoader, MFX_ERR_NULL_PTR);
+
+        sts = VPL_EnableDispatcherLowLatency(m_mfxLoader,
+                                             (pParams->bUseAdapterNum ? pParams->adapterNum : 0));
+        MSDK_CHECK_STATUS(sts, "VPL_EnableDispatcherLowLatency failed");
+
+        sts = MFXCreateSession(m_mfxLoader, 0, m_mfxSession.getSessionPtr());
+        MSDK_CHECK_STATUS(sts, "MFXCreateSession failed (low latency mode enabled)");
     }
     else {
         sts = m_mfxSession.InitEx(initPar);
@@ -700,6 +711,11 @@ mfxStatus CDecodingPipeline::Init(sInputParams* pParams) {
         if (m_bVppIsUsed) {
             if (m_diMode)
                 m_mfxVppVideoParams.vpp.Out.PicStruct = MFX_PICSTRUCT_PROGRESSIVE;
+
+            if (pParams->ScalingMode) {
+                auto par         = m_mfxVppVideoParams.AddExtBuffer<mfxExtVPPScaling>();
+                par->ScalingMode = pParams->ScalingMode;
+            }
 
             sts = m_pmfxVPP->Init(&m_mfxVppVideoParams);
             if (MFX_WRN_PARTIAL_ACCELERATION == sts) {
@@ -1633,6 +1649,14 @@ mfxStatus CDecodingPipeline::ResetDecoder(sInputParams* pParams) {
     MSDK_CHECK_STATUS(sts, "m_pmfxDEC->Init failed");
 
     if (m_pmfxVPP) {
+        if (m_diMode)
+            m_mfxVppVideoParams.vpp.Out.PicStruct = MFX_PICSTRUCT_PROGRESSIVE;
+
+        if (pParams->ScalingMode) {
+            auto par         = m_mfxVppVideoParams.AddExtBuffer<mfxExtVPPScaling>();
+            par->ScalingMode = pParams->ScalingMode;
+        }
+
         sts = m_pmfxVPP->Init(&m_mfxVppVideoParams);
         if (MFX_WRN_PARTIAL_ACCELERATION == sts) {
             msdk_printf(MSDK_STRING("WARNING: partial acceleration\n"));

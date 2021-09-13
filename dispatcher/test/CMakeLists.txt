@@ -32,3 +32,4 @@ add_library(GTest::gtest ALIAS gtest)
 add_library(GTest::gtest_main ALIAS gtest_main)
 
 add_subdirectory(unit)
+add_subdirectory(vpl-timing)

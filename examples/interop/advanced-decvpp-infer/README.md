@@ -6,8 +6,8 @@ perform a simple video decode and resize and inference using OpenVINO to show th
 | Optimized for    | Description
 |----------------- | ----------------------------------------
 | OS               | Ubuntu* 20.04
-| Hardware         | Intel® Processor Graphics GEN9 or newer
-| Software         | Intel® oneAPI Video Processing Library(oneVPL) and Intel® OpenVINO
+| Hardware         | Compatible with Intel® oneAPI Video Processing Library(oneVPL) GPU implementation, which can be found at https://github.com/oneapi-src/oneVPL-intel-gpu 
+| Software         | Intel® oneAPI Video Processing Library(oneVPL) CPU implementation and Intel® OpenVINO
 | What You Will Learn | How to use oneVPL to decode an H.265 encoded video file and resize and perform per-frame objection detection inference
 | Time to Complete | 5 minutes
 
@@ -45,8 +45,9 @@ Perform the following steps:
    - Intel® OpenVINO 2021.2 for Linux*
    - [Python](http://python.org)
    - [CMake](https://cmake.org)
+   - OpenCL headers: 'sudo apt install -y opencl-headers' 
 
-2. Set up your environment using the following command.
+2. Set up your environment using the following commands.
    ```
    source <oneapi_install_dir>/setvars.sh
    source <openvino_install_dir>/bin/setupvars.sh

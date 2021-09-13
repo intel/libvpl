@@ -57,10 +57,12 @@ enum PropIdx {
     ePropMain_Keywords,
     ePropMain_VendorID,
     ePropMain_VendorImplID,
+    ePropMain_PoolAllocationPolicy,
 
     // settable config properties for mfxDeviceDescription
     ePropDevice_DeviceID,
     ePropDevice_DeviceIDStr,
+    ePropDevice_MediaAdapterType,
 
     // settable config properties for mfxDecoderDescription
     ePropDec_CodecID,
@@ -118,9 +120,11 @@ static const PropVariant PropIdxTab[] = {
     { "ePropMain_Keywords",                 MFX_VARIANT_TYPE_PTR },
     { "ePropMain_VendorID",                 MFX_VARIANT_TYPE_U32 },
     { "ePropMain_VendorImplID",             MFX_VARIANT_TYPE_U32 },
+    { "ePropMain_PoolAllocationPolicy",     MFX_VARIANT_TYPE_U32 },
 
     { "ePropDevice_DeviceID",               MFX_VARIANT_TYPE_U16 },
     { "ePropDevice_DeviceIDStr",            MFX_VARIANT_TYPE_PTR },
+    { "ePropDevice_MediaAdapterType",       MFX_VARIANT_TYPE_U16 },
 
     { "ePropDec_CodecID",                   MFX_VARIANT_TYPE_U32 },
     { "ePropDec_MaxcodecLevel",             MFX_VARIANT_TYPE_U16 },
@@ -456,6 +460,9 @@ mfxStatus ConfigCtxVPL::SetFilterProperty(const mfxU8 *name, mfxVariant value) {
     else if (nextProp == "AccelerationMode") {
         return ValidateAndSetProp(ePropMain_AccelerationMode, value);
     }
+    else if (nextProp == "mfxSurfacePoolMode") {
+        return ValidateAndSetProp(ePropMain_PoolAllocationPolicy, value);
+    }
     else if (nextProp == "ApiVersion") {
         // ApiVersion may be passed as single U32 (Version) or two U16's (Major, Minor)
         nextProp = GetNextProp(propParsedString);
@@ -485,7 +492,6 @@ mfxStatus ConfigCtxVPL::SetFilterProperty(const mfxU8 *name, mfxVariant value) {
     }
 
     // property is a member of mfxDeviceDescription
-    // currently only settable parameter is DeviceID
     if (nextProp == "mfxDeviceDescription") {
         nextProp = GetNextProp(propParsedString);
         // old version of table in spec had extra "device", just skip if present
@@ -500,6 +506,11 @@ mfxStatus ConfigCtxVPL::SetFilterProperty(const mfxU8 *name, mfxVariant value) {
             else
                 return ValidateAndSetProp(ePropDevice_DeviceID, value);
         }
+
+        if (nextProp == "MediaAdapterType") {
+            return ValidateAndSetProp(ePropDevice_MediaAdapterType, value);
+        }
+
         return MFX_ERR_NOT_FOUND;
     }
 
@@ -689,6 +700,28 @@ mfxStatus ConfigCtxVPL::CheckPropsGeneral(const mfxVariant cfgPropsAll[],
         CHECK_PROP(ePropMain_AccelerationMode, U32, libImplDesc->AccelerationMode);
     }
 
+    if (cfgPropsAll[ePropMain_PoolAllocationPolicy].Type != MFX_VARIANT_TYPE_UNSET) {
+        // mfxPoolAllocationPolicy added with struct version 1.2
+        mfxU16 numPolicies = 0;
+        if (libImplDesc->Version.Version >= MFX_STRUCT_VERSION(1, 2))
+            numPolicies = libImplDesc->PoolPolicies.NumPoolPolicies;
+
+        // check all supported policies if list is filled out
+        // if structure is not present (old version) numPolicies will be 0, so skipped
+        if (isCompatible == true && numPolicies > 0) {
+            mfxPoolAllocationPolicy policyRequested =
+                (mfxPoolAllocationPolicy)(cfgPropsAll[ePropMain_PoolAllocationPolicy].Data.U32);
+            auto *policyTab = libImplDesc->PoolPolicies.Policy;
+
+            auto *m = std::find(policyTab, policyTab + numPolicies, policyRequested);
+            if (m == policyTab + numPolicies)
+                isCompatible = false;
+        }
+        else {
+            isCompatible = false;
+        }
+    }
+
     // check string: ImplName (string match)
     if (cfgPropsAll[ePropMain_ImplName].Type != MFX_VARIANT_TYPE_UNSET) {
         std::string filtName = *(std::string *)(cfgPropsAll[ePropMain_ImplName].Data.Ptr);
@@ -733,6 +766,17 @@ mfxStatus ConfigCtxVPL::CheckPropsGeneral(const mfxVariant cfgPropsAll[],
         std::string implDeviceID = libImplDesc->Dev.DeviceID;
         if (filtDeviceID != implDeviceID)
             isCompatible = false;
+    }
+
+    // mfxDeviceDescription.MediaAdapterType introduced in API 2.5, structure version 1.1
+    // do not check this for MSDK libs (allow it to pass)
+    if (libImplDesc->ApiVersion.Major >= 2) {
+        if (cfgPropsAll[ePropDevice_MediaAdapterType].Type != MFX_VARIANT_TYPE_UNSET) {
+            if (libImplDesc->Dev.Version.Version < MFX_STRUCT_VERSION(1, 1))
+                isCompatible = false;
+
+            CHECK_PROP(ePropDevice_MediaAdapterType, U16, libImplDesc->Dev.MediaAdapterType);
+        }
     }
 
     if (isCompatible == true)
@@ -1072,6 +1116,119 @@ mfxStatus ConfigCtxVPL::ValidateConfig(const mfxImplDescription *libImplDesc,
     }
 
     return MFX_ERR_NONE;
+}
+
+bool ConfigCtxVPL::CheckLowLatencyConfig(std::list<ConfigCtxVPL *> configCtxList,
+                                         SpecialConfig *specialConfig) {
+    mfxU32 idx;
+    bool bLowLatency = true;
+
+    // initially all properties are unset
+    mfxVariant cfgPropsAll[eProp_TotalProps] = {};
+    for (idx = 0; idx < eProp_TotalProps; idx++)
+        cfgPropsAll[idx].Type = MFX_VARIANT_TYPE_UNSET;
+
+    // iterate through all filters and populate cfgPropsAll
+    // for purposes of low-latency enabling, we check the last (most recent) value of each filter
+    //   property, in the case that multiple mfxConfig objects were created
+    // preferred usage is just to create one mfxConfig and set all of the required props in it
+
+    auto it = configCtxList.begin();
+    while (it != configCtxList.end()) {
+        ConfigCtxVPL *config = (*it);
+        it++;
+
+        for (idx = 0; idx < eProp_TotalProps; idx++) {
+            // ignore unset properties
+            if (config->m_propVar[idx].Type == MFX_VARIANT_TYPE_UNSET)
+                continue;
+
+            cfgPropsAll[idx].Type = config->m_propVar[idx].Type;
+            cfgPropsAll[idx].Data = config->m_propVar[idx].Data;
+        }
+    }
+
+    for (mfxU32 idx = 0; idx < eProp_TotalProps; idx++) {
+        switch (idx) {
+            case ePropMain_Impl:
+                if (cfgPropsAll[idx].Type == MFX_VARIANT_TYPE_U32) {
+                    if (cfgPropsAll[idx].Data.U32 == MFX_IMPL_TYPE_HARDWARE)
+                        continue;
+                }
+                bLowLatency = false;
+                break;
+
+            case ePropMain_ImplName:
+                if (cfgPropsAll[idx].Type == MFX_VARIANT_TYPE_PTR && cfgPropsAll[idx].Data.Ptr) {
+                    std::string s = *(std::string *)(cfgPropsAll[idx].Data.Ptr);
+                    if (s == "mfx-gen")
+                        continue;
+                }
+                bLowLatency = false;
+                break;
+
+            case ePropMain_VendorID:
+                if (cfgPropsAll[idx].Type == MFX_VARIANT_TYPE_U32) {
+                    if (cfgPropsAll[idx].Data.U32 == 0x8086)
+                        continue;
+                }
+                bLowLatency = false;
+                break;
+
+            // application must set AccelerationMode for lowlatency - will be passed to RT in MFXInitialize()
+            case ePropMain_AccelerationMode:
+                if (cfgPropsAll[idx].Type == MFX_VARIANT_TYPE_U32) {
+                    specialConfig->accelerationMode =
+                        (mfxAccelerationMode)cfgPropsAll[ePropMain_AccelerationMode].Data.U32;
+                    specialConfig->bIsSet_accelerationMode = true;
+                    continue;
+                }
+                bLowLatency = false;
+                break;
+
+            // application may set ApiVersion with lowlatency, but not required
+            case ePropMain_ApiVersion:
+                if (cfgPropsAll[ePropMain_ApiVersion].Type != MFX_VARIANT_TYPE_UNSET) {
+                    specialConfig->ApiVersion.Version =
+                        (mfxU32)cfgPropsAll[ePropMain_ApiVersion].Data.U32;
+                    specialConfig->bIsSet_ApiVersion = true;
+                }
+                break;
+
+            // following are non-filtering properties - they may be set here or not (don't affect low latency)
+            case ePropSpecial_HandleType:
+                if (cfgPropsAll[ePropSpecial_HandleType].Type != MFX_VARIANT_TYPE_UNSET) {
+                    specialConfig->deviceHandleType =
+                        (mfxHandleType)cfgPropsAll[ePropSpecial_HandleType].Data.U32;
+                    specialConfig->bIsSet_deviceHandleType = true;
+                }
+                break;
+
+            case ePropSpecial_Handle:
+                if (cfgPropsAll[ePropSpecial_Handle].Type != MFX_VARIANT_TYPE_UNSET) {
+                    specialConfig->deviceHandle = (mfxHDL)cfgPropsAll[ePropSpecial_Handle].Data.Ptr;
+                    specialConfig->bIsSet_deviceHandle = true;
+                }
+                break;
+
+            // will be passed to RT in MFXInitialize(), if unset will be 0
+            case ePropSpecial_DXGIAdapterIndex:
+                if (cfgPropsAll[idx].Type == MFX_VARIANT_TYPE_U32) {
+                    specialConfig->dxgiAdapterIdx =
+                        (mfxU32)cfgPropsAll[ePropSpecial_DXGIAdapterIndex].Data.U32;
+                    specialConfig->bIsSet_dxgiAdapterIdx = true;
+                    continue;
+                }
+                break;
+
+            default:
+                if (cfgPropsAll[idx].Type != MFX_VARIANT_TYPE_UNSET)
+                    bLowLatency = false;
+                break;
+        }
+    }
+
+    return bLowLatency;
 }
 
 bool ConfigCtxVPL::ParseDeviceIDx86(mfxChar *cDeviceID, mfxU32 &deviceID, mfxU32 &adapterIdx) {

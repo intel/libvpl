@@ -6,8 +6,8 @@ perform a simple video decode and inference using OpenVINO
 | Optimized for    | Description
 |----------------- | ----------------------------------------
 | OS               | Ubuntu* 20.04; Windows* 10
-| Hardware         | Intel® Processor Graphics GEN9 or newer
-| Software         | Intel® oneAPI Video Processing Library(oneVPL) and Intel® OpenVINO
+| Hardware         | Compatible with Intel® oneAPI Video Processing Library(oneVPL) GPU implementation, which can be found at https://github.com/oneapi-src/oneVPL-intel-gpu 
+| Software         | Intel® oneAPI Video Processing Library(oneVPL) CPU implementation and Intel® OpenVINO
 | What You Will Learn | How to use oneVPL to decode an H.265 encoded video file and perform per-frame objection classification inference
 | Time to Complete | 5 minutes
 

@@ -87,28 +87,25 @@ def roundup(value, base=10):
 def main(args):
     """Main example"""
     frame_count = 0
+    opts = []
+    if args.impl == 'sw':
+        opts.append(
+            pyvpl.property("mfxImplDescription.Impl",
+                           pyvpl.implementation.software))
+        input_fourcc = pyvpl.color_format_fourcc.i420
+    elif args.impl == 'hw':
+        opts.append(pyvpl.property.HW_ImlpOption)
+        input_fourcc = pyvpl.color_format_fourcc.nv12
+    opts.append(
+        pyvpl.property(
+            "mfxImplDescription.mfxEncoderDescription.encoder.CodecID",
+            pyvpl.codec_format_fourcc.hevc))
+    sel_default = pyvpl.default_selector(opts)
 
     with pyvpl.raw_frame_file_reader_by_name(args.width, args.height,
                                              pyvpl.color_format_fourcc.i420,
                                              args.input) as source:
         with open("out.h265", "wb") as sink:
-            opts = []
-            input_fourcc = pyvpl.color_format_fourcc.nv12
-            if args.impl == 'sw':
-                opts.append(
-                    pyvpl.property("mfxImplDescription.Impl",
-                                   pyvpl.implementation.software))
-                input_fourcc = pyvpl.color_format_fourcc.i420
-            elif args.impl == 'hw':
-                opts.append(
-                    pyvpl.property("mfxImplDescription.Impl",
-                                   pyvpl.implementation.hardware))
-                input_fourcc = pyvpl.color_format_fourcc.nv12
-            opts.append(
-                pyvpl.property(
-                    "mfxImplDescription.mfxEncoderDescription.encoder.CodecID",
-                    pyvpl.codec_format_fourcc.hevc))
-            sel_default = pyvpl.default_selector(opts)
 
             # Load session and initialize encoder
             session = pyvpl.encode_session(sel_default, source)
@@ -122,6 +119,7 @@ def main(args):
             info.FourCC = input_fourcc
             info.ChromaFormat = pyvpl.chroma_format_idc.yuv420
             info.ROI = ((0, 0), (args.width, args.height))
+            info.PicStruct = pyvpl.pic_struct.progressive
 
             params.RateControlMethod = pyvpl.rate_control_method.cqp
             params.frame_info = info
@@ -130,24 +128,33 @@ def main(args):
 
             # Getting VAAPI handle not supported in Python sample
             init_list = pyvpl.encoder_init_list()
-            session.Init(params, init_list)
-
+            try:
+                session.Init(params, init_list)
+            except pyvpl.base_exception as e:
+                print(f"Encoder init failed: {e}")
+                return -1
+            print(str(info))
+            print("Init done")
+            print(f"Encoding {args.input} -> out.h265")
             # check and report implementation details
             version = session.version
-            print(f"{version.Major}.{version.Minor}")
             verify(version.Major > 1,
                    "Sample requires 2.x API implementation, exiting")
-            impl = session.implementation
-            print(impl)
 
             for bits in session:
                 # frame_count += 1
                 frame_count += 1
                 sink.write(bits)
 
-    print(f"Processed {frame_count} frames")
+            print(f"Encoded {frame_count} frames")
+
+            print("")
+            print("-- Encode information --")
+            print("")
+            print(session.working_params())
+
+    return 0
 
 
 if __name__ == '__main__':
-    print(sys.argv)
-    main(read_command_line())
+    sys.exit(main(read_command_line()))

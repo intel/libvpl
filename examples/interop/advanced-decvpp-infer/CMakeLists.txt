@@ -82,13 +82,31 @@ if(UNIX)
     message(WARNING "InferenceEngine not found")
   endif()
 
-  find_package(OpenCL REQUIRED)
+  find_package(OpenCL)
   if(OpenCL_FOUND)
-    target_link_libraries(${TARGET} ${OpenCL_LIBRARIES})
     target_include_directories(${TARGET} PUBLIC ${OpenCL_INCLUDE_DIRS})
   else()
-    message(WARNING "OpenCL not found")
+    message(
+      "OpenCL not found with find_package(OpenCL), using backup approach to find OpenCL library."
+    )
+    find_path(
+      OpenCL_LIBRARY_PATH libOpenCL.so.1.2
+      PATHS $ENV{ONEAPI_ROOT}/compiler/latest/linux/lib
+      NO_DEFAULT_PATH)
+    if(OpenCL_LIBRARY_PATH)
+      set(OpenCL_LIBRARIES ${OpenCL_LIBRARY_PATH}/libOpenCL.so.1.2)
+      set(OpenCL_FOUND true)
+    endif()
+
   endif()
+
+  if(OpenCL_FOUND)
+    message("using OpenCL library ${OpenCL_LIBRARIES}")
+    target_link_libraries(${TARGET} ${OpenCL_LIBRARIES})
+  else()
+    message(WARNING "No OpenCL found -- example cannot compile")
+  endif()
+
 endif()
 
 get_directory_property(has_parent PARENT_DIRECTORY)

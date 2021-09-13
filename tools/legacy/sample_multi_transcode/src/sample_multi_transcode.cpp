@@ -182,7 +182,7 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
 
 #if defined(_WIN32) || defined(_WIN64)
         ForceImplForSession(i);
-        m_pLoader->SetDeviceAndAdapter(m_deviceID, m_adapterNum);
+        m_pLoader->SetDeviceAndAdapter(m_deviceID, m_adapterNum, m_InputParamsArray[0].libType);
         sts = m_pLoader->EnumImplementations();
         MSDK_CHECK_STATUS(sts, "EnumImplementations(m_deviceID, m_adapterNum) failed");
 
@@ -502,7 +502,9 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
             // force implementation type based on iGfx/dGfx parameters
             if (m_InputParamsArray[i].libType != MFX_IMPL_SOFTWARE) {
                 ForceImplForSession(i);
-                m_pLoader->SetDeviceAndAdapter(m_deviceID, m_adapterNum);
+                m_pLoader->SetDeviceAndAdapter(m_deviceID,
+                                               m_adapterNum,
+                                               m_InputParamsArray[i].libType);
                 sts = m_pLoader->EnumImplementations();
                 MSDK_CHECK_STATUS(sts, "EnumImplementations(m_deviceID, m_adapterNum) failed");
             }
@@ -523,7 +525,9 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
             // force implementation type based on iGfx/dGfx parameters
             if (m_InputParamsArray[i].libType != MFX_IMPL_SOFTWARE) {
                 ForceImplForSession(i);
-                m_pLoader->SetDeviceAndAdapter(m_deviceID, m_adapterNum);
+                m_pLoader->SetDeviceAndAdapter(m_deviceID,
+                                               m_adapterNum,
+                                               m_InputParamsArray[i].libType);
                 sts = m_pLoader->EnumImplementations();
                 MSDK_CHECK_STATUS(sts, "EnumImplementations(m_deviceID, m_adapterNum) failed");
             }

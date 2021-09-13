@@ -95,6 +95,7 @@ enum {
 #define MFX_CODEC_RGB4 MFX_FOURCC_RGB4
 #define MFX_CODEC_NV12 MFX_FOURCC_NV12
 #define MFX_CODEC_I420 MFX_FOURCC_I420
+#define MFX_CODEC_I422 MFX_FOURCC_I422
 #if (MFX_VERSION < 2000)
 enum {
     MFX_FOURCC_IMC3    = MFX_MAKEFOURCC('I', 'M', 'C', '3'),
@@ -1478,6 +1479,7 @@ mfxU16 FourCCToChroma(mfxU32 fourCC);
     #include "vpl/mfxdispatcher.h"
 
 mfxStatus VPL_SetAccelMode(mfxLoader loader, MemType memType);
+mfxStatus VPL_EnableDispatcherLowLatency(mfxLoader loader, mfxU32 adapterNum);
 #endif // MFX_VERSION >= 2000
 
 #endif //__SAMPLE_UTILS_H__

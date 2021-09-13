@@ -24,30 +24,6 @@ mfxLoader MFXLoad() {
     // initialize logging if appropriate environment variables are set
     loaderCtx->InitDispatcherLog();
 
-    // search directories for candidate implementations based on search order in
-    // spec
-    mfxStatus sts = loaderCtx->BuildListOfCandidateLibs();
-    if (MFX_ERR_NONE != sts) {
-        delete loaderCtx;
-        return nullptr;
-    }
-
-    // prune libraries which are not actually implementations, filling function
-    // ptr table for each library which is
-    mfxU32 numLibs = loaderCtx->CheckValidLibraries();
-    if (numLibs == 0) {
-        delete loaderCtx;
-        return nullptr;
-    }
-
-    // query capabilities of each implementation
-    // may be more than one implementation per library
-    sts = loaderCtx->QueryLibraryCaps();
-    if (MFX_ERR_NONE != sts) {
-        delete loaderCtx;
-        return nullptr;
-    }
-
     return (mfxLoader)loaderCtx;
 }
 
@@ -79,8 +55,6 @@ mfxConfig MFXCreateConfig(mfxLoader loader) {
     DISP_LOG_FUNCTION(dispLog);
 
     try {
-        std::unique_ptr<ConfigCtxVPL> pConfigCtx;
-        pConfigCtx.reset(new ConfigCtxVPL{});
         configCtx = loaderCtx->AddConfigFilter();
     }
     catch (...) {
@@ -91,7 +65,6 @@ mfxConfig MFXCreateConfig(mfxLoader loader) {
 }
 
 // set a config proprerty to use in enumerating implementations
-// each config context may have only one property
 mfxStatus MFXSetConfigFilterProperty(mfxConfig config, const mfxU8 *name, mfxVariant value) {
     if (!config)
         return MFX_ERR_NULL_PTR;
@@ -106,9 +79,9 @@ mfxStatus MFXSetConfigFilterProperty(mfxConfig config, const mfxU8 *name, mfxVar
     if (sts)
         return sts;
 
-    // update list of valid libraries based on updated set of
-    //   mfxConfig properties
-    sts = loaderCtx->UpdateValidImplList();
+    loaderCtx->m_bNeedUpdateValidImpls = true;
+
+    sts = loaderCtx->UpdateLowLatency();
 
     return sts;
 }
@@ -127,7 +100,24 @@ mfxStatus MFXEnumImplementations(mfxLoader loader,
     DispatcherLogVPL *dispLog = loaderCtx->GetLogger();
     DISP_LOG_FUNCTION(dispLog);
 
-    mfxStatus sts = loaderCtx->QueryImpl(i, format, idesc);
+    mfxStatus sts = MFX_ERR_NONE;
+
+    // load and query all libraries
+    if (loaderCtx->m_bNeedFullQuery) {
+        sts = loaderCtx->FullLoadAndQuery();
+        if (sts)
+            return sts;
+    }
+
+    // update list of valid libraries based on updated set of
+    //   mfxConfig properties
+    if (loaderCtx->m_bNeedUpdateValidImpls) {
+        sts = loaderCtx->UpdateValidImplList();
+        if (sts)
+            return sts;
+    }
+
+    sts = loaderCtx->QueryImpl(i, format, idesc);
 
     return sts;
 }
@@ -142,7 +132,41 @@ mfxStatus MFXCreateSession(mfxLoader loader, mfxU32 i, mfxSession *session) {
     DispatcherLogVPL *dispLog = loaderCtx->GetLogger();
     DISP_LOG_FUNCTION(dispLog);
 
-    mfxStatus sts = loaderCtx->CreateSession(i, session);
+    mfxStatus sts = MFX_ERR_NONE;
+
+    if (loaderCtx->m_bLowLatency) {
+        DISP_LOG_MESSAGE(dispLog, "message:  low latency mode enabled");
+
+        // load low latency libraries
+        sts = loaderCtx->LoadLibsLowLatency();
+        if (sts != MFX_ERR_NONE)
+            return MFX_ERR_NOT_FOUND;
+
+        // run limited query operations for low latency init
+        sts = loaderCtx->QueryLibraryCaps();
+        if (sts != MFX_ERR_NONE)
+            return MFX_ERR_NOT_FOUND;
+    }
+    else {
+        DISP_LOG_MESSAGE(dispLog, "message:  low latency mode disabled");
+
+        // load and query all libraries
+        if (loaderCtx->m_bNeedFullQuery) {
+            sts = loaderCtx->FullLoadAndQuery();
+            if (sts)
+                return MFX_ERR_NOT_FOUND;
+        }
+
+        // update list of valid libraries based on updated set of
+        //   mfxConfig properties
+        if (loaderCtx->m_bNeedUpdateValidImpls) {
+            sts = loaderCtx->UpdateValidImplList();
+            if (sts)
+                return MFX_ERR_NOT_FOUND;
+        }
+    }
+
+    sts = loaderCtx->CreateSession(i, session);
 
     return sts;
 }

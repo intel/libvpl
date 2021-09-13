@@ -481,6 +481,7 @@ mfxStatus CSmplYUVReader::LoadNextFrame(mfxFrameSurface1* pSurface) {
                 }
                 break;
             case MFX_FOURCC_I010:
+            case MFX_FOURCC_I210:
                 h /= 2;
                 pitch /= 2;
 
@@ -1053,6 +1054,11 @@ mfxStatus GetChromaSize(const mfxFrameInfo& pInfo, mfxU32& ChromaW, mfxU32& Chro
             ChromaH = (pInfo.CropH + 1) / 2;
             break;
         }
+        case MFX_FOURCC_I422: {
+            ChromaW = (pInfo.CropW + 1) / 2;
+            ChromaH = (pInfo.CropH);
+            break;
+        }
         case MFX_FOURCC_NV12: {
             ChromaW = (pInfo.CropW % 2) ? (pInfo.CropW + 1) : pInfo.CropW;
             ChromaH = (pInfo.CropH + 1) / 2;
@@ -1066,6 +1072,7 @@ mfxStatus GetChromaSize(const mfxFrameInfo& pInfo, mfxU32& ChromaW, mfxU32& Chro
             break;
         }
 
+        case MFX_FOURCC_I210:
         case MFX_FOURCC_P210:
         case MFX_FOURCC_Y210:
         case MFX_FOURCC_Y216: {
@@ -1132,6 +1139,7 @@ mfxStatus CSmplYUVWriter::WriteNextFrame(mfxFrameSurface1* pSurface) {
         case MFX_FOURCC_YV12:
         case MFX_FOURCC_NV12:
         case MFX_FOURCC_I420:
+        case MFX_FOURCC_I422:
         case MFX_FOURCC_NV16:
             for (i = 0; i < pInfo.CropH; i++) {
                 MSDK_CHECK_NOT_EQUAL(
@@ -1219,6 +1227,7 @@ mfxStatus CSmplYUVWriter::WriteNextFrame(mfxFrameSurface1* pSurface) {
         } break;
 #endif
         case MFX_FOURCC_I010:
+        case MFX_FOURCC_I210:
             for (i = 0; i < pInfo.CropH; i++) {
                 mfxU16* shortPtr = (mfxU16*)(pData.Y + (pInfo.CropY * pData.Pitch + pInfo.CropX) +
                                              i * pData.Pitch);
@@ -1293,7 +1302,8 @@ mfxStatus CSmplYUVWriter::WriteNextFrame(mfxFrameSurface1* pSurface) {
             }
             break;
         }
-        case MFX_FOURCC_I420: {
+        case MFX_FOURCC_I420:
+        case MFX_FOURCC_I422: {
             for (i = 0; i < ChromaH; i++) {
                 MSDK_CHECK_NOT_EQUAL(
                     fwrite(pData.U + (pInfo.CropY * pData.Pitch / 2 + pInfo.CropX / 2) +
@@ -1341,7 +1351,8 @@ mfxStatus CSmplYUVWriter::WriteNextFrame(mfxFrameSurface1* pSurface) {
             }
             break;
         }
-        case MFX_FOURCC_I010: {
+        case MFX_FOURCC_I010:
+        case MFX_FOURCC_I210: {
             mfxU16 chPitch = pData.Pitch / 2;
             mfxU32 basePtr = (pInfo.CropY * chPitch + pInfo.CropX / 2);
 
@@ -1924,12 +1935,16 @@ const msdk_char* ColorFormatToStr(mfxU32 format) {
             return MSDK_STRING("YV12");
         case MFX_FOURCC_I420:
             return MSDK_STRING("YUV420");
+        case MFX_FOURCC_I422:
+            return MSDK_STRING("I422");
         case MFX_FOURCC_RGB4:
             return MSDK_STRING("RGB4");
         case MFX_FOURCC_YUY2:
             return MSDK_STRING("YUY2");
         case MFX_FOURCC_UYVY:
             return MSDK_STRING("UYVY");
+        case MFX_FOURCC_I210:
+            return MSDK_STRING("I210");
         case MFX_FOURCC_P010:
             return MSDK_STRING("P010");
         case MFX_FOURCC_P210:
@@ -2449,6 +2464,9 @@ mfxStatus StrFormatToCodecFormatFourCC(msdk_char* strInput, mfxU32& codecFormat)
         else if ((0 == msdk_strcmp(strInput, MSDK_STRING("i420")))) {
             codecFormat = MFX_CODEC_I420;
         }
+        else if ((0 == msdk_strcmp(strInput, MSDK_STRING("i422")))) {
+            codecFormat = MFX_CODEC_I422;
+        }
         else
             sts = MFX_ERR_UNSUPPORTED;
     }
@@ -2739,6 +2757,8 @@ mfxU16 FourCCToChroma(mfxU32 fourCC) {
 #endif
             return MFX_CHROMAFORMAT_YUV420;
         case MFX_FOURCC_NV16:
+        case MFX_FOURCC_I422:
+        case MFX_FOURCC_I210:
         case MFX_FOURCC_P210:
 #if (MFX_VERSION >= 1027)
         case MFX_FOURCC_Y210:
@@ -2794,6 +2814,53 @@ mfxStatus VPL_SetAccelMode(mfxLoader loader, MemType memType) {
         implValue);
 
     return sts;
+}
+
+mfxStatus VPL_EnableDispatcherLowLatency(mfxLoader loader, mfxU32 adapterNum) {
+    #if defined(_WIN32) || defined(_WIN64)
+
+    mfxStatus sts    = MFX_ERR_NONE;
+    mfxConfig config = MFXCreateConfig(loader);
+
+    mfxVariant var      = {};
+    var.Version.Version = MFX_VARIANT_VERSION;
+
+    var.Type     = MFX_VARIANT_TYPE_U32;
+    var.Data.U32 = MFX_IMPL_TYPE_HARDWARE;
+    MFXSetConfigFilterProperty(config, (const mfxU8*)"mfxImplDescription.Impl", var);
+
+    var.Type     = MFX_VARIANT_TYPE_PTR;
+    var.Data.Ptr = (mfxHDL) "mfx-gen";
+    MFXSetConfigFilterProperty(config, (const mfxU8*)"mfxImplDescription.ImplName", var);
+
+    var.Type     = MFX_VARIANT_TYPE_U32;
+    var.Data.U32 = 0x8086;
+    MFXSetConfigFilterProperty(config, (const mfxU8*)"mfxImplDescription.VendorID", var);
+
+    var.Type     = MFX_VARIANT_TYPE_U32;
+    var.Data.U32 = MFX_ACCEL_MODE_VIA_D3D11;
+    MFXSetConfigFilterProperty(config, (const mfxU8*)"mfxImplDescription.AccelerationMode", var);
+
+    // set which minimum version is required
+    mfxVersion ver = {};
+    ver.Major      = 1;
+    ver.Minor      = 0;
+
+    var.Type     = MFX_VARIANT_TYPE_U32;
+    var.Data.U32 = ver.Version;
+    sts          = MFXSetConfigFilterProperty(config,
+                                     (const mfxU8*)"mfxImplDescription.ApiVersion.Version",
+                                     var);
+
+    var.Type     = MFX_VARIANT_TYPE_U32;
+    var.Data.U32 = adapterNum;
+    sts          = MFXSetConfigFilterProperty(config, (const mfxU8*)"DXGIAdapterIndex", var);
+
+    return MFX_ERR_NONE;
+    #else
+    // only supported on Windows for now
+    return MFX_ERR_UNSUPPORTED;
+    #endif
 }
 
 #endif

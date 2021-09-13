@@ -51,11 +51,11 @@ private:
 };
 
 void init_video_param(const py::module &m) {
-    py::class_<image_plane>(m, "image_plane", py::buffer_protocol())
+    py::class_<image_plane, std::shared_ptr<image_plane>>(m, "image_plane", py::buffer_protocol())
         .def_buffer(&image_plane::buffer_info)
         .def_property_readonly("desc", &image_plane::get_desc);
 
-    py::class_<vpl::video_param>(m, "video_param")
+    py::class_<vpl::video_param, std::shared_ptr<vpl::video_param>>(m, "video_param")
         .def_property_readonly("Mfx", &vpl::video_param::getMfx)
         .def_property("AllocId", &vpl::video_param::get_AllocId, &vpl::video_param::set_AllocId)
         .def_property("AsyncDepth",
@@ -69,9 +69,13 @@ void init_video_param(const py::module &m) {
                       &vpl::video_param::set_IOPattern,
                       "i/o memory pattern value.")
         // .def("set_extension_buffers", &vpl::video_param::set_extension_buffers)
-        ;
+        .def("__str__", [](const vpl::video_param *self) {
+            std::stringstream strs;
+            strs << *self;
+            return strs.str();
+        });
 
-    py::class_<vpl::frame_info>(m, "frame_info")
+    py::class_<vpl::frame_info, std::shared_ptr<vpl::frame_info>>(m, "frame_info")
         .def(py::init<>())
         .def_property("BitDepthLuma",
                       &vpl::frame_info::get_BitDepthLuma,
@@ -109,9 +113,14 @@ void init_video_param(const py::module &m) {
         .def_property("ChromaFormat",
                       &vpl::frame_info::get_ChromaFormat,
                       &vpl::frame_info::set_ChromaFormat,
-                      "chroma format value.");
+                      "chroma format value.")
+        .def("__str__", [](const vpl::frame_info *self) {
+            std::stringstream strs;
+            vpl::operator<<(strs, *self);
+            return strs.str();
+        });
 
-    py::class_<vpl::frame_data>(m, "frame_data")
+    py::class_<vpl::frame_data, std::shared_ptr<vpl::frame_data>>(m, "frame_data")
         .def(py::init<>())
         .def_property("MemType", &vpl::frame_data::get_MemType, &vpl::frame_data::set_MemType)
         .def_property("Pitch",
@@ -476,7 +485,7 @@ void init_video_param(const py::module &m) {
                             return std::vector{
                                 image_plane(p1,
                                             2,
-                                            width,
+                                            width / 2,
                                             height,
                                             1,
                                             pitch,
@@ -492,11 +501,79 @@ void init_video_param(const py::module &m) {
                                             "U"),
                                 image_plane(p3,
                                             2,
-                                            width / 2,
+                                            width,
                                             height / 2,
                                             1,
                                             pitch,
                                             py::format_descriptor<uint16_t>::format(),
+                                            "V")
+                            };
+                        }
+                    case vpl::color_format_fourcc::i210:
+                        //  YUV 4:2:2   10      2:2:2   w2xh:wxh:wxh     Y   U   V
+                        {
+                            auto ptr = self->get_plane_ptrs_3();
+                            auto p1  = std::get<0>(ptr);
+                            auto p2  = std::get<1>(ptr);
+                            auto p3  = std::get<2>(ptr);
+                            return std::vector{
+                                image_plane(p1,
+                                            2,
+                                            width,
+                                            height,
+                                            1,
+                                            pitch,
+                                            py::format_descriptor<uint16_t>::format(),
+                                            "Y"),
+                                image_plane(p2,
+                                            2,
+                                            width / 2,
+                                            height,
+                                            1,
+                                            pitch,
+                                            py::format_descriptor<uint16_t>::format(),
+                                            "U"),
+                                image_plane(p3,
+                                            2,
+                                            width / 2,
+                                            height,
+                                            1,
+                                            pitch,
+                                            py::format_descriptor<uint16_t>::format(),
+                                            "V")
+                            };
+                        }
+                    case vpl::color_format_fourcc::i422:
+                        //  YUV 4:2:2   8      1:1:1   w1xh1:w1xh/2:w1xh/2     Y   U   V
+                        {
+                            auto ptr = self->get_plane_ptrs_3();
+                            auto p1  = std::get<0>(ptr);
+                            auto p2  = std::get<1>(ptr);
+                            auto p3  = std::get<2>(ptr);
+                            return std::vector{
+                                image_plane(p1,
+                                            1,
+                                            width,
+                                            height,
+                                            1,
+                                            pitch,
+                                            py::format_descriptor<uint8_t>::format(),
+                                            "Y"),
+                                image_plane(p2,
+                                            1,
+                                            width / 2,
+                                            height,
+                                            1,
+                                            pitch,
+                                            py::format_descriptor<uint8_t>::format(),
+                                            "U"),
+                                image_plane(p3,
+                                            1,
+                                            width / 2,
+                                            height,
+                                            1,
+                                            pitch,
+                                            py::format_descriptor<uint8_t>::format(),
                                             "V")
                             };
                         }
@@ -517,7 +594,9 @@ void init_video_param(const py::module &m) {
             },
             "Get Planes");
 
-    py::class_<vpl::codec_video_param, vpl::video_param>(m, "codec_video_param")
+    py::class_<vpl::codec_video_param, vpl::video_param, std::shared_ptr<vpl::codec_video_param>>(
+        m,
+        "codec_video_param")
         .def_property("LowPower",
                       &vpl::codec_video_param::get_LowPower,
                       &vpl::codec_video_param::set_LowPower)
@@ -540,9 +619,16 @@ void init_video_param(const py::module &m) {
         .def_property("frame_info",
                       &vpl::codec_video_param::get_frame_info,
                       &vpl::codec_video_param::set_frame_info,
-                      "frame info value.");
+                      "frame info value.")
+        .def("__str__", [](const vpl::codec_video_param *self) {
+            std::stringstream strs;
+            strs << *self;
+            return strs.str();
+        });
 
-    py::class_<vpl::encoder_video_param, vpl::codec_video_param>(m, "encoder_video_param")
+    py::class_<vpl::encoder_video_param,
+               vpl::codec_video_param,
+               std::shared_ptr<vpl::encoder_video_param>>(m, "encoder_video_param")
         .def(py::init<>())
         .def_property("TargetUsage",
                       &vpl::encoder_video_param::get_TargetUsage,
@@ -596,9 +682,17 @@ void init_video_param(const py::module &m) {
                       &vpl::encoder_video_param::set_NumRefFrame)
         .def_property("EncodedOrder",
                       &vpl::encoder_video_param::get_EncodedOrder,
-                      &vpl::encoder_video_param::set_EncodedOrder);
+                      &vpl::encoder_video_param::set_EncodedOrder)
 
-    py::class_<vpl::decoder_video_param, vpl::codec_video_param>(m, "decoder_video_param")
+        .def("__str__", [](const vpl::encoder_video_param *self) {
+            std::stringstream strs;
+            strs << *self;
+            return strs.str();
+        });
+
+    py::class_<vpl::decoder_video_param,
+               vpl::codec_video_param,
+               std::shared_ptr<vpl::decoder_video_param>>(m, "decoder_video_param")
         .def(py::init<>())
         .def_property("DecodedOrder",
                       &vpl::decoder_video_param::get_DecodedOrder,
@@ -617,9 +711,17 @@ void init_video_param(const py::module &m) {
                       &vpl::decoder_video_param::set_MaxDecFrameBuffering)
         .def_property("EnableReallocRequest",
                       &vpl::decoder_video_param::get_EnableReallocRequest,
-                      &vpl::decoder_video_param::set_EnableReallocRequest);
+                      &vpl::decoder_video_param::set_EnableReallocRequest)
 
-    py::class_<vpl::jpeg_decoder_video_param, vpl::codec_video_param>(m, "jpeg_decoder_video_param")
+        .def("__str__", [](const vpl::decoder_video_param *self) {
+            std::stringstream strs;
+            strs << *self;
+            return strs.str();
+        });
+
+    py::class_<vpl::jpeg_decoder_video_param,
+               vpl::codec_video_param,
+               std::shared_ptr<vpl::jpeg_decoder_video_param>>(m, "jpeg_decoder_video_param")
         .def(py::init<>())
         .def_property("JPEGChromaFormat",
                       &vpl::jpeg_decoder_video_param::get_JPEGChromaFormat,
@@ -638,9 +740,17 @@ void init_video_param(const py::module &m) {
                       &vpl::jpeg_decoder_video_param::set_SamplingFactorH)
         .def_property("SamplingFactorV",
                       &vpl::jpeg_decoder_video_param::get_SamplingFactorV,
-                      &vpl::jpeg_decoder_video_param::set_SamplingFactorV);
+                      &vpl::jpeg_decoder_video_param::set_SamplingFactorV)
 
-    py::class_<vpl::jpeg_encoder_video_param, vpl::codec_video_param>(m, "jpeg_encoder_video_param")
+        .def("__str__", [](const vpl::jpeg_decoder_video_param *self) {
+            std::stringstream strs;
+            strs << *self;
+            return strs.str();
+        });
+
+    py::class_<vpl::jpeg_encoder_video_param,
+               vpl::codec_video_param,
+               std::shared_ptr<vpl::jpeg_encoder_video_param>>(m, "jpeg_encoder_video_param")
         .def(py::init<>())
         .def_property("Interleaved",
                       &vpl::jpeg_encoder_video_param::get_Interleaved,
@@ -650,9 +760,17 @@ void init_video_param(const py::module &m) {
                       &vpl::jpeg_encoder_video_param::set_Quality)
         .def_property("RestartInterval",
                       &vpl::jpeg_encoder_video_param::get_RestartInterval,
-                      &vpl::jpeg_encoder_video_param::set_RestartInterval);
+                      &vpl::jpeg_encoder_video_param::set_RestartInterval)
 
-    py::class_<vpl::vpp_video_param, vpl::video_param>(m, "vpp_video_param")
+        .def("__str__", [](const vpl::jpeg_encoder_video_param *self) {
+            std::stringstream strs;
+            strs << *self;
+            return strs.str();
+        });
+
+    py::class_<vpl::vpp_video_param, vpl::video_param, std::shared_ptr<vpl::vpp_video_param>>(
+        m,
+        "vpp_video_param")
         .def(py::init<>())
         .def_property("in_frame_info",
                       &vpl::vpp_video_param::get_in_frame_info,
@@ -661,5 +779,11 @@ void init_video_param(const py::module &m) {
         .def_property("out_frame_info",
                       &vpl::vpp_video_param::get_out_frame_info,
                       &vpl::vpp_video_param::set_out_frame_info,
-                      "frame info out value.");
+                      "frame info out value.")
+
+        .def("__str__", [](const vpl::vpp_video_param *self) {
+            std::stringstream strs;
+            strs << *self;
+            return strs.str();
+        });
 }

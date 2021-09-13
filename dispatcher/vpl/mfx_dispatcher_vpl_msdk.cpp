@@ -6,6 +6,10 @@
 
 #include "vpl/mfx_dispatcher_vpl.h"
 
+#if defined(_WIN32) || defined(_WIN64)
+    #include "vpl/mfx_dispatcher_vpl_win.h"
+#endif
+
 #ifdef __linux__
     #include <pthread.h>
     #define strncpy_s(dst, size, src, cnt) strcpy((dst), (src)) // NOLINT
@@ -23,19 +27,22 @@ static const mfxChar strKeywords[MFX_STRFIELD_LEN] = "MSDK,x86";
 static const mfxChar strKeywords[MFX_STRFIELD_LEN] = "MSDK,x64";
 #endif
 
-static const mfxIMPL msdkImplTab[MAX_NUM_IMPL_MSDK] = {
+// also used in main loader routine
+const mfxIMPL msdkImplTab[MAX_NUM_IMPL_MSDK] = {
     MFX_IMPL_HARDWARE,
     MFX_IMPL_HARDWARE2,
     MFX_IMPL_HARDWARE3,
     MFX_IMPL_HARDWARE4,
 };
 
-static const mfxAccelerationMode MSDKAccelModes[] = {
-#ifdef __linux__
-    MFX_ACCEL_MODE_VIA_VAAPI,
-#else
-    MFX_ACCEL_MODE_VIA_D3D11,
-#endif
+// not relevant for 1.x runtimes (no internal memory management)
+#define NUM_POOL_POLICIES_MSDK 0
+
+static const mfxPoolPolicyDescription PoolPolicies = {
+    { 0, 1 },                   // struct Version
+    {},                         // reserved
+    NUM_POOL_POLICIES_MSDK,     // NumPoolPolicies
+    nullptr,
 };
 
 // 1.x function names should match list in enum eFunc
@@ -223,7 +230,8 @@ mfxStatus LoaderCtxMSDK::QueryAPIVersion(STRING_TYPE libNameFull, mfxVersion *ms
 mfxStatus LoaderCtxMSDK::QueryMSDKCaps(STRING_TYPE libNameFull,
                                        mfxImplDescription **implDesc,
                                        mfxImplementedFunctions **implFuncs,
-                                       mfxU32 adapterID) {
+                                       mfxU32 adapterID,
+                                       bool bSkipD3D9Check) {
 #ifdef DISABLE_MSDK_COMPAT
     // disable support for legacy MSDK
     return MFX_ERR_UNSUPPORTED;
@@ -318,9 +326,13 @@ mfxStatus LoaderCtxMSDK::QueryMSDKCaps(STRING_TYPE libNameFull,
     m_id.VendorID    = 0x8086;
     m_id.NumExtParam = 0;
 
+    // fill in pool policies
+    m_id.PoolPolicies = PoolPolicies;
+
     // fill in device description
     mfxDeviceDescription *Dev = &(m_id.Dev);
     memset(Dev, 0, sizeof(mfxDeviceDescription)); // initially empty
+    Dev->MediaAdapterType = MFX_MEDIA_UNKNOWN;
 
     // query for underlying deviceID (requires API >= 1.19)
     mfxU16 deviceID = 0x0000;
@@ -330,6 +342,11 @@ mfxStatus LoaderCtxMSDK::QueryMSDKCaps(STRING_TYPE libNameFull,
         sts = MFXVideoCORE_QueryPlatform(session, &platform);
         if (sts == MFX_ERR_NONE)
             deviceID = platform.DeviceId;
+
+        // mfxPlatform::MediaAdapterType was added in API 1.31
+        if (IsVersionSupported(MAKE_MFX_VERSION(1, 31), m_id.ApiVersion)) {
+            Dev->MediaAdapterType = platform.MediaAdapterType;
+        }
     }
 
     // if QueryPlatform did not return deviceID, we may have received
@@ -345,15 +362,17 @@ mfxStatus LoaderCtxMSDK::QueryMSDKCaps(STRING_TYPE libNameFull,
     CloseSession(&session);
 
 #if defined(_WIN32) || defined(_WIN64)
-    mfxIMPL implD3D9;
-    m_msdkAdapterD3D9 = MFX_IMPL_UNSUPPORTED;
+    if (bSkipD3D9Check == false) {
+        mfxIMPL implD3D9;
+        m_msdkAdapterD3D9 = MFX_IMPL_UNSUPPORTED;
 
-    sts = CheckD3D9Support(luid, libNameFull, &implD3D9);
-    if (sts == MFX_ERR_NONE) {
-        m_msdkAdapterD3D9 = implD3D9;
+        sts = CheckD3D9Support(luid, libNameFull, &implD3D9);
+        if (sts == MFX_ERR_NONE) {
+            m_msdkAdapterD3D9 = implD3D9;
 
-        accelDesc->Mode[accelDesc->NumAccelerationModes] = MFX_ACCEL_MODE_VIA_D3D9;
-        accelDesc->NumAccelerationModes++;
+            accelDesc->Mode[accelDesc->NumAccelerationModes] = MFX_ACCEL_MODE_VIA_D3D9;
+            accelDesc->NumAccelerationModes++;
+        }
     }
 #endif
 

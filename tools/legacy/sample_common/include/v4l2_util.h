@@ -26,15 +26,15 @@
 #define CLEAR(x) memset(&(x), 0, sizeof(x))
 #define ERRSTR   strerror(errno)
 
-#define BYE_ON(cond, ...)                                           \
-    do {                                                            \
-        if (cond) {                                                 \
-            int errsv = errno;                                      \
-            fprintf(stderr, "ERROR(%s:%d) : ", __FILE__, __LINE__); \
-            errno = errsv;                                          \
-            fprintf(stderr, __VA_ARGS__);                           \
-            abort();                                                \
-        }                                                           \
+#define BYE_ON(cond, ...)                                               \
+    do {                                                                \
+        if (cond) {                                                     \
+            int errsv = errno;                                          \
+            fprintf(stderr, "ERROR(%s:%d) : ", __FILENAME__, __LINE__); \
+            errno = errsv;                                              \
+            fprintf(stderr, __VA_ARGS__);                               \
+            abort();                                                    \
+        }                                                               \
     } while (0)
 
 enum AtomISPMode { NONE = 0, PREVIEW, STILL, VIDEO, CONTINUOUS };

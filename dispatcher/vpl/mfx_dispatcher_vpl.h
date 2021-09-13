@@ -13,6 +13,7 @@
 #include <memory>
 #include <sstream>
 #include <string>
+#include <vector>
 
 #include "vpl/mfxdispatcher.h"
 #include "vpl/mfxvideo.h"
@@ -22,16 +23,10 @@
 #if defined(_WIN32) || defined(_WIN64)
     #include <windows.h>
 
-    #include "windows/mfx_dispatcher.h"
-    #include "windows/mfx_dispatcher_defs.h"
-    #include "windows/mfx_library_iterator.h"
-    #include "windows/mfx_load_dll.h"
-
     // use wide char on Windows
     #define MAKE_STRING(x) L##x
 typedef std::wstring STRING_TYPE;
 typedef wchar_t CHAR_TYPE;
-
 #else
     #include <dirent.h>
     #include <dlfcn.h>
@@ -77,10 +72,6 @@ typedef char CHAR_TYPE;
 #define MAKE_MFX_VERSION(major, minor) \
     { (minor), (major) }
 
-// internal flag for MSDK compatibility mode (loading via MFXLoad)
-// do not specify accelerator mode (see MFXInitEx2 default path)
-enum { MFX_ACCEL_MODE_VIA_HW_ANY = 0x7FFFFFFF };
-
 // internal function to load dll by full path, fail if unsuccessful
 mfxStatus MFXInitEx2(mfxVersion version,
                      mfxInitializationParam vplParam,
@@ -90,6 +81,8 @@ mfxStatus MFXInitEx2(mfxVersion version,
                      CHAR_TYPE *dllName);
 
 typedef void(MFX_CDECL *VPLFunctionPtr)(void);
+
+extern const mfxIMPL msdkImplTab[MAX_NUM_IMPL_MSDK];
 
 enum LibType {
     LibTypeUnknown = -1,
@@ -135,6 +128,13 @@ struct VPLFunctionDesc {
     mfxVersion apiVersion;
 };
 
+// DX adapter info
+struct DXGI1DeviceInfo {
+    mfxU32 vendorID;
+    mfxU32 deviceID;
+    mfxU64 luid;
+};
+
 // priority of runtime loading, based on oneAPI-spec
 enum LibPriority {
     LIB_PRIORITY_01 = 1,
@@ -165,7 +165,7 @@ enum PropRanges {
 
 // must match eProp_TotalProps, is checked with static_assert in _config.cpp
 //   (should throw error at compile time if !=)
-#define NUM_TOTAL_FILTER_PROPS 38
+#define NUM_TOTAL_FILTER_PROPS 40
 
 // typedef child structures for easier reading
 typedef struct mfxDecoderDescription::decoder DecCodec;
@@ -243,6 +243,9 @@ public:
     // set a single filter property (KV pair)
     mfxStatus SetFilterProperty(const mfxU8 *name, mfxVariant value);
 
+    static bool CheckLowLatencyConfig(std::list<ConfigCtxVPL *> configCtxList,
+                                      SpecialConfig *specialConfig);
+
     // compare library caps vs. set of configuration filters
     static mfxStatus ValidateConfig(const mfxImplDescription *libImplDesc,
                                     const mfxImplementedFunctions *libImplFuncs,
@@ -318,7 +321,8 @@ public:
     mfxStatus QueryMSDKCaps(STRING_TYPE libNameFull,
                             mfxImplDescription **implDesc,
                             mfxImplementedFunctions **implFuncs,
-                            mfxU32 adapterID);
+                            mfxU32 adapterID,
+                            bool bSkipD3D9Check);
 
     static mfxStatus QueryAPIVersion(STRING_TYPE libNameFull, mfxVersion *msdkVersion);
 
@@ -361,7 +365,6 @@ struct LibInfo {
     // during search store candidate file names
     //   and priority based on rules in spec
     STRING_TYPE libNameFull;
-    STRING_TYPE libNameBase;
     mfxU32 libPriority;
     LibType libType;
 
@@ -385,7 +388,6 @@ struct LibInfo {
     // avoid warnings
     LibInfo()
             : libNameFull(),
-              libNameBase(),
               libPriority(0),
               libType(LibTypeUnknown),
               hModuleVPL(nullptr),
@@ -453,6 +455,7 @@ public:
     mfxStatus UnloadAllLibraries();
 
     // query capabilities of each implementation
+    mfxStatus FullLoadAndQuery();
     mfxStatus QueryImpl(mfxU32 idx, mfxImplCapsDeliveryFormat format, mfxHDL *idesc);
     mfxStatus ReleaseImpl(mfxHDL idesc);
 
@@ -470,6 +473,14 @@ public:
     // manage logging
     mfxStatus InitDispatcherLog();
     DispatcherLogVPL *GetLogger();
+
+    // low latency initialization
+    mfxStatus LoadLibsLowLatency();
+    mfxStatus UpdateLowLatency();
+
+    bool m_bLowLatency;
+    bool m_bNeedUpdateValidImpls;
+    bool m_bNeedFullQuery;
 
 private:
     // helper functions
@@ -491,13 +502,23 @@ private:
                                std::list<LibInfo *> &libInfoList,
                                mfxU32 priority);
 
+    mfxU32 LoadAPIExports(LibInfo *libInfo, LibType libType);
     mfxStatus ValidateAPIExports(VPLFunctionPtr *vplFuncTable, mfxVersion reportedVersion);
     bool IsValidX86GPU(ImplInfo *implInfo, mfxU32 &deviceID, mfxU32 &adapterIdx);
     mfxStatus UpdateImplPath(LibInfo *libInfo);
 
+    mfxStatus LoadLibsFromDriverStore(mfxU32 numAdapters,
+                                      const std::vector<DXGI1DeviceInfo> &adapterInfo,
+                                      LibType libType);
+    mfxStatus LoadLibsFromSystemDir(LibType libType);
+
+    LibInfo *AddSingleLibrary(STRING_TYPE libPath, LibType libType);
+    mfxStatus QuerySessionLowLatency(LibInfo *libInfo, mfxU32 adapterID, mfxVersion *ver);
+
     std::list<LibInfo *> m_libInfoList;
     std::list<ImplInfo *> m_implInfoList;
     std::list<ConfigCtxVPL *> m_configCtxList;
+    std::vector<DXGI1DeviceInfo> m_gpuAdapterInfo;
 
     SpecialConfig m_specialConfig;
 

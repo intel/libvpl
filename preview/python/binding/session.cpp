@@ -11,7 +11,7 @@ template <typename VideoParams, typename InitList, typename ResetList>
 class session_template {
 public:
     using Class   = vpl::session<VideoParams, InitList, ResetList>;
-    using PyClass = py::class_<Class>;
+    using PyClass = py::class_<Class, std::shared_ptr<Class>>;
     PyClass pyclass;
     session_template(const py::module &m, const std::string &typestr)
             : pyclass(m, typestr.c_str()) {
@@ -45,7 +45,7 @@ public:
                               vpl::decoder_init_reset_list,
                               vpl::decoder_init_reset_list>;
     using Class   = vpl::decode_session<Reader>;
-    using PyClass = py::class_<Class, Base>;
+    using PyClass = py::class_<Class, Base, std::shared_ptr<Class>>;
     PyClass pyclass;
     decode_session_template(const py::module &m, const std::string &typestr)
             : pyclass(m, typestr.c_str()) {
@@ -121,9 +121,8 @@ void init_session(const py::module &m) {
 
     py::class_<
         vpl::encode_session,
-        vpl::session<vpl::encoder_video_param, vpl::encoder_init_list, vpl::encoder_reset_list>>(
-        m,
-        "encode_session")
+        vpl::session<vpl::encoder_video_param, vpl::encoder_init_list, vpl::encoder_reset_list>,
+        std::shared_ptr<vpl::encode_session>>(m, "encode_session")
         .def(py::init<vpl::implemetation_selector &>())
         .def(py::init<vpl::implemetation_selector &, vpl::frame_source_reader *>())
         .def("alloc_input",
@@ -175,9 +174,8 @@ void init_session(const py::module &m) {
 
     py::class_<
         vpl::vpp_session,
-        vpl::session<vpl::vpp_video_param, vpl::vpp_init_reset_list, vpl::vpp_init_reset_list>>(
-        m,
-        "vpp_session")
+        vpl::session<vpl::vpp_video_param, vpl::vpp_init_reset_list, vpl::vpp_init_reset_list>,
+        std::shared_ptr<vpl::vpp_session>>(m, "vpp_session")
         .def(py::init<vpl::implemetation_selector &>())
         .def(py::init<vpl::implemetation_selector &, vpl::frame_source_reader *>())
         .def("alloc_input",
@@ -190,12 +188,12 @@ void init_session(const py::module &m) {
         .def(
             "process_frame",
             py::overload_cast<std::shared_ptr<vpl::frame_surface>,
-                              std::shared_ptr<vpl::frame_surface>>(
+                              std::shared_ptr<vpl::frame_surface> &>(
                 &vpl::vpp_session::process_frame),
             "Process frame. Function returns the surface which will hold processed data. User need to sync up the surface data before accessing.")
         .def(
             "process_frame",
-            py::overload_cast<std::shared_ptr<vpl::frame_surface>>(
+            py::overload_cast<std::shared_ptr<vpl::frame_surface> &>(
                 &vpl::vpp_session::process_frame),
             "Process frame. Function returns the surface which will hold processed data. User need to sync up the surface data before accessing.")
         .def(

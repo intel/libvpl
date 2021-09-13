@@ -22,4 +22,6 @@
 #include "mfxvp8.h"
 #include "mfxjpeg.h"
 
+#include "mfxsurfacepool.h" 
+
 #endif /* __MFXDEFS_H__ */

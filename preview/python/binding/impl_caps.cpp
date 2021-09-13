@@ -8,7 +8,10 @@
 namespace vpl = oneapi::vpl;
 
 void init_impl_caps(const py::module &m) {
-    py::class_<vpl::base_implementation_capabilities>(m, "base_implementation_capabilities")
+    py::class_<vpl::base_implementation_capabilities,
+               std::shared_ptr<vpl::base_implementation_capabilities>>(
+        m,
+        "base_implementation_capabilities")
         .def(py::init<uint32_t>())
         .def_property_readonly("id",
                                &vpl::base_implementation_capabilities::get_id,
@@ -19,9 +22,15 @@ void init_impl_caps(const py::module &m) {
             return strs.str();
         });
 
-    py::class_<vpl::implementation_capabilities, vpl::base_implementation_capabilities>(
-        m,
-        "implementation_capabilities")
+    py::class_<vpl::pool_policies, std::shared_ptr<vpl::pool_policies>>(m, "pool_policies")
+        .def(py::init<mfxPoolPolicyDescription *>())
+        .def_property_readonly("policies",
+                               &vpl::pool_policies::policies,
+                               "Provides list of policies.");
+
+    py::class_<vpl::implementation_capabilities,
+               vpl::base_implementation_capabilities,
+               std::shared_ptr<vpl::implementation_capabilities>>(m, "implementation_capabilities")
         .def(py::init<mfxImplDescription *>())
         .def_property_readonly("impl_type",
                                &vpl::implementation_capabilities::get_impl_type,
@@ -61,9 +70,13 @@ void init_impl_caps(const py::module &m) {
                                "Provides list of supported encoders.")
         .def_property_readonly("vpp_filters",
                                &vpl::implementation_capabilities::get_vpp_filters,
-                               "Provides list of supported VPP filters.");
+                               "Provides list of supported VPP filters.")
+        .def_property_readonly("pool_policies",
+                               &vpl::implementation_capabilities::get_pool_policies,
+                               "Provides list of supported VPP pool policies.");
 
-    py::class_<vpl::implementation_capabilities::decoder_memory>(
+    py::class_<vpl::implementation_capabilities::decoder_memory,
+               std::shared_ptr<vpl::implementation_capabilities::decoder_memory>>(
         m,
         "implementation_capabilities_decoder_memory")
         .def(py::init<mfxDecoderDescription::decoder::decprofile::decmemdesc>())
@@ -89,7 +102,8 @@ void init_impl_caps(const py::module &m) {
                  return strs.str();
              });
 
-    py::class_<vpl::implementation_capabilities::encoder_memory>(
+    py::class_<vpl::implementation_capabilities::encoder_memory,
+               std::shared_ptr<vpl::implementation_capabilities::encoder_memory>>(
         m,
         "implementation_capabilities_encoder_memory")
         .def(py::init<mfxEncoderDescription::encoder::encprofile::encmemdesc>())
@@ -115,7 +129,8 @@ void init_impl_caps(const py::module &m) {
                  return strs.str();
              });
 
-    py::class_<vpl::implementation_capabilities::vpp_memory_format>(
+    py::class_<vpl::implementation_capabilities::vpp_memory_format,
+               std::shared_ptr<vpl::implementation_capabilities::vpp_memory_format>>(
         m,
         "implementation_capabilities_vpp_memory_format")
         .def(py::init<mfxVPPDescription::filter::memdesc::format>())
@@ -133,7 +148,8 @@ void init_impl_caps(const py::module &m) {
                  return strs.str();
              });
 
-    py::class_<vpl::implementation_capabilities::vpp_memory>(
+    py::class_<vpl::implementation_capabilities::vpp_memory,
+               std::shared_ptr<vpl::implementation_capabilities::vpp_memory>>(
         m,
         "implementation_capabilities_vpp_memory")
         .def(py::init<mfxVPPDescription::filter::memdesc>())
@@ -158,7 +174,8 @@ void init_impl_caps(const py::module &m) {
             return strs.str();
         });
 
-    py::class_<vpl::implementation_capabilities::decoder_profile>(
+    py::class_<vpl::implementation_capabilities::decoder_profile,
+               std::shared_ptr<vpl::implementation_capabilities::decoder_profile>>(
         m,
         "implementation_capabilities_decoder_profile")
         .def(py::init<mfxDecoderDescription::decoder::decprofile>())
@@ -170,7 +187,8 @@ void init_impl_caps(const py::module &m) {
             &vpl::implementation_capabilities::decoder_profile::get_decoder_mem_types,
             "list of memory types.");
 
-    py::class_<vpl::implementation_capabilities::encoder_profile>(
+    py::class_<vpl::implementation_capabilities::encoder_profile,
+               std::shared_ptr<vpl::implementation_capabilities::encoder_profile>>(
         m,
         "implementation_capabilities_encoder_profile")
         .def(py::init<mfxEncoderDescription::encoder::encprofile>())
@@ -182,7 +200,10 @@ void init_impl_caps(const py::module &m) {
             &vpl::implementation_capabilities::encoder_profile::get_encoder_mem_types,
             "list of memory types.");
 
-    py::class_<vpl::implementation_capabilities::decoder>(m, "implementation_capabilities_decoder")
+    py::class_<vpl::implementation_capabilities::decoder,
+               std::shared_ptr<vpl::implementation_capabilities::decoder>>(
+        m,
+        "implementation_capabilities_decoder")
         .def(py::init<mfxDecoderDescription::decoder>())
         .def_property_readonly("codec_id",
                                &vpl::implementation_capabilities::decoder::get_codec_id,
@@ -199,7 +220,10 @@ void init_impl_caps(const py::module &m) {
             return strs.str();
         });
 
-    py::class_<vpl::implementation_capabilities::encoder>(m, "implementation_capabilities_encoder")
+    py::class_<vpl::implementation_capabilities::encoder,
+               std::shared_ptr<vpl::implementation_capabilities::encoder>>(
+        m,
+        "implementation_capabilities_encoder")
         .def(py::init<mfxEncoderDescription::encoder>())
         .def_property_readonly("codec_id",
                                &vpl::implementation_capabilities::encoder::get_codec_id,
@@ -220,7 +244,8 @@ void init_impl_caps(const py::module &m) {
             return strs.str();
         });
 
-    py::class_<vpl::implementation_capabilities::vpp_filter>(
+    py::class_<vpl::implementation_capabilities::vpp_filter,
+               std::shared_ptr<vpl::implementation_capabilities::vpp_filter>>(
         m,
         "implementation_capabilities_vpp_filter")
         .def(py::init<mfxVPPDescription::filter>())
@@ -240,7 +265,10 @@ void init_impl_caps(const py::module &m) {
             return strs.str();
         });
 
-    py::class_<vpl::implementation_capabilities_factory>(m, "implementation_capabilities_factory")
+    py::class_<vpl::implementation_capabilities_factory,
+               std::shared_ptr<vpl::implementation_capabilities_factory>>(
+        m,
+        "implementation_capabilities_factory")
         .def(py::init<>())
         .def("create",
              &vpl::implementation_capabilities_factory::create,

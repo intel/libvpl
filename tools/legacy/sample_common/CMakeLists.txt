@@ -84,9 +84,11 @@ if(UNIX)
       target_include_directories(${TARGET} PUBLIC ${PKG_LIBDRM_INCLUDE_DIRS})
 
       if(PKG_WAYLAND_CLIENT_FOUND)
-        target_compile_definitions(${TARGET} PUBLIC -DLIBVA_WAYLAND_SUPPORT)
+        target_compile_definitions(
+          ${TARGET} PUBLIC -DLIBVA_WAYLAND_SUPPORT
+                           -D_TOOLS_LIB_PATH=${_TOOLS_LIB_PATH})
         target_include_directories(${TARGET}
-                                   PUBLIC ${PKG_WAYLAND_CLIENT_LIBRARY_DIRS})
+                                   PUBLIC ${PKG_WAYLAND_CLIENT_INCLUDE_DIRS})
         target_include_directories(
           ${TARGET}
           PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../sample_misc/wayland/include)
@@ -107,7 +109,16 @@ if(UNIX)
       target_compile_definitions(${TARGET} PUBLIC -DLIBVA_X11_SUPPORT)
       target_include_directories(${TARGET} PUBLIC ${PKG_X11_LIBRARY_DIRS})
       if(PKG_XCB_FOUND)
-        target_compile_definitions(${TARGET} PUBLIC -DX11_DRI3_SUPPORT)
+        if(PKG_LIBDRM_FOUND)
+          target_compile_definitions(${TARGET} PUBLIC -DX11_DRI3_SUPPORT)
+        else()
+          message(
+            WARNING
+              "libdrm not found: building sample-common without DRI3 support")
+        endif()
+      else()
+        message(
+          WARNING "xcb not found: building sample-common without DRI3 support")
       endif()
     else()
       message(

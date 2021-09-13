@@ -138,8 +138,15 @@ mfxStatus VPLImplementationLoader::ConfigureVersion(mfxVersion const version) {
     return sts;
 }
 
-void VPLImplementationLoader::SetDeviceAndAdapter(mfxU16 deviceID, mfxU32 adapterNum) {
-    snprintf(devIDAndAdapter, sizeof(devIDAndAdapter), "%x/%d", deviceID, adapterNum);
+void VPLImplementationLoader::SetDeviceAndAdapter(mfxU16 deviceID,
+                                                  mfxU32 adapterNum,
+                                                  mfxIMPL impl) {
+    if (MFX_IMPL_BASETYPE(impl) == MFX_IMPL_SOFTWARE) {
+        snprintf(devIDAndAdapter, sizeof(devIDAndAdapter), "0000");
+    }
+    else {
+        snprintf(devIDAndAdapter, sizeof(devIDAndAdapter), "%x/%d", deviceID, adapterNum);
+    }
     msdk_tstring strDevIDAndAdapter;
     std::copy(devIDAndAdapter,
               devIDAndAdapter + strlen(devIDAndAdapter),

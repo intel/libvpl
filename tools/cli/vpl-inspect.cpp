@@ -76,11 +76,31 @@ const char *_print_AccelMode(mfxAccelerationMode mode) {
     return "<unknown acceleration mode>";
 }
 
+const char *_print_PoolPolicy(mfxPoolAllocationPolicy policy) {
+    switch (policy) {
+        STRING_OPTION(MFX_ALLOCATION_OPTIMAL);
+        STRING_OPTION(MFX_ALLOCATION_UNLIMITED);
+        STRING_OPTION(MFX_ALLOCATION_LIMITED);
+    }
+
+    return "<unknown pool allocation policy>";
+}
+
+const char *_print_MediaAdapterType(mfxMediaAdapterType type) {
+    switch (type) {
+        STRING_OPTION(MFX_MEDIA_UNKNOWN);
+        STRING_OPTION(MFX_MEDIA_INTEGRATED);
+        STRING_OPTION(MFX_MEDIA_DISCRETE);
+    }
+
+    return "<unknown media adapter type>";
+}
+
 const char *_print_ResourceType(mfxResourceType type) {
     switch (type) {
         STRING_OPTION(MFX_RESOURCE_SYSTEM_SURFACE);
-        STRING_OPTION(MFX_RESOURCE_VA_SURFACE);
-        STRING_OPTION(MFX_RESOURCE_VA_BUFFER);
+        STRING_OPTION(MFX_RESOURCE_VA_SURFACE_PTR);
+        STRING_OPTION(MFX_RESOURCE_VA_BUFFER_PTR);
         STRING_OPTION(MFX_RESOURCE_DX9_SURFACE);
         STRING_OPTION(MFX_RESOURCE_DX11_TEXTURE);
         STRING_OPTION(MFX_RESOURCE_DX12_RESOURCE);
@@ -256,9 +276,27 @@ int main(int argc, char *argv[]) {
             printf("%4sMode: %s\n", "", _print_AccelMode(accel->Mode[mode]));
         }
 
+        /* mfxPoolPolicyDescription */
+        if (idesc->Version.Version >= MFX_STRUCT_VERSION(1, 2)) {
+            mfxPoolPolicyDescription *poolPolicies = &idesc->PoolPolicies;
+            printf("%2smfxPoolPolicyDescription:\n", "");
+            printf("%4sVersion: %hu.%hu\n",
+                   "",
+                   poolPolicies->Version.Major,
+                   poolPolicies->Version.Minor);
+            for (int policy = 0; policy < poolPolicies->NumPoolPolicies; policy++) {
+                printf("%4sPolicy: %s\n", "", _print_PoolPolicy(poolPolicies->Policy[policy]));
+            }
+        }
+
         /* mfxDeviceDescription */
         mfxDeviceDescription *dev = &idesc->Dev;
         printf("%2smfxDeviceDescription:\n", "");
+        if (dev->Version.Version >= MFX_STRUCT_VERSION(1, 1)) {
+            printf("%4sMediaAdapterType: %s\n",
+                   "",
+                   _print_MediaAdapterType((mfxMediaAdapterType)dev->MediaAdapterType));
+        }
         printf("%4sDeviceID: %s\n", "", dev->DeviceID);
         printf("%4sVersion: %hu.%hu\n", "", dev->Version.Major, dev->Version.Minor);
         for (int subdevice = 0; subdevice < dev->NumSubDevices; subdevice++) {

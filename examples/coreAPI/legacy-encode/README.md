@@ -6,8 +6,9 @@ perform a simple video encode.
 | Optimized for    | Description
 |----------------- | ----------------------------------------
 | OS               | Ubuntu* 20.04; Windows* 10
-| Hardware         | Intel® Processor Graphics GEN9 or newer
-| Software         | Intel® oneAPI Video Processing Library(oneVPL)
+| Hardware         | Compatible with Intel® oneAPI Video Processing Library(oneVPL) GPU implementation, which can be found at https://github.com/oneapi-src/oneVPL-intel-gpu 
+|                  | and Intel® Media SDK GPU implementation, which can be found at https://github.com/Intel-Media-SDK/MediaSDK
+| Software         | Intel® oneAPI Video Processing Library(oneVPL) CPU implementation
 | What You Will Learn | How to use oneVPL to encode an raw video file to H.265
 | Time to Complete | 5 minutes
 

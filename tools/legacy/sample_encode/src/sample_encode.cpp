@@ -433,6 +433,9 @@ mfxStatus ParseAdditionalParams(msdk_char* strInput[],
     else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-api2x_dispatcher"))) {
         pParams->api2xDispatcher = true;
     }
+    else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-api2x_lowlatency"))) {
+        pParams->api2xLowLatency = true;
+    }
     else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-api2x_perf"))) {
         pParams->api2xPerf = true;
     }
@@ -1355,9 +1358,9 @@ mfxStatus ParseInputString(msdk_char* strInput[], mfxU8 nArgNum, sInputParams* p
     }
 
     if (MFX_CODEC_HEVC != pParams->CodecId && MFX_CODEC_VP9 != pParams->CodecId &&
-        (pParams->EncodeFourCC == MFX_FOURCC_P010)) {
+        MFX_CODEC_AV1 != pParams->CodecId && (pParams->EncodeFourCC == MFX_FOURCC_P010)) {
         PrintHelp(strInput[0],
-                  MSDK_STRING("P010 surfaces are supported only for HEVC and VP9 encoder"));
+                  MSDK_STRING("P010 surfaces are supported only for HEVC, VP9 and AV1 encoder"));
         return MFX_ERR_UNSUPPORTED;
     }
 #if (MFX_VERSION < 2000)
@@ -1519,6 +1522,19 @@ mfxStatus ParseInputString(msdk_char* strInput[], mfxU8 nArgNum, sInputParams* p
         pParams->bPrefferdGfx = false;
     }
 #endif
+
+    if (pParams->api2xLowLatency == true) {
+        if (pParams->api2xDispatcher == false) {
+            msdk_printf(MSDK_STRING(
+                "Warning: enabling -api2x_dispatcher because -api2x_lowlatency is set\n"));
+            pParams->api2xDispatcher = true;
+        }
+
+        if (pParams->bUseHWLib == false) {
+            msdk_printf(MSDK_STRING("error: -api2x_lowlatency requires -hw\n"));
+            return MFX_ERR_UNSUPPORTED;
+        }
+    }
 
     return MFX_ERR_NONE;
 }

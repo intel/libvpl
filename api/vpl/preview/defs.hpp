@@ -44,21 +44,22 @@ enum class async_op_status {
 };
 
 enum class status : int {
-    Ok                      = 0,
-    ExecutionInProgress     = 1,
-    DeviceBusy              = 2,
-    VideoParamChanged       = 3,
-    PartialAcceleration     = 4,
-    IncompartibleVideoParam = 5,
-    ValueNotChanged         = 6,
-    OutOfRange              = 7,
-    TaskWorking             = 8,
-    TaskBusy                = 9,
-    FilterSkipped           = 10,
-    PartialOutput           = 12,
-    NotEnoughData           = -10,
-    NotEnoughSurface        = -11,
-    NotEnoughBuffer         = -5,
+    Ok                      = MFX_ERR_NONE,
+    ExecutionInProgress     = MFX_WRN_IN_EXECUTION,
+    DeviceBusy              = MFX_WRN_DEVICE_BUSY,
+    VideoParamChanged       = MFX_WRN_VIDEO_PARAM_CHANGED,
+    PartialAcceleration     = MFX_WRN_PARTIAL_ACCELERATION,
+    IncompartibleVideoParam = MFX_WRN_INCOMPATIBLE_VIDEO_PARAM,
+    ValueNotChanged         = MFX_WRN_VALUE_NOT_CHANGED,
+    OutOfRange              = MFX_WRN_OUT_OF_RANGE,
+    TaskWorking             = MFX_TASK_WORKING,
+    TaskBusy                = MFX_TASK_BUSY,
+    FilterSkipped           = MFX_WRN_FILTER_SKIPPED,
+    PartialOutput           = MFX_ERR_NONE_PARTIAL_OUTPUT,
+    AllocTimeoutExpired     = MFX_WRN_ALLOC_TIMEOUT_EXPIRED,
+    NotEnoughData           = MFX_ERR_MORE_DATA,
+    NotEnoughSurface        = MFX_ERR_MORE_SURFACE,
+    NotEnoughBuffer         = MFX_ERR_NOT_ENOUGH_BUFFER,
     EndOfStreamReached      = -100,
     Unknown                 = (std::numeric_limits<int>::min)()
 };
@@ -104,6 +105,8 @@ enum class color_format_fourcc : uint32_t {
     nv21       = MFX_FOURCC_NV21,
     i420       = MFX_FOURCC_IYUV,
     i010       = MFX_FOURCC_I010,
+    i210       = MFX_FOURCC_I210,
+    i422       = MFX_FOURCC_I422,
     bgrp       = MFX_FOURCC_BGRP,
 };
 
@@ -240,6 +243,12 @@ enum class handle_type : uint32_t {
     va_context_id             = MFX_HANDLE_VA_CONTEXT_ID,
     cm_device                 = MFX_HANDLE_CM_DEVICE,
     hddlunite_workloadcontext = MFX_HANDLE_HDDLUNITE_WORKLOADCONTEXT,
+};
+
+enum class pool_alloction_policy : uint32_t {
+    optimal       = MFX_ALLOCATION_OPTIMAL,
+    unlimited     = MFX_ALLOCATION_UNLIMITED,
+    limited       = MFX_ALLOCATION_LIMITED,
 };
 
 } // namespace vpl

@@ -71,5 +71,11 @@ private:
 };
 
 #define DISP_LOG_FUNCTION(dispLog) DispatcherLogVPLFunction _dispLogFn(dispLog, __FUNC_NAME__);
+#define DISP_LOG_MESSAGE(dispLog, ...)          \
+    {                                           \
+        if (dispLog) {                          \
+            (dispLog)->LogMessage(__VA_ARGS__); \
+        }                                       \
+    }
 
 #endif // DISPATCHER_VPL_MFX_DISPATCHER_VPL_LOG_H_

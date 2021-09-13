@@ -57,6 +57,8 @@ void PrintHelp(msdk_char* strAppName, const msdk_char* strErrorMessage) {
     msdk_printf(MSDK_STRING("   [-w]                      - output width\n"));
     msdk_printf(MSDK_STRING("   [-h]                      - output height\n"));
     msdk_printf(MSDK_STRING("   [-di bob/adi]             - enable deinterlacing BOB/ADI\n"));
+    msdk_printf(MSDK_STRING(
+        "   [-scaling_mode value]     - specify scaling mode (lowpower/quality) for VPP\n"));
 #if (MFX_VERSION >= 1025)
     msdk_printf(MSDK_STRING("   [-d]                      - enable decode error report\n"));
 #endif
@@ -185,6 +187,8 @@ void PrintHelp(msdk_char* strAppName, const msdk_char* strErrorMessage) {
     msdk_printf(
         MSDK_STRING("   [-api2x_internalmem]      - specifies internal memory mode of vpl 2.x\n"));
     msdk_printf(MSDK_STRING("   [-api2x_dispatcher]       - specifies 2.x API smart dispatcher\n"));
+    msdk_printf(MSDK_STRING(
+        "   [-api2x_lowlatency]       - specifies low latency dispatcher initialization\n"));
     msdk_printf(MSDK_STRING("   [-api2x_decvpp]           - uses 2.x fused decode vpp API\n\n"));
     msdk_printf(MSDK_STRING(
         "   [-api2x_perf]             - aligns the measurement with reference tool to compare\n\n"));
@@ -431,6 +435,27 @@ mfxStatus ParseInputString(msdk_char* strInput[], mfxU8 nArgNum, sInputParams* p
                 return MFX_ERR_UNSUPPORTED;
             }
         }
+        else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-scaling_mode"))) {
+            if (i + 1 >= nArgNum) {
+                PrintHelp(strInput[0], MSDK_STRING("Not enough parameters for -scaling_mode key"));
+                return MFX_ERR_UNSUPPORTED;
+            }
+            msdk_char diMode[32] = {};
+            if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], diMode)) {
+                PrintHelp(strInput[0], MSDK_STRING("mode type is not set"));
+                return MFX_ERR_UNSUPPORTED;
+            }
+            if (0 == msdk_strcmp(diMode, MSDK_CHAR("lowpower"))) {
+                pParams->ScalingMode = MFX_SCALING_MODE_LOWPOWER;
+            }
+            else if (0 == msdk_strcmp(diMode, MSDK_CHAR("quality"))) {
+                pParams->ScalingMode = MFX_SCALING_MODE_QUALITY;
+            }
+            else {
+                PrintHelp(strInput[0], MSDK_STRING("deinterlace value is invalid"));
+                return MFX_ERR_UNSUPPORTED;
+            }
+        }
         else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-gpucopy::on"))) {
             pParams->gpuCopy = MFX_GPUCOPY_ON;
         }
@@ -646,6 +671,9 @@ mfxStatus ParseInputString(msdk_char* strInput[], mfxU8 nArgNum, sInputParams* p
         else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-api2x_dispatcher"))) {
             pParams->api2xDispatcher = true;
         }
+        else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-api2x_lowlatency"))) {
+            pParams->api2xLowLatency = true;
+        }
         else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-api2x_decvpp"))) {
             pParams->api2xDecVPP = true;
         }
@@ -734,6 +762,19 @@ mfxStatus ParseInputString(msdk_char* strInput[], mfxU8 nArgNum, sInputParams* p
         pParams->bPrefferdGfx = false;
     }
 #endif
+
+    if (pParams->api2xLowLatency == true) {
+        if (pParams->api2xDispatcher == false) {
+            msdk_printf(MSDK_STRING(
+                "Warning: enabling -api2x_dispatcher because -api2x_lowlatency is set\n"));
+            pParams->api2xDispatcher = true;
+        }
+
+        if (pParams->bUseHWLib == false) {
+            msdk_printf(MSDK_STRING("error: -api2x_lowlatency requires -hw\n"));
+            return MFX_ERR_UNSUPPORTED;
+        }
+    }
 
     return MFX_ERR_NONE;
 }

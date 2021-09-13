@@ -1800,7 +1800,7 @@ mfxStatus CEncodingPipeline::Init(sInputParams* pParams) {
     mfxStatus sts = GetImplAndAdapterNum(*pParams, initPar.Implementation, adapterNum, deviceID);
     MSDK_CHECK_STATUS(sts, "GetImplAndAdapterNum failed");
 
-    if (pParams->api2xDispatcher) {
+    if (pParams->api2xDispatcher && pParams->api2xLowLatency == false) {
         // Initialize VPL session using 2.x smart dispatcher
         // and CLI choice of target implementation
         m_pLoader.reset(new VPLImplementationLoader);
@@ -1821,7 +1821,7 @@ mfxStatus CEncodingPipeline::Init(sInputParams* pParams) {
         }
 #if (defined(_WIN64) || defined(_WIN32))
         if (pParams->bPrefferiGfx || pParams->bPrefferdGfx) {
-            m_pLoader->SetDeviceAndAdapter(deviceID, adapterNum);
+            m_pLoader->SetDeviceAndAdapter(deviceID, adapterNum, initPar.Implementation);
 
             sts = m_pLoader->EnumImplementations();
             MSDK_CHECK_STATUS(sts, "EnumImplementations failed");
@@ -1839,6 +1839,16 @@ mfxStatus CEncodingPipeline::Init(sInputParams* pParams) {
 
         sts = m_mfxSession.CreateSession(m_pLoader.get());
         MSDK_CHECK_STATUS(sts, "m_mfxSession.CreateSession failed");
+    }
+    else if (pParams->api2xDispatcher && pParams->api2xLowLatency == true) {
+        m_pLoader.reset(new VPLImplementationLoader);
+
+        sts = VPL_EnableDispatcherLowLatency((m_pLoader.get())->GetLoader(),
+                                             (pParams->bUseAdapterNum ? pParams->adapterNum : 0));
+        MSDK_CHECK_STATUS(sts, "VPL_EnableDispatcherLowLatency failed");
+
+        sts = m_mfxSession.CreateSession(m_pLoader.get());
+        MSDK_CHECK_STATUS(sts, "MFXCreateSession failed (low latency mode enabled)");
     }
     else {
         sts = m_mfxSession.InitEx(initPar);

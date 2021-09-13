@@ -58,7 +58,7 @@ public:
     mfxStatus ConfigureImplementation(mfxIMPL impl);
     mfxStatus ConfigureAccelerationMode(mfxAccelerationMode accelerationMode, mfxIMPL impl);
     mfxStatus ConfigureVersion(mfxVersion const version);
-    void SetDeviceAndAdapter(mfxU16 deviceID, mfxU32 adapterNum);
+    void SetDeviceAndAdapter(mfxU16 deviceID, mfxU32 adapterNum, mfxIMPL impl);
     mfxStatus EnumImplementations();
     mfxStatus EnumImplementations(mfxU32 adapterNum);
     mfxStatus ConfigureAndEnumImplementations(mfxIMPL impl, mfxAccelerationMode accelerationMode);

@@ -78,6 +78,8 @@ protected:
                 return "Unsupported.";
             case MFX_ERR_MEMORY_ALLOC:
                 return "Memory allocation error.";
+            case MFX_WRN_ALLOC_TIMEOUT_EXPIRED:
+                return "Memory allocation timeout expired.";
             case MFX_ERR_NOT_ENOUGH_BUFFER:
                 return "Not enough buffer.";
             case MFX_ERR_INVALID_HANDLE:

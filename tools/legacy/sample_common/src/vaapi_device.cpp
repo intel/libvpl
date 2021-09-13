@@ -20,6 +20,7 @@
         #include "vaapi_allocator.h"
         #if defined(X11_DRI3_SUPPORT)
             #include <fcntl.h>
+            #include <sys/ioctl.h>
 
             #define ALIGN(x, y)   (((x) + (y)-1) & -(y))
             #define PAGE_ALIGN(x) ALIGN(x, 4096)
@@ -27,6 +28,11 @@
 
         #define VAAPI_GET_X_DISPLAY(_display) (Display*)(_display)
         #define VAAPI_GET_X_WINDOW(_window)   (Window*)(_window)
+const char* MFX_DEVICE_NODE_RENDER          = "/dev/dri/renderD";
+const char* MFX_DEVICE_DRIVER_NAME          = "i915";
+constexpr mfxU32 MFX_DEVICE_DRIVER_NAME_LEN = 4;
+constexpr mfxU32 MFX_DEVICE_NODE_INDEX      = 128;
+constexpr mfxU32 MFX_DEVICE_MAX_NODES       = 16;
 
 CVAAPIDeviceX11::~CVAAPIDeviceX11(void) {
     Close();
@@ -73,7 +79,24 @@ mfxStatus CVAAPIDeviceX11::Init(mfxHDL hWindow, mfxU16 nViews, mfxU32 nAdapterNu
 
     // it's enough to pass render node, because we only request
     // information from kernel via m_dri_fd
-    m_dri_fd = open("/dev/dri/renderD128", O_RDWR);
+    for (mfxU32 i = 0; i < MFX_DEVICE_MAX_NODES; ++i) {
+        std::string devPath = MFX_DEVICE_NODE_RENDER + std::to_string(MFX_DEVICE_NODE_INDEX + i);
+        m_dri_fd            = open(devPath.c_str(), O_RDWR);
+        if (m_dri_fd < 0)
+            continue;
+
+        char driverName[MFX_DEVICE_DRIVER_NAME_LEN + 1] = {};
+        drm_version_t version                           = {};
+        version.name_len                                = MFX_DEVICE_DRIVER_NAME_LEN;
+        version.name                                    = driverName;
+
+        if (!ioctl(m_dri_fd, DRM_IOWR(0, drm_version), &version) &&
+            !strcmp(driverName, MFX_DEVICE_DRIVER_NAME)) {
+            break;
+        }
+        close(m_dri_fd);
+    }
+
     if (m_dri_fd < 0) {
         msdk_printf(MSDK_STRING("Failed to open dri device\n"));
         return MFX_ERR_NOT_INITIALIZED;

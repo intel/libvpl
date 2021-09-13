@@ -15,13 +15,13 @@ CALL %~dp0%\_buildopts.bat ^
     -- %*
 IF DEFINED HELP_OPT ( EXIT /b 0 )
 
-set /A result_all = 0
+set /A result_all=0
 
 PUSHD %PROJ_DIR%
   SET BUILD_DIR=_build
   PUSHD %BUILD_DIR%
     ctest --config %COFIG_OPT%
-    SET result_all =%errorlevel%
+    SET result_all=%errorlevel%
   POPD
 POPD
 

@@ -164,7 +164,9 @@ enum {
     MFX_FOURCC_NV21         = MFX_MAKEFOURCC('N', 'V', '2', '1'), /*!< Same as NV12 but with weaved V and U values. */
     MFX_FOURCC_IYUV         = MFX_MAKEFOURCC('I', 'Y', 'U', 'V'), /*!< Same as  YV12 except that the U and V plane order is reversed. */
     MFX_FOURCC_I010         = MFX_MAKEFOURCC('I', '0', '1', '0'), /*!< 10-bit YUV 4:2:0, each component has its own plane. */
+    MFX_FOURCC_I210         = MFX_MAKEFOURCC('I', '2', '1', '0'), /*!< 10-bit YUV 4:2:2, each component has its own plane. */
     MFX_FOURCC_I420         = MFX_FOURCC_IYUV,                 /*!< Alias for the IYUV color format. */
+    MFX_FOURCC_I422         = MFX_MAKEFOURCC('I', '4', '2', '2'), /*!< Same as YV16 except that the U and V plane order is reversed */
     MFX_FOURCC_BGRA         = MFX_FOURCC_RGB4,                 /*!< Alias for the RGB4 color format. */
     /*! BGR 24 bit planar layout (3 separate channels, 8-bits per sample each). This format should be mapped to VA_FOURCC_BGRP. */
     MFX_FOURCC_BGRP         = MFX_MAKEFOURCC('B','G','R','P'),
@@ -397,7 +399,8 @@ typedef struct mfxFrameSurfaceInterface {
     mfxStructVersion    Version; /*!< The version of the structure. */
     mfxU16              reserved1[3];
     /*! @brief
-    Increments the internal reference counter of the surface. The surface is not destroyed until the surface is released using the (*Release) function. (*AddRef) should be used each time a new link to the surface is created (for example, copy structure) for proper surface management.
+    Increments the internal reference counter of the surface. The surface is not destroyed until the surface is released using the mfxFrameSurfaceInterface::Release function.
+    mfxFrameSurfaceInterface::AddRef should be used each time a new link to the surface is created (for example, copy structure) for proper surface management.
 
     @param[in]  surface  Valid surface.
 
@@ -410,7 +413,9 @@ typedef struct mfxFrameSurfaceInterface {
     */
     mfxStatus           (MFX_CDECL *AddRef)(mfxFrameSurface1* surface);
     /*! @brief
-    Decrements the internal reference counter of the surface. (*Release) should be called after using the (*AddRef) function to add a surface or when allocation logic requires it. For example, call (*Release) to release a surface obtained with the GetSurfaceForXXX function.
+    Decrements the internal reference counter of the surface. mfxFrameSurfaceInterface::Release should be called after using the
+    mfxFrameSurfaceInterface::AddRef function to add a surface or when allocation logic requires it. For example, call
+    mfxFrameSurfaceInterface::Release to release a surface obtained with the GetSurfaceForXXX function.
 
     @param[in]  surface  Valid surface.
 
@@ -441,7 +446,7 @@ typedef struct mfxFrameSurfaceInterface {
     Sets pointers of surface->Info.Data to actual pixel data, providing read-write access.
 
     In case of video memory, the surface with data in video memory becomes mapped to system memory.
-    An application can map a surface for read access with any value of mfxFrameSurface1::Data.Locked, but can map a surface for write access only when mfxFrameSurface1::Data.Locked equals to 0.
+    An application can map a surface for read access with any value of mfxFrameSurface1::Data::Locked, but can map a surface for write access only when mfxFrameSurface1::Data::Locked equals to 0.
 
     Note: A surface allows shared read access, but exclusive write access. Consider the following cases:
     @li Map with Write or Read|Write flags. A request during active another read or write access returns MFX_ERR_LOCK_MEMORY error immediately, without waiting.
@@ -490,7 +495,9 @@ typedef struct mfxFrameSurfaceInterface {
     mfxStatus           (MFX_CDECL *Unmap)(mfxFrameSurface1* surface);
 
     /*! @brief
-    Returns a native resource's handle and type. The handle is returned *as-is*, meaning that the reference counter of base resources is not incremented. The native resource is not detached from surface and the library still owns the resource. User must not destroy the native resource or assume that the resource will be alive after (*Release).
+    Returns a native resource's handle and type. The handle is returned *as-is*, meaning that the reference counter of base resources is not incremented.
+    The native resource is not detached from surface and the library still owns the resource. User must not destroy
+    the native resource or assume that the resource will be alive after mfxFrameSurfaceInterface::Release.
 
 
 
@@ -512,7 +519,7 @@ typedef struct mfxFrameSurfaceInterface {
     Returns a device abstraction that was used to create that resource.
     The handle is returned *as-is*, meaning that the reference counter for the device abstraction is not incremented.
     The native resource is not detached from the surface and the library still has a reference to the resource.
-    User must not destroy the device or assume that the device will be alive after (*Release).
+    User must not destroy the device or assume that the device will be alive after mfxFrameSurfaceInterface::Release.
 
 
     @param[in]   surface  Valid surface.
@@ -532,7 +539,7 @@ typedef struct mfxFrameSurfaceInterface {
     /*! @brief
     Guarantees readiness of both the data (pixels) and any frame's meta information (for example corruption flags) after a function completes.
 
-    Instead of MFXVideoCORE_SyncOperation, users may directly call the (*Synchronize) function after the corresponding
+    Instead of MFXVideoCORE_SyncOperation, users may directly call the mfxFrameSurfaceInterface::Synchronize function after the corresponding
     Decode or VPP function calls (MFXVideoDECODE_DecodeFrameAsync or MFXVideoVPP_RunFrameVPPAsync).
     The prerequisites to call the functions are:
 
@@ -1795,9 +1802,22 @@ enum {
     MFX_EXTBUFF_VPP_DETAIL                      = MFX_MAKEFOURCC('D','E','T',' '),
     /*!
        This extended buffer defines video signal type. See the mfxExtVideoSignalInfo structure for details. The application can attach this
-       buffer to the mfxVideoParam structure for encoding initialization, and for retrieving such information from the decoders.
+       buffer to the mfxVideoParam structure for encoding initialization, and for retrieving such information from the decoders. If video
+       signal info changes per frame, the application can attach this buffer to the mfxFrameData structure for video processing.
     */
     MFX_EXTBUFF_VIDEO_SIGNAL_INFO               = MFX_MAKEFOURCC('V','S','I','N'),
+    /*!
+       This extended buffer defines video signal type. See the mfxExtVideoSignalInfo structure for details. The application can attach this
+       buffer to the mfxVideoParam structure for the input of video processing if the input video signal information changes in sequence
+       base.
+    */
+    MFX_EXTBUFF_VIDEO_SIGNAL_INFO_IN            = MFX_MAKEFOURCC('V','S','I','I'),
+    /*!
+       This extended buffer defines video signal type. See the mfxExtVideoSignalInfo structure for details. The application can attach this
+       buffer to the mfxVideoParam structure for the output of video processing if the output video signal information changes in sequence
+       base.
+    */
+    MFX_EXTBUFF_VIDEO_SIGNAL_INFO_OUT           = MFX_MAKEFOURCC('V','S','I','O'),
     /*!
        This extended buffer defines a list of VPP algorithms that applications should use. See the mfxExtVPPDoUse structure for details.
        The application can attach this buffer to the structure for video processing initialization.
@@ -2004,9 +2024,25 @@ enum {
     */
     MFX_EXTBUFF_CONTENT_LIGHT_LEVEL_INFO        = MFX_MAKEFOURCC('L', 'L', 'I', 'S'),
     /*!
-       This extended buffer configures HDR SEI message. See the mfxExtMasteringDisplayColourVolume structure for details.
+       This extended buffer configures HDR SEI message. See the mfxExtMasteringDisplayColourVolume structure for details. If colour volume changes
+       per frame, the application can attach this buffer to the mfxFrameData structure for video processing.
     */
     MFX_EXTBUFF_MASTERING_DISPLAY_COLOUR_VOLUME = MFX_MAKEFOURCC('D', 'C', 'V', 'S'),
+    /*!
+       This extended buffer configures HDR SEI message. See the mfxExtMasteringDisplayColourVolume structure for details. The application can
+       attach this buffer to the mfxVideoParam structure for the input of video processing if the mastering display colour volume changes per
+       sequence. In this case, this buffer should be together with MFX_EXTBUFF_CONTENT_LIGHT_LEVEL_INFO to indicate the light level and mastering
+       colour volume of the input of video processing. If colour Volume changes per frame instead of per sequence, the application can attach
+       MFX_EXTBUFF_MASTERING_DISPLAY_COLOUR_VOLUME to mfxFrameData for frame based processing.
+    */
+    MFX_EXTBUFF_MASTERING_DISPLAY_COLOUR_VOLUME_IN         = MFX_MAKEFOURCC('D', 'C', 'V', 'I'),
+    /*!
+       This extended buffer configures HDR SEI message. See the mfxExtMasteringDisplayColourVolume structure for details. The application can
+       attach this buffer to the mfxVideoParam structure for the output of video processing if the mastering display colour volume changes per
+       sequence. If colour volume changes per frame instead of per sequence, the application can attach the buffer with MFX_EXTBUFF_MASTERING_
+       DISPLAY_COLOUR_VOLUME to mfxFrameData for frame based processing.
+    */
+    MFX_EXTBUFF_MASTERING_DISPLAY_COLOUR_VOLUME_OUT        = MFX_MAKEFOURCC('D', 'C', 'V', 'O'),
     /*!
        See the mfxExtEncodedUnitsInfo structure for details.
     */
@@ -2056,6 +2092,26 @@ enum {
     MFX_EXTBUFF_CROPS = MFX_MAKEFOURCC('C', 'R', 'O', 'P'),
 
     /*!
+        See the mfxExtAV1BitstreamParam structure for more details.
+    */
+    MFX_EXTBUFF_AV1_BITSTREAM_PARAM             = MFX_MAKEFOURCC('A', '1', 'B', 'S'),
+
+    /*!
+        See the mfxExtAV1ResolutionParam structure for more details.
+    */
+    MFX_EXTBUFF_AV1_RESOLUTION_PARAM            = MFX_MAKEFOURCC('A', '1', 'R', 'S'),
+
+    /*!
+        See the mfxExtAV1TileParam structure for more details.
+    */
+    MFX_EXTBUFF_AV1_TILE_PARAM                  = MFX_MAKEFOURCC('A', '1', 'T', 'L'),
+
+    /*!
+        See the mfxExtAV1Segmentation structure for more details.
+    */
+    MFX_EXTBUFF_AV1_SEGMENTATION                = MFX_MAKEFOURCC('1', 'S', 'E', 'G'),
+
+    /*!
        See the mfxExtAV1FilmGrainParam structure for more details.
     */
     MFX_EXTBUFF_AV1_FILM_GRAIN_PARAM = MFX_MAKEFOURCC('A','1','F','G'),
@@ -2064,11 +2120,19 @@ enum {
        See the mfxExtHyperModeParam structure for more details.
     */
     MFX_EXTBUFF_HYPER_MODE_PARAM = MFX_MAKEFOURCC('H', 'Y', 'P', 'M'),
-
+    /*!
+       See the mfxExtTemporalLayers structure for more details.
+    */
+    MFX_EXTBUFF_UNIVERSAL_TEMPORAL_LAYERS = MFX_MAKEFOURCC('U', 'T', 'M', 'P'),
     /*!
        See the mfxExtVPP3DLut structure for more details.
     */
     MFX_EXTBUFF_VPP_3DLUT = MFX_MAKEFOURCC('T','D','L','T'),
+
+    /*!
+       See the mfxExtAllocationHints structure for more details.
+    */
+    MFX_EXTBUFF_ALLOCATION_HINTS = MFX_MAKEFOURCC('A','L','C','H'),
 };
 
 /* VPP Conf: Do not use certain algorithms  */
@@ -2087,9 +2151,9 @@ MFX_PACK_END()
 MFX_PACK_BEGIN_USUAL_STRUCT()
 /*!
    A hint structure that configures the VPP denoise filter algorithm.
-   This extension buffer is deprecated. Use mfxExtVPPDenoise2 instead.
+   @deprecated Deprecated in API version 2.5. Use mfxExtVPPDenoise2 instead.
 */
-typedef struct {
+MFX_DEPRECATED typedef struct {
     mfxExtBuffer    Header; /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_VPP_DENOISE. */
     mfxU16  DenoiseFactor;  /*!< Indicates the level of noise to remove. Value range of 0 to 100 (inclusive).  */
 } mfxExtVPPDenoise;
@@ -2372,7 +2436,7 @@ MFX_PACK_BEGIN_STRUCT_W_PTR()
    Contains parameters for per-frame based encoding control.
 */
 typedef struct {
-    mfxExtBuffer    Header; /*!< Extension buffer header. */
+    mfxExtBuffer    Header; /*!< This extension buffer doesn't have assigned buffer ID. Ignored. */
     mfxU32  reserved[4];
     mfxU16  reserved1;
     /*!
@@ -2751,6 +2815,8 @@ MFX_PACK_BEGIN_USUAL_STRUCT()
    If the application attaches this
    structure to the mfxVideoParam structure during initialization or reset, the encoder inserts the HDR SEI message based on InsertPayloadToggle.
 
+   If the application attaches this structure for video processing, InsertPayloadToggle will be ignored.
+
    Field semantics are defined in ITU-T* H.265 Annex D.
 */
 typedef struct {
@@ -2783,6 +2849,8 @@ MFX_PACK_BEGIN_USUAL_STRUCT()
    If the application
    attaches this structure to the mfxVideoParam structure during initialization or reset, the encoder inserts the HDR SEI message based on
    InsertPayloadToggle.
+
+   If the application attaches this structure for video processing, InsertPayloadToggle will be ignored.
 
    Field semantics are defined in ITU-T* H.265 Annex D.
 */
@@ -3503,7 +3571,9 @@ typedef struct {
 MFX_PACK_END()
 
 /*! The GeneralConstraintFlags enumerator uses bit-ORed values to itemize HEVC bitstream indications for specific profiles. Each value
-    indicates for format range extensions profiles. */
+    indicates for format range extensions profiles. 
+    To specify HEVC Main 10 Still Picture profile applications have to set mfxInfoMFX::CodecProfile == MFX_PROFILE_HEVC_MAIN10 and 
+    mfxExtHEVCParam::GeneralConstraintFlags == MFX_HEVC_CONSTR_REXT_ONE_PICTURE_ONLY. */
 enum {
     /* REXT Profile constraint flags*/
     MFX_HEVC_CONSTR_REXT_MAX_12BIT          = (1 << 0),
@@ -4282,6 +4352,136 @@ typedef struct {
 } mfxExtDeviceAffinityMask;
 MFX_PACK_END()
 
+MFX_PACK_BEGIN_USUAL_STRUCT()
+/*! The structure is used by AV1 encoder with more parameter control to encode frame. */
+typedef struct {
+    mfxExtBuffer Header;   /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_AV1_BITSTREAM_PARAM. */
+
+    mfxU16 WriteIVFHeaders; /*!< Tri-state option to control IVF headers insertion, default is ON. */
+
+    mfxU16 reserved[31];
+} mfxExtAV1BitstreamParam;
+MFX_PACK_END()
+
+MFX_PACK_BEGIN_USUAL_STRUCT()
+/*! The structure is used by AV1 encoder with more parameter control to encode frame. */
+typedef struct {
+    mfxExtBuffer Header; /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_AV1_RESOLUTION_PARAM. */
+
+    mfxU32 FrameWidth;   /*!< Width of the coded frame in pixels, default value is from mfxFrameInfo. */
+    mfxU32 FrameHeight;  /*!< Height of the coded frame in pixels, default value is from mfxFrameInfo. */
+
+    mfxU32 reserved[6];
+} mfxExtAV1ResolutionParam;
+MFX_PACK_END()
+
+MFX_PACK_BEGIN_USUAL_STRUCT()
+  /*! The structure is used by AV1 encoder with more parameter control to encode frame. */
+typedef struct {
+    mfxExtBuffer Header;   /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_AV1_TILE_PARAM. */
+
+    mfxU16 NumTileRows;    /*!< Number of tile rows, default value is 1. */
+    mfxU16 NumTileColumns; /*!< Number of tile columns, default value is 1. */
+    mfxU16 NumTileGroups;  /*!< Number of tile groups, it will be ingored if the tile groups num is invalid, default value is 1. */
+
+    mfxU16 reserved[5];
+} mfxExtAV1TileParam;
+MFX_PACK_END()
+
+/*!
+    The AV1 SegmentIdBlockSize enumerator indicates the block size represented by each segment_id in segmentation map.
+    These values are used with the mfxExtAV1Segmentation::SegmentIdBlockSize parameter.
+*/
+typedef enum {
+    MFX_AV1_SEGMENT_ID_BLOCK_SIZE_UNSPECIFIED = 0,  /*!< Unspecified block size. */
+    MFX_AV1_SEGMENT_ID_BLOCK_SIZE_4x4         = 4,  /*!< block size 4x4 */
+    MFX_AV1_SEGMENT_ID_BLOCK_SIZE_8x8         = 8,  /*!< block size 8x8 */
+    MFX_AV1_SEGMENT_ID_BLOCK_SIZE_16x16       = 16, /*!< block size 16x16 */
+    MFX_AV1_SEGMENT_ID_BLOCK_SIZE_32x32       = 32, /*!< block size 32x32 */
+    MFX_AV1_SEGMENT_ID_BLOCK_SIZE_64x64       = 64, /*!< block size 64x64 */
+    MFX_AV1_SEGMENT_ID_BLOCK_SIZE_128x128     = 128 /*!< block size 128x128 */
+} mfxAV1SegmentIdBlockSize;
+
+/*!
+    The AV1 SegmentFeature enumerator indicates features enabled for the segment.
+    These values are used with the mfxAV1SegmentParam::FeatureEnabled parameter.
+*/
+enum {
+    MFX_AV1_SEGMENT_FEATURE_ALT_QINDEX    = 0x0001, /*!< use alternate Quantizer. */
+    MFX_AV1_SEGMENT_FEATURE_ALT_LF_Y_VERT = 0x0002, /*!< use alternate loop filter value on y plane vertical. */
+    MFX_AV1_SEGMENT_FEATURE_ALT_LF_Y_HORZ = 0x0004, /*!< use alternate loop filter value on y plane horizontal. */
+    MFX_AV1_SEGMENT_FEATURE_ALT_LF_U      = 0x0008, /*!< use alternate loop filter value on u plane. */
+    MFX_AV1_SEGMENT_FEATURE_ALT_LF_V      = 0x0010, /*!< use alternate loop filter value on v plane. */
+    MFX_AV1_SEGMENT_FEATURE_REFERENCE     = 0x0020, /*!< use segment reference frame. */
+    MFX_AV1_SEGMENT_FEATURE_SKIP          = 0x0040, /*!< use segment (0,0) + skip mode. */
+    MFX_AV1_SEGMENT_FEATURE_GLOBALMV      = 0x0080  /*!< use global motion vector. */
+};
+
+MFX_PACK_BEGIN_USUAL_STRUCT()
+/*!
+    Contains features and parameters for the segment.
+*/
+typedef struct {
+    mfxU16 FeatureEnabled;  /*!< Indicates which features are enabled for the segment. See the AV1 SegmentFeature enumerator for values for
+                                this option. Values from the enumerator can be bit-OR’ed. Support of a particular feature depends on underlying
+                                hardware platform. Application can check which features are supported by calling Query. */
+    mfxI16 AltQIndex;       /*!< Quantization index delta for the segment. Ignored if MFX_AV1_SEGMENT_FEATURE_ALT_QINDEX isn’t set in FeatureEnabled.
+                                Valid range for this parameter is [-255, 255]. If AltQIndex is out of this range, it will be ignored. If AltQIndex
+                                is within valid range, but sum of base quantization index and AltQIndex is out of [0, 255], AltQIndex will be clamped. */
+    mfxU16 reserved[30];
+} mfxAV1SegmentParam;
+MFX_PACK_END()
+
+MFX_PACK_BEGIN_STRUCT_W_PTR()
+/*!
+    In the AV1 encoder it is possible to divide a frame into up to 8 segments and apply particular features (like delta for quantization index or for
+    loop filter level) on a per-segment basis. “Uncompressed header” of every frame indicates if segmentation is enabled for the current frame,
+    and (if segmentation enabled) contains full information about features applied to every segment. Every “Mode info block” of a coded
+    frame has segment_id in the range of 0 to 7.
+    To enable Segmentation, the mfxExtAV1Segmentation structure with correct settings should be passed to the encoder. It can be attached to the
+    mfxVideoParam structure during initialization or the MFXVideoENCODE_Reset call (static configuration). If the mfxExtAV1Segmentation buffer isn’t
+    attached during initialization, segmentation is disabled for static configuration. If the buffer isn’t attached for the Reset call, the encoder
+    continues to use static configuration for segmentation which was the default before this Reset call. If the mfxExtAV1Segmentation buffer with
+    NumSegments=0 is provided during initialization or Reset call, segmentation becomes disabled for static configuration.
+    The buffer can be attached to the mfxEncodeCtrl structure during runtime (dynamic configuration). Dynamic configuration is applied to the
+    current frame only. After encoding of the current frame, the encoder will switch to the next dynamic configuration or to static configuration if
+    dynamic configuration is not provided for next frame).
+    The SegmentIdBlockSize, NumSegmentIdAlloc, and SegmentId parameters represent a segmentation map. Here, the segmentation map is an array of
+    segment_ids (one byte per segment_id) for blocks of size NxN in raster scan order. The size NxN is specified by the application and is constant
+    for the whole frame.
+    If mfxExtAV1Segmentation is attached during initialization and/or during runtime, all three parameters should be set to proper values that do not
+    conflict with each other and with NumSegments. If any of the parameters are not set or any conflict or error in these parameters is detected by
+    the library, the segmentation map will be discarded.
+*/
+typedef struct {
+    mfxExtBuffer       Header;            /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_AV1_SEGMENTATION. */
+    mfxU8              NumSegments;       /*!< Number of segments for frame. Value 0 means that segmentation is disabled. Sending 0 for a
+                                                particular frame will disable segmentation for this frame only. Sending 0 to the Reset API function will
+                                                disable segmentation permanently. Segmentation can be enabled again by a subsequent Reset call. */
+    mfxU8              reserved1[3];
+    mfxAV1SegmentParam Segment[8];        /*!< Array of mfxAV1SegmentParam structures containing features and parameters for every segment.
+                                                Entries with indexes bigger than NumSegments-1 are ignored. See the mfxAV1SegmentParam structure for
+                                                definitions of segment features and their parameters. */
+    mfxU16             SegmentIdBlockSize;/*!< Size of block (NxN) for segmentation map. See AV1 SegmentIdBlockSize enumerator for values for this
+                                                option. An encoded block that is bigger than AV1 SegmentIdBlockSize uses segment_id taken from it’s
+                                                top-left sub-block from the segmentation map. The application can check if a particular block size is
+                                                supported by calling Query. */
+    mfxU16             reserved2;
+    mfxU32             NumSegmentIdAlloc; /*!< Size of buffer allocated for segmentation map (in bytes). Application must assure that
+                                                NumSegmentIdAlloc is large enough to cover frame resolution with blocks of size SegmentIdBlockSize.
+                                                Otherwise the segmentation map will be discarded. */
+    mfxU8 *            SegmentIds;        /*!< Pointer to the segmentation map buffer which holds the array of segment_ids in raster scan order. The application
+                                                is responsible for allocation and release of this memory. The buffer pointed to by SegmentId, provided during
+                                                initialization or Reset call should be considered in use until another SegmentId is provided via Reset
+                                                call (if any), or until MFXVideoENCODE_Close is called. The buffer pointed to by SegmentId provided with
+                                                mfxEncodeCtrl should be considered in use while the input surface is locked by the library. Every segment_id in the
+                                                map should be in the range of 0 to NumSegments-1. If some segment_id is out of valid range, the
+                                                segmentation map cannot be applied. If the mfxExtAV1Segmentation buffer is attached to the mfxEncodeCtrl structure in
+                                                runtime, SegmentId can be zero. In this case, the segmentation map from static configuration will be used. */
+    mfxU16             reserved[36];
+} mfxExtAV1Segmentation;
+MFX_PACK_END()
+
 /*! The FilmGrainFlags enumerator itemizes flags in AV1 film grain parameters.
     The flags are equivalent to respective syntax elements from film_grain_params() section of uncompressed header. */
 enum {
@@ -4304,7 +4504,7 @@ MFX_PACK_END()
 MFX_PACK_BEGIN_USUAL_STRUCT()
 /*! The structure is used by AV-1 decoder to report film grain parameters for decoded frame. */
 typedef struct {
-    mfxExtBuffer Header;
+    mfxExtBuffer Header;    /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_AV1_FILM_GRAIN_PARAM. */
 
     mfxU16 FilmGrainFlags;  /*!< Bit map with bit-ORed flags from FilmGrainFlags enum. */
     mfxU16 GrainSeed;       /*!< Starting value for pseudo-random numbers used during film grain synthesis. */
@@ -4354,7 +4554,8 @@ typedef struct mfxSurfaceArray
     mfxStructVersion    Version; /*!< The version of the structure. */
     mfxU16 reserved[3];
     /*! @brief
-    Increments the internal reference counter of the surface. The surface is not destroyed until the surface is released using the (*Release) function. (*AddRef) should be used each time a new link to the surface is created (for example, copy structure) for proper surface management.
+    Increments the internal reference counter of the surface. The surface is not destroyed until the surface is released using the mfxSurfaceArray::Release function.
+    mfxSurfaceArray::AddRef should be used each time a new link to the surface is created (for example, copy structure) for proper surface management.
 
     @param[in]  surface  Valid mfxSurfaceArray.
 
@@ -4365,10 +4566,10 @@ typedef struct mfxSurfaceArray
      MFX_ERR_UNKNOWN           Any internal error.
 
     */
-    mfxStatus (*AddRef)(struct mfxSurfaceArray*  surface_array);
+    mfxStatus (MFX_CDECL *AddRef)(struct mfxSurfaceArray*  surface_array);
     /*! @brief
-    Decrements the internal reference counter of the surface. (*Release) should be called after using the (*AddRef) function to add a
-    surface or when allocation logic requires it.
+    Decrements the internal reference counter of the surface. mfxSurfaceArray::Release should be called after
+    using the mfxSurfaceArray::AddRef function to add a surface or when allocation logic requires it.
 
     @param[in]  surface_array  Valid mfxSurfaceArray.
 
@@ -4379,7 +4580,7 @@ typedef struct mfxSurfaceArray
      MFX_ERR_UNDEFINED_BEHAVIOR If Reference Counter of surface is zero before call. \n
      MFX_ERR_UNKNOWN            Any internal error.
     */
-    mfxStatus (*Release)(struct mfxSurfaceArray*  surface_array);
+    mfxStatus (MFX_CDECL *Release)(struct mfxSurfaceArray*  surface_array);
 
     /*! @brief
     Returns current reference counter of mfxSurfaceArray structure.
@@ -4393,7 +4594,7 @@ typedef struct mfxSurfaceArray
      MFX_ERR_INVALID_HANDLE     If mfxSurfaceArray->Context is invalid (for example NULL). \n
      MFX_ERR_UNKNOWN            Any internal error.
     */
-    mfxStatus (*GetRefCounter)(struct mfxSurfaceArray*  surface_array, mfxU32* counter);
+    mfxStatus (MFX_CDECL *GetRefCounter)(struct mfxSurfaceArray*  surface_array, mfxU32* counter);
 
     mfxFrameSurface1** Surfaces; /*!< The array of pointers to mfxFrameSurface1. mfxFrameSurface1 surfaces are allocated by the same
     agent who allocates mfxSurfaceArray. */
@@ -4449,6 +4650,59 @@ typedef struct {
     mfxHyperMode    Mode;   /*!< HyperMode implementation behavior. */
     mfxU16          reserved[19];
 } mfxExtHyperModeParam;
+MFX_PACK_END()
+
+MFX_PACK_BEGIN_USUAL_STRUCT()
+/*! The structure is used for universal temporal layer description. */
+typedef struct {
+    mfxU16 FrameRateScale;  /*!< The ratio between the frame rates of the current temporal layer and the base layer. The library treats a particular
+                                 temporal layer as “defined” if it has FrameRateScale > 0. If the base layer is defined, it must have FrameRateScale = 1. 
+                                 FrameRateScale of each subsequent layer (if defined) must be a multiple of and greater than the
+                                 FrameRateScale value of previous layer. */
+    mfxU16  reserved[3]; /*!< Reserved for future use. */
+                                 
+    union {
+          /*!< Type of bitrate controls is currently the same across all temporal layers and inherits from common parameters. */ 
+          struct {
+            mfxU32  InitialDelayInKB;/*!< Initial size of the Video Buffering Verifier (VBV) buffer for the current temporal layer.
+                                          @note In this context, KB is 1000 bytes and Kbps is 1000 bps. */
+            mfxU32  BufferSizeInKB; /*!< Represents the maximum possible size of any compressed frames for the current temporal layer. */
+            mfxU32  TargetKbps;  /*!< Target bitrate for the current temporal layer. If RateControlMethod is not CQP, the
+                                      application can provide TargetKbps for every defined temporal layer. If TargetKbps per temporal layer is not set then 
+                                      encoder doesn't apply any special bitrate limitations for the layer.  */
+            mfxU32  MaxKbps;  /*!< The maximum bitrate at which the encoded data enters the Video Buffering Verifier (VBV) buffer for the current temporal layer. */
+
+            mfxU32  reserved1[16]; /*!< Reserved for future use. */
+            
+          };
+          struct {
+            mfxI32  QPI;  /*!< Quantization Parameter (QP) for I-frames for constant QP mode (CQP) for the current temporal layer. Zero QP is not valid and means that the default value is assigned by the library.
+                    Non-zero QPI might be clipped to supported QPI range. 
+                    @note Default QPI value is implementation dependent and subject to change without additional notice in this document. */
+            mfxI32  QPP;  /*!< Quantization Parameter (QP) for P-frames for constant QP mode (CQP) for the current temporal layer. Zero QP is not valid and means that the default value is assigned by the library.
+                    Non-zero QPP might be clipped to supported QPI range.
+                    @note Default QPP value is implementation dependent and subject to change without additional notice in this document. */
+            mfxI32  QPB; /*!< Quantization Parameter (QP) for B-frames for constant QP mode (CQP) for the current temporal layer. Zero QP is not valid and means that the default value is assigned by the library.
+                    Non-zero QPI might be clipped to supported QPB range.
+                    @note Default QPB value is implementation dependent and subject to change without additional notice in this document. */
+          };
+    };
+    mfxU16  reserved2[4]; /*!< Reserved for future use. */
+    
+} mfxTemporalLayer;
+MFX_PACK_END()
+
+MFX_PACK_BEGIN_STRUCT_W_PTR()
+/*! The structure is used for universal temporal layers description. */
+typedef struct {
+    mfxExtBuffer     Header;     /*! Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_UNIVERSAL_TEMPORAL_LAYERS. */
+    mfxU16           NumLayers; /*!< The  number of temporal layers. */
+    mfxU16           BaseLayerPID; /*!< The priority ID of the base layer. The encoder increases the ID for each temporal layer and writes to the prefix NAL unit for AVC and HEVC. */
+    mfxU16           reserved[2]; /*!< Reserved for future use. */
+    mfxTemporalLayer *Layers; /*!< The array of temporal layers. */
+    
+    mfxU16 reserved1[8]; /*!< Reserved for future use. */
+} mfxExtTemporalLayers;
 MFX_PACK_END()
 
 #ifdef __cplusplus

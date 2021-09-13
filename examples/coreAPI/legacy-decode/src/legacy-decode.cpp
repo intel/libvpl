@@ -53,8 +53,7 @@ int main(int argc, char *argv[]) {
     mfxU8 *decOutBuf                = NULL;
 
     // variables used only in 2.x version
-    mfxConfig cfg[2];
-    mfxVariant cfgVal[2];
+    mfxConfig cfg;
     mfxLoader loader = NULL;
 
     //Parse command line args to cliParams
@@ -69,28 +68,16 @@ int main(int argc, char *argv[]) {
     sink = fopen(OUTPUT_FILE, "wb");
     VERIFY(sink, "Could not create output file");
 
-    // Initialize VPL session
+    // Initialize oneVPL session
     loader = MFXLoad();
     VERIFY(NULL != loader, "MFXLoad failed -- is implementation in path?");
 
     // Implementation used must be the type requested from command line
-    cfg[0] = MFXCreateConfig(loader);
-    VERIFY(NULL != cfg[0], "MFXCreateConfig failed")
+    cfg = MFXCreateConfig(loader);
+    VERIFY(NULL != cfg, "MFXCreateConfig failed")
 
-    sts =
-        MFXSetConfigFilterProperty(cfg[0], (mfxU8 *)"mfxImplDescription.Impl", cliParams.implValue);
+    sts = MFXSetConfigFilterProperty(cfg, (mfxU8 *)"mfxImplDescription.Impl", cliParams.implValue);
     VERIFY(MFX_ERR_NONE == sts, "MFXSetConfigFilterProperty failed for Impl");
-
-    // Implementation must provide an HEVC decoder
-    cfg[1] = MFXCreateConfig(loader);
-    VERIFY(NULL != cfg[1], "MFXCreateConfig failed")
-    cfgVal[1].Type     = MFX_VARIANT_TYPE_U32;
-    cfgVal[1].Data.U32 = MFX_CODEC_HEVC;
-    sts                = MFXSetConfigFilterProperty(
-        cfg[1],
-        (mfxU8 *)"mfxImplDescription.mfxDecoderDescription.decoder.CodecID",
-        cfgVal[1]);
-    VERIFY(MFX_ERR_NONE == sts, "MFXSetConfigFilterProperty failed for decoder CodecID");
 
     sts = MFXCreateSession(loader, 0, &session);
     VERIFY(MFX_ERR_NONE == sts,
@@ -208,19 +195,23 @@ end:
     // releasing allocated surfaces, since some surfaces may still be locked by
     // internal resources.
 
+    if (session) {
+        MFXVideoDECODE_Close(session);
+        MFXClose(session);
+    }
+
+    if (bitstream.Data)
+        free(bitstream.Data);
+
+    if (decSurfPool) {
+        FreeExternalSystemMemorySurfacePool(decOutBuf, decSurfPool);
+    }
+
     if (source)
         fclose(source);
 
     if (sink)
         fclose(sink);
-
-    MFXVideoDECODE_Close(session);
-    MFXClose(session);
-
-    if (bitstream.Data)
-        free(bitstream.Data);
-
-    FreeExternalSystemMemorySurfacePool(decOutBuf, decSurfPool);
 
     if (accelHandle)
         FreeAcceleratorHandle(accelHandle, accel_fd);

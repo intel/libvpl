@@ -9,7 +9,6 @@
 /// using the core API subset.  For more information see:
 /// https://software.intel.com/content/www/us/en/develop/articles/upgrading-from-msdk-to-onevpl.html
 /// https://oneapi-src.github.io/oneAPI-spec/elements/oneVPL/source/index.html
-///
 /// @file
 
 #include <inference_engine.hpp>
@@ -65,7 +64,6 @@ void InferFrame(mfxFrameSurface1 *surface,
     mfxFrameInfo *info = &surface->Info;
     mfxFrameData *data = &surface->Data;
     Blob::Ptr in_blob, out_blob;
-    size_t w = info->Width;
     size_t h = info->Height;
     size_t p = data->Pitch;
 
@@ -104,24 +102,30 @@ void InferFrame(mfxFrameSurface1 *surface,
 }
 
 int main(int argc, char *argv[]) {
-    FILE *source                    = NULL;
-    int accel_fd                    = 0;
-    mfxSession session              = NULL;
-    mfxFrameSurface1 *decSurfaceOut = NULL;
-    mfxFrameSurface1 *decSurfPool   = NULL;
-    mfxU8 *decOutBuf                = NULL;
-    void *accelHandle               = NULL;
-    mfxBitstream bitstream          = {};
-    mfxSyncPoint syncp              = {};
-    mfxVersion version              = { 0, 1 };
-    mfxFrameAllocRequest decRequest = {};
-    mfxVideoParam mfxDecParams      = {};
-    mfxU32 frameNum                 = 0;
+    //Variables used for legacy and 2.x
     bool isDraining                 = false;
     bool isStillGoing               = true;
-    int nIndex                      = -1;
+    FILE *source                    = NULL;
+    int accel_fd                    = 0;
+    mfxBitstream bitstream          = {};
+    mfxFrameSurface1 *decSurfaceOut = NULL;
+    mfxSession session              = NULL;
     mfxStatus sts                   = MFX_ERR_NONE;
+    mfxSyncPoint syncp              = {};
+    mfxU32 framenum                 = 0;
     Params cliParams                = {};
+    void *accelHandle               = NULL;
+    mfxVideoParam mfxDecParams      = {};
+
+    //variables used only in legacy version
+    int nIndex                      = -1;
+    mfxFrameAllocRequest decRequest = {};
+    mfxFrameSurface1 *decSurfPool   = NULL;
+    mfxU8 *decOutBuf                = NULL;
+
+    // variables used only in 2.x version
+    mfxConfig cfg;
+    mfxLoader loader = NULL;
 
     // OpenVINO
     Core ie;
@@ -141,12 +145,23 @@ int main(int argc, char *argv[]) {
     source = fopen(cliParams.infileName, "rb");
     VERIFY(source, "Could not open input file");
 
-    // Initialize VPL session
-    sts = MFXInit(cliParams.impl, &version, &session);
-    VERIFY(MFX_ERR_NONE == sts, "Not able to create VPL session");
+    // Initialize oneVPL session
+    loader = MFXLoad();
+    VERIFY(NULL != loader, "MFXLoad failed -- is implementation in path?");
+
+    // Implementation used must be the type requested from command line
+    cfg = MFXCreateConfig(loader);
+    VERIFY(NULL != cfg, "MFXCreateConfig failed")
+
+    sts = MFXSetConfigFilterProperty(cfg, (mfxU8 *)"mfxImplDescription.Impl", cliParams.implValue);
+    VERIFY(MFX_ERR_NONE == sts, "MFXSetConfigFilterProperty failed for Impl");
+
+    sts = MFXCreateSession(loader, 0, &session);
+    VERIFY(MFX_ERR_NONE == sts,
+           "Cannot create session -- no implementations meet selection criteria");
 
     // Print info about implementation loaded
-    ShowImplInfo(session);
+    ShowImplementationInfo(loader, 0);
 
     // Convenience function to initialize available accelerator(s)
     accelHandle = InitAcceleratorHandle(session, &accel_fd);
@@ -156,9 +171,7 @@ int main(int argc, char *argv[]) {
     bitstream.Data      = (mfxU8 *)calloc(bitstream.MaxLength, sizeof(mfxU8));
     VERIFY(bitstream.Data, "Not able to allocate input buffer");
 
-    // External allocation requires pre-parsing input before decode
-    // so that resolution, fourCC, etc. can be read from the stream
-    // to enable app to create surfaces
+    //Pre-parse input stream
     sts = ReadEncodedStream(bitstream, source);
     VERIFY(MFX_ERR_NONE == sts, "Error reading bitstream\n");
 
@@ -227,7 +240,7 @@ int main(int argc, char *argv[]) {
                     sts = MFXVideoCORE_SyncOperation(session, syncp, WAIT_100_MILLISECONDS);
                     if (MFX_ERR_NONE == sts) {
                         InferFrame(decSurfaceOut, &infer_request, input_name, output_name);
-                        frameNum++;
+                        framenum++;
                     }
                 } while (sts == MFX_WRN_IN_EXECUTION);
                 break;
@@ -274,25 +287,32 @@ int main(int argc, char *argv[]) {
     }
 
 end:
-    printf("Decoded %d frames\n", frameNum);
+    printf("Decoded %d frames\n", framenum);
 
     // Clean up resources - It is recommended to close components first, before
     // releasing allocated surfaces, since some surfaces may still be locked by
     // internal resources.
 
-    if (source)
-        fclose(source);
-
-    MFXVideoDECODE_Close(session);
-    MFXClose(session);
+    if (session) {
+        MFXVideoDECODE_Close(session);
+        MFXClose(session);
+    }
 
     if (bitstream.Data)
         free(bitstream.Data);
 
-    FreeExternalSystemMemorySurfacePool(decOutBuf, decSurfPool);
+    if (decSurfPool) {
+        FreeExternalSystemMemorySurfacePool(decOutBuf, decSurfPool);
+    }
+
+    if (source)
+        fclose(source);
 
     if (accelHandle)
         FreeAcceleratorHandle(accelHandle, accel_fd);
+
+    if (loader)
+        MFXUnload(loader);
 
     return 0;
 }

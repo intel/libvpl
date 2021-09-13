@@ -73,7 +73,7 @@ void init_source_reader(const py::module &m) {
                                                    "vpl_file_exception",
                                                    PyExc_FileNotFoundError);
 
-    py::class_<vpl::source_reader>(m, "source_reader")
+    py::class_<vpl::source_reader, std::shared_ptr<vpl::source_reader>>(m, "source_reader")
         .def("is_EOS", &vpl::source_reader::is_EOS, "Checks and retrieve end of stream status")
         .def("__enter__",
              [](vpl::source_reader *self) -> vpl::source_reader & {
@@ -86,39 +86,48 @@ void init_source_reader(const py::module &m) {
                 pybind11::object traceback) {
              });
 
-    py::class_<vpl::frame_source_reader, vpl::source_reader>(m, "frame_source_reader")
+    py::class_<vpl::frame_source_reader,
+               vpl::source_reader,
+               std::shared_ptr<vpl::frame_source_reader>>(m, "frame_source_reader")
         .def_property_readonly("data",
                                &vpl::frame_source_reader::get_data,
                                "Read and store portion of data into the @p bitstream object");
 
-    py::class_<vpl::raw_frame_file_reader, vpl::frame_source_reader>(m, "raw_frame_file_reader")
+    py::class_<vpl::raw_frame_file_reader,
+               vpl::frame_source_reader,
+               std::shared_ptr<vpl::raw_frame_file_reader>>(m, "raw_frame_file_reader")
         .def(py::init<uint16_t, uint16_t, vpl::color_format_fourcc, std::ifstream &>())
         .def_property_readonly("data",
                                &vpl::raw_frame_file_reader::get_data,
                                "Read and store portion of data into the @p bitstream object");
 
-    py::class_<vpl::raw_frame_file_reader_by_name, vpl::frame_source_reader>(
-        m,
-        "raw_frame_file_reader_by_name")
+    py::class_<vpl::raw_frame_file_reader_by_name,
+               vpl::frame_source_reader,
+               std::shared_ptr<vpl::raw_frame_file_reader_by_name>>(m,
+                                                                    "raw_frame_file_reader_by_name")
         .def(py::init<uint16_t, uint16_t, vpl::color_format_fourcc, std::string &>())
         .def_property_readonly("data",
                                &vpl::raw_frame_file_reader_by_name::get_data,
                                "Read and store portion of data into the @p bitstream object");
 
-    py::class_<vpl::bitstream_source_reader, vpl::source_reader>(m, "bitstream_source_reader")
+    py::class_<vpl::bitstream_source_reader,
+               vpl::source_reader,
+               std::shared_ptr<vpl::bitstream_source_reader>>(m, "bitstream_source_reader")
         .def_property_readonly("data",
                                &vpl::bitstream_source_reader::get_data,
                                "Read and store portion of data into the @p bitstream object");
 
-    py::class_<vpl::bitstream_file_reader, vpl::bitstream_source_reader>(m, "bitstream_file_reader")
+    py::class_<vpl::bitstream_file_reader,
+               vpl::bitstream_source_reader,
+               std::shared_ptr<vpl::bitstream_file_reader>>(m, "bitstream_file_reader")
         // .def(py::init<std::ifstream>())
         .def_property_readonly("data",
                                &vpl::bitstream_file_reader::get_data,
                                "Read and store portion of data into the @p bitstream object");
 
-    py::class_<vpl::bitstream_file_reader_name, vpl::bitstream_source_reader>(
-        m,
-        "bitstream_file_reader_name")
+    py::class_<vpl::bitstream_file_reader_name,
+               vpl::bitstream_source_reader,
+               std::shared_ptr<vpl::bitstream_file_reader_name>>(m, "bitstream_file_reader_name")
         .def(py::init<std::string &>())
         .def_property_readonly("data",
                                &vpl::bitstream_file_reader_name::get_data,

@@ -45,6 +45,7 @@ list(
   vpl/mfx_dispatcher_vpl.cpp
   vpl/mfx_dispatcher_vpl_loader.cpp
   vpl/mfx_dispatcher_vpl_config.cpp
+  vpl/mfx_dispatcher_vpl_lowlatency.cpp
   vpl/mfx_dispatcher_vpl_log.cpp
   vpl/mfx_dispatcher_vpl_msdk.cpp)
 

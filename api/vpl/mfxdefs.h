@@ -8,7 +8,7 @@
 #define __MFXDEFS_H__
 
 #define MFX_VERSION_MAJOR 2
-#define MFX_VERSION_MINOR 4
+#define MFX_VERSION_MINOR 5
 
 // MFX_VERSION - version of API that 'assumed' by build may be provided externally
 // if it omitted then latest stable API derived from Major.Minor is assumed
@@ -297,6 +297,8 @@ typedef enum
     MFX_WRN_FILTER_SKIPPED              = 10,   /*!< One of requested filters has been skipped. */
     /* low-delay partial output */
     MFX_ERR_NONE_PARTIAL_OUTPUT         = 12,   /*!< Frame is not ready, but bitstream contains partial output. */
+
+    MFX_WRN_ALLOC_TIMEOUT_EXPIRED       = 13,   /*!< Timeout expired for internal frame allocation. */
 
     /* threading statuses */
     MFX_TASK_DONE = MFX_ERR_NONE,               /*!< Task has been completed. */

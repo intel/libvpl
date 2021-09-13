@@ -8,6 +8,6 @@ Description: oneAPI Video Processing Library
 Version: @API_VERSION_MAJOR@.@API_VERSION_MINOR@
 URL: https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/onevpl.html
 
-Libs: -L${libdir} -lvpl @VPL_PKGCONFIG_DEPENDENT_LIBS@
+Libs: -L${libdir} -l@OUTPUT_NAME@ @VPL_PKGCONFIG_DEPENDENT_LIBS@
 Libs.private: @VPL_PKGCONFIG_PRIVATE_LIBS@
 Cflags: -I${includedir} -I${includedir}/vpl

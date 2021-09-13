@@ -153,7 +153,7 @@ bool ValidateSize(char *in, mfxU16 *vsize, mfxU32 vmax) {
     return false;
 }
 
-bool ParseVPPParams(char *str_params, VPPOutConfigs *voc) {
+bool ParseVPPParams(mfxIMPL impl, char *str_params, VPPOutConfigs *voc) {
     // 128x96_i420
     char res_sep    = 'x';
     char fourcc_sep = '_';
@@ -209,17 +209,20 @@ bool ParseVPPParams(char *str_params, VPPOutConfigs *voc) {
     }
     strncpy_s(param, sizeof(param), str_params + spos, strlen(str_params) - spos);
     param[sizeof(param) - 1] = 0;
-    if (strcmp(param, "i420") == 0) {
+    if (impl == MFX_IMPL_SOFTWARE && strcmp(param, "i420") == 0) {
         voc->fourcc = MFX_FOURCC_I420;
     }
-    else if (strcmp(param, "nv12") == 0) {
+    else if (impl == MFX_IMPL_HARDWARE && strcmp(param, "nv12") == 0) {
         voc->fourcc = MFX_FOURCC_NV12;
     }
     else if (strcmp(param, "bgra") == 0) {
         voc->fourcc = MFX_FOURCC_BGRA;
     }
     else {
-        printf("ERROR - Fourcc type '%s' is not supported\n", param);
+        printf("ERROR - Fourcc type '%s' is not supported in %s\n",
+               param,
+               impl == MFX_IMPL_SOFTWARE ? "software implementation mode"
+                                         : "hardware implementation mode");
         return false;
     }
 
@@ -307,7 +310,7 @@ bool GetVPPParams(Params *params) {
             strncpy_s(str_params, sizeof(str_params), str_cli + spos, len);
 
             if (str_params[0] != '\0') {
-                if (ParseVPPParams(str_params, &voc[i]) == false)
+                if (ParseVPPParams(params->impl, str_params, &voc[i]) == false)
                     return false;
 
                 i++;

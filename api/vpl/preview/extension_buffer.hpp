@@ -291,7 +291,18 @@ REGISTER_TRIVIAL_EXT_BUFFER(ExtVppMctf, mfxExtVppMctf, MFX_EXTBUFF_VPP_MCTF)
 REGISTER_TRIVIAL_EXT_BUFFER(ExtPartialBitstreamParam,
                             mfxExtPartialBitstreamParam,
                             MFX_EXTBUFF_PARTIAL_BITSTREAM_PARAM)
-
+REGISTER_TRIVIAL_EXT_BUFFER(ExtAV1BitstreamParam,
+                            mfxExtAV1BitstreamParam,
+                            MFX_EXTBUFF_AV1_BITSTREAM_PARAM)
+REGISTER_TRIVIAL_EXT_BUFFER(ExtAV1ResolutionParam,
+                            mfxExtAV1ResolutionParam,
+                            MFX_EXTBUFF_AV1_RESOLUTION_PARAM)
+REGISTER_TRIVIAL_EXT_BUFFER(ExtAV1TileParam,
+                            mfxExtAV1TileParam,
+                            MFX_EXTBUFF_AV1_TILE_PARAM)
+REGISTER_TRIVIAL_EXT_BUFFER(ExtAV1FilmGrainParam,
+                            mfxExtAV1FilmGrainParam,
+                            MFX_EXTBUFF_AV1_FILM_GRAIN_PARAM)
 // extension buffers with pointers below
 
 #define SCALAR_SETTER(type, name)  \
@@ -377,6 +388,27 @@ REGISTER_TRIVIAL_EXT_BUFFER(ExtPartialBitstreamParam,
 #define REGISTER_SINGLE_POINTER_EXT_BUFFER_END \
     }                                          \
     ;
+
+REGISTER_SINGLE_POINTER_EXT_BUFFER_BEGIN(ExtAV1Segmentation,
+                                         mfxExtAV1Segmentation,
+                                         MFX_EXTBUFF_AV1_SEGMENTATION,
+                                         SegmentIds,
+                                         uint8_t,
+                                         NumSegmentIdAlloc)
+SCALAR_SETTER(uint8_t, NumSegments)
+ARRAY_SETTER(mfxAV1SegmentParam, Segment, 8)
+SCALAR_SETTER(uint16_t, SegmentIdBlockSize)
+REGISTER_SINGLE_POINTER_EXT_BUFFER_END
+
+REGISTER_SINGLE_POINTER_EXT_BUFFER_BEGIN(ExtTemporalLayers,
+                                         mfxExtTemporalLayers,
+                                         MFX_EXTBUFF_UNIVERSAL_TEMPORAL_LAYERS,
+                                         Layers,
+                                         mfxTemporalLayer,
+                                         NumLayers)
+SCALAR_SETTER(uint16_t, BaseLayerPID)
+REGISTER_SINGLE_POINTER_EXT_BUFFER_END
+
 
 REGISTER_SINGLE_POINTER_EXT_BUFFER_BEGIN(ExtCodingOptionVPS,
                                          mfxExtCodingOptionVPS,

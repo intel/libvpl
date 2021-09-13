@@ -6,7 +6,7 @@
 
 ///
 /// A minimal oneAPI Video Processing Library (oneVPL) encode application
-/// using the core API subset.For more information see :
+/// using the core API subset.  For more information see:
 /// https://software.intel.com/content/www/us/en/develop/articles/upgrading-from-msdk-to-onevpl.html
 /// https://oneapi-src.github.io/oneAPI-spec/elements/oneVPL/source/index.html
 /// @file
@@ -26,39 +26,36 @@ void Usage(void) {
     printf("     -i input file name ( -sw=I420 raw frames,-hw=NV12)\n");
     printf("     -w input width\n");
     printf("     -h input height\n\n");
-    printf("   Example:  hello-encode -sw -i in.i420 -w 128 -h 96\n");
+    printf("   Example:  legacy-encode -sw -i in.i420 -w 128 -h 96\n");
     printf("   To view:  ffplay %s\n\n", OUTPUT_FILE);
     printf(" * Encode raw frames to HEVC/H265 elementary stream in %s\n\n", OUTPUT_FILE);
     return;
 }
 
 int main(int argc, char *argv[]) {
-    FILE *source                    = NULL;
-    FILE *sink                      = NULL;
-    int accel_fd                    = 0;
+    FILE *source = NULL;
+    FILE *sink   = NULL;
+    int accel_fd = 0;
+    mfxConfig cfg[1];
     mfxSession session              = NULL;
     mfxVideoParam encodeParams      = {};
     mfxFrameSurface1 *encSurfaceIn  = NULL;
     mfxFrameSurface1 *encSurfPool   = NULL;
+    mfxLoader loader                = NULL;
     mfxU8 *encOutBuf                = NULL;
     void *accelHandle               = NULL;
-    mfxBitstream bitstream          = { 0 };
-    mfxSyncPoint syncp              = { 0 };
+    mfxBitstream bitstream          = {};
+    mfxSyncPoint syncp              = {};
     mfxFrameAllocRequest encRequest = {};
     mfxU32 framenum                 = 0;
     bool isDraining                 = false;
     bool isStillGoing               = true;
     int nIndex                      = -1;
     mfxStatus sts                   = MFX_ERR_NONE;
-    Params cliParams                = { 0 };
-
-    // variables used only in 2.x version
-    mfxConfig cfg[2];
-    mfxVariant cfgVal[2];
-    mfxLoader loader = NULL;
+    Params cliParams                = {};
 
     //Parse command line args to cliParams
-    if (ParseArgsAndValidate(argc, argv, &cliParams, PARAMS_DECODE) == false) {
+    if (ParseArgsAndValidate(argc, argv, &cliParams, PARAMS_ENCODE) == false) {
         Usage();
         return 1; // return 1 as error code
     }
@@ -69,7 +66,7 @@ int main(int argc, char *argv[]) {
     sink = fopen(OUTPUT_FILE, "wb");
     VERIFY(sink, "Could not create output file");
 
-    // Initialize VPL session
+    // Initialize oneVPL session
     loader = MFXLoad();
     VERIFY(NULL != loader, "MFXLoad failed -- is implementation in path?");
 
@@ -80,17 +77,6 @@ int main(int argc, char *argv[]) {
     sts =
         MFXSetConfigFilterProperty(cfg[0], (mfxU8 *)"mfxImplDescription.Impl", cliParams.implValue);
     VERIFY(MFX_ERR_NONE == sts, "MFXSetConfigFilterProperty failed for Impl");
-
-    // Implementation must provide an HEVC encoder
-    cfg[1] = MFXCreateConfig(loader);
-    VERIFY(NULL != cfg[1], "MFXCreateConfig failed")
-    cfgVal[1].Type     = MFX_VARIANT_TYPE_U32;
-    cfgVal[1].Data.U32 = MFX_CODEC_HEVC;
-    sts                = MFXSetConfigFilterProperty(
-        cfg[1],
-        (mfxU8 *)"mfxImplDescription.mfxEncoderDescription.encoder.CodecID",
-        cfgVal[1]);
-    VERIFY(MFX_ERR_NONE == sts, "MFXSetConfigFilterProperty failed for encoder CodecID");
 
     sts = MFXCreateSession(loader, 0, &session);
     VERIFY(MFX_ERR_NONE == sts,
@@ -150,6 +136,9 @@ int main(int argc, char *argv[]) {
                                                   encRequest.NumFrameSuggested);
     VERIFY(MFX_ERR_NONE == sts, "Error in external surface allocation\n");
 
+    // ===================================
+    // Start encoding the frames
+    //
     printf("Encoding %s -> %s\n", cliParams.infileName, OUTPUT_FILE);
 
     while (isStillGoing == true) {
@@ -188,7 +177,7 @@ int main(int argc, char *argv[]) {
                 break;
             case MFX_ERR_MORE_DATA:
                 // The function requires more data to generate any output
-                if (isDraining == true)
+                if (isDraining)
                     isStillGoing = false;
                 break;
             case MFX_ERR_DEVICE_LOST:
@@ -212,13 +201,17 @@ end:
     // Clean up resources - It is recommended to close components first, before
     // releasing allocated surfaces, since some surfaces may still be locked by
     // internal resources.
+    if (session) {
+        MFXVideoENCODE_Close(session);
+        MFXClose(session);
+    }
+
     if (bitstream.Data)
         free(bitstream.Data);
 
-    MFXVideoENCODE_Close(session);
-    MFXClose(session);
-
-    FreeExternalSystemMemorySurfacePool(encOutBuf, encSurfPool);
+    if (encSurfPool) {
+        FreeExternalSystemMemorySurfacePool(encOutBuf, encSurfPool);
+    }
 
     if (source)
         fclose(source);

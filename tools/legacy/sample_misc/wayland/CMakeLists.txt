@@ -19,7 +19,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/include
   ${CMAKE_CURRENT_SOURCE_DIR}/../../../../api/vpl
   ${PKG_LIBDRM_INCLUDE_DIRS}
-  ${PKG_WAYLAND_CLIENT_LIBRARY_DIRS})
+  ${PKG_WAYLAND_CLIENT_INCLUDE_DIRS})
 
 add_definitions(-DLIBVA_WAYLAND_SUPPORT)
 add_library(${TARGET} SHARED "")
@@ -31,4 +31,4 @@ target_sources(
 
 target_link_libraries(${TARGET} sample_common wayland-client va drm drm_intel)
 
-install(TARGETS ${TARGET} LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+install(TARGETS ${TARGET} LIBRARY DESTINATION ${_TOOLS_LIB_PATH})

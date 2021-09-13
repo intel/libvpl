@@ -22,7 +22,7 @@ struct CArrayWrapper {
         List(size_t len, Element *base) : len(len), base(base) {}
         List(const List &other) : len(other.len), base(other.base) {}
     };
-    using PyClass = py::class_<List>;
+    using PyClass = py::class_<List, std::shared_ptr<List>>;
     PyClass pyclass;
     CArrayWrapper(const py::module &m, const std::string &typestr) : pyclass(m, typestr.c_str()) {
         pyclass.def("__getitem__", [](List *self, int i) -> Element & {
@@ -39,7 +39,7 @@ void init_mfxstructures(const py::module &m) {
     /* ===========================
     * extension buffers
     * ========================= */
-    py::class_<mfxExtBuffer>(m, "mfxExtBuffer")
+    py::class_<mfxExtBuffer, std::shared_ptr<mfxExtBuffer>>(m, "mfxExtBuffer")
         .def(py::init<>())
         .def(py::init<>([](uint32_t id, uint32_t size) {
             return new mfxExtBuffer{ id, size };
@@ -53,7 +53,7 @@ void init_mfxstructures(const py::module &m) {
             return (self->BufferId == other.BufferId) && (self->BufferSz == other.BufferSz);
         });
 
-    py::class_<mfxI16Pair>(m, "mfxI16Pair")
+    py::class_<mfxI16Pair, std::shared_ptr<mfxI16Pair>>(m, "mfxI16Pair")
         .def(py::init<>())
         .def(py::init<>([](int32_t v) {
             return new mfxI16Pair{ static_cast<int16_t>(v >> 16),
@@ -79,7 +79,7 @@ void init_mfxstructures(const py::module &m) {
             return (self->x == (v >> 16)) && (self->y == (v & 0x00ffff));
         });
 
-    py::class_<mfxExtCodingOption>(m, "mfxExtCodingOption")
+    py::class_<mfxExtCodingOption, std::shared_ptr<mfxExtCodingOption>>(m, "mfxExtCodingOption")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -172,7 +172,7 @@ void init_mfxstructures(const py::module &m) {
                        &mfxExtCodingOption::VuiNalHrdParameters,
                        "Set this flag to insert NAL HRD parameters in the VUI header.");
 
-    py::class_<mfxExtCodingOption2>(m, "mfxExtCodingOption2")
+    py::class_<mfxExtCodingOption2, std::shared_ptr<mfxExtCodingOption2>>(m, "mfxExtCodingOption2")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -275,7 +275,7 @@ void init_mfxstructures(const py::module &m) {
             &mfxExtCodingOption2::UseRawRef,
             "Set this flag to ON to use raw frames for reference instead of reconstructed frames.");
 
-    py::class_<mfxExtCodingOption3>(m, "mfxExtCodingOption3")
+    py::class_<mfxExtCodingOption3, std::shared_ptr<mfxExtCodingOption3>>(m, "mfxExtCodingOption3")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -434,7 +434,7 @@ void init_mfxstructures(const py::module &m) {
             &mfxExtCodingOption3::AdaptiveCQM,
             "If this flag is set to ON, encoder adaptively selects one of implementation-defined quantization matrices for each frame.");
 
-    py::class_<mfxExtVPPDoNotUse>(m, "mfxExtVPPDoNotUse")
+    py::class_<mfxExtVPPDoNotUse, std::shared_ptr<mfxExtVPPDoNotUse>>(m, "mfxExtVPPDoNotUse")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -450,7 +450,7 @@ void init_mfxstructures(const py::module &m) {
             },
             "Pointer to a list of filters (algorithms) not to use");
 
-    py::class_<mfxExtVPPDenoise>(m, "mfxExtVPPDenoise")
+    py::class_<mfxExtVPPDenoise, std::shared_ptr<mfxExtVPPDenoise>>(m, "mfxExtVPPDenoise")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -461,7 +461,7 @@ void init_mfxstructures(const py::module &m) {
             &mfxExtVPPDenoise::DenoiseFactor,
             "Indicates the level of noise to remove. Value range of 0 to 100 (inclusive).");
 
-    py::class_<mfxExtVPPDenoise2>(m, "mfxExtVPPDenoise2")
+    py::class_<mfxExtVPPDenoise2, std::shared_ptr<mfxExtVPPDenoise2>>(m, "mfxExtVPPDenoise2")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -474,7 +474,7 @@ void init_mfxstructures(const py::module &m) {
                        &mfxExtVPPDenoise2::Strength,
                        "Denoise strength in manual mode.");
 
-    py::class_<mfxExtVPPDetail>(m, "mfxExtVPPDetail")
+    py::class_<mfxExtVPPDetail, std::shared_ptr<mfxExtVPPDetail>>(m, "mfxExtVPPDetail")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -485,7 +485,7 @@ void init_mfxstructures(const py::module &m) {
             &mfxExtVPPDetail::DetailFactor,
             "Indicates the level of details to be enhanced. Value range of 0 to 100 (inclusive).");
 
-    py::class_<mfxExtVPPProcAmp>(m, "mfxExtVPPProcAmp")
+    py::class_<mfxExtVPPProcAmp, std::shared_ptr<mfxExtVPPProcAmp>>(m, "mfxExtVPPProcAmp")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -507,7 +507,7 @@ void init_mfxstructures(const py::module &m) {
             &mfxExtVPPProcAmp::Saturation,
             "The saturation parameter is in the range of 0.0F to 10.0F, in increments of 0.01F.");
 
-    py::class_<mfxExtVppAuxData>(m, "mfxExtVppAuxData")
+    py::class_<mfxExtVppAuxData, std::shared_ptr<mfxExtVppAuxData>>(m, "mfxExtVppAuxData")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -522,7 +522,9 @@ void init_mfxstructures(const py::module &m) {
         .def_readwrite("SceneChangeRate", &mfxExtVppAuxData::SceneChangeRate, "Deprecated")
         .def_readwrite("RepeatedFrame", &mfxExtVppAuxData::RepeatedFrame, "Deprecated");
 
-    py::class_<mfxExtCodingOptionSPSPPS>(m, "mfxExtCodingOptionSPSPPS")
+    py::class_<mfxExtCodingOptionSPSPPS, std::shared_ptr<mfxExtCodingOptionSPSPPS>>(
+        m,
+        "mfxExtCodingOptionSPSPPS")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -547,7 +549,9 @@ void init_mfxstructures(const py::module &m) {
                        &mfxExtCodingOptionSPSPPS::PPSId,
                        "PPS identifier. The value is reserved and must be zero.");
 
-    py::class_<mfxExtCodingOptionVPS>(m, "mfxExtCodingOptionVPS")
+    py::class_<mfxExtCodingOptionVPS, std::shared_ptr<mfxExtCodingOptionVPS>>(
+        m,
+        "mfxExtCodingOptionVPS")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -563,7 +567,7 @@ void init_mfxstructures(const py::module &m) {
                        &mfxExtCodingOptionVPS::VPSId,
                        "VPS identifier; the value is reserved and must be zero.");
 
-    py::class_<mfxExtVPPComposite>(m, "mfxExtVPPComposite")
+    py::class_<mfxExtVPPComposite, std::shared_ptr<mfxExtVPPComposite>>(m, "mfxExtVPPComposite")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -585,7 +589,9 @@ void init_mfxstructures(const py::module &m) {
         // .def_readwrite("InputStream", &mfxExtVPPComposite::InputStream)
         ;
 
-    py::class_<mfxExtVideoSignalInfo>(m, "mfxExtVideoSignalInfo")
+    py::class_<mfxExtVideoSignalInfo, std::shared_ptr<mfxExtVideoSignalInfo>>(
+        m,
+        "mfxExtVideoSignalInfo")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -598,7 +604,7 @@ void init_mfxstructures(const py::module &m) {
         .def_readwrite("TransferCharacteristics", &mfxExtVideoSignalInfo::TransferCharacteristics)
         .def_readwrite("MatrixCoefficients", &mfxExtVideoSignalInfo::MatrixCoefficients);
 
-    py::class_<mfxExtVPPDoUse>(m, "mfxExtVPPDoUse")
+    py::class_<mfxExtVPPDoUse, std::shared_ptr<mfxExtVPPDoUse>>(m, "mfxExtVPPDoUse")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -614,7 +620,9 @@ void init_mfxstructures(const py::module &m) {
 
     using mfxExtAVCRefListCtrl_ref =
         std::remove_reference<decltype(mfxExtAVCRefListCtrl::PreferredRefList[0])>::type;
-    py::class_<mfxExtAVCRefListCtrl_ref>(m, "mfxExtAVCRefListCtrl_ref")
+    py::class_<mfxExtAVCRefListCtrl_ref, std::shared_ptr<mfxExtAVCRefListCtrl_ref>>(
+        m,
+        "mfxExtAVCRefListCtrl_ref")
         .def(py::init<>())
         .def_readwrite(
             "FrameOrder",
@@ -633,7 +641,8 @@ void init_mfxstructures(const py::module &m) {
     CArrayWrapper<mfxExtAVCRefListCtrl_ref>(m, "mfxExtAVCRefListCtrl_ref_list");
     using mfxExtAVCRefListCtrl_ref_list = CArrayWrapper<mfxExtAVCRefListCtrl_ref>::List;
 
-    py::class_<mfxExtAVCRefListCtrl>(m, "mfxExtAVCRefListCtrl")
+    py::class_<mfxExtAVCRefListCtrl, std::shared_ptr<mfxExtAVCRefListCtrl>>(m,
+                                                                            "mfxExtAVCRefListCtrl")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -668,7 +677,9 @@ void init_mfxstructures(const py::module &m) {
             &mfxExtAVCRefListCtrl::ApplyLongTermIdx,
             "If it is equal to zero, the encoder assigns long-term index according to internal algorithm. If it is equal to one, the encoder uses LongTermIdx value as long-term index.");
 
-    py::class_<mfxExtVPPFrameRateConversion>(m, "mfxExtVPPFrameRateConversion")
+    py::class_<mfxExtVPPFrameRateConversion, std::shared_ptr<mfxExtVPPFrameRateConversion>>(
+        m,
+        "mfxExtVPPFrameRateConversion")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -679,7 +690,7 @@ void init_mfxstructures(const py::module &m) {
             &mfxExtVPPFrameRateConversion::Algorithm,
             "See the FrcAlgm enumerator for a list of frame rate conversion algorithms.");
 
-    py::class_<mfxExtVPPImageStab>(m, "mfxExtVPPImageStab")
+    py::class_<mfxExtVPPImageStab, std::shared_ptr<mfxExtVPPImageStab>>(m, "mfxExtVPPImageStab")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -689,7 +700,10 @@ void init_mfxstructures(const py::module &m) {
                        &mfxExtVPPImageStab::Mode,
                        "Image stabilization mode. See ImageStabMode enumerator for values.");
 
-    py::class_<mfxExtMasteringDisplayColourVolume>(m, "mfxExtMasteringDisplayColourVolume")
+    py::class_<mfxExtMasteringDisplayColourVolume,
+               std::shared_ptr<mfxExtMasteringDisplayColourVolume>>(
+        m,
+        "mfxExtMasteringDisplayColourVolume")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -721,7 +735,9 @@ void init_mfxstructures(const py::module &m) {
             &mfxExtMasteringDisplayColourVolume::MinDisplayMasteringLuminance,
             "Specify minimum luminance of the display on which the content was authored in units of 0.00001 candelas per square meter.");
 
-    py::class_<mfxExtContentLightLevelInfo>(m, "mfxExtContentLightLevelInfo")
+    py::class_<mfxExtContentLightLevelInfo, std::shared_ptr<mfxExtContentLightLevelInfo>>(
+        m,
+        "mfxExtContentLightLevelInfo")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -739,7 +755,9 @@ void init_mfxstructures(const py::module &m) {
 
     using mfxExtPictureTimingSEI_timestamp =
         std::remove_reference<decltype(mfxExtPictureTimingSEI::TimeStamp[0])>::type;
-    py::class_<mfxExtPictureTimingSEI_timestamp>(m, "mfxExtPictureTimingSEI_timestamp")
+    py::class_<mfxExtPictureTimingSEI_timestamp, std::shared_ptr<mfxExtPictureTimingSEI_timestamp>>(
+        m,
+        "mfxExtPictureTimingSEI_timestamp")
         .def(py::init<>())
         .def_readwrite("ClockTimestampFlag", &mfxExtPictureTimingSEI_timestamp::ClockTimestampFlag)
         .def_readwrite("CtType", &mfxExtPictureTimingSEI_timestamp::CtType)
@@ -761,7 +779,9 @@ void init_mfxstructures(const py::module &m) {
     using mfxExtPictureTimingSEI_timestamp_list =
         CArrayWrapper<mfxExtPictureTimingSEI_timestamp>::List;
 
-    py::class_<mfxExtPictureTimingSEI>(m, "mfxExtPictureTimingSEI")
+    py::class_<mfxExtPictureTimingSEI, std::shared_ptr<mfxExtPictureTimingSEI>>(
+        m,
+        "mfxExtPictureTimingSEI")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -773,7 +793,9 @@ void init_mfxstructures(const py::module &m) {
 
     using mfxExtAvcTemporalLayers_layer =
         std::remove_reference<decltype(mfxExtAvcTemporalLayers::Layer[0])>::type;
-    py::class_<mfxExtAvcTemporalLayers_layer>(m, "mfxExtAvcTemporalLayers_layer")
+    py::class_<mfxExtAvcTemporalLayers_layer, std::shared_ptr<mfxExtAvcTemporalLayers_layer>>(
+        m,
+        "mfxExtAvcTemporalLayers_layer")
         .def(py::init<>())
         .def_readwrite(
             "Scale",
@@ -783,7 +805,9 @@ void init_mfxstructures(const py::module &m) {
     CArrayWrapper<mfxExtAvcTemporalLayers_layer>(m, "mfxExtAvcTemporalLayers_layer_list");
     using mfxExtAvcTemporalLayers_layer_list = CArrayWrapper<mfxExtAvcTemporalLayers_layer>::List;
 
-    py::class_<mfxExtAvcTemporalLayers>(m, "mfxExtAvcTemporalLayers")
+    py::class_<mfxExtAvcTemporalLayers, std::shared_ptr<mfxExtAvcTemporalLayers>>(
+        m,
+        "mfxExtAvcTemporalLayers")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -796,7 +820,9 @@ void init_mfxstructures(const py::module &m) {
             return mfxExtAvcTemporalLayers_layer_list(8, self->Layer);
         });
 
-    py::class_<mfxExtEncoderCapability>(m, "mfxExtEncoderCapability")
+    py::class_<mfxExtEncoderCapability, std::shared_ptr<mfxExtEncoderCapability>>(
+        m,
+        "mfxExtEncoderCapability")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -806,7 +832,9 @@ void init_mfxstructures(const py::module &m) {
                        &mfxExtEncoderCapability::MBPerSec,
                        "Specify the maximum processing rate in macro blocks per second.");
 
-    py::class_<mfxExtEncoderResetOption>(m, "mfxExtEncoderResetOption")
+    py::class_<mfxExtEncoderResetOption, std::shared_ptr<mfxExtEncoderResetOption>>(
+        m,
+        "mfxExtEncoderResetOption")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -818,7 +846,10 @@ void init_mfxstructures(const py::module &m) {
 
     using mfxExtAVCEncodedFrameInfo_UsedRefList =
         std::remove_reference<decltype(mfxExtAVCEncodedFrameInfo::UsedRefListL0[0])>::type;
-    py::class_<mfxExtAVCEncodedFrameInfo_UsedRefList>(m, "mfxExtAVCEncodedFrameInfo_UsedRefList")
+    py::class_<mfxExtAVCEncodedFrameInfo_UsedRefList,
+               std::shared_ptr<mfxExtAVCEncodedFrameInfo_UsedRefList>>(
+        m,
+        "mfxExtAVCEncodedFrameInfo_UsedRefList")
         .def(py::init<>())
         .def_readwrite("FrameOrder",
                        &mfxExtAVCEncodedFrameInfo_UsedRefList::FrameOrder,
@@ -836,7 +867,9 @@ void init_mfxstructures(const py::module &m) {
     using mfxExtAVCEncodedFrameInfo_UsedRefList_list =
         CArrayWrapper<mfxExtAVCEncodedFrameInfo_UsedRefList>::List;
 
-    py::class_<mfxExtAVCEncodedFrameInfo>(m, "mfxExtAVCEncodedFrameInfo")
+    py::class_<mfxExtAVCEncodedFrameInfo, std::shared_ptr<mfxExtAVCEncodedFrameInfo>>(
+        m,
+        "mfxExtAVCEncodedFrameInfo")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -877,7 +910,9 @@ void init_mfxstructures(const py::module &m) {
             "Reference list that has been used to encode picture.");
 
     using mfxExtVPPVideoSignalInfo_io = decltype(mfxExtVPPVideoSignalInfo::In);
-    py::class_<mfxExtVPPVideoSignalInfo_io>(m, "mfxExtVPPVideoSignalInfo_io")
+    py::class_<mfxExtVPPVideoSignalInfo_io, std::shared_ptr<mfxExtVPPVideoSignalInfo_io>>(
+        m,
+        "mfxExtVPPVideoSignalInfo_io")
         .def(py::init<>())
         .def_readwrite("TransferMatrix",
                        &mfxExtVPPVideoSignalInfo_io::TransferMatrix,
@@ -886,7 +921,9 @@ void init_mfxstructures(const py::module &m) {
                        &mfxExtVPPVideoSignalInfo_io::NominalRange,
                        "Nominal Range.");
 
-    py::class_<mfxExtVPPVideoSignalInfo>(m, "mfxExtVPPVideoSignalInfo")
+    py::class_<mfxExtVPPVideoSignalInfo, std::shared_ptr<mfxExtVPPVideoSignalInfo>>(
+        m,
+        "mfxExtVPPVideoSignalInfo")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -900,7 +937,8 @@ void init_mfxstructures(const py::module &m) {
         .def_readwrite("NominalRange", &mfxExtVPPVideoSignalInfo::NominalRange, "Nominal Range.");
 
     using mfxExtEncoderROI_roi = std::remove_reference<decltype(mfxExtEncoderROI::ROI[0])>::type;
-    py::class_<mfxExtEncoderROI_roi>(m, "mfxExtEncoderROI_roi")
+    py::class_<mfxExtEncoderROI_roi, std::shared_ptr<mfxExtEncoderROI_roi>>(m,
+                                                                            "mfxExtEncoderROI_roi")
         .def(py::init<>())
         .def_readwrite("Left", &mfxExtEncoderROI_roi::Left, "Left ROI's coordinate.")
         .def_readwrite("Top", &mfxExtEncoderROI_roi::Top, "Top ROI's coordinate.")
@@ -912,7 +950,7 @@ void init_mfxstructures(const py::module &m) {
     CArrayWrapper<mfxExtEncoderROI_roi>(m, "mfxExtEncoderROI_roi_list");
     using mfxExtEncoderROI_roi_list = CArrayWrapper<mfxExtEncoderROI_roi>::List;
 
-    py::class_<mfxExtEncoderROI>(m, "mfxExtEncoderROI")
+    py::class_<mfxExtEncoderROI, std::shared_ptr<mfxExtEncoderROI>>(m, "mfxExtEncoderROI")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -927,7 +965,9 @@ void init_mfxstructures(const py::module &m) {
             },
             "Array of ROIs. Different ROI may overlap each other.");
 
-    py::class_<mfxExtVPPDeinterlacing>(m, "mfxExtVPPDeinterlacing")
+    py::class_<mfxExtVPPDeinterlacing, std::shared_ptr<mfxExtVPPDeinterlacing>>(
+        m,
+        "mfxExtVPPDeinterlacing")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -944,7 +984,7 @@ void init_mfxstructures(const py::module &m) {
             "Specifies position inside a sequence of 5 frames where the artifacts start when TelecinePattern = MFX_TELECINE_POSITION_PROVIDED");
 
     using mfxExtRefPic = std::remove_reference<decltype(mfxExtAVCRefLists::RefPicList0[0])>::type;
-    py::class_<mfxExtRefPic>(m, "mfxExtRefPic")
+    py::class_<mfxExtRefPic, std::shared_ptr<mfxExtRefPic>>(m, "mfxExtRefPic")
         .def(py::init<>())
         .def_readwrite("FrameOrder",
                        &mfxExtRefPic::FrameOrder,
@@ -957,7 +997,7 @@ void init_mfxstructures(const py::module &m) {
     CArrayWrapper<mfxExtRefPic>(m, "mfxExtRefPic_list");
     using mfxExtRefPic_list = CArrayWrapper<mfxExtRefPic>::List;
 
-    py::class_<mfxExtAVCRefLists>(m, "mfxExtAVCRefLists")
+    py::class_<mfxExtAVCRefLists, std::shared_ptr<mfxExtAVCRefLists>>(m, "mfxExtAVCRefLists")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -982,7 +1022,9 @@ void init_mfxstructures(const py::module &m) {
             },
             "Specify L1 reference list.");
 
-    py::class_<mfxExtVPPFieldProcessing>(m, "mfxExtVPPFieldProcessing")
+    py::class_<mfxExtVPPFieldProcessing, std::shared_ptr<mfxExtVPPFieldProcessing>>(
+        m,
+        "mfxExtVPPFieldProcessing")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -999,7 +1041,9 @@ void init_mfxstructures(const py::module &m) {
                        "When Mode is MFX_VPP_COPY_FIELD, specifies output field.");
 
     using mfxExtDecVideoProcessing_In = decltype(mfxExtDecVideoProcessing::In);
-    py::class_<mfxExtDecVideoProcessing_In>(m, "mfxExtDecVideoProcessing_In")
+    py::class_<mfxExtDecVideoProcessing_In, std::shared_ptr<mfxExtDecVideoProcessing_In>>(
+        m,
+        "mfxExtDecVideoProcessing_In")
         .def(py::init<>())
         .def_readwrite("CropX",
                        &mfxExtDecVideoProcessing_In::CropX,
@@ -1015,7 +1059,9 @@ void init_mfxstructures(const py::module &m) {
                        "Height coordinate of region of interest of the output surface.");
 
     using mfxExtDecVideoProcessing_Out = decltype(mfxExtDecVideoProcessing::Out);
-    py::class_<mfxExtDecVideoProcessing_Out>(m, "mfxExtDecVideoProcessing_Out")
+    py::class_<mfxExtDecVideoProcessing_Out, std::shared_ptr<mfxExtDecVideoProcessing_Out>>(
+        m,
+        "mfxExtDecVideoProcessing_Out")
         .def(py::init<>())
         .def_readwrite("FourCC",
                        &mfxExtDecVideoProcessing_Out::FourCC,
@@ -1038,7 +1084,9 @@ void init_mfxstructures(const py::module &m) {
                        &mfxExtDecVideoProcessing_Out::CropH,
                        "Height coordinate of region of interest of the output surface.");
 
-    py::class_<mfxExtDecVideoProcessing>(m, "mfxExtDecVideoProcessing")
+    py::class_<mfxExtDecVideoProcessing, std::shared_ptr<mfxExtDecVideoProcessing>>(
+        m,
+        "mfxExtDecVideoProcessing")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -1047,7 +1095,7 @@ void init_mfxstructures(const py::module &m) {
         .def_readwrite("In", &mfxExtDecVideoProcessing::In, "Input surface description.")
         .def_readwrite("Out", &mfxExtDecVideoProcessing::Out, "Output surface description.");
 
-    py::class_<mfxExtChromaLocInfo>(m, "mfxExtChromaLocInfo")
+    py::class_<mfxExtChromaLocInfo, std::shared_ptr<mfxExtChromaLocInfo>>(m, "mfxExtChromaLocInfo")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -1059,13 +1107,13 @@ void init_mfxstructures(const py::module &m) {
         .def_readwrite("ChromaSampleLocTypeBottomField",
                        &mfxExtChromaLocInfo::ChromaSampleLocTypeBottomField);
 
-    py::class_<mfxQPandMode>(m, "mfxQPandMode")
+    py::class_<mfxQPandMode, std::shared_ptr<mfxQPandMode>>(m, "mfxQPandMode")
         .def(py::init<>())
         .def_readwrite("QP", &mfxQPandMode::QP, "QP for MB or CU.")
         .def_readwrite("DeltaQP", &mfxQPandMode::DeltaQP, "Per-macroblock QP delta.")
         .def_readwrite("Mode", &mfxQPandMode::Mode, "Defines QP update mode.");
 
-    py::class_<mfxExtMBQP>(m, "mfxExtMBQP")
+    py::class_<mfxExtMBQP, std::shared_ptr<mfxExtMBQP>>(m, "mfxExtMBQP")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -1090,7 +1138,7 @@ void init_mfxstructures(const py::module &m) {
                        &mfxExtMBQP::QPmode,
                        "Block-granularity modes when MFX_MBQP_MODE_QP_ADAPTIVE is set.");
 
-    py::class_<mfxExtInsertHeaders>(m, "mfxExtInsertHeaders")
+    py::class_<mfxExtInsertHeaders, std::shared_ptr<mfxExtInsertHeaders>>(m, "mfxExtInsertHeaders")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -1101,7 +1149,9 @@ void init_mfxstructures(const py::module &m) {
 
     using mfxExtEncoderIPCMArea_Area =
         std::remove_reference<decltype(mfxExtEncoderIPCMArea::Areas[0])>::type;
-    py::class_<mfxExtEncoderIPCMArea_Area>(m, "mfxExtEncoderIPCMArea_Area")
+    py::class_<mfxExtEncoderIPCMArea_Area, std::shared_ptr<mfxExtEncoderIPCMArea_Area>>(
+        m,
+        "mfxExtEncoderIPCMArea_Area")
         .def(py::init<>())
         .def_readwrite("Left", &mfxExtEncoderIPCMArea_Area::Left, "Left area coordinate.")
         .def_readwrite("Top", &mfxExtEncoderIPCMArea_Area::Top, "Top area coordinate.")
@@ -1111,7 +1161,9 @@ void init_mfxstructures(const py::module &m) {
     CArrayWrapper<mfxExtEncoderIPCMArea_Area>(m, "mfxExtEncoderIPCMArea_Area_list");
     using mfxExtEncoderIPCMArea_Area_list = CArrayWrapper<mfxExtEncoderIPCMArea_Area>::List;
 
-    py::class_<mfxExtEncoderIPCMArea>(m, "mfxExtEncoderIPCMArea")
+    py::class_<mfxExtEncoderIPCMArea, std::shared_ptr<mfxExtEncoderIPCMArea>>(
+        m,
+        "mfxExtEncoderIPCMArea")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -1125,7 +1177,7 @@ void init_mfxstructures(const py::module &m) {
             },
             "Array of areas.");
 
-    py::class_<mfxExtMBForceIntra>(m, "mfxExtMBForceIntra")
+    py::class_<mfxExtMBForceIntra, std::shared_ptr<mfxExtMBForceIntra>>(m, "mfxExtMBForceIntra")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -1136,7 +1188,7 @@ void init_mfxstructures(const py::module &m) {
                        &mfxExtMBForceIntra::Map,
                        "Pointer to a list of force intra macroblock flags in raster scan order.");
 
-    py::class_<mfxExtHEVCTiles>(m, "mfxExtHEVCTiles")
+    py::class_<mfxExtHEVCTiles, std::shared_ptr<mfxExtHEVCTiles>>(m, "mfxExtHEVCTiles")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -1147,7 +1199,9 @@ void init_mfxstructures(const py::module &m) {
                        &mfxExtHEVCTiles::NumTileColumns,
                        "Number of tile columns.");
 
-    py::class_<mfxExtMBDisableSkipMap>(m, "mfxExtMBDisableSkipMap")
+    py::class_<mfxExtMBDisableSkipMap, std::shared_ptr<mfxExtMBDisableSkipMap>>(
+        m,
+        "mfxExtMBDisableSkipMap")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -1158,7 +1212,7 @@ void init_mfxstructures(const py::module &m) {
                        &mfxExtMBDisableSkipMap::Map,
                        "Pointer to a list of non-skip macroblock flags in raster scan order.");
 
-    py::class_<mfxExtHEVCParam>(m, "mfxExtHEVCParam")
+    py::class_<mfxExtHEVCParam, std::shared_ptr<mfxExtHEVCParam>>(m, "mfxExtHEVCParam")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -1180,7 +1234,9 @@ void init_mfxstructures(const py::module &m) {
                        &mfxExtHEVCParam::LCUSize,
                        "Specifies largest coding unit size (max luma coding block).");
 
-    py::class_<mfxExtDecodeErrorReport>(m, "mfxExtDecodeErrorReport")
+    py::class_<mfxExtDecodeErrorReport, std::shared_ptr<mfxExtDecodeErrorReport>>(
+        m,
+        "mfxExtDecodeErrorReport")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -1190,7 +1246,9 @@ void init_mfxstructures(const py::module &m) {
                        &mfxExtDecodeErrorReport::ErrorTypes,
                        "Bitstream error types (bit-ORed values).");
 
-    py::class_<mfxExtDecodedFrameInfo>(m, "mfxExtDecodedFrameInfo")
+    py::class_<mfxExtDecodedFrameInfo, std::shared_ptr<mfxExtDecodedFrameInfo>>(
+        m,
+        "mfxExtDecodedFrameInfo")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -1198,7 +1256,7 @@ void init_mfxstructures(const py::module &m) {
             "Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_DECODED_FRAME_INFO.")
         .def_readwrite("FrameType", &mfxExtDecodedFrameInfo::FrameType, "Frame type.");
 
-    py::class_<mfxExtTimeCode>(m, "mfxExtTimeCode")
+    py::class_<mfxExtTimeCode, std::shared_ptr<mfxExtTimeCode>>(m, "mfxExtTimeCode")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -1210,7 +1268,7 @@ void init_mfxstructures(const py::module &m) {
         .def_readwrite("TimeCodeSeconds", &mfxExtTimeCode::TimeCodeSeconds, "Seconds.")
         .def_readwrite("TimeCodePictures", &mfxExtTimeCode::TimeCodePictures, "Pictures.");
 
-    py::class_<mfxExtHEVCRegion>(m, "mfxExtHEVCRegion")
+    py::class_<mfxExtHEVCRegion, std::shared_ptr<mfxExtHEVCRegion>>(m, "mfxExtHEVCRegion")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -1222,7 +1280,9 @@ void init_mfxstructures(const py::module &m) {
                        &mfxExtHEVCRegion::RegionEncoding,
                        "Set to MFX_HEVC_REGION_ENCODING_ON to encode only specified region.");
 
-    py::class_<mfxExtPredWeightTable>(m, "mfxExtPredWeightTable")
+    py::class_<mfxExtPredWeightTable, std::shared_ptr<mfxExtPredWeightTable>>(
+        m,
+        "mfxExtPredWeightTable")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -1259,7 +1319,9 @@ void init_mfxstructures(const py::module &m) {
                  self->Weights[i][j][k][m] = value;
              });
 
-    py::class_<mfxExtAVCRoundingOffset>(m, "mfxExtAVCRoundingOffset")
+    py::class_<mfxExtAVCRoundingOffset, std::shared_ptr<mfxExtAVCRoundingOffset>>(
+        m,
+        "mfxExtAVCRoundingOffset")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -1279,7 +1341,8 @@ void init_mfxstructures(const py::module &m) {
                        "Inter rounding offset.");
 
     using mfxExtDirtyRect_rect = std::remove_reference<decltype(mfxExtDirtyRect::Rect[0])>::type;
-    py::class_<mfxExtDirtyRect_rect>(m, "mfxExtDirtyRect_rect")
+    py::class_<mfxExtDirtyRect_rect, std::shared_ptr<mfxExtDirtyRect_rect>>(m,
+                                                                            "mfxExtDirtyRect_rect")
         .def(py::init<>())
         .def_readwrite("Left", &mfxExtDirtyRect_rect::Left, "Dirty region left coordinate.")
         .def_readwrite("Top", &mfxExtDirtyRect_rect::Top, "Dirty region top coordinate.")
@@ -1289,7 +1352,7 @@ void init_mfxstructures(const py::module &m) {
     CArrayWrapper<mfxExtDirtyRect_rect>(m, "mfxExtDirtyRect_rect_list");
     using mfxExtDirtyRect_rect_list = CArrayWrapper<mfxExtDirtyRect_rect>::List;
 
-    py::class_<mfxExtDirtyRect>(m, "mfxExtDirtyRect")
+    py::class_<mfxExtDirtyRect, std::shared_ptr<mfxExtDirtyRect>>(m, "mfxExtDirtyRect")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -1304,7 +1367,7 @@ void init_mfxstructures(const py::module &m) {
             "Array of dirty rectangles.");
 
     using mfxExtMoveRect_rect = std::remove_reference<decltype(mfxExtMoveRect::Rect[0])>::type;
-    py::class_<mfxExtMoveRect_rect>(m, "mfxExtMoveRect_rect")
+    py::class_<mfxExtMoveRect_rect, std::shared_ptr<mfxExtMoveRect_rect>>(m, "mfxExtMoveRect_rect")
         .def(py::init<>())
         .def_readwrite("DestLeft",
                        &mfxExtMoveRect_rect::DestLeft,
@@ -1322,7 +1385,7 @@ void init_mfxstructures(const py::module &m) {
     CArrayWrapper<mfxExtMoveRect_rect>(m, "mfxExtMoveRect_rect_list");
     using mfxExtMoveRect_rect_list = CArrayWrapper<mfxExtMoveRect_rect>::List;
 
-    py::class_<mfxExtMoveRect>(m, "mfxExtMoveRect")
+    py::class_<mfxExtMoveRect, std::shared_ptr<mfxExtMoveRect>>(m, "mfxExtMoveRect")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -1336,7 +1399,7 @@ void init_mfxstructures(const py::module &m) {
             },
             "Array of moving rectangles.");
 
-    py::class_<mfxExtVPPRotation>(m, "mfxExtVPPRotation")
+    py::class_<mfxExtVPPRotation, std::shared_ptr<mfxExtVPPRotation>>(m, "mfxExtVPPRotation")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -1344,7 +1407,9 @@ void init_mfxstructures(const py::module &m) {
             "Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_VPP_ROTATION.")
         .def_readwrite("Angle", &mfxExtVPPRotation::Angle, "Rotation angle.");
 
-    py::class_<mfxExtEncodedSlicesInfo>(m, "mfxExtEncodedSlicesInfo")
+    py::class_<mfxExtEncodedSlicesInfo, std::shared_ptr<mfxExtEncodedSlicesInfo>>(
+        m,
+        "mfxExtEncodedSlicesInfo")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -1368,7 +1433,7 @@ void init_mfxstructures(const py::module &m) {
                        &mfxExtEncodedSlicesInfo::SliceSize,
                        "Slice size in bytes. Array must be allocated by application.");
 
-    py::class_<mfxExtVPPScaling>(m, "mfxExtVPPScaling")
+    py::class_<mfxExtVPPScaling, std::shared_ptr<mfxExtVPPScaling>>(m, "mfxExtVPPScaling")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -1379,7 +1444,7 @@ void init_mfxstructures(const py::module &m) {
                        &mfxExtVPPScaling::InterpolationMethod,
                        "Interpolation mode for scaling algorithm.");
 
-    py::class_<mfxExtVPPMirroring>(m, "mfxExtVPPMirroring")
+    py::class_<mfxExtVPPMirroring, std::shared_ptr<mfxExtVPPMirroring>>(m, "mfxExtVPPMirroring")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -1387,7 +1452,9 @@ void init_mfxstructures(const py::module &m) {
             "Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_VPP_MIRRORING.")
         .def_readwrite("Type", &mfxExtVPPMirroring::Type, "Mirroring type.");
 
-    py::class_<mfxExtMVOverPicBoundaries>(m, "mfxExtMVOverPicBoundaries")
+    py::class_<mfxExtMVOverPicBoundaries, std::shared_ptr<mfxExtMVOverPicBoundaries>>(
+        m,
+        "mfxExtMVOverPicBoundaries")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -1410,7 +1477,7 @@ void init_mfxstructures(const py::module &m) {
             &mfxExtMVOverPicBoundaries::StickRight,
             "When set to OFF, one or more samples outside corresponding picture boundary may be used in inter prediction.");
 
-    py::class_<mfxExtVPPColorFill>(m, "mfxExtVPPColorFill")
+    py::class_<mfxExtVPPColorFill, std::shared_ptr<mfxExtVPPColorFill>>(m, "mfxExtVPPColorFill")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -1420,7 +1487,9 @@ void init_mfxstructures(const py::module &m) {
                        &mfxExtVPPColorFill::Enable,
                        "Set to ON makes VPP fill the area between Width/Height and Crop borders.");
 
-    py::class_<mfxExtColorConversion>(m, "mfxExtColorConversion")
+    py::class_<mfxExtColorConversion, std::shared_ptr<mfxExtColorConversion>>(
+        m,
+        "mfxExtColorConversion")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -1430,7 +1499,7 @@ void init_mfxstructures(const py::module &m) {
                        &mfxExtColorConversion::ChromaSiting,
                        "See ChromaSiting enumerator for details.");
 
-    py::class_<mfxVP9SegmentParam>(m, "mfxVP9SegmentParam")
+    py::class_<mfxVP9SegmentParam, std::shared_ptr<mfxVP9SegmentParam>>(m, "mfxVP9SegmentParam")
         .def(py::init<>())
         .def_readwrite("FeatureEnabled",
                        &mfxVP9SegmentParam::FeatureEnabled,
@@ -1448,7 +1517,9 @@ void init_mfxstructures(const py::module &m) {
     CArrayWrapper<mfxVP9SegmentParam>(m, "mfxVP9SegmentParam_list");
     using mfxVP9SegmentParam_list = CArrayWrapper<mfxVP9SegmentParam>::List;
 
-    py::class_<mfxExtVP9Segmentation>(m, "mfxExtVP9Segmentation")
+    py::class_<mfxExtVP9Segmentation, std::shared_ptr<mfxExtVP9Segmentation>>(
+        m,
+        "mfxExtVP9Segmentation")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -1476,7 +1547,7 @@ void init_mfxstructures(const py::module &m) {
             },
             "Pointer to the segmentation map buffer which holds the array of segment_ids in raster scan order.");
 
-    py::class_<mfxVP9TemporalLayer>(m, "mfxVP9TemporalLayer")
+    py::class_<mfxVP9TemporalLayer, std::shared_ptr<mfxVP9TemporalLayer>>(m, "mfxVP9TemporalLayer")
         .def(py::init<>())
         .def_readwrite(
             "FrameRateScale",
@@ -1489,7 +1560,9 @@ void init_mfxstructures(const py::module &m) {
     CArrayWrapper<mfxVP9TemporalLayer>(m, "mfxVP9TemporalLayer_list");
     using mfxVP9TemporalLayer_list = CArrayWrapper<mfxVP9TemporalLayer>::List;
 
-    py::class_<mfxExtVP9TemporalLayers>(m, "mfxExtVP9TemporalLayers")
+    py::class_<mfxExtVP9TemporalLayers, std::shared_ptr<mfxExtVP9TemporalLayers>>(
+        m,
+        "mfxExtVP9TemporalLayers")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -1502,7 +1575,7 @@ void init_mfxstructures(const py::module &m) {
             },
             "The array of temporal layers.");
 
-    py::class_<mfxExtVP9Param>(m, "mfxExtVP9Param")
+    py::class_<mfxExtVP9Param, std::shared_ptr<mfxExtVP9Param>>(m, "mfxExtVP9Param")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -1532,7 +1605,7 @@ void init_mfxstructures(const py::module &m) {
                        &mfxExtVP9Param::NumTileColumns,
                        "Number of tile columns.");
 
-    py::class_<mfxEncodedUnitInfo>(m, "mfxEncodedUnitInfo")
+    py::class_<mfxEncodedUnitInfo, std::shared_ptr<mfxEncodedUnitInfo>>(m, "mfxEncodedUnitInfo")
         .def(py::init<>())
         .def_readwrite("Type", &mfxEncodedUnitInfo::Type, "Codec-dependent coding unit type")
         .def_readwrite("Offset",
@@ -1540,7 +1613,9 @@ void init_mfxstructures(const py::module &m) {
                        "Offset relative to the associated mfxBitstream::DataOffset.")
         .def_readwrite("Size", &mfxEncodedUnitInfo::Size, "Unit size, including delimiter.");
 
-    py::class_<mfxExtEncodedUnitsInfo>(m, "mfxExtEncodedUnitsInfo")
+    py::class_<mfxExtEncodedUnitsInfo, std::shared_ptr<mfxExtEncodedUnitsInfo>>(
+        m,
+        "mfxExtEncodedUnitsInfo")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -1557,7 +1632,7 @@ void init_mfxstructures(const py::module &m) {
                        &mfxExtEncodedUnitsInfo::NumUnitsEncoded,
                        "Output field. Number of coding units to report.");
 
-    py::class_<mfxExtVppMctf>(m, "mfxExtVppMctf")
+    py::class_<mfxExtVppMctf, std::shared_ptr<mfxExtVppMctf>>(m, "mfxExtVppMctf")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -1568,7 +1643,9 @@ void init_mfxstructures(const py::module &m) {
             &mfxExtVppMctf::FilterStrength,
             "Value in range of 0 to 20 (inclusive) to indicate the filter strength of MCTF.");
 
-    py::class_<mfxExtPartialBitstreamParam>(m, "mfxExtPartialBitstreamParam")
+    py::class_<mfxExtPartialBitstreamParam, std::shared_ptr<mfxExtPartialBitstreamParam>>(
+        m,
+        "mfxExtPartialBitstreamParam")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -1581,7 +1658,9 @@ void init_mfxstructures(const py::module &m) {
                        &mfxExtPartialBitstreamParam::Granularity,
                        "Granularity of the partial bitstream.");
 
-    py::class_<mfxExtDeviceAffinityMask>(m, "mfxExtDeviceAffinityMask")
+    py::class_<mfxExtDeviceAffinityMask, std::shared_ptr<mfxExtDeviceAffinityMask>>(
+        m,
+        "mfxExtDeviceAffinityMask")
         .def(py::init<>())
         .def_readwrite(
             "Header",
@@ -1602,7 +1681,8 @@ void init_mfxstructures(const py::module &m) {
         // .def_readwrite("Mask", &mfxExtDeviceAffinityMask::Mask)
         ;
 
-    py::class_<mfxAV1FilmGrainPoint>(m, "mfxAV1FilmGrainPoint")
+    py::class_<mfxAV1FilmGrainPoint, std::shared_ptr<mfxAV1FilmGrainPoint>>(m,
+                                                                            "mfxAV1FilmGrainPoint")
         .def(py::init<>())
         .def_readwrite(
             "Value",
@@ -1616,7 +1696,9 @@ void init_mfxstructures(const py::module &m) {
     CArrayWrapper<mfxAV1FilmGrainPoint>(m, "mfxAV1FilmGrainPoint_list");
     using mfxAV1FilmGrainPoint_list = CArrayWrapper<mfxAV1FilmGrainPoint>::List;
 
-    py::class_<mfxExtAV1FilmGrainParam>(m, "mfxExtAV1FilmGrainParam")
+    py::class_<mfxExtAV1FilmGrainParam, std::shared_ptr<mfxExtAV1FilmGrainParam>>(
+        m,
+        "mfxExtAV1FilmGrainParam")
         .def(py::init<>())
         .def_readwrite("Header", &mfxExtAV1FilmGrainParam::Header)
         .def_readwrite("FilmGrainFlags",
@@ -1700,7 +1782,7 @@ void init_mfxstructures(const py::module &m) {
             &mfxExtAV1FilmGrainParam::CrOffset,
             "The offset used in derivation of the input index to the Cr component scaling function.");
 
-    py::class_<mfxSurfaceArray>(m, "mfxSurfaceArray")
+    py::class_<mfxSurfaceArray, std::shared_ptr<mfxSurfaceArray>>(m, "mfxSurfaceArray")
         .def(py::init<>([]() {
             mfxSurfaceArray self = {};
             self.Version.Version = MFX_SURFACEARRAY_VERSION;
@@ -1733,7 +1815,7 @@ void init_mfxstructures(const py::module &m) {
             },
             "Returns current reference counter of mfxSurfaceArray structure.");
 
-    py::class_<mfxRect>(m, "mfxRect")
+    py::class_<mfxRect, std::shared_ptr<mfxRect>>(m, "mfxRect")
         .def(py::init<>())
         .def_readwrite("Left",
                        &mfxRect::Left,
@@ -1748,7 +1830,7 @@ void init_mfxstructures(const py::module &m) {
                        &mfxRect::Bottom,
                        "Y coordinate of region of bottom-right corner of rectangle.");
 
-    py::class_<mfxExtInCrops>(m, "mfxExtInCrops")
+    py::class_<mfxExtInCrops, std::shared_ptr<mfxExtInCrops>>(m, "mfxExtInCrops")
         .def(py::init<>())
         .def_readwrite("Header",
                        &mfxExtInCrops::Header,
@@ -1757,7 +1839,8 @@ void init_mfxstructures(const py::module &m) {
                        &mfxExtInCrops::Crops,
                        "Crops parameters for letterboxing operations.");
 
-    py::class_<mfxExtHyperModeParam>(m, "mfxExtHyperModeParam")
+    py::class_<mfxExtHyperModeParam, std::shared_ptr<mfxExtHyperModeParam>>(m,
+                                                                            "mfxExtHyperModeParam")
         .def(py::init<>())
         .def_readwrite(
             "Header",

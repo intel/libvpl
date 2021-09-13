@@ -8,7 +8,7 @@
 namespace vpl = oneapi::vpl;
 
 void init_stat(const py::module &m) {
-    py::class_<vpl::stat>(m, "stat")
+    py::class_<vpl::stat, std::shared_ptr<vpl::stat>>(m, "stat")
         .def_property_readonly("num_frame",
                                &vpl::stat::get_num_frame,
                                "Retrieves number of processed frames")
@@ -16,7 +16,7 @@ void init_stat(const py::module &m) {
                                &vpl::stat::get_num_cached_frame,
                                "Retrieves number of cached frames");
 
-    py::class_<vpl::decode_stat, vpl::stat>(m, "decode_stat")
+    py::class_<vpl::decode_stat, vpl::stat, std::shared_ptr<vpl::decode_stat>>(m, "decode_stat")
         .def(py::init<>())
         .def_property_readonly("num_error",
                                &vpl::decode_stat::get_num_error,
@@ -26,14 +26,14 @@ void init_stat(const py::module &m) {
                                "Retrieves number of skipped frames")
         .def_property_readonly("raw", &vpl::decode_stat::get_raw, "Retrieves raw data pointer");
 
-    py::class_<vpl::encode_stat, vpl::stat>(m, "encode_stat")
+    py::class_<vpl::encode_stat, vpl::stat, std::shared_ptr<vpl::encode_stat>>(m, "encode_stat")
         .def(py::init<>())
         .def_property_readonly("num_bit",
                                &vpl::encode_stat::get_num_bit,
                                "Retrieves number of bits for all encoded frames")
         .def_property_readonly("raw", &vpl::encode_stat::get_raw, "Retrieves raw data pointer");
 
-    py::class_<vpl::vpp_stat, vpl::stat>(m, "vpp_stat")
+    py::class_<vpl::vpp_stat, vpl::stat, std::shared_ptr<vpl::vpp_stat>>(m, "vpp_stat")
         .def(py::init<>())
         .def_property_readonly("raw", &vpl::vpp_stat::get_raw, "Retrieves raw data pointer");
 }

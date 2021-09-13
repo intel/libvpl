@@ -1977,6 +1977,9 @@ mfxStatus vppParseInputString(msdk_char* strInput[],
             else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-api2x_dispatcher"))) {
                 pParams->api2xDispatcher = true;
             }
+            else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-api2x_lowlatency"))) {
+                pParams->api2xLowLatency = true;
+            }
             else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-api2x_perf"))) {
                 pParams->api2xPerf = true;
             }
@@ -2072,6 +2075,25 @@ mfxStatus vppParseInputString(msdk_char* strInput[],
         pParams->bPrefferdGfx = false;
     }
 #endif
+
+    if (pParams->api2xLowLatency == true) {
+        if (pParams->api2xDispatcher == false) {
+            msdk_printf(MSDK_STRING(
+                "Warning: enabling -api2x_dispatcher because -api2x_lowlatency is set\n"));
+            pParams->api2xDispatcher = true;
+        }
+
+        if (!(pParams->ImpLib & MFX_IMPL_HARDWARE)) {
+            msdk_printf(MSDK_STRING("error: -api2x_lowlatency requires -lib hw\n"));
+            return MFX_ERR_UNSUPPORTED;
+        }
+
+        if ((pParams->ImpLib & IMPL_VIA_MASK) != MFX_IMPL_VIA_D3D11) {
+            msdk_printf(
+                MSDK_STRING("Warning: setting ImpLib to D3D11 because -api2x_lowlatency is set\n"));
+            pParams->ImpLib = MFX_IMPL_HARDWARE | MFX_IMPL_VIA_D3D11;
+        }
+    }
 
     // Align values of luma and chroma bit depth if only one of them set by user
     AdjustBitDepth(*pParams);

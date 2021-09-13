@@ -163,7 +163,7 @@ MFX_PACK_BEGIN_USUAL_STRUCT()
 /*! Specifies options for threads created by this session. Attached to the
     mfxInitParam structure during legacy Intel(r) Media SDK session initialization. */
 typedef struct {
-    mfxExtBuffer Header; /*!< Must be MFX_EXTBUFF_THREADS_PARAM. */
+    mfxExtBuffer Header;         /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_THREADS_PARAM. */
 
     mfxU16       NumThread;      /*!< The number of threads. */
     mfxI32       SchedulingType; /*!< Scheduling policy for all threads. */
@@ -222,8 +222,10 @@ MFX_PACK_END()
 /* The mfxResourceType enumerator specifies types of different native data frames and buffers. */
 typedef enum {
     MFX_RESOURCE_SYSTEM_SURFACE                  = 1, /*!< System memory. */
-    MFX_RESOURCE_VA_SURFACE                      = 2, /*!< VA surface. */
-    MFX_RESOURCE_VA_BUFFER                       = 3, /*!< VA buffer. */
+    MFX_RESOURCE_VA_SURFACE_PTR                  = 2, /*!< Pointer to VA surface index. */
+    MFX_RESOURCE_VA_SURFACE                      = MFX_RESOURCE_VA_SURFACE_PTR, /*!< Pointer to VA surface index. */
+    MFX_RESOURCE_VA_BUFFER_PTR                   = 3, /*!< Pointer to VA buffer index. */
+    MFX_RESOURCE_VA_BUFFER                       = MFX_RESOURCE_VA_BUFFER_PTR, /*!< Pointer to VA buffer index. */
     MFX_RESOURCE_DX9_SURFACE                     = 4, /*!< IDirect3DSurface9. */
     MFX_RESOURCE_DX11_TEXTURE                    = 5, /*!< ID3D11Texture2D. */
     MFX_RESOURCE_DX12_RESOURCE                   = 6, /*!< ID3D12Resource. */
@@ -336,13 +338,15 @@ typedef struct {
 } mfxVPPDescription;
 MFX_PACK_END()
 
-#define MFX_DEVICEDESCRIPTION_VERSION MFX_STRUCT_VERSION(1, 0)
+/*! The current version of mfxDeviceDescription structure. */
+#define MFX_DEVICEDESCRIPTION_VERSION MFX_STRUCT_VERSION(1, 1)
 
 MFX_PACK_BEGIN_STRUCT_W_PTR()
 /*! This structure represents device description. */
 typedef struct {
     mfxStructVersion Version;                            /*!< Version of the structure. */
-    mfxU16 reserved[7];                                  /*!< reserved for future use. */
+    mfxU16 reserved[6];                                  /*!< reserved for future use. */
+    mfxU16 MediaAdapterType; /*!< Graphics adapter type. See the mfxMediaAdapterType enumerator for a list of possible values. */
     mfxChar DeviceID[MFX_STRFIELD_LEN];                  /*!< Null terminated string with device ID. */
     mfxU16 NumSubDevices;                                /*!< Number of available uniform sub-devices. Pure software implementation can report 0. */
     /*! This structure represents sub-device description. */
@@ -387,7 +391,34 @@ typedef struct {
 } mfxAccelerationModeDescription;
 MFX_PACK_END()
 
-#define MFX_IMPLDESCRIPTION_VERSION MFX_STRUCT_VERSION(1, 1)
+/*! Specifies the surface pool allocation policies. */
+ typedef enum {
+    /*! Recommends to limit max pool size by sum of requested surfaces asked by components. */
+    MFX_ALLOCATION_OPTIMAL = 0, 
+
+    /*! Dynamic allocation with no limit. */
+    MFX_ALLOCATION_UNLIMITED   = 1, 
+    
+    /*! Max pool size is limited by NumberToPreAllocate + DeltaToAllocateOnTheFly. */
+    MFX_ALLOCATION_LIMITED     = 2,  
+
+} mfxPoolAllocationPolicy;
+
+/*! The current version of mfxPoolPolicyDescription structure. */
+#define MFX_POOLPOLICYDESCRIPTION_VERSION MFX_STRUCT_VERSION(1, 0)
+
+MFX_PACK_BEGIN_STRUCT_W_PTR()
+/*! This structure represents pool policy description. */
+typedef struct {
+    mfxStructVersion Version;                       /*!< Version of the structure. */
+    mfxU16 reserved[2];                             /*!< reserved for future use. */
+    mfxU16 NumPoolPolicies;                         /*!< Number of supported pool policies. */
+    mfxPoolAllocationPolicy* Policy;                /*!< Pointer to the array of supported pool policies. */
+} mfxPoolPolicyDescription;
+MFX_PACK_END()
+
+/*! The current version of mfxImplDescription structure. */
+#define MFX_IMPLDESCRIPTION_VERSION MFX_STRUCT_VERSION(1, 2)
 
 MFX_PACK_BEGIN_STRUCT_W_PTR()
 /*! This structure represents the implementation description. */
@@ -410,8 +441,9 @@ typedef struct {
         mfxAccelerationModeDescription   AccelerationModeDescription; /*!< Supported acceleration modes. */
         mfxU32 reserved3[4];
     };
-    mfxU32                 reserved[12];                 /*!< Reserved for future use. */
-    mfxU32                 NumExtParam;                  /*!< Number of extension buffers. Reserved for future use. Must be 0. */
+    mfxPoolPolicyDescription  PoolPolicies;                /*!< Supported surface pool polices. */
+    mfxU32                    reserved[8];                 /*!< Reserved for future use. */
+    mfxU32                    NumExtParam;                 /*!< Number of extension buffers. Reserved for future use. Must be 0. */
     union {
         mfxExtBuffer **ExtParam;                         /*!< Array of extension buffers. */
         mfxU64       Reserved2;                          /*!< Reserved for future use. */

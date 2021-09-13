@@ -42,6 +42,30 @@ protected:
     uint32_t id_;
 };
 
+/// @brief Provides information about supported pool policies
+class pool_policies {
+public:
+    /// @brief Default ctor
+    /// @param pool policies
+    explicit pool_policies(mfxPoolPolicyDescription* base) : base_(base) {}
+
+    /// @brief Provides list of supported policies.
+    /// @return list of policies.
+    std::vector<mfxPoolAllocationPolicy> policies() const {
+        std::vector<mfxPoolAllocationPolicy> result;
+
+        std::for_each(base_->Policy,
+                        base_->Policy + base_->NumPoolPolicies,
+                        [&](auto item) {
+                            result.push_back(item);
+                        });
+
+        return result;
+    }
+protected:
+    mfxPoolPolicyDescription* base_;
+};
+
 /// @brief Store and parse implementation capabilities in a form of implementation description structure
 class implementation_capabilities : public base_implementation_capabilities {
 public:
@@ -490,6 +514,12 @@ public:
         return filters;
     }
 
+    /// @brief Provides list of supported pool policies.
+    /// @return list of supported pool policies.
+    pool_policies get_pool_policies() const {
+        return pool_policies(&caps_->PoolPolicies);
+    }
+
 protected:
     /// Raw data
     mfxImplDescription *caps_;
@@ -736,6 +766,14 @@ inline std::ostream &operator<<(std::ostream &out, const implementation_capabili
 
     std::for_each(filters.begin(), filters.end(), [&](implementation_capabilities::vpp_filter flt) {
         out << flt;
+    });
+
+    auto policies = f.get_pool_policies().policies();
+    out << detail::space(detail::INTENT, out, "Pool Policies:") << std::endl;
+    out << detail::space(detail::INTENT * 2, out, "# of policies = ") << policies.size() << std::endl;
+
+    std::for_each(policies.begin(), policies.end(), [&](auto policy) {
+        out << policy;
     });
 
     return out;

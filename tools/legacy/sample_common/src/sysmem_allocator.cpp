@@ -99,6 +99,12 @@ mfxStatus SysMemFrameAllocator::LockFrame(mfxMemId mid, mfxFrameData* ptr) {
             ptr->PitchHigh = 0;
             ptr->PitchLow  = (mfxU16)MSDK_ALIGN32(fs->info.Width);
             break;
+        case MFX_FOURCC_I422:
+            ptr->U         = ptr->Y + Width2 * Height2;
+            ptr->V         = ptr->U + (Width2 >> 1) * (Height2);
+            ptr->PitchHigh = 0;
+            ptr->PitchLow  = (mfxU16)MSDK_ALIGN32(fs->info.Width);
+            break;
         case MFX_FOURCC_YV12:
             ptr->V         = ptr->Y + Width2 * Height2;
             ptr->U         = ptr->V + (Width2 >> 1) * (Height2 >> 1);
@@ -156,6 +162,12 @@ mfxStatus SysMemFrameAllocator::LockFrame(mfxMemId mid, mfxFrameData* ptr) {
         case MFX_FOURCC_I010:
             ptr->U         = ptr->Y + Width2 * Height2 * 2;
             ptr->V         = ptr->U + Width2 * (Height2 >> 1);
+            ptr->PitchHigh = 0;
+            ptr->PitchLow  = (mfxU16)MSDK_ALIGN32(fs->info.Width * 2);
+            break;
+        case MFX_FOURCC_I210:
+            ptr->U         = ptr->Y + Width2 * Height2 * 2;
+            ptr->V         = ptr->U + Width2 * Height2;
             ptr->PitchHigh = 0;
             ptr->PitchLow  = (mfxU16)MSDK_ALIGN32(fs->info.Width * 2);
             break;
@@ -274,6 +286,7 @@ static mfxU32 GetSurfaceSize(mfxU32 FourCC, mfxU32 Width2, mfxU32 Height2) {
             nbytes =
                 Width2 * Height2 + (Width2 >> 1) * (Height2 >> 1) + (Width2 >> 1) * (Height2 >> 1);
             break;
+        case MFX_FOURCC_I422:
         case MFX_FOURCC_NV16:
             nbytes = Width2 * Height2 + (Width2 >> 1) * (Height2) + (Width2 >> 1) * (Height2);
             break;
@@ -310,6 +323,9 @@ static mfxU32 GetSurfaceSize(mfxU32 FourCC, mfxU32 Width2, mfxU32 Height2) {
             nbytes =
                 Width2 * Height2 + (Width2 >> 1) * (Height2 >> 1) + (Width2 >> 1) * (Height2 >> 1);
             nbytes *= 2;
+            break;
+        case MFX_FOURCC_I210:
+            nbytes = Width2 * 2 * Height2 + (Width2) * (Height2) + (Width2) * (Height2);
             break;
         case MFX_FOURCC_A2RGB10:
             nbytes = Width2 * Height2 * 4; // 4 bytes per pixel

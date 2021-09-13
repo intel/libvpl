@@ -114,6 +114,7 @@ __sInputParams::__sInputParams()
           dGfxIdx(0)
 #endif
           ,
+          nIdrInterval(0),
           bIsPerf(false),
           nThreadsNum(0),
           bRobustFlag(false),
@@ -256,6 +257,10 @@ __sInputParams::__sInputParams()
           PresetMode(PRESET_DEFAULT),
           shouldPrintPresets(false),
           rawInput(false),
+#if (defined(_WIN64) || defined(_WIN32)) && (MFX_VERSION >= 2000)
+          isDualMode(false),
+          hyperMode(MFX_HYPERMODE_OFF),
+#endif
           nMemoryModel(0) {
 }
 
@@ -2818,6 +2823,7 @@ mfxStatus CTranscodingPipeline::InitEncMfxParams(sInputParams* pInParams) {
     m_mfxEncParams.mfx.CodecId     = pInParams->EncodeId;
     m_mfxEncParams.mfx.TargetUsage = pInParams->nTargetUsage; // trade-off between quality and speed
     m_mfxEncParams.AsyncDepth      = m_AsyncDepth;
+    m_mfxEncParams.mfx.IdrInterval = pInParams->nIdrInterval;
 
 #if !defined(MFX_ONEVPL)
     #if (MFX_VERSION >= 1025)
@@ -3119,6 +3125,13 @@ mfxStatus CTranscodingPipeline::InitEncMfxParams(sInputParams* pInParams) {
     if (pInParams->InitialDelayInKB) {
         m_mfxEncParams.mfx.InitialDelayInKB = pInParams->InitialDelayInKB;
     }
+
+#if (defined(_WIN64) || defined(_WIN32))
+    if (pInParams->isDualMode) {
+        auto hyperEncodeParam  = m_mfxEncParams.AddExtBuffer<mfxExtHyperModeParam>();
+        hyperEncodeParam->Mode = pInParams->hyperMode;
+    }
+#endif
 
     return MFX_ERR_NONE;
 } // mfxStatus CTranscodingPipeline::InitEncMfxParams(sInputParams *pInParams)

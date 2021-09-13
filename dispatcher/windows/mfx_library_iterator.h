@@ -60,8 +60,6 @@ mfxStatus SelectImplementationType(const mfxU32 adapterNum,
                                    mfxU32 *pDeviceID,
                                    mfxU64 *pLUID);
 
-mfxStatus GetNumDXGIAdapters(mfxU32 &numAdaptersD3D9, mfxU32 &numAdaptersDXGI1);
-
 bool GetImplPath(int storageID, wchar_t *sImplPath);
 
 const mfxU32 msdk_disp_path_len = 1024;
@@ -97,7 +95,7 @@ public:
 
     static mfxStatus GetDriverStoreDir(std::wstring &driverStoreDir,
                                        size_t length,
-                                       mfxU32 adapterID,
+                                       mfxU32 deviceID,
                                        int storageID);
     static mfxStatus GetRegkeyDir(std::wstring &regDir, size_t length, int storageID);
 

@@ -19,7 +19,8 @@ using namespace InferenceEngine;
 #define BITSTREAM_BUFFER_SIZE      2000000
 #define MAX_RESULTS                5
 #define MAJOR_API_VERSION_REQUIRED 2
-#define MINOR_API_VERSION_REQUIRED 2
+#define MINOR_API_VERSION_REQUIRED 5
+#define MAX_TIMEOUT_COUNT          10
 
 void Usage(void) {
     printf("\n");
@@ -125,6 +126,7 @@ int main(int argc, char *argv[]) {
     mfxConfig cfg[3];
     mfxVariant cfgVal[3];
     mfxLoader loader = NULL;
+    mfxU8 timeout_count;
 
     // OpenVINO
     Core ie;
@@ -167,7 +169,7 @@ int main(int argc, char *argv[]) {
         cfgVal[1]);
     VERIFY(MFX_ERR_NONE == sts, "MFXSetConfigFilterProperty failed for decoder CodecID");
 
-    // Implementation used must provide API version 2.2 or newer
+    // Implementation must provide equal to or higher API version than MAJOR_API_VERSION_REQUIRED.MINOR_API_VERSION_REQUIRED
     cfg[2] = MFXCreateConfig(loader);
     VERIFY(NULL != cfg[2], "MFXCreateConfig failed")
     cfgVal[2].Type     = MFX_VARIANT_TYPE_U32;
@@ -236,11 +238,32 @@ int main(int argc, char *argv[]) {
                 isDraining = true;
         }
 
-        sts = MFXVideoDECODE_DecodeFrameAsync(session,
-                                              (isDraining) ? NULL : &bitstream,
-                                              NULL,
-                                              &decSurfaceOut,
-                                              &syncp);
+        timeout_count = 0;
+        do {
+            sts = MFXVideoDECODE_DecodeFrameAsync(session,
+                                                  (isDraining) ? NULL : &bitstream,
+                                                  NULL,
+                                                  &decSurfaceOut,
+                                                  &syncp);
+            // From API version 2.5,
+            // When the internal memory model is used,
+            // MFX_WRN_ALLOC_TIMEOUT_EXPIRED is returned when all the surfaces are currently in use and timeout set by mfxExtAllocationHints for allocation of new surfaces through functions DecodeFrameAsync expired.
+            // Repeat the call in a few milliseconds.
+            // For more information, please check oneVPL API documentation.
+            if (sts == MFX_WRN_ALLOC_TIMEOUT_EXPIRED) {
+                if (timeout_count > MAX_TIMEOUT_COUNT) {
+                    sts = MFX_ERR_DEVICE_FAILED;
+                    break;
+                }
+                else {
+                    timeout_count++;
+                    sleep(WAIT_5_MILLISECONDS);
+                    continue;
+                }
+            }
+            else
+                break;
+        } while (1);
 
         switch (sts) {
             case MFX_ERR_NONE:

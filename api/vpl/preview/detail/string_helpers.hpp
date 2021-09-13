@@ -302,10 +302,12 @@ inline std::string ResourceType2String(mfxResourceType code) {
     switch (code) {
         case MFX_RESOURCE_SYSTEM_SURFACE:
             return (std::string("System buffer"));
-        case MFX_RESOURCE_VA_SURFACE:
-            return (std::string("VA Surface"));
-        case MFX_RESOURCE_VA_BUFFER:
-            return (std::string("VA buffer"));
+        case MFX_RESOURCE_VA_SURFACE_PTR:
+             // same value as MFX_RESOURCE_VA_SURFACE (API >= 2.5)
+             return (std::string("VA Surface pointer"));
+        case MFX_RESOURCE_VA_BUFFER_PTR:
+            // same value as MFX_RESOURCE_VA_BUFFER (API >= 2.5)
+            return (std::string("VA buffer pointer"));
         case MFX_RESOURCE_DX9_SURFACE:
             return (std::string("DX9 Surface"));
         case MFX_RESOURCE_DX11_TEXTURE:

@@ -6,11 +6,10 @@ perform a simple video decode and vpp for separate output.
 | Optimized for    | Description
 |----------------- | ----------------------------------------
 | OS               | Ubuntu* 20.04; Windows* 10
-| Hardware         | Intel® Processor Graphics GEN9 or newer
-| Software         | Intel® oneAPI Video Processing Library(oneVPL)
+| Hardware         | Compatible with Intel® oneAPI Video Processing Library(oneVPL) GPU implementation, which can be found at https://github.com/oneapi-src/oneVPL-intel-gpu 
+| Software         | Intel® oneAPI Video Processing Library(oneVPL) CPU implementation
 | What You Will Learn | How to use oneVPL to decode an H.265 encoded video file and vpp for additional output
 | Time to Complete | 5 minutes
-
 
 ## Purpose
 

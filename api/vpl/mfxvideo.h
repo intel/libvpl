@@ -208,7 +208,8 @@ mfxStatus MFX_CDECL MFXVideoCORE_SyncOperation(mfxSession session, mfxSyncPoint 
    MFX_ERR_NULL_PTR If double-pointer to the @p surface is NULL. \n
    MFX_ERR_INVALID_HANDLE If @p session was not initialized. \n
    MFX_ERR_NOT_INITIALIZED If VPP was not initialized (allocator needs to know surface size from somewhere). \n
-   MFX_ERR_MEMORY_ALLOC In case of any other internal allocation error.
+   MFX_ERR_MEMORY_ALLOC In case of any other internal allocation error. \n
+   MFX_WRN_ALLOC_TIMEOUT_EXPIRED In case of waiting timeout expired (if set with mfxExtAllocationHints).
 
    @since This function is available since API version 2.0.
 
@@ -231,7 +232,8 @@ mfxStatus MFX_CDECL MFXMemory_GetSurfaceForVPP(mfxSession session, mfxFrameSurfa
    MFX_ERR_NULL_PTR If double-pointer to the @p surface is NULL. \n
    MFX_ERR_INVALID_HANDLE If @p session was not initialized. \n
    MFX_ERR_NOT_INITIALIZED If VPP was not initialized (allocator needs to know surface size from somewhere). \n
-   MFX_ERR_MEMORY_ALLOC In case of any other internal allocation error.
+   MFX_ERR_MEMORY_ALLOC In case of any other internal allocation error. \n
+   MFX_WRN_ALLOC_TIMEOUT_EXPIRED In case of waiting timeout expired (if set with mfxExtAllocationHints).
 
    @since This function is available since API version 2.1.
 
@@ -258,7 +260,8 @@ mfxStatus MFX_CDECL MFXMemory_GetSurfaceForVPPOut(mfxSession session, mfxFrameSu
    MFX_ERR_NULL_PTR If surface is NULL.\n
    MFX_ERR_INVALID_HANDLE If session was not initialized.\n
    MFX_ERR_NOT_INITIALIZED If the encoder was not initialized (allocator needs to know surface size from somewhere).\n
-   MFX_ERR_MEMORY_ALLOC In case of any other internal allocation error.
+   MFX_ERR_MEMORY_ALLOC In case of any other internal allocation error. \n
+   MFX_WRN_ALLOC_TIMEOUT_EXPIRED In case of waiting timeout expired (if set with mfxExtAllocationHints).
 
    @since This function is available since API version 2.0.
 
@@ -286,7 +289,8 @@ mfxStatus MFX_CDECL MFXMemory_GetSurfaceForEncode(mfxSession session, mfxFrameSu
    MFX_ERR_NULL_PTR If surface is NULL.\n
    MFX_ERR_INVALID_HANDLE If session was not initialized.\n
    MFX_ERR_NOT_INITIALIZED If the decoder was not initialized (allocator needs to know surface size from somewhere).\n
-   MFX_ERR_MEMORY_ALLOC Other internal allocation error.
+   MFX_ERR_MEMORY_ALLOC Other internal allocation error. \n
+   MFX_WRN_ALLOC_TIMEOUT_EXPIRED In case of waiting timeout expired (if set with mfxExtAllocationHints).
 
    @since This function is available since API version 2.0.
 
@@ -743,6 +747,8 @@ mfxStatus MFX_CDECL MFXVideoDECODE_GetPayload(mfxSession session, mfxU64 *ts, mf
    is possible that the bitstream buffer may contain more than one frame. It is recommended that the application invoke the function repeatedly until the function
    returns MFX_ERR_MORE_DATA, before appending any more data to the bitstream buffer.
 
+   Starting from API 2.0 it is possible to pass NULL instead of surface_work. In such case runtime will allocate output frames internally.
+
    This function is asynchronous.
 
    @param[in] session Session handle.
@@ -764,6 +770,7 @@ mfxStatus MFX_CDECL MFXVideoDECODE_GetPayload(mfxSession session, mfxU64 *ts, mf
    MFX_WRN_VIDEO_PARAM_CHANGED  The decoder detected a new sequence header in the bitstream. Video parameters may have changed. \n
    MFX_ERR_INCOMPATIBLE_VIDEO_PARAM  The decoder detected incompatible video parameters in the bitstream and failed to follow them. \n
    MFX_ERR_REALLOC_SURFACE  Bigger surface_work required. May be returned only if mfxInfoMFX::EnableReallocRequest was set to ON during initialization.
+   MFX_WRN_ALLOC_TIMEOUT_EXPIRED Timeout expired for internal output frame allocation (if set with mfxExtAllocationHints and NULL passed as surface_work). Repeat the call in a few milliseconds or re-initialize decoder with higher surface limit. \n
 
    @since This function is available since API version 1.0.
 */
@@ -971,7 +978,8 @@ mfxStatus MFX_CDECL MFXVideoVPP_RunFrameVPPAsync(mfxSession session, mfxFrameSur
     See the :ref:`Working with Microsoft* DirectX* Applications section<work_ms_directx_app>` for further information.
     \endverbatim 
     \n
-   MFX_WRN_DEVICE_BUSY  Hardware device is currently busy. Call this function again after MFXVideoCORE_SyncOperation or in a few milliseconds.
+   MFX_WRN_DEVICE_BUSY  Hardware device is currently busy. Call this function again after MFXVideoCORE_SyncOperation or in a few milliseconds. \n
+   MFX_WRN_ALLOC_TIMEOUT_EXPIRED Timeout expired for internal output frame allocation (if set with mfxExtAllocationHints). Repeat the call in a few milliseconds or reinitialize VPP with higher surface limit.
 
    @since This function is available since API version 2.1.
 */

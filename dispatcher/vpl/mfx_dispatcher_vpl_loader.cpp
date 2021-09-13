@@ -8,6 +8,10 @@
 
 #include "vpl/mfx_dispatcher_vpl.h"
 
+#if defined(_WIN32) || defined(_WIN64)
+    #include "vpl/mfx_dispatcher_vpl_win.h"
+#endif
+
 // leave table formatting alone
 // clang-format off
 
@@ -44,6 +48,7 @@ LoaderCtxVPL::LoaderCtxVPL()
         : m_libInfoList(),
           m_implInfoList(),
           m_configCtxList(),
+          m_gpuAdapterInfo(),
           m_specialConfig(),
           m_implIdxNext(0),
           m_bKeepCapsUntilUnload(true),
@@ -57,11 +62,44 @@ LoaderCtxVPL::LoaderCtxVPL()
     m_specialConfig.bIsSet_ApiVersion       = false;
     m_specialConfig.bIsSet_dxgiAdapterIdx   = false;
 
+    // initial state
+    m_bLowLatency           = false;
+    m_bNeedUpdateValidImpls = true;
+    m_bNeedFullQuery        = true;
+
     return;
 }
 
 LoaderCtxVPL::~LoaderCtxVPL() {
     return;
+}
+
+mfxStatus LoaderCtxVPL::FullLoadAndQuery() {
+    // disable low latency mode
+    m_bLowLatency = false;
+
+    // search directories for candidate implementations based on search order in
+    // spec
+    mfxStatus sts = BuildListOfCandidateLibs();
+    if (MFX_ERR_NONE != sts)
+        return sts;
+
+    // prune libraries which are not actually implementations, filling function
+    // ptr table for each library which is
+    mfxU32 numLibs = CheckValidLibraries();
+    if (numLibs == 0)
+        return MFX_ERR_UNSUPPORTED;
+
+    // query capabilities of each implementation
+    // may be more than one implementation per library
+    sts = QueryLibraryCaps();
+    if (MFX_ERR_NONE != sts)
+        return sts;
+
+    m_bNeedFullQuery        = false;
+    m_bNeedUpdateValidImpls = true;
+
+    return MFX_ERR_NONE;
 }
 
 // creates ordered list of user-specified directories to search
@@ -235,6 +273,7 @@ mfxStatus LoaderCtxVPL::SearchDirForLibs(STRING_TYPE searchDir,
     return MFX_ERR_NONE;
 }
 
+// fill in m_gpuAdapterInfo before calling
 mfxU32 LoaderCtxVPL::GetSearchPathsDriverStore(std::list<STRING_TYPE> &searchDirs) {
     searchDirs.clear();
 
@@ -242,26 +281,12 @@ mfxU32 LoaderCtxVPL::GetSearchPathsDriverStore(std::list<STRING_TYPE> &searchDir
     mfxStatus sts = MFX_ERR_UNSUPPORTED;
     STRING_TYPE vplPath;
 
-    mfxU32 numAdaptersD3D9  = 0;
-    mfxU32 numAdaptersDXGI1 = 0;
-    mfxU32 numAdaptersMax   = 0;
-
-    // query for number of D3D9 and D3D11 adapters on system
-    // conservatively check driver store from 0 to sum of adapters
-    //   (though in practice D3D9 will usually be a subset of D3D11)
-    sts = MFX::GetNumDXGIAdapters(numAdaptersD3D9, numAdaptersDXGI1);
-    if (sts == MFX_ERR_NONE)
-        numAdaptersMax = numAdaptersD3D9 + numAdaptersDXGI1;
-
-    if (numAdaptersMax == 0)
-        numAdaptersMax = MAX_WINDOWS_ADAPTER_ID + 1;
-
-    // get path to Windows driver store
-    for (mfxU32 adapterID = 0; adapterID < numAdaptersMax; adapterID++) {
+    // get path to Windows driver store (if any) for each adapter
+    for (mfxU32 adapterID = 0; adapterID < (mfxU32)m_gpuAdapterInfo.size(); adapterID++) {
         vplPath.clear();
         sts = MFX::MFXLibraryIterator::GetDriverStoreDir(vplPath,
                                                          MAX_VPL_SEARCH_PATH,
-                                                         adapterID,
+                                                         m_gpuAdapterInfo[adapterID].deviceID,
                                                          MFX::MFX_DRIVER_STORE_ONEVPL);
         if (sts == MFX_ERR_NONE)
             searchDirs.push_back(vplPath);
@@ -280,7 +305,7 @@ mfxU32 LoaderCtxVPL::GetSearchPathsCurrentExe(std::list<STRING_TYPE> &searchDirs
     MFX::GetImplPath(MFX::MFX_APP_FOLDER, implPath);
     STRING_TYPE exePath = implPath;
 
-    // strip trailing backslach
+    // strip trailing backslash
     size_t exePathLen = exePath.find_last_of(L"\\");
     if (exePathLen > 0)
         exePath.erase(exePathLen);
@@ -321,11 +346,11 @@ mfxU32 LoaderCtxVPL::GetSearchPathsLegacy(std::list<STRING_TYPE> &searchDirs) {
     STRING_TYPE msdkPath;
 
     // get path to Windows driver store (MSDK)
-    for (mfxU32 adapterID = 0; adapterID <= MAX_WINDOWS_ADAPTER_ID; adapterID++) {
+    for (mfxU32 adapterID = 0; adapterID < (mfxU32)m_gpuAdapterInfo.size(); adapterID++) {
         msdkPath.clear();
         sts = MFX::MFXLibraryIterator::GetDriverStoreDir(msdkPath,
                                                          MAX_VPL_SEARCH_PATH,
-                                                         adapterID,
+                                                         m_gpuAdapterInfo[adapterID].deviceID,
                                                          MFX::MFX_DRIVER_STORE);
         if (sts == MFX_ERR_NONE)
             searchDirs.push_back(msdkPath);
@@ -398,6 +423,15 @@ mfxStatus LoaderCtxVPL::BuildListOfCandidateLibs() {
     std::list<STRING_TYPE>::iterator it;
 
 #if defined(_WIN32) || defined(_WIN64)
+    // retrieve list of DX11 graphics adapters (lightweight)
+    // used for both VPL and legacy driver store search
+    m_gpuAdapterInfo.clear();
+    bool bEnumSuccess = MFX::DXGI1Device::GetAdapterList(m_gpuAdapterInfo);
+
+    // unknown error or no adapters found - clear list
+    if (!bEnumSuccess)
+        m_gpuAdapterInfo.clear();
+
     // first priority: Windows driver store
     searchDirList.clear();
     GetSearchPathsDriverStore(searchDirList);
@@ -521,7 +555,6 @@ mfxU32 LoaderCtxVPL::CheckValidLibraries() {
     // load all libraries
     std::list<LibInfo *>::iterator it = m_libInfoList.begin();
     while (it != m_libInfoList.end()) {
-        mfxU32 i         = 0;
         LibInfo *libInfo = (*it);
         mfxStatus sts    = MFX_ERR_NONE;
 
@@ -529,14 +562,9 @@ mfxU32 LoaderCtxVPL::CheckValidLibraries() {
         sts = LoadSingleLibrary(libInfo);
 
         // load video functions: pointers to exposed functions
-        if (sts == MFX_ERR_NONE && libInfo->hModuleVPL) {
-            for (i = 0; i < NumVPLFunctions; i += 1) {
-                VPLFunctionPtr pProc =
-                    (VPLFunctionPtr)GetFunctionAddr(libInfo->hModuleVPL, FunctionDesc2[i].pName);
-                if (pProc)
-                    libInfo->vplFuncTable[i] = pProc;
-            }
-        }
+        // not all function pointers may be filled in (depends on API version)
+        if (sts == MFX_ERR_NONE && libInfo->hModuleVPL)
+            LoadAPIExports(libInfo, LibTypeVPL);
 
         // all runtime libraries with API >= 2.0 must export MFXInitialize()
         // validation of additional functions vs. API version takes place
@@ -550,25 +578,18 @@ mfxU32 LoaderCtxVPL::CheckValidLibraries() {
         }
 
         // not a valid 2.x runtime - check for 1.x API (legacy caps query)
-        i = 0;
+        mfxU32 numFunctions = 0;
         if (sts == MFX_ERR_NONE && libInfo->hModuleVPL) {
             if (libInfo->libNameFull.find(MSDK_LIB_NAME) != std::string::npos) {
                 // legacy runtime must be named libmfxhw64 (or 32)
-                for (i = 0; i < NumMSDKFunctions; i += 1) {
-                    VPLFunctionPtr pProc =
-                        (VPLFunctionPtr)GetFunctionAddr(libInfo->hModuleVPL,
-                                                        MSDKCompatFunctions[i].pName);
-                    if (pProc)
-                        libInfo->msdkFuncTable[i] = pProc;
-                    else
-                        break;
-                }
+                // MSDK must export all of the required functions
+                numFunctions = LoadAPIExports(libInfo, LibTypeMSDK);
             }
         }
 
         // check if all of the required MSDK functions were found
         //   and this is valid library (can create session, query version)
-        if (i == NumMSDKFunctions) {
+        if (numFunctions == NumMSDKFunctions) {
             sts = LoaderCtxMSDK::QueryAPIVersion(libInfo->libNameFull, &(libInfo->msdkVersion));
 
             if (sts == MFX_ERR_NONE) {
@@ -719,6 +740,34 @@ mfxStatus LoaderCtxVPL::UnloadSingleImplementation(ImplInfo *implInfo) {
     }
 }
 
+// return number of functions loaded
+mfxU32 LoaderCtxVPL::LoadAPIExports(LibInfo *libInfo, LibType libType) {
+    mfxU32 i, numFunctions = 0;
+
+    if (libType == LibTypeVPL) {
+        for (i = 0; i < NumVPLFunctions; i += 1) {
+            VPLFunctionPtr pProc =
+                (VPLFunctionPtr)GetFunctionAddr(libInfo->hModuleVPL, FunctionDesc2[i].pName);
+            if (pProc) {
+                libInfo->vplFuncTable[i] = pProc;
+                numFunctions++;
+            }
+        }
+    }
+    else if (libType == LibTypeMSDK) {
+        for (i = 0; i < NumMSDKFunctions; i += 1) {
+            VPLFunctionPtr pProc =
+                (VPLFunctionPtr)GetFunctionAddr(libInfo->hModuleVPL, MSDKCompatFunctions[i].pName);
+            if (pProc) {
+                libInfo->msdkFuncTable[i] = pProc;
+                numFunctions++;
+            }
+        }
+    }
+
+    return numFunctions;
+}
+
 // check that all functions for this API version are available in library
 mfxStatus LoaderCtxVPL::ValidateAPIExports(VPLFunctionPtr *vplFuncTable,
                                            mfxVersion reportedVersion) {
@@ -755,6 +804,10 @@ mfxStatus LoaderCtxVPL::UpdateImplPath(LibInfo *libInfo) {
 bool LoaderCtxVPL::IsValidX86GPU(ImplInfo *implInfo, mfxU32 &deviceID, mfxU32 &adapterIdx) {
     mfxImplDescription *implDesc = (mfxImplDescription *)(implInfo->implDesc);
 
+    // may be null in low-latency mode, ID unknown
+    if (!implDesc)
+        return false;
+
     if (implInfo->validImplIdx >= 0 && implDesc->VendorID == 0x8086 &&
         implDesc->Impl == MFX_IMPL_TYPE_HARDWARE) {
         // verify that DeviceID is a valid format for x86 GPU
@@ -781,33 +834,37 @@ mfxStatus LoaderCtxVPL::QueryLibraryCaps() {
         if (libInfo->libType == LibTypeVPL) {
             VPLFunctionPtr pFunc = libInfo->vplFuncTable[IdxMFXQueryImplsDescription];
 
-            // call MFXQueryImplsDescription() for this implementation
-            // return handle to description in requested format
-            mfxHDL *hImpl;
+            // handle to implDesc structure, null in low-latency mode (no query)
+            mfxHDL *hImpl   = nullptr;
             mfxU32 numImpls = 0;
-            hImpl           = (*(mfxHDL * (MFX_CDECL *)(mfxImplCapsDeliveryFormat, mfxU32 *))
-                         pFunc)(MFX_IMPLCAPS_IMPLDESCSTRUCTURE, &numImpls);
 
-            // validate description pointer for each implementation
-            bool b_isValidDesc = true;
-            if (!hImpl) {
-                b_isValidDesc = false;
-            }
-            else {
-                for (mfxU32 i = 0; i < numImpls; i++) {
-                    if (!hImpl[i]) {
-                        b_isValidDesc = false;
-                        break;
+            if (m_bLowLatency == false) {
+                // call MFXQueryImplsDescription() for this implementation
+                // return handle to description in requested format
+                hImpl = (*(mfxHDL * (MFX_CDECL *)(mfxImplCapsDeliveryFormat, mfxU32 *))
+                             pFunc)(MFX_IMPLCAPS_IMPLDESCSTRUCTURE, &numImpls);
+
+                // validate description pointer for each implementation
+                bool b_isValidDesc = true;
+                if (!hImpl) {
+                    b_isValidDesc = false;
+                }
+                else {
+                    for (mfxU32 i = 0; i < numImpls; i++) {
+                        if (!hImpl[i]) {
+                            b_isValidDesc = false;
+                            break;
+                        }
                     }
                 }
-            }
 
-            if (!b_isValidDesc) {
-                // the required function is implemented incorrectly
-                // remove this library from the list of valid libraries
-                UnloadSingleLibrary(libInfo);
-                it = m_libInfoList.erase(it);
-                continue;
+                if (!b_isValidDesc) {
+                    // the required function is implemented incorrectly
+                    // remove this library from the list of valid libraries
+                    UnloadSingleLibrary(libInfo);
+                    it = m_libInfoList.erase(it);
+                    continue;
+                }
             }
 
             // query for list of implemented functions
@@ -817,6 +874,11 @@ mfxStatus LoaderCtxVPL::QueryLibraryCaps() {
             mfxU32 numImplsFuncs = 0;
             hImplFuncs           = (*(mfxHDL * (MFX_CDECL *)(mfxImplCapsDeliveryFormat, mfxU32 *))
                               pFunc)(MFX_IMPLCAPS_IMPLEMENTEDFUNCTIONS, &numImplsFuncs);
+
+            // only report single impl, but application may still attempt to create session using
+            //    any of VendorImplID via the DXGIAdapterIndex filter property
+            if (m_bLowLatency == true)
+                numImpls = 1;
 
             // save user-friendly path for MFX_IMPLCAPS_IMPLPATH query (API >= 2.4)
             UpdateImplPath(libInfo);
@@ -829,25 +891,44 @@ mfxStatus LoaderCtxVPL::QueryLibraryCaps() {
                 // library which contains this implementation
                 implInfo->libInfo = libInfo;
 
-                // implementation descriptor returned from runtime
-                implInfo->implDesc = hImpl[i];
-
                 // implemented function description, if available
                 if (hImplFuncs && i < numImplsFuncs)
                     implInfo->implFuncs = hImplFuncs[i];
 
-                // fill out mfxInitParam struct for when we call MFXInitEx
-                //   in CreateSession()
-                mfxImplDescription *implDesc = reinterpret_cast<mfxImplDescription *>(hImpl[i]);
-
                 // fill out mfxInitializationParam for use in CreateSession (MFXInitialize path)
                 memset(&(implInfo->vplParam), 0, sizeof(mfxInitializationParam));
 
-                // default mode for this impl
-                // this may be changed later by MFXSetConfigFilterProperty(AccelerationMode)
-                implInfo->vplParam.AccelerationMode = implDesc->AccelerationMode;
+                if (m_bLowLatency == false) {
+                    // implementation descriptor returned from runtime
+                    implInfo->implDesc = hImpl[i];
 
-                implInfo->version = implDesc->ApiVersion;
+                    // fill out mfxInitParam struct for when we call MFXInitEx
+                    //   in CreateSession()
+                    mfxImplDescription *implDesc = reinterpret_cast<mfxImplDescription *>(hImpl[i]);
+
+                    // default mode for this impl
+                    // this may be changed later by MFXSetConfigFilterProperty(AccelerationMode)
+                    implInfo->vplParam.AccelerationMode = implDesc->AccelerationMode;
+
+                    implInfo->version = implDesc->ApiVersion;
+                }
+                else {
+                    implInfo->implDesc = nullptr;
+
+                    // application must set requested mode using MFXSetConfigFilterProperty()
+                    // will be updated during CreateSession
+                    implInfo->vplParam.AccelerationMode = MFX_ACCEL_MODE_NA;
+
+                    mfxVersion queryVersion = {};
+
+                    // create test session to get API version
+                    sts = QuerySessionLowLatency(libInfo, i, &queryVersion);
+                    if (sts != MFX_ERR_NONE) {
+                        UnloadSingleImplementation(implInfo);
+                        continue;
+                    }
+                    implInfo->version.Version = queryVersion.Version;
+                }
 
                 // save local index for this library
                 implInfo->libImplIdx = i;
@@ -873,18 +954,54 @@ mfxStatus LoaderCtxVPL::QueryLibraryCaps() {
             // save user-friendly path for MFX_IMPLCAPS_IMPLPATH query (API >= 2.4)
             UpdateImplPath(libInfo);
 
+            mfxU32 maxImplMSDK = MAX_NUM_IMPL_MSDK;
+
+            // call once on adapter 0 to get MSDK API version (same for any adapter)
+            mfxVersion queryVersion = {};
+            if (m_bLowLatency) {
+                sts = LoaderCtxMSDK::QueryAPIVersion(libInfo->libNameFull, &queryVersion);
+                if (sts != MFX_ERR_NONE)
+                    queryVersion.Version = 0;
+
+                // only report single impl, but application may still attempt to create session using
+                //    any of MFX_IMPL_HARDWAREx via the DXGIAdapterIndex filter property
+                maxImplMSDK = 1;
+            }
+
             mfxU32 numImplMSDK = 0;
-            for (mfxU32 i = 0; i < MAX_NUM_IMPL_MSDK; i++) {
+            for (mfxU32 i = 0; i < maxImplMSDK; i++) {
                 mfxImplDescription *implDesc       = nullptr;
                 mfxImplementedFunctions *implFuncs = nullptr;
 
                 LoaderCtxMSDK *msdkCtx = &(libInfo->msdkCtx[i]);
+                if (m_bLowLatency == false) {
+                    // perf. optimization: if app requested bIsSet_accelerationMode other than D3D9, don't test whether MSDK supports D3D9
+                    bool bSkipD3D9Check = false;
+                    if (m_specialConfig.bIsSet_accelerationMode &&
+                        m_specialConfig.accelerationMode != MFX_ACCEL_MODE_VIA_D3D9) {
+                        bSkipD3D9Check = true;
+                    }
 
-                sts = msdkCtx->QueryMSDKCaps(libInfo->libNameFull, &implDesc, &implFuncs, i);
+                    sts = msdkCtx->QueryMSDKCaps(libInfo->libNameFull,
+                                                 &implDesc,
+                                                 &implFuncs,
+                                                 i,
+                                                 bSkipD3D9Check);
 
-                if (sts || !implDesc || !implFuncs) {
-                    // this adapter (i) is not supported
-                    continue;
+                    if (sts || !implDesc || !implFuncs) {
+                        // this adapter (i) is not supported
+                        continue;
+                    }
+                }
+                else {
+                    // unknown API - unable to create session on any adapter
+                    if (queryVersion.Version == 0)
+                        continue;
+
+                    // these are the only values filled in for msdkCtx in low latency mode
+                    // used during CreateSession
+                    msdkCtx->m_msdkAdapter     = msdkImplTab[i];
+                    msdkCtx->m_msdkAdapterD3D9 = msdkImplTab[i];
                 }
 
                 ImplInfo *implInfo = new ImplInfo;
@@ -894,20 +1011,32 @@ mfxStatus LoaderCtxVPL::QueryLibraryCaps() {
                 // library which contains this implementation
                 implInfo->libInfo = libInfo;
 
-                // implementation descriptor returned from runtime
-                implInfo->implDesc = implDesc;
-
                 // implemented function description, if available
                 implInfo->implFuncs = implFuncs;
 
                 // fill out mfxInitializationParam for use in CreateSession (MFXInitialize path)
                 memset(&(implInfo->vplParam), 0, sizeof(mfxInitializationParam));
 
-                // default mode for this impl
-                // this may be changed later by MFXSetConfigFilterProperty(AccelerationMode)
-                implInfo->vplParam.AccelerationMode = implDesc->AccelerationMode;
+                if (m_bLowLatency == false) {
+                    // implementation descriptor returned from runtime
+                    implInfo->implDesc = implDesc;
 
-                implInfo->version = implDesc->ApiVersion;
+                    // default mode for this impl
+                    // this may be changed later by MFXSetConfigFilterProperty(AccelerationMode)
+                    implInfo->vplParam.AccelerationMode = implDesc->AccelerationMode;
+
+                    implInfo->version = implDesc->ApiVersion;
+                }
+                else {
+                    implInfo->implDesc = nullptr;
+
+                    // application must set requested mode using MFXSetConfigFilterProperty()
+                    // will be updated during CreateSession
+                    implInfo->vplParam.AccelerationMode = MFX_ACCEL_MODE_NA;
+
+                    // save API version from creating test MSDK session above
+                    implInfo->version.Version = queryVersion.Version;
+                }
 
                 // adapter number
                 implInfo->msdkImplIdx = i;
@@ -944,7 +1073,7 @@ mfxStatus LoaderCtxVPL::QueryLibraryCaps() {
         it++;
     }
 
-    if (!m_implInfoList.empty()) {
+    if (m_bLowLatency == false && !m_implInfoList.empty()) {
         std::list<ImplInfo *>::iterator it2 = m_implInfoList.begin();
         while (it2 != m_implInfoList.end()) {
             ImplInfo *implInfo = (*it2);
@@ -1033,6 +1162,10 @@ mfxStatus LoaderCtxVPL::ReleaseImpl(mfxHDL idesc) {
         ImplInfo *implInfo                   = (*it);
         mfxImplCapsDeliveryFormat capsFormat = (mfxImplCapsDeliveryFormat)0; // unknown format
 
+        // in low latency mode implDesc will be empty
+        if (implInfo->implDesc == nullptr)
+            continue;
+
         // determine type of descriptor so we know which handle to
         //   invalidate in the Loader context
         if (implInfo->implDesc == idesc) {
@@ -1079,6 +1212,17 @@ mfxStatus LoaderCtxVPL::ReleaseImpl(mfxHDL idesc) {
 
     // did not find a matching handle - should not happen
     return MFX_ERR_INVALID_HANDLE;
+}
+
+mfxStatus LoaderCtxVPL::UpdateLowLatency() {
+    m_bLowLatency = false;
+
+#if defined(_WIN32) || defined(_WIN64)
+    // only supported on Windows currently
+    m_bLowLatency = ConfigCtxVPL::CheckLowLatencyConfig(m_configCtxList, &m_specialConfig);
+#endif
+
+    return MFX_ERR_NONE;
 }
 
 mfxStatus LoaderCtxVPL::UpdateValidImplList(void) {
@@ -1128,6 +1272,8 @@ mfxStatus LoaderCtxVPL::UpdateValidImplList(void) {
 
     // re-sort valid implementations according to priority rules in spec
     PrioritizeImplList();
+
+    m_bNeedUpdateValidImpls = false;
 
     return MFX_ERR_NONE;
 }
@@ -1210,39 +1356,51 @@ mfxStatus LoaderCtxVPL::CreateSession(mfxU32 idx, mfxSession *session) {
             LibInfo *libInfo = implInfo->libInfo;
             mfxU16 deviceID  = 0;
 
-            if (sts == MFX_ERR_NONE) {
-                // pass VendorImplID for this implementation (disambiguate if one
-                //   library contains multiple implementations)
-                mfxImplDescription *implDesc = (mfxImplDescription *)(implInfo->implDesc);
-
-                // should not happen in normal circumstances, but avoid using nullptr if something went wrong
-                if (!implDesc)
-                    return MFX_ERR_NULL_PTR;
-
+            // pass VendorImplID for this implementation (disambiguate if one
+            //   library contains multiple implementations)
+            // NOTE: implDesc may be null in low latency mode (RT query not called)
+            //   so this value will not be available
+            mfxImplDescription *implDesc = (mfxImplDescription *)(implInfo->implDesc);
+            if (implDesc) {
                 implInfo->vplParam.VendorImplID = implDesc->VendorImplID;
-
-                // set any special parameters passed in via SetConfigProperty
-                // if application did not specify accelerationMode, use default
-                if (m_specialConfig.bIsSet_accelerationMode)
-                    implInfo->vplParam.AccelerationMode = m_specialConfig.accelerationMode;
-
-                mfxIMPL msdkImpl = 0;
-                if (libInfo->libType == LibTypeMSDK) {
-                    if (implInfo->vplParam.AccelerationMode == MFX_ACCEL_MODE_VIA_D3D9)
-                        msdkImpl = libInfo->msdkCtx[implInfo->msdkImplIdx].m_msdkAdapterD3D9;
-                    else
-                        msdkImpl = libInfo->msdkCtx[implInfo->msdkImplIdx].m_msdkAdapter;
-                }
-
-                // initialize this library via MFXInitialize or else fail
-                //   (specify full path to library)
-                sts = MFXInitEx2(implInfo->version,
-                                 implInfo->vplParam,
-                                 msdkImpl,
-                                 session,
-                                 &deviceID,
-                                 (CHAR_TYPE *)libInfo->libNameFull.c_str());
             }
+
+            // set any special parameters passed in via SetConfigProperty
+            // if application did not specify accelerationMode, use default
+            if (m_specialConfig.bIsSet_accelerationMode)
+                implInfo->vplParam.AccelerationMode = m_specialConfig.accelerationMode;
+
+            // in low latency mode there was no implementation filtering, so check here
+            //   for minimum API version
+            if (m_bLowLatency && m_specialConfig.bIsSet_ApiVersion) {
+                if (implInfo->version.Version < m_specialConfig.ApiVersion.Version)
+                    return MFX_ERR_NOT_FOUND;
+            }
+
+            mfxIMPL msdkImpl = 0;
+            if (libInfo->libType == LibTypeMSDK) {
+                if (implInfo->vplParam.AccelerationMode == MFX_ACCEL_MODE_VIA_D3D9)
+                    msdkImpl = libInfo->msdkCtx[implInfo->msdkImplIdx].m_msdkAdapterD3D9;
+                else
+                    msdkImpl = libInfo->msdkCtx[implInfo->msdkImplIdx].m_msdkAdapter;
+            }
+
+            // in low latency mode implDesc is not available, but application may set adapter number via DXGIAdapterIndex filter
+            if (m_bLowLatency) {
+                if (m_specialConfig.bIsSet_dxgiAdapterIdx && libInfo->libType == LibTypeVPL)
+                    implInfo->vplParam.VendorImplID = m_specialConfig.dxgiAdapterIdx;
+                else if (m_specialConfig.bIsSet_dxgiAdapterIdx && libInfo->libType == LibTypeMSDK)
+                    msdkImpl = msdkImplTab[m_specialConfig.dxgiAdapterIdx];
+            }
+
+            // initialize this library via MFXInitialize or else fail
+            //   (specify full path to library)
+            sts = MFXInitEx2(implInfo->version,
+                             implInfo->vplParam,
+                             msdkImpl,
+                             session,
+                             &deviceID,
+                             (CHAR_TYPE *)libInfo->libNameFull.c_str());
 
             // optionally call MFXSetHandle() if present via SetConfigProperty
             if (sts == MFX_ERR_NONE && m_specialConfig.bIsSet_deviceHandleType &&

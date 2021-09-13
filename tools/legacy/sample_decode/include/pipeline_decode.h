@@ -92,6 +92,7 @@ struct sInputParams {
     mfxU16 chromaType;
     mfxU32 nFrames;
     mfxU16 eDeinterlace;
+    mfxU16 ScalingMode;
     bool outI420;
 
     bool bPerfMode;
@@ -124,6 +125,7 @@ struct sInputParams {
 #if (MFX_VERSION >= 2000)
     bool api2xInternalMem;
     bool api2xDispatcher;
+    bool api2xLowLatency;
     bool api2xDecVPP;
     bool api2xPerf;
 #endif

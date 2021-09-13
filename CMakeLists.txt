@@ -78,6 +78,9 @@ include(cmake/oneAPIInstallDirs.cmake)
 # Keep executable bits on shared objects when installing regardless of distro
 set(CMAKE_INSTALL_SO_NO_EXE 0)
 
+# Directory for tools specific helper libraries
+set(_TOOLS_LIB_PATH "${CMAKE_INSTALL_FULL_LIBDIR}/${PROJECT_NAME}")
+
 include(cmake/CompileOptions.cmake)
 
 if(BUILD_TESTS)
@@ -117,6 +120,8 @@ if(USE_ONEAPI_INSTALL_LAYOUT)
 endif()
 
 include(cmake/PackageTarget.cmake)
+set(CMAKE_INSTALL_SYSTEM_RUNTIME_COMPONENT runtime)
+include(InstallRequiredSystemLibraries)
 
 message(
   STATUS "---------------- Configuration summary ------------------------------"

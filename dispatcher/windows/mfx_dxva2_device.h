@@ -9,6 +9,10 @@
 
 #include <windows.h>
 
+#include <vector>
+
+#include "vpl/mfx_dispatcher_vpl.h"
+
 #define TOSTRING(L)  #L
 #define STRINGIFY(L) TOSTRING(L)
 
@@ -129,6 +133,9 @@ public:
 
     // Close the object
     virtual void Close(void);
+
+    // lightweight method to get list of adapters
+    static bool GetAdapterList(std::vector<DXGI1DeviceInfo> &adapterInfo);
 
 protected:
     // Pointer to the DXGI1 factory
