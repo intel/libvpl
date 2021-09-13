@@ -89,6 +89,8 @@ void init_video_param(const py::module &m) {
                       &vpl::frame_info::get_FourCC,
                       &vpl::frame_info::set_FourCC,
                       "color format fourCC value.")
+        .def_property_readonly("width", &vpl::frame_info::get_width, "frame width.")
+        .def_property_readonly("height", &vpl::frame_info::get_height, "frame height.")
         .def_property("frame_size",
                       &vpl::frame_info::get_frame_size,
                       &vpl::frame_info::set_frame_size,

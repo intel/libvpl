@@ -256,6 +256,23 @@ void init_defs(const py::module &m) {
         py::name("__str__"),
         py::is_method(implementation_via));
 
+    auto resource_type = py::enum_<vpl::resource_type>(m, "resource_type")
+                             .value("system_surface", vpl::resource_type::system_surface)
+                             .value("va_surface_ptr", vpl::resource_type::va_surface_ptr)
+                             .value("va_buffer_ptr", vpl::resource_type::va_buffer_ptr)
+                             .value("dx9_surface", vpl::resource_type::dx9_surface)
+                             .value("dx11_texture", vpl::resource_type::dx11_texture)
+                             .value("dx12_resource", vpl::resource_type::dx12_resource)
+                             .value("dma_resource", vpl::resource_type::dma_resource);
+    resource_type.attr("__str__") = py::cpp_function(
+        [](vpl::resource_type self) {
+            std::stringstream ss;
+            ss << self;
+            return ss.str();
+        },
+        py::name("__str__"),
+        py::is_method(resource_type));
+
     auto handle_type = py::enum_<vpl::handle_type>(m, "handle_type")
                            .value("d3d9_device_manager", vpl::handle_type::d3d9_device_manager)
                            .value("d3d11_device_manager", vpl::handle_type::d3d11_device_manager)
@@ -263,6 +280,40 @@ void init_defs(const py::module &m) {
                            .value("va_config_id", vpl::handle_type::va_config_id)
                            .value("va_context_id", vpl::handle_type::va_context_id)
                            .value("cm_device", vpl::handle_type::cm_device);
+
+    auto memory_type =
+        py::enum_<vpl::memory_type>(m, "memory_type", py::arithmetic())
+            .value("video_memory_decoder_target", vpl::memory_type::video_memory_decoder_target)
+            .value("video_memory_processor_target", vpl::memory_type::video_memory_processor_target)
+            .value("system_memory", vpl::memory_type::system_memory)
+            .value("from_encode", vpl::memory_type::from_encode)
+            .value("from_decode", vpl::memory_type::from_decode)
+            .value("from_vppin", vpl::memory_type::from_vppin)
+            .value("from_vppout", vpl::memory_type::from_vppout)
+            .value("internal_frame", vpl::memory_type::internal_frame)
+            .value("external_frame", vpl::memory_type::external_frame)
+            .value("export_frame", vpl::memory_type::export_frame)
+            .value("video_memory_encoder_target", vpl::memory_type::video_memory_encoder_target);
+    memory_type.attr("__str__") = py::cpp_function(
+        [](vpl::memory_type self) {
+            return vpl::detail::MemType2String((uint16_t)self);
+        },
+        py::name("__str__"),
+        py::is_method(memory_type));
+
+    memory_type.attr("isVideoMemory") = py::cpp_function(
+        [](vpl::memory_type self) {
+            return vpl::isVideoMemory(self);
+        },
+        py::name("isVideoMemory"),
+        py::is_method(memory_type));
+
+    memory_type.attr("isSystemMemory") = py::cpp_function(
+        [](vpl::memory_type self) {
+            return vpl::isSystemMemory(self);
+        },
+        py::name("isSystemMemory"),
+        py::is_method(memory_type));
 
     auto pool_alloction_policy = py::enum_<vpl::pool_alloction_policy>(m, "pool_alloction_policy")
                                      .value("optimal", vpl::pool_alloction_policy::optimal)

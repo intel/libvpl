@@ -273,4 +273,28 @@ void init_impl_caps(const py::module &m) {
         .def("create",
              &vpl::implementation_capabilities_factory::create,
              "Creates instance of implementation capabilities report class based on the format ID");
+
+    py::class_<vpl::implemented_functions,
+               vpl::base_implementation_capabilities,
+               std::shared_ptr<vpl::implemented_functions>>(m, "implemented_functions")
+        .def_property_readonly("functions_name",
+                               &vpl::implemented_functions::get_functions_name,
+                               "Provides list of implemented functions.")
+        .def("__str__", [](const vpl::implemented_functions *self, std::string) {
+            std::stringstream strs;
+            strs << *self;
+            return strs.str();
+        });
+
+    py::class_<vpl::implementation_path,
+               vpl::base_implementation_capabilities,
+               std::shared_ptr<vpl::implementation_path>>(m, "implementation_path")
+        .def_property_readonly("path",
+                               &vpl::implementation_path::get_path,
+                               "Provides list of implemented functions.")
+        .def("__str__", [](const vpl::implementation_path *self, std::string) {
+            std::stringstream strs;
+            strs << *self;
+            return strs.str();
+        });
 }

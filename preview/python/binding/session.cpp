@@ -181,6 +181,9 @@ void init_session(const py::module &m) {
         .def("alloc_input",
              &vpl::vpp_session::alloc_input,
              "Allocate and return shared pointer to the surface")
+        .def("alloc_output",
+             &vpl::vpp_session::alloc_output,
+             "Allocate internal raw surface and attach it to the output surface")
         .def("Init",
              &vpl::vpp_session::Init,
              "Initializes session with given parameters and extention buffers.")

@@ -25,6 +25,9 @@ void init_frame_surface(const py::module &m) {
         .def_property_readonly("frame_info",
                                &vpl::frame_surface::get_frame_info,
                                "Provide frame information.")
+        .def_property_readonly("frame_data",
+                               &vpl::frame_surface::get_frame_data,
+                               "Provide frame data information.")
         .def("map", &vpl::frame_surface::map, "Maps data to the system memory.")
         .def("unmap", &vpl::frame_surface::unmap, "Unmaps data to the system memory.")
         .def_property_readonly("native_handle",
