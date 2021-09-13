@@ -19,7 +19,6 @@ void init_defs(const py::module &m);
 void init_exception(const py::module &m);
 void init_extension_buffer_list(const py::module &m);
 void init_extension_buffer(const py::module &m);
-void init_frame_pool(const py::module &m);
 void init_frame_surface(const py::module &m);
 void init_future(const py::module &m);
 void init_impl_caps(const py::module &m);
@@ -42,7 +41,6 @@ PYBIND11_MODULE(pyvpl, m) {
     init_exception(m);
     init_extension_buffer_list(m);
     init_extension_buffer(m);
-    init_frame_pool(m);
     init_frame_surface(m);
     init_future(m);
     init_impl_caps(m);

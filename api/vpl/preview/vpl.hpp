@@ -11,7 +11,6 @@
 #include "vpl/preview/exception.hpp"
 #include "vpl/preview/extension_buffer.hpp"
 #include "vpl/preview/extension_buffer_list.hpp"
-#include "vpl/preview/frame_pool.hpp"
 #include "vpl/preview/frame_surface.hpp"
 #include "vpl/preview/future.hpp"
 #include "vpl/preview/impl_caps.hpp"

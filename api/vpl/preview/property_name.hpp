@@ -120,7 +120,7 @@ const struct layer layer_5[] = {
     END_OF_LAYER
 };
 
-constexpr struct layers layers_[] = { layer_0, layer_1, layer_2, layer_3, layer_4, layer_5 };
+constexpr struct layers layers_[] = { { layer_0 }, { layer_1 }, { layer_2 }, { layer_3 }, { layer_4 }, { layer_5 } };
 
 #define MAX_LEVEL 6
 

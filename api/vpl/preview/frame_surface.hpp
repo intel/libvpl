@@ -182,6 +182,12 @@ public:
         return frame_info(surface_->Info);
     }
 
+    /// @brief Provide frame data information.
+    /// @return Return instance of frame_data class
+    frame_data get_frame_data() {
+        return frame_data(surface_->Data);
+    }
+
     /// @brief Maps data to the system memory.
     /// @param flags Data access flag: read or write.
     /// @return Pair of pointers to the surface info structure and surface data strucuture in the system memory
@@ -215,14 +221,18 @@ public:
     /// @return Pair of native surface handle and its type
     auto get_native_handle() {
         void* resource;
-        mfxResourceType resource_type;
-        detail::c_api_invoker(detail::default_checker,
-                                surface_->FrameInterface->GetNativeHandle,
-                                surface_,
-                                &resource,
-                                &resource_type);
+        mfxResourceType rst_type;
+        if ((get_frame_data().get_mem_type() & memory_type::system_memory) != 
+                            memory_type::system_memory) {
+            detail::c_api_invoker(detail::default_checker,
+                                    surface_->FrameInterface->GetNativeHandle,
+                                    surface_,
+                                    &resource,
+                                    &rst_type);
 
-        return std::pair(resource, resource_type);
+            return std::pair(resource, (resource_type)rst_type);
+        }
+        return std::pair((void*)nullptr, resource_type::system_surface);
     }
 
     /// @brief Provides native device handle of the surface.
@@ -235,7 +245,7 @@ public:
                                 surface_,
                                 &device_handle,
                                 &device_type);
-        return std::pair(device_handle, device_type);
+        return std::pair(device_handle, (handle_type)device_type);
     }
 
     /// @brief Provides current reference counter value.
@@ -288,12 +298,17 @@ inline std::ostream& operator<<(std::ostream& out, const frame_surface& f) {
     out << "frame_surface class" << std::endl;
     out << detail::space(detail::INTENT, out, "Lazy sync    = ")
         << detail::Boolean2String(f.lazy_sync_) << std::endl;
-    out << "frame_info" << std::endl;
-    frame_info i(f.surface_->Info);
-    out << i << std::endl;
-    out << "frame_data" << std::endl;
-    frame_data d(f.surface_->Data);
-    out << d << std::endl;
+    
+    if (f.surface_) {
+        out << "frame_info" << std::endl;
+        frame_info i(f.surface_->Info);
+        out << i << std::endl;
+        out << "frame_data" << std::endl;
+        frame_data d(f.surface_->Data);
+        out << d << std::endl;
+    } else {
+        out << "Empty surface" << std::endl;
+    }
 
     return out;
 }

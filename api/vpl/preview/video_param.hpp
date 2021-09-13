@@ -196,6 +196,18 @@ public:
 
     /// @todo below group valid for formats != P8
 
+    /// @brief Returns frame width.
+    /// @return Frame width.
+    auto get_width() const {
+        return param_.Width;
+    }
+
+    /// @brief Returns frame height.
+    /// @return Frame height.
+    auto get_height() const {
+        return param_.Height;
+    }
+
     /// @brief Returns frame size.
     /// @return Pair of width and height.
     auto get_frame_size() const {
@@ -393,7 +405,17 @@ public:
         return *this;
     }
 
-    DECLARE_MEMBER_ACCESS(frame_data, uint16_t, MemType)
+    /// @brief Returns memory type value.
+    /// @return Memory type value.
+    memory_type get_mem_type() const {
+        return (memory_type)param_.MemType;
+    }
+
+    /// @brief Sets memory type value.
+    /// @param[in] memtype Memory type.
+    void set_mem_type(memory_type memtype) {
+        param_.MemType = (uint16_t)(memtype);
+    }
 
     /// @brief Returns pitch value.
     /// @return Pitch value.

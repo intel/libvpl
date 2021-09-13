@@ -122,7 +122,7 @@ void init_video_param(const py::module &m) {
 
     py::class_<vpl::frame_data, std::shared_ptr<vpl::frame_data>>(m, "frame_data")
         .def(py::init<>())
-        .def_property("MemType", &vpl::frame_data::get_MemType, &vpl::frame_data::set_MemType)
+        .def_property("MemType", &vpl::frame_data::get_mem_type, &vpl::frame_data::set_mem_type)
         .def_property("Pitch",
                       &vpl::frame_data::get_pitch,
                       &vpl::frame_data::set_pitch,

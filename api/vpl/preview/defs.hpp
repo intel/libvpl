@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include <iostream>
 #include <cstdint>
 #include <limits>
 #include <type_traits>
@@ -154,6 +155,7 @@ enum class io_pattern : uint32_t {
     out_device_memory = MFX_IOPATTERN_OUT_VIDEO_MEMORY,
     out_system_memory = MFX_IOPATTERN_OUT_SYSTEM_MEMORY,
     io_system_memory  = in_system_memory | out_system_memory,
+    io_device_memory  = in_device_memory | out_device_memory,
 };
 ENABLE_BIT_OPERATORS_WITH_ENUM(io_pattern);
 
@@ -235,6 +237,46 @@ enum class implementation_via : uint32_t {
     none      = 0
 };
 
+enum class resource_type : uint32_t {
+    system_surface = MFX_RESOURCE_SYSTEM_SURFACE,
+    va_surface_ptr = MFX_RESOURCE_VA_SURFACE_PTR,
+    va_buffer_ptr  = MFX_RESOURCE_VA_BUFFER_PTR,
+    dx9_surface    = MFX_RESOURCE_DX9_SURFACE,
+    dx11_texture   = MFX_RESOURCE_DX11_TEXTURE,
+    dx12_resource  = MFX_RESOURCE_DX12_RESOURCE,
+    dma_resource   = MFX_RESOURCE_DMA_RESOURCE,
+};
+
+inline std::ostream &operator<<(std::ostream &out, const resource_type &r) {
+    switch(r) {
+        case resource_type::system_surface:
+            out << "System surface";
+            break;
+        case resource_type::va_surface_ptr:
+            out << "VASurfaceID pointer";
+            break;
+        case resource_type::va_buffer_ptr:
+            out << "VASurfaceID pointer";
+            break;
+        case resource_type::dx9_surface:
+            out << "DX9 Texture";
+            break;
+        case resource_type::dx11_texture:
+            out << "DX11 Texture";
+            break;
+        case resource_type::dx12_resource:
+            out << "DX12 Resource";
+            break;
+        case resource_type::dma_resource:
+            out << "DMA buffer file descriptor";
+            break;
+        default:
+            out << "Unknown";
+            break;
+    }
+    return out;
+}
+
 enum class handle_type : uint32_t {
     d3d9_device_manager       = MFX_HANDLE_D3D9_DEVICE_MANAGER,
     d3d11_device_manager      = MFX_HANDLE_D3D11_DEVICE,
@@ -245,11 +287,46 @@ enum class handle_type : uint32_t {
     hddlunite_workloadcontext = MFX_HANDLE_HDDLUNITE_WORKLOADCONTEXT,
 };
 
+enum class memory_type : uint16_t {
+    video_memory_decoder_target   = MFX_MEMTYPE_VIDEO_MEMORY_DECODER_TARGET,
+    video_memory_processor_target = MFX_MEMTYPE_VIDEO_MEMORY_PROCESSOR_TARGET,
+    system_memory                 = MFX_MEMTYPE_SYSTEM_MEMORY,
+    from_encode                   = MFX_MEMTYPE_FROM_ENCODE,
+    from_decode                   = MFX_MEMTYPE_FROM_DECODE,
+    from_vppin                    = MFX_MEMTYPE_FROM_VPPIN,
+    from_vppout                   = MFX_MEMTYPE_FROM_VPPOUT,
+    internal_frame                = MFX_MEMTYPE_INTERNAL_FRAME,
+    external_frame                = MFX_MEMTYPE_EXTERNAL_FRAME,
+    export_frame                  = MFX_MEMTYPE_EXPORT_FRAME,
+    video_memory_encoder_target   = MFX_MEMTYPE_VIDEO_MEMORY_ENCODER_TARGET,
+};
+
+ENABLE_BIT_OPERATORS_WITH_ENUM(memory_type);
+
+inline bool isVideoMemory(memory_type mem_type) {
+    if ((mem_type & memory_type::video_memory_decoder_target) ==
+                   memory_type::video_memory_decoder_target) {
+                       return true;
+    } else if ((mem_type & memory_type::video_memory_encoder_target) ==
+                   memory_type::video_memory_encoder_target) {
+                       return true;
+    } else if ((mem_type & memory_type::video_memory_processor_target) ==
+                   memory_type::video_memory_processor_target) {
+                       return true;
+    }
+    return false;
+}
+
+inline bool isSystemMemory(memory_type mem_type) {
+    return (memory_type::system_memory == (mem_type & memory_type::system_memory));
+}
+
 enum class pool_alloction_policy : uint32_t {
     optimal       = MFX_ALLOCATION_OPTIMAL,
     unlimited     = MFX_ALLOCATION_UNLIMITED,
     limited       = MFX_ALLOCATION_LIMITED,
 };
+
 
 } // namespace vpl
 } // namespace oneapi

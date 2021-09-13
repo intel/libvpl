@@ -68,7 +68,7 @@ static int TestProperty(const char *name) {
         while (getline(prop, s, '.')) {
             p = p / s.c_str();
         }
-        vpl::property p2(p, 0);
+        vpl::property p2(p, (uint32_t)0);
     }
     catch (...) {
         printf("\n   Error!\n");

@@ -14,7 +14,6 @@
 #include "vpl/preview/defs.hpp"
 #include "vpl/preview/exception.hpp"
 #include "vpl/preview/extension_buffer_list.hpp"
-#include "vpl/preview/frame_pool.hpp"
 #include "vpl/preview/frame_surface.hpp"
 #include "vpl/preview/future.hpp"
 #include "vpl/preview/impl_selector.hpp"
@@ -67,10 +66,10 @@ protected:
         if (sts != MFX_ERR_NONE) {
             this->selected_impl_ = 0;
         }
-        this->version_ = { 0, 0 };
+        this->version_ = { { 0, 0 } };
         sts            = MFXQueryVersion(this->session_, &this->version_);
         if (sts != MFX_ERR_NONE) {
-            this->version_ = { 0, 0 };
+            this->version_ = { { 0, 0 } };
         }
         init_accelerator_handle();
     }
@@ -88,7 +87,7 @@ public:
     /// @return Implementation capabilities.
     std::shared_ptr<VideoParams> Caps() {
         std::shared_ptr<VideoParams> caps = std::make_shared<VideoParams>();
-        detail::c_api_invoker e(detail::default_checker,
+        [[maybe_unused]] detail::c_api_invoker e(detail::default_checker,
                                 c_api_callable_.query,
                                 session_,
                                 nullptr,
@@ -101,7 +100,7 @@ public:
     /// @return Corrected implementation capabilities.
     std::shared_ptr<VideoParams> Verify(VideoParams *param) {
         std::shared_ptr<VideoParams> out = std::make_shared<VideoParams>();
-        detail::c_api_invoker e(
+        [[maybe_unused]] detail::c_api_invoker e(
             detail::default_checker,
             std::bind(c_api_callable_.query, session_, param->getMfx(), out->getMfx()));
         return out;
@@ -147,7 +146,7 @@ public:
     /// @return Session parameters.
     std::shared_ptr<VideoParams> working_params() {
         std::shared_ptr<VideoParams> out = std::make_shared<VideoParams>();
-        detail::c_api_invoker e(detail::default_checker,
+        [[maybe_unused]] detail::c_api_invoker e(detail::default_checker,
                                 c_api_callable_.params,
                                 session_,
                                 out->getMfx());
@@ -198,23 +197,23 @@ protected:
             return;
 
         #ifdef LIBVA_SUPPORT
-            if ((impl & MFX_IMPL_VIA_VAAPI) == MFX_IMPL_VIA_VAAPI) {
-                VADisplay va_dpy = NULL;
-                // initialize VAAPI context and set session handle (req in Linux)
-                fd_ = open("/dev/dri/renderD128", O_RDWR);
-                if (fd_ >= 0) {
-                    va_dpy = vaGetDisplayDRM(fd_);
-                    if (va_dpy) {
-                        int major_version = 0, minor_version = 0;
-                        if (VA_STATUS_SUCCESS == vaInitialize(va_dpy, &major_version, &minor_version)) {
-                            MFXVideoCORE_SetHandle(session_,
-                                                static_cast<mfxHandleType>(MFX_HANDLE_VA_DISPLAY),
-                                                va_dpy);
-                        }
+        if ((impl & MFX_IMPL_VIA_VAAPI) == MFX_IMPL_VIA_VAAPI) {
+            VADisplay va_dpy = NULL;
+            // initialize VAAPI context and set session handle (req in Linux)
+            fd_ = open("/dev/dri/renderD128", O_RDWR);
+            if (fd_ >= 0) {
+                va_dpy = vaGetDisplayDRM(fd_);
+                if (va_dpy) {
+                    int major_version = 0, minor_version = 0;
+                    if (VA_STATUS_SUCCESS == vaInitialize(va_dpy, &major_version, &minor_version)) {
+                        MFXVideoCORE_SetHandle(session_,
+                                            static_cast<mfxHandleType>(MFX_HANDLE_VA_DISPLAY),
+                                            va_dpy);
                     }
                 }
-                accelerator_handle = va_dpy;
             }
+            accelerator_handle = va_dpy;
+        }
         #endif
     }
 
@@ -496,7 +495,7 @@ public:
     std::shared_ptr<decode_stat> getStat() {
         std::shared_ptr<decode_stat> out = std::make_shared<decode_stat>();
         decode_stat *dec_stat            = out.get();
-        detail::c_api_invoker e(detail::default_checker,
+        [[maybe_unused]] detail::c_api_invoker e(detail::default_checker,
                                 MFXVideoDECODE_GetDecodeStat,
                                 session_,
                                 dec_stat->get_raw());
@@ -743,7 +742,7 @@ public:
     /// @brief Dtor
     ~vpp_session() {}
 
-    /// @brief Allocate and return shared pointer to the surface
+    /// @brief Allocate and return shared pointer to the input surface
     /// @todo temporary method
     /// @return Shared pointer to the allocated surface
     auto alloc_input() {
@@ -756,6 +755,21 @@ public:
         return std::make_shared<frame_surface>(surface);
     }
 
+    /// @brief Allocate internal raw surface and attach it to the output surface
+    /// @param[inout] out_surface Reference to the frame_surface.
+    /// @todo temporary method
+    void alloc_output(std::shared_ptr<frame_surface> &out_surface) {
+        mfxFrameSurface1 *surface = nullptr;
+        detail::c_api_invoker e(detail::default_checker,
+                                MFXMemory_GetSurfaceForVPPOut,
+                                session_,
+                                &surface);
+
+        out_surface->inject(surface, out_surface.use_count() + 1);
+
+        return;
+    }
+
     /// @brief Initializes session with given parameters and extention buffers.
     /// @param[in] par Pointer to the parameters.
     /// @param[in] list List of extention buffers.
@@ -763,14 +777,6 @@ public:
     /// @todo This method brakes RAII concept. Need to move to ctor.
     status Init(vpp_video_param *par, vpp_init_reset_list list = {}) {
         status init_sts                 = session::Init(par, list);
-        mfxFrameAllocRequest request[2] = { 0 };
-
-        detail::c_api_invoker e(detail::default_checker,
-                                MFXVideoVPP_QueryIOSurf,
-                                session_,
-                                par->getMfx(),
-                                request);
-        out_frames_allocator_.attach_frame_info(oneapi::vpl::frame_info(request[1].Info));
         return init_sts;
     }
 
@@ -800,7 +806,7 @@ public:
         if (nullptr == surf) {
             state_ = state::Draining;
         }
-        out_surface = out_frames_allocator_.acquire();
+        alloc_output(out_surface);
         detail::c_api_invoker e({ [](mfxStatus s) {
                                     switch (s) {
                                         case MFX_ERR_MORE_DATA:
@@ -820,10 +826,6 @@ public:
                                 out_surface->get_raw_ptr(),
                                 nullptr,
                                 &sp);
-
-        if (out_surface) {
-            out_surface->associate_context(session_, sp);
-        }
 
         if (e.sts_ == MFX_ERR_MORE_DATA && state_ == state::Draining) {
             state_ = state::Done;
@@ -928,10 +930,6 @@ public:
 protected:
     /// @brief Raw freames reader
     frame_source_reader *rdr_;
-
-    /// @brief Temporal naive surfaces allocator.
-    /// @todo Replace the API 2.1 new functions for the memory allocation
-    temporal_frame_allocator out_frames_allocator_;
 };
 
 } // namespace vpl

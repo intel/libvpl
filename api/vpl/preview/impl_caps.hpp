@@ -531,6 +531,66 @@ protected:
     friend std::ostream &operator<<(std::ostream &out, const implementation_capabilities &f);
 };
 
+/// @brief Store and parse names of the implemented functions
+class implemented_functions : public base_implementation_capabilities {
+public:
+    /// @brief Default ctor
+    /// @param caps pointer to raw data.
+    explicit implemented_functions(mfxImplementedFunctions *caps)
+            : base_implementation_capabilities(MFX_IMPLCAPS_IMPLEMENTEDFUNCTIONS),
+              caps_(caps) {}
+
+public:
+    /// @brief Provides list of implemented functions.
+    /// @return list of implemented functions.
+    std::vector<std::string> get_functions_name() const {
+        std::vector<std::string> functions;
+
+        std::for_each(caps_->FunctionsName,
+                      caps_->FunctionsName + caps_->NumFunctions,
+                      [&](mfxChar* func) {
+                          functions.push_back(func);
+                      });
+
+        return functions;
+    }
+protected:
+    /// Raw data
+    mfxImplementedFunctions *caps_;
+
+    /// @brief Friend operator to print out state of the class in human readable form.
+    /// @param[inout] out Reference to the stream to write.
+    /// @param[in] f Referebce to the implemented_functions instance to dump the state.
+    /// @return Reference to the stream.
+    friend std::ostream &operator<<(std::ostream &out, const implemented_functions &f);
+};
+
+/// @brief Store and parse path to the implementation
+class implementation_path : public base_implementation_capabilities {
+public:
+    /// @brief Default ctor
+    /// @param caps pointer to raw data.
+    explicit implementation_path(mfxChar *path)
+            : base_implementation_capabilities(MFX_IMPLCAPS_IMPLPATH),
+              path_(path) {}
+
+public:
+    /// @brief Provides path to the implementation's shared library.
+    /// @return path to the implementation's shared library.
+    std::string get_path() const {
+        return std::string(path_);
+    }
+protected:
+    /// Raw data
+    mfxChar *path_;
+
+    /// @brief Friend operator to print out state of the class in human readable form.
+    /// @param[inout] out Reference to the stream to write.
+    /// @param[in] f Referebce to the implemented_functions instance to dump the state.
+    /// @return Reference to the stream.
+    friend std::ostream &operator<<(std::ostream &out, const implementation_path &f);
+};
+
 /// @brief Factory class to create implementation capabilities report class based on the format ID.
 class implementation_capabilities_factory {
 public:
@@ -539,6 +599,14 @@ public:
         map_[MFX_IMPLCAPS_IMPLDESCSTRUCTURE] = [](void *handle) {
             return std::make_shared<implementation_capabilities>(
                 reinterpret_cast<mfxImplDescription *>(handle));
+        };
+        map_[MFX_IMPLCAPS_IMPLEMENTEDFUNCTIONS] = [](void *handle) {
+            return std::make_shared<implemented_functions>(
+                reinterpret_cast<mfxImplementedFunctions *>(handle));
+        };
+        map_[MFX_IMPLCAPS_IMPLPATH] = [](void *handle) {
+            return std::make_shared<implementation_path>(
+                reinterpret_cast<mfxChar *>(handle));
         };
     }
 
@@ -570,10 +638,11 @@ inline std::ostream &operator<<(std::ostream &out,
     std::vector<uint32_t> fmts = m.get_out_mem_types();
     out << detail::space(detail::INTENT * 5, out, "# of color formats = ") << fmts.size()
         << std::endl;
+    detail::space(detail::INTENT * 6, out, "color format = ");
     std::for_each(fmts.begin(), fmts.end(), [&](uint32_t fmt) {
-        out << detail::space(detail::INTENT * 6, out, "color format = ")
-            << detail::FourCC2String(fmt) << std::endl;
+        out << detail::FourCC2String(fmt) << ", ";
     });
+    out << "\b\b  " << std::endl;
 
     return out;
 }
@@ -589,10 +658,12 @@ inline std::ostream &operator<<(std::ostream &out,
     std::vector<uint32_t> fmts = m.get_out_mem_types();
     out << detail::space(detail::INTENT * 5, out, "# of color formats = ") << fmts.size()
         << std::endl;
+    
+    out << detail::space(detail::INTENT * 6, out, "color formats = ");
     std::for_each(fmts.begin(), fmts.end(), [&](uint32_t fmt) {
-        out << detail::space(detail::INTENT * 6, out, "color format = ")
-            << detail::FourCC2String(fmt) << std::endl;
+        out << detail::FourCC2String(fmt) << ", ";
     });
+    out << "\b\b  " << std::endl;
 
     return out;
 }
@@ -660,11 +731,11 @@ inline std::ostream &operator<<(std::ostream &out,
     out << detail::space(detail::INTENT * 5, out, "# of output formats = ") << fmts.size()
         << std::endl;
 
+    out << detail::space(detail::INTENT * 6, out, "color formats = ");
     std::for_each(fmts.begin(), fmts.end(), [&](uint32_t fmt) {
-        out << detail::space(detail::INTENT * 6, out, "color format = ")
-            << detail::FourCC2String(fmt) << std::endl;
+        out << detail::FourCC2String(fmt) << ", ";
     });
-
+    out << "\b\b  " << std::endl;
     return out;
 }
 
@@ -704,7 +775,7 @@ inline std::ostream &operator<<(std::ostream &out,
 }
 
 inline std::ostream &operator<<(std::ostream &out, const implementation_capabilities &f) {
-    std::cout << "FImplementation:" << std::endl;
+    std::cout << "Implementation:" << std::endl;
 
     out << detail::space(detail::INTENT, out, "Impl    = ")
         << detail::ImplType2String(f.caps_->Impl) << std::endl;
@@ -776,6 +847,23 @@ inline std::ostream &operator<<(std::ostream &out, const implementation_capabili
         out << policy;
     });
 
+    return out;
+}
+
+inline std::ostream &operator<<(std::ostream &out, const implemented_functions &f) {
+    std::cout << "Functions: " << std::endl;
+    auto names = f.get_functions_name();
+
+    std::for_each(names.begin(), names.end(), [&](auto name) {
+        out << name << ", ";
+    });
+
+    out << "\b\b  " << std::endl;
+    return out;
+}
+
+inline std::ostream &operator<<(std::ostream &out, const implementation_path &f) {
+    std::cout << "Implementation path: " << f.get_path() << std::endl;
     return out;
 }
 

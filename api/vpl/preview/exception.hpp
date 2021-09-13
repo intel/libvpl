@@ -20,7 +20,7 @@ public:
     /// @brief Default ctor
     /// @param[in] status Operation ststus code
     explicit base_exception(mfxStatus status) : status_(status), text_(), res_() {
-        res_ = "oneVPL: " + text_ + ": " + status_to_string();
+        res_ = "oneVPL: " + status_to_string() + "[" + std::to_string(status_) + "]";
     }
 
     /// @brief Default ctor
@@ -30,7 +30,12 @@ public:
             : status_(status),
               text_(text),
               res_() {
-        res_ = "oneVPL: " + text_ + ": " + status_to_string();
+        if(text_.size()) {
+            res_ = "oneVPL: " + text_ + ": " + status_to_string() +
+                   "[" + std::to_string(status_) + "]";
+        } else {
+            res_ = "oneVPL: " + status_to_string() + "[" + std::to_string(status_) + "]";
+        }
     }
 
     base_exception(const base_exception& ex)
@@ -69,55 +74,55 @@ protected:
     std::string status_to_string() const noexcept {
         switch (status_) {
             case MFX_ERR_NONE:
-                return "No error.";
+                return "No error";
             case MFX_ERR_UNKNOWN:
-                return "Unknown error.";
+                return "Unknown error";
             case MFX_ERR_NULL_PTR:
-                return "NULL pointer.";
+                return "NULL pointer";
             case MFX_ERR_UNSUPPORTED:
-                return "Unsupported.";
+                return "Unsupported";
             case MFX_ERR_MEMORY_ALLOC:
-                return "Memory allocation error.";
+                return "Memory allocation error";
             case MFX_WRN_ALLOC_TIMEOUT_EXPIRED:
-                return "Memory allocation timeout expired.";
+                return "Memory allocation timeout expired";
             case MFX_ERR_NOT_ENOUGH_BUFFER:
-                return "Not enough buffer.";
+                return "Not enough buffer";
             case MFX_ERR_INVALID_HANDLE:
-                return "Invalide handle.";
+                return "Invalide handle";
             case MFX_ERR_LOCK_MEMORY:
-                return "Lock memory error.";
+                return "Lock memory error";
             case MFX_ERR_NOT_INITIALIZED:
-                return "Not initialized.";
+                return "Not initialized";
             case MFX_ERR_NOT_FOUND:
-                return "Not found.";
+                return "Not found";
             case MFX_ERR_MORE_DATA:
-                return "Not enough data.";
+                return "Not enough data";
             case MFX_ERR_MORE_SURFACE:
-                return "Not enough surfaces.";
+                return "Not enough surfaces";
             case MFX_ERR_ABORTED:
-                return "Operation aborted.";
+                return "Operation aborted";
             case MFX_ERR_DEVICE_LOST:
-                return "Decice lost.";
+                return "Decice lost";
             case MFX_ERR_INCOMPATIBLE_VIDEO_PARAM:
-                return "Incompartible video parameter.";
+                return "Incompartible video parameter";
             case MFX_ERR_INVALID_VIDEO_PARAM:
-                return "Invlid video parameter.";
+                return "Invlid video parameter";
             case MFX_ERR_UNDEFINED_BEHAVIOR:
-                return "Behaviour is undefined.";
+                return "Behaviour is undefined";
             case MFX_ERR_DEVICE_FAILED:
-                return "Device failed.";
+                return "Device failed";
             case MFX_ERR_MORE_BITSTREAM:
-                return "Not enough bitstream.";
+                return "Not enough bitstream";
             case MFX_ERR_GPU_HANG:
-                return "Device hang.";
+                return "Device hang";
             case MFX_ERR_REALLOC_SURFACE:
-                return "Bigger output surface required.";
+                return "Bigger output surface required";
             case MFX_ERR_RESOURCE_MAPPED:
-                return "Resource mapping failed.";
+                return "Resource mapping failed";
             case MFX_ERR_NOT_IMPLEMENTED:
-                return "Not implemetned.";
+                return "Not implemetned";
             default:
-                return "Unregistered unknown error.";
+                return "Unregistered unknown error";
         }
         return "Unregistered unknown error.";
     }

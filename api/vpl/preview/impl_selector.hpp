@@ -49,11 +49,11 @@ public:
         mfxStatus sts;
         implementation_capabilities_factory factory;
         auto loader = MFXLoad();
-        // convert options to mfxConfig
 
+        // convert options to mfxConfig
         std::for_each(opts_.begin(), opts_.end(), [&](auto opt) {
             auto cfg = MFXCreateConfig(loader);
-            detail::c_api_invoker e(detail::default_checker,
+            [[maybe_unused]] detail::c_api_invoker e(detail::default_checker,
                                     MFXSetConfigFilterProperty,
                                     cfg,
                                     (const uint8_t *)opt.get_name().c_str(),
@@ -64,6 +64,11 @@ public:
         while (true) {
             void *h;
             sts = MFXEnumImplementations(loader, idx, format_, &h);
+
+            std::shared_ptr<void> handle(h, [&] (void *p) {
+                MFXDispReleaseImplDescription(loader, p);
+            });
+
             // break if no idx
             if (sts == MFX_ERR_NOT_FOUND)
                 break;

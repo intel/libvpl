@@ -30,7 +30,7 @@ public:
     /// @tparam T Type of value
     /// @param[in] t Value
     template <typename T>
-    explicit variant(T t) : v_({0}){
+    explicit variant(T t) : v_({ { { 0 } } }){
         type_init(t);
     }
 
