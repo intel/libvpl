@@ -2776,30 +2776,6 @@ mfxStatus CTranscodingPipeline::InitVppMfxParams(MfxVideoParamsWrapper& par,
             mfxU32 PrevID = m_ScalerConfig.Pools[ID].PrevID;
             if (PrevID == DecoderPoolID) {
                 par.vpp.In = GetFrameInfo(m_mfxDecParams);
-
-                if (par.vpp.In.Width * par.vpp.In.Height == 0) {
-                    par.vpp.In.Width  = MSDK_ALIGN32(pInParams->nDstWidth);
-                    par.vpp.In.Height = MSDK_ALIGN32(pInParams->nDstHeight);
-                }
-
-                if (par.vpp.In.CropW * par.vpp.In.CropH == 0) {
-                    par.vpp.In.CropW = pInParams->nDstWidth;
-                    par.vpp.In.CropH = pInParams->nDstHeight;
-                }
-
-                if (par.vpp.In.FrameRateExtN * par.vpp.In.FrameRateExtD == 0) {
-                    par.vpp.In.FrameRateExtN = 30;
-                    par.vpp.In.FrameRateExtD = 1;
-                }
-
-                if (par.vpp.In.FourCC == 0) {
-                    par.vpp.In.FourCC              = FileFourCC2EncFourCC(pInParams->DecodeId);
-                    par.mfx.FrameInfo.ChromaFormat = FourCCToChroma(pInParams->DecoderFourCC);
-                }
-
-                if (m_rawInput) {
-                    par.mfx.FrameInfo.PicStruct = MFX_PICSTRUCT_PROGRESSIVE;
-                }
             }
             else {
                 MSDK_MEMCPY_VAR(par.vpp.In,
@@ -2815,7 +2791,31 @@ mfxStatus CTranscodingPipeline::InitVppMfxParams(MfxVideoParamsWrapper& par,
     else {
         MSDK_MEMCPY_VAR(par.vpp.In, &m_mfxDecParams.mfx.FrameInfo, sizeof(mfxFrameInfo));
     }
-    // fill output frame info
+
+    if (par.vpp.In.Width * par.vpp.In.Height == 0) {
+        par.vpp.In.Width  = MSDK_ALIGN32(pInParams->nDstWidth);
+        par.vpp.In.Height = MSDK_ALIGN32(pInParams->nDstHeight);
+    }
+
+    if (par.vpp.In.CropW * par.vpp.In.CropH == 0) {
+        par.vpp.In.CropW = pInParams->nDstWidth;
+        par.vpp.In.CropH = pInParams->nDstHeight;
+    }
+
+    if (par.vpp.In.FrameRateExtN * par.vpp.In.FrameRateExtD == 0) {
+        par.vpp.In.FrameRateExtN = 30;
+        par.vpp.In.FrameRateExtD = 1;
+    }
+
+    if (par.vpp.In.FourCC == 0) {
+        par.vpp.In.FourCC              = FileFourCC2EncFourCC(pInParams->DecodeId);
+        par.mfx.FrameInfo.ChromaFormat = FourCCToChroma(pInParams->DecoderFourCC);
+    }
+
+    if (m_rawInput) {
+        par.mfx.FrameInfo.PicStruct = MFX_PICSTRUCT_PROGRESSIVE;
+    }
+
     // fill output frame info
     MSDK_MEMCPY_VAR(par.vpp.Out, &par.vpp.In, sizeof(mfxFrameInfo));
 
