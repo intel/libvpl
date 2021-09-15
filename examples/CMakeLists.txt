@@ -16,23 +16,25 @@ if(BUILD_EXAMPLES)
   add_subdirectory(hello/hello-transcode)
 endif()
 
-install(
-  DIRECTORY content
-  DESTINATION ${ONEAPI_INSTALL_EXAMPLEDIR}
-  COMPONENT dev)
+if(INSTALL_EXAMPLE_CODE)
+  install(
+    DIRECTORY content
+    DESTINATION ${ONEAPI_INSTALL_EXAMPLEDIR}
+    COMPONENT dev)
 
-install(
-  DIRECTORY coreAPI/legacy-decode coreAPI/legacy-vpp coreAPI/legacy-encode
-  DESTINATION ${ONEAPI_INSTALL_EXAMPLEDIR}/coreAPI
-  COMPONENT dev)
+  install(
+    DIRECTORY coreAPI/legacy-decode coreAPI/legacy-vpp coreAPI/legacy-encode
+    DESTINATION ${ONEAPI_INSTALL_EXAMPLEDIR}/coreAPI
+    COMPONENT dev)
 
-install(
-  DIRECTORY interop/hello-decode-infer interop/legacy-decode-infer
-            interop/advanced-decvpp-infer
-  DESTINATION ${ONEAPI_INSTALL_EXAMPLEDIR}/interop
-  COMPONENT dev)
+  install(
+    DIRECTORY interop/hello-decode-infer interop/legacy-decode-infer
+              interop/advanced-decvpp-infer
+    DESTINATION ${ONEAPI_INSTALL_EXAMPLEDIR}/interop
+    COMPONENT dev)
 
-install(
-  DIRECTORY hello/hello-decvpp hello/hello-createsession hello/hello-transcode
-  DESTINATION ${ONEAPI_INSTALL_EXAMPLEDIR}/hello
-  COMPONENT dev)
+  install(
+    DIRECTORY hello/hello-decvpp hello/hello-createsession hello/hello-transcode
+    DESTINATION ${ONEAPI_INSTALL_EXAMPLEDIR}/hello
+    COMPONENT dev)
+endif()

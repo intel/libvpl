@@ -42,6 +42,9 @@ set(BUILD_TOOLS
 set(BUILD_EXAMPLES
     ON
     CACHE BOOL "Build examples when building dev package.")
+set(INSTALL_EXAMPLE_CODE
+    ON
+    CACHE BOOL "Install examples when installing dev package.")
 
 # Off by default while this is a preview
 set(BUILD_PYTHON_BINDING
@@ -188,4 +191,5 @@ message(STATUS "  BUILD_TOOLS                    : ${BUILD_TOOLS}")
 message(STATUS "  BUILD_SHARED_LIBS              : ${BUILD_SHARED_LIBS}")
 message(STATUS "  BUILD_TESTS                    : ${BUILD_TESTS}")
 message(STATUS "  BUILD_EXAMPLES                 : ${BUILD_EXAMPLES}")
+message(STATUS "  INSTALL_EXAMPLE_CODE           : ${INSTALL_EXAMPLE_CODE}")
 message(STATUS "  BUILD_PYTHON_BINDING           : ${BUILD_PYTHON_BINDING}")

@@ -7,7 +7,9 @@
 
 cmake_minimum_required(VERSION 3.10.2)
 
-install(
-  DIRECTORY hello-decode-py hello-encode-py hello-vpp-py
-  DESTINATION ${ONEAPI_INSTALL_EXAMPLEDIR}/preview/python
-  COMPONENT dev)
+if(INSTALL_EXAMPLE_CODE)
+  install(
+    DIRECTORY hello-decode-py hello-encode-py hello-vpp-py
+    DESTINATION ${ONEAPI_INSTALL_EXAMPLEDIR}/preview/python
+    COMPONENT dev)
+endif()

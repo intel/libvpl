@@ -12,7 +12,9 @@ if(BUILD_EXAMPLES)
   add_subdirectory(hello-encode-cpp)
 endif()
 
-install(
-  DIRECTORY hello-decode-cpp hello-encode-cpp
-  DESTINATION ${ONEAPI_INSTALL_EXAMPLEDIR}/preview/cplusplus
-  COMPONENT dev)
+if(INSTALL_EXAMPLE_CODE)
+  install(
+    DIRECTORY hello-decode-cpp hello-encode-cpp
+    DESTINATION ${ONEAPI_INSTALL_EXAMPLEDIR}/preview/cplusplus
+    COMPONENT dev)
+endif()
