@@ -364,6 +364,7 @@ mfxStatus vaapiFrameAllocator::AllocImpl(mfxFrameAllocRequest* request,
                 }
             }
             if (m_exporter) {
+                vaapi_mids[i].m_fourcc = va_fourcc;
                 vaapi_mids[i].m_custom = m_exporter->acquire(&vaapi_mids[i]);
                 if (!vaapi_mids[i].m_custom) {
                     mfx_res = MFX_ERR_UNKNOWN;
