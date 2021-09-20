@@ -37,7 +37,7 @@ cmake --build . --config Release --target install
 Windows DOS cmd prompt:
 ```
 cd <vpl-repo-clone-location>
-export VPL_INSTALL_DIR=%cd%/_vplbuild
+set VPL_INSTALL_DIR=%cd%\_vplbuild
 mkdir _build
 mkdir %VPL_INSTALL_DIR%
 cd _build
