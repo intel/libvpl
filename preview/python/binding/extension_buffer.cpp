@@ -91,7 +91,7 @@ public:
                                         const std::string &typestr,
                                         bool is_base = false)
             : base(m, typestr),
-              pyclass(m, (std::string("extension_buffer_trival_") + typestr).c_str()) {}
+              pyclass(m, (std::string("extension_buffer_with_ptrs_") + typestr).c_str()) {}
 };
 
 void init_extension_buffer(const py::module &m) {
@@ -102,7 +102,7 @@ void init_extension_buffer(const py::module &m) {
             .def_property_readonly(
                 "ID",
                 &vpl::extension_buffer_base::get_ID,
-                "Interface to retieve extension buffer ID in a form of FourCC code.")
+                "Interface to retrieve extension buffer ID in a form of FourCC code.")
             .def_property_readonly(
                 "ptr",
                 [](vpl::extension_buffer_base *self, std::pair<uint32_t, uint32_t>) {
