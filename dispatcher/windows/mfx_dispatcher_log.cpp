@@ -8,7 +8,7 @@
 
     #include "windows/mfx_dispatcher_log.h"
     #include <windows.h>
-    #include "windows/mfxstructures.h"
+    #include "vpl/mfxstructures.h"
     #if defined(DISPATCHER_LOG_REGISTER_EVENT_PROVIDER)
         #include <evntprov.h>
         #include <winmeta.h>
