@@ -481,6 +481,7 @@ public:
     bool m_bLowLatency;
     bool m_bNeedUpdateValidImpls;
     bool m_bNeedFullQuery;
+    bool m_bNeedLowLatencyQuery;
 
 private:
     // helper functions

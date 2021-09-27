@@ -66,6 +66,7 @@ LoaderCtxVPL::LoaderCtxVPL()
     m_bLowLatency           = false;
     m_bNeedUpdateValidImpls = true;
     m_bNeedFullQuery        = true;
+    m_bNeedLowLatencyQuery  = true;
 
     return;
 }

@@ -11,7 +11,7 @@
 
 #include <gtest/gtest.h>
 
-#include "vpl/mfxdispatcher.h"
+#include "src/unit_api.h"
 
 #if defined(_WIN32) || defined(_WIN64)
 
@@ -44,6 +44,8 @@ enum TestTypesLowLatency {
     LL_ERR_MISSING_PROP,
     LL_ERR_OVERWRITE_PROP,
     LL_ERR_WRONG_VALUE,
+
+    LL_CONFIG_ONLY,
 };
 
 // enable low latency mode, or fail intentionally with different causes
@@ -57,7 +59,8 @@ static mfxStatus EnableLowLatency(mfxLoader loader,
     mfxConfig config3 = nullptr;
     mfxConfig config4 = nullptr;
 
-    testing::internal::CaptureStdout();
+    if (testType != LL_CONFIG_ONLY)
+        testing::internal::CaptureStdout();
 
     config1 = MFXCreateConfig(loader);
     EXPECT_FALSE(config1 == nullptr);
@@ -120,6 +123,10 @@ static mfxStatus EnableLowLatency(mfxLoader loader,
                                      (const mfxU8 *)"mfxImplDescription.AccelerationMode",
                                      var);
     EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // don't test session creation, just set the config props
+    if (testType == LL_CONFIG_ONLY)
+        return sts;
 
     // we don't actually care if MFXCreateSession succeeds or not here
     //   since all we need is the log output that low latency is enabled (or not),
@@ -245,6 +252,94 @@ TEST(Dispatcher_LowLatency, Invalid_MultiConfig_WrongValue) {
     EXPECT_EQ(sts, MFX_ERR_NONE);
 
     MFXUnload(loader);
+}
+
+// below tests should only be run on systems with GPU RT installed
+
+TEST(Dispatcher_LowLatency, Create_SingleLoader_SingleSession) {
+    SKIP_IF_DISP_GPU_DISABLED();
+
+    mfxLoader loader = MFXLoad();
+    EXPECT_FALSE(loader == nullptr);
+
+    mfxStatus sts = EnableLowLatency(loader, LL_SINGLE_CONFIG, LL_CONFIG_ONLY);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    mfxSession session = nullptr;
+    sts                = MFXCreateSession(loader, 0, &session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+    EXPECT_NE(session, nullptr);
+
+    MFXClose(session);
+
+    MFXUnload(loader);
+}
+
+TEST(Dispatcher_LowLatency, Create_SingleLoader_MultipleSessions) {
+    SKIP_IF_DISP_GPU_DISABLED();
+
+    mfxLoader loader = MFXLoad();
+    EXPECT_FALSE(loader == nullptr);
+
+    mfxStatus sts = EnableLowLatency(loader, LL_SINGLE_CONFIG, LL_CONFIG_ONLY);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // create first session
+    mfxSession session1 = nullptr;
+    sts                 = MFXCreateSession(loader, 0, &session1);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+    EXPECT_NE(session1, nullptr);
+    MFXClose(session1);
+
+    // create second session
+    mfxSession session2 = nullptr;
+    sts                 = MFXCreateSession(loader, 0, &session2);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+    EXPECT_NE(session2, nullptr);
+    MFXClose(session2);
+
+    // create third session
+    mfxSession session3 = nullptr;
+    sts                 = MFXCreateSession(loader, 0, &session3);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+    EXPECT_NE(session3, nullptr);
+    MFXClose(session3);
+
+    MFXUnload(loader);
+}
+
+TEST(Dispatcher_LowLatency, Create_MultipleLoaders_MultipleSessions) {
+    SKIP_IF_DISP_GPU_DISABLED();
+
+    // create first loader and first session
+    mfxLoader loader1 = MFXLoad();
+    EXPECT_FALSE(loader1 == nullptr);
+
+    mfxStatus sts = EnableLowLatency(loader1, LL_SINGLE_CONFIG, LL_CONFIG_ONLY);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    mfxSession session1 = nullptr;
+    sts                 = MFXCreateSession(loader1, 0, &session1);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+    EXPECT_NE(session1, nullptr);
+
+    MFXClose(session1);
+    MFXUnload(loader1);
+
+    // create second loader and second session
+    mfxLoader loader2 = MFXLoad();
+    EXPECT_FALSE(loader2 == nullptr);
+
+    sts = EnableLowLatency(loader2, LL_SINGLE_CONFIG, LL_CONFIG_ONLY);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    mfxSession session2 = nullptr;
+    sts                 = MFXCreateSession(loader2, 0, &session2);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+    EXPECT_NE(session2, nullptr);
+
+    MFXClose(session2);
+    MFXUnload(loader2);
 }
 
 #endif // defined(_WIN32) || defined(_WIN64)

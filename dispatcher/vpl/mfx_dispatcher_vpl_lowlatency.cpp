@@ -204,11 +204,12 @@ mfxStatus LoaderCtxVPL::LoadLibsLowLatency() {
     // try loading oneVPL from driver store
     sts = LoadLibsFromDriverStore(numAdapters, adapterInfo, LibTypeVPL);
     if (sts == MFX_ERR_NONE) {
-        LibInfo *libInfo = m_libInfoList.front();
+        LibInfo *libInfo = m_libInfoList.back();
 
         sts = LoadSingleLibrary(libInfo);
         if (sts == MFX_ERR_NONE) {
             LoadAPIExports(libInfo, LibTypeVPL);
+            m_bNeedLowLatencyQuery = false;
             return MFX_ERR_NONE;
         }
         UnloadSingleLibrary(libInfo); // failed - unload and move to next location
@@ -217,14 +218,16 @@ mfxStatus LoaderCtxVPL::LoadLibsLowLatency() {
     // try loading MSDK from driver store
     sts = LoadLibsFromDriverStore(numAdapters, adapterInfo, LibTypeMSDK);
     if (sts == MFX_ERR_NONE) {
-        LibInfo *libInfo = m_libInfoList.front();
+        LibInfo *libInfo = m_libInfoList.back();
 
         sts = LoadSingleLibrary(libInfo);
         if (sts == MFX_ERR_NONE) {
             mfxU32 numFunctions = LoadAPIExports(libInfo, LibTypeMSDK);
 
-            if (numFunctions == NumMSDKFunctions)
+            if (numFunctions == NumMSDKFunctions) {
+                m_bNeedLowLatencyQuery = false;
                 return MFX_ERR_NONE;
+            }
         }
         UnloadSingleLibrary(libInfo); // failed - unload and move to next location
     }
@@ -238,8 +241,10 @@ mfxStatus LoaderCtxVPL::LoadLibsLowLatency() {
         if (sts == MFX_ERR_NONE) {
             mfxU32 numFunctions = LoadAPIExports(libInfo, LibTypeMSDK);
 
-            if (numFunctions == NumMSDKFunctions)
+            if (numFunctions == NumMSDKFunctions) {
+                m_bNeedLowLatencyQuery = false;
                 return MFX_ERR_NONE;
+            }
         }
         UnloadSingleLibrary(libInfo); // failed - unload and move to next location
     }

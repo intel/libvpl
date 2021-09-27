@@ -137,15 +137,17 @@ mfxStatus MFXCreateSession(mfxLoader loader, mfxU32 i, mfxSession *session) {
     if (loaderCtx->m_bLowLatency) {
         DISP_LOG_MESSAGE(dispLog, "message:  low latency mode enabled");
 
-        // load low latency libraries
-        sts = loaderCtx->LoadLibsLowLatency();
-        if (sts != MFX_ERR_NONE)
-            return MFX_ERR_NOT_FOUND;
+        if (loaderCtx->m_bNeedLowLatencyQuery) {
+            // load low latency libraries
+            sts = loaderCtx->LoadLibsLowLatency();
+            if (sts != MFX_ERR_NONE)
+                return MFX_ERR_NOT_FOUND;
 
-        // run limited query operations for low latency init
-        sts = loaderCtx->QueryLibraryCaps();
-        if (sts != MFX_ERR_NONE)
-            return MFX_ERR_NOT_FOUND;
+            // run limited query operations for low latency init
+            sts = loaderCtx->QueryLibraryCaps();
+            if (sts != MFX_ERR_NONE)
+                return MFX_ERR_NOT_FOUND;
+        }
     }
     else {
         DISP_LOG_MESSAGE(dispLog, "message:  low latency mode disabled");
