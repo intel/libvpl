@@ -7,7 +7,8 @@ cmake_minimum_required(VERSION 3.10.2)
 
 project(${PROJECT_NAME}Tests LANGUAGES CXX)
 
-set(test_sources src/session-test.cpp src/low-latency.cpp src/main.cpp)
+set(test_sources src/session-test.cpp src/legacycpp-session-test.cpp
+                 src/low-latency.cpp src/main.cpp)
 add_executable(${PROJECT_NAME} ${test_sources})
 
 find_package(VPL REQUIRED)

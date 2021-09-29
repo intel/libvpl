@@ -7,28 +7,48 @@
 #ifndef __MFXVIDEOPLUSPLUS_H
 #define __MFXVIDEOPLUSPLUS_H
 
-#include "mfxvideo.h"
+#include "mfx.h"
+#include <vector>
+
+#define MFX_IMPL_BASETYPE(x)  (0x00ff & (x))
+#define MFX_IMPL_ACCELMODE(x) (0xff00 & (x))
 
 class MFXVideoSession {
 public:
     MFXVideoSession(void) {
         m_session = (mfxSession)0;
+        m_loader = (mfxLoader)0;
+        m_initialized=false;
     }
     virtual ~MFXVideoSession(void) {
         Close();
     }
 
     virtual mfxStatus Init(mfxIMPL impl, mfxVersion *ver) {
-        return MFXInit(impl, ver, &m_session);
+        mfxInitParam par={};
+        par.Implementation=impl;
+        par.Version=*ver;
+        return InitSession(par);
     }
+
     virtual mfxStatus InitEx(mfxInitParam par) {
-        return MFXInitEx(par, &m_session);
+        return InitSession(par);
     }
+    
     virtual mfxStatus Close(void) {
-        mfxStatus mfxRes;
-        mfxRes    = MFXClose(m_session);
-        m_session = (mfxSession)0;
-        return mfxRes;
+        if (m_session) {
+            mfxStatus mfxRes;
+            mfxRes    = MFXClose(m_session);
+            m_session = (mfxSession)0;
+            if (m_loader) {
+                MFXUnload(m_loader);
+                m_loader = (mfxLoader)0;
+            }
+            m_initialized=false;
+            return mfxRes;
+        } else {
+            return MFX_ERR_NONE;
+        }
     }
 
     virtual mfxStatus QueryIMPL(mfxIMPL *impl) {
@@ -90,6 +110,102 @@ public:
 
 protected:
     mfxSession m_session; // (mfxSession) handle to the owning session
+    mfxLoader m_loader;
+    bool m_initialized;
+    std::vector<mfxConfig> m_Configs;
+
+    mfxStatus CreateConfig(mfxU32 data, const char* propertyName) {
+        mfxConfig cfg = MFXCreateConfig(m_loader);
+        mfxVariant variant;
+        variant.Type     = MFX_VARIANT_TYPE_U32;
+        variant.Data.U32 = data;
+        mfxStatus sts    = MFXSetConfigFilterProperty(cfg, (mfxU8*)propertyName, variant);
+
+        if (MFX_ERR_NONE == sts) m_Configs.push_back(cfg);
+
+        return sts;
+    }
+
+
+    mfxStatus InitSession(mfxInitParam par) {
+        if (false == m_initialized) {
+            m_loader = MFXLoad();
+            if (!m_loader) return MFX_ERR_NOT_FOUND;
+
+            mfxStatus sts = MFX_ERR_NONE;
+
+            mfxU32 implBasetype=MFX_IMPL_BASETYPE(par.Implementation);
+            switch(implBasetype) {
+
+                case MFX_IMPL_AUTO:
+                    // For legacy dispatcher compatibility only.  The new dispatcher does not use it.
+                case MFX_IMPL_AUTO_ANY:
+                    // Selects highest priority implementation providing API version specified
+                    // By dispatcher implementation sorting rules, hardware implementations (if available)
+                    // will be chosen before software.  If a hardware implementation is not found
+                    // a software implementation will be automatically selected.
+                    break; 
+
+                case MFX_IMPL_SOFTWARE:
+                    // Select a pure software implementation, even if hardware is available
+                    sts = CreateConfig(MFX_IMPL_TYPE_SOFTWARE, "mfxImplDescription.Impl");
+                    break;
+                
+                case MFX_IMPL_HARDWARE:
+                case MFX_IMPL_HARDWARE_ANY:
+                case MFX_IMPL_HARDWARE2:
+                case MFX_IMPL_HARDWARE3:
+                case MFX_IMPL_HARDWARE4:
+                    // Select a hardware accelerated implementation only
+                    sts = CreateConfig(MFX_IMPL_TYPE_HARDWARE, "mfxImplDescription.Impl");
+                    break;
+
+                default:
+                    sts = MFX_ERR_INVALID_VIDEO_PARAM;
+                    break;
+            }
+            if(MFX_ERR_NONE != sts) return MFX_ERR_INVALID_VIDEO_PARAM;
+
+
+            // Select a Windows adapter if a HARDWAREn implementation is used
+            // Note: in Linux, adapters are selected by /dev/dri/renderDn 
+            if (MFX_IMPL_HARDWARE2==implBasetype) {
+                sts = CreateConfig(1, "mfxImplDescription.VendorImplID");
+            } else if (MFX_IMPL_HARDWARE3 == implBasetype) {
+                sts = CreateConfig(2, "mfxImplDescription.VendorImplID");
+            } else if (MFX_IMPL_HARDWARE4 == implBasetype) {
+                sts = CreateConfig(3, "mfxImplDescription.VendorImplID");
+            }
+            if(MFX_ERR_NONE != sts) return MFX_ERR_INVALID_VIDEO_PARAM;
+
+
+            // Add acceleration mode if specified
+            mfxU32 accelerationMode = MFX_IMPL_ACCELMODE(par.Implementation);
+            if (accelerationMode>=MFX_ACCEL_MODE_VIA_D3D9) {
+                //VIA_D3D9      0x0200 = MFX_ACCEL_MODE_VIA_D3D9
+                //VIA_D3D11     0x0300 = MFX_ACCEL_MODE_VIA_D3D11
+                //VIA_VAAPI     0x0400 = MFX_ACCEL_MODE_VIA_VAAPI
+                //VIA_HDDLUNITE 0x0500 = MFX_ACCEL_MODE_VIA_HDDLUNITE
+                sts = CreateConfig(accelerationMode, "mfxImplDescription.AccelerationMode");
+                if(MFX_ERR_NONE != sts) return MFX_ERR_INVALID_VIDEO_PARAM;
+            }
+
+
+            // Filter out implementations not providing specified API level
+            sts = CreateConfig(par.Version.Version, "mfxImplDescription.ApiVersion.Version");
+            if(MFX_ERR_NONE != sts) return MFX_ERR_INVALID_VIDEO_PARAM;
+
+
+            // Create session with highest priority implementation remaining after filters
+            sts = MFXCreateSession(m_loader, 0, &m_session);
+            if(MFX_ERR_NONE != sts) return sts;
+
+            // set initialized flag so that init steps can be skipped if init is called again
+            m_initialized = true;
+        }
+        //already initialized
+        return MFX_ERR_NONE;
+    }
 private:
     MFXVideoSession(const MFXVideoSession &);
     void operator=(MFXVideoSession &);
@@ -254,7 +370,9 @@ protected:
 class MFXVideoDECODE_VPP
 {
 public:
-    explicit MFXVideoDECODE_VPP(mfxSession session) { m_session = session; }
+    explicit MFXVideoDECODE_VPP(mfxSession session) {
+        m_session = session;
+    }
     virtual ~MFXVideoDECODE_VPP(void) {
         Close();
     }
