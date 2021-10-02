@@ -506,7 +506,20 @@ protected:
     }
 
 public:
-    DECLARE_INNER_MEMBER_ACCESS(codec_video_param, uint16_t, mfx, LowPower);
+    /// @brief Gets flag for power consumption.
+    /// @return Flag for power consumption.
+    coding_option get_low_power() const {
+        return (coding_option)param_.mfx.LowPower;
+    }
+
+    /// @brief Sets flag for power consumption.
+    /// @param[in] lowpower Flag for power consumption.
+    /// @return Reference to this object
+    codec_video_param &set_low_power(coding_option lowpower) {
+        param_.mfx.LowPower = (uint32_t)lowpower;
+        return *this;
+    }
+
     DECLARE_INNER_MEMBER_ACCESS(codec_video_param, uint16_t, mfx, BRCParamMultiplier);
 
     /// @brief Returns codec fourCC value.
@@ -685,7 +698,19 @@ public:
     DECLARE_INNER_MEMBER_ACCESS(decoder_video_param, uint32_t, mfx, TimeStampCalc);
     DECLARE_INNER_MEMBER_ACCESS(decoder_video_param, uint16_t, mfx, SliceGroupsPresent);
     DECLARE_INNER_MEMBER_ACCESS(decoder_video_param, uint16_t, mfx, MaxDecFrameBuffering);
-    DECLARE_INNER_MEMBER_ACCESS(decoder_video_param, uint16_t, mfx, EnableReallocRequest);
+
+    /*! @brief Returns realloc request option. */
+    /*! @return Option value. */
+    coding_option get_realloc_request() const {
+        return (coding_option)param_.mfx.EnableReallocRequest;
+    }
+    /*! @brief Sets realloc request option. */
+    /*! @param[in] enable Option. */
+    /*! @return Reference to the instance. */
+    decoder_video_param &set_realloc_request(coding_option enable) {
+        param_.mfx.EnableReallocRequest = (mfxU16)enable;
+        return *this;
+    }
 
     /// @brief Friend operator to print out state of the class in human readable form.
     /// @param[inout] out Reference to the stream to write.

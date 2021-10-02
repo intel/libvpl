@@ -686,12 +686,12 @@ class Test_Ext(unittest.TestCase):
                          pyvpl.mfxExtBuffer(1, 1))
         self.check_field(obj, 'ChromaLog2WeightDenom')
         self.check_field(obj, 'LumaLog2WeightDenom')
-        self.check_field(obj, 'get_ChromaWeightFlag')
-        self.check_field(obj, 'get_LumaWeightFlag')
-        self.check_field(obj, 'get_Weight')
-        self.check_field(obj, 'set_ChromaWeightFlag')
-        self.check_field(obj, 'set_LumaWeightFlag')
-        self.check_field(obj, 'set_Weight')
+        self.check_field(obj, 'ChromaWeightFlag')
+        self.check_field(obj, 'LumaWeightFlag')
+        self.check_field(obj, 'Weight')
+        self.check_field(obj, 'ChromaWeightFlag')
+        self.check_field(obj, 'LumaWeightFlag')
+        self.check_field(obj, 'Weight')
 
     def test_ExtTimeCode(self):
         """Test ExtTimeCode"""

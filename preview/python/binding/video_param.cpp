@@ -600,8 +600,8 @@ void init_video_param(const py::module &m) {
         m,
         "codec_video_param")
         .def_property("LowPower",
-                      &vpl::codec_video_param::get_LowPower,
-                      &vpl::codec_video_param::set_LowPower)
+                      &vpl::codec_video_param::get_low_power,
+                      &vpl::codec_video_param::set_low_power)
         .def_property("BRCParamMultiplier",
                       &vpl::codec_video_param::get_BRCParamMultiplier,
                       &vpl::codec_video_param::set_BRCParamMultiplier)
@@ -712,8 +712,8 @@ void init_video_param(const py::module &m) {
                       &vpl::decoder_video_param::get_MaxDecFrameBuffering,
                       &vpl::decoder_video_param::set_MaxDecFrameBuffering)
         .def_property("EnableReallocRequest",
-                      &vpl::decoder_video_param::get_EnableReallocRequest,
-                      &vpl::decoder_video_param::set_EnableReallocRequest)
+                      &vpl::decoder_video_param::get_realloc_request,
+                      &vpl::decoder_video_param::set_realloc_request)
 
         .def("__str__", [](const vpl::decoder_video_param *self) {
             std::stringstream strs;

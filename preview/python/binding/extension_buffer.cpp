@@ -201,13 +201,18 @@ void init_extension_buffer(const py::module &m) {
     auto ExtEncoderCapability     = BIND_TRIVIAL_EXT_BUFFER(ExtEncoderCapability,
                                                         mfxExtEncoderCapability,
                                                         MFX_EXTBUFF_ENCODER_CAPABILITY);
-    auto ExtEncoderResetOption    = BIND_TRIVIAL_EXT_BUFFER(ExtEncoderResetOption,
-                                                         mfxExtEncoderResetOption,
-                                                         MFX_EXTBUFF_ENCODER_RESET_OPTION);
-    auto ExtAVCEncodedFrameInfo   = BIND_TRIVIAL_EXT_BUFFER(ExtAVCEncodedFrameInfo,
+    auto ExtEncoderResetOption    = BIND_TRIVIAL_EXT_BUFFER_NOINIT(ExtEncoderResetOption,
+                                                                mfxExtEncoderResetOption,
+                                                                MFX_EXTBUFF_ENCODER_RESET_OPTION)
+                                     .def(py::init<vpl::coding_option>())
+                                     .def(py::init<>([]() {
+                                         vpl::coding_option opt = {};
+                                         return new vpl::ExtEncoderResetOption(opt);
+                                     }));
+    auto ExtAVCEncodedFrameInfo = BIND_TRIVIAL_EXT_BUFFER(ExtAVCEncodedFrameInfo,
                                                           mfxExtAVCEncodedFrameInfo,
                                                           MFX_EXTBUFF_ENCODED_FRAME_INFO);
-    auto ExtVPPVideoSignalInfo    = BIND_TRIVIAL_EXT_BUFFER(ExtVPPVideoSignalInfo,
+    auto ExtVPPVideoSignalInfo  = BIND_TRIVIAL_EXT_BUFFER(ExtVPPVideoSignalInfo,
                                                          mfxExtVPPVideoSignalInfo,
                                                          MFX_EXTBUFF_VPP_VIDEO_SIGNAL_INFO);
     auto ExtEncoderROI =
@@ -247,7 +252,13 @@ void init_extension_buffer(const py::module &m) {
                                                       MFX_EXTBUFF_PRED_WEIGHT_TABLE);
     auto ExtAVCRoundingOffset = BIND_TRIVIAL_EXT_BUFFER(ExtAVCRoundingOffset,
                                                         mfxExtAVCRoundingOffset,
-                                                        MFX_EXTBUFF_AVC_ROUNDING_OFFSET);
+                                                        MFX_EXTBUFF_AVC_ROUNDING_OFFSET)
+                                    .def("set_rounding_offset_intra",
+                                         &vpl::ExtAVCRoundingOffset::set_rounding_offset_intra,
+                                         "Set rounding offset intra")
+                                    .def("set_rounding_offset_inter",
+                                         &vpl::ExtAVCRoundingOffset::set_rounding_offset_inter,
+                                         "Set rounding offset inter");
     auto ExtDirtyRect =
         BIND_TRIVIAL_EXT_BUFFER(ExtDirtyRect, mfxExtDirtyRect, MFX_EXTBUFF_DIRTY_RECTANGLES);
     auto ExtMoveRect =
@@ -260,9 +271,24 @@ void init_extension_buffer(const py::module &m) {
         BIND_TRIVIAL_EXT_BUFFER(ExtVPPMirroring, mfxExtVPPMirroring, MFX_EXTBUFF_VPP_MIRRORING);
     auto ExtMVOverPicBoundaries = BIND_TRIVIAL_EXT_BUFFER(ExtMVOverPicBoundaries,
                                                           mfxExtMVOverPicBoundaries,
-                                                          MFX_EXTBUFF_MV_OVER_PIC_BOUNDARIES);
+                                                          MFX_EXTBUFF_MV_OVER_PIC_BOUNDARIES)
+                                      .def("stick_top",
+                                           &vpl::ExtMVOverPicBoundaries::stick_top,
+                                           "Set stick to the top boundary mode")
+                                      .def("stick_bottom",
+                                           &vpl::ExtMVOverPicBoundaries::stick_bottom,
+                                           "Set stick to the bottom boundary mode")
+                                      .def("stick_left",
+                                           &vpl::ExtMVOverPicBoundaries::stick_left,
+                                           "Set stick to the left boundary mode")
+                                      .def("stick_right",
+                                           &vpl::ExtMVOverPicBoundaries::stick_right,
+                                           "Set stick to the right boundary mode");
     auto ExtVPPColorFill =
-        BIND_TRIVIAL_EXT_BUFFER(ExtVPPColorFill, mfxExtVPPColorFill, MFX_EXTBUFF_VPP_COLORFILL);
+        BIND_TRIVIAL_EXT_BUFFER(ExtVPPColorFill, mfxExtVPPColorFill, MFX_EXTBUFF_VPP_COLORFILL)
+            .def("enable_fill_outside",
+                 &vpl::ExtVPPColorFill::enable_fill_outside,
+                 "Fill the area between Width/Height and Crop borders");
     auto ExtColorConversion   = BIND_TRIVIAL_EXT_BUFFER(ExtColorConversion,
                                                       mfxExtColorConversion,
                                                       MFX_EXTBUFF_VPP_COLOR_CONVERSION);

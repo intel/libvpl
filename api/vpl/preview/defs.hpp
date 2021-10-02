@@ -327,6 +327,19 @@ enum class pool_alloction_policy : uint32_t {
     limited       = MFX_ALLOCATION_LIMITED,
 };
 
+enum class coding_option : uint16_t {
+    unknown  = MFX_CODINGOPTION_UNKNOWN,
+    on       = MFX_CODINGOPTION_ON,
+    off      = MFX_CODINGOPTION_OFF,
+    adaptive = MFX_CODINGOPTION_ADAPTIVE,
+};
+
+enum class skip_frame : uint16_t {
+    no_skip        = MFX_SKIPFRAME_NO_SKIP,
+    insert_dummy   = MFX_SKIPFRAME_INSERT_DUMMY,
+    insert_nothing = MFX_SKIPFRAME_INSERT_NOTHING,
+    brc_only       = MFX_SKIPFRAME_BRC_ONLY,
+};
 
 } // namespace vpl
 } // namespace oneapi

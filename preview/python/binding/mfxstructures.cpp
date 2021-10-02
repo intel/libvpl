@@ -1557,8 +1557,9 @@ void init_mfxstructures(const py::module &m) {
                        &mfxVP9TemporalLayer::TargetKbps,
                        "Target bitrate for the current temporal layer.");
 
-    CArrayWrapper<mfxVP9TemporalLayer>(m, "mfxVP9TemporalLayer_list");
     using mfxVP9TemporalLayer_list = CArrayWrapper<mfxVP9TemporalLayer>::List;
+    CArrayWrapper<mfxVP9TemporalLayer>(m, "mfxVP9TemporalLayer_list");
+    //using mfxVP9TemporalLayer_list = CArrayWrapper<mfxVP9TemporalLayer>::List;
 
     py::class_<mfxExtVP9TemporalLayers, std::shared_ptr<mfxExtVP9TemporalLayers>>(
         m,
