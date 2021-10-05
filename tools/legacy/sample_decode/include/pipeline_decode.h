@@ -128,6 +128,7 @@ struct sInputParams {
     bool api2xLowLatency;
     bool api2xDecVPP;
     bool api2xPerf;
+    bool api1xDispatcher;
 #endif
 
     bool bUseAdapterNum;

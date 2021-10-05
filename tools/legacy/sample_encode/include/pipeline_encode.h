@@ -130,6 +130,7 @@ struct sInputParams {
     bool api2xDispatcher;
     bool api2xLowLatency;
     bool api2xPerf;
+    bool api1xDispatcher;
 #endif
 
     std::vector<msdk_char*> dstFileBuff;

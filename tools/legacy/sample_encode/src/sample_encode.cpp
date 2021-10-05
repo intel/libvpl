@@ -313,10 +313,10 @@ void PrintHelp(msdk_char* strAppName, const msdk_char* strErrorMessage, ...) {
     msdk_printf(MSDK_STRING("\n"));
     msdk_printf(
         MSDK_STRING("   [-api2x_internalmem]      - specifies internal memory mode of vpl 2.x\n"));
-    msdk_printf(
-        MSDK_STRING("   [-api2x_dispatcher]       - specifies 2.x API smart dispatcher\n\n"));
     msdk_printf(MSDK_STRING(
         "   [-api2x_perf]             - aligns the measurement with reference tool to compare\n\n"));
+    msdk_printf(
+        MSDK_STRING("   [-api1x_dispatcher]       - specifies 1.x API legacy dispatcher\n\n"));
 #endif
     msdk_printf(MSDK_STRING("   [-adapterNum n]           - use adapter number n\n"));
     msdk_printf(MSDK_STRING(
@@ -438,6 +438,9 @@ mfxStatus ParseAdditionalParams(msdk_char* strInput[],
     }
     else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-api2x_perf"))) {
         pParams->api2xPerf = true;
+    }
+    else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-api1x_dispatcher"))) {
+        pParams->api1xDispatcher = true;
     }
     #if (defined(_WIN64) || defined(_WIN32))
     else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-dual_gfx::on"))) {
@@ -1621,6 +1624,11 @@ int main(int argc, char* argv[])
 
     // Parsing Input stream workign with presets
     sts = ParseInputString(argv, (mfxU8)argc, &Params);
+
+    // to make oneVPL.test be ready for new sample tools
+    // 2.x funcs call is the default in the new sample tools unless api1x_dispater is set
+    Params.api2xDispatcher = (Params.api1xDispatcher == true) ? false : true;
+
 #if (MFX_VERSION >= 2000)
     // sw impl mode in vpl, disable preset for now
     if (Params.bUseHWLib == true)

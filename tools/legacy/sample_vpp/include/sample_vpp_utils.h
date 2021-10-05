@@ -254,6 +254,7 @@ struct sInputParams {
     bool api2xDispatcher;
     bool api2xLowLatency;
     bool api2xPerf;
+    bool api1xDispatcher;
     #endif
     sInputParams()
             : frameInfoIn(),
@@ -328,6 +329,7 @@ struct sInputParams {
         api2xDispatcher  = false;
         api2xLowLatency  = false;
         api2xPerf        = false;
+        api1xDispatcher  = false;
     #endif
         bUseAdapterNum = false;
         adapterNum     = 0;

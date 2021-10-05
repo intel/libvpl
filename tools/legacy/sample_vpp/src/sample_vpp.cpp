@@ -434,6 +434,10 @@ int main(int argc, msdk_char* argv[])
     }
     MSDK_CHECK_STATUS(sts, "vppParseInputString failed");
 
+    // to make oneVPL.test be ready for new sample tools
+    // 2.x funcs call is the default in the new sample tools unless api1x_dispater is set
+    Params.api2xDispatcher = (Params.api1xDispatcher == true) ? false : true;
+
 #if (MFX_VERSION >= 2000)
     // In case i420 (-dcc i420) for gen, vppParseInputString sets forceOutputFourcc to i420 and
     // change Params.frameInfoOut[0].FourCC to nv12 for processing in gen lib.

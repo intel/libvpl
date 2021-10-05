@@ -186,12 +186,13 @@ void PrintHelp(msdk_char* strAppName, const msdk_char* strErrorMessage) {
     msdk_printf(MSDK_STRING("\n"));
     msdk_printf(
         MSDK_STRING("   [-api2x_internalmem]      - specifies internal memory mode of vpl 2.x\n"));
-    msdk_printf(MSDK_STRING("   [-api2x_dispatcher]       - specifies 2.x API smart dispatcher\n"));
     msdk_printf(MSDK_STRING(
         "   [-api2x_lowlatency]       - specifies low latency dispatcher initialization\n"));
     msdk_printf(MSDK_STRING("   [-api2x_decvpp]           - uses 2.x fused decode vpp API\n\n"));
     msdk_printf(MSDK_STRING(
         "   [-api2x_perf]             - aligns the measurement with reference tool to compare\n\n"));
+    msdk_printf(
+        MSDK_STRING("   [-api1x_dispatcher]       - specifies 1.x API legacy dispatcher\n"));
 #endif
     msdk_printf(MSDK_STRING("   [-adapterNum n]           - use adapter number n\n"));
 #if defined(_WIN32) || defined(_WIN64)
@@ -680,6 +681,9 @@ mfxStatus ParseInputString(msdk_char* strInput[], mfxU8 nArgNum, sInputParams* p
         else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-api2x_perf"))) {
             pParams->api2xPerf = true;
         }
+        else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-api1x_dispatcher"))) {
+            pParams->api1xDispatcher = true;
+        }
 #endif
         else // 1-character options
         {
@@ -797,6 +801,11 @@ int main(int argc, char* argv[])
         return MFX_ERR_NONE;
     }
     MSDK_CHECK_PARSE_RESULT(sts, MFX_ERR_NONE, 1);
+
+    // to make oneVPL.test be ready for new sample tools
+    // 2.x funcs call is the default in the new sample tools unless api1x_dispater is set
+    Params.api2xDispatcher = (Params.api1xDispatcher == true) ? false : true;
+
 #if (MFX_VERSION < 2000)
     if (Params.bIsMVC)
         Pipeline.SetMultiView();
