@@ -27,7 +27,8 @@ target_sources(
   ${TARGET}
   PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src/class_wayland.cpp
           ${CMAKE_CURRENT_SOURCE_DIR}/src/listener_wayland.cpp
-          ${CMAKE_CURRENT_SOURCE_DIR}/src/wayland-drm-protocol.c)
+          ${CMAKE_CURRENT_SOURCE_DIR}/src/wayland-drm-protocol.c
+          ${CMAKE_CURRENT_SOURCE_DIR}/src/linux-dmabuf-unstable-v1.c)
 
 target_link_libraries(${TARGET} sample_common wayland-client va drm drm_intel)
 
