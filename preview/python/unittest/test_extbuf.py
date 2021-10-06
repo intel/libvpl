@@ -780,14 +780,15 @@ class Test_Ext(unittest.TestCase):
         self.check_field(obj, 'TelecineLocation')
         self.check_field(obj, 'TelecinePattern')
 
-    def test_ExtVPPDenoise(self):
-        """Test ExtVPPDenoise"""
-        obj = pyvpl.ExtVPPDenoise()
-        self.assertEqual(obj.ID, 1397313092)
-        self.assertEqual(obj.size, 12)
-        self.check_field(obj, 'Header', pyvpl.mfxExtBuffer(1397313092, 12),
+    def test_ExtVPPDenoise2(self):
+        """Test ExtVPPDenoise2"""
+        obj = pyvpl.ExtVPPDenoise2()
+        self.assertEqual(obj.ID, 843664964)
+        self.assertEqual(obj.size, 44)
+        self.check_field(obj, 'Header', pyvpl.mfxExtBuffer(843664964, 12),
                          pyvpl.mfxExtBuffer(1, 1))
-        self.check_field(obj, 'DenoiseFactor')
+        self.check_field(obj, 'Mode')
+        self.check_field(obj, 'Strength')
 
     def test_ExtVPPDetail(self):
         """Test ExtVPPDetail"""

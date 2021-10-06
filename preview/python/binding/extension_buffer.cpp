@@ -106,7 +106,7 @@ void init_extension_buffer(const py::module &m) {
             .def_property_readonly(
                 "ptr",
                 [](vpl::extension_buffer_base *self, std::pair<uint32_t, uint32_t>) {
-                    mfxExtBuffer *ptr = self->get_ptr();
+                    mfxExtBuffer *ptr = self->get_base_ptr();
                     return std::pair(ptr->BufferId, ptr->BufferSz);
                 },
                 "Raw pointer to underlying C structure with the extension buffer.");
@@ -159,8 +159,8 @@ void init_extension_buffer(const py::module &m) {
         BIND_TRIVIAL_EXT_BUFFER(ExtCodingOption2, mfxExtCodingOption2, MFX_EXTBUFF_CODING_OPTION2);
     auto ExtCodingOption3 =
         BIND_TRIVIAL_EXT_BUFFER(ExtCodingOption3, mfxExtCodingOption3, MFX_EXTBUFF_CODING_OPTION3);
-    auto ExtVPPDenoise =
-        BIND_TRIVIAL_EXT_BUFFER(ExtVPPDenoise, mfxExtVPPDenoise, MFX_EXTBUFF_VPP_DENOISE);
+    auto ExtVPPDenoise2 =
+        BIND_TRIVIAL_EXT_BUFFER(ExtVPPDenoise2, mfxExtVPPDenoise2, MFX_EXTBUFF_VPP_DENOISE2);
     auto ExtVPPDetail =
         BIND_TRIVIAL_EXT_BUFFER(ExtVPPDetail, mfxExtVPPDetail, MFX_EXTBUFF_VPP_DETAIL);
     auto ExtVPPProcAmp =

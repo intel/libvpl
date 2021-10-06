@@ -89,7 +89,7 @@ public:
     T* get_buffer() {
         auto buff = extBuffers_.find(ID);
         if (buff != extBuffers_.end()) {
-            return *buff;
+            return reinterpret_cast<T*>(buff->second->get_base_ptr());
         }
         return nullptr;
     }
@@ -102,7 +102,7 @@ public:
     T* get_buffer(uint32_t ID) {
         auto buff = extBuffers_.find(ID);
         if (buff != extBuffers_.end()) {
-            return buff->second;
+            return reinterpret_cast<T*>(buff->second->get_base_ptr());
         }
         return nullptr;
     }
@@ -132,7 +132,7 @@ public:
                                              });
             if (exists_ignore)
                 continue;
-            mfxBuffers_[i] = value->get_ptr();
+            mfxBuffers_[i] = value->get_base_ptr();
             i++;
         }
         return std::pair(mfxBuffers_, extBuffers_.size() - ignoreNum);
@@ -686,6 +686,7 @@ class encoder_process_list : public buffer_list {
                                    std::is_same<ExtVP9Segmentation*, T>::value ||
                                    std::is_same<ExtEncodedUnitsInfo*, T>::value ||
                                    std::is_same<ExtAV1Segmentation*, T>::value ||
+                                   std::is_same<EncodeCtrl*, T>::value ||
                                    std::is_same<ExtDeviceAffinityMask*, T>::value,
                                AllBuffers<Tail...>,
                                std::false_type>::type {};
@@ -717,6 +718,7 @@ public:
     /// ExtEncodedUnitsInfo,
     /// ExtDeviceAffinityMask
     /// ExtAV1Segmentation
+    /// EncodeCtrl
     /// @param[in] Opts List of property objects
     template <typename... OptsT,
               typename = typename std::enable_if<AllBuffers<OptsT...>::value>::type>
@@ -757,6 +759,7 @@ public:
             case MFX_EXTBUFF_ENCODED_UNITS_INFO:
             case MFX_EXTBUFF_DEVICE_AFFINITY_MASK:
             case MFX_EXTBUFF_AV1_SEGMENTATION:
+            case 0:
                 buffer_list::add_buffer(o);
                 return;
         }
@@ -790,6 +793,7 @@ protected:
         std::is_same<ExtVP9Segmentation*, OptT>::value ||
         std::is_same<ExtEncodedUnitsInfo*, OptT>::value ||
         std::is_same<ExtAV1Segmentation*, OptT>::value ||
+        std::is_same<EncodeCtrl*, OptT>::value ||
         std::is_same<ExtDeviceAffinityMask*, OptT>::value>::type
     ctor_helper(OptT Opt, OptsT... Opts) {
         add_buffer(Opt);
@@ -807,7 +811,7 @@ class vpp_init_reset_list : public buffer_list {
     template <typename T, typename... Tail>
     struct AllBuffers<T, Tail...>
             : std::conditional<std::is_same<ExtVPPDoNotUse*, T>::value ||
-                                   std::is_same<ExtVPPDenoise*, T>::value ||
+                                   std::is_same<ExtVPPDenoise2*, T>::value ||
                                    std::is_same<ExtVPPDetail*, T>::value ||
                                    std::is_same<ExtVPPProcAmp*, T>::value ||
                                    std::is_same<ExtVPPDoUse*, T>::value ||
@@ -835,7 +839,7 @@ public:
     /// @brief Variadic length ctor.
     /// This ctor accepts list of pointers to the extension buffers of pre-defined type:
     /// ExtVPPDoNotUse,
-    /// ExtVPPDenoise,
+    /// ExtVPPDenoise2,
     /// ExtVPPDetail,
     /// ExtVPPProcAmp,
     /// ExtVPPDoUse,
@@ -905,7 +909,7 @@ protected:
     /// @return Nothing
     template <typename... OptsT, class OptT>
     typename std::enable_if<
-        std::is_same<ExtVPPDoNotUse*, OptT>::value || std::is_same<ExtVPPDenoise*, OptT>::value ||
+        std::is_same<ExtVPPDoNotUse*, OptT>::value || std::is_same<ExtVPPDenoise2*, OptT>::value ||
         std::is_same<ExtVPPDetail*, OptT>::value || std::is_same<ExtVPPProcAmp*, OptT>::value ||
         std::is_same<ExtVPPDoUse*, OptT>::value ||
         std::is_same<ExtVPPFrameRateConversion*, OptT>::value ||

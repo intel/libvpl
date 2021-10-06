@@ -46,7 +46,7 @@ public:
 
     /// @brief Interface to retieve raw pointer to the C header of C sructure.
     /// @return Pointer to the header of extension buffer C strucure.
-    virtual mfxExtBuffer* get_ptr() = 0;
+    virtual mfxExtBuffer* get_base_ptr() = 0;
 };
 
 /// @brief Utilitary intermediate class to typify extension buffer interface with
@@ -116,10 +116,16 @@ public:
         return buffer_;
     }
 
+    /// @brief Returns raw pointer to @p mfxExtBuffer structure with the extension buffer.
+    /// @return Raw pointer to underlying C structure.
+    mfxExtBuffer* get_base_ptr() {
+        return reinterpret_cast<mfxExtBuffer*>(&buffer_);
+    }
+
     /// @brief Returns raw pointer to underlying C structure with the extension buffer.
     /// @return Raw pointer to underlying C structure.
-    mfxExtBuffer* get_ptr() {
-        return reinterpret_cast<mfxExtBuffer*>(&buffer_);
+    T* get_ptr() {
+        return &buffer_;
     }
 
 protected:
@@ -829,7 +835,7 @@ public:
     }
 };
 
-REGISTER_TRIVIAL_EXT_BUFFER(ExtVPPDenoise, mfxExtVPPDenoise, MFX_EXTBUFF_VPP_DENOISE)
+REGISTER_TRIVIAL_EXT_BUFFER(ExtVPPDenoise2, mfxExtVPPDenoise2, MFX_EXTBUFF_VPP_DENOISE2)
 REGISTER_TRIVIAL_EXT_BUFFER(ExtVPPDetail, mfxExtVPPDetail, MFX_EXTBUFF_VPP_DETAIL)
 REGISTER_TRIVIAL_EXT_BUFFER(ExtVPPProcAmp, mfxExtVPPProcAmp, MFX_EXTBUFF_VPP_PROCAMP)
 
@@ -1695,7 +1701,7 @@ class EncodeCtrl : public extension_buffer_with_ptrs<mfxEncodeCtrl, 0> {
 public:
     /// @brief Constructs object with the user payload
     /// @param[in] userPayload Payload
-    explicit EncodeCtrl(const std::vector<payload> &userPayload)
+    explicit EncodeCtrl(const std::vector<payload> &userPayload = {})
             : extension_buffer_with_ptrs(),
               payload_(userPayload) {
         set_payload();

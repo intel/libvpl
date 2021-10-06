@@ -538,9 +538,32 @@ public:
                         encoder_process_list list = {}) {
         mfxSyncPoint sp;
         mfxFrameSurface1 *surf = in_surface.get() ? in_surface.get()->get_raw_ptr() : nullptr;
+        std::shared_ptr<mfxEncodeCtrl> ctrl = nullptr;
+        bool alocated_ctrl                  = false;
 
         if (nullptr == surf) {
             state_ = state::Draining;
+        }
+        if(list.get_size() && list.has_buffer<0>()) {
+            ctrl.reset(list.get_buffer<mfxEncodeCtrl, 0>(), [](mfxEncodeCtrl *p) { p = nullptr; });
+            std::cout << "enc ctrl from the list" << std::endl;
+        } else {
+            ctrl = std::make_shared<mfxEncodeCtrl>();
+            *ctrl = {0};
+            alocated_ctrl = true;
+        }
+        
+        // Asumption: Encoder will copy-in all extension buffers.
+        if (auto [buffers, size] = list.get_raw_ext_buffers(); size) {
+            ctrl->ExtParam = buffers;
+            ctrl->NumExtParam = (mfxU16)size;
+        } else {
+            if (alocated_ctrl) {
+                ctrl.reset();
+            } else {
+                ctrl->ExtParam = 0;
+                ctrl->NumExtParam = 0;
+            }
         }
         detail::c_api_invoker e({ [](mfxStatus s) {
                                     switch (s) {
@@ -557,7 +580,7 @@ public:
                                 } },
                                 MFXVideoENCODE_EncodeFrameAsync,
                                 session_,
-                                nullptr,
+                                ctrl.get(),
                                 surf,
                                 (*bs.get())(),
                                 &sp);
