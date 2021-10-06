@@ -132,9 +132,7 @@ void init_option_tree(const py::module &m) {
         .def_property("pool_alloc_properties",
                       &vpl::properties::get_pool_alloc_properties,
                       &vpl::properties::set_pool_alloc_properties)
-        .def_property("set_handle",
-                      &vpl::properties::get_set_handle,
-                      &vpl::properties::set_set_handle)
+        .def_property("handle", &vpl::properties::get_handle, &vpl::properties::set_handle)
         .def_readonly("decoder", &vpl::properties::decoder)
         .def_readonly("encoder", &vpl::properties::encoder)
         .def_readonly("filter", &vpl::properties::filter)

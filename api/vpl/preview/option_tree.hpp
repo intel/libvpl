@@ -5,55 +5,67 @@
 //==============================================================================
 #include <vector>
 #include <optional>
-#include "vpl/preview/options.hpp"
+#include <string>
+#include <utility>
 #include "vpl/preview/defs.hpp"
 #include "vpl/preview/detail/string_helpers.hpp"
+#include "vpl/preview/detail/variant.hpp"
 
 #pragma once
 
 namespace oneapi {
 namespace vpl {
 
-/// @brief Represents a settable property.
-template<typename PT> class property_value : public std::optional<typename PT::value_type>{
+namespace detail {
+
+/// @brief Common operations on properties.
+class property_details{
 public:
-    /// @brief This class type
-    using this_type = property_value<PT>;
+    /// @brief Write value to vector of @p property.
+    /// @param[in] dest destination vector
+    virtual void write(std::string prefix, std::vector<std::pair<std::string, detail::variant>>& dest) const = 0;
 
-    /// @brief Property type
-    using property_type = PT;
+    /// @brief Write value in human readable form to a stream
+    /// @param[in] out destination stream
+    /// @param[in] indent indent level
+    virtual void print(std::ostream& out, int indent) const = 0;
+};
 
-    /// @brief Item type
-    using item_type = typename PT::value_type;
+}
 
-    /// @brief Property value type
-    using value_type = typename PT::value_type;
+/// @brief Represents a single settable property.
+template<typename item_type, typename dest_type=item_type> class property_value : public std::optional<item_type>, detail::property_details{
+public:
+    /// @brief Full property value type
+    using value_type = item_type;
 
-    using std::optional<value_type>::value;
+    /// @brief Class type
+    using this_type = property_value<item_type, dest_type>;
 
-    using std::optional<value_type>::optional;
+    /// @brief Class base type
+    using base_type = std::optional<value_type>;
 
-    /// @brief Assignment operator.
-    /// @param[in] other another object to use as data source
-    /// @returns Reference to this object
-    this_type& operator=(this_type const& other){
-        std::optional<value_type>::operator=(other);
-        return *this;
-    }
+    // declare usages from base class
+    using base_type::value;
+    using base_type::has_value;
+
+    /// @brief ctor
+    property_value(std::string name, std::string prop_name) : name_(name), prop_name_(prop_name){}
 
     /// @brief Assignment operator.
     /// @param[in] value value of object
     /// @returns Reference to this object
     this_type& operator=(value_type const& value){
-        std::optional<value_type>::operator=(value);
+        base_type::operator=(value);
         return *this;
     }
 
-    /// @brief Write value to vector of @p property.
+public:  // detail::property_details
+    /// @brief Write value to vector of C Properties.
     /// @param[in] dest destination vector
-    void write(std::vector<property>& dest) const { 
-        if(this->has_value()){
-            dest.push_back(property_type(value()));
+    void write(std::string prefix, std::vector<std::pair<std::string, detail::variant>>& dest) const {
+        if(has_value()){
+            dest.push_back(std::pair(prefix + prop_name_, detail::variant((dest_type)value())));
         }
     }
 
@@ -63,42 +75,124 @@ public:
     void print(std::ostream& out, int indent) const {
         // this using is scoped to just this method, it pulls
         // operator<< implementations for tuple and pair into scope
-        // so that they can be printed out with this common code.
+        // so that they canbe printed out with this common code.
         using namespace detail;
-        if(this->has_value()){
+        if(has_value()){
             out << std::string(indent, ' ') << std::string(indent, ' ')
-                << property_type(item_type()).get_leaf_property_name()
+                << name_
                 << " = ";
-            out << this->value();
+            out << value();
             out << std::endl;
         }
     }
+
+protected:
+    /// @brief UI Name
+    std::string name_;
+
+    /// @brief Property name as specificed in spec
+    std::string prop_name_;
 };
 
-/// @brief Represents a settable property.
-template<typename PT> class list_property_value : public std::optional<std::vector<typename PT::value_type>>{
+/// @brief Represents a pair of settable properties that are always set together.
+template<
+    typename item_type_1,
+    typename item_type_2=item_type_1,
+    typename dest_type_1=item_type_1,
+    typename dest_type_2=item_type_2> class property_pair_value : public std::optional<std::pair<item_type_1, item_type_2>>, detail::property_details{
 public:
-    /// @brief This class type
-    using this_type = list_property_value<PT>;
+    /// @brief Single property value type
+    using item_type = std::pair<item_type_1, item_type_2>;
 
-    /// @brief Property type
-    using property_type = PT;
+    /// @brief Full property value type
+    using value_type = item_type;
 
-    /// @brief Item type
-    using item_type = typename PT::value_type;
+    /// @brief Class type
+    using this_type = property_pair_value<item_type_1, item_type_2, dest_type_1, dest_type_2>;
 
-    /// @brief Property value type
-    using value_type = std::vector<typename PT::value_type>;
+    /// @brief Class base type
+    using base_type = std::optional<value_type>;
 
-    using std::optional<value_type>::value;
+    // declare usages from base class
+    using base_type::value;
+    using base_type::has_value;
 
-    using std::optional<value_type>::optional;
+    /// @brief ctor
+    property_pair_value(std::string name, std::string prop_name_1, std::string prop_name_2)
+        : name_(name), 
+        prop_name_1_(prop_name_1), 
+        prop_name_2_(prop_name_2){}
+
+    /// @brief Assignment operator.
+    /// @param[in] value value of object
+    /// @returns Reference to this object
+    this_type& operator=(value_type const& value){
+        base_type::operator=(value);
+        return *this;
+    }
+
+public:  // detail::property_details
+    /// @brief Write value to vector of C Properties.
+    /// @param[in] dest destination vector
+    void write(std::string prefix, std::vector<std::pair<std::string, detail::variant>>& dest) const {
+        if(has_value()){
+            dest.push_back(std::pair(prefix + prop_name_1_, detail::variant((dest_type_1)value().first)));
+            dest.push_back(std::pair(prefix + prop_name_2_, detail::variant((dest_type_2)value().second)));
+        }
+    }
+
+    /// @brief Write value in human readable form to a stream
+    /// @param[in] out destination stream
+    /// @param[in] indent indent level
+    void print(std::ostream& out, int indent) const {
+        // this using is scoped to just this method, it pulls
+        // operator<< implementations for tuple and pair into scope
+        // so that they canbe printed out with this common code.
+        using namespace detail;
+        if(has_value()){
+            out << std::string(indent, ' ') << std::string(indent, ' ')
+                << name_
+                << " = ";
+            out << value();
+            out << std::endl;
+        }
+    }
+
+protected:
+    /// @brief UI Name
+    std::string name_;
+
+    /// @brief Property 1 name as specificed in spec
+    std::string prop_name_1_;
+
+    /// @brief Property 2 name as specificed in spec
+    std::string prop_name_2_;
+};
+
+/// @brief Represents a list of settings for properties that can have multiple values.
+template<typename item_type, typename dest_type=item_type> class list_property_value : public std::optional<std::vector<item_type>>, detail::property_details{
+public:
+    /// @brief Full property value type
+    using value_type = std::vector<item_type>;
+
+    /// @brief Class type
+    using this_type = list_property_value<item_type, dest_type>;
+
+    /// @brief Class base type
+    using base_type = std::optional<value_type>;
+
+    // declare usages from base class
+    using base_type::value;
+    using base_type::has_value;
+
+    /// @brief ctor
+    list_property_value(std::string name, std::string prop_name) : name_(name), prop_name_(prop_name){}
 
     /// @brief Assignment operator.
     /// @param[in] other another object to use as data source
     /// @returns Reference to this object
     this_type& operator=(this_type const& other){
-        std::optional<value_type>::operator=(other);
+        base_type::operator=(other);
         return *this;
     }
 
@@ -106,16 +200,17 @@ public:
     /// @param[in] value value of object
     /// @returns Reference to this object
     this_type& operator=(value_type const& value){
-        std::optional<value_type>::operator=(value);
+        base_type::operator=(value);
         return *this;
     }
 
     /// @brief Write value to vector of @p property.
     /// @param[in] dest destination vector
-    void write(std::vector<property>& dest) const { 
+    void write(std::string prefix, std::vector<std::pair<std::string, detail::variant>>& dest) const {
         if(this->has_value()){
             for(auto&v : value()){
-                dest.push_back(property_type(v));
+                auto variant_value = detail::variant((dest_type)v);
+                dest.push_back(std::pair(prefix + prop_name_, variant_value));
             }
         }
     }
@@ -130,50 +225,149 @@ public:
         using namespace detail;
         if(this->has_value()){
             out << std::string(indent, ' ') << std::string(indent, ' ')
-                << property_type(item_type()).get_leaf_property_name()
+                << name_
                 << " = ";
             out << this->value();
             out << std::endl;
         }
     }
+protected:
+    /// @brief UI Name
+    std::string name_;
+
+    /// @brief Property name as specificed in spec
+    std::string prop_name_;
 };
 
-#define VPL_OPT_TREE_PROPERTY(NAME) \
-    property_value<dprops::NAME> NAME; \
-    decltype(NAME)::value_type& get_##NAME(){ return NAME.value(); } \
-    void set_##NAME(decltype(NAME)::value_type v){ NAME = v; }
+/// @brief Represents a list of settings for pairs of properties that can have multiple values that are set together.
+template<
+    typename item_type_1,
+    typename item_type_2=item_type_1,
+    typename dest_type_1=item_type_1,
+    typename dest_type_2=item_type_2> class list_property_pair_value : public std::optional<std::vector<std::pair<item_type_1, item_type_2>>>, detail::property_details{
+public:
+    /// @brief Single property value type
+    using item_type = std::pair<item_type_1, item_type_2>;
 
-#define VPL_OPT_TREE_LIST_PROPERTY(NAME) \
-    list_property_value<dprops::NAME> NAME; \
-    decltype(NAME)::value_type& get_##NAME(){ return NAME.value(); } \
-    void set_##NAME(decltype(NAME)::value_type v){ NAME = v; }
+    /// @brief Full property value type
+    using value_type = std::vector<item_type>;
+
+    /// @brief Class type
+    using this_type = list_property_pair_value<item_type_1, item_type_2, dest_type_1, dest_type_2>;
+
+    /// @brief Class base type
+    using base_type = std::optional<value_type>;
+
+    // declare usages from base class
+    using base_type::value;
+    using base_type::has_value;
+
+    /// @brief ctor
+    list_property_pair_value(std::string name, std::string prop_name_1, std::string prop_name_2)
+        : name_(name), 
+        prop_name_1_(prop_name_1), 
+        prop_name_2_(prop_name_2){}
+
+    /// @brief Assignment operator.
+    /// @param[in] value value of object
+    /// @returns Reference to this object
+    this_type& operator=(value_type const& value){
+        base_type::operator=(value);
+        return *this;
+    }
+
+public:  // detail::property_details
+    /// @brief Write value to vector of C Properties.
+    /// @param[in] dest destination vector
+    void write(std::string prefix, std::vector<std::pair<std::string, detail::variant>>& dest) const {
+        if(has_value()){
+            for(auto&v : value()){
+                dest.push_back(std::pair(prefix + prop_name_1_, detail::variant((dest_type_1)v.first)));
+                dest.push_back(std::pair(prefix + prop_name_2_, detail::variant((dest_type_2)v.second)));
+            }
+        }
+    }
+
+    /// @brief Write value in human readable form to a stream
+    /// @param[in] out destination stream
+    /// @param[in] indent indent level
+    void print(std::ostream& out, int indent) const {
+        // this using is scoped to just this method, it pulls
+        // operator<< implementations for tuple and pair into scope
+        // so that they canbe printed out with this common code.
+        using namespace detail;
+        if(has_value()){
+            out << std::string(indent, ' ') << std::string(indent, ' ')
+                << name_
+                << " = ";
+            out << value();
+            out << std::endl;
+        }
+    }
+
+protected:
+    /// @brief UI Name
+    std::string name_;
+
+    /// @brief Property 1 name as specificed in spec
+    std::string prop_name_1_;
+
+    /// @brief Property 2 name as specificed in spec
+    std::string prop_name_2_;
+};
+
+#define VPL_OPT_TREE_PROPERTY(PUBLIC_TYPE, IMPL_TYPE, NAME) \
+    property_value<PUBLIC_TYPE, IMPL_TYPE> NAME; \
+    property_value<PUBLIC_TYPE, IMPL_TYPE>::value_type& get_##NAME(){ return NAME.value(); } \
+    void set_##NAME(property_value<PUBLIC_TYPE, IMPL_TYPE>::value_type v){ NAME = v; }
+
+#define VPL_OPT_TREE_PROPERTY_PAIR(PUBLIC_TYPE_1, PUBLIC_TYPE_2, IMPL_TYPE_1, IMPL_TYPE_2, NAME) \
+    property_pair_value<PUBLIC_TYPE_1, PUBLIC_TYPE_2, IMPL_TYPE_1, IMPL_TYPE_2> NAME; \
+    property_pair_value<PUBLIC_TYPE_1, PUBLIC_TYPE_2, IMPL_TYPE_1, IMPL_TYPE_2>::value_type& get_##NAME(){ return NAME.value(); } \
+    void set_##NAME(property_pair_value<PUBLIC_TYPE_1, PUBLIC_TYPE_2, IMPL_TYPE_1, IMPL_TYPE_2>::value_type v){ NAME = v; }
+
+#define VPL_OPT_TREE_LIST_PROPERTY(PUBLIC_TYPE, IMPL_TYPE, NAME) \
+    list_property_value<PUBLIC_TYPE, IMPL_TYPE> NAME; \
+    list_property_value<PUBLIC_TYPE, IMPL_TYPE>::value_type& get_##NAME(){ return NAME.value(); } \
+    void set_##NAME(list_property_value<PUBLIC_TYPE, IMPL_TYPE>::value_type v){ NAME = v; }
+
+#define VPL_OPT_TREE_LIST_PROPERTY_PAIR(PUBLIC_TYPE_1, PUBLIC_TYPE_2, IMPL_TYPE_1, IMPL_TYPE_2, NAME) \
+    list_property_pair_value<PUBLIC_TYPE_1, PUBLIC_TYPE_2, IMPL_TYPE_1, IMPL_TYPE_2> NAME; \
+    list_property_pair_value<PUBLIC_TYPE_1, PUBLIC_TYPE_2, IMPL_TYPE_1, IMPL_TYPE_2>::value_type& get_##NAME(){ return NAME.value(); } \
+    void set_##NAME(list_property_pair_value<PUBLIC_TYPE_1, PUBLIC_TYPE_2, IMPL_TYPE_1, IMPL_TYPE_2>::value_type v){ NAME = v; }
 
 /// @brief Represents the namespace of configurable encode/decode memory decriptor properties. See
 /// @p implementation_selector properties for more detail.
 class codec_mem_desc_properties {
 public:
     /// @brief mem_type property
-    VPL_OPT_TREE_PROPERTY(mem_type)
+    VPL_OPT_TREE_PROPERTY(resource_type, uint32_t, mem_type)
 
     /// @brief frame_size property
-    VPL_OPT_TREE_PROPERTY(frame_size)
+    VPL_OPT_TREE_PROPERTY_PAIR(uint32_t, uint32_t, uint32_t, uint32_t, frame_size)
 
     /// @brief color_format property
-    VPL_OPT_TREE_PROPERTY(color_format)
+    VPL_OPT_TREE_PROPERTY(color_format_fourcc, uint32_t, color_format)
+
+    codec_mem_desc_properties() 
+    : mem_type("mem_type", "MemHandleType")
+    , frame_size("frame_size", "Width", "Height")
+    , color_format("color_format", "ColorFormats") {}
 };
 
 /// @brief Represents the namespace of configurable encoder specific memory decriptor properties. See
 /// @p implementation_selector properties for more detail.
-class enc_mem_desc_properties : public codec_mem_desc_properties{
+class enc_mem_desc_properties : public codec_mem_desc_properties {
 public:
-    /// @brief Write value to vector of @p property.
+
+public:  // detail::property_details
+    /// @brief Write value to vector of C Properties.
     /// @param[in] dest destination vector
-    void write(std::vector<property>& dest) const { 
-        std::vector<property> props;
-        mem_type.write(props);
-        frame_size.write(props);
-        color_format.write(props);
-        dest.push_back(dprops::enc_mem_desc(props));
+    void write(std::string prefix, std::vector<std::pair<std::string, detail::variant>>& dest) const {
+        prefix = prefix + "encmemdesc.";
+        mem_type.write(prefix, dest);
+        frame_size.write(prefix, dest);
+        color_format.write(prefix, dest);
     }
 
     /// @brief Write value in human readable form to a stream
@@ -192,14 +386,15 @@ public:
 /// @p implementation_selector properties for more detail.
 class dec_mem_desc_properties : public codec_mem_desc_properties {
 public:
-    /// @brief Write value to vector of @p property.
+
+public:  // detail::property_details
+    /// @brief Write value to vector of C Properties.
     /// @param[in] dest destination vector
-    void write(std::vector<property>& dest) const { 
-        std::vector<property> props;
-        mem_type.write(props);
-        frame_size.write(props);
-        color_format.write(props);
-        dest.push_back(dprops::dec_mem_desc(props));
+    void write(std::string prefix, std::vector<std::pair<std::string, detail::variant>>& dest) const { 
+        prefix = prefix + "decmemdesc.";
+        mem_type.write(prefix, dest);
+        frame_size.write(prefix, dest);
+        color_format.write(prefix, dest);
     }
 
     /// @brief Write value in human readable form to a stream
@@ -216,21 +411,26 @@ public:
 
 /// @brief Represents the namespace of configurable decoder profile properties. See
 /// @p implementation_selector properties for more detail.
-class dec_profile_properties {
+class dec_profile_properties : detail::property_details {
 public:
     /// @brief profile property
-    VPL_OPT_TREE_PROPERTY(profile)
+    VPL_OPT_TREE_PROPERTY(uint32_t, uint32_t, profile)
 
     /// @brief dec_mem_desc property namespace
     dec_mem_desc_properties dec_mem_desc;
 
-    /// @brief Write value to vector of @p property.
+    /// @brief Default ctor
+    dec_profile_properties()
+    : profile("profile", "Profile")
+    {}
+
+public:  // detail::property_details
+    /// @brief Write value to vector of C Properties.
     /// @param[in] dest destination vector
-    void write(std::vector<property>& dest) const { 
-        std::vector<property> props;
-        profile.write(props);
-        dec_mem_desc.write(props);
-        dest.push_back(dprops::dec_profile(props));
+    void write(std::string prefix, std::vector<std::pair<std::string, detail::variant>>& dest) const { 
+        prefix = prefix + "decprofile.";
+        profile.write(prefix, dest);
+        dec_mem_desc.write(prefix, dest);
     }
 
     /// @brief Write value in human readable form to a stream
@@ -246,29 +446,37 @@ public:
 
 /// @brief Represents the namespace of configurable memory decriptor properties. See
 /// @p implementation_selector properties for more detail.
-class memdesc_properties {
+class memdesc_properties : detail::property_details{
 public:
     /// @brief mem_type property
-    VPL_OPT_TREE_PROPERTY(mem_type)
+    VPL_OPT_TREE_PROPERTY(resource_type, uint32_t, mem_type)
 
     /// @brief frame_size property
-    VPL_OPT_TREE_PROPERTY(frame_size)
+    VPL_OPT_TREE_PROPERTY_PAIR(uint32_t, uint32_t, uint32_t, uint32_t, frame_size)
 
     /// @brief in_color_format property
-    VPL_OPT_TREE_PROPERTY(in_color_format)
+    VPL_OPT_TREE_PROPERTY(color_format_fourcc, uint32_t, in_color_format)
 
     /// @brief out_color_format property
-    VPL_OPT_TREE_PROPERTY(out_color_format)
+    VPL_OPT_TREE_PROPERTY(color_format_fourcc, uint32_t, out_color_format)
 
-    /// @brief Write value to vector of @p property.
+    /// @brief Default ctor
+    memdesc_properties() 
+        : mem_type("mem_type", "MemHandleType")
+        , frame_size("frame_size", "Width", "Height")
+        , in_color_format("in_color_format", "format.InFormat")
+        , out_color_format("out_color_format", "format.OutFormats")
+        {}
+
+public:  // detail::property_details
+    /// @brief Write value to vector of C Properties.
     /// @param[in] dest destination vector
-    void write(std::vector<property>& dest) const { 
-        std::vector<property> props;
-        mem_type.write(props);
-        frame_size.write(props);
-        in_color_format.write(props);
-        out_color_format.write(props);
-        dest.push_back(dprops::memdesc(props));
+    void write(std::string prefix, std::vector<std::pair<std::string, detail::variant>>& dest) const { 
+        prefix = prefix + "memdesc.";
+        mem_type.write(prefix, dest);
+        frame_size.write(prefix, dest);
+        in_color_format.write(prefix, dest);
+        out_color_format.write(prefix, dest);
     }
 
     /// @brief Write value in human readable form to a stream
@@ -286,21 +494,26 @@ public:
 
 /// @brief Represents the namespace of configurable encoder profile properties. See
 /// @p implementation_selector properties for more detail.
-class enc_profile_properties {
+class enc_profile_properties : detail::property_details{
 public:
     /// @brief profile property
-    VPL_OPT_TREE_PROPERTY(profile)
+    VPL_OPT_TREE_PROPERTY(uint32_t, uint32_t, profile)
 
     /// @brief enc_mem_desc property namespace
     enc_mem_desc_properties enc_mem_desc;
 
-    /// @brief Write value to vector of @p property.
+    /// @brief Default ctor
+    enc_profile_properties()
+        : profile("profile", "Profile")
+        {}
+
+public:  // detail::property_details
+    /// @brief Write value to vector of C Properties.
     /// @param[in] dest destination vector
-    void write(std::vector<property>& dest) const { 
-        std::vector<property> props;
-        profile.write(props);
-        enc_mem_desc.write(props);
-        dest.push_back(dprops::enc_profile(props));
+    void write(std::string prefix, std::vector<std::pair<std::string, detail::variant>>& dest) const { 
+        prefix = prefix + "encprofile.";
+        profile.write(prefix, dest);
+        enc_mem_desc.write(prefix, dest);
     }
 
     /// @brief Write value in human readable form to a stream
@@ -316,25 +529,31 @@ public:
 
 /// @brief Represents the namespace of configurable decoder properties. See
 /// @p implementation_selector properties for more detail.
-class decoder_properties {
+class decoder_properties : detail::property_details{
 public:
     /// @brief codec_id property
-    VPL_OPT_TREE_LIST_PROPERTY(codec_id)
+    VPL_OPT_TREE_LIST_PROPERTY(codec_format_fourcc, uint32_t, codec_id)
 
     /// @brief max_codec_level property
-    VPL_OPT_TREE_PROPERTY(max_codec_level)
+    VPL_OPT_TREE_PROPERTY(uint32_t, uint32_t, max_codec_level)
 
     /// @brief dec_profile property namespace
     dec_profile_properties dec_profile;
 
-    /// @brief Write value to vector of @p property.
+    /// @brief Default ctor
+    decoder_properties()
+        : codec_id("codec_id", "CodecID")
+        , max_codec_level("max_codec_level", "MaxcodecLevel")
+        {}
+
+public:  // detail::property_details
+    /// @brief Write value to vector of C Properties.
     /// @param[in] dest destination vector
-    void write(std::vector<property>& dest) const { 
-        std::vector<property> props;
-        codec_id.write(props);
-        max_codec_level.write(props);
-        dec_profile.write(props);
-        dest.push_back(dprops::decoder(props));
+    void write(std::string prefix, std::vector<std::pair<std::string, detail::variant>>& dest) const { 
+        prefix = prefix + "mfxImplDescription.mfxDecoderDescription.decoder.";
+        codec_id.write(prefix, dest);
+        max_codec_level.write(prefix, dest);
+        dec_profile.write(prefix, dest);
     }
 
     /// @brief Write value in human readable form to a stream
@@ -351,29 +570,36 @@ public:
 
 /// @brief Represents the namespace of configurable encoder properties. See
 /// @p implementation_selector properties for more detail.
-class encoder_properties {
+class encoder_properties : detail::property_details{
 public:
     /// @brief codec_id property
-    VPL_OPT_TREE_LIST_PROPERTY(codec_id)
+    VPL_OPT_TREE_LIST_PROPERTY(codec_format_fourcc, uint32_t, codec_id)
 
     /// @brief max_codec_level property
-    VPL_OPT_TREE_PROPERTY(max_codec_level)
+    VPL_OPT_TREE_PROPERTY(uint32_t, uint32_t, max_codec_level)
 
     /// @brief bidirectional_prediction property
-    VPL_OPT_TREE_PROPERTY(bidirectional_prediction)
+    VPL_OPT_TREE_PROPERTY(uint16_t, uint16_t, bidirectional_prediction)
 
     /// @brief enc_profile property namespace
     enc_profile_properties enc_profile;
 
-    /// @brief Write value to vector of @p property.
+    /// @brief Default ctor
+    encoder_properties()
+        : codec_id("codec_id", "CodecID")
+        , max_codec_level("max_codec_level", "MaxcodecLevel")
+        , bidirectional_prediction("bidirectional_prediction", "BiDirectionalPrediction")
+        {}
+
+public:  // detail::property_details
+    /// @brief Write value to vector of C Properties.
     /// @param[in] dest destination vector
-    void write(std::vector<property>& dest) const { 
-        std::vector<property> props;
-        codec_id.write(props);
-        max_codec_level.write(props);
-        bidirectional_prediction.write(props);
-        enc_profile.write(props);
-        dest.push_back(dprops::encoder(props));
+    void write(std::string prefix, std::vector<std::pair<std::string, detail::variant>>& dest)const { 
+        prefix = prefix + "mfxImplDescription.mfxEncoderDescription.encoder.";
+        codec_id.write(prefix, dest);
+        max_codec_level.write(prefix, dest);
+        bidirectional_prediction.write(prefix, dest);
+        enc_profile.write(prefix, dest);
     }
 
     /// @brief Write value in human readable form to a stream
@@ -391,25 +617,31 @@ public:
 
 /// @brief Represents the namespace of configurable filter (VPP) properties. See
 /// @p implementation_selector properties for more detail.
-class filter_properties {
+class filter_properties : detail::property_details{
 public:
     /// @brief filter_id property
-    VPL_OPT_TREE_LIST_PROPERTY(filter_id)
+    VPL_OPT_TREE_LIST_PROPERTY(uint32_t, uint32_t, filter_id)
 
     /// @brief max_delay_in_frames property
-    VPL_OPT_TREE_PROPERTY(max_delay_in_frames)
+    VPL_OPT_TREE_PROPERTY(uint16_t, uint16_t, max_delay_in_frames)
 
     /// @brief memdesc property namespace
     memdesc_properties memdesc;
 
-    /// @brief Write value to vector of @p property.
+    /// @brief Default ctor
+    filter_properties()
+        : filter_id("filter_id", "FilterFourCC")
+        , max_delay_in_frames("max_delay_in_frames", "MaxDelayInFrames")
+        {}
+
+public:  // detail::property_details
+    /// @brief Write value to vector of C Properties.
     /// @param[in] dest destination vector
-    void write(std::vector<property>& dest) const {
-        std::vector<property> props;
-        filter_id.write(props);
-        max_delay_in_frames.write(props);
-        memdesc.write(props);
-        dest.push_back(dprops::filter(props));
+    void write(std::string prefix, std::vector<std::pair<std::string, detail::variant>>& dest) const{ 
+        prefix = prefix + "mfxImplDescription.mfxVPPDescription.filter.";
+        filter_id.write(prefix, dest);
+        max_delay_in_frames.write(prefix, dest);
+        memdesc.write(prefix, dest);
     }
 
     /// @brief Write value in human readable form to a stream
@@ -426,21 +658,27 @@ public:
 
 /// @brief Represents the namespace of configurable device properties. See
 /// @p implementation_selector properties for more detail.
-class device_properties {
+class device_properties : detail::property_details{
 public:
     /// @brief device_id property
-    VPL_OPT_TREE_PROPERTY(device_id)
+    VPL_OPT_TREE_PROPERTY(std::string, std::string, device_id)
 
     /// @brief media_adapter property
-    VPL_OPT_TREE_PROPERTY(media_adapter)
+    VPL_OPT_TREE_PROPERTY(media_adapter_type, uint16_t, media_adapter)
 
-    /// @brief Write value to vector of @p property.
+    /// @brief Default ctor
+    device_properties()
+        : device_id("device_id", "DeviceID")
+        , media_adapter("media_adapter", "MediaAdapterType")
+        {}
+
+public:  // detail::property_details
+    /// @brief Write value to vector of C Properties.
     /// @param[in] dest destination vector
-    void write(std::vector<property>& dest) const { 
-        std::vector<property> props;
-        device_id.write(props);
-        media_adapter.write(props);
-        dest.push_back(dprops::device(props));
+    void write(std::string prefix, std::vector<std::pair<std::string, detail::variant>>& dest) const{ 
+        prefix = prefix + "mfxImplDescription.mfxDeviceDescription.device.";
+        device_id.write(prefix, dest);
+        media_adapter.write(prefix, dest);
     }
 
     /// @brief Write value in human readable form to a stream
@@ -459,46 +697,43 @@ public:
 /// and property get/set methods to allow direct manipulation of the value
 /// Each namespace is a public member of a sperate class that follows the
 /// same rules as this class.
-class properties {
+class properties{
 public:
-    /// @brief Default ctor
-    properties(){};
-
     /// @brief impl_name property
-    VPL_OPT_TREE_PROPERTY(impl_name)
+    VPL_OPT_TREE_PROPERTY(std::string, std::string, impl_name)
 
     /// @brief impl property
-    VPL_OPT_TREE_PROPERTY(impl)
+    VPL_OPT_TREE_PROPERTY(implementation_type, uint32_t, impl)
 
     /// @brief acceleration_mode property
-    VPL_OPT_TREE_PROPERTY(acceleration_mode)
+    VPL_OPT_TREE_PROPERTY(implementation_via, uint32_t, acceleration_mode)
 
     /// @brief api_version property
-    VPL_OPT_TREE_PROPERTY(api_version)
+    VPL_OPT_TREE_PROPERTY_PAIR(uint16_t, uint16_t, uint16_t, uint16_t, api_version)
 
     /// @brief license property
-    VPL_OPT_TREE_PROPERTY(license)
+    VPL_OPT_TREE_PROPERTY(std::string, std::string, license)
 
     /// @brief keywords property
-    VPL_OPT_TREE_PROPERTY(keywords)
+    VPL_OPT_TREE_PROPERTY(std::string, std::string, keywords)
 
     /// @brief vendor_id property
-    VPL_OPT_TREE_PROPERTY(vendor_id)
+    VPL_OPT_TREE_PROPERTY(uint32_t, uint32_t, vendor_id)
 
     /// @brief vendor_impl_id property
-    VPL_OPT_TREE_PROPERTY(vendor_impl_id)
+    VPL_OPT_TREE_PROPERTY(uint32_t, uint32_t, vendor_impl_id)
 
     /// @brief dxgi_adapter_index property
-    VPL_OPT_TREE_PROPERTY(dxgi_adapter_index)
+    VPL_OPT_TREE_PROPERTY(uint32_t, uint32_t, dxgi_adapter_index)
 
     /// @brief implemented_function property
-    VPL_OPT_TREE_LIST_PROPERTY(implemented_function)
+    VPL_OPT_TREE_LIST_PROPERTY(std::string, std::string, implemented_function)
 
     /// @brief pool_alloc_properties property
-    VPL_OPT_TREE_PROPERTY(pool_alloc_properties)
+    VPL_OPT_TREE_PROPERTY(pool_alloction_policy, uint32_t, pool_alloc_properties)
 
     /// @brief set_handle property
-    VPL_OPT_TREE_LIST_PROPERTY(set_handle)
+    VPL_OPT_TREE_LIST_PROPERTY_PAIR(handle_type, void*, uint32_t, void*, handle)
 
     /// @brief decoder property namespace
     decoder_properties decoder;
@@ -512,33 +747,52 @@ public:
     /// @brief device property namespace
     device_properties device;
 
-    /// @brief Type conversion to property_list
-    /// @returns property_list representing the current property settings
-    operator property_list(){
-        std::vector<property> props;
-        write(props);
-        return oneapi::vpl::property_list(props);
+    /// @brief Default ctor
+    properties()
+        : impl_name("impl_name", "mfxImplDescription.ImplName")
+        , impl("impl", "mfxImplDescription.Impl")
+        , acceleration_mode("acceleration_mode", "mfxImplDescription.AccelerationMode")
+        , api_version("api_version", "mfxImplDescription.ApiVersion.Major", "mfxImplDescription.ApiVersion.Minor")
+        , license("license", "mfxImplDescription.License")
+        , keywords("keywords", "mfxImplDescription.Keywords")
+        , vendor_id("vendor_id", "mfxImplDescription.VendorID")
+        , vendor_impl_id("vendor_impl_id", "mfxImplDescription.VendorImplID")
+        , dxgi_adapter_index("dxgi_adapter_index", "DXGIAdapterIndex")
+        , implemented_function("implemented_function", "mfxImplementedFunctions.FunctionsName")
+        , pool_alloc_properties("pool_alloc_properties", "mfxImplDescription.mfxSurfacePoolMode")
+        , handle("handle", "mfxHandleType", "mfxHDL")
+        {}
+
+    /// @brief Returns list of C-based properties in a form of pair: property path
+    /// and property value.
+    /// @return List of C-based properties
+    std::vector<std::pair<std::string, detail::variant>> get_properties() const {
+        std::vector<std::pair<std::string, detail::variant>> settings;
+        write(settings);
+        return settings;
     }
 
-    /// @brief Write value to vector of @p property.
+protected:
+    /// @brief Write value to vector of C Properties.
     /// @param[in] dest destination vector
-    void write(std::vector<property>& dest) const { 
-        impl_name.write(dest);
-        impl.write(dest);
-        acceleration_mode.write(dest);
-        api_version.write(dest);
-        license.write(dest);
-        keywords.write(dest);
-        vendor_id.write(dest);
-        vendor_impl_id.write(dest);
-        dxgi_adapter_index.write(dest);
-        implemented_function.write(dest);
-        pool_alloc_properties.write(dest);
-        set_handle.write(dest);
-        decoder.write(dest);
-        encoder.write(dest);
-        filter.write(dest);
-        device.write(dest);
+    void write(std::vector<std::pair<std::string, detail::variant>>& dest) const { 
+        std::string prefix = "";
+        impl_name.write(prefix, dest);
+        impl.write(prefix, dest);
+        acceleration_mode.write(prefix, dest);
+        api_version.write(prefix, dest);
+        license.write(prefix, dest);
+        keywords.write(prefix, dest);
+        vendor_id.write(prefix, dest);
+        vendor_impl_id.write(prefix, dest);
+        dxgi_adapter_index.write(prefix, dest);
+        implemented_function.write(prefix, dest);
+        pool_alloc_properties.write(prefix, dest);
+        handle.write(prefix, dest);
+        decoder.write(prefix, dest);
+        encoder.write(prefix, dest);
+        filter.write(prefix, dest);
+        device.write(prefix, dest);
     }
 
     /// @brief Write value in human readable form to a stream
@@ -556,7 +810,7 @@ public:
         dxgi_adapter_index.print(out, indent);
         implemented_function.print(out, indent);
         pool_alloc_properties.print(out, indent);
-        set_handle.print(out, indent);
+        handle.print(out, indent);
         decoder.print(out, indent);
         encoder.print(out, indent);
         filter.print(out, indent);

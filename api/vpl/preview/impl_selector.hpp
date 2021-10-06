@@ -28,9 +28,10 @@ class implemetation_selector {
 protected:
     /// @brief Protected ctor.
     /// @param list List of properties
-    explicit implemetation_selector(property_list props = {})
-            : props_(props),
-              format_(MFX_IMPLCAPS_IMPLDESCSTRUCTURE) {}
+    implemetation_selector()
+            : format_(MFX_IMPLCAPS_IMPLDESCSTRUCTURE) {}
+
+    virtual std::vector<std::pair<std::string, detail::variant>> get_properties() const = 0;
 
 public:
     /// @brief dtor
@@ -45,7 +46,7 @@ public:
         auto loader = MFXLoad();
 
         // convert options to mfxConfig
-        auto opts = props_.get_properties();
+        auto opts = get_properties();
 
         std::for_each(opts.begin(), opts.end(), [&](auto opt) {
             auto cfg = MFXCreateConfig(loader);
@@ -91,31 +92,40 @@ protected:
     /// @return True, if implementation is good to go, false if search must continue.
     virtual bool operator()(std::shared_ptr<base_implementation_capabilities> caps) const = 0;
 
-    /// @brief List of properties
-    property_list props_;
-
     /// @brief Implementation capabilities report format
     /// @todo Replace either with enum or typename
     mfxImplCapsDeliveryFormat format_;
 };
 
 /// @brief Default implemetation selector. It accepts first implementation matching provided properties.
-class default_selector : public implemetation_selector {
+template<typename property_collection=property_list> class default_selector : public implemetation_selector {
 public:
     /// @brief Protected ctor.
     /// @param list List of properties
-    explicit default_selector(property_list props = {})
-            : implemetation_selector(props) {}
+    explicit default_selector(property_collection props = {})
+            : implemetation_selector(),
+            props_(props) {}
 
     /// @brief Acccept first found implementation.
     /// @return True if implementation found.
     bool operator()(std::shared_ptr<base_implementation_capabilities>) const override {
         return true;
     }
+
+    /// @brief Returns list of C-based properties in a form of pair: property path
+    /// and property value.
+    /// @return List of C-based properties
+    std::vector<std::pair<std::string, detail::variant>> get_properties() const {
+        return props_.get_properties();
+    }
+
+protected:
+    /// @brief List of properties
+    property_collection props_;
 };
 
 /// @brief Default SW based implementation selector. It accepts first implementation with SW based acceleration.
-class cpu_selector : public default_selector {
+class cpu_selector : public default_selector<property_list>{
 public:
     /// @brief Default ctor.
     cpu_selector()
@@ -123,7 +133,7 @@ public:
 };
 
 /// @brief Default HW based implementation selector. It accepts first implementation with HW based acceleration.
-class gpu_selector : public default_selector {
+class gpu_selector : public default_selector<property_list> {
 public:
     /// @brief Default ctor.
     gpu_selector()

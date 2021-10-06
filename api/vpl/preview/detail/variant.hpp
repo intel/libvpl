@@ -7,6 +7,7 @@
 #pragma once
 
 #include <string>
+#include <ostream>
 // #include <variant>
 #include <exception>
 
@@ -114,10 +115,67 @@ private:
         v_.Type     = MFX_VARIANT_TYPE_PTR;
     }
 
+    template <typename T>
+    typename std::enable_if<std::is_same<std::string_view, T>::value>::type type_init(T t) {
+        v_.Data.Ptr = (void*)t.data();
+        v_.Type     = MFX_VARIANT_TYPE_PTR;
+    }
+
+    template <typename T>
+    typename std::enable_if<std::is_same<std::string, T>::value>::type type_init(T& t) {
+        v_.Data.Ptr = (void*)t.data();
+        v_.Type     = MFX_VARIANT_TYPE_PTR;
+    }
+
 protected:
     /// Instance of mfxVariant where all data is stored and used by C API
     mfxVariant v_;
 };
+
+
+inline std::ostream& operator<<(std::ostream& out, const variant& p) {
+    mfxVariant v = p.get_variant();
+    switch(v.Type){
+    case MFX_VARIANT_TYPE_UNSET:
+        out << "UNSET";
+        break;
+    case MFX_VARIANT_TYPE_U8:
+        out << "(uint8_t)" << v.Data.U8;
+        break;
+    case MFX_VARIANT_TYPE_I8:
+        out << "(int8_t)" << v.Data.I8;
+        break;
+    case MFX_VARIANT_TYPE_U16:
+        out << "(uint16_t)" << v.Data.U16;
+        break;
+    case MFX_VARIANT_TYPE_I16:
+        out << "(int16_t)" << v.Data.I16;
+        break;
+    case MFX_VARIANT_TYPE_U32:
+        out << "(uint32_t)" << v.Data.U32;
+        break;
+    case MFX_VARIANT_TYPE_I32:
+        out << "(int32_t)" << v.Data.I32;
+        break;
+    case MFX_VARIANT_TYPE_U64:
+        out << "(uint64_t)" << v.Data.U64;
+        break;
+    case MFX_VARIANT_TYPE_I64:
+        out << "(int64_t)" << v.Data.I64;
+        break;
+    case MFX_VARIANT_TYPE_F32:
+        out << "(float32_t)" << v.Data.F32;
+        break;
+    case MFX_VARIANT_TYPE_F64:
+        out << "(float64_t)" << v.Data.F64;
+        break;
+    case MFX_VARIANT_TYPE_PTR:
+        out << "(void*)" << v.Data.Ptr;
+        break;
+
+    }
+    return out;
+}
 
 } // namespace detail
 } // namespace vpl
