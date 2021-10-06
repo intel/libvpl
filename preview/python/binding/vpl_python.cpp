@@ -24,9 +24,9 @@ void init_future(const py::module &m);
 void init_impl_caps(const py::module &m);
 void init_impl_selector(const py::module &m);
 void init_mfxstructures(const py::module &m);
-void init_options(const py::module &m);
+void init_options(py::module &m); //NOLINT
+void init_option_tree(const py::module &m);
 void init_payload(const py::module &m);
-void init_property_name(const py::module &m);
 void init_session(const py::module &m);
 void init_source_reader(const py::module &m);
 void init_stat(const py::module &m);
@@ -47,8 +47,8 @@ PYBIND11_MODULE(pyvpl, m) {
     init_impl_selector(m);
     init_mfxstructures(m);
     init_options(m);
+    init_option_tree(m);
     init_payload(m);
-    init_property_name(m);
     init_session(m);
     init_source_reader(m);
     init_stat(m);

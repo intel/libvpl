@@ -28,14 +28,8 @@ class implemetation_selector {
 protected:
     /// @brief Protected ctor.
     /// @param list List of properties
-    explicit implemetation_selector(std::initializer_list<property> list = {})
-            : opts_(list),
-              format_(MFX_IMPLCAPS_IMPLDESCSTRUCTURE) {}
-
-    /// @brief Protected ctor.
-    /// @param list List of properties
-    explicit implemetation_selector(const std::vector<property> &list)
-            : opts_(list),
+    explicit implemetation_selector(property_list props = {})
+            : props_(props),
               format_(MFX_IMPLCAPS_IMPLDESCSTRUCTURE) {}
 
 public:
@@ -51,13 +45,15 @@ public:
         auto loader = MFXLoad();
 
         // convert options to mfxConfig
-        std::for_each(opts_.begin(), opts_.end(), [&](auto opt) {
+        auto opts = props_.get_properties();
+
+        std::for_each(opts.begin(), opts.end(), [&](auto opt) {
             auto cfg = MFXCreateConfig(loader);
             [[maybe_unused]] detail::c_api_invoker e(detail::default_checker,
                                     MFXSetConfigFilterProperty,
                                     cfg,
-                                    (const uint8_t *)opt.get_name().c_str(),
-                                    opt.GetValue());
+                                    (const uint8_t *)opt.first.c_str(),
+                                    opt.second.get_variant());
         });
 
         uint32_t idx = 0;
@@ -96,7 +92,7 @@ protected:
     virtual bool operator()(std::shared_ptr<base_implementation_capabilities> caps) const = 0;
 
     /// @brief List of properties
-    std::vector<property> opts_;
+    property_list props_;
 
     /// @brief Implementation capabilities report format
     /// @todo Replace either with enum or typename
@@ -108,12 +104,8 @@ class default_selector : public implemetation_selector {
 public:
     /// @brief Protected ctor.
     /// @param list List of properties
-    explicit default_selector(std::initializer_list<property> list = {})
-            : implemetation_selector(list) {}
-
-    /// @brief Protected ctor.
-    /// @param list List of properties
-    explicit default_selector(const std::vector<property> &list) : implemetation_selector(list) {}
+    explicit default_selector(property_list props = {})
+            : implemetation_selector(props) {}
 
     /// @brief Acccept first found implementation.
     /// @return True if implementation found.
@@ -127,8 +119,7 @@ class cpu_selector : public default_selector {
 public:
     /// @brief Default ctor.
     cpu_selector()
-            : default_selector({ property(property_name("mfxImplDescription") / "Impl",
-                                          (uint32_t)MFX_IMPL_TYPE_SOFTWARE) }) {}
+            : default_selector({ dprops::impl(oneapi::vpl::implementation_type::sw) }) {}
 };
 
 /// @brief Default HW based implementation selector. It accepts first implementation with HW based acceleration.
@@ -136,8 +127,7 @@ class gpu_selector : public default_selector {
 public:
     /// @brief Default ctor.
     gpu_selector()
-            : default_selector({ property(property_name("mfxImplDescription") / "Impl",
-                                          (uint32_t)MFX_IMPL_TYPE_HARDWARE) }) {}
+            : default_selector({ dprops::impl(oneapi::vpl::implementation_type::hw) }) {}
 };
 
 } // namespace vpl

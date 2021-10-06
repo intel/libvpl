@@ -77,6 +77,14 @@ enum class codec_format_fourcc : uint32_t {
     av1     = MFX_CODEC_AV1
 };
 
+inline std::ostream& operator<<(std::ostream& out, const codec_format_fourcc& p) {
+    out << char(((uint32_t)p >> 0) & 0x00FF);
+    out << char(((uint32_t)p >> 8) & 0x00FF);
+    out << char(((uint32_t)p >> 16) & 0x00FF);
+    out << char(((uint32_t)p >> 24) & 0x00FF);
+    return out;
+}
+
 enum class color_format_fourcc : uint32_t {
     nv12       = MFX_FOURCC_NV12,
     yv12       = MFX_FOURCC_YV12,
@@ -110,6 +118,15 @@ enum class color_format_fourcc : uint32_t {
     i422       = MFX_FOURCC_I422,
     bgrp       = MFX_FOURCC_BGRP,
 };
+
+inline std::ostream& operator<<(std::ostream& out, const color_format_fourcc& p) {
+    out << char(((uint32_t)p >> 0) & 0x00FF);
+    out << char(((uint32_t)p >> 8) & 0x00FF);
+    out << char(((uint32_t)p >> 16) & 0x00FF);
+    out << char(((uint32_t)p >> 24) & 0x00FF);
+    return out;
+}
+
 
 enum class chroma_format_idc : uint32_t {
     monochrome = MFX_CHROMAFORMAT_MONOCHROME,
@@ -237,6 +254,31 @@ enum class implementation_via : uint32_t {
     none      = 0
 };
 
+inline std::ostream &operator<<(std::ostream &out, const implementation_via &r) {
+    switch(r) {
+        case implementation_via::any:
+            out << "any";
+            break;
+        case implementation_via::d3d9:
+            out << "d3d9";
+            break;
+        case implementation_via::d3d11:
+            out << "d3d11";
+            break;
+        case implementation_via::vaapi:
+            out << "vaapi";
+            break;
+        case implementation_via::hddlunite:
+            out << "hddlunite";
+            break;
+        case implementation_via::none:
+            out << "none";
+            break;
+    }
+    return out;
+}
+
+
 enum class resource_type : uint32_t {
     system_surface = MFX_RESOURCE_SYSTEM_SURFACE,
     va_surface_ptr = MFX_RESOURCE_VA_SURFACE_PTR,
@@ -287,6 +329,33 @@ enum class handle_type : uint32_t {
     hddlunite_workloadcontext = MFX_HANDLE_HDDLUNITE_WORKLOADCONTEXT,
 };
 
+inline std::ostream &operator<<(std::ostream &out, const handle_type &r) {
+    switch(r) {
+        case handle_type::d3d9_device_manager:
+            out << "d3d9_device_manager";
+            break;
+        case handle_type::d3d11_device_manager:
+            out << "d3d11_device_manager";
+            break;
+        case handle_type::va_display:
+            out << "va_display";
+            break;
+        case handle_type::va_config_id:
+            out << "va_config_id";
+            break;
+        case handle_type::cm_device:
+            out << "cm_device";
+            break;
+        case handle_type::hddlunite_workloadcontext:
+            out << "hddlunite_workloadcontext";
+            break;
+        default:
+            out << "Unknown";
+            break;
+    }
+    return out;
+}
+
 enum class memory_type : uint16_t {
     video_memory_decoder_target   = MFX_MEMTYPE_VIDEO_MEMORY_DECODER_TARGET,
     video_memory_processor_target = MFX_MEMTYPE_VIDEO_MEMORY_PROCESSOR_TARGET,
@@ -327,6 +396,21 @@ enum class pool_alloction_policy : uint32_t {
     limited       = MFX_ALLOCATION_LIMITED,
 };
 
+inline std::ostream &operator<<(std::ostream &out, const pool_alloction_policy &r) {
+    switch(r) {
+        case pool_alloction_policy::optimal:
+            out << "Optimal";
+            break;
+        case pool_alloction_policy::unlimited:
+            out << "Unlimited";
+            break;
+        case pool_alloction_policy::limited:
+            out << "Limited";
+            break;
+    }
+    return out;
+}
+
 enum class coding_option : uint16_t {
     unknown  = MFX_CODINGOPTION_UNKNOWN,
     on       = MFX_CODINGOPTION_ON,
@@ -340,6 +424,44 @@ enum class skip_frame : uint16_t {
     insert_nothing = MFX_SKIPFRAME_INSERT_NOTHING,
     brc_only       = MFX_SKIPFRAME_BRC_ONLY,
 };
+
+enum class media_adapter_type : uint16_t {
+    unknown    = MFX_MEDIA_UNKNOWN,
+    integrated = MFX_MEDIA_INTEGRATED,
+    discrete   = MFX_MEDIA_DISCRETE,
+};
+
+inline std::ostream &operator<<(std::ostream &out, const media_adapter_type &r) {
+    switch(r) {
+        case media_adapter_type::unknown:
+            out << "Unknown";
+            break;
+        case media_adapter_type::integrated:
+            out << "Integrated";
+            break;
+        case media_adapter_type::discrete:
+            out << "Discrete";
+            break;
+    }
+    return out;
+}
+
+enum class implementation_type : uint32_t {
+    sw = MFX_IMPL_TYPE_SOFTWARE,
+    hw = MFX_IMPL_TYPE_HARDWARE,
+};
+
+inline std::ostream &operator<<(std::ostream &out, const implementation_type &r) {
+    switch(r) {
+        case implementation_type::sw:
+            out << "SW";
+            break;
+        case implementation_type::hw:
+            out << "HW";
+            break;
+    }
+    return out;
+}
 
 } // namespace vpl
 } // namespace oneapi

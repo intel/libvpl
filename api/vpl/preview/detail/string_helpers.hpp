@@ -9,6 +9,7 @@
 #include <iostream>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "vpl/preview/defs.hpp"
 #include "vpl/mfxstructures.h"
@@ -421,6 +422,40 @@ inline std::string status2Str(status s) {
             return (std::string("Unknown"));
             break;
     }
+}
+
+/// @brief Write value in human readable form to a stream
+/// @param[in] out destination stream
+/// @param[in] value value
+template<typename... Ts>
+std::ostream& operator<<(std::ostream& out, std::pair<Ts...> const& value)
+{
+    out << '(';
+    out << value.first;
+    out << ", ";
+    out << value.second;
+    out << ')';
+    return out;
+}
+
+/// @brief Write value in human readable form to a stream
+/// @param[in] out destination stream
+/// @param[in] value value
+template<typename T>
+std::ostream& operator<<(std::ostream& out, std::vector<T> const& value)
+{
+    out << '[';
+    bool first = true;
+    for(auto& v : value){
+        if(first){
+            first = false;
+            out << v;
+        } else {
+            out << ", " << v;
+        }
+    }
+    out << ']';
+    return out;
 }
 
 } // namespace detail

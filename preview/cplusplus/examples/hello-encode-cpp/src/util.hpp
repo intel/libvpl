@@ -97,7 +97,7 @@ enum ParamGroup {
 typedef struct _Params {
     mfxIMPL impl;
 #if (MFX_VERSION >= 2000)
-    mfxVariant implValue;
+    oneapi::vpl::implementation_type implValue;
 #endif
 
     char *infileName;
@@ -137,8 +137,7 @@ bool ParseArgsAndValidate(int argc, char *argv[], Params *params, ParamGroup gro
     *params      = {};
     params->impl = MFX_IMPL_SOFTWARE;
 #if (MFX_VERSION >= 2000)
-    params->implValue.Type     = MFX_VARIANT_TYPE_U32;
-    params->implValue.Data.U32 = MFX_IMPL_TYPE_SOFTWARE;
+    params->implValue = oneapi::vpl::implementation_type::sw;
 #endif
 
     for (idx = 1; idx < argc;) {
@@ -176,13 +175,13 @@ bool ParseArgsAndValidate(int argc, char *argv[], Params *params, ParamGroup gro
         else if (IS_ARG_EQ(s, "hw")) {
             params->impl = MFX_IMPL_HARDWARE;
 #if (MFX_VERSION >= 2000)
-            params->implValue.Data.U32 = MFX_IMPL_TYPE_HARDWARE;
+            params->implValue = oneapi::vpl::implementation_type::hw;
 #endif
         }
         else if (IS_ARG_EQ(s, "sw")) {
             params->impl = MFX_IMPL_SOFTWARE;
 #if (MFX_VERSION >= 2000)
-            params->implValue.Data.U32 = MFX_IMPL_TYPE_SOFTWARE;
+            params->implValue = oneapi::vpl::implementation_type::sw;
 #endif
         }
         else if (IS_ARG_EQ(s, "vmem")) {

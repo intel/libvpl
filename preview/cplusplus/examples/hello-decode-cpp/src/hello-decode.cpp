@@ -14,6 +14,7 @@
 #include <iostream>
 
 #include "util.hpp"
+#include "vpl/preview/option_tree.hpp"
 
 #define OUTPUT_FILE "out.raw"
 
@@ -50,16 +51,17 @@ int main(int argc, char *argv[]) {
     std::ofstream sink;
     uint32_t frame_num = 0;
     bool is_stillgoing = true;
-    mfxImplType impl_type;
+    oneapi::vpl::implementation_type impl_type;
 
-    impl_type = (mfxImplType)cliParams.implValue.Data.U32;
+    impl_type = cliParams.implValue;
 
     // Default implementation selector. Selects first impl based on property list.
-    vpl::property_name p1, p2;
-    vpl::property opt1(p1 / "mfxImplDescription" / "Impl", (uint32_t)impl_type);
-    vpl::property opt2(p2 / "mfxImplDescription" / "mfxDecoderDescription" / "decoder" / "CodecID",
-                       (uint32_t)vpl::codec_format_fourcc::hevc);
-    vpl::default_selector impl_sel({ opt1, opt2 });
+    oneapi::vpl::properties opts;
+    opts.impl             = impl_type;
+    opts.api_version      = { 2, 5 };
+    opts.decoder.codec_id = { vpl::codec_format_fourcc::hevc };
+    std::cout << opts;
+    vpl::default_selector impl_sel(opts);
 
     // Setup input and output files
     source.open(cliParams.infileName, std::ios_base::in | std::ios_base::binary);

@@ -8,56 +8,81 @@
 #include "vpl_python.hpp"
 namespace vpl = oneapi::vpl;
 
-void init_options(const py::module &m) {
-#define DEF_PROP_TYPE(T)                                   \
-    def(py::init<>([](vpl::property_name &name, T value) { \
-        return new vpl::property(name, value);             \
-    })).def(py::init<>([](std::string &name, T value) {    \
-        return new vpl::property(name, value);             \
-    }))
+#define DPROP(NAME, ...)                                                                     \
+    py::class_<vpl::dprops::NAME, vpl::property, std::shared_ptr<vpl::dprops::NAME>>(dprops, \
+                                                                                     #NAME)  \
+        .def(py::init<__VA_ARGS__>())
 
-#define DEF_PROP_TYPE_AS(T, D)                             \
-    def(py::init<>([](vpl::property_name &name, T value) { \
-        return new vpl::property(name, (D)value);          \
-    })).def(py::init<>([](std::string &name, T value) {    \
-        return new vpl::property(name, (D)value);          \
-    }))
+#define DCONT(NAME)                                                                            \
+    py::class_<vpl::dprops::NAME, vpl::dprops::container, std::shared_ptr<vpl::dprops::NAME>>( \
+        dprops,                                                                                \
+        #NAME)                                                                                 \
+        .def(py::init<>([](std::vector<vpl::property *> props) {                               \
+            std::vector<vpl::property> list;                                                   \
+            for (auto prop : props) {                                                          \
+                list.push_back(*prop);                                                         \
+            }                                                                                  \
+            return new vpl::dprops::NAME(list);                                                \
+        }));
 
+void init_options(py::module &m) { //NOLINT
     py::class_<vpl::property, std::shared_ptr<vpl::property>>(m, "property")
-        .def(py::init<>())
-        // Enum overloads must be defined before base types to ensure
-        // they are tried for compatibility first.
-        .DEF_PROP_TYPE_AS(vpl::implementation, uint32_t)
-        .DEF_PROP_TYPE_AS(vpl::codec_format_fourcc, uint32_t)
-        .DEF_PROP_TYPE_AS(vpl::color_format_fourcc, uint32_t)
-        .DEF_PROP_TYPE_AS(vpl::chroma_format_idc, uint32_t)
-        .DEF_PROP_TYPE_AS(vpl::target_usage, uint32_t)
-        .DEF_PROP_TYPE_AS(vpl::rate_control_method, uint32_t)
-        .DEF_PROP_TYPE_AS(vpl::io_pattern, uint32_t)
-        .DEF_PROP_TYPE_AS(vpl::pic_struct, uint32_t)
-        .DEF_PROP_TYPE_AS(vpl::memory_access, uint32_t)
-        .DEF_PROP_TYPE_AS(vpl::hevc_nal_unit_type, uint32_t)
-        .DEF_PROP_TYPE_AS(vpl::frame_type, uint32_t)
-        .DEF_PROP_TYPE_AS(vpl::implementation, uint32_t)
-        // Base type inits are defined last to ensure
-        // they are tried for compatibility last.
-        .DEF_PROP_TYPE(uint8_t)
-        .DEF_PROP_TYPE(int8_t)
-        .DEF_PROP_TYPE(uint16_t)
-        .DEF_PROP_TYPE(int16_t)
-        .DEF_PROP_TYPE(uint32_t)
-        .DEF_PROP_TYPE(int32_t)
-        .DEF_PROP_TYPE(uint64_t)
-        .DEF_PROP_TYPE(int64_t)
-        .DEF_PROP_TYPE(mfxF32)
-        .DEF_PROP_TYPE(mfxF64)
-        .def_property_readonly(
-            "type",
-            [](vpl::property *self) {
-                return static_cast<int>(self->get_type());
-            },
-            "Type of the property's value")
-        .def_property_readonly("name", &vpl::property::get_name, "Name of the property's value")
-        .def_property_readonly("data", &vpl::property::get_data, "Property's value")
-        .def("GetValue", &vpl::property::GetValue, "Property type and value");
+        .def(py::init<vpl::property const &>())
+        .def_property_readonly("leaf_property_name",
+                               &vpl::property::get_leaf_property_name,
+                               "Return name of the child class.")
+        .def_property_readonly("properties",
+                               &vpl::property::get_properties,
+                               "Returns list of  properties in a form of pair: property path");
+
+    auto dprops = m.def_submodule("dprops", "Properties");
+
+    DPROP(impl, vpl::implementation_type);
+    DPROP(acceleration_mode, vpl::implementation_via);
+    DPROP(api_version, uint16_t, uint16_t);
+    DPROP(impl_name, std::string_view);
+    DPROP(license, std::string);
+    DPROP(keywords, std::string);
+    DPROP(vendor_id, uint32_t);
+    DPROP(vendor_impl_id, uint32_t);
+    DPROP(codec_id, vpl::codec_format_fourcc);
+    DPROP(max_codec_level, uint32_t);
+    DPROP(bidirectional_prediction, uint16_t);
+    DPROP(filter_id, uint16_t);
+    DPROP(max_delay_in_frames, uint16_t);
+    DPROP(device_id, std::string);
+    DPROP(media_adapter, vpl::media_adapter_type);
+    DPROP(dxgi_adapter_index, uint32_t);
+    DPROP(implemented_function, std::string);
+    DPROP(pool_alloc_properties, vpl::pool_alloction_policy);
+    DPROP(set_handle, vpl::handle_type, void *);
+    DPROP(mem_type, vpl::resource_type);
+    DPROP(frame_size, uint32_t, uint32_t);
+    DPROP(color_format, vpl::color_format_fourcc);
+    DPROP(in_color_format, vpl::color_format_fourcc);
+    DPROP(out_color_format, vpl::color_format_fourcc);
+    DPROP(profile, uint32_t);
+
+    py::class_<vpl::dprops::container, vpl::property, std::shared_ptr<vpl::dprops::container>>(
+        dprops,
+        "container");
+
+    DCONT(decoder);
+    DCONT(encoder);
+    DCONT(filter);
+    DCONT(device);
+    DCONT(memdesc);
+    DCONT(dec_profile);
+    DCONT(enc_profile);
+    DCONT(dec_mem_desc);
+    DCONT(enc_mem_desc);
+
+    py::class_<vpl::property_list, std::shared_ptr<vpl::property_list>>(m, "property_list")
+        .def(py::init<>([](std::vector<vpl::property *> props) {
+            std::vector<vpl::property> list;
+            for (auto prop : props) {
+                list.push_back(*prop);
+            }
+            return new vpl::property_list(list);
+        }));
 }

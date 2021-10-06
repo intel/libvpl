@@ -16,7 +16,7 @@ void init_impl_caps(const py::module &m) {
         .def_property_readonly("id",
                                &vpl::base_implementation_capabilities::get_id,
                                "implementation capabilities format ID.")
-        .def("__str__", [](const vpl::implementation_capabilities *self, std::string) {
+        .def("__str__", [](const vpl::implementation_capabilities *self) {
             std::stringstream strs;
             strs << *self;
             return strs.str();
@@ -95,12 +95,11 @@ void init_impl_caps(const py::module &m) {
         .def_property_readonly("out_mem_types",
                                &vpl::implementation_capabilities::decoder_memory::get_out_mem_types,
                                "list of supported output memory types.")
-        .def("__str__",
-             [](const vpl::implementation_capabilities::decoder_memory *self, std::string) {
-                 std::stringstream strs;
-                 strs << *self;
-                 return strs.str();
-             });
+        .def("__str__", [](const vpl::implementation_capabilities::decoder_memory *self) {
+            std::stringstream strs;
+            strs << *self;
+            return strs.str();
+        });
 
     py::class_<vpl::implementation_capabilities::encoder_memory,
                std::shared_ptr<vpl::implementation_capabilities::encoder_memory>>(
@@ -122,12 +121,11 @@ void init_impl_caps(const py::module &m) {
         .def_property_readonly("out_mem_types",
                                &vpl::implementation_capabilities::encoder_memory::get_out_mem_types,
                                "list of supported output memory types.")
-        .def("__str__",
-             [](const vpl::implementation_capabilities::encoder_memory *self, std::string) {
-                 std::stringstream strs;
-                 strs << *self;
-                 return strs.str();
-             });
+        .def("__str__", [](const vpl::implementation_capabilities::encoder_memory *self) {
+            std::stringstream strs;
+            strs << *self;
+            return strs.str();
+        });
 
     py::class_<vpl::implementation_capabilities::vpp_memory_format,
                std::shared_ptr<vpl::implementation_capabilities::vpp_memory_format>>(
@@ -141,12 +139,11 @@ void init_impl_caps(const py::module &m) {
         .def_property_readonly("out_format",
                                &vpl::implementation_capabilities::vpp_memory_format::get_out_format,
                                "list of output memory types in a form of FourCC code")
-        .def("__str__",
-             [](const vpl::implementation_capabilities::vpp_memory_format *self, std::string) {
-                 std::stringstream strs;
-                 strs << *self;
-                 return strs.str();
-             });
+        .def("__str__", [](const vpl::implementation_capabilities::vpp_memory_format *self) {
+            std::stringstream strs;
+            strs << *self;
+            return strs.str();
+        });
 
     py::class_<vpl::implementation_capabilities::vpp_memory,
                std::shared_ptr<vpl::implementation_capabilities::vpp_memory>>(
@@ -168,7 +165,7 @@ void init_impl_caps(const py::module &m) {
         .def_property_readonly("memory_formats",
                                &vpl::implementation_capabilities::vpp_memory::get_memory_formats,
                                "list of supported memory formats.")
-        .def("__str__", [](const vpl::implementation_capabilities::vpp_memory *self, std::string) {
+        .def("__str__", [](const vpl::implementation_capabilities::vpp_memory *self) {
             std::stringstream strs;
             strs << *self;
             return strs.str();
@@ -214,7 +211,7 @@ void init_impl_caps(const py::module &m) {
         .def_property_readonly("profiles",
                                &vpl::implementation_capabilities::decoder::get_profiles,
                                "list of profiles.")
-        .def("__str__", [](const vpl::implementation_capabilities::decoder *self, std::string) {
+        .def("__str__", [](const vpl::implementation_capabilities::decoder *self) {
             std::stringstream strs;
             strs << *self;
             return strs.str();
@@ -238,7 +235,7 @@ void init_impl_caps(const py::module &m) {
         .def_property_readonly("profiles",
                                &vpl::implementation_capabilities::encoder::get_profiles,
                                "list of profiles.")
-        .def("__str__", [](const vpl::implementation_capabilities::encoder *self, std::string) {
+        .def("__str__", [](const vpl::implementation_capabilities::encoder *self) {
             std::stringstream strs;
             strs << *self;
             return strs.str();
@@ -259,7 +256,7 @@ void init_impl_caps(const py::module &m) {
         .def_property_readonly("memory_types",
                                &vpl::implementation_capabilities::vpp_filter::get_memory_types,
                                "list of supported memory types.")
-        .def("__str__", [](const vpl::implementation_capabilities::vpp_filter *self, std::string) {
+        .def("__str__", [](const vpl::implementation_capabilities::vpp_filter *self) {
             std::stringstream strs;
             strs << *self;
             return strs.str();
@@ -280,7 +277,7 @@ void init_impl_caps(const py::module &m) {
         .def_property_readonly("functions_name",
                                &vpl::implemented_functions::get_functions_name,
                                "Provides list of implemented functions.")
-        .def("__str__", [](const vpl::implemented_functions *self, std::string) {
+        .def("__str__", [](const vpl::implemented_functions *self) {
             std::stringstream strs;
             strs << *self;
             return strs.str();
@@ -292,7 +289,7 @@ void init_impl_caps(const py::module &m) {
         .def_property_readonly("path",
                                &vpl::implementation_path::get_path,
                                "Provides list of implemented functions.")
-        .def("__str__", [](const vpl::implementation_path *self, std::string) {
+        .def("__str__", [](const vpl::implementation_path *self) {
             std::stringstream strs;
             strs << *self;
             return strs.str();

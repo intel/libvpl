@@ -319,4 +319,13 @@ void init_defs(const py::module &m) {
                                      .value("optimal", vpl::pool_alloction_policy::optimal)
                                      .value("unlimited", vpl::pool_alloction_policy::unlimited)
                                      .value("limited", vpl::pool_alloction_policy::limited);
+
+    auto media_adapter_type = py::enum_<vpl::media_adapter_type>(m, "media_adapter_type")
+                                  .value("unknown", vpl::media_adapter_type::unknown)
+                                  .value("integrated", vpl::media_adapter_type::integrated)
+                                  .value("discrete", vpl::media_adapter_type::discrete);
+
+    auto implementation_type = py::enum_<vpl::implementation_type>(m, "implementation_type")
+                                   .value("sw", vpl::implementation_type::sw)
+                                   .value("hw", vpl::implementation_type::hw);
 }

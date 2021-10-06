@@ -17,7 +17,8 @@ SCRIPT_PATH = os.path.realpath(
     os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
 # Folder content is in
-CONTENT_PATH = os.path.join(SCRIPT_PATH, '..', '..', 'examples', 'content')
+CONTENT_PATH = os.path.join(SCRIPT_PATH, '..', '..', '..', 'examples',
+                            'content')
 HEVC_CLIP = os.path.join(CONTENT_PATH, 'cars_128x96.h265')
 I420_CLIP = os.path.join(CONTENT_PATH, 'cars_128x96.i420')
 
@@ -37,11 +38,16 @@ class TestUseCases(unittest.TestCase):
         frame_count = 0
         with pyvpl.bitstream_file_reader_name(HEVC_CLIP) as source:
             with open("raw.out", "wb") as sink:
-                opts = []
-                opts.append(
-                    pyvpl.property("mfxImplDescription.Impl",
-                                   pyvpl.implementation.software))
-                sel_default = pyvpl.default_selector(opts)
+                try:
+                    opts = pyvpl.properties()
+                    opts.impl = pyvpl.implementation_type.sw
+                    opts.api_version = (2, 5)
+                    opts.decoder.codec_id = [pyvpl.codec_format_fourcc.hevc]
+                    print("")
+                    print(str(opts))
+                    sel_default = pyvpl.default_selector(opts)
+                except pyvpl.base_exception as e:
+                    print(e)
 
                 # Load session and initialize decoder
                 params = pyvpl.decoder_video_param()
@@ -78,15 +84,13 @@ class TestUseCases(unittest.TestCase):
                 128, 96, pyvpl.color_format_fourcc.i420, I420_CLIP) as source:
             with open("out.h265", "wb") as sink:
                 opts = []
+                opts.append(pyvpl.dprops.impl(pyvpl.implementation_type.sw))
                 opts.append(
-                    pyvpl.property("mfxImplDescription.Impl",
-                                   pyvpl.implementation.software))
-                input_fourcc = pyvpl.color_format_fourcc.i420
-                opts.append(
-                    pyvpl.property(
-                        "mfxImplDescription.mfxEncoderDescription.encoder.CodecID",
-                        pyvpl.codec_format_fourcc.hevc))
-                sel_default = pyvpl.default_selector(opts)
+                    pyvpl.dprops.encoder([
+                        pyvpl.dprops.codec_id(pyvpl.codec_format_fourcc.hevc)
+                    ]))
+                props = pyvpl.property_list(opts)
+                sel_default = pyvpl.default_selector(props)
 
                 # Load session and initialize encoder
                 session = pyvpl.encode_session(sel_default, source)
@@ -96,7 +100,7 @@ class TestUseCases(unittest.TestCase):
 
                 info.frame_rate = (30, 1)
                 info.frame_size = (roundup(128, 16), roundup(96, 16))
-                info.FourCC = input_fourcc
+                info.FourCC = pyvpl.color_format_fourcc.i420
                 info.ChromaFormat = pyvpl.chroma_format_idc.yuv420
                 info.ROI = ((0, 0), (128, 96))
 
@@ -130,11 +134,8 @@ class TestUseCases(unittest.TestCase):
                 128, 96, pyvpl.color_format_fourcc.i420, I420_CLIP) as source:
             with open("raw.out", "wb") as sink:
                 opts = []
-                opts.append(
-                    pyvpl.property("mfxImplDescription.Impl",
-                                   pyvpl.implementation.software))
-                sel_default = pyvpl.default_selector(opts)
-
+                opts.append(pyvpl.dprops.impl(pyvpl.implementation_type.sw))
+                sel_default = pyvpl.default_selector(pyvpl.property_list(opts))
                 # Load session and initialize decoder
                 params = pyvpl.vpp_video_param()
                 in_frame = pyvpl.frame_info()

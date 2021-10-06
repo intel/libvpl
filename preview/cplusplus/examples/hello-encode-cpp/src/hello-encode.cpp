@@ -64,23 +64,18 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    int frame_num      = 0;
-    bool is_stillgoing = true;
-    mfxImplType impl_type;
-    impl_type = (mfxImplType)cliParams.implValue.Data.U32;
+    int frame_num                              = 0;
+    bool is_stillgoing                         = true;
+    oneapi::vpl::implementation_type impl_type = cliParams.implValue;
 
     // Initialize VPL session for any implementation of HEVC/H265 encode
     // Default implementation selector. Selects first impl based on property list.
-    vpl::property_name p1, p2;
-    vpl::property opt1(p1 / "mfxImplDescription" / "Impl", (uint32_t)impl_type);
-    vpl::property opt2(p2 / "mfxImplDescription" / "mfxEncoderDescription" / "encoder" / "CodecID",
-                       (uint32_t)vpl::codec_format_fourcc::hevc);
-
-    // Default implementation selector. Selects first impl based on property list.
-    vpl::default_selector impl_sel({ opt1, opt2 });
+    vpl::default_selector impl_sel({ oneapi::vpl::dprops::impl(impl_type),
+                                     oneapi::vpl::dprops::encoder({ oneapi::vpl::dprops::codec_id(
+                                         vpl::codec_format_fourcc::hevc) }) });
 
     vpl::ExtDecodeErrorReport err_report;
-    vpl::color_format_fourcc input_fourcc = (impl_type == MFX_IMPL_TYPE_SOFTWARE)
+    vpl::color_format_fourcc input_fourcc = (impl_type == oneapi::vpl::implementation_type::sw)
                                                 ? vpl::color_format_fourcc::i420
                                                 : vpl::color_format_fourcc::nv12;
 
