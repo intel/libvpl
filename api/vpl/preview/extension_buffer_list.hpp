@@ -378,6 +378,10 @@ class encoder_init_list : public buffer_list {
                                    std::is_same<ExtVP9TemporalLayers*, T>::value ||
                                    std::is_same<ExtVP9Param*, T>::value ||
                                    std::is_same<ExtPartialBitstreamParam*, T>::value ||
+                                   std::is_same<ExtAV1BitstreamParam*, T>::value ||
+                                   std::is_same<ExtAV1ResolutionParam*, T>::value ||
+                                   std::is_same<ExtAV1TileParam*, T>::value ||
+                                   std::is_same<ExtAV1Segmentation*, T>::value ||
                                    std::is_same<ExtDeviceAffinityMask*, T>::value,
                                AllBuffers<Tail...>,
                                std::false_type>::type {};
@@ -409,6 +413,10 @@ public:
     /// ExtVP9Param,
     /// ExtPartialBitstreamParam,
     /// ExtDeviceAffinityMask
+    /// ExtAV1BitstreamParam
+    /// ExtAV1ResolutionParam
+    /// ExtAV1TileParam
+    /// ExtAV1Segmentation
     /// @param[in] Opts List of property objects
     template <typename... OptsT,
               typename = typename std::enable_if<AllBuffers<OptsT...>::value>::type>
@@ -448,6 +456,10 @@ public:
             case MFX_EXTBUFF_VP9_PARAM:
             case MFX_EXTBUFF_PARTIAL_BITSTREAM_PARAM:
             case MFX_EXTBUFF_DEVICE_AFFINITY_MASK:
+            case MFX_EXTBUFF_AV1_BITSTREAM_PARAM:
+            case MFX_EXTBUFF_AV1_RESOLUTION_PARAM:
+            case MFX_EXTBUFF_AV1_TILE_PARAM:
+            case MFX_EXTBUFF_AV1_SEGMENTATION:
                 buffer_list::add_buffer(o);
                 return;
         }
@@ -481,6 +493,10 @@ protected:
         std::is_same<ExtVP9TemporalLayers*, OptT>::value ||
         std::is_same<ExtVP9Param*, OptT>::value ||
         std::is_same<ExtPartialBitstreamParam*, OptT>::value ||
+        std::is_same<ExtAV1BitstreamParam*, OptT>::value ||
+        std::is_same<ExtAV1ResolutionParam*, OptT>::value ||
+        std::is_same<ExtAV1TileParam*, OptT>::value ||
+        std::is_same<ExtAV1Segmentation*, OptT>::value ||
         std::is_same<ExtDeviceAffinityMask*, OptT>::value>::type
     ctor_helper(OptT Opt, OptsT... Opts) {
         add_buffer(Opt);
@@ -515,6 +531,10 @@ class encoder_reset_list : public buffer_list {
                                    std::is_same<ExtVP9Param*, T>::value ||
                                    std::is_same<ExtPartialBitstreamParam*, T>::value ||
                                    std::is_same<ExtEncoderResetOption*, T>::value ||
+                                   std::is_same<ExtAV1BitstreamParam*, T>::value ||
+                                   std::is_same<ExtAV1ResolutionParam*, T>::value ||
+                                   std::is_same<ExtAV1TileParam*, T>::value ||
+                                   std::is_same<ExtAV1Segmentation*, T>::value ||
                                    std::is_same<ExtDeviceAffinityMask*, T>::value,
                                AllBuffers<Tail...>,
                                std::false_type>::type {};
@@ -547,6 +567,10 @@ public:
     /// ExtPartialBitstreamParam,
     /// mfxExtEncoderResetOption,
     /// ExtDeviceAffinityMask
+    /// ExtAV1BitstreamParam
+    /// ExtAV1ResolutionParam
+    /// ExtAV1TileParam
+    /// ExtAV1Segmentation
     /// @param[in] Opts List of property objects
     template <typename... OptsT,
               typename = typename std::enable_if<AllBuffers<OptsT...>::value>::type>
@@ -587,6 +611,10 @@ public:
             case MFX_EXTBUFF_PARTIAL_BITSTREAM_PARAM:
             case MFX_EXTBUFF_ENCODER_RESET_OPTION:
             case MFX_EXTBUFF_DEVICE_AFFINITY_MASK:
+            case MFX_EXTBUFF_AV1_BITSTREAM_PARAM:
+            case MFX_EXTBUFF_AV1_RESOLUTION_PARAM:
+            case MFX_EXTBUFF_AV1_TILE_PARAM:
+            case MFX_EXTBUFF_AV1_SEGMENTATION:
                 buffer_list::add_buffer(o);
                 return;
         }
@@ -621,6 +649,10 @@ protected:
         std::is_same<ExtVP9Param*, OptT>::value ||
         std::is_same<ExtPartialBitstreamParam*, OptT>::value ||
         std::is_same<ExtEncoderResetOption*, OptT>::value ||
+        std::is_same<ExtAV1BitstreamParam*, OptT>::value ||
+        std::is_same<ExtAV1ResolutionParam*, OptT>::value ||
+        std::is_same<ExtAV1TileParam*, OptT>::value ||
+        std::is_same<ExtAV1Segmentation*, OptT>::value ||
         std::is_same<ExtDeviceAffinityMask*, OptT>::value>::type
     ctor_helper(OptT Opt, OptsT... Opts) {
         add_buffer(Opt);
@@ -653,6 +685,7 @@ class encoder_process_list : public buffer_list {
                                    std::is_same<ExtEncodedSlicesInfo*, T>::value ||
                                    std::is_same<ExtVP9Segmentation*, T>::value ||
                                    std::is_same<ExtEncodedUnitsInfo*, T>::value ||
+                                   std::is_same<ExtAV1Segmentation*, T>::value ||
                                    std::is_same<ExtDeviceAffinityMask*, T>::value,
                                AllBuffers<Tail...>,
                                std::false_type>::type {};
@@ -683,6 +716,7 @@ public:
     /// ExtVP9Segmentation,
     /// ExtEncodedUnitsInfo,
     /// ExtDeviceAffinityMask
+    /// ExtAV1Segmentation
     /// @param[in] Opts List of property objects
     template <typename... OptsT,
               typename = typename std::enable_if<AllBuffers<OptsT...>::value>::type>
@@ -722,6 +756,7 @@ public:
             case MFX_EXTBUFF_VP9_SEGMENTATION:
             case MFX_EXTBUFF_ENCODED_UNITS_INFO:
             case MFX_EXTBUFF_DEVICE_AFFINITY_MASK:
+            case MFX_EXTBUFF_AV1_SEGMENTATION:
                 buffer_list::add_buffer(o);
                 return;
         }
@@ -754,6 +789,7 @@ protected:
         std::is_same<ExtEncodedSlicesInfo*, OptT>::value ||
         std::is_same<ExtVP9Segmentation*, OptT>::value ||
         std::is_same<ExtEncodedUnitsInfo*, OptT>::value ||
+        std::is_same<ExtAV1Segmentation*, OptT>::value ||
         std::is_same<ExtDeviceAffinityMask*, OptT>::value>::type
     ctor_helper(OptT Opt, OptsT... Opts) {
         add_buffer(Opt);

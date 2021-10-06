@@ -288,8 +288,7 @@ public:
             : session(sel, detail::CAPI<>::Decoder),
               bits_(codecID),
               rdr_(rdr),
-              params_(),
-              list_() {
+              params_() {
         component_ = component::decoder;
         params_.set_CodecId(codecID);
         params_.clear_extension_buffers();
@@ -305,45 +304,7 @@ public:
             : session(sel, detail::CAPI<>::Decoder),
               bits_((codec_format_fourcc)params.get_CodecId()),
               rdr_(rdr),
-              params_(params),
-              list_() {
-        component_ = component::decoder;
-        params_.clear_extension_buffers();
-    }
-
-    /// @brief Constructs decoder session
-    /// @param[in] sel Implementation selector
-    /// @param[in] codecID Codec ID
-    /// @param[in] rdr Bitstream reader
-    /// @param[in] list Process list
-    decode_session(const implemetation_selector &sel,
-                   codec_format_fourcc codecID,
-                   Reader *rdr,
-                   const decoder_process_list &list)
-            : session(sel, detail::CAPI<>::Decoder),
-              bits_(codecID),
-              rdr_(rdr),
-              params_(),
-              list_(list) {
-        component_ = component::decoder;
-        params_.set_CodecId(codecID);
-        params_.clear_extension_buffers();
-    }
-
-    /// @brief Constructs decoder session
-    /// @param[in] sel Implementation selector
-    /// @param[in] params Video params
-    /// @param[in] rdr Bitstream reader
-    /// @param[in] list Process list
-    decode_session(const implemetation_selector &sel,
-                   const decoder_video_param &params,
-                   Reader *rdr,
-                   const decoder_process_list &list)
-            : session(sel, detail::CAPI<>::Decoder),
-              bits_((codec_format_fourcc)params.get_CodecId()),
-              rdr_(rdr),
-              params_(params),
-              list_(list) {
+              params_(params) {
         component_ = component::decoder;
         params_.clear_extension_buffers();
     }
@@ -515,8 +476,6 @@ protected:
     Reader *rdr_;
     /// @brief Video params
     decoder_video_param params_;
-    /// @brief Process list
-    decoder_process_list list_;
 };
 
 /// @brief Manages encoder's sessions.

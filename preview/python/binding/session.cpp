@@ -54,14 +54,6 @@ public:
                           const vpl::decoder_video_param &,
                           Reader *>())
             .def(py::init<vpl::implemetation_selector &, vpl::codec_format_fourcc, Reader *>())
-            .def(py::init<vpl::implemetation_selector &,
-                          const vpl::decoder_video_param &,
-                          Reader *,
-                          vpl::decoder_process_list &>())
-            .def(py::init<vpl::implemetation_selector &,
-                          vpl::codec_format_fourcc,
-                          Reader *,
-                          vpl::decoder_process_list &>())
             .def(
                 "init_by_header",
                 &Class::init_by_header,
