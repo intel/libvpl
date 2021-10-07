@@ -43,87 +43,78 @@ public:
 
 private:
     /// @brief Ctor's helper to check of value of uint8_t data type.
-    template <typename T>
-    typename std::enable_if<std::is_same<char, T>::value>::type type_init(T t) {
+    void type_init(char t) {
         v_.Data.U8 = t;
         v_.Type    = MFX_VARIANT_TYPE_U8;
     }
 
-    template <typename T>
-    typename std::enable_if<std::is_same<uint8_t, T>::value>::type type_init(T t) {
+    void type_init(uint8_t t) {
         v_.Data.U8 = t;
         v_.Type    = MFX_VARIANT_TYPE_U8;
     }
 
-    template <typename T>
-    typename std::enable_if<std::is_same<int8_t, T>::value>::type type_init(T t) {
+    void type_init(int8_t t) {
         v_.Data.I8 = t;
         v_.Type    = MFX_VARIANT_TYPE_I8;
     }
 
-    template <typename T>
-    typename std::enable_if<std::is_same<uint16_t, T>::value>::type type_init(T t) {
+    void type_init(uint16_t t) {
         v_.Data.U16 = t;
         v_.Type     = MFX_VARIANT_TYPE_U16;
     }
 
-    template <typename T>
-    typename std::enable_if<std::is_same<int16_t, T>::value>::type type_init(T t) {
+    void type_init(int16_t t) {
         v_.Data.I16 = t;
         v_.Type     = MFX_VARIANT_TYPE_I16;
     }
 
-    template <typename T>
-    typename std::enable_if<std::is_same<uint32_t, T>::value>::type type_init(T t) {
+    void type_init(uint32_t t) {
         v_.Data.U32 = t;
         v_.Type     = MFX_VARIANT_TYPE_U32;
     }
 
-    template <typename T>
-    typename std::enable_if<std::is_same<int32_t, T>::value>::type type_init(T t) {
+    void type_init(int32_t t) {
         v_.Data.I32 = t;
         v_.Type     = MFX_VARIANT_TYPE_I32;
     }
 
-    template <typename T>
-    typename std::enable_if<std::is_same<uint64_t, T>::value>::type type_init(T t) {
+    void type_init(uint64_t t) {
         v_.Data.U64 = t;
         v_.Type     = MFX_VARIANT_TYPE_U64;
     }
 
-    template <typename T>
-    typename std::enable_if<std::is_same<int64_t, T>::value>::type type_init(T t) {
+    void type_init(int64_t t) {
         v_.Data.I64 = t;
         v_.Type     = MFX_VARIANT_TYPE_I64;
     }
 
-    template <typename T>
-    typename std::enable_if<std::is_same<mfxF32, T>::value>::type type_init(T t) {
+    void type_init(mfxF32 t) {
         v_.Data.F32 = t;
         v_.Type     = MFX_VARIANT_TYPE_F32;
     }
 
-    template <typename T>
-    typename std::enable_if<std::is_same<mfxF64, T>::value>::type type_init(T t) {
+    void type_init(mfxF64 t) {
         v_.Data.F64 = t;
         v_.Type     = MFX_VARIANT_TYPE_F64;
     }
 
-    template <typename T>
-    typename std::enable_if<std::is_same<void*, T>::value>::type type_init(T t) {
+    void type_init(void* t) {
         v_.Data.Ptr = t;
         v_.Type     = MFX_VARIANT_TYPE_PTR;
     }
 
-    template <typename T>
-    typename std::enable_if<std::is_same<std::string_view, T>::value>::type type_init(T t) {
+    void type_init(std::string_view &t) {
         v_.Data.Ptr = (void*)t.data();
         v_.Type     = MFX_VARIANT_TYPE_PTR;
     }
 
-    template <typename T>
-    typename std::enable_if<std::is_same<std::string, T>::value>::type type_init(T& t) {
+    void type_init(std::string &t) {
         v_.Data.Ptr = (void*)t.data();
+        v_.Type     = MFX_VARIANT_TYPE_PTR;
+    }
+
+    void type_init(mfxRange32U &t) {
+        v_.Data.Ptr = &t;
         v_.Type     = MFX_VARIANT_TYPE_PTR;
     }
 

@@ -97,6 +97,8 @@ bool TestPath(oneapi::vpl::property const &prop,
 using namespace oneapi::vpl; // NOLINT
 
 static int TestProperty() {
+    mfxRange32U width{ 10, 10, 1 };
+    mfxRange32U height{ 20, 20, 1 };
     TEST_CASE(impl, implementation_type::sw, "mfxImplDescription.Impl");
     TEST_CASE2(api_version,
                2,
@@ -147,7 +149,7 @@ static int TestProperty() {
               { dprops::memdesc{ dprops::mem_type(resource_type::system_surface) } },
               "mfxImplDescription.mfxVPPDescription.filter.memdesc.MemHandleType");
     TEST_CASE3(filter,
-               { dprops::memdesc{ dprops::frame_size(10, 20) } },
+               { dprops::memdesc{ dprops::frame_size(width, height) } },
                "mfxImplDescription.mfxVPPDescription.filter.memdesc.Width",
                "mfxImplDescription.mfxVPPDescription.filter.memdesc.Height");
     TEST_CASE(filter,
@@ -171,7 +173,7 @@ static int TestProperty() {
             dprops::dec_mem_desc{ dprops::color_format(color_format_fourcc::bgr4) } } },
         "mfxImplDescription.mfxDecoderDescription.decoder.decprofile.decmemdesc.ColorFormats");
     TEST_CASE3(decoder,
-               { dprops::dec_profile{ dprops::dec_mem_desc{ dprops::frame_size(10, 20) } } },
+               { dprops::dec_profile{ dprops::dec_mem_desc{ dprops::frame_size(width, height) } } },
                "mfxImplDescription.mfxDecoderDescription.decoder.decprofile.decmemdesc.Width",
                "mfxImplDescription.mfxDecoderDescription.decoder.decprofile.decmemdesc.Height");
 
@@ -189,7 +191,7 @@ static int TestProperty() {
             dprops::enc_mem_desc{ dprops::color_format(color_format_fourcc::bgr4) } } },
         "mfxImplDescription.mfxEncoderDescription.encoder.encprofile.encmemdesc.ColorFormats");
     TEST_CASE3(encoder,
-               { dprops::enc_profile{ dprops::enc_mem_desc{ dprops::frame_size(10, 20) } } },
+               { dprops::enc_profile{ dprops::enc_mem_desc{ dprops::frame_size(width, height) } } },
                "mfxImplDescription.mfxEncoderDescription.encoder.encprofile.encmemdesc.Width",
                "mfxImplDescription.mfxEncoderDescription.encoder.encprofile.encmemdesc.Height");
 

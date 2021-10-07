@@ -16,9 +16,12 @@ void init_option_tree(const py::module &m) {
         .def_property("mem_type",
                       &vpl::codec_mem_desc_properties::get_mem_type,
                       &vpl::codec_mem_desc_properties::set_mem_type)
-        .def_property("frame_size",
-                      &vpl::codec_mem_desc_properties::get_frame_size,
-                      &vpl::codec_mem_desc_properties::set_frame_size)
+        .def_property("width",
+                      &vpl::codec_mem_desc_properties::get_width,
+                      &vpl::codec_mem_desc_properties::set_width)
+        .def_property("height",
+                      &vpl::codec_mem_desc_properties::get_height,
+                      &vpl::codec_mem_desc_properties::set_height)
         .def_property("color_format",
                       &vpl::codec_mem_desc_properties::get_color_format,
                       &vpl::codec_mem_desc_properties::set_color_format);
@@ -45,9 +48,12 @@ void init_option_tree(const py::module &m) {
         .def_property("mem_type",
                       &vpl::memdesc_properties::get_mem_type,
                       &vpl::memdesc_properties::set_mem_type)
-        .def_property("frame_size",
-                      &vpl::memdesc_properties::get_frame_size,
-                      &vpl::memdesc_properties::set_frame_size)
+        .def_property("width",
+                      &vpl::memdesc_properties::get_width,
+                      &vpl::memdesc_properties::set_width)
+        .def_property("height",
+                      &vpl::memdesc_properties::get_height,
+                      &vpl::memdesc_properties::set_height)
         .def_property("in_color_format",
                       &vpl::memdesc_properties::get_in_color_format,
                       &vpl::memdesc_properties::set_in_color_format)

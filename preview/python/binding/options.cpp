@@ -57,7 +57,7 @@ void init_options(py::module &m) { //NOLINT
     DPROP(pool_alloc_properties, vpl::pool_alloction_policy);
     DPROP(set_handle, vpl::handle_type, void *);
     DPROP(mem_type, vpl::resource_type);
-    DPROP(frame_size, uint32_t, uint32_t);
+    DPROP(frame_size, mfxRange32U &, mfxRange32U &);
     DPROP(color_format, vpl::color_format_fourcc);
     DPROP(in_color_format, vpl::color_format_fourcc);
     DPROP(out_color_format, vpl::color_format_fourcc);

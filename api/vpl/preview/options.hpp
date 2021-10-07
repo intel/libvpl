@@ -61,60 +61,11 @@ class property {
     }
 
   protected:
-    /// @brief Protected ctor.
-    /// @param[in] name Path (or subpath) of the property.
-    /// @param[in] value Property value.
-    property(std::string name, uint16_t value) {
-        values_.push_back(std::make_pair(name, detail::variant(value)));
-    }
-
-    /// @brief Protected ctor.
-    /// @param[in] name Path (or subpath) of the property.
-    /// @param[in] value Property value.
-    property(std::string name, uint32_t value)  {
-        values_.push_back(std::make_pair(name, detail::variant(value)));
-    }
-
-    /// @brief Protected ctor.
-    /// @param[in] name Path (or subpath) of the property.
-    /// @param[in] value Property value.
-    property(std::string name, std::string_view value) {
-        values_.push_back(std::make_pair(name, detail::variant((void*)value.data())));
-    }
-
-    /// @brief Protected ctor.
-    /// @param[in] name Path (or subpath) of the property.
-    /// @param[in] value Property value.
-    property(std::string name, void* value)  {
-        values_.push_back(std::make_pair(name, detail::variant(value)));
-    }
-
     /// @brief Add connected property.
     /// @param[in] name Path (or subpath) of the property.
     /// @param[in] value Property value.
-    void add_property(std::string name, uint16_t value) {
-        values_.push_back(std::make_pair(name, detail::variant(value)));
-    }
-
-    /// @brief Add connected property.
-    /// @param[in] name Path (or subpath) of the property.
-    /// @param[in] value Property value.
-    void add_property(std::string name, uint32_t value)  {
-        values_.push_back(std::make_pair(name, detail::variant(value)));
-    }
-
-    /// @brief Add connected property.
-    /// @param[in] name Path (or subpath) of the property.
-    /// @param[in] value Property value.
-    void add_property(std::string name, std::string_view value) {
-        values_.push_back(std::make_pair(name, detail::variant((void*)value.data())));
-    }
-
-    /// @brief Add connected property.
-    /// @param[in] name Path (or subpath) of the property.
-    /// @param[in] value Property value.
-    void add_property(std::string name, void* value)  {
-        values_.push_back(std::make_pair(name, detail::variant(value)));
+    template<typename T> void add_property(std::string const &name, T const &value) {
+        values_.push_back(std::pair(name, detail::variant(value)));
     }
 
     /// @brief Add connected property with different prefix.
@@ -146,7 +97,8 @@ class impl : public property {
 
     /// @brief Constructs property.
     /// @param[in] implType Type of the implementation.
-    impl(implementation_type implType) : property("mfxImplDescription.Impl", (uint32_t)implType) {
+    impl(implementation_type implType) {
+        add_property("mfxImplDescription.Impl", (uint32_t)implType);
         property_name_ = "impl";
     }
 };
@@ -159,7 +111,8 @@ class acceleration_mode : public property {
 
     /// @brief Constructs property.
     /// @param[in] implementation_via Acceleration mode.
-    acceleration_mode(implementation_via implVia) : property("mfxImplDescription.AccelerationMode", (uint32_t)implVia) {
+    acceleration_mode(implementation_via implVia) {
+        add_property("mfxImplDescription.AccelerationMode", (uint32_t)implVia);
         property_name_ = "acceleration_mode";
     }
 };
@@ -173,13 +126,15 @@ class api_version : public property {
     /// @brief Constructs property.
     /// @param[in] major Major API version.
     /// @param[in] minor Minor API version.
-    api_version(uint16_t major, uint16_t minor) : property("mfxImplDescription.ApiVersion.Major", major) {
+    api_version(uint16_t major, uint16_t minor) {
+        add_property("mfxImplDescription.ApiVersion.Major", major);
         add_property("mfxImplDescription.ApiVersion.Minor", minor);
         property_name_ = "api_version";
     }
     /// @brief Constructs property.
     /// @param[in] version API version as {Major, Minor} pair
-    api_version(std::pair<uint16_t, uint16_t> version) : property("mfxImplDescription.ApiVersion.Major", std::get<0>(version)) {
+    api_version(std::pair<uint16_t, uint16_t> version) {
+        add_property("mfxImplDescription.ApiVersion.Major", std::get<0>(version));
         add_property("mfxImplDescription.ApiVersion.Minor", std::get<1>(version));
         property_name_ = "api_version";
     }
@@ -193,7 +148,8 @@ class impl_name : public property {
 
     /// @brief Constructs property.
     /// @param[in] implName Name of the implementation.
-    impl_name(std::string_view implName) : property("mfxImplDescription.ImplName", implName) {
+    impl_name(std::string_view implName) {
+        add_property("mfxImplDescription.ImplName", implName);
         property_name_ = "impl_name";
     }
 };
@@ -206,7 +162,8 @@ class license : public property {
 
     /// @brief Constructs property.
     /// @param[in] License Licenses of the implementation.
-    license(std::string License) : property("mfxImplDescription.License", License) {
+    license(std::string License) {
+        add_property("mfxImplDescription.License", License);
         property_name_ = "license";
     }
 };
@@ -219,7 +176,8 @@ class keywords : public property {
 
     /// @brief Constructs property.
     /// @param[in] Keywords Keywords.
-    keywords(std::string Keywords) : property("mfxImplDescription.Keywords", Keywords) {
+    keywords(std::string Keywords) {
+        add_property("mfxImplDescription.Keywords", Keywords);
         property_name_ = "keywords";
     }
 };
@@ -232,7 +190,8 @@ class vendor_id : public property {
 
     /// @brief Constructs property.
     /// @param[in] VendorID vendor ID.
-    vendor_id(uint32_t VendorID) : property("mfxImplDescription.VendorID", VendorID) {
+    vendor_id(uint32_t VendorID) {
+        add_property("mfxImplDescription.VendorID", VendorID);
         property_name_ = "vendor_id";
     }
 };
@@ -245,7 +204,8 @@ class vendor_impl_id : public property {
 
     /// @brief Constructs property.
     /// @param[in] VendorImplID vendor's implementation ID.
-    vendor_impl_id(uint32_t VendorImplID) : property("mfxImplDescription.VendorImplID", VendorImplID) {
+    vendor_impl_id(uint32_t VendorImplID) {
+        add_property("mfxImplDescription.VendorImplID", VendorImplID);
         property_name_ = "vendor_impl_id";
     }
 };
@@ -258,7 +218,8 @@ class codec_id : public property {
 
     /// @brief Constructs property.
     /// @param[in] fourcc Codec ID.
-    codec_id(codec_format_fourcc codecID) : property("CodecID", (uint32_t)codecID) {
+    codec_id(codec_format_fourcc codecID) {
+        add_property("CodecID", (uint32_t)codecID);
         property_name_ = "codec_id";
     }
 };
@@ -271,7 +232,8 @@ class max_codec_level : public property {
 
     /// @brief Constructs property.
     /// @param[in] MaxLevel Maximum supported codec level.
-    max_codec_level(uint32_t MaxLevel) : property("MaxcodecLevel", MaxLevel) {
+    max_codec_level(uint32_t MaxLevel) {
+        add_property("MaxcodecLevel", MaxLevel);
         property_name_ = "max_codec_level";
     }
 };
@@ -284,7 +246,8 @@ class bidirectional_prediction : public property {
 
     /// @brief Constructs property.
     /// @param[in] pred Ability to perform bi-direction prediction during encoding.
-    bidirectional_prediction(uint16_t pred) : property("BiDirectionalPrediction", pred) {
+    bidirectional_prediction(uint16_t pred) {
+        add_property("BiDirectionalPrediction", pred);
         property_name_ = "bidirectional_prediction";
     }
 };
@@ -298,7 +261,8 @@ class filter_id : public property {
     /// @brief Constructs property.
     /// @param[in] filter_id VPP filter ID.
     /// @todo Introduce enum.
-    filter_id(uint32_t fourcc) : property("FilterFourCC", (uint32_t)fourcc) {
+    filter_id(uint32_t fourcc) {
+        add_property("FilterFourCC", (uint32_t)fourcc);
         property_name_ = "filter_id";
     }
 };
@@ -311,7 +275,8 @@ class max_delay_in_frames : public property {
 
     /// @brief Constructs property.
     /// @param[in] delay Delay in frames.
-    max_delay_in_frames(uint16_t delay) : property("MaxDelayInFrames", delay) {
+    max_delay_in_frames(uint16_t delay) {
+        add_property("MaxDelayInFrames", delay);
         property_name_ = "max_delay_in_frames";
     }
 };
@@ -324,7 +289,8 @@ class device_id : public property {
 
     /// @brief Constructs property.
     /// @param[in] deviceid Device ID.
-    device_id(std::string deviceid) : property("DeviceID", deviceid) {
+    device_id(std::string deviceid) {
+        add_property("DeviceID", deviceid);
         property_name_ = "device_id";
     }
 };
@@ -337,7 +303,8 @@ class media_adapter : public property {
 
     /// @brief Constructs property.
     /// @param[in] type Media adapter type.
-    media_adapter(media_adapter_type type) : property("MediaAdapterType", (uint16_t)type) {
+    media_adapter(media_adapter_type type) {
+        add_property("MediaAdapterType", (uint16_t)type);
         property_name_ = "media_adapter";
     }
 };
@@ -351,7 +318,8 @@ class dxgi_adapter_index : public property {
 
     /// @brief Constructs property.
     /// @param[in] index DXGI adapter index.
-    dxgi_adapter_index(uint32_t index) : property("DXGIAdapterIndex", index) {
+    dxgi_adapter_index(uint32_t index) {
+        add_property("DXGIAdapterIndex", index);
         property_name_ = "dxgi_adapter_index";
     }
 };
@@ -364,7 +332,8 @@ class implemented_function : public property {
 
     /// @brief Constructs property.
     /// @param[in] funcationName Name of the oneVPL C API function.
-    implemented_function(std::string funcationName) : property("mfxImplementedFunctions.FunctionsName", funcationName) {
+    implemented_function(std::string funcationName) {
+        add_property("mfxImplementedFunctions.FunctionsName", funcationName);
         property_name_ = "implemented_function";
     }
 };
@@ -377,7 +346,8 @@ class pool_alloc_properties : public property {
 
     /// @brief Constructs property.
     /// @param[in] policy Pool allocation mode.
-    pool_alloc_properties(pool_alloction_policy policy) : property("mfxImplDescription.mfxSurfacePoolMode", (uint32_t)policy) {
+    pool_alloc_properties(pool_alloction_policy policy) {
+        add_property("mfxImplDescription.mfxSurfacePoolMode", (uint32_t)policy);
         property_name_ = "pool_alloc_properties";
     }
 };
@@ -391,15 +361,17 @@ class set_handle : public property {
     /// @brief Constructs property.
     /// @param[in] type Type of the handle.
     /// @param[in] handle Handle.
-    set_handle(handle_type type, void* handle) : property("mfxHandleType", (uint32_t)type) {
+    set_handle(handle_type type, void* handle) {
+        add_property("mfxHandleType", (uint32_t)type);
         add_property("mfxHDL", handle);
         property_name_ = "set_handle";
     }
     /// @brief Constructs property.
     /// @param[in] version handle as {Type, Handle} pair
-    set_handle(std::pair<handle_type, void*> handle) : property("mfxHandleType", (uint32_t)std::get<0>(handle)) {
+    set_handle(std::pair<handle_type, void*> handle) {
+        add_property("mfxHandleType", (uint32_t)std::get<0>(handle));
         add_property("mfxHDL", std::get<1>(handle));
-        property_name_ = "frame_size";
+        property_name_ = "handle_type";
     }
 };
 
@@ -411,7 +383,8 @@ class mem_type : public property {
 
     /// @brief Constructs property.
     /// @param[in] MemType Memory type.
-    mem_type(resource_type MemType) : property("MemHandleType", (uint32_t)MemType) {
+    mem_type(resource_type MemType) {
+        add_property("MemHandleType", (uint32_t)MemType);
         property_name_ = "mem_type";
     }
 };
@@ -425,13 +398,15 @@ class frame_size : public property {
     /// @brief Constructs property.
     /// @param[in] width Width of the frame.
     /// @param[in] height Height of the frame.
-    frame_size(uint32_t width, uint32_t height) : property("Width", width) {
+    frame_size(mfxRange32U &width, mfxRange32U &height) {
+        add_property("Width", width);
         add_property("Height", height);
         property_name_ = "frame_size";
     }
     /// @brief Constructs property.
     /// @param[in] version Size as {Width, Height} pair
-    frame_size(std::pair<uint32_t, uint32_t> size) : property("Width", std::get<0>(size)) {
+    frame_size(std::pair<uint32_t, uint32_t> size) {
+        add_property("Width", std::get<0>(size));
         add_property("Height", std::get<1>(size));
         property_name_ = "frame_size";
     }
@@ -445,7 +420,8 @@ class color_format : public property {
 
     /// @brief Constructs property.
     /// @param[in] format Color format.
-    color_format(color_format_fourcc format) : property("ColorFormats", (uint32_t)format) {
+    color_format(color_format_fourcc format) {
+        add_property("ColorFormats", (uint32_t)format);
         property_name_ = "color_format";
     }
 };
@@ -458,7 +434,8 @@ class in_color_format : public property {
 
     /// @brief Constructs property.
     /// @param[in] format Color format.
-    in_color_format(color_format_fourcc format) : property("format.InFormat", (uint32_t)format) {
+    in_color_format(color_format_fourcc format) {
+        add_property("format.InFormat", (uint32_t)format);
         property_name_ = "in_color_format";
     }
 };
@@ -471,7 +448,8 @@ class out_color_format : public property {
 
     /// @brief Constructs property.
     /// @param[in] format Color format.
-    out_color_format(color_format_fourcc format) : property("format.OutFormats", (uint32_t)format) {
+    out_color_format(color_format_fourcc format) {
+        add_property("format.OutFormats", (uint32_t)format);
         property_name_ = "out_color_format";
     }
 };
@@ -484,7 +462,8 @@ class profile : public property {
 
     /// @brief Constructs property.
     /// @param[in] profile Codec's profile.
-    profile(uint32_t profile) : property("Profile", profile) {
+    profile(uint32_t profile) {
+        add_property("Profile", profile);
         property_name_ = "profile";
     }
 };

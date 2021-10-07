@@ -343,15 +343,19 @@ public:
     /// @brief mem_type property
     VPL_OPT_TREE_PROPERTY(resource_type, uint32_t, mem_type)
 
-    /// @brief frame_size property
-    VPL_OPT_TREE_PROPERTY_PAIR(uint32_t, uint32_t, uint32_t, uint32_t, frame_size)
+    /// @brief width property
+    VPL_OPT_TREE_PROPERTY(mfxRange32U, mfxRange32U, width)
+
+    /// @brief height property
+    VPL_OPT_TREE_PROPERTY(mfxRange32U, mfxRange32U, height)
 
     /// @brief color_format property
     VPL_OPT_TREE_PROPERTY(color_format_fourcc, uint32_t, color_format)
 
     codec_mem_desc_properties() 
     : mem_type("mem_type", "MemHandleType")
-    , frame_size("frame_size", "Width", "Height")
+    , width("width", "Width")
+    , height("height", "Height")
     , color_format("color_format", "ColorFormats") {}
 };
 
@@ -366,7 +370,8 @@ public:  // detail::property_details
     void write(std::string prefix, std::vector<std::pair<std::string, detail::variant>>& dest) const {
         prefix = prefix + "encmemdesc.";
         mem_type.write(prefix, dest);
-        frame_size.write(prefix, dest);
+        width.write(prefix, dest);
+        height.write(prefix, dest);
         color_format.write(prefix, dest);
     }
 
@@ -377,7 +382,8 @@ public:  // detail::property_details
         out << std::string(indent, ' ') << std::string(indent, ' ')
             << "enc_mem_desc" << std::endl;
         mem_type.print(out, indent+1);
-        frame_size.print(out, indent+1);
+        width.print(out, indent+1);
+        height.print(out, indent+1);
         color_format.print(out, indent+1);
     }
 };
@@ -393,7 +399,8 @@ public:  // detail::property_details
     void write(std::string prefix, std::vector<std::pair<std::string, detail::variant>>& dest) const { 
         prefix = prefix + "decmemdesc.";
         mem_type.write(prefix, dest);
-        frame_size.write(prefix, dest);
+        width.write(prefix, dest);
+        height.write(prefix, dest);
         color_format.write(prefix, dest);
     }
 
@@ -404,7 +411,8 @@ public:  // detail::property_details
         out << std::string(indent, ' ') << std::string(indent, ' ')
             << "dec_mem_desc" << std::endl;
         mem_type.print(out, indent+1);
-        frame_size.print(out, indent+1);
+        width.print(out, indent+1);
+        height.print(out, indent+1);
         color_format.print(out, indent+1);
     }
 };
@@ -451,8 +459,11 @@ public:
     /// @brief mem_type property
     VPL_OPT_TREE_PROPERTY(resource_type, uint32_t, mem_type)
 
-    /// @brief frame_size property
-    VPL_OPT_TREE_PROPERTY_PAIR(uint32_t, uint32_t, uint32_t, uint32_t, frame_size)
+    /// @brief width property
+    VPL_OPT_TREE_PROPERTY(mfxRange32U, mfxRange32U, width)
+
+    /// @brief height property
+    VPL_OPT_TREE_PROPERTY(mfxRange32U, mfxRange32U, height)
 
     /// @brief in_color_format property
     VPL_OPT_TREE_PROPERTY(color_format_fourcc, uint32_t, in_color_format)
@@ -463,7 +474,8 @@ public:
     /// @brief Default ctor
     memdesc_properties() 
         : mem_type("mem_type", "MemHandleType")
-        , frame_size("frame_size", "Width", "Height")
+        , width("width", "Width")
+        , height("height", "Height")
         , in_color_format("in_color_format", "format.InFormat")
         , out_color_format("out_color_format", "format.OutFormats")
         {}
@@ -474,7 +486,8 @@ public:  // detail::property_details
     void write(std::string prefix, std::vector<std::pair<std::string, detail::variant>>& dest) const { 
         prefix = prefix + "memdesc.";
         mem_type.write(prefix, dest);
-        frame_size.write(prefix, dest);
+        width.write(prefix, dest);
+        height.write(prefix, dest);
         in_color_format.write(prefix, dest);
         out_color_format.write(prefix, dest);
     }
@@ -486,7 +499,8 @@ public:  // detail::property_details
         out << std::string(indent, ' ') << std::string(indent, ' ')
             << "memdesc" << std::endl;
         mem_type.print(out, indent+1);
-        frame_size.print(out, indent+1);
+        width.print(out, indent+1);
+        height.print(out, indent+1);
         in_color_format.print(out, indent+1);
         out_color_format.print(out, indent+1);
     }

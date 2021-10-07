@@ -458,6 +458,12 @@ std::ostream& operator<<(std::ostream& out, std::vector<T> const& value)
     return out;
 }
 
+inline std::ostream& operator<<(std::ostream& out, const mfxRange32U& v) {
+    out << "{" << v.Min << ", " << v.Max << ","  << v.Step << "}";
+    return out;
+}
+
+
 } // namespace detail
 } // namespace vpl
 } // namespace oneapi
