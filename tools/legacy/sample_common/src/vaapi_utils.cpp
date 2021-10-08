@@ -8,6 +8,7 @@
 
     #include "vaapi_utils.h"
     #include <dlfcn.h>
+    #include <libgen.h>
     #include <stdexcept>
 
     //#if defined(LIBVA_DRM_SUPPORT)
@@ -24,7 +25,7 @@ namespace MfxLoader {
 
 SimpleLoader::SimpleLoader(const char* name) {
     dlerror();
-    so_handle = dlopen(name, RTLD_GLOBAL | RTLD_NOW);
+    so_handle = dlopen(basename((char*)name), RTLD_GLOBAL | RTLD_NOW);
     if (NULL == so_handle) {
         std::cerr << dlerror() << std::endl;
         throw std::runtime_error("Can't load library");
