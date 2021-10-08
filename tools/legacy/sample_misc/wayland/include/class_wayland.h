@@ -32,6 +32,7 @@ extern "C" {
     #include "sample_defs.h"
     #include "vpl/mfxstructures.h"
     #include "wayland-drm-client-protocol.h"
+    #include "linux-dmabuf-unstable-v1.h"
 
 typedef struct buffer wld_buffer;
 
@@ -93,6 +94,9 @@ public:
     struct wl_drm* GetDrm() {
         return m_drm;
     }
+    struct zwp_linux_dmabuf_v1* GetDMABuf() {
+        return m_dmabuf;
+    }
     struct wl_shm* GetShm() {
         return m_shm;
     };
@@ -119,6 +123,9 @@ public:
     }
     void SetDrm(struct wl_drm* drm) {
         m_drm = drm;
+    }
+    void SetDMABuf(struct zwp_linux_dmabuf_v1* dmabuf) {
+        m_dmabuf = dmabuf;
     }
     void DrmHandleDevice(const char* device);
     void DrmHandleAuthenticated();
@@ -147,6 +154,7 @@ private:
     struct wl_compositor* m_compositor;
     struct wl_shell* m_shell;
     struct wl_drm* m_drm;
+    struct zwp_linux_dmabuf_v1* m_dmabuf;
     struct wl_shm* m_shm;
     struct wl_shm_pool* m_pool;
     struct wl_surface* m_surface;
