@@ -1104,6 +1104,43 @@ mfxStatus LoaderCtxVPL::QueryLibraryCaps() {
                     implInfo->validImplIdx = -1;
             }
 
+            if (implInfo->libInfo->libType == LibTypeVPL && !implInfo->implDesc) {
+                //library was loaded in low-delay mode, need to query caps for it
+                mfxU32 numImpls      = 0;
+                VPLFunctionPtr pFunc = implInfo->libInfo->vplFuncTable[IdxMFXQueryImplsDescription];
+                mfxHDL *hImpl = (*(mfxHDL * (MFX_CDECL *)(mfxImplCapsDeliveryFormat, mfxU32 *))
+                                     pFunc)(MFX_IMPLCAPS_IMPLDESCSTRUCTURE, &numImpls);
+
+                //only single impl was reported
+                implInfo->implDesc = reinterpret_cast<mfxImplDescription *>(hImpl[0]);
+            }
+            else if (implInfo->libInfo->libType == LibTypeMSDK && !implInfo->implDesc) {
+                mfxImplDescription *implDesc       = nullptr;
+                mfxImplementedFunctions *implFuncs = nullptr;
+
+                LoaderCtxMSDK *msdkCtx = &(implInfo->libInfo->msdkCtx[0]);
+
+                // perf. optimization: if app requested bIsSet_accelerationMode other than D3D9, don't test whether MSDK supports D3D9
+                bool bSkipD3D9Check = false;
+                if (m_specialConfig.bIsSet_accelerationMode &&
+                    m_specialConfig.accelerationMode != MFX_ACCEL_MODE_VIA_D3D9) {
+                    bSkipD3D9Check = true;
+                }
+
+                sts = msdkCtx->QueryMSDKCaps(implInfo->libInfo->libNameFull,
+                                             &implDesc,
+                                             &implFuncs,
+                                             0,
+                                             bSkipD3D9Check);
+
+                if (sts || !implDesc || !implFuncs) {
+                    // this adapter (i) is not supported
+                    continue;
+                }
+                implInfo->implDesc  = implDesc;
+                implInfo->implFuncs = implFuncs;
+            }
+
             it2++;
         }
 

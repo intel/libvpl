@@ -225,6 +225,21 @@ mfxStatus LoaderCtxVPL::LoadLibsLowLatency() {
             mfxU32 numFunctions = LoadAPIExports(libInfo, LibTypeMSDK);
 
             if (numFunctions == NumMSDKFunctions) {
+                mfxVariant var = {};
+                var.Type       = MFX_VARIANT_TYPE_PTR;
+                var.Data.Ptr   = (mfxHDL) "mfxhw64";
+
+                auto it = m_configCtxList.begin();
+
+                while (it != m_configCtxList.end()) {
+                    ConfigCtxVPL *config = (*it);
+                    sts = config->SetFilterProperty((const mfxU8 *)"mfxImplDescription.ImplName",
+                                                    var);
+                    if (sts != MFX_ERR_NONE)
+                        return MFX_ERR_UNSUPPORTED;
+                    it++;
+                }
+
                 m_bNeedLowLatencyQuery = false;
                 return MFX_ERR_NONE;
             }
@@ -242,6 +257,20 @@ mfxStatus LoaderCtxVPL::LoadLibsLowLatency() {
             mfxU32 numFunctions = LoadAPIExports(libInfo, LibTypeMSDK);
 
             if (numFunctions == NumMSDKFunctions) {
+                mfxVariant var = {};
+                var.Type       = MFX_VARIANT_TYPE_PTR;
+                var.Data.Ptr   = (mfxHDL) "mfxhw64";
+
+                auto it = m_configCtxList.begin();
+
+                while (it != m_configCtxList.end()) {
+                    ConfigCtxVPL *config = (*it);
+                    sts = config->SetFilterProperty((const mfxU8 *)"mfxImplDescription.ImplName",
+                                                    var);
+                    if (sts != MFX_ERR_NONE)
+                        return MFX_ERR_UNSUPPORTED;
+                    it++;
+                }
                 m_bNeedLowLatencyQuery = false;
                 return MFX_ERR_NONE;
             }

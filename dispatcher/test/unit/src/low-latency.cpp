@@ -342,4 +342,37 @@ TEST(Dispatcher_LowLatency, Create_MultipleLoaders_MultipleSessions) {
     MFXUnload(loader2);
 }
 
+TEST(Dispatcher_LowLatency, Get_ImplDesc_MFXEnumImplementations_AfterSessionCreated) {
+    mfxLoader loader = MFXLoad();
+    EXPECT_FALSE(loader == nullptr);
+
+    mfxStatus sts = EnableLowLatency(loader, LL_SINGLE_CONFIG, LL_CONFIG_ONLY);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    mfxSession session = nullptr;
+    sts                = MFXCreateSession(loader, 0, &session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+    EXPECT_NE(session, nullptr);
+
+    mfxImplDescription *idesc = nullptr;
+    sts                       = MFXEnumImplementations(loader,
+                                 0,
+                                 MFX_IMPLCAPS_IMPLDESCSTRUCTURE,
+                                 reinterpret_cast<mfxHDL *>(&idesc));
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+    EXPECT_NE(idesc, nullptr);
+
+    bool bIsImplNameCorrect =
+        ((strcmp(idesc->ImplName, "mfxhw64") == 0) || (strcmp(idesc->ImplName, "mfx-gen") == 0))
+            ? true
+            : false;
+    EXPECT_EQ(bIsImplNameCorrect, true);
+
+    sts = MFXDispReleaseImplDescription(loader, idesc);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    MFXClose(session);
+    MFXUnload(loader);
+}
+
 #endif // defined(_WIN32) || defined(_WIN64)
