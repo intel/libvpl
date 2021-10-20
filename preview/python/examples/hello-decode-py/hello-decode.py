@@ -67,15 +67,14 @@ def main(args):
 
     with pyvpl.bitstream_file_reader_name(args.input) as source:
         with open("raw.out", "wb") as sink:
-            opts = []
+            opts = pyvpl.properties()
+            opts.api_version = (2, 5)
+            opts.decoder.codec_id = [pyvpl.codec_format_fourcc.hevc]
+
             if args.impl == 'sw':
-                opts.append(
-                    pyvpl.property("mfxImplDescription.Impl",
-                                   pyvpl.implementation.software))
+                opts.impl = pyvpl.implementation_type.sw
             elif args.impl == 'hw':
-                opts.append(
-                    pyvpl.property("mfxImplDescription.Impl",
-                                   pyvpl.implementation.hardware))
+                opts.impl = pyvpl.implementation_type.hw
             sel_default = pyvpl.default_selector(opts)
 
             # Load session and initialize decoder

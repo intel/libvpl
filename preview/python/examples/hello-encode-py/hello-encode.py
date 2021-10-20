@@ -87,19 +87,16 @@ def roundup(value, base=10):
 def main(args):
     """Main example"""
     frame_count = 0
-    opts = []
+    opts = pyvpl.properties()
+    opts.api_version = (2, 5)
     if args.impl == 'sw':
-        opts.append(
-            pyvpl.property("mfxImplDescription.Impl",
-                           pyvpl.implementation.software))
+        opts.impl = pyvpl.implementation_type.sw
         input_fourcc = pyvpl.color_format_fourcc.i420
     elif args.impl == 'hw':
-        opts.append(pyvpl.property.HW_ImlpOption)
+        opts.impl = pyvpl.implementation_type.hw
         input_fourcc = pyvpl.color_format_fourcc.nv12
-    opts.append(
-        pyvpl.property(
-            "mfxImplDescription.mfxEncoderDescription.encoder.CodecID",
-            pyvpl.codec_format_fourcc.hevc))
+    opts.encoder.enc_profile.enc_mem_desc.color_format = input_fourcc
+    opts.encoder.codec_id = [pyvpl.codec_format_fourcc.hevc]
     sel_default = pyvpl.default_selector(opts)
 
     with pyvpl.raw_frame_file_reader_by_name(args.width, args.height,

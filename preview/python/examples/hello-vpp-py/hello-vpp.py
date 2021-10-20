@@ -81,10 +81,9 @@ def main(args):
                                              pyvpl.color_format_fourcc.i420,
                                              args.input) as source:
         with open("raw.out", "wb") as sink:
-            opts = []
-            opts.append(
-                pyvpl.property("mfxImplDescription.Impl",
-                               pyvpl.implementation.software))
+            opts = pyvpl.properties()
+            opts.api_version = (2, 5)
+            opts.impl = pyvpl.implementation_type.sw
             sel_default = pyvpl.default_selector(opts)
 
             # Load session and initialize decoder

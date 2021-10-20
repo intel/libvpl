@@ -83,7 +83,7 @@ void init_option_tree(const py::module &m) {
     py::class_<vpl::encoder_properties, std::shared_ptr<vpl::encoder_properties>>(
         m,
         "encoder_properties")
-        .def_property("profile",
+        .def_property("codec_id",
                       &vpl::encoder_properties::get_codec_id,
                       &vpl::encoder_properties::set_codec_id)
         .def_property("max_codec_level",
