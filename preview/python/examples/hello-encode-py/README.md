@@ -44,9 +44,9 @@ See [Preview Documentation](https://software.intel.com/content/www/us/en/develop
 for details.
 
 ### Installing a compatible version of Python
-The oneVPL Python preview requires Python 3.9.   This is the latest 3.x version.
+The oneVPL Python preview requires Python 3.7.   This is the latest 3.x version.
 
-For Ubuntu 20.04, install with ``sudo apt install python3.9``.
+For Ubuntu 20.04, install with ``sudo apt install python3.7``.
 
 For Windows, install latest Python 3 release from https://www.python.org/downloads/windows/
 
@@ -73,12 +73,12 @@ On Linux:
 Note: Please ensure you run these samples with a version of Python matching the binding installed (as described above).
 If versions do not match the binding will not be loaded into the Python environment.
 
-The following examples assume Python 3.9
+The following examples assume Python 3.7
 
 On Windows:
 
 ```
-py -3.9 hello-encode-py\hello-encode.py -sw -i <examples path>\content\cars_128x96.i420 -w 128 -h 96
+py -3.7 hello-encode-py\hello-encode.py -sw -i <examples path>\content\cars_128x96.i420 -w 128 -h 96
 ```
 
 On Linux:
