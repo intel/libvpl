@@ -1,7 +1,7 @@
 # `hello-transcode` Sample
 
 This sample shows how to use the oneAPI Video Processing Library (oneVPL) to
-perform a simple video transcode.
+perform simple video transcode.
 
 | Optimized for    | Description
 |----------------- | ----------------------------------------
@@ -10,7 +10,7 @@ perform a simple video transcode.
 | What You Will Learn | How to use oneVPL to transcode a MJPEG encoded video file to H.265 encoded video file
 | Time to Complete | 5 minutes
 
-Hello-transcode currently only supports Software mode.  
+The hello-transcode sample currently only supports Software mode.  
 
 ## Purpose
 
@@ -29,10 +29,17 @@ This sample is a command line application that takes a file containing a JPEG vi
 
 ## License
 
-This code sample is licensed under MIT license.
+Code samples are licensed under the MIT license. See
+[License.txt](https://github.com/oneapi-src/oneAPI-samples/blob/master/License.txt) for details.
 
 
 ## Building the `hello-transcode` Program
+
+### Include Files
+The oneVPL include folder is located at these locations on your development system:
+ - Windows: %ONEAPI_ROOT%\vpl\latest\include 
+ - Linux: $ONEAPI_ROOT/vpl/latest/include
+
 
 ### On a Linux* System
 
@@ -61,11 +68,10 @@ Perform the following steps:
    cmake --build .
    ```
 
-4. Run the program using the following command:
+4. Run the program with default arguments using the following command:
    ```
    cmake --build . --target run
    ```
-
 
 ### On a Windows* System Using Visual Studio* Version 2017 or Newer
 
@@ -88,7 +94,7 @@ Perform the following steps:
    compiler is not part of your oneAPI installation you should run in a Visual
    Studio 64-bit command prompt.
 
-3. Build the program using the following commands:
+3. Build the program with default arguments using the following commands:
    ```
    mkdir build
    cd build
@@ -107,13 +113,19 @@ Perform the following steps:
 ### Application Parameters
 
 The instructions given above run the sample executable with the argument
-`-i <sample_dir>/content/cars_128x96.mjpeg`.
+`-i ${CONTENTPATH}/cars_128x96.mjpeg`.
 
 
 ### Example of Output
 
 ```
-Transcoding hello-transcode/content/cars_128x96.mjpeg -> out.h265
+Implementation details:
+  ApiVersion:           2.5  
+  Implementation type:  SW
+  AccelerationMode via: NA 
+  Path: /opt/intel/oneapi/vpl/2021.6.0/lib/libvplswref64.so.1
+
+Transcoding /home/test/intel_innersource/frameworks.media.onevpl.dispatcher/examples/hello/hello-transcode/../../content/cars_128x96.mjpeg -> out.h265
 Transcoded 60 frames
 ```
 

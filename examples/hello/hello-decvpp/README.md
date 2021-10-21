@@ -1,15 +1,17 @@
 # `hello-decvpp` Sample
 
 This sample shows how to use the oneAPI Video Processing Library (oneVPL) to
-perform a simple video decode and vpp for separate output.
+perform simple video decode with fused VPP.
 
 | Optimized for    | Description
 |----------------- | ----------------------------------------
 | OS               | Ubuntu* 20.04; Windows* 10
 | Hardware         | Compatible with Intel® oneAPI Video Processing Library(oneVPL) GPU implementation, which can be found at https://github.com/oneapi-src/oneVPL-intel-gpu 
-| Software         | Intel® oneAPI Video Processing Library(oneVPL) CPU implementation
-| What You Will Learn | How to use oneVPL to decode an H.265 encoded video file and vpp for additional output
+|                  | and Intel® Media SDK GPU implementation, which can be found at https://github.com/Intel-Media-SDK/MediaSDK
+| Software         | Intel® oneAPI Video Processing Library(oneVPL)
+| What You Will Learn | How to use oneVPL to perform fused decode + frame processing from an H.265 encoded video file
 | Time to Complete | 5 minutes
+
 
 ## Purpose
 
@@ -30,10 +32,17 @@ Native raw frame format: CPU=I420, GPU=NV12.
 
 ## License
 
-This code sample is licensed under MIT license.
+Code samples are licensed under the MIT license. See
+[License.txt](https://github.com/oneapi-src/oneAPI-samples/blob/master/License.txt) for details.
 
 
 ## Building the `hello-decvpp` Program
+
+### Include Files
+The oneVPL include folder is located at these locations on your development system:
+ - Windows: %ONEAPI_ROOT%\vpl\latest\include 
+ - Linux: $ONEAPI_ROOT/vpl/latest/include
+
 
 ### On a Linux* System
 
@@ -67,7 +76,6 @@ Perform the following steps:
    cmake --build . --target run
    ```
 
-
 ### On a Windows* System Using Visual Studio* Version 2017 or Newer
 
 #### Building the program using CMake
@@ -89,7 +97,7 @@ Perform the following steps:
    compiler is not part of your oneAPI installation you should run in a Visual
    Studio 64-bit command prompt.
 
-3. Build the program using the following commands:
+3. Build the program with default arguments using the following commands:
    ```
    mkdir build
    cd build
@@ -108,17 +116,21 @@ Perform the following steps:
 ### Application Parameters
 
 The instructions given above run the sample executable with the argument
-`-i examples/content/cars_128x96.h265`.
+`-i ${CONTENTPATH}/cars_128x96.h265`.
 
 
-### Example of Output
+### Example Output
 
 ```
-Implementation info
-      version = 2.2
-      impl = Software
-Decoding hello-decvpp/../content/cars_128x96.h265 -> dec_out.raw and vpp_320x240_out.raw, vpp_128x96_out.raw
-Decoded 60 frames
+Implementation details:
+  ApiVersion:           2.5  
+  Implementation type:  SW
+  AccelerationMode via: NA 
+  Path: /opt/intel/oneapi/vpl/2021.6.0/lib/libvplswref64.so.1
+
+Output colorspace: I420 (aka yuv420p)
+Decoding and VPP /home/test/intel_innersource/frameworks.media.onevpl.dispatcher/examples/hello/hello-decvpp/../../content/cars_128x96.h265 -> dec_out.raw and vpp_320x240_out.raw, vpp_128x96_out.raw
+Decode and VPP processed 60 frames
 ```
 
 You can find the output file `dec_out.raw`, `vpp_320x240_out.raw`, and `vpp_128x96_out.raw` in the build directory.

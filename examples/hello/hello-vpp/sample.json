@@ -1,8 +1,8 @@
 {
-  "guid": "AEDAA6EC-B6E0-4D5F-A97C-0B8312C4D86D",
-  "name": "Hello decvpp",
+  "guid": "36C96B55-4DE0-4764-8A41-0F67D2300389",
+  "name": "Hello VPP",
   "categories": ["Toolkit/Intel® oneAPI Base Toolkit/oneVPL"],
-  "description": "Shows oneAPI Video Processing Library video decode+vpp",
+  "description": "Shows oneAPI Video Processing Library video decode",
   "dependencies": ["vpl"],
   "os": ["linux", "windows"],
   "languages": [{"cpp":{}}],

@@ -1,14 +1,14 @@
 # `hello-createsession` Sample
 
 This sample shows how to use the oneAPI Video Processing Library (oneVPL) to
-initialize a session using 1.x common APIs or 2.x enhanced programming model APIs.
+initialize a session.
 
 | Optimized for    | Description
 |----------------- | ----------------------------------------
 | OS               | Ubuntu* 20.04; Windows* 10
 | Hardware         | Compatible with Intel® oneAPI Video Processing Library(oneVPL) GPU implementation, which can be found at https://github.com/oneapi-src/oneVPL-intel-gpu 
 |                  | and Intel® Media SDK GPU implementation, which can be found at https://github.com/Intel-Media-SDK/MediaSDK
-| Software         | Intel® oneAPI Video Processing Library(oneVPL) CPU implementation
+| Software         | Intel® oneAPI Video Processing Library(oneVPL) 
 | What You Will Learn | How to use oneVPL sessions
 | Time to Complete | 5 minutes
 
@@ -23,15 +23,22 @@ hello world case to showcase oneVPL architecture.
 
 | Configuration     | Default setting
 | ----------------- | ----------------------------------
-| Target device     | CPU or GPU
+| Target device     | CPU 
 
 
 ## License
 
-This code sample is licensed under MIT license.
+Code samples are licensed under the MIT license. See
+[License.txt](https://github.com/oneapi-src/oneAPI-samples/blob/master/License.txt) for details.
 
 
 ## Building the `hello-createsession` Program
+
+### Include Files
+The oneVPL include folder is located at these locations on your development system:
+ - Windows: %ONEAPI_ROOT%\vpl\latest\include 
+ - Linux: $ONEAPI_ROOT/vpl/latest/include
+
 
 ### On a Linux* System
 
@@ -60,11 +67,10 @@ Perform the following steps:
    cmake --build .
    ```
 
-4. Run the program using the following command:
+4. Run the program with default arguments using the following command:
    ```
    cmake --build . --target run
    ```
-
 
 ### On a Windows* System Using Visual Studio* Version 2017 or Newer
 
@@ -87,7 +93,7 @@ Perform the following steps:
    compiler is not part of your oneAPI installation you should run in a Visual
    Studio 64-bit command prompt.
 
-3. Build the program using the following commands:
+3. Build the program with default arguments using the following commands:
    ```
    mkdir build
    cd build
@@ -110,11 +116,9 @@ Perform the following steps:
   -sw        use software implementation
 ```
 
-### Example of Output
+### Example Output
 
 ```
-Implementation info
-  version = 2.2
-  impl = Software
+Session loaded: ApiVersion = 2.5 	impl= Software
 ```
 

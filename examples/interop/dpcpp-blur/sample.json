@@ -1,12 +1,13 @@
 {
-  "guid": "AEDAA6EC-B6E0-4D5F-A97C-0B8312C4D86D",
-  "name": "Hello decvpp",
+  "guid": "8E31124E-3F21-4A8F-A14A-950B7F008480",
+  "name": "DPCPP Blur",
   "categories": ["Toolkit/Intel® oneAPI Base Toolkit/oneVPL"],
-  "description": "Shows oneAPI Video Processing Library video decode+vpp",
+  "description": "Shows oneAPI Video Processing Library interop with dpcpp",
   "dependencies": ["vpl"],
   "os": ["linux", "windows"],
   "languages": [{"cpp":{}}],
-  "builder": [ "ide", "cmake"],
+  "toolchain": ["dpcpp"],
+  "builder": ["ide", "cmake"],
   "targetDevice": ["CPU", "GPU"],
   "ciTests": {
     "linux": [
