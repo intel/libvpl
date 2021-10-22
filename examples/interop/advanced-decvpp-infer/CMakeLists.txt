@@ -90,11 +90,12 @@ if(UNIX)
       "OpenCL not found with find_package(OpenCL), using backup approach to find OpenCL library."
     )
     find_path(
-      OpenCL_LIBRARY_PATH libOpenCL.so.1.2
+      OpenCL_LIBRARY_PATH libOpenCL.so.1
       PATHS $ENV{ONEAPI_ROOT}/compiler/latest/linux/lib
+            /usr/lib/x86_64-linux-gnu
       NO_DEFAULT_PATH)
     if(OpenCL_LIBRARY_PATH)
-      set(OpenCL_LIBRARIES ${OpenCL_LIBRARY_PATH}/libOpenCL.so.1.2)
+      set(OpenCL_LIBRARIES ${OpenCL_LIBRARY_PATH}/libOpenCL.so.1)
       set(OpenCL_FOUND true)
     endif()
 
