@@ -7,11 +7,10 @@
 #
 # Set compilation options
 #
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-  add_definitions(-D_DEBUG)
-  if(UNIX)
-    set(CMAKE_CXX_FLAGS "-O0 -g ${CMAKE_CXX_FLAGS}")
-  endif(UNIX)
+if(MSVC)
+  add_compile_options("$<$<CONFIG:Debug>:/D_DEBUG>")
+else()
+  add_compile_options("$<$<CONFIG:Debug>:-D_DEBUG -O0 -g>")
 endif()
 
 if(ENABLE_WARNING_AS_ERROR)
