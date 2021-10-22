@@ -195,7 +195,7 @@ int main(int argc, char **argv) {
     executableNetwork = ie.LoadNetwork(
         network,
         sharedVAContext,
-        { { CLDNNConfigParams::KEY_CLDNN_NV12_TWO_INPUTS, PluginConfigParams::YES } });
+        { { InferenceEngine::GPUConfigParams::KEY_GPU_NV12_TWO_INPUTS, PluginConfigParams::YES } });
     // Create infer request
     inferRequest = executableNetwork.CreateInferRequest();
 
