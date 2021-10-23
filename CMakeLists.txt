@@ -43,10 +43,13 @@ set(BUILD_DISPATCHER
     CACHE BOOL "Build dispatcher.")
 set(BUILD_TOOLS
     ON
-    CACHE BOOL "Build Tools.")
+    CACHE BOOL "Build tools.")
 set(BUILD_EXAMPLES
     ON
     CACHE BOOL "Build examples when building dev package.")
+set(BUILD_PREVIEW
+    ON
+    CACHE BOOL "Build preview cpp api samples, python binding and its samples.")
 set(INSTALL_EXAMPLE_CODE
     ON
     CACHE BOOL "Install examples when installing dev package.")
@@ -62,7 +65,7 @@ option(BUILD_PYTHON_BINDING_ONLY "Build only Python binding." OFF)
 
 if(BUILD_DISPATCHER_ONLY)
   set(BUILD_DEV OFF)
-  set(BUILD_PYTHON_BINDING OFF)
+  set(BUILD_PREVIEW OFF)
 endif()
 if(BUILD_DEV_ONLY)
   set(BUILD_DISPATCHER OFF)
@@ -72,6 +75,7 @@ endif()
 if(BUILD_PYTHON_BINDING_ONLY)
   set(BUILD_DEV OFF)
   set(BUILD_DISPATCHER OFF)
+  set(BUILD_PYTHON_BINDING ON)
 endif()
 
 option(USE_MSVC_STATIC_RUNTIME
@@ -113,7 +117,9 @@ if(BUILD_DEV)
   add_subdirectory(modulefiles)
   add_subdirectory(examples)
 endif()
-add_subdirectory(preview)
+if(BUILD_PREVIEW)
+  add_subdirectory(preview)
+endif()
 
 install(
   FILES third-party-programs.txt
@@ -203,8 +209,9 @@ message(STATUS "  BUILD_TOOLS                    : ${BUILD_TOOLS}")
 message(STATUS "  BUILD_SHARED_LIBS              : ${BUILD_SHARED_LIBS}")
 message(STATUS "  BUILD_TESTS                    : ${BUILD_TESTS}")
 message(STATUS "  BUILD_EXAMPLES                 : ${BUILD_EXAMPLES}")
-message(STATUS "  INSTALL_EXAMPLE_CODE           : ${INSTALL_EXAMPLE_CODE}")
+message(STATUS "  BUILD_PREVIEW                  : ${BUILD_PREVIEW}")
 message(STATUS "  BUILD_PYTHON_BINDING           : ${BUILD_PYTHON_BINDING}")
+message(STATUS "  INSTALL_EXAMPLE_CODE           : ${INSTALL_EXAMPLE_CODE}")
 if(MSVC)
   message(
     STATUS "  USE_MSVC_STATIC_RUNTIME        : ${USE_MSVC_STATIC_RUNTIME}")
