@@ -255,7 +255,6 @@ CLibVA* CreateLibVA(const std::string& devicePath, int type) {
                 libva = new DRMLibVA(devicePath, type);
             }
             catch (std::exception&) {
-                libva = 0;
             }
         #endif
             break;
@@ -266,7 +265,6 @@ CLibVA* CreateLibVA(const std::string& devicePath, int type) {
                 libva = new X11LibVA;
             }
             catch (std::exception&) {
-                libva = NULL;
             }
         #endif
             break;
@@ -277,7 +275,6 @@ CLibVA* CreateLibVA(const std::string& devicePath, int type) {
                 libva = new X11LibVA;
             }
             catch (std::exception&) {
-                libva = NULL;
             }
         #endif
         #if defined(LIBVA_DRM_SUPPORT)
@@ -286,7 +283,6 @@ CLibVA* CreateLibVA(const std::string& devicePath, int type) {
                     libva = new DRMLibVA(devicePath, type);
                 }
                 catch (std::exception&) {
-                    libva = NULL;
                 }
             }
         #endif

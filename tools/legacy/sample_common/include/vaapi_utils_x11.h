@@ -59,6 +59,7 @@ protected:
     MfxLoader::Xcbpresent_Proxy m_xcbpresentlib;
     MfxLoader::DrmIntel_Proxy m_drmintellib;
     #endif // X11_DRI3_SUPPORT
+    int fd;
 
 private:
     void Close();

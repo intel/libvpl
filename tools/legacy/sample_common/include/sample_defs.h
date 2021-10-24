@@ -16,10 +16,20 @@
 #include "vm/time_defs.h"
 #include "vpl/mfxdefs.h"
 
+inline const char* path_to_name(const char* path, char delim) {
+    const char* last_delim = strrchr(path, '\\');
+    if (last_delim && *last_delim) {
+        return last_delim + 1;
+    }
+    else {
+        return path;
+    }
+}
+
 #if defined(WIN32) || defined(WIN64)
-    #define __FILENAME__ (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
+    #define __FILENAME__ path_to_name(__FILE__, '\\')
 #else
-    #define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+    #define __FILENAME__ path_to_name(__FILE__, '/')
 #endif
 
 #if (MFX_VERSION >= 1026)

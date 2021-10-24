@@ -486,7 +486,6 @@ CHWDevice* CreateVAAPIDevice(const std::string& devicePath, int type) {
                 device = new CVAAPIDeviceDRM(devicePath, type);
             }
             catch (std::exception&) {
-                device = NULL;
             }
         #endif
             break;
@@ -497,7 +496,6 @@ CHWDevice* CreateVAAPIDevice(const std::string& devicePath, int type) {
                 device = new CVAAPIDeviceX11;
             }
             catch (std::exception&) {
-                device = NULL;
             }
         #endif
             break;
@@ -512,7 +510,6 @@ CHWDevice* CreateVAAPIDevice(const std::string& devicePath, int type) {
                 device = new CVAAPIDeviceX11;
             }
             catch (std::exception&) {
-                device = NULL;
             }
         #endif
         #if defined(LIBVA_DRM_SUPPORT)
@@ -521,7 +518,6 @@ CHWDevice* CreateVAAPIDevice(const std::string& devicePath, int type) {
                     device = new CVAAPIDeviceDRM(devicePath, type);
                 }
                 catch (std::exception&) {
-                    device = NULL;
                 }
             }
         #endif

@@ -35,20 +35,18 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
     return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
-CDecodeD3DRender::CDecodeD3DRender() {
-    m_bDwmEnabled     = false;
-    m_nMonitorCurrent = 0;
-
-    m_hwdev = NULL;
-    MSDK_ZERO_MEMORY(m_sWindowParams);
-    m_Hwnd = 0;
-    MSDK_ZERO_MEMORY(m_rect);
-    m_style = 0;
-
-    MSDK_ZERO_MEMORY(shiftedSurface);
-    MSDK_ZERO_MEMORY(shiftSurfaceResponse);
-    pAllocator = NULL;
-}
+CDecodeD3DRender::CDecodeD3DRender()
+        : shiftSurfaceResponse({ 0 }),
+          shiftedSurface({ 0 }),
+          pAllocator(NULL),
+          m_hwdev(NULL),
+          m_sWindowParams({ 0 }),
+          m_Hwnd(0),
+          m_rect({ 0 }),
+          m_style(0),
+          m_bDwmEnabled(false),
+          m_nMonitorCurrent(0),
+          m_RectWindow({ 0 }) {}
 
 BOOL CALLBACK CDecodeD3DRender::MonitorEnumProc(HMONITOR /*hMonitor*/,
                                                 HDC /*hdcMonitor*/,

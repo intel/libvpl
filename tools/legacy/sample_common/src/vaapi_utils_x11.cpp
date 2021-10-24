@@ -29,7 +29,7 @@ X11LibVA::X11LibVA(void)
           m_configID(VA_INVALID_ID),
           m_contextID(VA_INVALID_ID) {
     char* currentDisplay = getenv("DISPLAY");
-    int fd               = -1;
+    fd                   = -1;
 
     m_display = (currentDisplay) ? m_x11lib.XOpenDisplay(currentDisplay)
                                  : m_x11lib.XOpenDisplay(VAAPI_X_DEFAULT_DISPLAY);
@@ -57,6 +57,7 @@ X11LibVA::X11LibVA(void)
             break;
         }
         close(fd);
+        fd = -1;
     }
 
     if (fd < 0) {
@@ -121,7 +122,6 @@ X11LibVA::~X11LibVA(void) {
 
 void X11LibVA::Close() {
     VAStatus sts;
-
     if (m_contextID != VA_INVALID_ID) {
         sts = m_libva.vaDestroyContext(m_va_dpy, m_contextID);
         if (sts != VA_STATUS_SUCCESS)
@@ -137,6 +137,10 @@ void X11LibVA::Close() {
         msdk_printf(MSDK_STRING("Failed to close VAAPI library: %d\n"), sts);
 
     m_x11lib.XCloseDisplay(m_display);
+    if (fd != -1) {
+        close(fd);
+        fd = -1;
+    }
 }
 
 #endif // #if defined(LIBVA_X11_SUPPORT)
