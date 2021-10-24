@@ -71,6 +71,7 @@ int main(int argc, char *argv[]) {
     // Initialize VPL session for any implementation of HEVC/H265 encode
     // Default implementation selector. Selects first impl based on property list.
     vpl::default_selector impl_sel({ oneapi::vpl::dprops::impl(impl_type),
+                                     oneapi::vpl::dprops::api_version(2, 5),
                                      oneapi::vpl::dprops::encoder({ oneapi::vpl::dprops::codec_id(
                                          vpl::codec_format_fourcc::hevc) }) });
 
@@ -86,7 +87,14 @@ int main(int argc, char *argv[]) {
                                       source);
 
     // Load session and initialize encoder
-    vpl::encode_session encoder(impl_sel, &reader);
+    std::shared_ptr<vpl::encode_session> encoder(nullptr);
+    try {
+        encoder = std::make_shared<vpl::encode_session>(impl_sel, &reader);
+    }
+    catch (vpl::base_exception &e) {
+        std::cout << "Encoder session create failed: " << e.what() << std::endl;
+        return -1;
+    }
 
     // Initialize encode parameters
     std::shared_ptr<vpl::encoder_video_param> enc_params =
@@ -107,7 +115,7 @@ int main(int argc, char *argv[]) {
                                                          : vpl::io_pattern::in_system_memory);
 
     try {
-        encoder.Init(enc_params.get());
+        encoder->Init(enc_params.get());
     }
     catch (vpl::base_exception &e) {
         std::cout << "Encoder init failed: " << e.what() << std::endl;
@@ -126,7 +134,7 @@ int main(int argc, char *argv[]) {
 
         std::shared_ptr<vpl::bitstream_as_dst> b = std::make_shared<vpl::bitstream_as_dst>();
         try {
-            wrn = encoder.encode_frame(b);
+            wrn = encoder->encode_frame(b);
         }
         catch (vpl::base_exception &e) {
             std::cout << "Encoder died: " << e.what() << std::endl;
@@ -160,7 +168,7 @@ int main(int argc, char *argv[]) {
     std::cout << "Encoded " << frame_num << " frames" << std::endl;
 
     std::cout << "\n-- Encode information --\n\n";
-    std::shared_ptr<vpl::encoder_video_param> p = encoder.working_params();
+    std::shared_ptr<vpl::encoder_video_param> p = encoder->working_params();
     std::cout << *(p.get()) << std::endl;
 
     return 0;

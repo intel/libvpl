@@ -88,10 +88,20 @@ int main(int argc, char *argv[]) {
                                                    : vpl::io_pattern::out_system_memory);
     param.set_CodecId(vpl::codec_format_fourcc::hevc);
 
-    vpl::decode_session decoder(impl_sel, param, &fr);
+    std::shared_ptr<vpl::decode_session<oneapi::vpl::bitstream_file_reader>> decoder(nullptr);
+    try {
+        decoder =
+            std::make_shared<vpl::decode_session<oneapi::vpl::bitstream_file_reader>>(impl_sel,
+                                                                                      param,
+                                                                                      &fr);
+    }
+    catch (vpl::base_exception &e) {
+        std::cout << "Decoder session create failed: " << e.what() << std::endl;
+        return -1;
+    }
 
     vpl::decoder_init_header_list init_header_list;
-    ret = decoder.init_by_header(init_header_list);
+    ret = decoder->init_by_header(init_header_list);
 
     if (ret != vpl::status::Ok) {
         std::cout << "Unknown status: " << static_cast<int>(ret) << std::endl;
@@ -108,8 +118,8 @@ int main(int argc, char *argv[]) {
         std::shared_ptr<vpl::frame_surface> dec_surface_out =
             std::make_shared<vpl::frame_surface>();
         try {
-            ret = decoder.decode_frame(dec_surface_out,
-                                       oneapi::vpl::decoder_process_list{ &err_report });
+            ret = decoder->decode_frame(dec_surface_out,
+                                        oneapi::vpl::decoder_process_list{ &err_report });
         }
         // if error happened
         catch (vpl::base_exception &e) {
@@ -179,7 +189,7 @@ int main(int argc, char *argv[]) {
     std::cout << "Decoded " << frame_num << " frames" << std::endl;
 
     std::cout << "\n-- Decode information --\n\n";
-    std::shared_ptr<vpl::decoder_video_param> p = decoder.working_params();
+    std::shared_ptr<vpl::decoder_video_param> p = decoder->working_params();
     std::cout << *(p.get()) << std::endl;
 
     return 0;

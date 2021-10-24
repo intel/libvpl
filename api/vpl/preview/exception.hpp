@@ -88,7 +88,7 @@ protected:
             case MFX_ERR_NOT_ENOUGH_BUFFER:
                 return "Not enough buffer";
             case MFX_ERR_INVALID_HANDLE:
-                return "Invalide handle";
+                return "Invalid handle";
             case MFX_ERR_LOCK_MEMORY:
                 return "Lock memory error";
             case MFX_ERR_NOT_INITIALIZED:
@@ -102,11 +102,11 @@ protected:
             case MFX_ERR_ABORTED:
                 return "Operation aborted";
             case MFX_ERR_DEVICE_LOST:
-                return "Decice lost";
+                return "Device lost";
             case MFX_ERR_INCOMPATIBLE_VIDEO_PARAM:
                 return "Incompartible video parameter";
             case MFX_ERR_INVALID_VIDEO_PARAM:
-                return "Invlid video parameter";
+                return "Invalid video parameter";
             case MFX_ERR_UNDEFINED_BEHAVIOR:
                 return "Behaviour is undefined";
             case MFX_ERR_DEVICE_FAILED:
@@ -120,7 +120,7 @@ protected:
             case MFX_ERR_RESOURCE_MAPPED:
                 return "Resource mapping failed";
             case MFX_ERR_NOT_IMPLEMENTED:
-                return "Not implemetned";
+                return "Not implemented";
             default:
                 return "Unregistered unknown error";
         }
