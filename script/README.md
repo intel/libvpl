@@ -12,13 +12,9 @@ The scripts are designed around the model described by
 - `lint` - Analyze project source for potential issues, including compliance
   with coding style. Requires Python modules in `requirements-dev.txt`.
 
-- `clean` - Remove project build files. Will not remove installed files or
-bootstrap files placed in `VPL_BUILD_DEPENDENCIES`.
+- `clean` - Remove project build files. 
 
-
-- `bootstrap` - Build the project dependencies and place in the location
-  specified by the `VPL_BUILD_DEPENDENCIES` environment variable. If environment
-  variable is undefined, define it as and place output in `_deps`.
+- `bootstrap` - Build the project dependencies.
 
 - `build` - Build the project and place output in `_build`. If the
   `VPL_INSTALL_DIR` environment variable is set, the package will be installed
@@ -29,6 +25,33 @@ bootstrap files placed in `VPL_BUILD_DEPENDENCIES`.
 - `test` or `test32` - Run basic smoke testing on built project.
 
 - `stress` - Run stress testing on built project.
+
+# Environment Variables
+
+While no environment variables are strictly required to use these scripts 
+there are environment variables that, if set, allow control of how and
+where the scripts build and place files.
+
+## Common
+
+These settings are shared with the CPU Runtime.
+
+- `VPL_INSTALL_DIR` - The root folder in which to install after building.
+By default files will be installed in a system location such as `/` or `~/`
+however developers will often want to segregate code being developed.
+If this is set VPL build scripts will place files under that folder and
+use files found under that folder to find cross dependencies.
+
+## Dispatcher Specific
+
+- `VPL_DISP_PY_VENV` - A folder where bootstrap will place the python virtual 
+environment. (Defaults to `<script-dir>/../_build-venv/`)
+
+- `VPL_DISP_PY_VENV_VER` - Fhe version of python bootstrap should create a
+virtual environment from. (Defaults to `3`)
+
+- `VPL_DISP_BUILD_DIR` - The folder to be used by CMake for building. 
+(Defaults to `<script-dir>/../_build/`)
 
 
 **LEGAL NOTICE:  By downloading and using any scripts (the “Software Package”) and the included software or software made available for download, you agree to the terms and conditions of the software license agreements for the Software Package, which may also include notices, disclaimers, or license terms for third party software (together, the “Agreements”) included in this README file.

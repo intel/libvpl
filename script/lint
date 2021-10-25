@@ -6,7 +6,12 @@
 ###############################################################################
 # Check code for issues.
 
-set -o errexit
+if [ "$0" = "$BASH_SOURCE" ]
+then
+  set -o errexit
+else
+  echo "Warning: This script should not be sourced. Skipping exit on error."
+fi
 
 
 # Set script folder

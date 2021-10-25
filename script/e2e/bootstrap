@@ -6,7 +6,8 @@
 ###############################################################################
 # Build project dependencies.
 
-set -o errexit
+# Do not set Exit on Error in scripts that will be sourced
+# set -o errexit
 
 
 SCRIPT_DIR="$( cd "$(dirname "${BASH_SOURCE[0]:-$0}")" >/dev/null 2>&1 ; pwd -P )"

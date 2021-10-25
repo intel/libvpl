@@ -15,28 +15,16 @@ CALL %~dp0%\_buildopts.bat ^
     -- %*
 IF DEFINED HELP_OPT ( EXIT /b 0 )
 
-IF DEFINED BOOTSTRAP_OPT (
-  IF EXIST %VPL_BUILD_DEPENDENCIES% (
-    ECHO Cleaning dependencies cache folder...
-    RD /s /q _extbuild
-  )
+@REM ------------------------------------------------------------------------------
+@REM Globals
+IF NOT DEFINED VPL_DISP_BUILD_DIR (
+    set "VPL_DISP_BUILD_DIR=%PROJ_DIR%\_build"
 )
+@REM ------------------------------------------------------------------------------
 
-PUSHD %PROJ_DIR%
-  IF EXIST _extbuild (
-    ECHO Cleaning dependencies folder...
-    RD /s /q _deps
-  )
-
-  IF EXIST _extbuild (
-    ECHO Cleaning dependencies build folder...
-    RD /s /q _extbuild
-  )
-
-  IF EXIST _build (
-    ECHO Cleaning build folder...
-    RD /s /q _build
-  )
-POPD
+IF EXIST %VPL_DISP_BUILD_DIR% (
+  ECHO Cleaning build folder...
+  RD /s /q %VPL_DISP_BUILD_DIR%
+)
 
 ENDLOCAL

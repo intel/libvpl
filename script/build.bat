@@ -15,6 +15,13 @@ CALL %~dp0%\_buildopts.bat ^
     -- %*
 IF DEFINED HELP_OPT ( EXIT /b 0 )
 
+@REM ------------------------------------------------------------------------------
+@REM Globals
+IF NOT DEFINED VPL_DISP_BUILD_DIR (
+    set "VPL_DISP_BUILD_DIR=%PROJ_DIR%\_build"
+)
+@REM ------------------------------------------------------------------------------
+
 IF DEFINED BOOTSTRAP_OPT (
     ECHO Building dependencies...
     call %SCRIPT_DIR%/bootstrap.bat %FORWARD_OPTS%
@@ -38,21 +45,19 @@ IF DEFINED WARNING_AS_ERROR_OPT (
   SET WARN_CM_OPTS=-DENABLE_WARNING_AS_ERROR=ON
 )
 
-PUSHD %PROJ_DIR%
-  SET BUILD_DIR=_build
-  MKDIR %BUILD_DIR%
-  PUSHD %BUILD_DIR%
-    cmake %ARCH_CM_OPT% %INSTALL_PREFIX_CM_OPT% %COFIG_CM_OPT% %WARN_CM_OPTS% -DBUILD_PYTHON_BINDING=1 -DBUILD_TESTS=ON %PROJ_DIR% || EXIT /b 1
-    IF DEFINED NUMBER_OF_PROCESSORS (
-      SET PARALLEL_OPT=-j %NUMBER_OF_PROCESSORS%
-    )
-    cmake --build . --config %COFIG_OPT% %PARALLEL_OPT% || EXIT /b 1
-    cmake --build . --config %COFIG_OPT% --target package || EXIT /b 1
+SET BUILD_DIR=%VPL_DISP_BUILD_DIR%
+MKDIR %BUILD_DIR%
+PUSHD %BUILD_DIR%
+  cmake %ARCH_CM_OPT% %INSTALL_PREFIX_CM_OPT% %COFIG_CM_OPT% %WARN_CM_OPTS% -DBUILD_PYTHON_BINDING=1 -DBUILD_TESTS=ON %PROJ_DIR% || EXIT /b 1
+  IF DEFINED NUMBER_OF_PROCESSORS (
+    SET PARALLEL_OPT=-j %NUMBER_OF_PROCESSORS%
+  )
+  cmake --build . --config %COFIG_OPT% %PARALLEL_OPT% || EXIT /b 1
+  cmake --build . --config %COFIG_OPT% --target package || EXIT /b 1
 
-    @REM Signal to CI system
-    IF DEFINED TEAMCITY_VERSION (
-      ECHO ##teamcity[publishArtifacts 'oneVPL/%BUILD_DIR%/*-all.zip=^>']
-    )
-  POPD
+  @REM Signal to CI system
+  IF DEFINED TEAMCITY_VERSION (
+    ECHO ##teamcity[publishArtifacts '%BUILD_DIR%/*-all.zip=^>']
+  )
 POPD
 ENDLOCAL

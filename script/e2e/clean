@@ -6,7 +6,12 @@
 ###############################################################################
 # Clean project.
 
-set -o errexit
+if [ "$0" = "$BASH_SOURCE" ]
+then
+  set -o errexit
+else
+  echo "Warning: This script should not be sourced. Skipping exit on error."
+fi
 
 
 SCRIPT_DIR="$( cd "$(dirname "${BASH_SOURCE[0]:-$0}")" >/dev/null 2>&1 ; pwd -P )"

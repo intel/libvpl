@@ -24,6 +24,14 @@ FOR /D %%i IN ("%~dp0\..") DO (
 	set PROJ_DIR=%%~fi
 )
 
+@REM ------------------------------------------------------------------------------
+@REM Globals
+IF NOT DEFINED VPL_DISP_BUILD_DIR (
+    set "VPL_DISP_BUILD_DIR=%PROJ_DIR%\_build"
+)
+@REM ------------------------------------------------------------------------------
+
+
 if "%1" == "" (
      set NUM_ITERATION=1
 ) else (
@@ -46,7 +54,7 @@ if defined VPL_BUILD_DEPENDENCIES (
   )
 )
 set "PATH=%ffmpeg_dir%;%PATH%"
-set WORK_DIR=%PROJ_DIR%\_build\Release
+set WORK_DIR=%VPL_DISP_BUILD_DIR%\Release
 cd %WORK_DIR%
 
 :: variables for process time out (unit of process_timer_interval is second)

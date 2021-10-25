@@ -6,21 +6,6 @@
 ###############################################################################
 # User friendly consistant parameter parsing
 
-# Takes one parameter, the name of a variable
-# Echos Name followed by value or "(not defined)"
-# depending on state of the named variable
-print_var () {
-  varname=$1
-  # We pendantilcly check for null here
-  # this is not needed in code that calls this library
-  if [ -z ${!varname+x} ]
-  then
-    echo "   $varname: null"
-  else
-    echo "   $varname: \"${!varname}\""
-  fi
-}
-
 # Set script folder
 SCRIPT_DIR="$( cd "$(dirname "${BASH_SOURCE[0]:-$0}")" >/dev/null 2>&1 || exit 1 ; pwd -P )"
 

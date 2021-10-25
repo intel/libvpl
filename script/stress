@@ -22,7 +22,21 @@
 script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 proj_dir="$( dirname "${script_dir}" )"
 cd ${proj_dir}
-set -o errexit
+
+if [ "$0" = "$BASH_SOURCE" ]
+then
+  set -o errexit
+else
+  echo "Warning: This script should not be sourced. Skipping exit on error."
+fi
+
+###############################################################################
+# Globals
+if [ -z "${VPL_DISP_BUILD_DIR}" ]
+then
+  VPL_DISP_BUILD_DIR="${proj_dir}/_build"
+fi
+###############################################################################
 
 if [ "$1" == "" ];then
      NUM_ITERATION=1
@@ -35,14 +49,14 @@ echo
 
 ## start of commands -----------------------------------------------------------
 source ${proj_dir}/test/tools/env/vars.sh
-if [ -n "${VPL_BUILD_DEPENDENCIES}" ]; then
+if [ -z "${VPL_BUILD_DEPENDENCIES}" ]; then
     export ffmpeg_dir=${VPL_BUILD_DEPENDENCIES}/bin
 else
     echo "VPL_BUILD_DEPENDENCIES not defined. Did you run bootstrap?"
     exit 1
 fi
 export PATH=${ffmpeg_dir}:${PATH}
-work_dir=${proj_dir}/_build
+work_dir=${VPL_DISP_BUILD_DIR}
 
 cd ${work_dir}
 export LD_LIBRARY_PATH=$PWD

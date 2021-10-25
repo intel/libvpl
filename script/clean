@@ -6,7 +6,12 @@
 ###############################################################################
 # Clean base.
 
-set -o errexit
+if [ "$0" = "$BASH_SOURCE" ]
+then
+  set -o errexit
+else
+  echo "Warning: This script should not be sourced. Skipping exit on error."
+fi
 
 
 SCRIPT_DIR="$( cd "$(dirname "${BASH_SOURCE[0]:-$0}")" >/dev/null 2>&1 ; pwd -P )"
@@ -17,29 +22,16 @@ SCRIPT_DIR="$( cd "$(dirname "${BASH_SOURCE[0]:-$0}")" >/dev/null 2>&1 ; pwd -P 
     --desc "Clean base." \
     -- "$@"
 
-if [ -n "${BOOTSTRAP_OPT}" ]
+###############################################################################
+# Globals
+if [ -z "${VPL_DISP_BUILD_DIR}" ]
 then
-  if [ -e "${VPL_BUILD_DEPENDENCIES}" ]
-  then
-      echo "Cleaning dependencies cache folder..."
-      rm -rf "${VPL_BUILD_DEPENDENCIES}"
-  fi
+  VPL_DISP_BUILD_DIR="${PROJ_DIR}/_build"
 fi
+###############################################################################
 
-pushd "${PROJ_DIR}"
-  if [ -e _deps ]
-  then
-      echo "Cleaning base dependencies folder..."
-      rm -rf _build
-  fi
-  if [ -e _extbuild ]
-  then
-      echo "Cleaning base dependencies build folder..."
-      rm -rf _extbuild
-  fi
-  if [ -e _build ]
-  then
-      echo "Cleaning base build folder..."
-      rm -rf _build
-  fi
-popd
+if [ -e "${VPL_DISP_BUILD_DIR}" ]
+then
+    echo "Cleaning base build folder..."
+    rm -rf "${VPL_DISP_BUILD_DIR}"
+fi

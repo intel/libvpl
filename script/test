@@ -6,23 +6,34 @@
 ###############################################################################
 # Run basic tests on base.
 
-set -o errexit
+if [ "$0" = "$BASH_SOURCE" ]
+then
+  set -o errexit
+else
+  echo "Warning: This script should not be sourced. Skipping exit on error."
+fi
 
 
-# Set script folder
 SCRIPT_DIR="$( cd "$(dirname "${BASH_SOURCE[0]:-$0}")" >/dev/null 2>&1 ; pwd -P )"
 
-# Set root folder
-PROJ_DIR="$( dirname "${SCRIPT_DIR}" )"
+# Read command line options
+. "${SCRIPT_DIR}/_buildopts.sh" \
+    --name test \
+    --desc "Run basic tests on base." \
+    -- "$@"
 
-result_all=0
+###############################################################################
+# Globals
+if [ -z "${VPL_DISP_BUILD_DIR}" ]
+then
+  VPL_DISP_BUILD_DIR="${PROJ_DIR}/_build"
+fi
+###############################################################################
 
-pushd "${PROJ_DIR}"
-  BUILD_DIR=_build
-  pushd "${BUILD_DIR}"
-    ctest  --config "${COFIG_OPT}"
-    result_all=$?
-  popd
+BUILD_DIR="${VPL_DISP_BUILD_DIR}"
+pushd "${BUILD_DIR}"
+  ctest  --config "${COFIG_OPT}"
+  result_all=$?
 popd
 
 exit $result_all

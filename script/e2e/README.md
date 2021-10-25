@@ -20,6 +20,5 @@ bootstrap files placed in `VPL_BUILD_DEPENDENCIES`.
   specified by the `VPL_BUILD_DEPENDENCIES` environment variable. If environment
   variable is undefined, define it as and place output in `_deps`.
 
-- `build` - Build the project and place output in `_build`. If the
-  `VPL_INSTALL_DIR` environment variable is set, the package will be installed
-  there at install time.
+- `build` - Build and install the project. If the `VPL_INSTALL_DIR` environment
+  variable is set, the package will be installed there.

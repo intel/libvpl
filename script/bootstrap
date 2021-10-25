@@ -6,7 +6,8 @@
 ###############################################################################
 # Build base dependencies.
 
-set -o errexit
+# Do not set Exit on Error in scripts that will be sourced
+# set -o errexit
 
 
 SCRIPT_DIR="$( cd "$(dirname "${BASH_SOURCE[0]:-$0}")" >/dev/null 2>&1 ; pwd -P )"
@@ -17,9 +18,28 @@ SCRIPT_DIR="$( cd "$(dirname "${BASH_SOURCE[0]:-$0}")" >/dev/null 2>&1 ; pwd -P 
     --desc "Build base dependencies." \
     -- "$@"
 
-pushd "${PROJ_DIR}"
-  python3 -m venv _build-venv
-  . _build-venv/bin/activate
-  python -m pip install -r "${PROJ_DIR}/requirements.txt"
-  export pybind11_DIR="$(python -m pybind11 --cmakedir)"
-popd
+###############################################################################
+# Globals
+if [ -z "${VPL_DISP_PY_VENV}" ]
+then
+  VPL_DISP_PY_VENV="${PROJ_DIR}/_build-venv"
+fi
+
+if [ -z "${VPL_DISP_PY_VENV_VER}" ]
+then
+  VPL_DISP_PY_VENV_VER=3
+fi
+###############################################################################
+
+python${VPL_DISP_PY_VENV_VER} -m venv "${VPL_DISP_PY_VENV}"
+
+# there are sometimes issues with creating the venv. seems to be
+# related to the folder being called "venv" rerunning seems to resolve it.
+if [ ! -f "${VPL_DISP_PY_VENV}/bin/activate" ]
+then
+  python${VPL_DISP_PY_VENV_VER} -m venv "${VPL_DISP_PY_VENV}"
+fi
+
+. "${VPL_DISP_PY_VENV}/bin/activate"
+python -m pip install -r "${PROJ_DIR}/requirements.txt"
+export pybind11_DIR="$(python -m pybind11 --cmakedir)"

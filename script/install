@@ -6,7 +6,12 @@
 ###############################################################################
 # Install base.
 
-set -o errexit
+if [ "$0" = "$BASH_SOURCE" ]
+then
+  set -o errexit
+else
+  echo "Warning: This script should not be sourced. Skipping exit on error."
+fi
 
 
 SCRIPT_DIR="$( cd "$(dirname "${BASH_SOURCE[0]:-$0}")" >/dev/null 2>&1 ; pwd -P )"
@@ -17,7 +22,13 @@ SCRIPT_DIR="$( cd "$(dirname "${BASH_SOURCE[0]:-$0}")" >/dev/null 2>&1 ; pwd -P 
     --desc "Install base." \
     -- "$@"
 
-pushd "${PROJ_DIR}"
-    BUILD_DIR=_build
-    cmake --build "${BUILD_DIR}" --config "${COFIG_OPT}" --target install
-popd
+###############################################################################
+# Globals
+if [ -z "${VPL_DISP_BUILD_DIR}" ]
+then
+  VPL_DISP_BUILD_DIR="${PROJ_DIR}/_build"
+fi
+###############################################################################
+
+BUILD_DIR="${VPL_DISP_BUILD_DIR}"
+cmake --build "${BUILD_DIR}" --config "${COFIG_OPT}" --target install
