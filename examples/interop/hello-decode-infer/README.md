@@ -84,7 +84,13 @@ Perform the following steps:
 
 #### Building the program using CMake
 
-1. Install the prerequisite software. To build and run the sample you need to
+1. These instructions assume you can read and write to the location 
+   the examples are stored. If the examples have been installed in a
+   protected folder such as "Program Files" copy the entire `examples`
+   folder to a location with Read/Write access such as the Desktop
+   (%USERPROFILE%\Desktop) and resume these instruictions from that copy.
+
+2. Install the prerequisite software. To build and run the sample you need to
    install prerequisite software and set up your environment:
 
    - Intel® oneAPI Base Toolkit for Windows*
@@ -92,7 +98,7 @@ Perform the following steps:
    - [Python 3.8 or earlier](http://python.org)
    - [CMake](https://cmake.org)
 
-2. Set up your environment using the following command.
+3. Set up your environment using the following command.
    ```
    <oneapi_install_dir>\setvars.bat
    <openvino_install_dir>\bin\setupvars.bat
@@ -106,7 +112,7 @@ Perform the following steps:
    are in your custom locations.  Note that if a compiler is not part of your 
    oneAPI installation you should run in a Visual Studio 64-bit command prompt.
 
-3. Build the program using the following commands:
+4. Build the program using the following commands:
    ```
    mkdir build
    cd build
@@ -114,7 +120,7 @@ Perform the following steps:
    cmake --build .
    ```
 
-4. Download the Alexnet classification model from OpenVINO model zoo
+5. Download the Alexnet classification model from OpenVINO model zoo
    ```
    <openvino_install_dir>\deployment_tools\model_optimizer\install_prerequisites\install_prerequisites.bat
    pip install -r <openvino_install_dir>\deployment_tools\open_model_zoo\tools\downloader\requirements.in
@@ -122,7 +128,7 @@ Perform the following steps:
    <openvino_install_dir>\deployment_tools\open_model_zoo\tools\downloader\converter.py --download_dir ..\..\content --name alexnet
    ```
 
-5. Run the program using the following command:
+6. Run the program using the following command:
    ```
    cmake --build . --target run
    ```

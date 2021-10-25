@@ -73,6 +73,8 @@ The following examples assume Python 3.7
 
 On Windows:
 
+The sample writes its output in the current directory. Please ensure the current directory is writable when running this sample.
+
 ```
 py -3.7 hello-vpp-py\hello-vpp.py <examples path>\content\cars_128x96.i420 128 96
 ```
