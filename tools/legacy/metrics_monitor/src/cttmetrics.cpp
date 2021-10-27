@@ -1,10 +1,10 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2014 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
 
-#include "include/cttmetrics.h"
+#include "cttmetrics.h"
 
 #include <stdio.h>
 

@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2005 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -9,6 +9,7 @@
 #include <map>
 #include <sstream>
 #include "plugin_utils.h"
+#include "vpl/mfxvp8.h"
 
 bool AreGuidsEqual(const mfxPluginUID& guid1, const mfxPluginUID& guid2) {
     for (size_t i = 0; i != sizeof(mfxPluginUID); i++) {
@@ -29,6 +30,9 @@ mfxStatus ConvertStringToGuid(const msdk_string& strGuid, mfxPluginUID& mfxGuid)
     uid[MSDK_STRING("hevce_sw")]   = MFX_PLUGINID_HEVCE_SW;
     uid[MSDK_STRING("hevce_gacc")] = MFX_PLUGINID_HEVCE_GACC;
     uid[MSDK_STRING("hevce_hw")]   = MFX_PLUGINID_HEVCE_HW;
+
+    uid[MSDK_STRING("vp8d_hw")] = MFX_PLUGINID_VP8D_HW;
+    uid[MSDK_STRING("vp8e_hw")] = MFX_PLUGINID_VP8E_HW;
 
     uid[MSDK_STRING("vp9d_hw")] = MFX_PLUGINID_VP9D_HW;
     uid[MSDK_STRING("vp9e_hw")] = MFX_PLUGINID_VP9E_HW;
@@ -91,9 +95,29 @@ const mfxPluginUID& msdkGetPluginUID(mfxIMPL impl, msdkComponentType type, mfxU3
     }
     else {
         switch (type) {
-            case MSDK_VENCODE:
+// On Android implementaion of all decoders is placed in libmfx
+// That's why we don't need default plugins for these codecs
+#if !defined(ANDROID)
+            case MSDK_VDECODE:
+                switch (uCodecid) {
+                    case MFX_CODEC_HEVC:
+                        return MFX_PLUGINID_HEVCD_HW;
+                    case MFX_CODEC_VP8:
+                        return MFX_PLUGINID_VP8D_HW;
+                    case MFX_CODEC_VP9:
+                        return MFX_PLUGINID_VP9D_HW;
+                }
                 break;
-#if MFX_VERSION >= 1027
+#endif
+            case MSDK_VENCODE:
+                switch (uCodecid) {
+                    case MFX_CODEC_HEVC:
+                        return MFX_PLUGINID_HEVCE_HW;
+                    case MFX_CODEC_VP8:
+                        return MFX_PLUGINID_VP8E_HW;
+                }
+                break;
+#if !defined(_WIN32) && !defined(_WIN64)
             case (MSDK_VENCODE | MSDK_FEI):
                 switch (uCodecid) {
                     case MFX_CODEC_HEVC:
@@ -115,8 +139,8 @@ const mfxPluginUID& msdkGetPluginUID(mfxIMPL impl, msdkComponentType type, mfxU3
 
 sPluginParams ParsePluginGuid(msdk_char* strPluginGuid) {
     sPluginParams pluginParams;
-    mfxPluginUID uid = { 0 };
-    mfxStatus sts    = ConvertStringToGuid(strPluginGuid, uid);
+    mfxPluginUID uid;
+    mfxStatus sts = ConvertStringToGuid(strPluginGuid, uid);
 
     if (sts == MFX_ERR_NONE) {
         pluginParams.type       = MFX_PLUGINLOAD_TYPE_GUID;

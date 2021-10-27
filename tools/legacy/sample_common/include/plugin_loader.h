@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2005 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -12,7 +12,7 @@
     #include "plugin_utils.h"
     #include "sample_utils.h"
     #include "vm/so_defs.h"
-    //#include "mfx_plugin_module.h"
+
     #include <iomanip> // for std::setfill, std::setw
     #include <iostream>
     #include <memory> // for std::unique_ptr
@@ -67,22 +67,18 @@ private:
             return MSDK_STRING("Intel (R) Media SDK plugin for HEVC ENCODE");
         else if (AreGuidsEqual(guid, MFX_PLUGINID_HEVCE_HW))
             return MSDK_STRING("Intel (R) Media SDK HW plugin for HEVC ENCODE");
-        else if (AreGuidsEqual(guid, MFX_PLUGINID_VP8E_HW))
-            return MSDK_STRING("Intel (R) Media SDK HW plugin for VP8 ENCODE");
-        else if (AreGuidsEqual(guid, MFX_PLUGINID_VP8D_HW))
-            return MSDK_STRING("Intel (R) Media SDK HW plugin for VP8 DECODE");
-        else if (AreGuidsEqual(guid, MFX_PLUGINID_VP9E_HW))
-            return MSDK_STRING("Intel (R) Media SDK HW plugin for VP9 ENCODE");
-        else if (AreGuidsEqual(guid, MFX_PLUGINID_VP9D_HW))
-            return MSDK_STRING("Intel (R) Media SDK HW plugin for VP9 DECODE");
         else if (AreGuidsEqual(guid, MFX_PLUGINID_H264LA_HW))
             return MSDK_STRING("Intel (R) Media SDK plugin for LA ENC");
         else if (AreGuidsEqual(guid, MFX_PLUGINID_ITELECINE_HW))
             return MSDK_STRING("Intel (R) Media SDK PTIR plugin (HW)");
         else if (AreGuidsEqual(guid, MFX_PLUGINID_HEVCE_GACC))
             return MSDK_STRING("Intel (R) Media SDK GPU-Accelerated plugin for HEVC ENCODE");
+        else if (AreGuidsEqual(guid, MFX_PLUGINID_VP9D_HW))
+            return MSDK_STRING("Intel (R) Media SDK HW plugin for VP9 DECODE");
+        else if (AreGuidsEqual(guid, MFX_PLUGINID_VP9E_HW))
+            return MSDK_STRING("Intel (R) Media SDK HW plugin for VP9 ENCODE");
         else
-    #if (MFX_VERSION >= 1027) && !defined(_WIN32) && !defined(_WIN64)
+    #if !defined(_WIN32) && !defined(_WIN64)
             if (AreGuidsEqual(guid, MFX_PLUGINID_HEVC_FEI_ENCODE))
             return MSDK_STRING("Intel (R) Media SDK HW plugin for HEVC FEI ENCODE");
         else
@@ -217,38 +213,4 @@ public:
     }
 };
 
-inline MFXPlugin* LoadPluginByType(mfxPluginType type,
-                                   mfxSession session,
-                                   const mfxPluginUID& uid,
-                                   mfxU32 version,
-                                   const mfxChar* pluginName,
-                                   mfxU32 len) {
-    std::unique_ptr<PluginLoader> plg(
-        new PluginLoader(type, session, uid, version, pluginName, len));
-    return plg->IsOk() ? plg.release() : NULL;
-}
-
-inline MFXPlugin* LoadPluginByGUID(mfxPluginType type,
-                                   mfxSession session,
-                                   const mfxPluginUID& uid,
-                                   mfxU32 version) {
-    std::unique_ptr<PluginLoader> plg(new PluginLoader(type, session, uid, version));
-    return plg->IsOk() ? plg.release() : NULL;
-}
-
-inline MFXPlugin* LoadPlugin(mfxPluginType type,
-                             mfxSession session,
-                             const mfxPluginUID& uid,
-                             mfxU32 version,
-                             const mfxChar* pluginName,
-                             mfxU32 len) {
-    return LoadPluginByType(type, session, uid, version, pluginName, len);
-}
-
-inline MFXPlugin* LoadPlugin(mfxPluginType type,
-                             mfxSession session,
-                             const mfxPluginUID& uid,
-                             mfxU32 version) {
-    return LoadPluginByGUID(type, session, uid, version);
-}
 #endif // PLUGIN_LOADER

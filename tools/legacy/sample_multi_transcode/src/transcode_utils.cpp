@@ -1,24 +1,12 @@
-/******************************************************************************\
-Copyright (c) 2005-2020, Intel Corporation
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-
-1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-
-2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-
-3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-This sample was distributed or derived from the Intel's Media Samples package.
-The original version of this sample may be obtained from https://software.intel.com/en-us/intel-media-server-studio
-or https://software.intel.com/en-us/media-client-solutions-support.
-\**********************************************************************************/
+/*############################################################################
+  # Copyright (C) 2005 Intel Corporation
+  #
+  # SPDX-License-Identifier: MIT
+  ############################################################################*/
 
 #include "mfx_samples_config.h"
 #include "plugin_utils.h"
+#include "sample_defs.h"
 
 #if defined(_WIN32) || defined(_WIN64)
     #include <d3d9.h>
@@ -26,6 +14,7 @@ or https://software.intel.com/en-us/media-client-solutions-support.
     #include <windows.h>
     #include "d3d11_allocator.h"
     #include "d3d_allocator.h"
+
 #else
     #include <stdarg.h>
     #include "vaapi_allocator.h"
@@ -153,15 +142,16 @@ void TranscodingSample::PrintHelp() {
     msdk_printf(MSDK_STRING(
         "                              If not specified, defaults to the first Intel device found on the system\n"));
 #endif
-#if (defined(_WIN64) || defined(_WIN32)) && (MFX_VERSION >= 1031)
+#if (defined(_WIN64) || defined(_WIN32))
     msdk_printf(MSDK_STRING(
         "   [-dual_gfx::<on,off,adaptive>] - prefer encode processing on both iGfx and dGfx simultaneously\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-dGfx] - prefer processing on dGfx (by default system decides), also can be set with index, for example: '-dGfx 1'\n"));
-    msdk_printf(
-        MSDK_STRING("   [-iGfx] - prefer processing on iGfx (by default system decides)\n"));
 #endif
-#if (MFX_VERSION >= 1025)
+    msdk_printf(MSDK_STRING(
+        "   [-dGfx] - preffer processing on dGfx (by default system decides), also can be set with index, for example: '-dGfx 1'\n"));
+    msdk_printf(
+        MSDK_STRING("   [-iGfx] - preffer processing on iGfx (by default system decides)\n"));
+    msdk_printf(
+        MSDK_STRING("   [-AdapterNum] - specifies adpter number for processing, starts from 0\n"));
     msdk_printf(MSDK_STRING(
         "  -mfe_frames <N> maximum number of frames to be combined in multi-frame encode pipeline"));
     msdk_printf(MSDK_STRING("               0 - default for platform will be used\n"));
@@ -175,7 +165,6 @@ void TranscodingSample::PrintHelp() {
 
     msdk_printf(MSDK_STRING(
         "  -mfe_timeout <N> multi-frame encode timeout in milliseconds - set per sessions control\n"));
-#endif
 
 #ifdef ENABLE_MCTF
     #if !defined ENABLE_MCTF_EXT
@@ -246,6 +235,15 @@ void TranscodingSample::PrintHelp() {
         "  -MemModel::VisibleIntAlloc   Force usage of internal allocation with manual surfaces control\n"));
     msdk_printf(MSDK_STRING(
         "  -MemModel::HiddenIntAlloc    Force usage of internal allocation without manual surfaces control\n"));
+
+    msdk_printf(MSDK_STRING(
+        "  -AllocPolicy::optimal       Force optimal allocation policy for surface pool\n"));
+    msdk_printf(MSDK_STRING(
+        "  -AllocPolicy::limited       Force limited allocation policy for surface pool\n"));
+    msdk_printf(MSDK_STRING(
+        "  -AllocPolicy::unlimited     Force unlimited allocation policy for surface pool\n"));
+    msdk_printf(MSDK_STRING(
+        "  -preallocate <number of surfaces> Set numebr of surfaces to preallocate for -AllocPolicy::limited\n"));
 
     msdk_printf(MSDK_STRING("  -dec::sys     Set dec output to system memory\n"));
     msdk_printf(MSDK_STRING("  -vpp::sys     Set vpp output to system memory\n"));
@@ -322,9 +320,7 @@ void TranscodingSample::PrintHelp() {
     msdk_printf(MSDK_STRING("  -bpyr         Enable B pyramid\n"));
     msdk_printf(
         MSDK_STRING("  -gpb:<on,off>          - Enable or disable Generalized P/B frames\n"));
-#if (MFX_VERSION >= 1026)
     msdk_printf(MSDK_STRING("  -TransformSkip:<on,off>- Enable or disable TransformSkip\n"));
-#endif
     msdk_printf(MSDK_STRING("  -trows <rows>          - Number of rows for tiled encoding\n"));
     msdk_printf(MSDK_STRING("  -tcols <cols>          - Number of columns for tiled encoding\n"));
     msdk_printf(MSDK_STRING("  -CodecProfile          - Specifies codec profile\n"));
@@ -346,31 +342,25 @@ void TranscodingSample::PrintHelp() {
         "  -cqp          Constant quantization parameter (CQP BRC) bitrate control method\n"));
     msdk_printf(MSDK_STRING(
         "                              (by default constant bitrate control method is used), should be used along with -qpi, -qpp, -qpb.\n"));
-#if (MFX_VERSION >= 1022)
     msdk_printf(MSDK_STRING(
         "  -qpi          Constant quantizer for I frames (if bitrace control method is CQP). In range [1,51]. 0 by default, i.e.no limitations on QP.\n"));
     msdk_printf(MSDK_STRING(
         "  -qpp          Constant quantizer for P frames (if bitrace control method is CQP). In range [1,51]. 0 by default, i.e.no limitations on QP.\n"));
     msdk_printf(MSDK_STRING(
         "  -qpb          Constant quantizer for B frames (if bitrace control method is CQP). In range [1,51]. 0 by default, i.e.no limitations on QP.\n"));
-#endif
     msdk_printf(MSDK_STRING(
         "  -DisableQPOffset         Disable QP adjustment for GOP pyramid-level frames\n"));
     msdk_printf(MSDK_STRING(
         "  -lowpower:<on,off>       Turn this option ON to enable QuickSync Fixed Function (low-power HW) encoding mode\n"));
-#if (MFX_VERSION >= 1027)
     msdk_printf(MSDK_STRING(
         "   [-TargetBitDepthLuma] - Encoding target bit depth for luma samples, by default same as source one.\n"));
     msdk_printf(MSDK_STRING(
         "   [-TargetBitDepthChroma] - Encoding target bit depth for chroma samples, by default same as source one.\n"));
-#endif
-#if MFX_VERSION >= 1022
     msdk_printf(MSDK_STRING("  -roi_file <roi-file-name>\n"));
     msdk_printf(MSDK_STRING(
         "                Set Regions of Interest for each frame from <roi-file-name>\n"));
     msdk_printf(MSDK_STRING("  -roi_qpmap    Use QP map to emulate ROI for CQP mode\n"));
     msdk_printf(MSDK_STRING("  -extmbqp      Use external MBQP map\n"));
-#endif //MFX_VERSION >= 1022
     msdk_printf(MSDK_STRING(
         "  -AvcTemporalLayers [array:Layer.Scale]    Configures the temporal layers hierarchy\n"));
     msdk_printf(MSDK_STRING(
@@ -385,9 +375,18 @@ void TranscodingSample::PrintHelp() {
         "  -NalHrdConformance:<on,off>               Enables or disables picture HRD conformance\n"));
     msdk_printf(MSDK_STRING(
         "  -VuiNalHrdParameters:<on,off>             Enables or disables NAL HRD parameters in VUI header\n"));
+    msdk_printf(
+        MSDK_STRING("  -EmbeddedDenoise <mode> <level>           Enables Denoiser in encoder\n"));
+    msdk_printf(MSDK_STRING("           mode - mode of deniose\n"));
+    msdk_printf(MSDK_STRING("               0    - default\n"));
+    msdk_printf(MSDK_STRING("               1001 - auto BD rate\n"));
+    msdk_printf(MSDK_STRING("               1002 - auto subjective\n"));
+    msdk_printf(MSDK_STRING("               1003 - auto adjust\n"));
+    msdk_printf(MSDK_STRING("               1004 - manual mode for pre-processing, need level\n"));
+    msdk_printf(MSDK_STRING("               1005 - manual mode for post-processing, need level\n"));
+    msdk_printf(MSDK_STRING("           level - range of noise level is [0, 100]\n"));
     msdk_printf(MSDK_STRING(
         "   -idr_interval size      idr interval, default 0 means every I is an IDR, 1 means every other I frame is an IDR etc\n"));
-
     msdk_printf(MSDK_STRING("\n"));
     msdk_printf(MSDK_STRING("Pipeline description (vpp options):\n"));
     msdk_printf(MSDK_STRING("  -deinterlace             Forces VPP to deinterlace input stream\n"));
@@ -444,15 +443,10 @@ void TranscodingSample::PrintHelp() {
                             It can benefit the video quality \n"));
     msdk_printf(MSDK_STRING(
         "  -mfs                   - maximum frame size in bytes. Supported only with h264 and hevc codec for VBR mode.\n"));
-
-#if (MFX_VERSION >= 1024)
     msdk_printf(MSDK_STRING(
         "  -extbrc::<on,off,implicit>           Enables external BRC for AVC and HEVC encoders\n"));
-#endif
-#if (MFX_VERSION >= 1026)
     msdk_printf(
         MSDK_STRING("  -ExtBrcAdaptiveLTR:<on,off>         Set AdaptiveLTR for implicit extbrc"));
-#endif
     msdk_printf(MSDK_STRING(
         "  -vpp_comp <sourcesNum>      Enables composition from several decoding sessions. Result is written to the file\n"));
     msdk_printf(MSDK_STRING(
@@ -471,24 +465,31 @@ void TranscodingSample::PrintHelp() {
         "  -vpp_comp_src_h             Width of this stream in composed stream (should be used in decoder session)\n"));
     msdk_printf(MSDK_STRING(
         "  -vpp_comp_src_w             Width of this stream in composed stream (should be used in decoder session)\n"));
-#if MFX_VERSION >= 1023
     msdk_printf(MSDK_STRING(
         "  -vpp_comp_tile_id           Tile_id for current channel of composition (should be used in decoder session)\n"));
-#endif
     msdk_printf(MSDK_STRING(
         "  -vpp_comp_dump <file-name>  Dump of VPP Composition's output into file. Valid if with -vpp_comp* options\n"));
     msdk_printf(MSDK_STRING(
         "  -vpp_comp_dump null_render  Disabling rendering after VPP Composition. This is for performance measurements\n"));
-#if MFX_VERSION >= 1022
     msdk_printf(MSDK_STRING(
         "  -dec_postproc               Resize after decoder using direct pipe (should be used in decoder session)\n"));
     msdk_printf(
         MSDK_STRING("  -single_texture_d3d11       single texture mode for d3d11 allocator \n"));
-#endif //MFX_VERSION >= 1022
     msdk_printf(MSDK_STRING(
         "  -preset <default,dss,conference,gaming> Use particular preset for encoding parameters\n"));
     msdk_printf(MSDK_STRING("  -pp                         Print preset parameters\n"));
-
+    msdk_printf(MSDK_STRING(
+        "  -forceSyncAllSession:<on,off>         Enable across-session synchronization \n"));
+    msdk_printf(MSDK_STRING(
+        "                              How it works: the decoder takes a required number of surfaces for work, \n"));
+    msdk_printf(MSDK_STRING(
+        "                              and when it ready to take more, does not take a new one, \n"));
+    msdk_printf(MSDK_STRING(
+        "                              but waits until one of them is available for work \n"));
+    msdk_printf(MSDK_STRING(
+        "                              Opion is ON by default for -MemModel::VisibleIntAlloc/HiddenIntAlloc(-memory 2/3) and 1->N scenarios"));
+    msdk_printf(MSDK_STRING(
+        "                              Option is not intended for -memory 1 and for transcoding scenarios  \n"));
     msdk_printf(MSDK_STRING("\n"));
     msdk_printf(MSDK_STRING("ParFile format:\n"));
     msdk_printf(MSDK_STRING(
@@ -878,7 +879,6 @@ mfxStatus CmdProcessor::TokenizeLine(msdk_char* pLine, mfxU32 length) {
     return ParseParamsForOneSession(argc, argv);
 }
 
-#if MFX_VERSION >= 1022
 bool CmdProcessor::isspace(char a) {
     return (std::isspace(a) != 0);
 }
@@ -939,9 +939,7 @@ bool CmdProcessor::ParseROIFile(const msdk_char* roi_file_name,
             mfxExtEncoderROI frame_roi;
             std::memset(&frame_roi, 0, sizeof(frame_roi));
             frame_roi.Header.BufferId = MFX_EXTBUFF_ENCODER_ROI;
-    #if (MFX_VERSION >= 1022)
-            frame_roi.ROIMode = MFX_ROI_MODE_QP_DELTA;
-    #endif
+            frame_roi.ROIMode         = MFX_ROI_MODE_QP_DELTA;
 
             int roi_num = std::atoi(items[item_ind].c_str());
             if (roi_num < 0 || roi_num > (int)(sizeof(frame_roi.ROI) / sizeof(frame_roi.ROI[0]))) {
@@ -955,13 +953,11 @@ bool CmdProcessor::ParseROIFile(const msdk_char* roi_file_name,
 
             for (int i = 0; i < roi_num; i++) {
                 // do not handle out of range integer errors
-                frame_roi.ROI[i].Left   = std::atoi(items[item_ind + i * 5 + 1].c_str());
-                frame_roi.ROI[i].Top    = std::atoi(items[item_ind + i * 5 + 2].c_str());
-                frame_roi.ROI[i].Right  = std::atoi(items[item_ind + i * 5 + 3].c_str());
-                frame_roi.ROI[i].Bottom = std::atoi(items[item_ind + i * 5 + 4].c_str());
-    #if (MFX_VERSION >= 1022)
+                frame_roi.ROI[i].Left    = std::atoi(items[item_ind + i * 5 + 1].c_str());
+                frame_roi.ROI[i].Top     = std::atoi(items[item_ind + i * 5 + 2].c_str());
+                frame_roi.ROI[i].Right   = std::atoi(items[item_ind + i * 5 + 3].c_str());
+                frame_roi.ROI[i].Bottom  = std::atoi(items[item_ind + i * 5 + 4].c_str());
                 frame_roi.ROI[i].DeltaQP = (mfxI16)std::atoi(items[item_ind + i * 5 + 5].c_str());
-    #endif
             }
             frame_roi.NumROI = (mfxU16)roi_num;
             m_ROIData.push_back(frame_roi);
@@ -973,7 +969,6 @@ bool CmdProcessor::ParseROIFile(const msdk_char* roi_file_name,
     }
     return true;
 }
-#endif //MFX_VERSION >= 1022
 #ifdef ENABLE_MCTF
 
 // returns a pointer to start of argument with a number argn;
@@ -1326,12 +1321,11 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
     else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-AdaptiveB:off"))) {
         InputParams.AdaptiveB = MFX_CODINGOPTION_OFF;
     }
-#if (defined(_WIN32) || defined(_WIN64)) && (MFX_VERSION >= 1031)
     else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-iGfx"))) {
-        InputParams.bPrefferiGfx = true;
+        InputParams.adapterType = mfxMediaAdapterType::MFX_MEDIA_INTEGRATED;
     }
     else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-dGfx"))) {
-        InputParams.dGfxIdx = 0;
+        InputParams.adapterType = mfxMediaAdapterType::MFX_MEDIA_DISCRETE;
         if (i + 1 < argc && isdigit(*argv[1 + i])) {
             if (MFX_ERR_NONE != msdk_opt_read(argv[++i], InputParams.dGfxIdx)) {
                 PrintError(argv[0], MSDK_STRING("value of -dGfx is invalid"));
@@ -1339,7 +1333,13 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
             }
         }
     }
-#endif
+    else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-AdapterNum"))) {
+        VAL_CHECK(i + 1 >= argc, i, argv[i]);
+        if (MFX_ERR_NONE != msdk_opt_read(argv[++i], InputParams.adapterNum)) {
+            PrintError(argv[0], MSDK_STRING("Value of -AdapterNum is invalid"));
+            return MFX_ERR_UNSUPPORTED;
+        }
+    }
     else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-dec::sys"))) {
         InputParams.DecOutPattern = MFX_IOPATTERN_OUT_SYSTEM_MEMORY;
     }
@@ -1382,7 +1382,26 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
     else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-MemModel::HiddenIntAlloc"))) {
         InputParams.nMemoryModel = HIDDEN_INT_ALLOC;
     }
-#if (MFX_VERSION >= 1027)
+    else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-AllocPolicy::optimal"))) {
+        InputParams.AllocPolicy   = MFX_ALLOCATION_OPTIMAL;
+        InputParams.useAllocHints = true;
+    }
+    else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-AllocPolicy::limited"))) {
+        InputParams.AllocPolicy   = MFX_ALLOCATION_LIMITED;
+        InputParams.useAllocHints = true;
+    }
+    else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-AllocPolicy::unlimited"))) {
+        InputParams.AllocPolicy   = MFX_ALLOCATION_UNLIMITED;
+        InputParams.useAllocHints = true;
+    }
+    else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-preallocate"))) {
+        VAL_CHECK(i + 1 >= argc, i, argv[i]);
+
+        if (MFX_ERR_NONE != msdk_opt_read(argv[++i], InputParams.preallocate)) {
+            PrintError(MSDK_STRING("preallocate param is invalid"));
+            return MFX_ERR_UNSUPPORTED;
+        }
+    }
     else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-TargetBitDepthLuma"))) {
         VAL_CHECK(i + 1 >= argc, i, argv[i]);
 
@@ -1399,7 +1418,6 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
             return MFX_ERR_UNSUPPORTED;
         }
     }
-#endif
     else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-cs"))) {
         InputParams.CascadeScaler = true;
     }
@@ -1426,6 +1444,19 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
             PrintError(argv[0], MSDK_STRING("IdrInterval is invalid"));
             return MFX_ERR_UNSUPPORTED;
         }
+    }
+    else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-EmbeddedDenoise"))) {
+        VAL_CHECK(i + 1 >= argc, i, argv[i]);
+        if (MFX_ERR_NONE != msdk_opt_read(argv[++i], InputParams.DenoiseMode)) {
+            PrintError(argv[0], MSDK_STRING("DenoiseMode is invalid"));
+            return MFX_ERR_UNSUPPORTED;
+        }
+        VAL_CHECK(i + 1 >= argc, i, argv[i]);
+        if (MFX_ERR_NONE != msdk_opt_read(argv[++i], InputParams.DenoiseLevel)) {
+            PrintError(argv[0], MSDK_STRING("DenoiseLevel is invalid"));
+            return MFX_ERR_UNSUPPORTED;
+        }
+        InputParams.bEmbeddedDenoiser = true;
     }
     else {
         // no matching argument was found
@@ -1540,7 +1571,6 @@ mfxStatus ParseVPPCmdLine(msdk_char* argv[],
         params->DecoderFourCC = MFX_FOURCC_P010;
         return MFX_ERR_NONE;
     }
-#if (MFX_VERSION >= 1031)
     else if (0 == msdk_strcmp(argv[index], MSDK_STRING("-dc::p016"))) {
         params->DecoderFourCC = MFX_FOURCC_P016;
         return MFX_ERR_NONE;
@@ -1561,7 +1591,6 @@ mfxStatus ParseVPPCmdLine(msdk_char* argv[],
         params->EncoderFourCC = MFX_FOURCC_Y216;
         return MFX_ERR_NONE;
     }
-#endif
     else if (0 == msdk_strcmp(argv[index], MSDK_STRING("-dc::rgb4"))) {
         params->DecoderFourCC = MFX_FOURCC_RGB4;
         return MFX_ERR_NONE;
@@ -1574,7 +1603,6 @@ mfxStatus ParseVPPCmdLine(msdk_char* argv[],
         params->DecoderFourCC = MFX_FOURCC_NV12;
         return MFX_ERR_NONE;
     }
-#if (MFX_VERSION >= 1027)
     else if (0 == msdk_strcmp(argv[index], MSDK_STRING("-dc::y210"))) {
         params->DecoderFourCC = MFX_FOURCC_Y210;
         return MFX_ERR_NONE;
@@ -1591,7 +1619,6 @@ mfxStatus ParseVPPCmdLine(msdk_char* argv[],
         params->EncoderFourCC = MFX_FOURCC_Y410;
         return MFX_ERR_NONE;
     }
-#endif
     else if (0 == msdk_strcmp(argv[index], MSDK_STRING("-field_processing"))) {
         VAL_CHECK(index + 1 == argc, index, argv[index]);
         index++;
@@ -1722,7 +1749,6 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
                 InputParams.bIsMVC   = true;
             }
         }
-#if MFX_VERSION >= 1022
         else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-roi_file"))) {
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
@@ -1758,7 +1784,6 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
         else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-extmbqp"))) {
             InputParams.bExtMBQP = true;
         }
-#endif //MFX_VERSION >= 1022
         else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-sw"))) {
             InputParams.libType = MFX_IMPL_SOFTWARE;
         }
@@ -2212,7 +2237,6 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             if (InputParams.eModeExt != VppCompOnly)
                 InputParams.eModeExt = VppCompOnly;
         }
-#if MFX_VERSION >= 1023
         else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-vpp_comp_tile_id"))) {
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
@@ -2221,16 +2245,13 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-#endif
         else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-vpp_comp_render"))) {
             if (InputParams.eModeExt != VppComp)
                 InputParams.eModeExt = VppComp;
         }
-#if MFX_VERSION >= 1022
         else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-dec_postproc"))) {
             InputParams.bDecoderPostProcessing = true;
         }
-#endif //MFX_VERSION >= 1022
         else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-n"))) {
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
@@ -2250,7 +2271,6 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
                 msdk_opt_read(MSDK_CPU_ROTATE_PLUGIN, InputParams.strVPPPluginDLLPath);
             }
         }
-#if (MFX_VERSION >= 1025)
         else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-mfe_frames"))) {
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
@@ -2275,7 +2295,6 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-#endif
         else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-timeout"))) {
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
@@ -2417,7 +2436,6 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
         else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-single_texture_d3d11"))) {
             InputParams.bSingleTexture = true;
         }
-#if (MFX_VERSION >= 1024)
         else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-extbrc::on"))) {
             InputParams.nExtBRC = EXTBRC_ON;
         }
@@ -2427,8 +2445,6 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
         else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-extbrc::implicit"))) {
             InputParams.nExtBRC = EXTBRC_IMPLICIT;
         }
-#endif
-#if (MFX_VERSION >= 1026)
         else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-ExtBrcAdaptiveLTR:on"))) {
             InputParams.ExtBrcAdaptiveLTR = MFX_CODINGOPTION_ON;
         }
@@ -2436,7 +2452,6 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             InputParams.ExtBrcAdaptiveLTR = MFX_CODINGOPTION_OFF;
         }
 
-#endif
         else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-pp"))) {
             InputParams.shouldPrintPresets = true;
         }
@@ -2453,6 +2468,12 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
                 PrintError(MSDK_STRING("Preset Name is invalid"));
                 return MFX_ERR_UNSUPPORTED;
             }
+        }
+        else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-forceSyncAllSession:on"))) {
+            InputParams.forceSyncAllSession = MFX_CODINGOPTION_ON;
+        }
+        else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-forceSyncAllSession:off"))) {
+            InputParams.forceSyncAllSession = MFX_CODINGOPTION_OFF;
         }
         else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-ir_type"))) {
             VAL_CHECK(i + 1 >= argc, i, argv[i]);
@@ -2765,26 +2786,17 @@ mfxStatus CmdProcessor::VerifyAndCorrectInputParams(TranscodingSample::sInputPar
     }
 
     if ((InputParams.nEncTileRows || InputParams.nEncTileCols) &&
-        (InputParams.EncodeId != MFX_CODEC_HEVC)
-#if (MFX_VERSION >= 1029)
-        && (InputParams.EncodeId != MFX_CODEC_VP9)
-#endif
-    ) {
-        msdk_printf(MSDK_STRING("WARNING: -trows and -tcols are only supported for")
-#if (MFX_VERSION >= 1029)
-                        MSDK_STRING(" VP9 and")
-#endif
-                            MSDK_STRING(" HEVC encoder, these parameters will be ignored.\n"));
+        (InputParams.EncodeId != MFX_CODEC_HEVC) && (InputParams.EncodeId != MFX_CODEC_VP9)) {
+        msdk_printf(MSDK_STRING("WARNING: -trows and -tcols are only supported for") MSDK_STRING(
+            " VP9 and") MSDK_STRING(" HEVC encoder, these parameters will be ignored.\n"));
         InputParams.nEncTileRows = 0;
         InputParams.nEncTileCols = 0;
     }
 
-#if (defined(_WIN32) || defined(_WIN64)) && (MFX_VERSION >= 1031)
-    if (InputParams.bPrefferiGfx && InputParams.dGfxIdx >= 0) {
-        msdk_printf(MSDK_STRING("WARNING: both dGfx and iGfx flags set. iGfx will be preffered\n"));
-        InputParams.dGfxIdx = -1;
+    if (InputParams.forceSyncAllSession && InputParams.nMemoryModel == GENERAL_ALLOC) {
+        msdk_printf(MSDK_STRING(
+            "WARNING: forceSyncAllSession option is not valid for general memory type, this parameter will be ignored.\n"));
     }
-#endif
 
     return MFX_ERR_NONE;
 } //mfxStatus CmdProcessor::VerifyAndCorrectInputParams(TranscodingSample::sInputParams &InputParams)

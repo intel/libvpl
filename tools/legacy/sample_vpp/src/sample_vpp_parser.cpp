@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2005 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -44,12 +44,12 @@ void vppPrintHelp(const msdk_char* strAppName, const msdk_char* strErrorMessage)
     msdk_printf(MSDK_STRING(
         "                                  If not specified, defaults to the first Intel device found on the system\n\n"));
 #endif
-#if (defined(_WIN64) || defined(_WIN32)) && (MFX_VERSION >= 1031)
     msdk_printf(MSDK_STRING(
         "   [-dGfx]                     - preffer processing on dGfx (by default system decides)\n"));
     msdk_printf(MSDK_STRING(
         "   [-iGfx]                     - preffer processing on iGfx (by default system decides)\n"));
-#endif
+    msdk_printf(MSDK_STRING(
+        "   [-AdapterNum]               - specifies adpter number for processing, starts from 0\n"));
 #if defined(D3D_SURFACES_SUPPORT)
     msdk_printf(MSDK_STRING("   [-d3d]                      - use d3d9 surfaces\n\n"));
 #endif
@@ -59,15 +59,6 @@ void vppPrintHelp(const msdk_char* strAppName, const msdk_char* strErrorMessage)
 #ifdef LIBVA_SUPPORT
     msdk_printf(MSDK_STRING("   [-vaapi]                    - work with vaapi surfaces\n\n"));
 #endif
-#if (MFX_VERSION < 2000)
-    msdk_printf(MSDK_STRING("   [-plugin_guid GUID]\n"));
-    msdk_printf(
-        MSDK_STRING("   [-p GUID]                   - use VPP plug-in with specified GUID\n\n"));
-#endif
-    msdk_printf(MSDK_STRING(
-        "   [-extapi]                   - use RunFrameVPPAsyncEx instead of RunFrameVPPAsync. Need for PTIR.\n\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-gpu_copy]                 - Specify GPU copy mode. This option triggers using of InitEX instead of Init.\n\n"));
 
     msdk_printf(MSDK_STRING("   [-sw   width]               - width  of src video (def: 352)\n"));
     msdk_printf(MSDK_STRING("   [-sh   height]              - height of src video (def: 288)\n"));
@@ -79,7 +70,7 @@ void vppPrintHelp(const msdk_char* strAppName, const msdk_char* strErrorMessage)
     msdk_printf(
         MSDK_STRING("   [-sf   frameRate]           - frame rate of src video (def: 30.0)\n"));
     msdk_printf(MSDK_STRING(
-        "   [-scc  format]              - format (FourCC) of src video (def: nv12. support i420|nv12|yv12|yuy2|rgb565|rgb3|rgb4|imc3|yuv400|yuv411|yuv422h|yuv422v|yuv444|uyvy|ayuv|p010|y210|y410|p016|y216|y416)\n"));
+        "   [-scc  format]              - format (FourCC) of src video (def: nv12. support i420|nv12|yv12|yuy2|rgb565|rgb3|rgb4|imc3|yuv400|yuv411|yuv422h|yuv422v|yuv444|uyvy|ayuv|i010|p010|y210|y410|p016|y216|y416)\n"));
     msdk_printf(MSDK_STRING(
         "   [-sbitshift 0|1]            - shift data to right or keep it the same way as in Microsoft's P010\n"));
     msdk_printf(MSDK_STRING(
@@ -105,16 +96,8 @@ void vppPrintHelp(const msdk_char* strAppName, const msdk_char* strErrorMessage)
         MSDK_STRING("   [-dcrH  h]                  - cropH  of dst video (def: height)\n"));
     msdk_printf(
         MSDK_STRING("   [-df  frameRate]            - frame rate of dst video (def: 30.0)\n"));
-#if (MFX_VERSION >= 1031)
     msdk_printf(MSDK_STRING(
         "   [-dcc format]               - format (FourCC) of dst video (def: nv12. support i420|nv12|yuy2|rgb4|rgbp|yv12|ayuv|a2rgb10|y210|y410|p016|y216|y416)\n"));
-#elif (MFX_VERSION >= 1027)
-    msdk_printf(MSDK_STRING(
-        "   [-dcc format]               - format (FourCC) of dst video (def: nv12. support i420|nv12|yuy2|rgb4|rgbp|yv12|ayuv|a2rgb10|y210|y410)\n"));
-#else
-    msdk_printf(MSDK_STRING(
-        "   [-dcc format]               - format (FourCC) of dst video (def: nv12. support i420|nv12|yuy2|rgb4|rgbp|yv12|ayuv|a2rgb10)\n"));
-#endif
     msdk_printf(MSDK_STRING(
         "   [-dbitshift 0|1]            - shift data to right or keep it the same way as in Microsoft's P010\n"));
     msdk_printf(MSDK_STRING(
@@ -227,22 +210,24 @@ void vppPrintHelp(const msdk_char* strAppName, const msdk_char* strErrorMessage)
     msdk_printf(MSDK_STRING("                            1 - low power mode\n"));
     msdk_printf(MSDK_STRING("                            2 - quality mode\n\n"));
 
-#if MFX_VERSION >= 1033
     msdk_printf(MSDK_STRING(
         "   [-interpolation_method (method)] - specify interpolation method to be used for resize\n"));
     msdk_printf(MSDK_STRING("                                      0 - default\n"));
     msdk_printf(MSDK_STRING("                                      1 - nearest neighbor\n"));
     msdk_printf(MSDK_STRING("                                      2 - bilinear\n"));
     msdk_printf(MSDK_STRING("                                      3 - advanced\n\n"));
-#endif
 
-    msdk_printf(
-        MSDK_STRING("   [-denoise (level)]  - enable denoise algorithm. Level is optional \n"));
-    msdk_printf(MSDK_STRING("                         range of  noise level is [0, 100]\n"));
-#if MFX_VERSION >= 1025
+    msdk_printf(MSDK_STRING("   [-denoise (level) (mode)]  - enable denoise.\n"));
+    msdk_printf(MSDK_STRING("           mode  - denoise mode\n"));
+    msdk_printf(MSDK_STRING("               0    - default\n"));
+    msdk_printf(MSDK_STRING("               1001 - auto BD rate\n"));
+    msdk_printf(MSDK_STRING("               1002 - auto subjective\n"));
+    msdk_printf(MSDK_STRING("               1003 - auto adjust\n"));
+    msdk_printf(MSDK_STRING("               1004 - manual mode for pre-processing, need level\n"));
+    msdk_printf(MSDK_STRING("               1005 - manual mode for post-processing, need level\n"));
+    msdk_printf(MSDK_STRING("           level - range of noise level is [0, 100]\n"));
     msdk_printf(MSDK_STRING(
         "   [-chroma_siting (vmode hmode)] - specify chroma siting mode for VPP color conversion, allowed values: vtop|vcen|vbot hleft|hcen\n"));
-#endif
 #ifdef ENABLE_MCTF
     #if !defined ENABLE_MCTF_EXT
     msdk_printf(MSDK_STRING("  -mctf [Strength]\n"));
@@ -420,16 +405,6 @@ void vppPrintHelp(const msdk_char* strAppName, const msdk_char* strErrorMessage)
         "   [-reset_start (frame number)] - after reaching this frame, encoder will be reset with new parameters, followed after this command and before -reset_end \n"));
     msdk_printf(MSDK_STRING(
         "   [-reset_end]                  - specifies end of reset related options \n\n"));
-
-#if (MFX_VERSION >= 2000)
-    msdk_printf(MSDK_STRING(
-        "   [-api2x_internalmem]          - specifies internal memory mode of vpl 2.x\n\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-api2x_perf]                 - aligns the measurement with reference tool to compare\n\n"));
-    msdk_printf(
-        MSDK_STRING("   [-api1x_dispatcher]           - specifies 1.x API legacy dispatcher\n\n"));
-#endif
-    msdk_printf(MSDK_STRING("   [-adapterNum n]               - use adapter number n\n"));
     msdk_printf(MSDK_STRING("\n"));
 
     msdk_printf(
@@ -466,11 +441,9 @@ mfxU32 Str2FourCC(msdk_char* strInput) {
     if (0 == msdk_stricmp(strInput, MSDK_STRING("yv12"))) {
         fourcc = MFX_FOURCC_YV12;
     }
-#if (MFX_VERSION >= 1028)
     else if (0 == msdk_stricmp(strInput, MSDK_STRING("rgb565"))) {
         fourcc = MFX_FOURCC_RGB565;
     }
-#endif
     else if (0 == msdk_stricmp(strInput, MSDK_STRING("rgb3"))) {
         fourcc = MFX_FOURCC_RGB3;
     }
@@ -488,7 +461,6 @@ mfxU32 Str2FourCC(msdk_char* strInput) {
     else if (0 == msdk_stricmp(strInput, MSDK_STRING("nv12"))) {
         fourcc = MFX_FOURCC_NV12;
     }
-#if (MFX_VERSION < 2000)
     else if (0 == msdk_stricmp(strInput, MSDK_STRING("imc3"))) {
         fourcc = MFX_FOURCC_IMC3;
     }
@@ -507,12 +479,9 @@ mfxU32 Str2FourCC(msdk_char* strInput) {
     else if (0 == msdk_stricmp(strInput, MSDK_STRING("yuv444"))) {
         fourcc = MFX_FOURCC_YUV444;
     }
-#endif
-#if (MFX_VERSION >= 2000)
     else if (0 == msdk_stricmp(strInput, MSDK_STRING("i010"))) {
         fourcc = MFX_FOURCC_I010;
     }
-#endif
     else if (0 == msdk_stricmp(strInput, MSDK_STRING("p010"))) {
         fourcc = MFX_FOURCC_P010;
     }
@@ -528,15 +497,12 @@ mfxU32 Str2FourCC(msdk_char* strInput) {
     else if (0 == msdk_stricmp(strInput, MSDK_STRING("uyvy"))) {
         fourcc = MFX_FOURCC_UYVY;
     }
-#if (MFX_VERSION >= 1027)
     else if (0 == msdk_stricmp(strInput, MSDK_STRING("y210"))) {
         fourcc = MFX_FOURCC_Y210;
     }
     else if (0 == msdk_stricmp(strInput, MSDK_STRING("y410"))) {
         fourcc = MFX_FOURCC_Y410;
     }
-#endif
-#if (MFX_VERSION >= 1031)
     else if (0 == msdk_stricmp(strInput, MSDK_STRING("p016"))) {
         fourcc = MFX_FOURCC_P016;
     }
@@ -546,7 +512,6 @@ mfxU32 Str2FourCC(msdk_char* strInput) {
     else if (0 == msdk_stricmp(strInput, MSDK_STRING("y416"))) {
         fourcc = MFX_FOURCC_Y416;
     }
-#endif
     else if (0 == msdk_stricmp(strInput, MSDK_STRING("i420"))) {
         fourcc = MFX_FOURCC_I420;
     }
@@ -900,6 +865,14 @@ mfxStatus vppParseResetPar(msdk_char* strInput[],
                                            reinterpret_cast<short int*>(&readData));
                     if (ioStatus > 0) {
                         pParams->denoiseParam[paramID].factor = (mfxU16)readData;
+                        pParams->denoiseParam[paramID].mode   = VPP_FILTER_ENABLED_CONFIGURED;
+                        i++;
+                    }
+                    ioStatus = msdk_sscanf(strInput[i + 1],
+                                           MSDK_STRING("%hd"),
+                                           reinterpret_cast<short int*>(&readData));
+                    if (ioStatus > 0) {
+                        pParams->denoiseParam[paramID].config = (mfxU16)readData;
                         pParams->denoiseParam[paramID].mode   = VPP_FILTER_ENABLED_CONFIGURED;
                         i++;
                     }
@@ -1289,12 +1262,6 @@ mfxStatus vppParseInputString(msdk_char* strInput[],
                 i++;
                 msdk_sscanf(strInput[i], MSDK_STRING("%hu"), &pParams->mirroringParam[0].Type);
             }
-            else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-gpu_copy"))) {
-                VAL_CHECK(1 + i == nArgNum);
-                i++;
-                pParams->bInitEx = true;
-                msdk_sscanf(strInput[i], MSDK_STRING("%hu"), &pParams->GPUCopyValue);
-            }
             else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-sw"))) {
                 VAL_CHECK(1 + i == nArgNum);
                 i++;
@@ -1394,6 +1361,14 @@ mfxStatus vppParseInputString(msdk_char* strInput[],
                         pParams->denoiseParam[0].mode   = VPP_FILTER_ENABLED_CONFIGURED;
                         i++;
                     }
+                    ioStatus = msdk_sscanf(strInput[i + 1],
+                                           MSDK_STRING("%hd"),
+                                           reinterpret_cast<short int*>(&readData));
+                    if (ioStatus > 0) {
+                        pParams->denoiseParam[0].config = (mfxU16)readData;
+                        pParams->denoiseParam[0].mode   = VPP_FILTER_ENABLED_CONFIGURED;
+                        i++;
+                    }
                 }
             }
 #ifdef ENABLE_MCTF
@@ -1477,15 +1452,12 @@ mfxStatus vppParseInputString(msdk_char* strInput[],
                 pParams->bScaling = true;
                 msdk_sscanf(strInput[i], MSDK_STRING("%hu"), &pParams->scalingMode);
             }
-#if MFX_VERSION >= 1033
             else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-interpolation_method"))) {
                 VAL_CHECK(1 + i == nArgNum);
                 i++;
                 pParams->bScaling = true;
                 msdk_sscanf(strInput[i], MSDK_STRING("%hu"), &pParams->interpolationMethod);
             }
-#endif
-#if MFX_VERSION >= 1025
             else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-chroma_siting"))) {
                 VAL_CHECK(2 + i == nArgNum);
                 bool bVfound = false;
@@ -1523,7 +1495,6 @@ mfxStatus vppParseInputString(msdk_char* strInput[],
                 }
                 i++;
             }
-#endif
             else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-composite"))) {
                 if (i + 1 < nArgNum) {
                     if (ParseCompositionParfile(strInput[i + 1], pParams) != MFX_ERR_NONE) {
@@ -1785,7 +1756,6 @@ mfxStatus vppParseInputString(msdk_char* strInput[],
                 i++;
                 pParams->frameInfoOut[0].FourCC = Str2FourCC(strInput[i]);
                 pParams->forcedOutputFourcc     = 0;
-
                 if (MFX_FOURCC_I420 == pParams->frameInfoOut[0].FourCC ||
                     MFX_FOURCC_YV12 == pParams->frameInfoOut[0].FourCC) {
                     pParams->forcedOutputFourcc = pParams->frameInfoOut[0].FourCC;
@@ -1858,24 +1828,37 @@ mfxStatus vppParseInputString(msdk_char* strInput[],
                 pParams->strDevicePath = strInput[++i];
             }
 #endif
-#if (defined(_WIN64) || defined(_WIN32)) && (MFX_VERSION >= 1031)
             else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-dGfx"))) {
-                pParams->bPrefferdGfx = true;
+                pParams->adapterType = mfxMediaAdapterType::MFX_MEDIA_DISCRETE;
+                if (i + 1 < nArgNum && isdigit(*strInput[1 + i])) {
+                    if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->dGfxIdx)) {
+                        msdk_printf(MSDK_STRING("value of -dGfx is invalid"));
+                        return MFX_ERR_UNSUPPORTED;
+                    }
+                }
             }
             else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-iGfx"))) {
-                pParams->bPrefferiGfx = true;
+                pParams->adapterType = mfxMediaAdapterType::MFX_MEDIA_INTEGRATED;
             }
-#endif
+            else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-AdapterNum"))) {
+                VAL_CHECK(1 + i == nArgNum);
+                i++;
+                msdk_sscanf(strInput[i],
+                            MSDK_STRING("%d"),
+                            reinterpret_cast<mfxI32*>(&pParams->adapterNum));
+            }
 #if defined(D3D_SURFACES_SUPPORT)
             else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-d3d"))) {
                 pParams->IOPattern = MFX_IOPATTERN_IN_VIDEO_MEMORY | MFX_IOPATTERN_OUT_VIDEO_MEMORY;
                 pParams->ImpLib |= MFX_IMPL_VIA_D3D9;
+                pParams->accelerationMode = MFX_ACCEL_MODE_VIA_D3D9;
             }
 #endif
 #if MFX_D3D11_SUPPORT
             else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-d3d11"))) {
                 pParams->IOPattern = MFX_IOPATTERN_IN_VIDEO_MEMORY | MFX_IOPATTERN_OUT_VIDEO_MEMORY;
                 pParams->ImpLib |= MFX_IMPL_VIA_D3D11;
+                pParams->accelerationMode = MFX_ACCEL_MODE_VIA_D3D11;
             }
 #endif
 #ifdef LIBVA_SUPPORT
@@ -1883,6 +1866,7 @@ mfxStatus vppParseInputString(msdk_char* strInput[],
                      0 == msdk_strcmp(strInput[i], MSDK_STRING("-d3d"))) {
                 pParams->IOPattern = MFX_IOPATTERN_IN_VIDEO_MEMORY | MFX_IOPATTERN_OUT_VIDEO_MEMORY;
                 pParams->ImpLib |= MFX_IMPL_VIA_VAAPI;
+                pParams->accelerationMode = MFX_ACCEL_MODE_VIA_VAAPI;
             }
 #endif
             else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-async"))) {
@@ -1928,31 +1912,6 @@ mfxStatus vppParseInputString(msdk_char* strInput[],
                             MSDK_STRING("%hd"),
                             reinterpret_cast<short int*>(&pParams->numFrames));
             }
-#if (MFX_VERSION < 2000)
-            else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-p"))) {
-                VAL_CHECK(1 + i == nArgNum);
-                i++;
-                msdk_strncopy_s(pParams->strPlgGuid,
-                                MSDK_MAX_FILENAME_LEN,
-                                strInput[i],
-                                MSDK_MAX_FILENAME_LEN - 1);
-                pParams->strPlgGuid[MSDK_MAX_FILENAME_LEN - 1] = 0;
-                pParams->need_plugin                           = true;
-            }
-            else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-plugin_guid"))) {
-                VAL_CHECK(1 + i == nArgNum);
-                i++;
-                msdk_strncopy_s(pParams->strPlgGuid,
-                                MSDK_MAX_FILENAME_LEN,
-                                strInput[i],
-                                MSDK_MAX_FILENAME_LEN - 1);
-                pParams->strPlgGuid[MSDK_MAX_FILENAME_LEN - 1] = 0;
-                pParams->need_plugin                           = true;
-            }
-#endif
-            else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-extapi"))) {
-                pParams->use_extapi = true;
-            }
             else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-reset_start"))) {
                 VAL_CHECK(1 + i == nArgNum);
                 msdk_sscanf(strInput[i + 1],
@@ -1970,35 +1929,9 @@ mfxStatus vppParseInputString(msdk_char* strInput[],
                                                      pDefaultFiltersParam))
                     return MFX_ERR_UNKNOWN;
             }
-#if (MFX_VERSION >= 2000)
-            else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-api2x_internalmem"))) {
-                pParams->api2xInternalMem = true;
-            }
-            else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-api2x_dispatcher"))) {
-                pParams->api2xDispatcher = true;
-            }
-            else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-api2x_lowlatency"))) {
-                pParams->api2xLowLatency = true;
-            }
-            else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-api2x_perf"))) {
-                pParams->api2xPerf = true;
-            }
-            else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-api1x_dispatcher"))) {
-                pParams->api1xDispatcher = true;
-            }
-#endif
             else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-cf_disable"))) {
                 pParams->colorfillParam[0].mode   = VPP_FILTER_ENABLED_CONFIGURED;
                 pParams->colorfillParam[0].Enable = MFX_CODINGOPTION_OFF;
-            }
-            else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-adapterNum"))) {
-                if (i + 1 >= nArgNum) {
-                    return MFX_ERR_UNSUPPORTED;
-                }
-                if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->adapterNum)) {
-                    return MFX_ERR_UNSUPPORTED;
-                }
-                pParams->bUseAdapterNum = true;
             }
             else {
                 msdk_printf(MSDK_STRING("Unknown option: %s\n"), strInput[i]);
@@ -2008,12 +1941,14 @@ mfxStatus vppParseInputString(msdk_char* strInput[],
         }
     }
 
-    if ((pParams->ImpLib & MFX_IMPL_HARDWARE) && !(pParams->ImpLib & MFX_IMPL_VIA_D3D11)) {
-        pParams->ImpLib = MFX_IMPL_HARDWARE |
+    if ((pParams->ImpLib & MFX_IMPL_HARDWARE) && !(pParams->ImpLib & MFX_IMPL_VIA_D3D9)) {
+        pParams->ImpLib = MFX_IMPL_HARDWARE;
 #ifdef LIBVA_SUPPORT
-                          MFX_IMPL_VIA_VAAPI;
+        pParams->ImpLib |= MFX_IMPL_VIA_VAAPI;
+        pParams->accelerationMode = MFX_ACCEL_MODE_VIA_VAAPI;
 #else
-                          MFX_IMPL_VIA_D3D11;
+        pParams->ImpLib |= MFX_IMPL_VIA_D3D11;
+        pParams->accelerationMode = MFX_ACCEL_MODE_VIA_D3D11;
 #endif
     }
 
@@ -2049,15 +1984,11 @@ mfxStatus vppParseInputString(msdk_char* strInput[],
 
     if (1 != pParams->strDstFiles.size() &&
         (pParams->resetFrmNums.size() + 1) != pParams->strDstFiles.size()) {
-#if (MFX_VERSION < 2000)
         vppPrintHelp(
             strInput[0],
             MSDK_STRING(
                 "Destination file name should be declared once or for each parameter set (reset case)"));
         return MFX_ERR_UNSUPPORTED;
-#else
-        msdk_printf(MSDK_STRING("Destination file is not declared"));
-#endif
     };
 
     if (0 == pParams->IOPattern) {
@@ -2070,32 +2001,6 @@ mfxStatus vppParseInputString(msdk_char* strInput[],
         msdk_printf(MSDK_STRING(
             "Warning: IOPattern has been reset to 'sys_to_sys' mode because software library implementation is selected."));
         pParams->IOPattern = MFX_IOPATTERN_IN_SYSTEM_MEMORY | MFX_IOPATTERN_OUT_SYSTEM_MEMORY;
-    }
-
-#if (defined(_WIN64) || defined(_WIN32)) && (MFX_VERSION >= 1031)
-    if (pParams->bPrefferdGfx && pParams->bPrefferiGfx) {
-        msdk_printf(MSDK_STRING("Warning: both dGfx and iGfx flags set. iGfx will be preffered"));
-        pParams->bPrefferdGfx = false;
-    }
-#endif
-
-    if (pParams->api2xLowLatency == true) {
-        if (pParams->api2xDispatcher == false) {
-            msdk_printf(MSDK_STRING(
-                "Warning: enabling -api2x_dispatcher because -api2x_lowlatency is set\n"));
-            pParams->api2xDispatcher = true;
-        }
-
-        if (!(pParams->ImpLib & MFX_IMPL_HARDWARE)) {
-            msdk_printf(MSDK_STRING("error: -api2x_lowlatency requires -lib hw\n"));
-            return MFX_ERR_UNSUPPORTED;
-        }
-
-        if ((pParams->ImpLib & IMPL_VIA_MASK) != MFX_IMPL_VIA_D3D11) {
-            msdk_printf(
-                MSDK_STRING("Warning: setting ImpLib to D3D11 because -api2x_lowlatency is set\n"));
-            pParams->ImpLib = MFX_IMPL_HARDWARE | MFX_IMPL_VIA_D3D11;
-        }
     }
 
     // Align values of luma and chroma bit depth if only one of them set by user

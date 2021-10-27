@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2005 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -23,15 +23,11 @@
     #define D3DFMT_P210 (D3DFORMAT) MAKEFOURCC('P', '2', '1', '0')
     #define D3DFMT_IMC3 (D3DFORMAT) MAKEFOURCC('I', 'M', 'C', '3')
     #define D3DFMT_AYUV (D3DFORMAT) MAKEFOURCC('A', 'Y', 'U', 'V')
-    #if (MFX_VERSION >= 1027)
-        #define D3DFMT_Y210 (D3DFORMAT) MAKEFOURCC('Y', '2', '1', '0')
-        #define D3DFMT_Y410 (D3DFORMAT) MAKEFOURCC('Y', '4', '1', '0')
-    #endif
-    #if (MFX_VERSION >= 1031)
-        #define D3DFMT_P016 (D3DFORMAT) MAKEFOURCC('P', '0', '1', '6')
-        #define D3DFMT_Y216 (D3DFORMAT) MAKEFOURCC('Y', '2', '1', '6')
-        #define D3DFMT_Y416 (D3DFORMAT) MAKEFOURCC('Y', '4', '1', '6')
-    #endif
+    #define D3DFMT_Y210 (D3DFORMAT) MAKEFOURCC('Y', '2', '1', '0')
+    #define D3DFMT_Y410 (D3DFORMAT) MAKEFOURCC('Y', '4', '1', '0')
+    #define D3DFMT_P016 (D3DFORMAT) MAKEFOURCC('P', '0', '1', '6')
+    #define D3DFMT_Y216 (D3DFORMAT) MAKEFOURCC('Y', '2', '1', '6')
+    #define D3DFMT_Y416 (D3DFORMAT) MAKEFOURCC('Y', '4', '1', '6')
 
     #define MFX_FOURCC_IMC3  \
         (MFX_MAKEFOURCC('I', \
@@ -61,20 +57,16 @@ D3DFORMAT ConvertMfxFourccToD3dFormat(mfxU32 fourcc) {
             return D3DFMT_AYUV;
         case MFX_FOURCC_P210:
             return D3DFMT_P210;
-    #if (MFX_VERSION >= 1027)
         case MFX_FOURCC_Y210:
             return D3DFMT_Y210;
         case MFX_FOURCC_Y410:
             return D3DFMT_Y410;
-    #endif
-    #if (MFX_VERSION >= 1031)
         case MFX_FOURCC_P016:
             return D3DFMT_P016;
         case MFX_FOURCC_Y216:
             return D3DFMT_Y216;
         case MFX_FOURCC_Y416:
             return D3DFMT_Y416;
-    #endif
         case MFX_FOURCC_A2RGB10:
             return D3DFMT_A2R10G10B10;
         case MFX_FOURCC_ABGR16:
@@ -88,13 +80,13 @@ D3DFORMAT ConvertMfxFourccToD3dFormat(mfxU32 fourcc) {
 }
 
 D3DFrameAllocator::D3DFrameAllocator()
-        : m_decoderService(0),
+        : m_midsAllocated(),
+          m_decoderService(0),
           m_processorService(0),
           m_hDecoder(0),
           m_hProcessor(0),
           m_manager(0),
-          m_surfaceUsage(0),
-          m_midsAllocated() {}
+          m_surfaceUsage(0) {}
 
 D3DFrameAllocator::~D3DFrameAllocator() {
     Close();
@@ -148,15 +140,9 @@ mfxStatus D3DFrameAllocator::LockFrame(mfxMemId mid, mfxFrameData* ptr) {
         desc.Format != D3DFMT_R8G8B8 && desc.Format != D3DFMT_A8R8G8B8 &&
         desc.Format != D3DFMT_P8 && desc.Format != D3DFMT_P010 &&
         desc.Format != D3DFMT_A2R10G10B10 && desc.Format != D3DFMT_A16B16G16R16 &&
-        desc.Format != D3DFMT_IMC3 && desc.Format != D3DFMT_AYUV
-    #if (MFX_VERSION >= 1027)
-        && desc.Format != D3DFMT_Y210
-    #endif
-    #if (MFX_VERSION >= 1031)
-        && desc.Format != D3DFMT_P016 && desc.Format != D3DFMT_Y216 && desc.Format != D3DFMT_Y410 &&
-        desc.Format != D3DFMT_Y416
-    #endif
-    )
+        desc.Format != D3DFMT_IMC3 && desc.Format != D3DFMT_AYUV && desc.Format != D3DFMT_Y210 &&
+        desc.Format != D3DFMT_P016 && desc.Format != D3DFMT_Y216 && desc.Format != D3DFMT_Y410 &&
+        desc.Format != D3DFMT_Y416)
         return MFX_ERR_LOCK_MEMORY;
 
     D3DLOCKED_RECT locked;
@@ -168,9 +154,7 @@ mfxStatus D3DFrameAllocator::LockFrame(mfxMemId mid, mfxFrameData* ptr) {
     switch ((DWORD)desc.Format) {
         case D3DFMT_NV12:
         case D3DFMT_P010:
-    #if (MFX_VERSION >= 1031)
         case D3DFMT_P016:
-    #endif
             ptr->Pitch = (mfxU16)locked.Pitch;
             ptr->Y     = (mfxU8*)locked.pBits;
             ptr->U     = (mfxU8*)locked.pBits + desc.Height * locked.Pitch;
@@ -229,7 +213,6 @@ mfxStatus D3DFrameAllocator::LockFrame(mfxMemId mid, mfxFrameData* ptr) {
             ptr->Y     = ptr->V + 2;
             ptr->A     = ptr->V + 3;
             break;
-    #if (MFX_VERSION >= 1031)
         case D3DFMT_Y416:
             ptr->Pitch = (mfxU16)locked.Pitch;
             ptr->U16   = (mfxU16*)locked.pBits;
@@ -238,8 +221,6 @@ mfxStatus D3DFrameAllocator::LockFrame(mfxMemId mid, mfxFrameData* ptr) {
             ptr->A     = (mfxU8*)(ptr->V16 + 1);
             break;
         case D3DFMT_Y216:
-    #endif
-    #if (MFX_VERSION >= 1027)
         case D3DFMT_Y210:
             ptr->Pitch = (mfxU16)locked.Pitch;
             ptr->Y16   = (mfxU16*)locked.pBits;
@@ -253,7 +234,6 @@ mfxStatus D3DFrameAllocator::LockFrame(mfxMemId mid, mfxFrameData* ptr) {
             ptr->V     = 0;
             ptr->A     = 0;
             break;
-    #endif
     }
 
     return MFX_ERR_NONE;
@@ -309,13 +289,16 @@ mfxStatus D3DFrameAllocator::ReleaseResponse(mfxFrameAllocResponse* response) {
 
     if (response->mids) {
         for (mfxU32 i = 0; i < response->NumFrameActual; i++) {
-            mfxHDLPair* dxMids = (mfxHDLPair*)response->mids[i];
-            if (dxMids) {
+            if (response->mids[i]) {
+                mfxHDLPair* dxMids = (mfxHDLPair*)response->mids[i];
+                if (!dxMids) {
+                    return MFX_ERR_NULL_PTR;
+                }
                 if (dxMids->first) {
                     static_cast<IDirect3DSurface9*>(dxMids->first)->Release();
                 }
+                MSDK_SAFE_FREE(dxMids);
             }
-            MSDK_SAFE_FREE(dxMids);
         }
     }
 
@@ -345,7 +328,7 @@ mfxStatus D3DFrameAllocator::AllocImpl(mfxFrameAllocRequest* request,
 
     if (format == D3DFMT_UNKNOWN) {
         msdk_printf(MSDK_STRING("D3D Allocator: invalid fourcc is provided (%#X), exitting\n"),
-                    request->Info.FourCC);
+                    (unsigned int)request->Info.FourCC);
         return MFX_ERR_UNSUPPORTED;
     }
 
@@ -392,6 +375,7 @@ mfxStatus D3DFrameAllocator::AllocImpl(mfxFrameAllocRequest* request,
     }
 
     mfxHDLPair** dxMidPtrs = (mfxHDLPair**)calloc(request->NumFrameSuggested, sizeof(mfxHDLPair*));
+
     if (!dxMidPtrs)
         return MFX_ERR_MEMORY_ALLOC;
 
@@ -424,12 +408,8 @@ mfxStatus D3DFrameAllocator::AllocImpl(mfxFrameAllocRequest* request,
         }
     }
     else {
-        std::unique_ptr<IDirect3DSurface9*[]> dxSrf(
-            new (std::nothrow) IDirect3DSurface9*[request->NumFrameSuggested]);
-        if (!dxSrf.get()) {
-            DeallocateMids(dxMidPtrs, request->NumFrameSuggested);
-            return MFX_ERR_MEMORY_ALLOC;
-        }
+        std::vector<IDirect3DSurface9*> dxSrf(request->NumFrameSuggested, nullptr);
+
         hr = videoService->CreateSurface(request->Info.Width,
                                          request->Info.Height,
                                          request->NumFrameSuggested - 1,
@@ -437,7 +417,7 @@ mfxStatus D3DFrameAllocator::AllocImpl(mfxFrameAllocRequest* request,
                                          D3DPOOL_DEFAULT,
                                          m_surfaceUsage,
                                          target,
-                                         dxSrf.get(),
+                                         dxSrf.data(),
                                          NULL);
         if (FAILED(hr)) {
             DeallocateMids(dxMidPtrs, request->NumFrameSuggested);

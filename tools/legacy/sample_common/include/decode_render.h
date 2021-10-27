@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2005 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -14,6 +14,7 @@
     #include <dxva.h>
     #include <dxva2api.h>
     #include <windows.h>
+
 #endif
 
 #include "vpl/mfxstructures.h"

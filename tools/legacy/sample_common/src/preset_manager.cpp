@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2005 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -17,7 +17,7 @@ msdk_string CPresetManager::modesName[PRESET_MAX_MODES] = {
     MSDK_STRING("Gaming"),
 };
 
-//GopRefDist, TargetUsage, RateControlMethod, ExtBRCType, AsyncDepth, BRefType
+//GopRefDist, TargetUsage, RateControlMethod, ExtBRCType, AsyncDepth, BRefType, EncTools
 // AdaptiveMaxFrameSize, LowDelayBRC, IntRefType, IntRefCycleSize, IntRefQPDelta, IntRefCycleDist, WeightedPred, WeightedBiPred, EnableBPyramid, EnablePPyramid
 
 CPresetParameters CPresetManager::presets[PRESET_MAX_MODES][PRESET_MAX_CODECS] = {
@@ -34,6 +34,7 @@ CPresetParameters CPresetManager::presets[PRESET_MAX_MODES][PRESET_MAX_CODECS] =
         0,
         0,
         0,
+        0,
         MFX_WEIGHTED_PRED_UNKNOWN,
         MFX_WEIGHTED_PRED_UNKNOWN,
         0,
@@ -43,6 +44,7 @@ CPresetParameters CPresetManager::presets[PRESET_MAX_MODES][PRESET_MAX_CODECS] =
         MFX_RATECONTROL_VBR,
         EXTBRC_DEFAULT,
         4,
+        0,
         0,
         0,
         0,
@@ -68,6 +70,7 @@ CPresetParameters CPresetManager::presets[PRESET_MAX_MODES][PRESET_MAX_CODECS] =
           0,
           0,
           0,
+          0,
           MFX_WEIGHTED_PRED_UNKNOWN,
           MFX_WEIGHTED_PRED_UNKNOWN,
           0,
@@ -77,6 +80,7 @@ CPresetParameters CPresetManager::presets[PRESET_MAX_MODES][PRESET_MAX_CODECS] =
           MFX_RATECONTROL_QVBR,
           EXTBRC_DEFAULT,
           1,
+          0,
           0,
           0,
           0,
@@ -103,6 +107,7 @@ CPresetParameters CPresetManager::presets[PRESET_MAX_MODES][PRESET_MAX_CODECS] =
           0,
           0,
           0,
+          0,
           MFX_WEIGHTED_PRED_UNKNOWN,
           MFX_WEIGHTED_PRED_UNKNOWN,
           0,
@@ -112,6 +117,7 @@ CPresetParameters CPresetManager::presets[PRESET_MAX_MODES][PRESET_MAX_CODECS] =
           MFX_RATECONTROL_VBR,
           EXTBRC_ON,
           1,
+          0,
           0,
           0,
           0,
@@ -132,6 +138,7 @@ CPresetParameters CPresetManager::presets[PRESET_MAX_MODES][PRESET_MAX_CODECS] =
           EXTBRC_DEFAULT,
           1,
           0,
+          0,
           MFX_CODINGOPTION_ON,
           MFX_CODINGOPTION_ON,
           MFX_REFRESH_HORIZONTAL,
@@ -147,6 +154,7 @@ CPresetParameters CPresetManager::presets[PRESET_MAX_MODES][PRESET_MAX_CODECS] =
           MFX_RATECONTROL_VBR,
           EXTBRC_ON,
           1,
+          0,
           0,
           MFX_CODINGOPTION_ON,
           MFX_CODINGOPTION_ON,

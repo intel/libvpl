@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2005 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -111,9 +111,9 @@ mfxStatus BaseFrameAllocator::AllocFrames(mfxFrameAllocRequest* request,
         UniqueResponse checker(*response, request->Info.Width, request->Info.Height, request->Type);
         for (; it != et; ++it) {
             // same decoder and same size
-            if (request->AllocId == it->m_resp.AllocId && checker(*it)) {
+            if (request->AllocId == it->AllocId && checker(*it)) {
                 // check if enough frames were allocated
-                if (request->NumFrameSuggested > it->m_resp.NumFrameActual)
+                if (request->NumFrameSuggested > it->NumFrameActual)
                     return MFX_ERR_MEMORY_ALLOC;
 
                 it->m_refCount++;
@@ -162,10 +162,9 @@ mfxStatus BaseFrameAllocator::FreeFrames(mfxFrameAllocResponse* response) {
     mfxStatus sts = MFX_ERR_NONE;
 
     // check whether response is an external decoder response
-    std::list<UniqueResponse>::iterator i =
-        std::find_if(m_ExtResponses.begin(),
-                     m_ExtResponses.end(),
-                     std::bind(IsUniqueSame(), *response, std::placeholders::_1));
+    std::list<UniqueResponse>::iterator i = std::find_if(m_ExtResponses.begin(),
+                                                         m_ExtResponses.end(),
+                                                         std::bind1st(IsSame(), *response));
 
     if (i != m_ExtResponses.end()) {
         if ((--i->m_refCount) == 0) {
@@ -177,9 +176,7 @@ mfxStatus BaseFrameAllocator::FreeFrames(mfxFrameAllocResponse* response) {
 
     // if not found so far, then search in internal responses
     std::list<mfxFrameAllocResponse>::iterator i2 =
-        std::find_if(m_responses.begin(),
-                     m_responses.end(),
-                     std::bind(IsSame(), *response, std::placeholders::_1));
+        std::find_if(m_responses.begin(), m_responses.end(), std::bind1st(IsSame(), *response));
 
     if (i2 != m_responses.end()) {
         sts = ReleaseResponse(response);
@@ -196,7 +193,7 @@ mfxStatus BaseFrameAllocator::Close() {
 
     std::list<UniqueResponse>::iterator i;
     for (i = m_ExtResponses.begin(); i != m_ExtResponses.end(); i++) {
-        ReleaseResponse(&i->m_resp);
+        ReleaseResponse(&*i);
     }
     m_ExtResponses.clear();
 

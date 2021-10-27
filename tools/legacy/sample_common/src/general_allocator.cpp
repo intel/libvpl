@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2005 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -11,6 +11,7 @@
 #if defined(_WIN32) || defined(_WIN64)
     #include "d3d11_allocator.h"
     #include "d3d_allocator.h"
+
 #else
     #include <stdarg.h>
     #include "vaapi_allocator.h"
@@ -22,7 +23,7 @@
 
 // Wrapper on standard allocator for concurrent allocation of
 // D3D and system surfaces
-GeneralAllocator::GeneralAllocator() : m_Mids(){};
+GeneralAllocator::GeneralAllocator(){};
 GeneralAllocator::~GeneralAllocator(){};
 mfxStatus GeneralAllocator::Init(mfxAllocatorParams* pParams) {
     mfxStatus sts = MFX_ERR_NONE;

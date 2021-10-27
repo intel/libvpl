@@ -1,62 +1,58 @@
 # ##############################################################################
-# Copyright (C) Intel Corporation
+# Copyright (C) 2005 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 # ##############################################################################
-cmake_minimum_required(VERSION 3.10.2)
-
-set(TARGET sample_common)
-
-set(sources "")
-list(
-  APPEND
-  sources
-  src/base_allocator.cpp
-  src/decode_render.cpp
-  src/mfx_buffering.cpp
-  src/sysmem_allocator.cpp
-  src/general_allocator.cpp
-  src/sample_utils.cpp
-  src/plugin_utils.cpp
-  src/preset_manager.cpp
-  src/parameters_dumper.cpp
-  src/vpl_implementation_loader.cpp
-  src/vm/atomic.cpp
-  src/vm/time.cpp)
-
-if(UNIX)
-  list(
-    APPEND
-    sources
-    src/vaapi_utils.cpp
-    src/vaapi_device.cpp
-    src/vaapi_allocator.cpp
-    src/vm/time_linux.cpp
-    src/vm/atomic_linux.cpp
-    src/vm/thread_linux.cpp
-    src/vaapi_utils_x11.cpp
-    src/vaapi_utils_drm.cpp)
-else()
-  list(
-    APPEND
-    sources
-    src/d3d11_allocator.cpp
-    src/d3d11_device.cpp
-    src/d3d_allocator.cpp
-    src/vm/thread_windows.cpp
-    src/d3d_device.cpp)
-endif()
 
 set(CMAKE_POSITION_INDEPENDENT_CODE true)
-add_library(${TARGET} STATIC ${sources})
+add_library(sample_common STATIC)
+
+target_sources(
+  sample_common
+  PRIVATE src/avc_bitstream.cpp
+          src/avc_nal_spl.cpp
+          src/avc_spl.cpp
+          src/base_allocator.cpp
+          src/brc_routines.cpp
+          src/d3d11_allocator.cpp
+          src/d3d11_device.cpp
+          src/d3d_allocator.cpp
+          src/d3d_device.cpp
+          src/decode_render.cpp
+          src/general_allocator.cpp
+          src/mfx_buffering.cpp
+          src/parameters_dumper.cpp
+          src/plugin_utils.cpp
+          src/preset_manager.cpp
+          src/sample_utils.cpp
+          src/sysmem_allocator.cpp
+          src/v4l2_util.cpp
+          src/vaapi_allocator.cpp
+          src/vaapi_device.cpp
+          src/vaapi_utils_android.cpp
+          src/vaapi_utils.cpp
+          src/vaapi_utils_drm.cpp
+          src/vaapi_utils_x11.cpp
+          src/vpl_implementation_loader.cpp
+          src/vpp_ex.cpp
+          src/vm/atomic.cpp
+          src/vm/atomic_linux.cpp
+          src/vm/shared_object.cpp
+          src/vm/shared_object_linux.cpp
+          src/vm/thread_linux.cpp
+          src/vm/thread_windows.cpp
+          src/vm/time.cpp
+          src/vm/time_linux.cpp)
+
 target_include_directories(
-  ${TARGET} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+  sample_common PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
+                       ${CMAKE_CURRENT_SOURCE_DIR}/include/vm)
 
 if(MSVC)
-  add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+  target_compile_definitions(sample_common PUBLIC _CRT_SECURE_NO_WARNINGS)
 endif()
 
-add_definitions(-DMFX_DEPRECATED_OFF)
+target_compile_definitions(sample_common PUBLIC MFX_DEPRECATED_OFF)
 
 if(POLICY CMP0074)
   # ignore warning of VPL_ROOT in find_package search path
@@ -64,33 +60,48 @@ if(POLICY CMP0074)
 endif()
 
 find_package(VPL REQUIRED)
-target_link_libraries(${TARGET} VPL::dispatcher media_sdk_compatibility_headers)
+target_link_libraries(sample_common PUBLIC VPL::dispatcher
+                                           media_sdk_compatibility_headers)
 
-if(UNIX)
+if(CMAKE_SYSTEM_NAME MATCHES Linux)
+  target_compile_definitions(sample_common PUBLIC LINUX64)
+
   find_package(PkgConfig REQUIRED)
   # note: pkg-config version for libva is *API* version
-  pkg_check_modules(PKG_LIBVA libva>=1.2 libva-drm>=1.2)
-  pkg_check_modules(PKG_LIBDRM libdrm)
-  pkg_check_modules(PKG_X11 x11)
-  pkg_check_modules(PKG_LIBVA_X11 libva-x11>=1.10.0)
-  pkg_check_modules(PKG_XCB xcb xcb-dri3 x11-xcb xcb-present)
-  pkg_check_modules(PKG_WAYLAND_CLIENT wayland-client)
-  if(PKG_LIBVA_FOUND)
-    target_compile_definitions(${TARGET} PUBLIC -DLIBVA_SUPPORT)
-    target_include_directories(${TARGET} PUBLIC ${PKG_LIBVA_INCLUDE_DIRS})
+  pkg_check_modules(PKG_LIBVA QUIET libva>=1.2 IMPORTED_TARGET GLOBAL)
+  pkg_check_modules(PKG_LIBVA_DRM QUIET libva-drm>=1.2 IMPORTED_TARGET GLOBAL)
+  pkg_check_modules(PKG_LIBDRM QUIET libdrm>=2.4.91 IMPORTED_TARGET GLOBAL)
+  pkg_check_modules(PKG_X11 QUIET x11 IMPORTED_TARGET GLOBAL)
+  pkg_check_modules(PKG_LIBVA_X11 QUIET libva-x11>=1.10.0 IMPORTED_TARGET
+                    GLOBAL)
+  pkg_check_modules(
+    PKG_XCB
+    QUIET
+    xcb
+    xcb-dri3
+    x11-xcb
+    xcb-present
+    IMPORTED_TARGET
+    GLOBAL)
+  pkg_check_modules(PKG_WAYLAND_CLIENT QUIET wayland-client IMPORTED_TARGET
+                    GLOBAL)
+  pkg_check_modules(PKG_LIBWAYLAND QUIET libwayland IMPORTED_TARGET GLOBAL)
+
+  if(PKG_LIBVA_FOUND AND PKG_LIBVA_DRM_FOUND)
+    target_compile_definitions(sample_common PUBLIC LIBVA_SUPPORT)
+    target_link_libraries(sample_common PUBLIC PkgConfig::PKG_LIBVA
+                                               PkgConfig::PKG_LIBVA_DRM)
 
     if(PKG_LIBDRM_FOUND)
-      target_compile_definitions(${TARGET} PUBLIC -DLIBVA_DRM_SUPPORT)
-      target_include_directories(${TARGET} PUBLIC ${PKG_LIBDRM_INCLUDE_DIRS})
+      target_compile_definitions(sample_common PUBLIC LIBVA_DRM_SUPPORT)
+      target_link_libraries(sample_common PUBLIC PkgConfig::PKG_LIBDRM)
 
       if(PKG_WAYLAND_CLIENT_FOUND)
-        target_compile_definitions(
-          ${TARGET} PUBLIC -DLIBVA_WAYLAND_SUPPORT
-                           -D_TOOLS_LIB_PATH=${_TOOLS_LIB_PATH})
-        target_include_directories(${TARGET}
-                                   PUBLIC ${PKG_WAYLAND_CLIENT_INCLUDE_DIRS})
+        target_compile_definitions(sample_common PUBLIC LIBVA_WAYLAND_SUPPORT)
+        target_link_libraries(sample_common
+                              PUBLIC PkgConfig::PKG_WAYLAND_CLIENT)
         target_include_directories(
-          ${TARGET}
+          sample_common
           PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../sample_misc/wayland/include)
       else()
         message(
@@ -106,11 +117,13 @@ if(UNIX)
     endif()
 
     if(PKG_X11_FOUND)
-      target_compile_definitions(${TARGET} PUBLIC -DLIBVA_X11_SUPPORT)
-      target_include_directories(${TARGET} PUBLIC ${PKG_X11_LIBRARY_DIRS})
+      target_compile_definitions(sample_common PUBLIC LIBVA_X11_SUPPORT)
+      target_link_libraries(sample_common PUBLIC PkgConfig::PKG_X11)
+
       if(PKG_XCB_FOUND)
         if(PKG_LIBDRM_FOUND)
-          target_compile_definitions(${TARGET} PUBLIC -DX11_DRI3_SUPPORT)
+          target_compile_definitions(sample_common PUBLIC X11_DRI3_SUPPORT)
+          target_link_libraries(sample_common PUBLIC PkgConfig::PKG_XCB)
         else()
           message(
             WARNING
@@ -132,14 +145,13 @@ if(UNIX)
     )
   endif()
 
-  target_link_libraries(${TARGET} ${CMAKE_DL_LIBS})
+  target_link_libraries(sample_common PUBLIC ${CMAKE_DL_LIBS})
 
   set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
   set(THREADS_PREFER_PTHREAD_FLAG TRUE)
   find_package(Threads REQUIRED)
-  target_link_libraries(${TARGET} Threads::Threads)
-
+  target_link_libraries(sample_common PUBLIC Threads::Threads)
 else()
-  target_compile_definitions(${TARGET} PUBLIC -DMFX_D3D11_SUPPORT)
-  target_link_libraries(${TARGET} DXGI D3D11 D3D9 DXVA2)
+  target_compile_definitions(sample_common PUBLIC MFX_D3D11_SUPPORT NOMINMAX)
+  target_link_libraries(sample_common PUBLIC DXGI D3D11 D3D9 DXVA2)
 endif()

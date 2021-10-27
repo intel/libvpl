@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2005 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -83,21 +83,25 @@ protected:
     static const mfxU32 MEMTYPE_FROM_MASK_INT_EXT =
         MEMTYPE_FROM_MASK | MFX_MEMTYPE_INTERNAL_FRAME | MFX_MEMTYPE_EXTERNAL_FRAME;
 
-    struct UniqueResponse {
-        mfxFrameAllocResponse m_resp;
+    struct UniqueResponse : mfxFrameAllocResponse {
         mfxU16 m_width;
         mfxU16 m_height;
         mfxU32 m_refCount;
         mfxU16 m_type;
 
-        UniqueResponse() : m_resp({ 0 }), m_width(0), m_height(0), m_refCount(0), m_type(0) {}
+        UniqueResponse()
+                : mfxFrameAllocResponse(),
+                  m_width(0),
+                  m_height(0),
+                  m_refCount(0),
+                  m_type(0) {}
 
         // compare responses by actual frame size, alignment (w and h) is up to application
         UniqueResponse(const mfxFrameAllocResponse& response,
                        mfxU16 width,
                        mfxU16 height,
                        mfxU16 type)
-                : m_resp(response),
+                : mfxFrameAllocResponse(response),
                   m_width(width),
                   m_height(height),
                   m_refCount(1),
@@ -146,13 +150,6 @@ protected:
         }
     };
 
-    struct IsUniqueSame : public std::binary_function<mfxFrameAllocResponse, UniqueResponse, bool> {
-        bool operator()(const mfxFrameAllocResponse& l, const UniqueResponse& r) const {
-            return r.m_resp.mids != 0 && l.mids != 0 && r.m_resp.mids[0] == l.mids[0] &&
-                   r.m_resp.NumFrameActual == l.NumFrameActual;
-        }
-    };
-
     // checks if request is supported
     virtual mfxStatus CheckRequestType(mfxFrameAllocRequest* request);
 
@@ -166,25 +163,6 @@ protected:
                                   mfxMemId* midOut)                                             = 0;
 };
 
-#if (MFX_VERSION < 2000)
-class MFXBufferAllocator : public mfxBufferAllocator {
-public:
-    MFXBufferAllocator();
-    virtual ~MFXBufferAllocator();
-
-    virtual mfxStatus AllocBuffer(mfxU32 nbytes, mfxU16 type, mfxMemId* mid) = 0;
-    virtual mfxStatus LockBuffer(mfxMemId mid, mfxU8** ptr)                  = 0;
-    virtual mfxStatus UnlockBuffer(mfxMemId mid)                             = 0;
-    virtual mfxStatus FreeBuffer(mfxMemId mid)                               = 0;
-
-private:
-    static mfxStatus MFX_CDECL Alloc_(mfxHDL pthis, mfxU32 nbytes, mfxU16 type, mfxMemId* mid);
-    static mfxStatus MFX_CDECL Lock_(mfxHDL pthis, mfxMemId mid, mfxU8** ptr);
-    static mfxStatus MFX_CDECL Unlock_(mfxHDL pthis, mfxMemId mid);
-    static mfxStatus MFX_CDECL Free_(mfxHDL pthis, mfxMemId mid);
-};
-
-#else
 class MFXBufferAllocator {
 public:
     MFXBufferAllocator();
@@ -206,5 +184,5 @@ private:
     static mfxStatus MFX_CDECL Unlock_(mfxHDL pthis, mfxMemId mid);
     static mfxStatus MFX_CDECL Free_(mfxHDL pthis, mfxMemId mid);
 };
-#endif
+
 #endif // __BASE_ALLOCATOR_H__

@@ -1,10 +1,10 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2018 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
 
-#include "include/cttmetrics_utils.h"
+#include "cttmetrics_utils.h"
 
 #include <stdio.h>
 #include <stdlib.h>

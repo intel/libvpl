@@ -1,13 +1,17 @@
+/*############################################################################
+  # Copyright (C) 2005 Intel Corporation
+  #
+  # SPDX-License-Identifier: MIT
+  ############################################################################*/
 
-#if (MFX_VERSION < 2000)
-    #include "mfx_samples_config.h"
+#include "mfx_samples_config.h"
 
-    #include "pipeline_user.h"
-    #include "sysmem_allocator.h"
+#include "pipeline_user.h"
+#include "sysmem_allocator.h"
 
-    #ifndef MFX_VERSION
-        #error MFX_VERSION not defined
-    #endif
+#ifndef MFX_VERSION
+    #error MFX_VERSION not defined
+#endif
 
 mfxStatus CUserPipeline::InitRotateParam(sInputParams* pInParams) {
     MSDK_CHECK_POINTER(pInParams, MFX_ERR_NULL_PTR);
@@ -82,24 +86,25 @@ mfxStatus CUserPipeline::AllocFrames() {
     MSDK_CHECK_STATUS(sts, "m_pMFXAllocator->Alloc failed");
 
     // prepare mfxFrameSurface1 array for components
-    m_pEncSurfaces = new mfxFrameSurface1[nEncSurfNum];
+    m_pEncSurfaces = new mfxFrameSurface1*[nEncSurfNum];
     MSDK_CHECK_POINTER(m_pEncSurfaces, MFX_ERR_MEMORY_ALLOC);
     m_pPluginSurfaces = new mfxFrameSurface1[nRotateSurfNum];
     MSDK_CHECK_POINTER(m_pPluginSurfaces, MFX_ERR_MEMORY_ALLOC);
 
     for (int i = 0; i < nEncSurfNum; i++) {
-        MSDK_ZERO_MEMORY(m_pEncSurfaces[i]);
-        MSDK_MEMCPY_VAR(m_pEncSurfaces[i].Info,
+        m_pEncSurfaces[i] = new mfxFrameSurface1();
+        MSDK_ZERO_MEMORY(*(m_pEncSurfaces[i]));
+        MSDK_MEMCPY_VAR(m_pEncSurfaces[i]->Info,
                         &(m_mfxEncParams.mfx.FrameInfo),
                         sizeof(mfxFrameInfo));
         if (SYSTEM_MEMORY != m_memType) {
             // external allocator used - provide just MemIds
-            m_pEncSurfaces[i].Data.MemId = m_EncResponse.mids[i];
+            m_pEncSurfaces[i]->Data.MemId = m_EncResponse.mids[i];
         }
         else {
             sts = m_pMFXAllocator->Lock(m_pMFXAllocator->pthis,
                                         m_EncResponse.mids[i],
-                                        &(m_pEncSurfaces[i].Data));
+                                        &(m_pEncSurfaces[i]->Data));
             MSDK_CHECK_STATUS(sts, "m_pMFXAllocator->Lock failed");
         }
     }
@@ -133,11 +138,11 @@ void CUserPipeline::DeleteFrames() {
 CUserPipeline::CUserPipeline() : CEncodingPipeline() {
     m_pPluginSurfaces = NULL;
     m_PluginModule    = NULL;
-    m_pusrPlugin      = NULL;
     MSDK_ZERO_MEMORY(m_PluginResponse);
     MSDK_ZERO_MEMORY(m_pluginVideoParams);
     MSDK_ZERO_MEMORY(m_RotateParams);
-    m_MVCflags = MVC_DISABLED;
+    m_MVCflags       = MVC_DISABLED;
+    m_nSyncOpTimeout = MSDK_WAIT_INTERVAL;
 }
 
 CUserPipeline::~CUserPipeline() {
@@ -147,19 +152,9 @@ CUserPipeline::~CUserPipeline() {
 mfxStatus CUserPipeline::Init(sInputParams* pParams) {
     MSDK_CHECK_POINTER(pParams, MFX_ERR_NULL_PTR);
 
+    m_pLoader.reset(new VPLImplementationLoader);
+
     mfxStatus sts = MFX_ERR_NONE;
-
-    m_PluginModule = msdk_so_load(pParams->strPluginDLLPath);
-    MSDK_CHECK_POINTER(m_PluginModule, MFX_ERR_NOT_FOUND);
-
-    PluginModuleTemplate::fncCreateGenericPlugin pCreateFunc =
-        (PluginModuleTemplate::fncCreateGenericPlugin)msdk_so_get_addr(m_PluginModule,
-                                                                       "mfxCreateGenericPlugin");
-
-    MSDK_CHECK_POINTER(pCreateFunc, MFX_ERR_NOT_FOUND);
-
-    m_pusrPlugin = (*pCreateFunc)();
-    MSDK_CHECK_POINTER(m_pusrPlugin, MFX_ERR_NOT_FOUND);
 
     // prepare input file reader
     sts = m_FileReader.Init(pParams->InputFiles, pParams->FileInputFourCC);
@@ -170,6 +165,8 @@ mfxStatus CUserPipeline::Init(sInputParams* pParams) {
     m_nPerfOpt   = pParams->nPerfOpt;
     m_nTimeout   = pParams->nTimeout;
     m_bCutOutput = !pParams->bUncut;
+
+    m_nSyncOpTimeout = pParams->nSyncOpTimeout ? pParams->nSyncOpTimeout : MSDK_WAIT_INTERVAL;
 
     // prepare output file writer
     sts = InitFileWriters(pParams);
@@ -182,44 +179,25 @@ mfxStatus CUserPipeline::Init(sInputParams* pParams) {
     if (D3D11_MEMORY == pParams->memType)
         impl |= MFX_IMPL_VIA_D3D11;
 
-    mfxVersion min_version;
-    mfxVersion version; // real API version with which library is initialized
-
-    // we set version to 1.0 and later we will query actual version of the library which will got leaded
-    min_version.Major = 1;
-    min_version.Minor = 0;
+    sts = m_pLoader->ConfigureImplementation(impl);
+    MSDK_CHECK_STATUS(sts, "m_mfxSession.ConfigureImplementation failed");
+    sts = m_pLoader->ConfigureAccelerationMode(pParams->accelerationMode, impl);
+    MSDK_CHECK_STATUS(sts, "m_mfxSession.ConfigureAccelerationMode failed");
+    // new memory models are suppotred in lib with version >2.0
+    if (pParams->nMemoryModel == VISIBLE_INT_ALLOC) {
+        m_pLoader->ConfigureVersion({ { 0, 2 } });
+        msdk_printf(MSDK_STRING("warning: internal memory allocation requires 2.x API\n"));
+    }
+    sts = m_pLoader->EnumImplementations();
+    MSDK_CHECK_STATUS(sts, "m_mfxSession.EnumImplementations failed");
 
     // create a session for the second vpp and encode
-    sts = m_mfxSession.Init(impl, &min_version);
-    MSDK_CHECK_STATUS(sts, "m_mfxSession.Init failed");
+    sts = m_mfxSession.CreateSession(m_pLoader.get());
+    MSDK_CHECK_STATUS(sts, "m_mfxSession.CreateSession failed");
 
-    sts = MFXQueryVersion(m_mfxSession, &version); // get real API version of the loaded library
-    MSDK_CHECK_STATUS(sts, "MFXQueryVersion failed");
+    mfxVersion version = m_pLoader->GetVersion(); // get real API version of the loaded library
 
     if (CheckVersion(&version, MSDK_FEATURE_PLUGIN_API)) {
-        // we check if codec is distributed as a mediasdk plugin and load it if yes
-        // else if codec is not in the list of mediasdk plugins, we assume, that it is supported inside mediasdk library
-
-        // in case of HW library (-hw key) we will firstly try to load HW plugin
-        // in case of failure - we will try SW one
-        mfxIMPL impl2 = pParams->bUseHWLib ? MFX_IMPL_HARDWARE : MFX_IMPL_SOFTWARE;
-
-        if (AreGuidsEqual(MSDK_PLUGINGUID_NULL, pParams->pluginParams.pluginGuid)) {
-            pParams->pluginParams.pluginGuid =
-                msdkGetPluginUID(impl2, MSDK_VENCODE, pParams->CodecId);
-        }
-        if (AreGuidsEqual(pParams->pluginParams.pluginGuid, MSDK_PLUGINGUID_NULL) &&
-            impl2 == MFX_IMPL_HARDWARE)
-            pParams->pluginParams.pluginGuid =
-                msdkGetPluginUID(MFX_IMPL_SOFTWARE, MSDK_VENCODE, pParams->CodecId);
-        if (!AreGuidsEqual(pParams->pluginParams.pluginGuid, MSDK_PLUGINGUID_NULL)) {
-            m_pPlugin.reset(LoadPlugin(MFX_PLUGINTYPE_VIDEO_ENCODE,
-                                       m_mfxSession,
-                                       pParams->pluginParams.pluginGuid,
-                                       1));
-            if (m_pPlugin.get() == NULL)
-                sts = MFX_ERR_UNSUPPORTED;
-        }
     }
 
     // create encoder
@@ -238,27 +216,12 @@ mfxStatus CUserPipeline::Init(sInputParams* pParams) {
 
     sts = ResetMFXComponents(pParams);
     MSDK_CHECK_STATUS(sts, "ResetMFXComponents failed");
-    // register plugin callbacks in Media SDK
-    mfxPlugin plg = make_mfx_plugin_adapter(m_pusrPlugin);
-    sts           = MFXVideoUSER_Register(m_mfxSession, 0, &plg);
-    MSDK_CHECK_STATUS(sts, "MFXVideoUSER_Register failed");
-
-    // need to call Init after registration because mfxCore interface is needed
-    sts = m_pusrPlugin->Init(&m_pluginVideoParams);
-    MSDK_CHECK_STATUS(sts, "m_pusrPlugin->Init failed");
-
-    sts = m_pusrPlugin->SetAuxParams(&m_RotateParams, sizeof(m_RotateParams));
-    MSDK_CHECK_STATUS(sts, "m_pusrPlugin->SetAuxParams failed");
 
     return MFX_ERR_NONE;
 }
 
 void CUserPipeline::Close() {
-    MFXVideoUSER_Unregister(m_mfxSession, 0);
-
     CEncodingPipeline::Close();
-
-    MSDK_SAFE_DELETE(m_pusrPlugin);
     if (m_PluginModule) {
         msdk_so_free(m_PluginModule);
         m_PluginModule = NULL;
@@ -292,7 +255,10 @@ mfxStatus CUserPipeline::ResetMFXComponents(sInputParams* pParams) {
                           m_FileWriters.first,
                           m_mfxEncParams.AsyncDepth,
                           nEncodedDataBufferSize,
-                          m_FileWriters.second);
+                          pParams->CodecId,
+                          m_FileWriters.second,
+                          pParams->bUseHWLib);
+
     MSDK_CHECK_STATUS(sts, "m_TaskPool.Init failed");
 
     sts = FillBuffers();
@@ -340,22 +306,6 @@ mfxStatus CUserPipeline::Run() {
         nEncSurfIdx = GetFreeSurface(m_pEncSurfaces, m_EncResponse.NumFrameActual);
         MSDK_CHECK_ERROR(nEncSurfIdx, MSDK_INVALID_SURF_IDX, MFX_ERR_MEMORY_ALLOC);
 
-        // rotation
-        for (;;) {
-            mfxHDL h1, h2;
-            h1  = &m_pPluginSurfaces[nRotateSurfIdx];
-            h2  = &m_pEncSurfaces[nEncSurfIdx];
-            sts = MFXVideoUSER_ProcessFrameAsync(m_mfxSession, &h1, 1, &h2, 1, &RotateSyncPoint);
-
-            if (MFX_WRN_DEVICE_BUSY == sts) {
-                MSDK_SLEEP(1); // just wait and then repeat the same call
-            }
-            else {
-                break;
-            }
-        }
-        MSDK_BREAK_ON_ERROR(sts);
-
         // save the id of preceding rotate task which will produce input data for the encode task
         if (RotateSyncPoint) {
             pCurrentTask->DependentVppTasks.push_back(RotateSyncPoint);
@@ -367,7 +317,7 @@ mfxStatus CUserPipeline::Run() {
             m_bInsertIDR = false;
 
             sts = m_pmfxENC->EncodeFrameAsync(&pCurrentTask->encCtrl,
-                                              &m_pEncSurfaces[nEncSurfIdx],
+                                              m_pEncSurfaces[nEncSurfIdx],
                                               &pCurrentTask->mfxBS,
                                               &pCurrentTask->EncSyncP);
 
@@ -441,7 +391,7 @@ mfxStatus CUserPipeline::Run() {
 
     // synchronize all tasks that are left in task pool
     while (MFX_ERR_NONE == sts) {
-        sts = m_TaskPool.SynchronizeFirstTask();
+        sts = m_TaskPool.SynchronizeFirstTask(m_nSyncOpTimeout);
     }
 
     // MFX_ERR_NOT_FOUND is the correct status to exit the loop with,
@@ -479,4 +429,3 @@ void CUserPipeline::PrintInfo() {
 
     CEncodingPipeline::PrintInfo();
 }
-#endif

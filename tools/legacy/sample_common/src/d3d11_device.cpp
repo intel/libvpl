@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2005 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -15,11 +15,7 @@
         #include "d3d11_device.h"
 
 CD3D11Device::CD3D11Device()
-        : m_nViews(0),
-          m_bDefaultStereoEnabled(FALSE),
-          m_bIsA2rgb10(FALSE),
-          m_HandleWindow(NULL),
-          m_pD3D11Device(),
+        : m_pD3D11Device(),
           m_pD3D11Ctx(),
           m_pDX11VideoDevice(),
           m_pVideoContext(),
@@ -35,7 +31,11 @@ CD3D11Device::CD3D11Device()
           m_pDXGIBackBuffer(),
           m_pTempTexture(),
           m_pDisplayControl(),
-          m_pDXGIOutput() {}
+          m_pDXGIOutput(),
+          m_nViews(0),
+          m_bDefaultStereoEnabled(FALSE),
+          m_bIsA2rgb10(FALSE),
+          m_HandleWindow(NULL) {}
 
 CD3D11Device::~CD3D11Device() {
     Close();
@@ -84,7 +84,7 @@ mfxStatus CD3D11Device::Init(mfxHDL hWindow, mfxU16 nViews, mfxU32 nAdapterNum) 
                                                  D3D_FEATURE_LEVEL_10_0 };
     D3D_FEATURE_LEVEL pFeatureLevelsOut;
 
-    hres = CreateDXGIFactory(__uuidof(IDXGIFactory2), (void**)(&m_pDXGIFactory));
+    hres = CreateDXGIFactory1(__uuidof(IDXGIFactory2), (void**)(&m_pDXGIFactory));
     if (FAILED(hres))
         return MFX_ERR_DEVICE_FAILED;
 
@@ -162,18 +162,16 @@ mfxStatus CD3D11Device::CreateVideoProcessor(mfxFrameSurface1* pSrf) {
         return MFX_ERR_NONE;
 
     //create video processor
-    D3D11_VIDEO_PROCESSOR_CONTENT_DESC ContentDesc;
-    MSDK_ZERO_MEMORY(ContentDesc);
-
-    ContentDesc.InputFrameFormat            = D3D11_VIDEO_FRAME_FORMAT_PROGRESSIVE;
-    ContentDesc.InputFrameRate.Numerator    = 30000;
-    ContentDesc.InputFrameRate.Denominator  = 1000;
-    ContentDesc.InputWidth                  = pSrf->Info.CropW;
-    ContentDesc.InputHeight                 = pSrf->Info.CropH;
-    ContentDesc.OutputWidth                 = pSrf->Info.CropW;
-    ContentDesc.OutputHeight                = pSrf->Info.CropH;
-    ContentDesc.OutputFrameRate.Numerator   = 30000;
-    ContentDesc.OutputFrameRate.Denominator = 1000;
+    D3D11_VIDEO_PROCESSOR_CONTENT_DESC ContentDesc = {};
+    ContentDesc.InputFrameFormat                   = D3D11_VIDEO_FRAME_FORMAT_PROGRESSIVE;
+    ContentDesc.InputFrameRate.Numerator           = 30000;
+    ContentDesc.InputFrameRate.Denominator         = 1000;
+    ContentDesc.InputWidth                         = pSrf->Info.CropW;
+    ContentDesc.InputHeight                        = pSrf->Info.CropH;
+    ContentDesc.OutputWidth                        = pSrf->Info.CropW;
+    ContentDesc.OutputHeight                       = pSrf->Info.CropH;
+    ContentDesc.OutputFrameRate.Numerator          = 30000;
+    ContentDesc.OutputFrameRate.Denominator        = 1000;
 
     ContentDesc.Usage = D3D11_VIDEO_USAGE_PLAYBACK_NORMAL;
 

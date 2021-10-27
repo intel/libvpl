@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2005 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -12,7 +12,10 @@
 /*
     Rationale: locks allocator if necessary to get RAW pointers, unlock it at the end
 */
-class SurfaceAutoLock : private no_copy {
+class SurfaceAutoLock {
+private:
+    SurfaceAutoLock(const SurfaceAutoLock&) {}
+
 public:
     SurfaceAutoLock(mfxFrameAllocator& alloc, mfxFrameSurface1& srf)
             : m_alloc(alloc),

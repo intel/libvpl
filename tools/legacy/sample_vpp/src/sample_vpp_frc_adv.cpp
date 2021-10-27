@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2005 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -61,18 +61,11 @@ FRCAdvancedChecker::FRCAdvancedChecker() {
 mfxStatus FRCAdvancedChecker::Init(mfxVideoParam* par, mfxU32 /*asyncDeep*/) {
     m_videoParam = *par;
 
-    uint64_t out_time = (uint64_t(m_videoParam.vpp.In.FrameRateExtD) * MFX_TIME_STAMP_FREQUENCY) /
-                        (2 * m_videoParam.vpp.In.FrameRateExtN);
-
-    uint64_t in_time = (uint64_t(m_videoParam.vpp.Out.FrameRateExtD) * MFX_TIME_STAMP_FREQUENCY) /
-                       (2 * m_videoParam.vpp.Out.FrameRateExtN);
-
-    if (out_time < in_time) {
-        m_minDeltaTime = out_time;
-    }
-    else {
-        m_minDeltaTime = in_time;
-    }
+    m_minDeltaTime = std::min(
+        ((uint64_t)m_videoParam.vpp.In.FrameRateExtD * (uint64_t)MFX_TIME_STAMP_FREQUENCY) /
+            (2 * (uint64_t)m_videoParam.vpp.In.FrameRateExtN),
+        ((uint64_t)m_videoParam.vpp.Out.FrameRateExtD * (uint64_t)MFX_TIME_STAMP_FREQUENCY) /
+            (2 * (uint64_t)m_videoParam.vpp.Out.FrameRateExtN));
 
     return MFX_ERR_NONE;
 

@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2005 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -7,7 +7,6 @@
 #ifndef __PLUGIN_UTILS_H__
 #define __PLUGIN_UTILS_H__
 
-#include "mfxplugin.h"
 #include "sample_defs.h"
 #include "sample_types.h"
 
@@ -25,21 +24,18 @@ enum {
     MSDK_VENCODE = 0x0002,
     MSDK_VPP     = 0x0004,
     MSDK_VENC    = 0x0008,
-#if (MFX_VERSION >= 1027)
-    MSDK_FEI = 0x1000,
-#endif
+    MSDK_FEI     = 0x1000,
 };
 
 typedef enum { MFX_PLUGINLOAD_TYPE_GUID = 1, MFX_PLUGINLOAD_TYPE_FILE = 2 } MfxPluginLoadType;
 
 struct sPluginParams {
     mfxPluginUID pluginGuid;
-    mfxChar strPluginPath[MSDK_MAX_FILENAME_LEN];
+    mfxChar strPluginPath[MSDK_MAX_FILENAME_LEN] = {};
     MfxPluginLoadType type;
     sPluginParams() {
-        MSDK_ZERO_MEMORY(pluginGuid);
-        memset(strPluginPath, 0, sizeof(strPluginPath));
-        MSDK_ZERO_MEMORY(type);
+        pluginGuid = {};
+        type       = {};
     }
 };
 

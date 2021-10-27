@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2005 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -11,8 +11,9 @@
     #include <sys/ioctl.h>
     #include "vaapi_allocator.h"
 
-    #include <drm_fourcc.h>
     #include <stdexcept>
+
+    #include <drm_fourcc.h>
     #include "i915_drm.h"
     #include "vaapi_utils_drm.h"
 
@@ -451,7 +452,6 @@ void* drmRenderer::acquire(mfxMemId mid) {
                                                   modifiers,
                                                   &fbhandle,
                                                   flags);
-
         if (ret)
             return NULL;
 

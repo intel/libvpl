@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2005 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -56,8 +56,10 @@ mfxStatus ConfigVideoEnhancementFilters(sInputParams* pParams,
 
     // [2] video enhancement algorithms can be configured
     if (VPP_FILTER_ENABLED_CONFIGURED == pParams->denoiseParam[paramID].mode) {
-        auto denoiseConfig           = pVppParam->AddExtBuffer<mfxExtVPPDenoise>();
-        denoiseConfig->DenoiseFactor = pParams->denoiseParam[paramID].factor;
+        // recommend to use mfxExtVPPDenoise2
+        auto denoiseConfig      = pVppParam->AddExtBuffer<mfxExtVPPDenoise2>();
+        denoiseConfig->Strength = pParams->denoiseParam[paramID].factor;
+        denoiseConfig->Mode     = (mfxDenoiseMode)pParams->denoiseParam[paramID].config;
     }
 #ifdef ENABLE_MCTF
     if (VPP_FILTER_ENABLED_CONFIGURED == pParams->mctfParam[paramID].mode) {
@@ -94,7 +96,9 @@ mfxStatus ConfigVideoEnhancementFilters(sInputParams* pParams,
     }
 
     if (VPP_FILTER_ENABLED_CONFIGURED == pParams->colorfillParam[paramID].mode) {
-        pVppParam->AddExtBuffer<mfxExtVPPColorFill>();
+        auto colorfillConfig = pVppParam->AddExtBuffer<mfxExtVPPColorFill>();
+        colorfillConfig      = &pParams->colorfillParam[paramID];
+        std::ignore          = colorfillConfig;
     }
 
     if (VPP_FILTER_ENABLED_CONFIGURED == pParams->procampParam[paramID].mode) {
@@ -119,18 +123,14 @@ mfxStatus ConfigVideoEnhancementFilters(sInputParams* pParams,
         rotationConfig->Angle = pParams->rotate[paramID];
     }
     if (pParams->bScaling) {
-        auto scalingConfig         = pVppParam->AddExtBuffer<mfxExtVPPScaling>();
-        scalingConfig->ScalingMode = pParams->scalingMode;
-#if MFX_VERSION >= 1033
+        auto scalingConfig                 = pVppParam->AddExtBuffer<mfxExtVPPScaling>();
+        scalingConfig->ScalingMode         = pParams->scalingMode;
         scalingConfig->InterpolationMethod = pParams->interpolationMethod;
-#endif
     }
-#if MFX_VERSION >= 1025
     if (pParams->bChromaSiting) {
         auto chromaSitingConfig          = pVppParam->AddExtBuffer<mfxExtColorConversion>();
         chromaSitingConfig->ChromaSiting = pParams->uChromaSiting;
     }
-#endif
     //if( VPP_FILTER_ENABLED_CONFIGURED == pParams->gamutParam.mode )
     //{
     //    pResources->gamutConfig.Header.BufferId = MFX_EXTBUFF_VPP_GAMUT_MAPPING;
@@ -182,7 +182,6 @@ mfxStatus ConfigVideoEnhancementFilters(sInputParams* pParams,
         istabConfig->Mode = pParams->istabParam[paramID].istabMode;
     }
 
-#if (MFX_VERSION < 2000)
     // ----------------------------------------------------
     // MVC
     if (VPP_FILTER_ENABLED_CONFIGURED == pParams->multiViewParam[paramID].mode) {
@@ -198,7 +197,6 @@ mfxStatus ConfigVideoEnhancementFilters(sInputParams* pParams,
             multiViewConfig->View[viewIndx].ViewId = viewGenerator.GetNextViewID();
         }
     }
-#endif
 
     // Composition
     if (VPP_FILTER_ENABLED_CONFIGURED == pParams->compositionParam.mode) {

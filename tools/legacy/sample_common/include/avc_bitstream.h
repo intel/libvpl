@@ -1,9 +1,8 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2005 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
-
 #ifndef __AVC_BITSTREAM_H_
 #define __AVC_BITSTREAM_H_
 

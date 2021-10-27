@@ -1,8 +1,9 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2005 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
+
 #pragma once
 
 #include "vpl/mfxvideo++.h"

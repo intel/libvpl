@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2005 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -9,7 +9,6 @@
 
 #include <stdio.h>
 #include <algorithm>
-#include <climits>
 #include <fstream>
 #include <map>
 #include <mutex>
@@ -18,21 +17,19 @@
 #include <string>
 #include <vector>
 
+#include <atomic>
+#include <condition_variable>
+#include <iostream>
+#include <thread>
+
+#include "mfxdeprecated.h"
+#include "mfxplugin.h"
 #include "vpl/mfxbrc.h"
-#if (MFX_VERSION < 2000)
-    #include "mfxfei.h"
-    #include "mfxfeihevc.h"
-#endif
 #include "vpl/mfxjpeg.h"
-#if (MFX_VERSION < 2000)
-    #include "mfxla.h"
-    #include "mfxmvc.h"
-    #include "mfxplugin.h"
-#endif
+#include "vpl/mfxmvc.h"
 #include "vpl/mfxstructures.h"
 #include "vpl/mfxvideo++.h"
 #include "vpl/mfxvideo.h"
-#include "vpl_implementation_loader.h"
 
 #include "vm/atomic_defs.h"
 #include "vm/file_defs.h"
@@ -48,6 +45,8 @@
 #include "avc_nal_spl.h"
 #include "avc_spl.h"
 #include "vpl_implementation_loader.h"
+
+#include "vpl/mfxsurfacepool.h"
 
 // A macro to disallow the copy constructor and operator= functions
 // This should be used in the private: declarations for a class
@@ -67,25 +66,6 @@ public:
 #endif /* __GNUC__ */
 };
 
-//! Base class for types that should not be copied or assigned.
-class no_copy : no_assign {
-    //! Deny copy construction
-    no_copy(const no_copy&);
-
-    // Deny assignment
-    void operator=(const no_copy&);
-
-public:
-    //! Allow default construction
-    no_copy() {}
-};
-
-enum MemType {
-    SYSTEM_MEMORY = 0x00,
-    D3D9_MEMORY   = 0x01,
-    D3D11_MEMORY  = 0x02,
-};
-
 enum {
     CODEC_VP8 = MFX_MAKEFOURCC('V', 'P', '8', ' '),
     CODEC_MVC = MFX_MAKEFOURCC('M', 'V', 'C', ' '),
@@ -96,7 +76,7 @@ enum {
 #define MFX_CODEC_NV12 MFX_FOURCC_NV12
 #define MFX_CODEC_I420 MFX_FOURCC_I420
 #define MFX_CODEC_I422 MFX_FOURCC_I422
-#if (MFX_VERSION < 2000)
+
 enum {
     MFX_FOURCC_IMC3    = MFX_MAKEFOURCC('I', 'M', 'C', '3'),
     MFX_FOURCC_YUV400  = MFX_MAKEFOURCC('4', '0', '0', 'P'),
@@ -104,12 +84,9 @@ enum {
     MFX_FOURCC_YUV422H = MFX_MAKEFOURCC('4', '2', '2', 'H'),
     MFX_FOURCC_YUV422V = MFX_MAKEFOURCC('4', '2', '2', 'V'),
     MFX_FOURCC_YUV444  = MFX_MAKEFOURCC('4', '4', '4', 'P'),
-    #if (MFX_VERSION <= 1027)
-    MFX_FOURCC_RGBP = MFX_MAKEFOURCC('R', 'G', 'B', 'P'),
-    #endif
-    MFX_FOURCC_I420 = MFX_MAKEFOURCC('I', '4', '2', '0')
+    MFX_FOURCC_RGBP24  = MFX_MAKEFOURCC('R', 'G', 'B', 'P'),
 };
-#endif
+
 enum ExtBRCType { EXTBRC_DEFAULT, EXTBRC_OFF, EXTBRC_ON, EXTBRC_IMPLICIT };
 
 namespace QPFile {
@@ -147,8 +124,8 @@ private:
     void ResetState(ReaderStatus set_sts);
 
     ReaderStatus m_ReaderSts = READER_ERR_NOT_INITIALIZED;
-    mfxU32 m_nFrames         = UINT_MAX;
-    mfxU32 m_CurFrameNum     = UINT_MAX;
+    mfxU32 m_nFrames         = std::numeric_limits<mfxU32>::max();
+    mfxU32 m_CurFrameNum     = std::numeric_limits<mfxU32>::max();
     std::vector<FrameInfo> m_FrameVals{};
 };
 
@@ -257,56 +234,14 @@ template <>
 struct mfx_ext_buffer_id<mfxExtThreadsParam> {
     enum { id = MFX_EXTBUFF_THREADS_PARAM };
 };
-#if (MFX_VERSION < 2000)
-template <>
-struct mfx_ext_buffer_id<mfxExtFeiParam> {
-    enum { id = MFX_EXTBUFF_FEI_PARAM };
-};
-template <>
-struct mfx_ext_buffer_id<mfxExtFeiPreEncCtrl> {
-    enum { id = MFX_EXTBUFF_FEI_PREENC_CTRL };
-};
-template <>
-struct mfx_ext_buffer_id<mfxExtFeiPreEncMV> {
-    enum { id = MFX_EXTBUFF_FEI_PREENC_MV };
-};
-template <>
-struct mfx_ext_buffer_id<mfxExtFeiPreEncMBStat> {
-    enum { id = MFX_EXTBUFF_FEI_PREENC_MB };
-};
-template <>
-struct mfx_ext_buffer_id<mfxExtFeiHevcEncFrameCtrl> {
-    enum { id = MFX_EXTBUFF_HEVCFEI_ENC_CTRL };
-};
-template <>
-struct mfx_ext_buffer_id<mfxExtFeiHevcEncMVPredictors> {
-    enum { id = MFX_EXTBUFF_HEVCFEI_ENC_MV_PRED };
-};
-template <>
-struct mfx_ext_buffer_id<mfxExtFeiHevcEncQP> {
-    enum { id = MFX_EXTBUFF_HEVCFEI_ENC_QP };
-};
-template <>
-struct mfx_ext_buffer_id<mfxExtFeiHevcEncCtuCtrl> {
-    enum { id = MFX_EXTBUFF_HEVCFEI_ENC_CTU_CTRL };
-};
 template <>
 struct mfx_ext_buffer_id<mfxExtHEVCRefLists> {
     enum { id = MFX_EXTBUFF_HEVC_REFLISTS };
 };
 template <>
-struct mfx_ext_buffer_id<mfxExtFeiHevcRepackCtrl> {
-    enum { id = MFX_EXTBUFF_HEVCFEI_REPACK_CTRL };
-};
-template <>
-struct mfx_ext_buffer_id<mfxExtFeiHevcRepackStat> {
-    enum { id = MFX_EXTBUFF_HEVCFEI_REPACK_STAT };
-};
-template <>
 struct mfx_ext_buffer_id<mfxExtBRC> {
     enum { id = MFX_EXTBUFF_BRC };
 };
-#endif
 template <>
 struct mfx_ext_buffer_id<mfxExtHEVCParam> {
     enum { id = MFX_EXTBUFF_HEVC_PARAM };
@@ -319,12 +254,10 @@ template <>
 struct mfx_ext_buffer_id<mfxExtDecodeErrorReport> {
     enum { id = MFX_EXTBUFF_DECODE_ERROR_REPORT };
 };
-#if (MFX_VERSION < 2000)
 template <>
 struct mfx_ext_buffer_id<mfxExtMVCSeqDesc> {
     enum { id = MFX_EXTBUFF_MVC_SEQ_DESC };
 };
-#endif
 template <>
 struct mfx_ext_buffer_id<mfxExtVPPDoNotUse> {
     enum { id = MFX_EXTBUFF_VPP_DONOTUSE };
@@ -341,12 +274,6 @@ template <>
 struct mfx_ext_buffer_id<mfxExtCodingOptionSPSPPS> {
     enum { id = MFX_EXTBUFF_CODING_OPTION_SPSPPS };
 };
-#if (MFX_VERSION < 2000)
-template <>
-struct mfx_ext_buffer_id<mfxExtOpaqueSurfaceAlloc> {
-    enum { id = MFX_EXTBUFF_OPAQUE_SURFACE_ALLOCATION };
-};
-#endif
 template <>
 struct mfx_ext_buffer_id<mfxExtVppMctf> {
     enum { id = MFX_EXTBUFF_VPP_MCTF };
@@ -367,20 +294,6 @@ template <>
 struct mfx_ext_buffer_id<mfxExtVPPFrameRateConversion> {
     enum { id = MFX_EXTBUFF_VPP_FRAME_RATE_CONVERSION };
 };
-#if (MFX_VERSION < 2000)
-template <>
-struct mfx_ext_buffer_id<mfxExtLAControl> {
-    enum { id = MFX_EXTBUFF_LOOKAHEAD_CTRL };
-};
-template <>
-struct mfx_ext_buffer_id<mfxExtMultiFrameControl> {
-    enum { id = MFX_EXTBUFF_MULTI_FRAME_CONTROL };
-};
-template <>
-struct mfx_ext_buffer_id<mfxExtMultiFrameParam> {
-    enum { id = MFX_EXTBUFF_MULTI_FRAME_PARAM };
-};
-#endif
 template <>
 struct mfx_ext_buffer_id<mfxExtHEVCTiles> {
     enum { id = MFX_EXTBUFF_HEVC_TILES };
@@ -388,6 +301,18 @@ struct mfx_ext_buffer_id<mfxExtHEVCTiles> {
 template <>
 struct mfx_ext_buffer_id<mfxExtVP9Param> {
     enum { id = MFX_EXTBUFF_VP9_PARAM };
+};
+template <>
+struct mfx_ext_buffer_id<mfxExtAV1BitstreamParam> {
+    enum { id = MFX_EXTBUFF_AV1_BITSTREAM_PARAM };
+};
+template <>
+struct mfx_ext_buffer_id<mfxExtAV1ResolutionParam> {
+    enum { id = MFX_EXTBUFF_AV1_RESOLUTION_PARAM };
+};
+template <>
+struct mfx_ext_buffer_id<mfxExtAV1TileParam> {
+    enum { id = MFX_EXTBUFF_AV1_TILE_PARAM };
 };
 template <>
 struct mfx_ext_buffer_id<mfxExtVideoSignalInfo> {
@@ -402,8 +327,16 @@ struct mfx_ext_buffer_id<mfxExtAVCRoundingOffset> {
     enum { id = MFX_EXTBUFF_AVC_ROUNDING_OFFSET };
 };
 template <>
+struct mfx_ext_buffer_id<mfxExtPartialBitstreamParam> {
+    enum { id = MFX_EXTBUFF_PARTIAL_BITSTREAM_PARAM };
+};
+template <>
 struct mfx_ext_buffer_id<mfxExtVPPDenoise> {
     enum { id = MFX_EXTBUFF_VPP_DENOISE };
+};
+template <>
+struct mfx_ext_buffer_id<mfxExtVPPDenoise2> {
+    enum { id = MFX_EXTBUFF_VPP_DENOISE2 };
 };
 template <>
 struct mfx_ext_buffer_id<mfxExtVPPProcAmp> {
@@ -441,66 +374,14 @@ template <>
 struct mfx_ext_buffer_id<mfxExtPredWeightTable> {
     enum { id = MFX_EXTBUFF_PRED_WEIGHT_TABLE };
 };
-#if (MFX_VERSION < 2000)
-template <>
-struct mfx_ext_buffer_id<mfxExtFeiDecStreamOut> {
-    enum { id = MFX_EXTBUFF_FEI_DEC_STREAM_OUT };
-};
-template <>
-struct mfx_ext_buffer_id<mfxExtFeiSliceHeader> {
-    enum { id = MFX_EXTBUFF_FEI_SLICE };
-};
-template <>
-struct mfx_ext_buffer_id<mfxExtFeiEncFrameCtrl> {
-    enum { id = MFX_EXTBUFF_FEI_ENC_CTRL };
-};
-template <>
-struct mfx_ext_buffer_id<mfxExtFeiEncMVPredictors> {
-    enum { id = MFX_EXTBUFF_FEI_ENC_MV_PRED };
-};
-template <>
-struct mfx_ext_buffer_id<mfxExtFeiRepackCtrl> {
-    enum { id = MFX_EXTBUFF_FEI_REPACK_CTRL };
-};
-template <>
-struct mfx_ext_buffer_id<mfxExtFeiEncMBCtrl> {
-    enum { id = MFX_EXTBUFF_FEI_ENC_MB };
-};
-template <>
-struct mfx_ext_buffer_id<mfxExtFeiEncQP> {
-    enum { id = MFX_EXTBUFF_FEI_ENC_QP };
-};
-template <>
-struct mfx_ext_buffer_id<mfxExtFeiEncMBStat> {
-    enum { id = MFX_EXTBUFF_FEI_ENC_MB_STAT };
-};
-template <>
-struct mfx_ext_buffer_id<mfxExtFeiEncMV> {
-    enum { id = MFX_EXTBUFF_FEI_ENC_MV };
-};
-template <>
-struct mfx_ext_buffer_id<mfxExtFeiPakMBCtrl> {
-    enum { id = MFX_EXTBUFF_FEI_PAK_CTRL };
-};
-template <>
-struct mfx_ext_buffer_id<mfxExtFeiRepackStat> {
-    enum { id = MFX_EXTBUFF_FEI_REPACK_STAT };
-};
-template <>
-struct mfx_ext_buffer_id<mfxExtFeiSPS> {
-    enum { id = MFX_EXTBUFF_FEI_SPS };
-};
-template <>
-struct mfx_ext_buffer_id<mfxExtFeiPPS> {
-    enum { id = MFX_EXTBUFF_FEI_PPS };
-};
-#endif
-#if (MFX_VERSION >= 2000)
 template <>
 struct mfx_ext_buffer_id<mfxExtHyperModeParam> {
     enum { id = MFX_EXTBUFF_HYPER_MODE_PARAM };
 };
-#endif
+template <>
+struct mfx_ext_buffer_id<mfxExtAllocationHints> {
+    enum { id = MFX_EXTBUFF_ALLOCATION_HINTS };
+};
 
 constexpr uint16_t max_num_ext_buffers =
     63 * 2; // '*2' is for max estimation if all extBuffer were 'paired'
@@ -521,29 +402,6 @@ template <>
 struct IsPairedMfxExtBuffer<mfxExtAVCRoundingOffset> : std::true_type {};
 template <>
 struct IsPairedMfxExtBuffer<mfxExtPredWeightTable> : std::true_type {};
-#if (MFX_VERSION < 2000)
-template <>
-struct IsPairedMfxExtBuffer<mfxExtFeiSliceHeader> : std::true_type {};
-template <>
-struct IsPairedMfxExtBuffer<mfxExtFeiEncFrameCtrl> : std::true_type {};
-template <>
-struct IsPairedMfxExtBuffer<mfxExtFeiEncMVPredictors> : std::true_type {};
-template <>
-struct IsPairedMfxExtBuffer<mfxExtFeiRepackCtrl> : std::true_type {};
-template <>
-struct IsPairedMfxExtBuffer<mfxExtFeiEncMBCtrl> : std::true_type {};
-template <>
-struct IsPairedMfxExtBuffer<mfxExtFeiEncQP> : std::true_type {};
-template <>
-struct IsPairedMfxExtBuffer<mfxExtFeiEncMBStat> : std::true_type {};
-template <>
-struct IsPairedMfxExtBuffer<mfxExtFeiEncMV> : std::true_type {};
-template <>
-struct IsPairedMfxExtBuffer<mfxExtFeiPakMBCtrl> : std::true_type {};
-template <>
-struct IsPairedMfxExtBuffer<mfxExtFeiRepackStat> : std::true_type {};
-#endif
-
 template <typename R>
 struct ExtParamAccessor {
 private:
@@ -576,7 +434,7 @@ public:
 template <typename T>
 class ExtBufHolder : public T {
 public:
-    ExtBufHolder() : T(), m_ext_buf() {
+    ExtBufHolder() : T() {
         m_ext_buf.reserve(max_num_ext_buffers);
     }
 
@@ -626,7 +484,7 @@ public:
             // 'false' below is because here we just copy extBuffer's one by one
             auto dst_buf = AddExtBuffer(src_buf->BufferId, src_buf->BufferSz, false);
             // copy buffer content w/o restoring its type
-            MSDK_MEMCPY((void*)dst_buf, (void*)src_buf, src_buf->BufferSz);
+            memcpy((void*)dst_buf, (void*)src_buf, src_buf->BufferSz);
         }
 
         return *this;
@@ -669,7 +527,7 @@ public:
     TB* GetExtBuffer(uint32_t fieldId = 0) const {
         return (TB*)FindExtBuffer(mfx_ext_buffer_id<TB>::id, fieldId);
     }
-#if 0
+
     template <typename TB>
     operator TB*() {
         return (TB*)FindExtBuffer(mfx_ext_buffer_id<TB>::id, 0);
@@ -679,7 +537,7 @@ public:
     operator TB*() const {
         return (TB*)FindExtBuffer(mfx_ext_buffer_id<TB>::id, 0);
     }
-#endif
+
 private:
     mfxExtBuffer* AddExtBuffer(mfxU32 id, mfxU32 size, bool isPairedExtBuffer) {
         if (!size || !id)
@@ -741,22 +599,12 @@ private:
 
     bool IsCopyAllowed(mfxU32 id) {
         static const mfxU32 allowed[] = {
-            MFX_EXTBUFF_CODING_OPTION,
-            MFX_EXTBUFF_CODING_OPTION2,
-            MFX_EXTBUFF_CODING_OPTION3,
-#if (MFX_VERSION < 2000)
-            MFX_EXTBUFF_FEI_PARAM,
-            MFX_EXTBUFF_BRC,
-#endif
-            MFX_EXTBUFF_HEVC_PARAM,
-            MFX_EXTBUFF_VP9_PARAM,
-#if (MFX_VERSION < 2000)
-            MFX_EXTBUFF_OPAQUE_SURFACE_ALLOCATION,
-            MFX_EXTBUFF_FEI_PPS,
-            MFX_EXTBUFF_FEI_SPS,
-            MFX_EXTBUFF_LOOKAHEAD_CTRL,
-            MFX_EXTBUFF_LOOKAHEAD_STAT
-#endif
+            MFX_EXTBUFF_CODING_OPTION,       MFX_EXTBUFF_CODING_OPTION2,
+            MFX_EXTBUFF_CODING_OPTION3,      MFX_EXTBUFF_BRC,
+            MFX_EXTBUFF_HEVC_PARAM,          MFX_EXTBUFF_VP9_PARAM,
+            MFX_EXTBUFF_AV1_BITSTREAM_PARAM, MFX_EXTBUFF_AV1_RESOLUTION_PARAM,
+            MFX_EXTBUFF_AV1_TILE_PARAM,      MFX_EXTBUFF_DEC_VIDEO_PROCESSING,
+            MFX_EXTBUFF_ALLOCATION_HINTS
         };
 
         auto it =
@@ -796,7 +644,7 @@ class mfxBitstreamWrapper : public ExtBufHolder<mfxBitstream> {
     typedef ExtBufHolder<mfxBitstream> base;
 
 public:
-    mfxBitstreamWrapper() : base(), m_data() {}
+    mfxBitstreamWrapper() : base() {}
 
     mfxBitstreamWrapper(mfxU32 n_bytes) : base() {
         Extend(n_bytes);
@@ -846,9 +694,6 @@ public:
                            bool shouldShiftP010 = false);
     virtual mfxStatus SkipNframesFromBeginning(mfxU16 w, mfxU16 h, mfxU32 viewId, mfxU32 nframes);
     virtual mfxStatus LoadNextFrame(mfxFrameSurface1* pSurface);
-    virtual mfxStatus LoadNextFrame2(mfxFrameSurface1* pSurface,
-                                     int bytes_to_read,
-                                     mfxU8* buf_read);
     virtual void Reset();
     mfxU32 m_ColorFormat; // color format of input YUV data, YUV420 or NV12
 
@@ -866,14 +711,16 @@ public:
 
     virtual mfxStatus Init(const msdk_char* strFileName);
     virtual void ForceInitStatus(bool status);
-    virtual mfxStatus WriteNextFrame(mfxBitstream* pMfxBitstream, bool isPrint = true);
+    virtual mfxStatus WriteNextFrame(mfxBitstream* pMfxBitstream,
+                                     bool isPrint         = true,
+                                     bool isCompleteFrame = true);
     virtual mfxStatus Reset();
     virtual void Close();
     mfxU32 m_nProcessedFramesNum;
     bool m_bSkipWriting;
 
 protected:
-    FILE* m_fSink;
+    FILE* m_fSource;
     bool m_bInited;
     msdk_string m_sFile;
 };
@@ -1002,80 +849,25 @@ public:
     virtual void Close();
 
 protected:
-    FILE* m_fSinkDuplicate;
+    FILE* m_fSourceDuplicate;
     bool m_bJoined;
 };
-
-#if (MFX_VERSION >= 2000)
-class CIVFFrameWriter : public CSmplBitstreamWriter {
-public:
-    CIVFFrameWriter();
-
-    virtual mfxStatus Reset();
-    virtual mfxStatus Init(const msdk_char* strFileName,
-                           const mfxU16 w,
-                           const mfxU16 h,
-                           const mfxU32 fr_nom,
-                           const mfxU32 fr_denom);
-    virtual mfxStatus WriteNextFrame(mfxBitstream* pMfxBitstream, bool isPrint = true);
-    virtual void Close();
-    mfxU64 GetProcessedFrame() {
-        return m_frameNum;
-    }
-
-protected:
-    /* 32 bytes for stream header
-    bytes 0-3    signature: 'DKIF'
-    bytes 4-5    version (should be 0)
-    bytes 6-7    length of header in bytes
-    bytes 8-11   codec FourCC (e.g., 'VP80')
-    bytes 12-13  width in pixels
-    bytes 14-15  height in pixels
-    bytes 16-19  frame rate
-    bytes 20-23  time scale
-    bytes 24-27  number of frames in file
-    bytes 28-31  unused
-    */
-    struct streamHeader {
-        mfxU32 dkif;
-        mfxU16 version;
-        mfxU16 header_len;
-        mfxU32 codec_FourCC;
-        mfxU16 width;
-        mfxU16 height;
-        mfxU32 frame_rate;
-        mfxU32 time_scale;
-        mfxU32 num_frames;
-        mfxU32 unused;
-    } m_streamHeader;
-
-    /* 12 bytes for frame header
-    bytes 0-3   frame size
-    bytes 4-11  pts
-    */
-    struct frameHeader {
-        mfxU32 frame_size;
-        mfxU32 pts_high;
-        mfxU32 pts_low;
-    } m_frameHeader;
-
-    mfxU64 m_frameNum;
-    mfxStatus WriteStreamHeader();
-    mfxStatus WriteFrameHeader();
-    void UpdateNumberOfFrames();
-};
-#endif
 
 //timeinterval calculation helper
 
 template <int tag = 0>
-class CTimeInterval : private no_copy {
+class CTimeInterval {
     static double g_Freq;
     double& m_start;
     double m_own; //reference to this if external counter not required
     //since QPC functions are quite slow it makes sense to optionally enable them
     bool m_bEnable;
     msdk_tick m_StartTick;
+
+    CTimeInterval(const CTimeInterval&) {}
+    CTimeInterval& operator=(const CTimeInterval&) {
+        return *this;
+    }
 
 public:
     CTimeInterval(double& dRef, bool bEnable = true)
@@ -1262,11 +1054,30 @@ mfxU16 GetFreeSurfaceIndex(T* pSurfacesPool, mfxU16 nPoolSize) {
             }
         }
     }
+
+    return MSDK_INVALID_SURF_IDX;
+}
+
+template <class T>
+mfxU16 GetFreeSurfaceIndex(T** pSurfacesPool, mfxU16 nPoolSize) {
+    constexpr mfxU16 MSDK_INVALID_SURF_IDX = 0xffff;
+
+    if (pSurfacesPool) {
+        for (mfxU16 i = 0; i < nPoolSize; i++) {
+            if (0 == pSurfacesPool[i]->Data.Locked) {
+                return i;
+            }
+        }
+    }
+
     return MSDK_INVALID_SURF_IDX;
 }
 
 mfxU16 GetFreeSurface(mfxFrameSurface1* pSurfacesPool, mfxU16 nPoolSize);
+mfxU16 GetFreeSurface(mfxFrameSurface1** pSurfacesPool, mfxU16 nPoolSize);
+
 void FreeSurfacePool(mfxFrameSurface1* pSurfacesPool, mfxU16 nPoolSize);
+void FreeSurfacePool(mfxFrameSurface1** pSurfacesPool, mfxU16 nPoolSize);
 
 mfxU16 CalculateDefaultBitrate(mfxU32 nCodecId,
                                mfxU32 nTargetUsage,
@@ -1324,55 +1135,12 @@ bool skip(const Buf_t*& buf, Length_t& length, Length_t step) {
 //do not link MediaSDK dispatched if class not used
 struct MSDKAdapter {
     // returns the number of adapter associated with MSDK session, 0 for SW session
-    static mfxU32 GetNumber(mfxSession session,
-                            VPLImplementationLoader* loader = nullptr,
-                            mfxIMPL implVia                 = 0) {
+    static mfxU32 GetNumber(VPLImplementationLoader* loader) {
         mfxU32 adapterNum = 0; // default
-        mfxIMPL impl      = MFX_IMPL_SOFTWARE; // default in case no HW IMPL is found
 
-        // we don't care for error codes in further code; if something goes wrong we fall back to the default adapter
-        if (session) {
-            MFXQueryIMPL(session, &impl);
-        }
-        else {
-            // an auxiliary session, internal for this function
-            mfxSession auxSession;
-            memset(&auxSession, 0, sizeof(auxSession));
-
-            if (loader) {
-                MFXCreateSession(loader->GetLoader(), loader->GetImplIndex(), &auxSession);
-            }
-            else {
-                // minimum API version which supports multiple devices
-                mfxVersion ver = { { 1, 1 } };
-                MFXInit(MFX_IMPL_HARDWARE_ANY | implVia, &ver, &auxSession);
-            }
-
-            MFXQueryIMPL(auxSession, &impl);
-            MFXClose(auxSession);
-        }
-
-        // extract the base implementation type
-        mfxIMPL baseImpl = MFX_IMPL_BASETYPE(impl);
-
-        const struct {
-            // actual implementation
-            mfxIMPL impl;
-            // adapter's number
-            mfxU32 adapterID;
-
-        } implTypes[] = { { MFX_IMPL_HARDWARE, 0 },
-                          { MFX_IMPL_SOFTWARE, 0 },
-                          { MFX_IMPL_HARDWARE2, 1 },
-                          { MFX_IMPL_HARDWARE3, 2 },
-                          { MFX_IMPL_HARDWARE4, 3 } };
-
-        // get corresponding adapter number
-        for (mfxU8 i = 0; i < sizeof(implTypes) / sizeof(*implTypes); i++) {
-            if (implTypes[i].impl == baseImpl) {
-                adapterNum = implTypes[i].adapterID;
-                break;
-            }
+        // get from lib, which was found by loader and will be used for creating session
+        if (loader) {
+            adapterNum = loader->GetDeviceIDAndAdapter().second;
         }
 
         return adapterNum;
@@ -1443,9 +1211,6 @@ mfxStatus msdk_opt_read(const msdk_char* string, T& value);
 
 template <size_t S>
 mfxStatus msdk_opt_read(const msdk_char* string, msdk_char (&value)[S]) {
-    if (!S) {
-        return MFX_ERR_UNKNOWN;
-    }
     value[0] = 0;
 #if defined(_WIN32) || defined(_WIN64)
     value[S - 1] = 0;
@@ -1475,11 +1240,166 @@ void WaitForDeviceToBecomeFree(MFXVideoSession& session,
 
 mfxU16 FourCCToChroma(mfxU32 fourCC);
 
-#if (MFX_VERSION >= 2000)
-    #include "vpl/mfxdispatcher.h"
+class FPSLimiter {
+public:
+    FPSLimiter()  = default;
+    ~FPSLimiter() = default;
+    void Reset(mfxU32 fps) {
+        m_delayTicks = fps ? msdk_time_get_frequency() / fps : 0;
+    }
+    void Work() {
+        msdk_tick current_tick = msdk_time_get_tick();
+        while (m_delayTicks && (m_startTick + m_delayTicks > current_tick)) {
+            msdk_tick left_tick = m_startTick + m_delayTicks - current_tick;
+            uint32_t sleepTime  = (uint32_t)(left_tick * 1000 / msdk_time_get_frequency());
+            MSDK_SLEEP(sleepTime);
+            current_tick = msdk_time_get_tick();
+        };
+        m_startTick = msdk_time_get_tick();
+    }
 
-mfxStatus VPL_SetAccelMode(mfxLoader loader, MemType memType);
-mfxStatus VPL_EnableDispatcherLowLatency(mfxLoader loader, mfxU32 adapterNum);
-#endif // MFX_VERSION >= 2000
+protected:
+    msdk_tick m_startTick  = 0;
+    msdk_tick m_delayTicks = 0;
+};
+
+#if defined(_WIN32) || defined(_WIN64)
+mfxStatus PrintLoadedModules();
+#else
+int PrintLibMFXPath(struct dl_phdr_info* info, size_t size, void* data);
+#endif
+
+class SurfaceUtilizationSynchronizer {
+private:
+    std::mutex m_mutexWait;
+    std::mutex m_mutexSurface;
+    std::condition_variable m_cv;
+    std::atomic<bool> m_wait;
+    std::vector<mfxFrameSurface1*> m_Surfaces;
+    const mfxU16 m_NumFrameForAlloc;
+
+    bool QueryFree() {
+        std::lock_guard<std::mutex> lock(m_mutexSurface);
+        if (m_Surfaces.size() < m_NumFrameForAlloc) {
+            return true;
+        }
+        else {
+            for (std::vector<mfxFrameSurface1*>::iterator it = m_Surfaces.begin();
+                 it != m_Surfaces.end();
+                 it++) {
+                mfxU32 refCount = -1;
+                mfxStatus sts   = (*it)->FrameInterface->GetRefCounter((*it), &refCount);
+                if (sts == MFX_ERR_NONE && refCount <= 2 && (*it)->Data.Locked == 0) {
+                    (*it)->FrameInterface->Release((*it));
+                    m_Surfaces.erase(it);
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+public:
+    SurfaceUtilizationSynchronizer(mfxU16 numFrameForAlloc)
+            : m_wait(false),
+              m_NumFrameForAlloc(numFrameForAlloc) {}
+
+    mfxStatus PushSurface(mfxFrameSurface1* surface) {
+        std::lock_guard<std::mutex> lock(m_mutexSurface);
+        mfxStatus sts;
+        if (!surface || !surface->FrameInterface || !surface->FrameInterface->AddRef) {
+            return MFX_ERR_UNKNOWN;
+        }
+        sts = surface->FrameInterface->AddRef(surface);
+        if (sts == MFX_ERR_NONE) {
+            m_Surfaces.push_back(surface);
+        }
+        return sts;
+    }
+
+    void StartWaitingForFree() {
+        std::unique_lock<std::mutex> lock(m_mutexWait);
+
+        if (!QueryFree()) {
+            m_wait = true;
+            m_cv.wait(lock, [&] {
+                return !m_wait;
+            });
+        }
+    }
+
+    mfxU16 GetNumFrameForAlloc() const {
+        return m_NumFrameForAlloc;
+    }
+
+    void NotifyFreeCome() {
+        std::lock_guard<std::mutex> lock(m_mutexWait);
+
+        if (!m_wait) {
+            return;
+        }
+
+        if (QueryFree()) {
+            m_wait = false;
+            m_cv.notify_all();
+        }
+    }
+};
+
+class CIVFFrameWriter : public CSmplBitstreamWriter {
+public:
+    CIVFFrameWriter();
+
+    virtual mfxStatus Reset();
+    virtual mfxStatus Init(const msdk_char* strFileName,
+                           const mfxU16 w,
+                           const mfxU16 h,
+                           const mfxU32 fr_nom,
+                           const mfxU32 fr_denom);
+    virtual mfxStatus WriteNextFrame(mfxBitstream* pMfxBitstream, bool isPrint = true);
+    virtual void Close();
+
+protected:
+    /* 32 bytes for stream header
+    bytes 0-3    signature: 'DKIF'
+    bytes 4-5    version (should be 0)
+    bytes 6-7    length of header in bytes
+    bytes 8-11   codec FourCC (e.g., 'VP80')
+    bytes 12-13  width in pixels
+    bytes 14-15  height in pixels
+    bytes 16-19  frame rate
+    bytes 20-23  time scale
+    bytes 24-27  number of frames in file
+    bytes 28-31  unused
+    */
+    struct streamHeader {
+        mfxU32 dkif;
+        mfxU16 version;
+        mfxU16 header_len;
+        mfxU32 codec_FourCC;
+        mfxU16 width;
+        mfxU16 height;
+        mfxU32 frame_rate;
+        mfxU32 time_scale;
+        mfxU32 num_frames;
+        mfxU32 unused;
+    } m_streamHeader;
+
+    /* 12 bytes for frame header
+    bytes 0-3   frame size
+    bytes 4-11  pts
+    */
+    struct frameHeader {
+        mfxU32 frame_size;
+        mfxU32 pts_high;
+        mfxU32 pts_low;
+    } m_frameHeader;
+
+    mfxU64 m_frameNum;
+    mfxStatus WriteStreamHeader();
+    mfxStatus WriteFrameHeader();
+    void UpdateNumberOfFrames();
+};
 
 #endif //__SAMPLE_UTILS_H__

@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2005 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -365,4 +365,4 @@ mfxStatus CD3D9Device::CreateVideoProcessors() {
     return SUCCEEDED(hr) ? MFX_ERR_NONE : MFX_ERR_DEVICE_FAILED;
 }
 
-#endif // #if defined(WIN32) || defined(WIN64)
+#endif // #if defined(_WIN32) || defined(_WIN64)

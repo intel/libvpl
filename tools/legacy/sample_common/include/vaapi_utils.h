@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2005 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -13,7 +13,7 @@
     #include <va/va_drmcommon.h>
 
     #if defined(LIBVA_DRM_SUPPORT)
-        #include <libdrm/intel_bufmgr.h>
+        #include <intel_bufmgr.h>
         #include <va/va_drm.h>
         #include <xf86drm.h>
         #include <xf86drmMode.h>
@@ -485,6 +485,9 @@ private:
 };
 
 CLibVA* CreateLibVA(const std::string& devicePath = "", int type = MFX_LIBVA_DRM);
+
+// compatibility with some old tools/val-tools
+CLibVA* CreateLibVA(int type);
 
 VAStatus AcquireVASurface(void** ctx,
                           VADisplay dpy1,

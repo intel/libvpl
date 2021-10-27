@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2005 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -15,17 +15,14 @@
     #include "sample_utils.h"
     #include "vm/thread_defs.h"
 
-/* ****************************************************************************** */
-
 MSDKSemaphore::MSDKSemaphore(mfxStatus& sts, mfxU32 count) : msdkSemaphoreHandle(count) {
     sts     = MFX_ERR_NONE;
     int res = pthread_cond_init(&m_semaphore, NULL);
     if (!res) {
         res = pthread_mutex_init(&m_mutex, NULL);
         if (res) {
-            int eres = pthread_cond_destroy(&m_semaphore);
-            if (eres) {
-                // Nothing to do
+            if (!pthread_cond_destroy(&m_semaphore)) {
+                // do nothing
             }
         }
     }
@@ -34,25 +31,27 @@ MSDKSemaphore::MSDKSemaphore(mfxStatus& sts, mfxU32 count) : msdkSemaphoreHandle
 }
 
 MSDKSemaphore::~MSDKSemaphore(void) {
-    int res = pthread_mutex_destroy(&m_mutex);
-    if (res) {
-        // Nothing to do
+    if (!pthread_mutex_destroy(&m_mutex)) {
+        // do nothing
     }
-    res = pthread_cond_destroy(&m_semaphore);
-    if (res) {
-        // Nothing to do
+    if (!pthread_cond_destroy(&m_semaphore)) {
+        // do nothing
     }
 }
 
 mfxStatus MSDKSemaphore::Post(void) {
     int res = pthread_mutex_lock(&m_mutex);
     if (!res) {
-        if (0 == m_count++)
+        if (0 == m_count++) {
             res = pthread_cond_signal(&m_semaphore);
+            if (!res) {
+                // do nothing
+            }
+        }
     }
     int sts = pthread_mutex_unlock(&m_mutex);
-    if (sts) {
-        // Nothing to do
+    if (!sts) {
+        // do nothing
     }
     if (!res)
         res = sts;
@@ -64,15 +63,15 @@ mfxStatus MSDKSemaphore::Wait(void) {
     if (!res) {
         while (!m_count) {
             res = pthread_cond_wait(&m_semaphore, &m_mutex);
-            if (res) {
-                // Nothing to do
+            if (!res) {
+                // do nothing
             }
         }
         if (!res)
             --m_count;
         int sts = pthread_mutex_unlock(&m_mutex);
-        if (sts) {
-            // Nothing to do
+        if (!sts) {
+            // do nothing
         }
         if (!res)
             res = sts;
@@ -89,9 +88,8 @@ MSDKEvent::MSDKEvent(mfxStatus& sts, bool manual, bool state) : msdkEventHandle(
     if (!res) {
         res = pthread_mutex_init(&m_mutex, NULL);
         if (res) {
-            int eres = pthread_cond_destroy(&m_event);
-            if (eres) {
-                // Nothing to do
+            if (!pthread_cond_destroy(&m_event)) {
+                // do nothing
             }
         }
     }
@@ -100,13 +98,11 @@ MSDKEvent::MSDKEvent(mfxStatus& sts, bool manual, bool state) : msdkEventHandle(
 }
 
 MSDKEvent::~MSDKEvent(void) {
-    int res = pthread_mutex_destroy(&m_mutex);
-    if (res) {
-        // Nothing to do
+    if (!pthread_mutex_destroy(&m_mutex)) {
+        // do nothing
     }
-    res = pthread_cond_destroy(&m_event);
-    if (res) {
-        // Nothing to do
+    if (!pthread_cond_destroy(&m_event)) {
+        // do nothing
     }
 }
 
@@ -119,10 +115,13 @@ mfxStatus MSDKEvent::Signal(void) {
                 res = pthread_cond_broadcast(&m_event);
             else
                 res = pthread_cond_signal(&m_event);
+            if (!res) {
+                // do nothing
+            }
         }
         int sts = pthread_mutex_unlock(&m_mutex);
-        if (sts) {
-            // Nothing to do
+        if (!sts) {
+            // do nothing
         }
         if (!res)
             res = sts;
@@ -145,15 +144,15 @@ mfxStatus MSDKEvent::Wait(void) {
     if (!res) {
         while (!m_state) {
             res = pthread_cond_wait(&m_event, &m_mutex);
-            if (res) {
-                // Nothing to do
+            if (!res) {
+                // do nothing
             }
         }
         if (!m_manual)
             m_state = false;
         int sts = pthread_mutex_unlock(&m_mutex);
-        if (sts) {
-            // Nothing to do
+        if (!sts) {
+            // do nothing
         }
         if (!res)
             res = sts;

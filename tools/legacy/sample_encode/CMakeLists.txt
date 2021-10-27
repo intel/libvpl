@@ -1,13 +1,8 @@
 # ##############################################################################
-# Copyright (C) Intel Corporation
+# Copyright (C) 2005 Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 # ##############################################################################
-cmake_minimum_required(VERSION 3.10.2)
-
-set(TARGET sample_encode)
-set(SOURCES "")
-list(APPEND SOURCES src/pipeline_encode.cpp src/${TARGET}.cpp)
 
 find_package(VPL REQUIRED)
 
@@ -16,35 +11,27 @@ if(POLICY CMP0074)
   cmake_policy(SET CMP0074 OLD)
 endif()
 
-if(UNIX)
-  find_package(PkgConfig REQUIRED)
-  pkg_check_modules(PKG_LIBVA libva>=1.2 libva-drm>=1.2)
-  pkg_check_modules(PKG_LIBDRM libdrm)
-  pkg_check_modules(PKG_X11 x11)
-  pkg_check_modules(PKG_LIBWAYLAND libwayland)
-
-  if(NOT
-     (PKG_LIBVA_FOUND
-      AND (PKG_LIBDRM_FOUND
-           OR PKG_X11_FOUND
-           OR PKG_LIBWAYLAND_FOUND)))
-
-    message(
-      "Skipping sample_encode build.  Requires libva + DRM, X11, or Wayland backend."
-    )
+if(CMAKE_SYSTEM_NAME MATCHES Linux)
+  if(NOT (PKG_LIBVA_FOUND AND PKG_LIBVA_DRM_FOUND))
+    message("Skipping sample_encode build.")
     return()
   endif()
 endif()
 
-add_executable(${TARGET} ${SOURCES})
-target_include_directories(${TARGET}
+add_executable(sample_encode)
+
+target_sources(
+  sample_encode PRIVATE src/pipeline_encode.cpp src/pipeline_region_encode.cpp
+                        src/pipeline_user.cpp src/sample_encode.cpp)
+
+target_include_directories(sample_encode
                            PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-target_link_libraries(${TARGET} sample_common)
+target_link_libraries(sample_encode PRIVATE sample_common)
 
 if(MSVC)
-  target_compile_definitions(${TARGET} PRIVATE -D_CRT_SECURE_NO_WARNINGS)
+  target_compile_definitions(sample_encode PRIVATE _CRT_SECURE_NO_WARNINGS)
 endif()
 
-install(TARGETS ${TARGET} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-                                  COMPONENT dev)
+install(TARGETS sample_encode RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+                                      COMPONENT dev)

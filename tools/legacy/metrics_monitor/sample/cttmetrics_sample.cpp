@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2014 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include "include/cttmetrics.h"
+#include "cttmetrics.h"
 
 #define MIN_PERIOD_MS     10
 #define MAX_PERIOD_MS     1000

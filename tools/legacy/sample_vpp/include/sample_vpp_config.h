@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2005 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -17,6 +17,13 @@
     #endif
 
 enum { NOT_INIT_VALUE = 0xFFF7 };
+
+enum MemType { SYSTEM_MEMORY = 0x00, D3D9_MEMORY = 0x01, D3D11_MEMORY = 0x02, VAAPI_MEMORY = 0x03 };
+
+    #define VPP_PROCAMP_BRIGHTNESS_DEFAULT 0.0
+    #define VPP_PROCAMP_CONTRAST_DEFAULT   1.0
+    #define VPP_PROCAMP_HUE_DEFAULT        0.0
+    #define VPP_PROCAMP_SATURATION_DEFAULT 1.0
 
     #define VPP_DENOISE_FACTOR_DEFAULT NOT_INIT_VALUE
     #define VPP_FILTER_FACTOR_DEFAULT  NOT_INIT_VALUE
@@ -74,7 +81,7 @@ struct sMirroringParam : public mfxExtVPPMirroring {
 typedef struct {
     mfxU16 factor;
     FilterConfig mode;
-
+    mfxU16 config;
 } sDenoiseParam;
 
 struct sColorFillParam : public mfxExtVPPColorFill {

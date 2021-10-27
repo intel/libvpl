@@ -1,10 +1,11 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2005 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
 
 #include "avc_bitstream.h"
+#include <algorithm>
 #include "sample_defs.h"
 
 namespace ProtectedLibrary {

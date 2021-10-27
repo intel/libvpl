@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2005 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -9,8 +9,8 @@
     #include "vaapi_utils_x11.h"
     #include "sample_defs.h"
 
+    #include <dlfcn.h>
     #if defined(X11_DRI3_SUPPORT)
-        #include <dlfcn.h>
         #include <fcntl.h>
     #endif
     #include <sys/ioctl.h>

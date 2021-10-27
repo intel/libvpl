@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2005 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -196,5 +196,5 @@ void FRCChecker::PrintDumpInfoAboutAverageError() {
         MSDK_STRING("Maximum error: input FRC, output FRC, Current value are: %d\t %d\t %llu\n"),
         m_Error_In,
         m_Error_Out,
-        m_AverageError);
+        (unsigned long long int)m_AverageError);
 }

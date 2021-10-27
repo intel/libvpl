@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2005 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -33,7 +33,7 @@ void DecreaseReference(mfxFrameData* ptr) {
 }
 
 void PutPerformanceToFile(sInputParams& Params, mfxF64 FPS) {
-    FILE* fPRF;
+    FILE* fPRF = NULL;
     MSDK_FOPEN(fPRF, Params.strPerfFile, MSDK_STRING("ab"));
     if (!fPRF)
         return;
@@ -81,13 +81,8 @@ static void vppDefaultInitParams(sInputParams* pParams, sFiltersParam* pDefaultF
     pParams->frameInfoOut.clear();
     pParams->frameInfoOut.push_back(*pDefaultFiltersParam->pOwnFrameInfo);
 
-    pParams->IOPattern = MFX_IOPATTERN_IN_SYSTEM_MEMORY | MFX_IOPATTERN_OUT_SYSTEM_MEMORY;
-    pParams->ImpLib    = MFX_IMPL_HARDWARE |
-#ifdef LIBVA_SUPPORT
-                      MFX_IMPL_VIA_VAAPI;
-#else
-                      MFX_IMPL_VIA_D3D9;
-#endif
+    pParams->IOPattern   = MFX_IOPATTERN_IN_SYSTEM_MEMORY | MFX_IOPATTERN_OUT_SYSTEM_MEMORY;
+    pParams->ImpLib      = MFX_IMPL_HARDWARE;
     pParams->asyncNum    = 1;
     pParams->bPerf       = false;
     pParams->isOutput    = false;
@@ -149,16 +144,9 @@ static void vppDefaultInitParams(sInputParams* pParams, sFiltersParam* pDefaultF
     pParams->roiCheckParam.dstSeed = 0;
     pParams->forcedOutputFourcc    = 0;
 
-    // plug-in GUID
-    pParams->need_plugin = false;
-
-    // Use RunFrameVPPAsyncEx
-    pParams->use_extapi = false;
-
     // Do not call MFXVideoVPP_Reset
     pParams->resetFrmNums.clear();
 
-    pParams->bInitEx      = false;
     pParams->GPUCopyValue = MFX_GPUCOPY_DEFAULT;
 
     return;
@@ -182,47 +170,31 @@ void SaveRealInfoForSvcOut(sSVCLayerDescr in[8], mfxFrameInfo out[8], mfxU32 fou
 
 } // void SaveRealInfoForSvcOut(sSVCLayerDescr in[8], mfxFrameInfo out[8])
 
-mfxStatus OutputProcessFrame(sAppResources* Resources,
+mfxStatus OutputProcessFrame(sAppResources Resources,
                              mfxFrameInfo* pOutFrameInfo,
                              mfxU32& nFrames,
                              mfxU32 paramID) {
     mfxStatus sts;
     mfxFrameSurfaceWrap* pProcessedSurface;
 
-    for (; !Resources->pSurfStore->m_SyncPoints.empty();
-         Resources->pSurfStore->m_SyncPoints.pop_front()) {
-        sts = Resources->pProcessor->mfxSession.SyncOperation(
-            Resources->pSurfStore->m_SyncPoints.front().first,
+    for (; !Resources.pSurfStore->m_SyncPoints.empty();
+         Resources.pSurfStore->m_SyncPoints.pop_front()) {
+        sts = Resources.pProcessor->mfxSession.SyncOperation(
+            Resources.pSurfStore->m_SyncPoints.front().first,
             MSDK_VPP_WAIT_INTERVAL);
         if (sts == MFX_WRN_IN_EXECUTION) {
             msdk_printf(MSDK_STRING("SyncOperation wait interval exceeded\n"));
         }
         MSDK_CHECK_NOT_EQUAL(sts, MFX_ERR_NONE, sts);
 
-        pProcessedSurface = Resources->pSurfStore->m_SyncPoints.front().second.pSurface;
+        pProcessedSurface = Resources.pSurfStore->m_SyncPoints.front().second.pSurface;
 
-        if (Resources->pParams->strDstFiles.size()) {
-            GeneralWriter* writer = (1 == Resources->dstFileWritersN)
-                                        ? &Resources->pDstFileWriters[0]
-                                        : &Resources->pDstFileWriters[paramID];
-#if (MFX_VERSION >= 2000)
-            if (Resources->pParams->api2xInternalMem) {
-                sts = writer->PutNextFrame2(pOutFrameInfo, pProcessedSurface);
-            }
-            else {
-                sts = writer->PutNextFrame(Resources->pAllocator, pOutFrameInfo, pProcessedSurface);
-            }
-#else
-            sts = writer->PutNextFrame(Resources->pAllocator, pOutFrameInfo, pProcessedSurface);
-#endif
+        if (!Resources.pParams->strDstFiles.empty()) {
+            GeneralWriter* writer = (1 == Resources.dstFileWritersN)
+                                        ? &Resources.pDstFileWriters[0]
+                                        : &Resources.pDstFileWriters[paramID];
+            sts = writer->PutNextFrame(Resources.pAllocator, pOutFrameInfo, pProcessedSurface);
         }
-        else {
-            if (Resources->pParams->api2xInternalMem) {
-                sts = pProcessedSurface->FrameInterface->Release(pProcessedSurface);
-                MSDK_CHECK_NOT_EQUAL(sts, MFX_ERR_NONE, MFX_ERR_ABORTED);
-            }
-        }
-
         DecreaseReference(&pProcessedSurface->Data);
 
         if (sts)
@@ -232,17 +204,12 @@ mfxStatus OutputProcessFrame(sAppResources* Resources,
         nFrames++;
 
         //VPP progress
-#if (MFX_VERSION >= 2000)
-        if (Resources->pParams->api2xPerf == false)
-#endif
-        {
-            if (!Resources->pParams->bPerf) {
-                msdk_printf(MSDK_STRING("Frame number: %d\r"), nFrames);
-            }
-            else {
-                if (!(nFrames % 100))
-                    msdk_printf(MSDK_STRING("."));
-            }
+        if (!Resources.pParams->bPerf) {
+            msdk_printf(MSDK_STRING("Frame number: %d\r"), nFrames);
+        }
+        else {
+            if (!(nFrames % 100))
+                msdk_printf(MSDK_STRING("."));
         }
     }
     return MFX_ERR_NONE;
@@ -276,30 +243,6 @@ void ownToMfxFrameInfo(sOwnFrameInfo* in, mfxFrameInfo* out, bool copyCropParams
     return;
 }
 
-#if (MFX_VERSION >= 2000)
-mfxU32 GetSurfaceSize(mfxU32 FourCC, mfxU32 width, mfxU32 height) {
-    mfxU32 nbytes = 0;
-
-    switch (FourCC) {
-        case MFX_FOURCC_NV12:
-        case MFX_FOURCC_I420:
-            nbytes = width * height + (width >> 1) * (height >> 1) + (width >> 1) * (height >> 1);
-            break;
-        case MFX_FOURCC_P010:
-        case MFX_FOURCC_I010:
-            nbytes = width * height + (width >> 1) * (height >> 1) + (width >> 1) * (height >> 1);
-            nbytes *= 2;
-            break;
-        case MFX_FOURCC_RGB4:
-            nbytes = width * height * 4;
-        default:
-            break;
-    }
-
-    return nbytes;
-}
-#endif
-
 #if defined(_WIN32) || defined(_WIN64)
 int _tmain(int argc, TCHAR* argv[])
 #else
@@ -327,7 +270,6 @@ int main(int argc, msdk_char* argv[])
 
     mfxFrameSurfaceWrap* pInSurf[MAX_INPUT_STREAMS] = {};
     mfxFrameSurfaceWrap* pOutSurf                   = nullptr;
-    mfxFrameSurfaceWrap* pWorkSurf                  = nullptr;
 
     mfxSyncPoint syncPoint;
 
@@ -434,11 +376,6 @@ int main(int argc, msdk_char* argv[])
     }
     MSDK_CHECK_STATUS(sts, "vppParseInputString failed");
 
-    // to make oneVPL.test be ready for new sample tools
-    // 2.x funcs call is the default in the new sample tools unless api1x_dispater is set
-    Params.api2xDispatcher = (Params.api1xDispatcher == true) ? false : true;
-
-#if (MFX_VERSION >= 2000)
     // In case i420 (-dcc i420) for gen, vppParseInputString sets forceOutputFourcc to i420 and
     // change Params.frameInfoOut[0].FourCC to nv12 for processing in gen lib.
     // So, when it writes vpp output, it refers forceOutputFourcc to convert nv12 to -dcc format.
@@ -448,7 +385,6 @@ int main(int argc, msdk_char* argv[])
         Params.frameInfoOut[0].FourCC = Params.forcedOutputFourcc;
         Params.forcedOutputFourcc     = 0;
     }
-#endif
 
     // to check time stamp settings
     if (Params.ptsFR) {
@@ -492,13 +428,9 @@ int main(int argc, msdk_char* argv[])
         }
     }
     else {
-#if (MFX_VERSION < 2000)
         // D3D11 does not support I420 and YV12 surfaces. So file reader will convert them into nv12.
         // It may be slower than using vpp
-        if (Params.fccSource == MFX_FOURCC_I420 ||
-#else
         if ((Params.fccSource == MFX_FOURCC_I420 && (Params.ImpLib & MFX_IMPL_HARDWARE)) ||
-#endif
             ((Params.ImpLib & 0x0f00) == MFX_IMPL_VIA_D3D11 &&
              Params.fccSource == MFX_FOURCC_YV12)) {
             msdk_printf(MSDK_STRING(
@@ -513,7 +445,7 @@ int main(int argc, msdk_char* argv[])
     }
     ownToMfxFrameInfo(&(Params.frameInfoOut[0]), &realFrameInfoOut);
 
-    if (Params.strDstFiles.size()) {
+    if (!Params.strDstFiles.empty()) {
         //prepare file writers (YUV file)
         Resources.dstFileWritersN = (mfxU32)Params.strDstFiles.size();
         Resources.pDstFileWriters = new GeneralWriter[Resources.dstFileWritersN];
@@ -631,8 +563,6 @@ int main(int argc, msdk_char* argv[])
     }
 
     bool bDoNotUpdateIn = false;
-    if (Params.use_extapi)
-        bDoNotUpdateIn = true;
 
     // pre-multi-view preparation
     bool bMultiView =
@@ -652,18 +582,6 @@ int main(int argc, msdk_char* argv[])
     mfxU16 paramID  = 0;
     mfxU32 nextResetFrmNum =
         (Params.resetFrmNums.size() > 0) ? Params.resetFrmNums[0] : NOT_INIT_VALUE;
-
-#if (MFX_VERSION >= 2000)
-    mfxF64 api2xPerfLoopTime = 0;
-    mfxU32 frame_size        = GetSurfaceSize(realFrameInfoIn[0].FourCC,
-                                       realFrameInfoIn[0].Width,
-                                       realFrameInfoIn[0].Height);
-    mfxU8* buf_read          = NULL;
-
-    if (Params.api2xPerf) {
-        buf_read = reinterpret_cast<mfxU8*>(malloc(frame_size));
-    }
-#endif
 
     //---------------------------------------------------------
     do {
@@ -712,12 +630,8 @@ int main(int argc, msdk_char* argv[])
                 }
             }
 
-            msdk_printf(MSDK_STRING("VPP reseted at frame number %d\n"), (int)numGetFrames);
+            msdk_printf(MSDK_STRING("VPP reseted at frame number %d\n"), numGetFrames);
         }
-
-#if (MFX_VERSION >= 2000)
-        auto api2x_perf_t1 = std::chrono::high_resolution_clock::now();
-#endif
 
         while (MFX_ERR_NONE <= sts || MFX_ERR_MORE_DATA == sts || bDoNotUpdateIn) {
             mfxU16 viewID   = 0;
@@ -751,37 +665,11 @@ int main(int argc, msdk_char* argv[])
                     break;
                 }
 
-#if (MFX_VERSION >= 2000)
-                if (Params.api2xInternalMem) {
-                    if (Params.api2xPerf) {
-                        sts = yuvReaders[nInStreamInd].GetNextInputFrame2(
-                            &frameProcessor,
-                            &realFrameInfoIn[nInStreamInd],
-                            &pInSurf[nInStreamInd],
-                            frame_size,
-                            buf_read);
-                    }
-                    else {
-                        sts = yuvReaders[nInStreamInd].GetNextInputFrame2(
-                            &frameProcessor,
-                            &realFrameInfoIn[nInStreamInd],
-                            &pInSurf[nInStreamInd]);
-                    }
-                }
-                else {
-                    // if we share allocator with mediasdk we need to call Lock to access surface data and after we're done call Unlock
-                    sts = yuvReaders[nInStreamInd].GetNextInputFrame(&allocator,
-                                                                     &realFrameInfoIn[nInStreamInd],
-                                                                     &pInSurf[nInStreamInd],
-                                                                     nInStreamInd);
-                }
-#else
                 // if we share allocator with mediasdk we need to call Lock to access surface data and after we're done call Unlock
                 sts = yuvReaders[nInStreamInd].GetNextInputFrame(&allocator,
                                                                  &realFrameInfoIn[nInStreamInd],
                                                                  &pInSurf[nInStreamInd],
                                                                  nInStreamInd);
-#endif
                 MSDK_BREAK_ON_ERROR(sts);
 
                 // Set input timestamps according to input framerate
@@ -803,90 +691,59 @@ int main(int argc, msdk_char* argv[])
             // VPP processing
             bDoNotUpdateIn = false;
 
-#if (MFX_VERSION >= 2000)
-            if (Params.api2xInternalMem) {
-                sts = frameProcessor.pmfxMemory->GetSurfaceForVPPOut((mfxFrameSurface1**)&pOutSurf);
-            }
-            else {
-                sts = GetFreeSurface(allocator.pSurfacesOut,
-                                     allocator.responseOut.NumFrameActual,
-                                     (Params.use_extapi ? &pWorkSurf : &pOutSurf));
-            }
-#else
-
             sts = GetFreeSurface(allocator.pSurfacesOut,
                                  allocator.responseOut.NumFrameActual,
-                                 (Params.use_extapi ? &pWorkSurf : &pOutSurf));
-#endif
+                                 &pOutSurf);
             MSDK_BREAK_ON_ERROR(sts);
 
             if (bROITest[VPP_IN]) {
                 inROIGenerator.SetROI(&(pInSurf[nInStreamInd]->Info));
             }
             if (bROITest[VPP_OUT]) {
-                outROIGenerator.SetROI((Params.use_extapi ? &pWorkSurf->Info : &pOutSurf->Info));
+                outROIGenerator.SetROI(&pOutSurf->Info);
             }
 
-            if (Params.use_extapi) {
-#if (MFX_VERSION < 2000)
-                mfxFrameSurface1* out_surface = nullptr;
-                do {
-                    sts = frameProcessor.pmfxVPP->RunFrameVPPAsyncEx(pInSurf[nInStreamInd],
-                                                                     pWorkSurf,
-                                                                     //pExtData,
-                                                                     &out_surface,
-                                                                     &syncPoint);
-                } while (MFX_WRN_DEVICE_BUSY == sts);
-
-                pOutSurf = static_cast<mfxFrameSurfaceWrap*>(out_surface);
-                if (MFX_ERR_MORE_DATA != sts)
-                    bDoNotUpdateIn = true;
-#endif
-            }
-            else {
 #ifdef ENABLE_VPP_RUNTIME_HSBC
-                if (Params.rtHue.isEnabled || Params.rtSaturation.isEnabled ||
-                    Params.rtBrightness.isEnabled || Params.rtContrast.isEnabled) {
-                    auto procAmp = pOutSurf->AddExtBuffer<mfxExtVPPProcAmp>();
-                    // set default values for ProcAmp filters
-                    procAmp->Brightness = 0.0F;
-                    procAmp->Contrast   = 1.0F;
-                    procAmp->Hue        = 0.0F;
-                    procAmp->Saturation = 1.0F;
+            if (Params.rtHue.isEnabled || Params.rtSaturation.isEnabled ||
+                Params.rtBrightness.isEnabled || Params.rtContrast.isEnabled) {
+                auto procAmp = pOutSurf->AddExtBuffer<mfxExtVPPProcAmp>();
+                // set default values for ProcAmp filters
+                procAmp->Brightness = 0.0F;
+                procAmp->Contrast   = 1.0F;
+                procAmp->Hue        = 0.0F;
+                procAmp->Saturation = 1.0F;
 
-                    if (Params.rtHue.isEnabled) {
-                        procAmp->Hue = ((nOutFrames / Params.rtHue.interval & 0x1) == 0)
-                                           ? Params.rtHue.value1
-                                           : Params.rtHue.value2;
-                    }
-
-                    if (Params.rtSaturation.isEnabled) {
-                        procAmp->Saturation =
-                            ((nOutFrames / Params.rtSaturation.interval & 0x1) == 0)
-                                ? Params.rtSaturation.value1
-                                : Params.rtSaturation.value2;
-                    }
-
-                    if (Params.rtBrightness.isEnabled) {
-                        procAmp->Brightness =
-                            ((nOutFrames / Params.rtBrightness.interval & 0x1) == 0)
-                                ? Params.rtBrightness.value1
-                                : Params.rtBrightness.value2;
-                    }
-
-                    if (Params.rtContrast.isEnabled) {
-                        procAmp->Contrast = ((nOutFrames / Params.rtContrast.interval & 0x1) == 0)
-                                                ? Params.rtContrast.value1
-                                                : Params.rtContrast.value2;
-                    }
+                if (Params.rtHue.isEnabled) {
+                    procAmp->Hue = ((nOutFrames / Params.rtHue.interval & 0x1) == 0)
+                                       ? Params.rtHue.value1
+                                       : Params.rtHue.value2;
                 }
-                nOutFrames++;
-#endif
-                sts = frameProcessor.pmfxVPP->RunFrameVPPAsync(pInSurf[nInStreamInd],
-                                                               pOutSurf,
-                                                               NULL,
-                                                               &syncPoint);
+
+                if (Params.rtSaturation.isEnabled) {
+                    procAmp->Saturation = ((nOutFrames / Params.rtSaturation.interval & 0x1) == 0)
+                                              ? Params.rtSaturation.value1
+                                              : Params.rtSaturation.value2;
+                }
+
+                if (Params.rtBrightness.isEnabled) {
+                    procAmp->Brightness = ((nOutFrames / Params.rtBrightness.interval & 0x1) == 0)
+                                              ? Params.rtBrightness.value1
+                                              : Params.rtBrightness.value2;
+                }
+
+                if (Params.rtContrast.isEnabled) {
+                    procAmp->Contrast = ((nOutFrames / Params.rtContrast.interval & 0x1) == 0)
+                                            ? Params.rtContrast.value1
+                                            : Params.rtContrast.value2;
+                }
             }
+            nOutFrames++;
+#endif
+
+            sts = frameProcessor.pmfxVPP->RunFrameVPPAsync(pInSurf[nInStreamInd],
+                                                           pOutSurf,
+                                                           NULL,
+                                                           &syncPoint);
 
             nInStreamInd++;
             if (nInStreamInd == Resources.numSrcFiles)
@@ -915,11 +772,6 @@ int main(int argc, msdk_char* argv[])
                 else {
                     bDoNotUpdateIn = true;
                 }
-
-                if (Params.use_extapi) {
-                    // RunFrameAsyncEx is used
-                    continue;
-                }
             }
             else if (MFX_ERR_NONE == sts && !((nFrames + 1) % StartJumpFrame) && ptsMaker.get() &&
                      Params.ptsJump) // pts jump
@@ -938,10 +790,11 @@ int main(int argc, msdk_char* argv[])
             surfStore.m_SyncPoints.push_back(SurfaceVPPStore::SyncPair(syncPoint, pOutSurf));
             IncreaseReference(&pOutSurf->Data);
             if (surfStore.m_SyncPoints.size() !=
-                ((size_t)(Params.asyncNum) * Params.multiViewParam[paramID].viewCount)) {
+                (size_t)((size_t)Params.asyncNum *
+                         (size_t)Params.multiViewParam[paramID].viewCount)) {
                 continue;
             }
-            sts = OutputProcessFrame(&Resources, &realFrameInfoOut, nFrames, paramID);
+            sts = OutputProcessFrame(Resources, &realFrameInfoOut, nFrames, paramID);
             MSDK_BREAK_ON_ERROR(sts);
 
         } // main while loop
@@ -949,7 +802,7 @@ int main(int argc, msdk_char* argv[])
 
         //process remain sync points
         if (MFX_ERR_MORE_DATA == sts) {
-            sts = OutputProcessFrame(&Resources, &realFrameInfoOut, nFrames, paramID);
+            sts = OutputProcessFrame(Resources, &realFrameInfoOut, nFrames, paramID);
             MSDK_CHECK_STATUS_SAFE(sts, "OutputProcessFrame failed", {
                 WipeResources(&Resources);
                 WipeParams(&Params);
@@ -966,76 +819,52 @@ int main(int argc, msdk_char* argv[])
 
         // loop to get buffered frames from VPP
         while (MFX_ERR_NONE <= sts) {
-#if (MFX_VERSION >= 2000)
-            if (!Params.api2xInternalMem) {
-                sts = GetFreeSurface(allocator.pSurfacesOut,
-                                     allocator.responseOut.NumFrameActual,
-                                     (Params.use_extapi ? &pWorkSurf : &pOutSurf));
-            }
-#else
             sts = GetFreeSurface(allocator.pSurfacesOut,
                                  allocator.responseOut.NumFrameActual,
-                                 (Params.use_extapi ? &pWorkSurf : &pOutSurf));
-#endif
+                                 &pOutSurf);
             MSDK_BREAK_ON_ERROR(sts);
 
             bDoNotUpdateIn = false;
 
-            if (Params.use_extapi) {
-#if (MFX_VERSION < 2000)
-                mfxFrameSurface1* out_surface = nullptr;
-                do {
-                    sts = frameProcessor.pmfxVPP->RunFrameVPPAsyncEx(NULL,
-                                                                     pWorkSurf,
-                                                                     &out_surface,
-                                                                     &syncPoint);
-                } while (MFX_WRN_DEVICE_BUSY == sts);
-
-                pOutSurf = static_cast<mfxFrameSurfaceWrap*>(out_surface);
-#endif
-            }
-            else {
 #ifdef ENABLE_VPP_RUNTIME_HSBC
-                if (Params.rtHue.isEnabled || Params.rtSaturation.isEnabled ||
-                    Params.rtBrightness.isEnabled || Params.rtContrast.isEnabled) {
-                    auto procAmp = pOutSurf->AddExtBuffer<mfxExtVPPProcAmp>();
-                    // set default values for ProcAmp filters
-                    procAmp->Brightness = 0.0F;
-                    procAmp->Contrast   = 1.0F;
-                    procAmp->Hue        = 0.0F;
-                    procAmp->Saturation = 1.0F;
+            if (Params.rtHue.isEnabled || Params.rtSaturation.isEnabled ||
+                Params.rtBrightness.isEnabled || Params.rtContrast.isEnabled) {
+                auto procAmp = pOutSurf->AddExtBuffer<mfxExtVPPProcAmp>();
+                // set default values for ProcAmp filters
+                procAmp->Brightness = 0.0F;
+                procAmp->Contrast   = 1.0F;
+                procAmp->Hue        = 0.0F;
+                procAmp->Saturation = 1.0F;
 
-                    if (Params.rtHue.isEnabled) {
-                        procAmp->Hue = ((nOutFrames / Params.rtHue.interval & 0x1) == 0)
-                                           ? Params.rtHue.value1
-                                           : Params.rtHue.value2;
-                    }
-
-                    if (Params.rtSaturation.isEnabled) {
-                        procAmp->Saturation =
-                            ((nOutFrames / Params.rtSaturation.interval & 0x1) == 0)
-                                ? Params.rtSaturation.value1
-                                : Params.rtSaturation.value2;
-                    }
-
-                    if (Params.rtBrightness.isEnabled) {
-                        procAmp->Brightness =
-                            ((nOutFrames / Params.rtBrightness.interval & 0x1) == 0)
-                                ? Params.rtBrightness.value1
-                                : Params.rtBrightness.value2;
-                    }
-
-                    if (Params.rtContrast.isEnabled) {
-                        procAmp->Contrast = ((nOutFrames / Params.rtContrast.interval & 0x1) == 0)
-                                                ? Params.rtContrast.value1
-                                                : Params.rtContrast.value2;
-                    }
+                if (Params.rtHue.isEnabled) {
+                    procAmp->Hue = ((nOutFrames / Params.rtHue.interval & 0x1) == 0)
+                                       ? Params.rtHue.value1
+                                       : Params.rtHue.value2;
                 }
-                nOutFrames++;
+
+                if (Params.rtSaturation.isEnabled) {
+                    procAmp->Saturation = ((nOutFrames / Params.rtSaturation.interval & 0x1) == 0)
+                                              ? Params.rtSaturation.value1
+                                              : Params.rtSaturation.value2;
+                }
+
+                if (Params.rtBrightness.isEnabled) {
+                    procAmp->Brightness = ((nOutFrames / Params.rtBrightness.interval & 0x1) == 0)
+                                              ? Params.rtBrightness.value1
+                                              : Params.rtBrightness.value2;
+                }
+
+                if (Params.rtContrast.isEnabled) {
+                    procAmp->Contrast = ((nOutFrames / Params.rtContrast.interval & 0x1) == 0)
+                                            ? Params.rtContrast.value1
+                                            : Params.rtContrast.value2;
+                }
+            }
+            nOutFrames++;
 #endif
 
-                sts = frameProcessor.pmfxVPP->RunFrameVPPAsync(NULL, pOutSurf, NULL, &syncPoint);
-            }
+            sts = frameProcessor.pmfxVPP->RunFrameVPPAsync(NULL, pOutSurf, NULL, &syncPoint);
+
             MSDK_IGNORE_MFX_STS(sts, MFX_ERR_MORE_SURFACE);
             MSDK_BREAK_ON_ERROR(sts);
 
@@ -1043,8 +872,7 @@ int main(int argc, msdk_char* argv[])
             if (sts)
                 msdk_printf(MSDK_STRING("SyncOperation wait interval exceeded\n"));
             MSDK_BREAK_ON_ERROR(sts);
-
-            if (Resources.pParams->strDstFiles.size()) {
+            if (!Resources.pParams->strDstFiles.empty()) {
                 GeneralWriter* writer = (1 == Resources.dstFileWritersN)
                                             ? &Resources.pDstFileWriters[0]
                                             : &Resources.pDstFileWriters[paramID];
@@ -1053,32 +881,16 @@ int main(int argc, msdk_char* argv[])
                     msdk_printf(MSDK_STRING("Failed to write frame to disk\n"));
                 MSDK_CHECK_NOT_EQUAL(sts, MFX_ERR_NONE, MFX_ERR_ABORTED);
             }
-
             nFrames++;
 
             //VPP progress
-#if (MFX_VERSION >= 2000)
-            if (Params.api2xPerf == false)
-#endif
-            {
-                if (!Params.bPerf)
-                    msdk_printf(MSDK_STRING("Frame number: %d\r"), (int)nFrames);
-                else {
-                    if (!(nFrames % 100))
-                        msdk_printf(MSDK_STRING("."));
-                }
+            if (!Params.bPerf)
+                msdk_printf(MSDK_STRING("Frame number: %d\r"), nFrames);
+            else {
+                if (!(nFrames % 100))
+                    msdk_printf(MSDK_STRING("."));
             }
         }
-#if (MFX_VERSION >= 2000)
-        if (Params.api2xPerf) {
-            auto api2x_perf_t2 = std::chrono::high_resolution_clock::now();
-            api2xPerfLoopTime  = static_cast<double>(
-                std::chrono::duration_cast<std::chrono::microseconds>(api2x_perf_t2 - api2x_perf_t1)
-                    .count());
-            if (buf_read)
-                free(buf_read);
-        }
-#endif
     } while (bNeedReset);
 
     statTimer.StopTimeMeasurement();
@@ -1094,29 +906,11 @@ int main(int argc, msdk_char* argv[])
     msdk_printf(MSDK_STRING("\nVPP finished\n"));
     msdk_printf(MSDK_STRING("\n"));
 
-    msdk_printf(MSDK_STRING("Total frames %d \n"), (int)nFrames);
-
-#if (MFX_VERSION >= 2000)
-    if (Params.api2xPerf) {
-        if (api2xPerfLoopTime) {
-            msdk_printf(MSDK_STRING("Total time %.2f sec \n"), (1.0e6 / api2xPerfLoopTime));
-            msdk_printf(MSDK_STRING("Frames per second %.3f fps \n"),
-                        ((1.0e6 / api2xPerfLoopTime) * nFrames));
-        }
-    }
-    else {
-        msdk_printf(MSDK_STRING("Total time %.2f sec \n"), (double)statTimer.GetTotalTime());
-        msdk_printf(MSDK_STRING("Frames per second %.3f fps \n"),
-                    (double)(nFrames / statTimer.GetTotalTime()));
-
-        PutPerformanceToFile(Params, nFrames / statTimer.GetTotalTime());
-    }
-#else
+    msdk_printf(MSDK_STRING("Total frames %d \n"), nFrames);
     msdk_printf(MSDK_STRING("Total time %.2f sec \n"), statTimer.GetTotalTime());
     msdk_printf(MSDK_STRING("Frames per second %.3f fps \n"), nFrames / statTimer.GetTotalTime());
 
     PutPerformanceToFile(Params, nFrames / statTimer.GetTotalTime());
-#endif
 
     WipeResources(&Resources);
     WipeParams(&Params);

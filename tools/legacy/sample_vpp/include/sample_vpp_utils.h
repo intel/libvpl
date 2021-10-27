@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2005 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -41,21 +41,14 @@
 
     #include "vm/strings_defs.h"
 
+    #include "mfxplugin.h"
+    #include "vpl/mfxmvc.h"
     #include "vpl/mfxvideo++.h"
     #include "vpl/mfxvideo.h"
-    #if (MFX_VERSION < 2000)
-        #include "mfxmvc.h"
-        #include "mfxplugin.h"
-    #endif
 
     #include "base_allocator.h"
     #include "sample_vpp_config.h"
     #include "sample_vpp_roi.h"
-
-    #if (MFX_VERSION >= 2000)
-        #include "sample_vpl_common.h"
-        #include "vpl/mfxdispatcher.h"
-    #endif
 
     // we introduce new macros without error message (returned status only)
     // it allows to remove final error message due to EOF
@@ -168,13 +161,15 @@ struct sInputParams {
     //bool   bd3dAlloc;
     mfxU16 IOPattern;
     mfxIMPL ImpLib;
-    #if defined(LIBVA_SUPPORT)
+    mfxAccelerationMode accelerationMode;
+
+    #if defined(LINUX32) || defined(LINUX64)
     std::string strDevicePath; // path to device for processing
     #endif
-    #if (defined(_WIN64) || defined(_WIN32)) && (MFX_VERSION >= 1031)
-    bool bPrefferdGfx;
-    bool bPrefferiGfx;
-    #endif
+
+    mfxU16 adapterType;
+    mfxI32 dGfxIdx;
+    mfxI32 adapterNum;
 
     mfxU16 asyncNum;
     mfxU32 vaType;
@@ -188,7 +183,6 @@ struct sInputParams {
     bool bChromaSiting;
     mfxU16 uChromaSiting;
 
-    bool bInitEx;
     mfxU16 GPUCopyValue;
 
     bool bPartialAccel;
@@ -204,10 +198,6 @@ struct sInputParams {
 
     /* roi checking parameters */
     sROICheckParam roiCheckParam;
-
-    /*  plug-in GUID */
-    msdk_char strPlgGuid[MSDK_MAX_FILENAME_LEN];
-    bool need_plugin;
 
     #ifdef ENABLE_VPP_RUNTIME_HSBC
     /* run-time ProcAmp parameters */
@@ -233,9 +223,6 @@ struct sInputParams {
     msdk_char strPerfFile[MSDK_MAX_FILENAME_LEN];
     mfxU32 forcedOutputFourcc;
 
-    /* Use extended API (RunFrameVPPAsyncEx) */
-    bool use_extapi;
-
     /* MFXVideoVPP_Reset */
     std::vector<mfxU32> resetFrmNums;
 
@@ -246,37 +233,10 @@ struct sInputParams {
 
     mfxU32 fccSource;
 
-    bool bUseAdapterNum;
-    mfxU32 adapterNum;
-
-    #if (MFX_VERSION >= 2000)
-    bool api2xInternalMem;
-    bool api2xDispatcher;
-    bool api2xLowLatency;
-    bool api2xPerf;
-    bool api1xDispatcher;
-    #endif
-    sInputParams()
-            : frameInfoIn(),
-              frameInfoOut(),
-              deinterlaceParam(),
-              denoiseParam(),
-              detailParam(),
-              procampParam(),
-              frcParam(),
-              videoSignalInfoParam(),
-              mirroringParam(),
-              gamutParam(),
-              multiViewParam(),
-              tccParam(),
-              aceParam(),
-              steParam(),
-              istabParam(),
-              colorfillParam(),
-              rotate(),
-              resetFrmNums() {
+    sInputParams() {
         IOPattern           = 0;
         ImpLib              = 0;
+        accelerationMode    = MFX_ACCEL_MODE_NA;
         asyncNum            = 0;
         vaType              = 0;
         bScaling            = false;
@@ -294,18 +254,13 @@ struct sInputParams {
         forcedOutputFourcc  = 0;
         numStreams          = 0;
 
-        MSDK_ZERO_MEMORY(strPlgGuid);
         MSDK_ZERO_MEMORY(strSrcFile);
         MSDK_ZERO_MEMORY(strPerfFile);
         MSDK_ZERO_MEMORY(inFrameInfo);
         MSDK_ZERO_MEMORY(compositionParam);
         MSDK_ZERO_MEMORY(roiCheckParam);
 
-        bInitEx     = false;
-        bPerf       = false;
-        need_plugin = false;
-        use_extapi  = false;
-        MSDK_ZERO_MEMORY(strPlgGuid);
+        bPerf = false;
         MSDK_ZERO_MEMORY(strSrcFile);
         MSDK_ZERO_MEMORY(strPerfFile);
         strDstFiles.clear();
@@ -319,43 +274,22 @@ struct sInputParams {
         rtBrightness = {};
         rtContrast   = {};
     #endif
-    #if (defined(_WIN64) || defined(_WIN32)) && (MFX_VERSION >= 1031)
-        bPrefferdGfx = false;
-        bPrefferiGfx = false;
-    #endif
 
-    #if (MFX_VERSION >= 2000)
-        api2xInternalMem = false;
-        api2xDispatcher  = false;
-        api2xLowLatency  = false;
-        api2xPerf        = false;
-        api1xDispatcher  = false;
-    #endif
-        bUseAdapterNum = false;
-        adapterNum     = 0;
+        adapterType = mfxMediaAdapterType::MFX_MEDIA_UNKNOWN;
+        dGfxIdx     = -1;
+        adapterNum  = -1;
     }
 };
 
 struct sFrameProcessor {
-    MFXVideoSession2 mfxSession;
+    std::unique_ptr<VPLImplementationLoader> pLoader;
+    MainVideoSession mfxSession;
     MFXVideoVPP* pmfxVPP;
-    #if (MFX_VERSION >= 2000)
-    MFXMemory* pmfxMemory;
-    mfxLoader loader = NULL;
-    sFrameProcessor(void) {
-        pmfxVPP    = NULL;
-        pmfxMemory = NULL;
-        return;
-    };
-    #else
-    mfxPluginUID mfxGuid;
-    bool plugin;
+
     sFrameProcessor(void) {
         pmfxVPP = NULL;
-        plugin  = false;
         return;
     };
-    #endif
 };
 
 struct sMemoryAllocator {
@@ -407,20 +341,7 @@ public:
                                 mfxFrameSurfaceWrap** pSurface,
                                 mfxU16 streamIndex);
 
-    #if (MFX_VERSION >= 2000)
-    mfxStatus GetNextInputFrame2(sFrameProcessor* pProcessor,
-                                 mfxFrameInfo* pInfo,
-                                 mfxFrameSurfaceWrap** pSurface);
-
-    mfxStatus GetNextInputFrame2(sFrameProcessor* pProcessor,
-                                 mfxFrameInfo* pInfo,
-                                 mfxFrameSurfaceWrap** pSurface,
-                                 int bytes_to_read,
-                                 mfxU8* buf_read);
-    #endif
-
     mfxStatus LoadNextFrame(mfxFrameData* pData, mfxFrameInfo* pInfo);
-    mfxStatus LoadNextFrame2(mfxFrameSurface1* pSurface, int bytes_to_read, mfxU8* buf_read);
 
 private:
     mfxStatus GetPreAllocFrame(mfxFrameSurfaceWrap** pSurface);
@@ -450,10 +371,6 @@ public:
                            mfxFrameInfo* pInfo,
                            mfxFrameSurfaceWrap* pSurface);
 
-    #if (MFX_VERSION >= 2000)
-    mfxStatus PutNextFrame2(mfxFrameInfo* pInfo, mfxFrameSurfaceWrap* pSurface);
-    #endif
-
 private:
     mfxStatus WriteFrame(mfxFrameData* pData, mfxFrameInfo* pInfo);
 
@@ -479,10 +396,6 @@ public:
                            mfxFrameInfo* pInfo,
                            mfxFrameSurfaceWrap* pSurface);
 
-    #if (MFX_VERSION >= 2000)
-    mfxStatus PutNextFrame2(mfxFrameInfo* pInfo, mfxFrameSurfaceWrap* pSurface);
-    #endif
-
 private:
     std::unique_ptr<CRawVideoWriter> m_ofile[8];
 
@@ -499,7 +412,7 @@ public:
         mfxFrameSurfaceWrap* pSurface;
         mfxExtVppAuxData* pExtVpp;
     };
-    SurfaceVPPStore() : m_SyncPoints(){};
+    SurfaceVPPStore(){};
 
     typedef std::pair<mfxSyncPoint, SurfVPPExt> SyncPair;
     std::list<SyncPair> m_SyncPoints;
@@ -534,7 +447,7 @@ struct sAppResources {
 /*                        service functions                            */
 /* ******************************************************************* */
 
-void PrintInfo(sInputParams* pParams, mfxVideoParam* pMfxParams, MFXVideoSession2* pMfxSession);
+void PrintInfo(sInputParams* pParams, mfxVideoParam* pMfxParams, MFXVideoSession* pMfxSession);
 
 void PrintDllInfo();
 

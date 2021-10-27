@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2005 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -23,22 +23,15 @@
 
 #include "base_allocator.h"
 #include "sample_utils.h"
+#include "vpl_implementation_loader.h"
 
-#if (MFX_VERSION >= 2000)
-    #include "sample_vpl_common.h"
-    #include "vpl/mfxdispatcher.h"
-#endif
-
+#include "mfxplugin.h"
+#include "vpl/mfxdispatcher.h"
 #include "vpl/mfxjpeg.h"
-#if (MFX_VERSION < 2000)
-    #include "mfxmvc.h"
-    #include "mfxplugin++.h"
-    #include "mfxplugin.h"
-    #include "mfxvp8.h"
-    #include "plugin_loader.h"
-#endif
+#include "vpl/mfxmvc.h"
 #include "vpl/mfxvideo++.h"
 #include "vpl/mfxvideo.h"
+#include "vpl/mfxvp8.h"
 
 #include "general_allocator.h"
 
@@ -50,31 +43,33 @@
     #error MFX_VERSION not defined
 #endif
 
+enum MemType {
+    SYSTEM_MEMORY = 0x01,
+    D3D9_MEMORY   = 0x02,
+    D3D11_MEMORY  = 0x03,
+};
+
 enum eWorkMode { MODE_PERFORMANCE, MODE_RENDERING, MODE_FILE_DUMP };
 
-#if MFX_VERSION >= 1022
 enum eDecoderPostProc { MODE_DECODER_POSTPROC_AUTO = 0x1, MODE_DECODER_POSTPROC_FORCE = 0x2 };
-#endif //MFX_VERSION >= 1022
 
 struct sInputParams {
     mfxU32 videoType;
     eWorkMode mode;
     MemType memType;
+    mfxAccelerationMode accelerationMode;
     bool bUseHWLib; // true if application wants to use HW mfx library
     bool bIsMVC; // true if Multi-View Codec is in use
     bool bLowLat; // low latency mode
     bool bCalLat; // latency calculation
     bool bUseFullColorRange; //whether to use full color range
-    mfxU16 nMaxFPS; //rendering limited by certain fps
+    mfxU16 nMaxFPS; // limits overall fps
     mfxU32 nWallCell;
     mfxU32 nWallW; //number of windows located in each row
     mfxU32 nWallH; //number of windows located in each column
     mfxU32 nWallMonitor; //monitor id, 0,1,.. etc
     bool bWallNoTitle; //whether to show title for each window with fps value
-#if MFX_VERSION >= 1022
     mfxU16 nDecoderPostProcessing;
-#endif //MFX_VERSION >= 1022
-
     mfxU32 numViews; // number of views for Multi-View Codec
     mfxU32 nRotation; // rotation for Motion JPEG Codec
     mfxU16 nAsyncDepth; // asyncronous queue
@@ -99,40 +94,25 @@ struct sInputParams {
     bool bRenderWin;
     mfxU32 nRenderWinX;
     mfxU32 nRenderWinY;
-#if (MFX_VERSION >= 1025)
     bool bErrorReport;
-#endif
 
     mfxI32 monitorType;
 #if defined(LIBVA_SUPPORT)
     mfxI32 libvaBackend;
+#endif // defined(MFX_LIBVA_SUPPORT)
+#if defined(LINUX32) || defined(LINUX64)
     std::string strDevicePath;
 #endif
-#if (defined(_WIN64) || defined(_WIN32)) && (MFX_VERSION >= 1031)
-    bool bPrefferdGfx;
-    bool bPrefferiGfx;
-#endif
+    mfxU16 adapterType;
+    mfxI32 dGfxIdx;
+    mfxI32 adapterNum;
 
-#if (MFX_VERSION >= 1034)
     bool bIgnoreLevelConstrain;
-#endif
 
     msdk_char strSrcFile[MSDK_MAX_FILENAME_LEN];
     msdk_char strDstFile[MSDK_MAX_FILENAME_LEN];
-#if (MFX_VERSION < 2000)
-    sPluginParams pluginParams;
-#endif
-#if (MFX_VERSION >= 2000)
-    bool api2xInternalMem;
-    bool api2xDispatcher;
-    bool api2xLowLatency;
-    bool api2xDecVPP;
-    bool api2xPerf;
-    bool api1xDispatcher;
-#endif
 
-    bool bUseAdapterNum;
-    mfxU32 adapterNum;
+    bool bDisableFilmGrain;
 };
 
 struct CPipelineStatistics {
@@ -178,13 +158,6 @@ public:
         return totalBytesProcessed + m_mfxBS.DataOffset;
     }
 
-#if (MFX_VERSION >= 2000)
-    virtual mfxF64 GetElapsedTime() {
-        return m_api2xPerfLoopTime;
-    }
-#endif
-
-#if (MFX_VERSION >= 1025)
     inline void PrintDecodeErrorReport(mfxExtDecodeErrorReport* pDecodeErrorReport) {
         if (pDecodeErrorReport) {
             if (pDecodeErrorReport->ErrorTypes & MFX_ERROR_SPS)
@@ -200,20 +173,15 @@ public:
                 msdk_printf(MSDK_STRING("[Error] Frame Gap Error detected!\n"));
         }
     }
-#endif
 
 protected: // functions
-#if (defined(_WIN64) || defined(_WIN32)) && (MFX_VERSION >= 1031)
-    mfxU32 GetPreferredAdapterNum(const mfxAdaptersInfo& adapters, const sInputParams& params);
-#endif
-    mfxStatus GetImpl(const sInputParams& params, mfxIMPL& impl);
     virtual mfxStatus CreateRenderingWindow(sInputParams* pParams);
     virtual mfxStatus InitMfxParams(sInputParams* pParams);
-#if (MFX_VERSION < 2000)
+
     virtual mfxStatus AllocateExtMVCBuffers();
 
     virtual void DeallocateExtMVCBuffers();
-#endif
+
     virtual mfxStatus InitVppParams();
     virtual mfxStatus InitVppFilters();
     virtual bool IsVppRequired(sInputParams* pParams);
@@ -245,28 +213,14 @@ protected: // variables
     mfxBitstreamWrapper m_mfxBS; // contains encoded data
     mfxU64 totalBytesProcessed;
 
-    MFXVideoSession2 m_mfxSession;
+    std::unique_ptr<VPLImplementationLoader> m_pLoader;
+    MainVideoSession m_mfxSession;
     mfxIMPL m_impl;
     MFXVideoDECODE* m_pmfxDEC;
     MFXVideoVPP* m_pmfxVPP;
-#if (MFX_VERSION >= 2000)
-    MFXMemory* m_pmfxMemory;
-    MFXVideoDECODE_VPP* m_pmfxDecVPP;
-    mfxLoader m_mfxLoader;
-    bool m_bAPI2XInternalMem;
-    bool m_bAPI2XDecVPP;
-    bool m_bAPI2XPerf;
-    mfxF64 m_api2xPerfLoopTime;
-    mfxU16 m_numVPPCh;
-    mfxVideoChannelParam* m_pmfxVPPChParams;
-    mfxSurfaceArray* m_pDecVPPOutSurfaces;
-#endif
     MfxVideoParamsWrapper m_mfxVideoParams;
     MfxVideoParamsWrapper m_mfxVppVideoParams;
-#if (MFX_VERSION < 2000)
-    std::unique_ptr<MFXVideoUSER> m_pUserModule;
-    std::unique_ptr<MFXPlugin> m_pPlugin;
-#endif
+
     GeneralAllocator* m_pGeneralAllocator;
     mfxAllocatorParams* m_pmfxAllocatorParams;
     MemType m_memType; // memory type of surfaces to use
@@ -307,13 +261,12 @@ protected: // variables
     bool m_bSoftRobustFlag;
     std::vector<msdk_tick> m_vLatency;
 
-    msdk_tick m_startTick;
-    msdk_tick m_delayTicks;
+    FPSLimiter m_fpsLimiter;
 
     mfxExtVPPVideoSignalInfo m_VppVideoSignalInfo;
     std::vector<mfxExtBuffer*> m_VppSurfaceExtParams;
 
-#if defined(LIBVA_SUPPORT)
+#if defined(LINUX32) || defined(LINUX64)
     std::string m_strDevicePath; //path to device for processing
 #endif
     CHWDevice* m_hwdev;

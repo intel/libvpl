@@ -1,10 +1,11 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2005 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
 
 #include "avc_nal_spl.h"
+#include <algorithm>
 #include "avc_structures.h"
 #include "sample_defs.h"
 
@@ -110,8 +111,8 @@ mfxI32 StartCodeIterator::CheckNalUnitType(mfxBitstream* source) {
     mfxU8* src  = source->Data + source->DataOffset;
     mfxU32 size = source->DataLength;
 
-    mfxI32 startCodeSize;
-    mfxI32 iCodeNext = FindStartCode(src, size, startCodeSize);
+    mfxI32 startCodeSize = 0;
+    mfxI32 iCodeNext     = FindStartCode(src, size, startCodeSize);
     return iCodeNext;
 }
 
@@ -128,7 +129,7 @@ mfxI32 StartCodeIterator::GetNALUnit(mfxBitstream* src, mfxBitstream* dst) {
     if (!size)
         return 0;
 
-    mfxI32 startCodeSize;
+    mfxI32 startCodeSize = 0;
 
     mfxI32 iCodeNext = FindStartCode(source, size, startCodeSize);
 
@@ -172,8 +173,8 @@ mfxI32 StartCodeIterator::GetNALUnit(mfxBitstream* src, mfxBitstream* dst) {
     // move before start code
     MoveBitstream(src, (mfxI32)(source - (src->Data + src->DataOffset) - startCodeSize));
 
-    mfxI32 startCodeSize1;
-    iCodeNext = FindStartCode(source, size, startCodeSize1);
+    mfxI32 startCodeSize1 = 0;
+    iCodeNext             = FindStartCode(source, size, startCodeSize1);
 
     MoveBitstream(src, startCodeSize);
 
@@ -234,10 +235,10 @@ mfxI32 StartCodeIterator::EndOfStream(mfxBitstream* dst) {
     return 0;
 }
 
-mfxI32 StartCodeIterator::FindStartCode(mfxU8*(&pb), mfxU32& data_size, mfxI32& startCodeSize) {
+mfxI32 StartCodeIterator::FindStartCode(mfxU8*(&pb), mfxU32& size, mfxI32& startCodeSize) {
     mfxU32 zeroCount = 0;
 
-    for (mfxU32 i = 0; i < (mfxU32)data_size; i++, pb++) {
+    for (mfxU32 i = 0; i < (mfxU32)size; i++, pb++) {
         switch (pb[0]) {
             case 0x00:
                 zeroCount++;
@@ -245,15 +246,15 @@ mfxI32 StartCodeIterator::FindStartCode(mfxU8*(&pb), mfxU32& data_size, mfxI32& 
             case 0x01:
                 if (zeroCount >= 2) {
                     startCodeSize = std::min(zeroCount + 1, 4u);
-                    data_size -= i + 1;
+                    size -= i + 1;
                     pb++; // remove 0x01 symbol
                     zeroCount = 0;
-                    if (data_size >= 1) {
+                    if (size >= 1) {
                         return pb[0] & AVC_NAL_UNITTYPE_BITS_MASK;
                     }
                     else {
                         pb -= startCodeSize;
-                        data_size += startCodeSize;
+                        size += startCodeSize;
                         startCodeSize = 0;
                         return 0;
                     }
@@ -268,7 +269,7 @@ mfxI32 StartCodeIterator::FindStartCode(mfxU8*(&pb), mfxU32& data_size, mfxI32& 
 
     zeroCount = std::min(zeroCount, 3u);
     pb -= zeroCount;
-    data_size += zeroCount;
+    size += zeroCount;
     zeroCount     = 0;
     startCodeSize = 0;
     return 0;

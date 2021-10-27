@@ -1,9 +1,8 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2005 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
-
 #ifndef __AVC_NAL_SPL_H
 #define __AVC_NAL_SPL_H
 
@@ -46,7 +45,7 @@ private:
 
     mfxU32 m_suggestedSize;
 
-    mfxI32 FindStartCode(mfxU8*(&pb), mfxU32& data_size, mfxI32& startCodeSize);
+    mfxI32 FindStartCode(mfxU8*(&pb), mfxU32& size, mfxI32& startCodeSize);
 };
 
 class NALUnitSplitter {

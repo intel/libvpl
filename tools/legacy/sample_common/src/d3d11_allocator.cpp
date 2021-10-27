@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2005 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -23,9 +23,9 @@
         #define D3DFMT_NV12 (DXGI_FORMAT) MAKEFOURCC('N', 'V', '1', '2')
         #define D3DFMT_YV12 (DXGI_FORMAT) MAKEFOURCC('Y', 'V', '1', '2')
 
-struct sequence {
+struct hdl_sequence {
     mfxHDL x;
-    sequence(mfxHDL seed) : x(seed) {}
+    hdl_sequence(mfxHDL seed) : x(seed) {}
 
     mfxHDL operator()() {
         mfxHDL y = x;
@@ -35,10 +35,10 @@ struct sequence {
 };
 
 D3D11FrameAllocator::D3D11FrameAllocator()
-        : m_initParams(),
+        : m_initParams({}),
           m_pDeviceContext(NULL),
-          m_memIdMap(),
-          m_resourcesByRequest() {}
+          m_resourcesByRequest(),
+          m_memIdMap() {}
 
 D3D11FrameAllocator::~D3D11FrameAllocator() {
     Close();
@@ -115,15 +115,9 @@ mfxStatus D3D11FrameAllocator::LockFrame(mfxMemId mid, mfxFrameData* ptr) {
                 DXGI_FORMAT_R16_UNORM != desc.Format &&
                 DXGI_FORMAT_R10G10B10A2_UNORM != desc.Format &&
                 DXGI_FORMAT_R16G16B16A16_UNORM != desc.Format && DXGI_FORMAT_P010 != desc.Format &&
-                DXGI_FORMAT_AYUV != desc.Format
-        #if (MFX_VERSION >= 1027)
-                && DXGI_FORMAT_Y210 != desc.Format && DXGI_FORMAT_Y410 != desc.Format
-        #endif
-        #if (MFX_VERSION >= 1031)
-                && DXGI_FORMAT_P016 != desc.Format && DXGI_FORMAT_Y216 != desc.Format &&
-                DXGI_FORMAT_Y416 != desc.Format
-        #endif
-            ) {
+                DXGI_FORMAT_AYUV != desc.Format && DXGI_FORMAT_Y210 != desc.Format &&
+                DXGI_FORMAT_Y410 != desc.Format && DXGI_FORMAT_P016 != desc.Format &&
+                DXGI_FORMAT_Y216 != desc.Format && DXGI_FORMAT_Y416 != desc.Format) {
                 return MFX_ERR_LOCK_MEMORY;
             }
 
@@ -157,9 +151,7 @@ mfxStatus D3D11FrameAllocator::LockFrame(mfxMemId mid, mfxFrameData* ptr) {
 
     switch (desc.Format) {
         case DXGI_FORMAT_P010:
-        #if (MFX_VERSION >= 1031)
         case DXGI_FORMAT_P016:
-        #endif
         case DXGI_FORMAT_NV12:
             ptr->Pitch = (mfxU16)lockedRect.RowPitch;
             ptr->Y     = (mfxU8*)lockedRect.pData;
@@ -231,7 +223,6 @@ mfxStatus D3D11FrameAllocator::LockFrame(mfxMemId mid, mfxFrameData* ptr) {
             ptr->V16   = 0;
 
             break;
-        #if (MFX_VERSION >= 1031)
         case DXGI_FORMAT_Y416:
             ptr->PitchHigh = (mfxU16)(lockedRect.RowPitch / (1 << 16));
             ptr->PitchLow  = (mfxU16)(lockedRect.RowPitch % (1 << 16));
@@ -241,8 +232,6 @@ mfxStatus D3D11FrameAllocator::LockFrame(mfxMemId mid, mfxFrameData* ptr) {
             ptr->A         = (mfxU8*)(ptr->V16 + 1);
             break;
         case DXGI_FORMAT_Y216:
-        #endif
-        #if (MFX_VERSION >= 1027)
         case DXGI_FORMAT_Y210:
             ptr->PitchHigh = (mfxU16)(lockedRect.RowPitch / (1 << 16));
             ptr->PitchLow  = (mfxU16)(lockedRect.RowPitch % (1 << 16));
@@ -261,7 +250,6 @@ mfxStatus D3D11FrameAllocator::LockFrame(mfxMemId mid, mfxFrameData* ptr) {
             ptr->A         = 0;
 
             break;
-        #endif
 
         default:
 
@@ -378,7 +366,7 @@ mfxStatus D3D11FrameAllocator::AllocImpl(mfxFrameAllocRequest* request,
 
     if (DXGI_FORMAT_UNKNOWN == colorFormat) {
         msdk_printf(MSDK_STRING("D3D11 Allocator: invalid fourcc is provided (%#X), exitting\n"),
-                    request->Info.FourCC);
+                    (unsigned int)request->Info.FourCC);
         return MFX_ERR_UNSUPPORTED;
     }
 
@@ -414,13 +402,11 @@ mfxStatus D3D11FrameAllocator::AllocImpl(mfxFrameAllocRequest* request,
         desc.SampleDesc.Count = 1;
         desc.Usage            = D3D11_USAGE_DEFAULT;
         desc.MiscFlags = m_initParams.uncompressedResourceMiscFlags | D3D11_RESOURCE_MISC_SHARED;
-        #if (MFX_VERSION >= 1025)
         if ((request->Type & MFX_MEMTYPE_VIDEO_MEMORY_ENCODER_TARGET) &&
             (request->Type & MFX_MEMTYPE_INTERNAL_FRAME)) {
             desc.BindFlags = D3D11_BIND_DECODER | D3D11_BIND_VIDEO_ENCODER;
         }
         else
-        #endif
             desc.BindFlags = D3D11_BIND_DECODER;
 
         if ((MFX_MEMTYPE_FROM_VPPIN & request->Type) && (DXGI_FORMAT_YUY2 == desc.Format) ||
@@ -428,8 +414,6 @@ mfxStatus D3D11FrameAllocator::AllocImpl(mfxFrameAllocRequest* request,
             (DXGI_FORMAT_R10G10B10A2_UNORM == desc.Format) ||
             (DXGI_FORMAT_R16G16B16A16_UNORM == desc.Format)) {
             desc.BindFlags = D3D11_BIND_RENDER_TARGET;
-            if (desc.ArraySize > 2)
-                return MFX_ERR_MEMORY_ALLOC;
         }
 
         if ((MFX_MEMTYPE_FROM_VPPOUT & request->Type) ||
@@ -482,7 +466,7 @@ mfxStatus D3D11FrameAllocator::AllocImpl(mfxFrameAllocRequest* request,
     }
 
     // mapping to self created handles array, starting from zero or from last assigned handle + 1
-    sequence seq_initializer(
+    hdl_sequence seq_initializer(
         m_resourcesByRequest.empty() ? 0 : m_resourcesByRequest.back().outerMids.back());
 
     //incrementing starting index
@@ -538,20 +522,16 @@ DXGI_FORMAT D3D11FrameAllocator::ConverColortFormat(mfxU32 fourcc) {
         case MFX_FOURCC_AYUV:
             return DXGI_FORMAT_AYUV;
 
-        #if (MFX_VERSION >= 1027)
         case MFX_FOURCC_Y210:
             return DXGI_FORMAT_Y210;
         case MFX_FOURCC_Y410:
             return DXGI_FORMAT_Y410;
-        #endif
-        #if (MFX_VERSION >= 1031)
         case MFX_FOURCC_P016:
             return DXGI_FORMAT_P016;
         case MFX_FOURCC_Y216:
             return DXGI_FORMAT_Y216;
         case MFX_FOURCC_Y416:
             return DXGI_FORMAT_Y416;
-        #endif
 
         default:
             return DXGI_FORMAT_UNKNOWN;

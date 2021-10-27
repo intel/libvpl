@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2005 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -136,9 +136,8 @@ void CBuffering::ResetVppBuffers() {
 
 void CBuffering::SyncFrameSurfaces() {
     std::lock_guard<std::mutex> lock(m_Mutex);
-    msdkFrameSurface* next;
-    next                  = NULL;
-    msdkFrameSurface* cur = m_UsedSurfacesPool.m_pSurfacesHead;
+    msdkFrameSurface* next = NULL;
+    msdkFrameSurface* cur  = m_UsedSurfacesPool.m_pSurfacesHead;
 
     while (cur) {
         if (cur->frame.Data.Locked || cur->render_lock) {
@@ -157,9 +156,8 @@ void CBuffering::SyncFrameSurfaces() {
 
 void CBuffering::SyncVppFrameSurfaces() {
     std::lock_guard<std::mutex> lock(m_Mutex);
-    msdkFrameSurface* next;
-    next                  = NULL;
-    msdkFrameSurface* cur = m_UsedVppSurfacesPool.m_pSurfacesHead;
+    msdkFrameSurface* next = NULL;
+    msdkFrameSurface* cur  = m_UsedVppSurfacesPool.m_pSurfacesHead;
 
     while (cur) {
         if (cur->frame.Data.Locked || cur->render_lock) {

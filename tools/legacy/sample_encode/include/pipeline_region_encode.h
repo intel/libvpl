@@ -1,37 +1,32 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2005 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
 
 #ifndef __PIPELINE_REGION_ENCODE_H__
 #define __PIPELINE_REGION_ENCODE_H__
-#if (MFX_VERSION < 2000)
-    #include "pipeline_encode.h"
 
-    #ifndef MFX_VERSION
-        #error MFX_VERSION not defined
-    #endif
+#include "pipeline_encode.h"
+
+#ifndef MFX_VERSION
+    #error MFX_VERSION not defined
+#endif
 
 class CMSDKResource {
 public:
     CMSDKResource() {
         pEncoder = NULL;
-        pPlugin  = NULL;
     }
 
-    MFXVideoSession Session;
+    MainVideoSession Session;
     MFXVideoENCODE* pEncoder;
-    MFXPlugin* pPlugin;
     CEncTaskPool TaskPool;
 };
 
 class CResourcesPool {
 public:
-    CResourcesPool() {
-        size        = 0;
-        m_resources = NULL;
-    }
+    CResourcesPool() {}
 
     ~CResourcesPool() {
         delete[] m_resources;
@@ -42,14 +37,16 @@ public:
     }
 
     int GetSize() {
-        return size;
+        return m_size;
     }
 
-    mfxStatus Init(int size, mfxIMPL impl, mfxVersion* pVer);
+    mfxStatus Init(int size, VPLImplementationLoader* Loader, mfxU32 nSyncOpTimeout);
     mfxStatus InitTaskPools(CSmplBitstreamWriter* pWriter,
                             mfxU32 nPoolSize,
                             mfxU32 nBufferSize,
-                            CSmplBitstreamWriter* pOtherWriter = NULL);
+                            mfxU32 CodecId,
+                            void* pOtherWriter = NULL,
+                            bool bUseHWLib     = false);
     mfxStatus CreateEncoders();
     mfxStatus CreatePlugins(mfxPluginUID pluginGUID, mfxChar* pluginPath);
 
@@ -57,8 +54,9 @@ public:
     void CloseAndDeleteEverything();
 
 protected:
-    CMSDKResource* m_resources;
-    int size;
+    CMSDKResource* m_resources = nullptr;
+    int m_size                 = 0;
+    mfxU32 m_nSyncOpTimeout    = 0; // SyncOperation timeout in msec
 
 private:
     CResourcesPool(const CResourcesPool& src) {
@@ -101,6 +99,5 @@ protected:
         return m_resources[0].pEncoder;
     }
 };
-#endif
 
 #endif // __PIPELINE_REGION_ENCODE_H__

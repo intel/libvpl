@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2005 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -279,13 +279,13 @@ mfxStatus CVAAPIDeviceX11::RenderFrame(mfxFrameSurface1* pSurface,
                                                             size);
         if (!bo) {
             msdk_printf(MSDK_STRING("Failed to create buffer object\n"));
-            return MFX_ERR_MEMORY_ALLOC;
+            return MFX_ERR_INVALID_VIDEO_PARAM;
         }
 
         drmintellib.drm_intel_bo_gem_export_to_prime(bo, &fd);
         if (!fd) {
             msdk_printf(MSDK_STRING("Invalid fd\n"));
-            return MFX_ERR_INVALID_HANDLE;
+            return MFX_ERR_NOT_INITIALIZED;
         }
 
         xcb_pixmap_t pixmap = xcblib.xcb_generate_id(m_xcbconn);

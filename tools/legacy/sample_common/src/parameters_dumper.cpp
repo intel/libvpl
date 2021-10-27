@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2005 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -12,20 +12,15 @@
 
 #include "vm/strings_defs.h"
 
+#include "mfxplugin.h"
 #include "vpl/mfxjpeg.h"
-#if (MFX_VERSION < 2000)
-    #include "mfxplugin.h"
-#endif
 #include "vpl/mfxstructures.h"
 #include "vpl/mfxvideo++.h"
 #include "vpl/mfxvideo.h"
 
-#if (MFX_VERSION < 2000)
-    #include "mfxla.h"
-    #include "mfxmvc.h"
-    #include "mfxvp8.h"
-#endif
 #include "sample_types.h"
+#include "vpl/mfxmvc.h"
+#include "vpl/mfxvp8.h"
 
 #ifndef MFX_VERSION
     #error MFX_VERSION not defined
@@ -76,9 +71,8 @@ void CParametersDumper::SerializeFrameInfoStruct(msdk_ostream& sstr,
                                                  msdk_string prefix,
                                                  mfxFrameInfo& info) {
     SERIALIZE_INFO_ARRAY(reserved);
-#if (MFX_VERSION < 2000)
-    SERIALIZE_INFO(reserved4);
-#endif
+    SERIALIZE_INFO(ChannelId);
+
     SERIALIZE_INFO(BitDepthLuma);
     SERIALIZE_INFO(BitDepthChroma);
     SERIALIZE_INFO(Shift);
@@ -166,6 +160,10 @@ void CParametersDumper::SerializeMfxInfoMFXStruct(msdk_ostream& sstr,
     SERIALIZE_INFO(SliceGroupsPresent);
     SERIALIZE_INFO(MaxDecFrameBuffering);
     SERIALIZE_INFO(EnableReallocRequest);
+#if defined(MFX_VERSION_NEXT) && (MFX_VERSION >= MFX_VERSION_NEXT)
+    SERIALIZE_INFO(FilmGrain);
+    SERIALIZE_INFO(SkipOutput);
+#endif
 
     /* JPEG Decoding Options */
     SERIALIZE_INFO(JPEGChromaFormat);
@@ -228,29 +226,6 @@ void CParametersDumper::SerializeExtensionBuffer(msdk_ostream& sstr,
             SERIALIZE_INFO_ARRAY_ELEMENT(ACTables, Values);
             END_PROC_ARRAY
         } break;
-#if (MFX_VERSION < 2000)
-        case MFX_EXTBUFF_LOOKAHEAD_CTRL: {
-            mfxExtLAControl& info = *(mfxExtLAControl*)pExtBuffer;
-            SERIALIZE_INFO(LookAheadDepth);
-            SERIALIZE_INFO(DependencyDepth);
-            SERIALIZE_INFO(DownScaleFactor);
-            SERIALIZE_INFO(BPyramid);
-            SERIALIZE_INFO_ARRAY(reserved1);
-            SERIALIZE_INFO(NumOutStream);
-            START_PROC_ARRAY(OutStream)
-            SERIALIZE_INFO_ELEMENT(OutStream, Width);
-            SERIALIZE_INFO_ELEMENT(OutStream, Height);
-            SERIALIZE_INFO_ARRAY_ELEMENT(OutStream, reserved2);
-            END_PROC_ARRAY
-        } break;
-        case MFX_EXTBUFF_LOOKAHEAD_STAT: {
-            mfxExtLAFrameStatistics& info = *(mfxExtLAFrameStatistics*)pExtBuffer;
-            SERIALIZE_INFO_ARRAY(reserved);
-            SERIALIZE_INFO(NumStream);
-            SERIALIZE_INFO(NumFrame);
-            //DO_MANUALLY:     mfxLAFrameInfo   *FrameStat; //frame statistics
-            //DO_MANUALLY:     mfxFrameSurface1 *OutSurface; //reordered surface
-        } break;
         case MFX_EXTBUFF_MVC_SEQ_DESC: {
             mfxExtMVCSeqDesc& info = *(mfxExtMVCSeqDesc*)pExtBuffer;
             SERIALIZE_INFO(NumView);
@@ -271,10 +246,6 @@ void CParametersDumper::SerializeExtensionBuffer(msdk_ostream& sstr,
             SERIALIZE_INFO(NumView);
             SERIALIZE_INFO_ARRAY(ViewId);
         } break;
-        case MFX_EXTBUFF_VPP_PICSTRUCT_DETECTION: {
-            // No structure accociated with MFX_EXTBUFF_VPP_PICSTRUCT_DETECTION
-        } break;
-#endif
         case MFX_EXTBUFF_CODING_OPTION: {
             mfxExtCodingOption& info = *(mfxExtCodingOption*)pExtBuffer;
             SERIALIZE_INFO(reserved1);
@@ -367,6 +338,8 @@ void CParametersDumper::SerializeExtensionBuffer(msdk_ostream& sstr,
             SERIALIZE_INFO(GPB);
             SERIALIZE_INFO(MaxFrameSizeI);
             SERIALIZE_INFO(MaxFrameSizeP);
+            SERIALIZE_INFO(TargetBitDepthLuma);
+            SERIALIZE_INFO(TargetBitDepthChroma);
             SERIALIZE_INFO_ARRAY(reserved1);
             SERIALIZE_INFO(EnableQPOffset);
             SERIALIZE_INFO_ARRAY(QPOffset);
@@ -436,18 +409,6 @@ void CParametersDumper::SerializeExtensionBuffer(msdk_ostream& sstr,
             SERIALIZE_INFO(NumAlg);
             SERIALIZE_INFO(AlgList);
         } break;
-#if (MFX_VERSION < 2000)
-        case MFX_EXTBUFF_OPAQUE_SURFACE_ALLOCATION: {
-            mfxExtOpaqueSurfaceAlloc& info = *(mfxExtOpaqueSurfaceAlloc*)pExtBuffer;
-            SERIALIZE_INFO_ARRAY(reserved1);
-            SERIALIZE_INFO_ARRAY(In.reserved2);
-            SERIALIZE_INFO(In.Type);
-            SERIALIZE_INFO(In.NumSurface);
-            SERIALIZE_INFO_ARRAY(Out.reserved2);
-            SERIALIZE_INFO(Out.Type);
-            SERIALIZE_INFO(Out.NumSurface);
-        } break;
-#endif
         case MFX_EXTBUFF_AVC_REFLIST_CTRL: {
             mfxExtAVCRefListCtrl& info = *(mfxExtAVCRefListCtrl*)pExtBuffer;
             SERIALIZE_INFO(NumRefIdxL0Active);
@@ -623,9 +584,7 @@ void CParametersDumper::SerializeExtensionBuffer(msdk_ostream& sstr,
         case MFX_EXTBUFF_ENCODER_ROI: {
             mfxExtEncoderROI& info = *(mfxExtEncoderROI*)pExtBuffer;
             SERIALIZE_INFO(NumROI);
-#if MFX_VERSION >= 1022
             SERIALIZE_INFO(ROIMode);
-#endif //MFX_VERSION >= 1022
             SERIALIZE_INFO_ARRAY(reserved1);
             START_PROC_ARRAY_SIZE(ROI, NumROI)
             SERIALIZE_INFO_ELEMENT(ROI, Left);
@@ -633,9 +592,7 @@ void CParametersDumper::SerializeExtensionBuffer(msdk_ostream& sstr,
             SERIALIZE_INFO_ELEMENT(ROI, Right);
             SERIALIZE_INFO_ELEMENT(ROI, Bottom);
             SERIALIZE_INFO_ELEMENT(ROI, Priority);
-#if MFX_VERSION >= 1022
             SERIALIZE_INFO_ELEMENT(ROI, DeltaQP);
-#endif //MFX_VERSION >= 1022
 
             SERIALIZE_INFO_ARRAY_ELEMENT(ROI, reserved2);
             END_PROC_ARRAY
@@ -672,7 +629,6 @@ void CParametersDumper::SerializeExtensionBuffer(msdk_ostream& sstr,
             SERIALIZE_INFO(OutField);
             SERIALIZE_INFO_ARRAY(reserved);
         } break;
-#if MFX_VERSION >= 1022
         case MFX_EXTBUFF_DEC_VIDEO_PROCESSING: {
             mfxExtDecVideoProcessing& info = *(mfxExtDecVideoProcessing*)pExtBuffer;
             SERIALIZE_INFO(In.CropX);
@@ -690,7 +646,6 @@ void CParametersDumper::SerializeExtensionBuffer(msdk_ostream& sstr,
             SERIALIZE_INFO(Out.CropH);
             SERIALIZE_INFO_ARRAY(Out.reserved);
         } break;
-#endif //MFX_VERSION >= 1022
         case MFX_EXTBUFF_CHROMA_LOC_INFO: {
             mfxExtChromaLocInfo& info = *(mfxExtChromaLocInfo*)pExtBuffer;
             SERIALIZE_INFO(ChromaLocInfoPresentFlag);
@@ -823,7 +778,6 @@ void CParametersDumper::SerializeExtensionBuffer(msdk_ostream& sstr,
             SERIALIZE_INFO(Enable);
             SERIALIZE_INFO_ARRAY(reserved);
         } break;
-#if (MFX_VERSION < 2000)
         case MFX_EXTBUFF_VP8_CODING_OPTION: {
             mfxExtVP8CodingOption& info = *(mfxExtVP8CodingOption*)pExtBuffer;
             SERIALIZE_INFO(Version);
@@ -840,7 +794,6 @@ void CParametersDumper::SerializeExtensionBuffer(msdk_ostream& sstr,
             SERIALIZE_INFO(NumFramesForIVFHeader);
             SERIALIZE_INFO_ARRAY(reserved);
         } break;
-#endif
     }
     // End of autogenerated code
 }

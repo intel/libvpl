@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2005 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -26,11 +26,8 @@ SimpleLoader::SimpleLoader(const char* name) {
     dlerror();
     so_handle = dlopen(name, RTLD_GLOBAL | RTLD_NOW);
     if (NULL == so_handle) {
-        so_handle = dlopen(basename(name), RTLD_GLOBAL | RTLD_NOW);
-        if (NULL == so_handle) {
-            std::cerr << dlerror() << std::endl;
-            throw std::runtime_error("Can't load library");
-        }
+        std::cerr << dlerror() << std::endl;
+        throw std::runtime_error("Can't load library");
     }
 }
 
@@ -246,6 +243,12 @@ mfxStatus va_to_mfx_status(VAStatus va_res) {
 }
 
     #if defined(LIBVA_DRM_SUPPORT) || defined(LIBVA_X11_SUPPORT)
+
+// temp compatibility with some old tools/val-tools
+CLibVA* CreateLibVA(int type) {
+    return CreateLibVA("", type);
+}
+
 CLibVA* CreateLibVA(const std::string& devicePath, int type) {
     CLibVA* libva = NULL;
     switch (type) {
@@ -314,7 +317,7 @@ VAStatus CLibVA::AcquireVASurface(void** pctx,
     }
 
     AcquireCtx* ctx;
-    uintptr_t handle = 0;
+    unsigned long handle = 0;
     VAStatus va_res;
     VASurfaceAttrib attribs[2];
     VASurfaceAttribExternalBuffers extsrf;

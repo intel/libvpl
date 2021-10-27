@@ -1,21 +1,8 @@
-/******************************************************************************\
-Copyright (c) 2005-2019, Intel Corporation
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
-
-1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
-
-2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
-
-3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-This sample was distributed or derived from the Intel's Media Samples package.
-The original version of this sample may be obtained from https://software.intel.com/en-us/intel-media-server-studio
-or https://software.intel.com/en-us/media-client-solutions-support.
-\**********************************************************************************/
+/*############################################################################
+  # Copyright (C) 2005 Intel Corporation
+  #
+  # SPDX-License-Identifier: MIT
+  ############################################################################*/
 
 #ifndef __SAMPLE_PIPELINE_TRANSCODE_H__
 #define __SAMPLE_PIPELINE_TRANSCODE_H__
@@ -23,6 +10,7 @@ or https://software.intel.com/en-us/media-client-solutions-support.
 #include <stddef.h>
 
 #include <chrono>
+#include <condition_variable>
 #include <ctime>
 #include <future>
 #include <list>
@@ -38,35 +26,19 @@ or https://software.intel.com/en-us/media-client-solutions-support.
 #include "sample_utils.h"
 #include "sysmem_allocator.h"
 
-#include "mfxdispatcher.h"
+#include "brc_routines.h"
+#include "hw_device.h"
+#include "mfxdeprecated.h"
 #include "mfxjpeg.h"
 #include "mfxmvc.h"
-#include "mfxvideo++.h"
-#include "mfxvideo.h"
-#if !defined(MFX_ONEVPL)
-    #include "mfxla.h"
-#endif
-#include "mfxvp8.h"
-
-#if defined(MFX_ONEVPL)
-    #include "mfxdeprecated.h"
-#endif
-
 #include "mfxplugin.h"
-
-#if !defined(MFX_ONEVPL)
-    #include "mfxplugin++.h"
-    #include "plugin_loader.h"
-#endif
-
-#include "hw_device.h"
+#include "mfxvp8.h"
 #include "plugin_utils.h"
 #include "preset_manager.h"
 #include "sample_defs.h"
-
-#if (MFX_VERSION >= 1024)
-    #include "brc_routines.h"
-#endif
+#include "vpl/mfxdispatcher.h"
+#include "vpl/mfxvideo++.h"
+#include "vpl/mfxvideo.h"
 
 #define TIME_STATS 1 // Enable statistics processing
 #include "time_statistics.h"
@@ -174,7 +146,6 @@ enum MemoryModel {
 };
 
 struct __sInputParams {
-    __sInputParams();
     mfxU32 TargetID    = 0;
     bool CascadeScaler = false;
     bool EnableTracing = false;
@@ -187,17 +158,18 @@ struct __sInputParams {
 #if defined(LINUX32) || defined(LINUX64)
     std::string strDevicePath;
 #endif
-#if (defined(_WIN32) || defined(_WIN64)) && (MFX_VERSION >= 1031)
+
+#if (defined(_WIN64) || defined(_WIN32))
     bool isDualMode;
     mfxHyperMode hyperMode;
-
-    //Adapter type
-    bool bPrefferiGfx;
-    bool bPrefferdGfx;
-    mfxI32 dGfxIdx;
 #endif
 
     mfxU16 nIdrInterval;
+
+    //Adapter type
+    mfxU16 adapterType;
+    mfxI32 dGfxIdx;
+    mfxI32 adapterNum;
 
     bool bIsPerf; // special performance mode. Use pre-allocated bitstreams, output
     mfxU16 nThreadsNum; // number of internal session threads number
@@ -226,6 +198,9 @@ struct __sInputParams {
 
     mfxU16 nEncTileRows; // number of rows for encoding tiling
     mfxU16 nEncTileCols; // number of columns for encoding tiling
+
+    bool bEmbeddedDenoiser; // enable or disable embeded HVS Denoiser
+    mfxU16 DenoiseMode;
 
     bool bEnableDeinterlacing;
     mfxU16 DeinterlacingMode;
@@ -350,16 +325,12 @@ struct __sInputParams {
 
     mfxU16 BitrateLimit;
 
-#if (MFX_VERSION >= 1025)
     mfxU16 numMFEFrames;
     mfxU16 MFMode;
     mfxU32 mfeTimeout;
-#endif
 
-#if (MFX_VERSION >= 1027)
     mfxU16 TargetBitDepthLuma;
     mfxU16 TargetBitDepthChroma;
-#endif
 
 #if defined(LIBVA_WAYLAND_SUPPORT)
     mfxU16 nRenderWinX;
@@ -379,17 +350,21 @@ struct __sInputParams {
     bool rawInput;
 
     mfxU16 nMemoryModel;
+
+    mfxPoolAllocationPolicy AllocPolicy = MFX_ALLOCATION_UNLIMITED;
+    bool useAllocHints                  = false;
+    mfxU32 preallocate                  = 0;
+
+    mfxU16 forceSyncAllSession;
 };
 
 struct sInputParams : public __sInputParams {
     sInputParams();
     msdk_string DumpLogFileName;
-#if MFX_VERSION >= 1022
     std::vector<mfxExtEncoderROI> m_ROIData;
 
     bool bDecoderPostProcessing;
     bool bROIasQPMAP;
-#endif //MFX_VERSION >= 1022
 #ifdef ENABLE_MCTF
     sMCTFParam mctfParam;
 #endif
@@ -455,22 +430,22 @@ private:
     void AddFlowEvents();
     void AddFlowEvent(const Event a, const Event b);
 
-    void WriteEvent(const Event ev, std::ofstream& TraceFile);
-    void WriteDurationEvent(const Event ev, std::ofstream& TraceFile);
-    void WriteFlowEvent(const Event ev, std::ofstream& TraceFile);
-    void WriteCounterEvent(const Event ev, std::ofstream& TraceFile);
+    void WriteEvent(const Event ev);
+    void WriteDurationEvent(const Event ev);
+    void WriteFlowEvent(const Event ev);
+    void WriteCounterEvent(const Event ev);
 
-    void WriteEventPID(std::ofstream& TraceFile);
-    void WriteEventTID(const Event ev, std::ofstream& TraceFile);
-    void WriteEventTS(const Event ev, std::ofstream& TraceFile);
-    void WriteEventPhase(const Event ev, std::ofstream& TraceFile);
-    void WriteEventName(const Event ev, std::ofstream& TraceFile);
-    void WriteBindingPoint(const Event ev, std::ofstream& TraceFile);
-    void WriteEventInOutIDs(const Event ev, std::ofstream& TraceFile);
-    void WriteEventCounter(const Event ev, std::ofstream& TraceFile);
-    void WriteEventCategory(std::ofstream& TraceFile);
-    void WriteEvID(const Event ev, std::ofstream& TraceFile);
-    void WriteComma(std::ofstream& TraceFile);
+    void WriteEventPID();
+    void WriteEventTID(const Event ev);
+    void WriteEventTS(const Event ev);
+    void WriteEventPhase(const Event ev);
+    void WriteEventName(const Event ev);
+    void WriteBindingPoint(const Event ev);
+    void WriteEventInOutIDs(const Event ev);
+    void WriteEventCounter(const Event ev);
+    void WriteEventCategory();
+    void WriteEvID(const Event ev);
+    void WriteComma();
 
     const static mfxU32 TraceBufferSizeInMBytes = 7;
 
@@ -480,6 +455,7 @@ private:
     std::vector<Event> AddonLog;
     std::chrono::steady_clock::time_point TimeBase;
     std::mutex TracerFileMutex;
+    std::ofstream TraceFile;
 };
 
 static const mfxU32 DecoderTargetID = 100;
@@ -542,8 +518,8 @@ struct PreEncAuxBuffer {
 };
 
 struct ExtendedSurface {
-    ExtendedSurface();
     mfxU32 TargetID;
+
     mfxFrameSurface1* pSurface;
     PreEncAuxBuffer* pAuxCtrl;
     mfxEncodeCtrl* pEncCtrl;
@@ -600,16 +576,16 @@ public:
             MSDK_STRING(
                 "stat[%u.%llu]: %s=%d;Framerate=%.3f;Total=%.3lf;Samples=%lld;StdDev=%.3lf;Min=%.3lf;Max=%.3lf;Avg=%.3lf\n"),
             msdk_get_current_pid(),
-            rdtsc(),
+            (unsigned long long int)rdtsc(),
             bufDir,
-            numPipelineid,
-            target_framerate,
-            GetTotalTime(false),
-            GetNumMeasurements(),
-            GetTimeStdDev(false),
-            GetMinTime(false),
-            GetMaxTime(false),
-            GetAvgTime(false));
+            (int)numPipelineid,
+            (double)target_framerate,
+            (double)GetTotalTime(false),
+            (long long int)GetNumMeasurements(),
+            (double)GetTimeStdDev(false),
+            (double)GetMinTime(false),
+            (double)GetMaxTime(false),
+            (double)GetAvgTime(false));
         fflush(ofile);
 
         if (!DumpLogFileName.empty()) {
@@ -798,6 +774,10 @@ public:
         m_nID = id;
     }
     void StopSession();
+    mfxStatus CheckStopCondition();
+    void SetSurfaceUtilizationSynchronizer(
+        std::shared_ptr<SurfaceUtilizationSynchronizer>& surfaceUtilizationSynchronizer);
+    mfxU16 GetNumFrameForAlloc() const;
     bool IsOverlayUsed();
     size_t GetRobustFlag();
 
@@ -807,25 +787,28 @@ public:
 
         return ss.str();
     }
-#if (defined(_WIN32) || defined(_WIN64)) && (MFX_VERSION >= 1031)
+
     //Adapter type
-    void SetPrefferiGfx(bool prefferiGfx) {
-        bPrefferiGfx = prefferiGfx;
+    void SetAdapterType(mfxU16 adapterType) {
+        m_adapterType = adapterType;
     };
-    void SetPrefferdGfx(mfxU32 dGfxIdx = 0) {
-        this->dGfxIdx = dGfxIdx;
+    void SetPrefferdGfx(mfxI32 dGfxIdx = 0) {
+        m_dGfxIdx = dGfxIdx;
+    };
+    void SetAdapterNum(mfxU32 adapterNum = 0) {
+        m_adapterNum = adapterNum;
     };
 
-    bool IsPrefferiGfx() const {
-        return bPrefferiGfx;
+    mfxU16 GetAdapterType() const {
+        return m_adapterType;
     };
-    bool IsPrefferdGfx() const {
-        return dGfxIdx >= 0;
+    mfxI32 GetdGfxIdx() const {
+        return m_dGfxIdx;
     };
-    mfxU32 GetdGfxIdx() const {
-        return dGfxIdx;
+    mfxI32 GetAdapterNum() const {
+        return m_adapterNum;
     };
-#endif
+
 protected:
     virtual mfxStatus CheckRequiredAPIVersion(mfxVersion& version, sInputParams* pParams);
 
@@ -838,23 +821,16 @@ protected:
                                   ExtendedSurface* pExtSurface,
                                   mfxU32 ID = 0);
     virtual mfxStatus EncodeOneFrame(ExtendedSurface* pExtSurface, mfxBitstreamWrapper* pBS);
-#if !defined(MFX_ONEVPL)
-    virtual mfxStatus PreEncOneFrame(ExtendedSurface* pInSurface, ExtendedSurface* pOutSurface);
-#endif
     virtual mfxStatus DecodePreInit(sInputParams* pParams);
     virtual mfxStatus VPPPreInit(sInputParams* pParams);
     virtual mfxStatus EncodePreInit(sInputParams* pParams);
-#if !defined(MFX_ONEVPL)
-    virtual mfxStatus PreEncPreInit(sInputParams* pParams);
-#endif
     mfxVideoParam GetDecodeParam(mfxU32 ID = 0);
 
-#if !defined(MFX_ONEVPL)
     mfxExtMVCSeqDesc GetDecMVCSeqDesc() {
         mfxExtMVCSeqDesc* mvc = m_mfxDecParams;
         return mvc ? *mvc : mfxExtMVCSeqDesc();
     }
-#endif
+
     static void ModifyParamsUsingPresets(sInputParams& params,
                                          mfxF64 fps,
                                          mfxU32 width,
@@ -863,13 +839,7 @@ protected:
     // alloc frames for all component
     mfxStatus AllocFrames(mfxFrameAllocRequest* pRequest, bool isDecAlloc);
     mfxStatus AllocFramesForCS();
-    mfxStatus AllocFrames();
-
-#if !defined(MFX_ONEVPL)
-    mfxStatus CorrectPreEncAuxPool(mfxU32 num_frames_in_pool);
-    mfxStatus AllocPreEncAuxPool();
-    void FreePreEncAuxPool();
-#endif //!MFX_ONEVPL
+    mfxStatus SetupSurfacePool(mfxU32 preallocateNum);
 
     // need for heterogeneous pipeline
     mfxStatus CalculateNumberOfReqFrames(mfxFrameAllocRequest& pRequestDecOut,
@@ -890,9 +860,6 @@ protected:
     mfxStatus InitVppMfxParams(MfxVideoParamsWrapper& par, sInputParams* pInParams, mfxU32 ID = 0);
     virtual mfxStatus InitEncMfxParams(sInputParams* pInParams);
     mfxStatus InitPluginMfxParams(sInputParams* pInParams);
-#if !defined(MFX_ONEVPL)
-    mfxStatus InitPreEncMfxParams(sInputParams* pInParams);
-#endif
     virtual mfxU32 FileFourCC2EncFourCC(mfxU32 fcc);
     void FillFrameInfoForEncoding(mfxFrameInfo& info, sInputParams* pInParams);
 
@@ -941,15 +908,6 @@ protected:
     std::unique_ptr<MFXVideoENCODE> m_pmfxENC;
     std::unique_ptr<MFXVideoMultiVPP>
         m_pmfxVPP; // either VPP or VPPPlugin which wraps [VPP]-Plugin-[VPP] pipeline
-#if !defined(MFX_ONEVPL)
-    std::unique_ptr<MFXVideoENC> m_pmfxPreENC;
-    std::unique_ptr<MFXVideoUSER> m_pUserDecoderModule;
-    std::unique_ptr<MFXVideoUSER> m_pUserEncoderModule;
-    std::unique_ptr<MFXVideoUSER> m_pUserEncModule;
-    std::unique_ptr<MFXPlugin> m_pUserDecoderPlugin;
-    std::unique_ptr<MFXPlugin> m_pUserEncoderPlugin;
-    std::unique_ptr<MFXPlugin> m_pUserEncPlugin;
-#endif //!MFX_ONEVPL
     mfxFrameAllocResponse m_mfxDecResponse; // memory allocation response for decoder
     mfxFrameAllocResponse m_mfxEncResponse; // memory allocation response for encoder
 
@@ -972,6 +930,10 @@ protected:
     typedef std::vector<mfxFrameSurface1*> SurfPointersArray;
     SurfPointersArray m_pSurfaceDecPool;
     SurfPointersArray m_pSurfaceEncPool;
+
+    mfxFrameAllocRequest m_DecOutAllocReques;
+    mfxFrameAllocRequest m_VPPOutAllocReques;
+
     std::map<mfxU32, SurfPointersArray> m_CSSurfacePools;
 
     mfxU16 m_EncSurfaceType; // actual type of encoder surface pool
@@ -987,6 +949,9 @@ protected:
     mfxInitParamlWrap m_initPar;
 
     volatile bool m_bForceStop;
+
+    bool m_forceSyncAllSession;
+    std::shared_ptr<SurfaceUtilizationSynchronizer> m_pSurfaceUtilizationSynchronizer;
 
     sPluginParams m_decoderPluginParams;
     sPluginParams m_encoderPluginParams;
@@ -1024,6 +989,9 @@ protected:
 
     bool m_bIsJoinSession;
 
+    bool m_bAllocHint;
+    mfxU32 m_nPreallocate;
+
     bool m_bDecodeEnable;
     bool m_bEncodeEnable;
     mfxU32 m_nVPPCompEnable;
@@ -1055,6 +1023,7 @@ protected:
 
     mfxU32 m_FrameNumberPreference;
     mfxU32 m_MaxFramesForTranscode;
+    mfxU32 m_MaxFramesForEncode;
 
     // pointer to already extended bs processor
     FileBitstreamProcessor* m_pBSProcessor;
@@ -1069,7 +1038,6 @@ protected:
 
     bool shouldUseGreedyFormula;
 
-#if MFX_VERSION >= 1022
     // ROI data
     std::vector<mfxExtEncoderROI> m_ROIData;
     mfxU32 m_nSubmittedFramesNum;
@@ -1094,18 +1062,15 @@ protected:
     msdk_string m_strMfxParamsDumpFile;
 
     void FillMBQPBuffer(mfxExtMBQP& qpMap, mfxU16 pictStruct);
-#endif //MFX_VERSION >= 1022
 
 #ifdef ENABLE_MCTF
     sMctfRunTimeParams m_MctfRTParams;
 #endif
-#if (defined(_WIN32) || defined(_WIN64)) && (MFX_VERSION >= 1031)
-    //Adapter type
-    bool bPrefferiGfx;
-    bool bPrefferdGfx;
-    mfxU32 dGfxIdx;
-#endif
 
+    //Adapter type
+    mfxU16 m_adapterType;
+    mfxI32 m_dGfxIdx;
+    mfxI32 m_adapterNum;
     mfxU32 TargetID = 0;
     CascadeScalerConfig m_ScalerConfig;
 

@@ -1,11 +1,11 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2014 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
 
-#include "include/cttmetrics.h"
-#include "include/cttmetrics_utils.h"
+#include "cttmetrics.h"
+#include "cttmetrics_utils.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -429,7 +429,7 @@ extern "C" cttStatus CTTMetrics_Custom_GetValue(unsigned int count, float* out_m
                  CARD,
                  "gt_act_freq_mhz");
         FILE* fd = fopen(ACT_FREQ_FILE, "r");
-        if (!fd) {
+        if (fd) {
             if (fscanf(fd, "%f", &(rings[AFREQ_RID].busy)) != 1)
                 rings[AFREQ_RID].busy = 0.0;
             fclose(fd);

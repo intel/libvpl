@@ -1,11 +1,10 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2005 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
 
 #include "sysmem_allocator.h"
-#include <climits>
 #include "sample_utils.h"
 
 #define MSDK_ALIGN32(X) (((mfxU32)((X) + 31)) & (~(mfxU32)31))
@@ -124,28 +123,24 @@ mfxStatus SysMemFrameAllocator::LockFrame(mfxMemId mid, mfxFrameData* ptr) {
             ptr->PitchHigh = (mfxU16)((2 * MSDK_ALIGN32(fs->info.Width)) / (1 << 16));
             ptr->PitchLow  = (mfxU16)((2 * MSDK_ALIGN32(fs->info.Width)) % (1 << 16));
             break;
-#if (MFX_VERSION >= 1028)
         case MFX_FOURCC_RGB565:
             ptr->G         = ptr->B;
             ptr->R         = ptr->B;
             ptr->PitchHigh = (mfxU16)((2 * MSDK_ALIGN32(fs->info.Width)) / (1 << 16));
             ptr->PitchLow  = (mfxU16)((2 * MSDK_ALIGN32(fs->info.Width)) % (1 << 16));
             break;
-#endif
         case MFX_FOURCC_RGB3:
             ptr->G         = ptr->B + 1;
             ptr->R         = ptr->B + 2;
             ptr->PitchHigh = (mfxU16)((3 * MSDK_ALIGN32(fs->info.Width)) / (1 << 16));
             ptr->PitchLow  = (mfxU16)((3 * MSDK_ALIGN32(fs->info.Width)) % (1 << 16));
             break;
-#if !(defined(_WIN32) || defined(_WIN64))
         case MFX_FOURCC_RGBP:
-            ptr->G         = ptr->B + Width2 * Height2;
-            ptr->R         = ptr->B + Width2 * Height2 * 2;
+            ptr->G         = ptr->R + Width2 * Height2;
+            ptr->B         = ptr->G + Width2 * Height2;
             ptr->PitchHigh = (mfxU16)((MSDK_ALIGN32(fs->info.Width)) / (1 << 16));
             ptr->PitchLow  = (mfxU16)((MSDK_ALIGN32(fs->info.Width)) % (1 << 16));
             break;
-#endif
         case MFX_FOURCC_RGB4:
         case MFX_FOURCC_A2RGB10:
             ptr->G         = ptr->B + 1;
@@ -171,7 +166,7 @@ mfxStatus SysMemFrameAllocator::LockFrame(mfxMemId mid, mfxFrameData* ptr) {
             ptr->PitchHigh = 0;
             ptr->PitchLow  = (mfxU16)MSDK_ALIGN32(fs->info.Width * 2);
             break;
-#if (MFX_VERSION >= 1031)
+#if (MFX_VERSION >= MFX_VERSION_NEXT)
         case MFX_FOURCC_P016:
 #endif
         case MFX_FOURCC_P010:
@@ -194,7 +189,7 @@ mfxStatus SysMemFrameAllocator::LockFrame(mfxMemId mid, mfxFrameData* ptr) {
             ptr->PitchHigh = (mfxU16)((4 * MSDK_ALIGN32(fs->info.Width)) / (1 << 16));
             ptr->PitchLow  = (mfxU16)((4 * MSDK_ALIGN32(fs->info.Width)) % (1 << 16));
             break;
-#if (MFX_VERSION >= 1031)
+#if (MFX_VERSION >= MFX_VERSION_NEXT)
         case MFX_FOURCC_Y416:
             ptr->U16       = (mfxU16*)ptr->B;
             ptr->Y16       = ptr->U16 + 1;
@@ -205,7 +200,6 @@ mfxStatus SysMemFrameAllocator::LockFrame(mfxMemId mid, mfxFrameData* ptr) {
             break;
         case MFX_FOURCC_Y216:
 #endif
-#if (MFX_VERSION >= 1027)
         case MFX_FOURCC_Y210:
             ptr->Y16 = (mfxU16*)ptr->B;
             ptr->U16 = ptr->Y16 + 1;
@@ -219,7 +213,6 @@ mfxStatus SysMemFrameAllocator::LockFrame(mfxMemId mid, mfxFrameData* ptr) {
             ptr->PitchHigh           = (mfxU16)((4 * MSDK_ALIGN32(fs->info.Width)) / (1 << 16));
             ptr->PitchLow            = (mfxU16)((4 * MSDK_ALIGN32(fs->info.Width)) % (1 << 16));
             break;
-#endif
 
         default:
             return MFX_ERR_UNSUPPORTED;
@@ -290,22 +283,16 @@ static mfxU32 GetSurfaceSize(mfxU32 FourCC, mfxU32 Width2, mfxU32 Height2) {
         case MFX_FOURCC_NV16:
             nbytes = Width2 * Height2 + (Width2 >> 1) * (Height2) + (Width2 >> 1) * (Height2);
             break;
-#if (MFX_VERSION >= 1028)
         case MFX_FOURCC_RGB565:
             nbytes = 2 * Width2 * Height2;
             break;
-#endif
-#if !(defined(_WIN32) || defined(_WIN64))
         case MFX_FOURCC_RGBP:
-#endif
         case MFX_FOURCC_RGB3:
             nbytes = Width2 * Height2 + Width2 * Height2 + Width2 * Height2;
             break;
         case MFX_FOURCC_RGB4:
         case MFX_FOURCC_AYUV:
-#if (MFX_VERSION >= 1027)
         case MFX_FOURCC_Y410:
-#endif
             nbytes = Width2 * Height2 + Width2 * Height2 + Width2 * Height2 + Width2 * Height2;
             break;
         case MFX_FOURCC_UYVY:
@@ -331,14 +318,15 @@ static mfxU32 GetSurfaceSize(mfxU32 FourCC, mfxU32 Width2, mfxU32 Height2) {
             nbytes = Width2 * Height2 * 4; // 4 bytes per pixel
             break;
         case MFX_FOURCC_P210:
-#if (MFX_VERSION >= 1027)
         case MFX_FOURCC_Y210:
-#endif
-#if (MFX_VERSION >= 1031)
+#if (MFX_VERSION >= MFX_VERSION_NEXT)
         case MFX_FOURCC_Y216:
+#endif
             nbytes = Width2 * Height2 + (Width2 >> 1) * (Height2) + (Width2 >> 1) * (Height2);
             nbytes *= 2; // 16bits
             break;
+
+#if (MFX_VERSION >= MFX_VERSION_NEXT)
         case MFX_FOURCC_Y416:
             nbytes =
                 (Width2 * Height2 + Width2 * Height2 + Width2 * Height2 + Width2 * Height2) * 2;

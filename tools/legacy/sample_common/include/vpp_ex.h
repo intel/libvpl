@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2005 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -8,8 +8,8 @@
 #define __VPP_EX_H__
 
 #include <vector>
-#include "mfxvideo++.h"
 #include "sample_utils.h"
+#include "vpl/mfxvideo++.h"
 
 /* #define USE_VPP_EX */
 

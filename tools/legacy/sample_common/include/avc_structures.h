@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2005 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -807,9 +807,10 @@ struct AVCSEIPayLoadBase {
     } SEI_messages;
 
     void Reset() {
-        payLoadType  = SEI_RESERVED;
-        payLoadSize  = 0;
-        SEI_messages = { 0 };
+        memset(this, 0, sizeof(AVCSEIPayLoadBase));
+
+        payLoadType = SEI_RESERVED;
+        payLoadSize = 0;
     }
 };
 

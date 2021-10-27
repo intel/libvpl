@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2005 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -8,7 +8,7 @@
 #define __SAMPLE_DEFS_H__
 
 #include <memory.h>
-#include <string.h>
+#include <algorithm>
 #include <iostream>
 
 #include "vm/file_defs.h"
@@ -32,16 +32,19 @@ inline const char* path_to_name(const char* path, char delim) {
     #define __FILENAME__ path_to_name(__FILE__, '/')
 #endif
 
-#if (MFX_VERSION >= 1026)
-//#define ENABLE_MCTF
-//#if defined(MFX_VERSION_NEXT) && (MFX_VERSION >= MFX_VERSION_NEXT)
-//---MCTF, extended interface
-//#undef ENABLE_MCTF_EXT
-//#endif
-enum { MCTF_BITRATE_MULTIPLIER = 100000 };
+// Run-time HSBC
+#if (MFX_VERSION >= MFX_VERSION_NEXT)
+    #define ENABLE_VPP_RUNTIME_HSBC
 #endif
 
-#if defined(WIN32) || defined(WIN64)
+#define ENABLE_MCTF
+#if defined(MFX_VERSION_NEXT) && (MFX_VERSION >= MFX_VERSION_NEXT)
+    //---MCTF, extended interface
+    #undef ENABLE_MCTF_EXT
+#endif
+enum { MCTF_BITRATE_MULTIPLIER = 100000 };
+
+#if defined(_WIN32) || defined(_WIN64)
 
 enum {
     MFX_HANDLE_DEVICEWINDOW = 0x101 /* A handle to the render window */
@@ -58,8 +61,8 @@ enum {
         #else
             #define MFX_D3D11_SUPPORT 0
         #endif
-    #endif // #if defined(WIN32) && !defined(MFX_D3D11_SUPPORT)
-#endif // #if defined(WIN32) || defined(WIN64)
+    #endif // #if defined(_WIN32) && !defined(MFX_D3D11_SUPPORT)
+#endif // #if defined(_WIN32) || defined(_WIN64)
 
 enum {
 #define __DECLARE(type) MFX_MONITOR_##type
@@ -199,6 +202,18 @@ enum LibVABackend {
             return ERR;                         \
         }                                       \
     }
+#define MSDK_CHECK_ERR_NONE_STATUS_NO_RET(X, MSG) \
+    {                                             \
+        if ((X) != MFX_ERR_NONE) {                \
+            MSDK_PRINT_RET_MSG(X, MSG);           \
+        }                                         \
+    }
+#define MSDK_CHECK_NOERROR_STATUS_NO_RET(X, MSG)                         \
+    {                                                                    \
+        if ((X) != MFX_ERR_NONE && (X) != MFX_ERR_NONE_PARTIAL_OUTPUT) { \
+            MSDK_PRINT_RET_MSG(X, MSG);                                  \
+        }                                                                \
+    }
 #define MSDK_CHECK_PARSE_RESULT(P, X, ERR) \
     {                                      \
         if ((X) > (P)) {                   \
@@ -291,7 +306,7 @@ enum LibVABackend {
 #define MSDK_ARRAY_LEN(value) (sizeof(value) / sizeof(value[0]))
 
 #ifndef UNREFERENCED_PARAMETER
-    #define UNREFERENCED_PARAMETER(par) (par)
+    #define UNREFERENCED_PARAMETER(par) std::ignore = par;
 #endif
 
 #define MFX_IMPL_VIA_MASK(x) (0x0f00 & (x))
@@ -326,7 +341,7 @@ namespace mfx {
 // Clip value v to range [lo, hi]
 template <class T>
 constexpr const T& clamp(const T& v, const T& lo, const T& hi) {
-    return std::min<T>(hi, std::max<T>(v, lo));
+    return std::min(hi, std::max(v, lo));
 }
 
 // Comp is comparison function object with meaning of 'less' operator (i.e. std::less<> or operator<)

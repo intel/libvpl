@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2005 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -8,19 +8,47 @@
 
 #include <math.h>
 #include <algorithm>
-#include <climits>
 #include <iostream>
 #include <map>
 
-#include "vpl/mfxcommon.h"
-#include "vpl/mfxjpeg.h"
-#if (MFX_VERSION < 2000)
-    #include "mfxvp8.h"
-#endif
 #include "sample_defs.h"
 #include "sample_utils.h"
 #include "time_statistics.h"
 #include "vm/strings_defs.h"
+#include "vpl/mfxcommon.h"
+#include "vpl/mfxjpeg.h"
+#include "vpl/mfxvideo++.h"
+#include "vpl/mfxvideo.h"
+#include "vpl/mfxvp8.h"
+
+// include 32/64/debug lib
+#define LIBMFXSW_MASK "libmfxsw"
+#define LIBMFXHW_MASK "libmfxhw"
+#define ONEVPLSW_MASK "libvplswref"
+
+#if defined(_WIN32) || defined(_WIN64)
+
+    #include <DXGI.h>
+    #include <psapi.h>
+    #include <tchar.h>
+    #include <windows.h>
+    #include <memory>
+
+    #define ONEVPL32 "libmfx32-gen.dll"
+    #define ONEVPL64 "libmfx64-gen.dll"
+
+#else
+
+    #include <link.h>
+    #include <string>
+
+    #if defined(__x86_64__)
+        #define ONEVPL_MASK "libmfx-gen"
+    #else
+        #error Unsupported architecture
+    #endif
+
+#endif // #if defined(_WIN32) || defined(_WIN64)
 
 msdk_tick CTimer::frequency              = 0;
 msdk_tick CTimeStatisticsReal::frequency = 0;
@@ -86,31 +114,18 @@ mfxStatus CSmplYUVReader::Init(std::list<msdk_string> inputs,
 
     if (MFX_FOURCC_NV12 != ColorFormat && MFX_FOURCC_YV12 != ColorFormat &&
         MFX_FOURCC_I420 != ColorFormat && MFX_FOURCC_YUY2 != ColorFormat &&
-        MFX_FOURCC_UYVY != ColorFormat && MFX_FOURCC_RGB4 != ColorFormat &&
-        MFX_FOURCC_BGR4 != ColorFormat && MFX_FOURCC_P010 != ColorFormat &&
-        MFX_FOURCC_P210 != ColorFormat && MFX_FOURCC_AYUV != ColorFormat &&
-        MFX_FOURCC_A2RGB10 != ColorFormat
-#if (MFX_VERSION >= 1027)
-        && MFX_FOURCC_Y210 != ColorFormat && MFX_FOURCC_Y410 != ColorFormat
-#endif
-#if (MFX_VERSION >= 1031)
-        && MFX_FOURCC_P016 != ColorFormat && MFX_FOURCC_Y216 != ColorFormat
-#endif
-#if (MFX_VERSION >= 2000)
-        && MFX_FOURCC_I010 != ColorFormat
-#endif
-    ) {
+        MFX_FOURCC_RGB4 != ColorFormat && MFX_FOURCC_BGR4 != ColorFormat &&
+        MFX_FOURCC_P010 != ColorFormat && MFX_FOURCC_P210 != ColorFormat &&
+        MFX_FOURCC_AYUV != ColorFormat && MFX_FOURCC_A2RGB10 != ColorFormat &&
+        MFX_FOURCC_Y210 != ColorFormat && MFX_FOURCC_Y410 != ColorFormat &&
+        MFX_FOURCC_P016 != ColorFormat && MFX_FOURCC_Y216 != ColorFormat &&
+        MFX_FOURCC_I010 != ColorFormat) {
         return MFX_ERR_UNSUPPORTED;
     }
 
-    if (MFX_FOURCC_P010 == ColorFormat || MFX_FOURCC_P210 == ColorFormat
-#if (MFX_VERSION >= 1027)
-        || MFX_FOURCC_Y210 == ColorFormat
-#endif
-#if (MFX_VERSION >= 1031)
-        || MFX_FOURCC_P016 == ColorFormat || MFX_FOURCC_Y216 == ColorFormat
-#endif
-    ) {
+    if (MFX_FOURCC_P010 == ColorFormat || MFX_FOURCC_P210 == ColorFormat ||
+        MFX_FOURCC_Y210 == ColorFormat || MFX_FOURCC_P016 == ColorFormat ||
+        MFX_FOURCC_Y216 == ColorFormat) {
         shouldShift10BitsHigh = enableShifting;
     }
 
@@ -170,60 +185,6 @@ mfxStatus CSmplYUVReader::SkipNframesFromBeginning(mfxU16 w,
     return MFX_ERR_NONE;
 }
 
-mfxStatus CSmplYUVReader::LoadNextFrame2(mfxFrameSurface1* pSurface,
-                                         int bytes_to_read,
-                                         mfxU8* buf_read) {
-    // check if reader is initialized
-    MSDK_CHECK_POINTER(pSurface, MFX_ERR_NULL_PTR);
-
-    mfxU32 vid = pSurface->Info.FrameId.ViewId;
-
-    int nBytesRead = static_cast<int>(fread(buf_read, 1, bytes_to_read, m_files[vid]));
-
-    if (bytes_to_read != nBytesRead) {
-        return MFX_ERR_MORE_DATA;
-    }
-
-    mfxU16 w, h;
-    mfxFrameInfo* pInfo = &pSurface->Info;
-    mfxFrameData* pData = &pSurface->Data;
-
-    w = pInfo->Width;
-    h = pInfo->Height;
-
-    switch (pInfo->FourCC) {
-        case MFX_FOURCC_NV12:
-            pData->Y  = buf_read;
-            pData->UV = pData->Y + w * h;
-            break;
-        case MFX_FOURCC_I420:
-            pData->Y = buf_read;
-            pData->U = pData->Y + w * h;
-            pData->V = pData->U + ((w / 2) * (h / 2));
-            break;
-
-        case MFX_FOURCC_P010:
-            pData->Y  = buf_read;
-            pData->UV = pData->Y + w * 2 * h;
-            break;
-        case MFX_FOURCC_I010:
-            pData->Y = buf_read;
-            pData->U = pData->Y + w * 2 * h;
-            pData->V = pData->U + (w * (h / 2));
-            break;
-
-        case MFX_FOURCC_RGB4:
-            // read luminance plane (Y)
-            //pitch    = pData->Pitch;
-            pData->B = buf_read;
-            break;
-        default:
-            break;
-    }
-
-    return MFX_ERR_NONE;
-}
-
 mfxStatus CSmplYUVReader::LoadNextFrame(mfxFrameSurface1* pSurface) {
     // check if reader is initialized
     MSDK_CHECK_ERROR(m_bInited, false, MFX_ERR_NOT_INITIALIZED);
@@ -253,37 +214,25 @@ mfxStatus CSmplYUVReader::LoadNextFrame(mfxFrameSurface1* pSurface) {
         h = pInfo.Height;
     }
 
-    mfxU32 nBytesPerPixel = (pInfo.FourCC == MFX_FOURCC_P010 || pInfo.FourCC == MFX_FOURCC_P210
-#if (MFX_VERSION >= 1031)
-                             || pInfo.FourCC == MFX_FOURCC_P016
-#endif
-#if (MFX_VERSION >= 2000)
-                             || pInfo.FourCC == MFX_FOURCC_I010
-#endif
-                             )
+    mfxU32 nBytesPerPixel = (pInfo.FourCC == MFX_FOURCC_P010 || pInfo.FourCC == MFX_FOURCC_P210 ||
+                             pInfo.FourCC == MFX_FOURCC_P016 || pInfo.FourCC == MFX_FOURCC_I010)
                                 ? 2
                                 : 1;
 
     if (MFX_FOURCC_YUY2 == pInfo.FourCC || MFX_FOURCC_UYVY == pInfo.FourCC ||
         MFX_FOURCC_RGB4 == pInfo.FourCC || MFX_FOURCC_BGR4 == pInfo.FourCC ||
-        MFX_FOURCC_AYUV == pInfo.FourCC || MFX_FOURCC_A2RGB10 == pInfo.FourCC
-#if (MFX_VERSION >= 1027)
-        || MFX_FOURCC_Y210 == pInfo.FourCC || MFX_FOURCC_Y410 == pInfo.FourCC
-#endif
-#if (MFX_VERSION >= 1031)
-        || MFX_FOURCC_Y216 == pInfo.FourCC
-#endif
-    ) {
+        MFX_FOURCC_AYUV == pInfo.FourCC || MFX_FOURCC_A2RGB10 == pInfo.FourCC ||
+        MFX_FOURCC_Y210 == pInfo.FourCC || MFX_FOURCC_Y410 == pInfo.FourCC ||
+        MFX_FOURCC_Y216 == pInfo.FourCC) {
         //Packed format: Luminance and chrominance are on the same plane
         switch (m_ColorFormat) {
             case MFX_FOURCC_A2RGB10:
+            case MFX_FOURCC_AYUV:
             case MFX_FOURCC_RGB4:
             case MFX_FOURCC_BGR4:
                 pitch = pData.Pitch;
-                ptr   = (pData.R < pData.G) ? pData.R : pData.G;
-                ptr   = (ptr < pData.B) ? ptr : pData.B;
-                //ptr   = std::min({ pData.R, pData.G, pData.B });
-                ptr = ptr + pInfo.CropX * 4 + pInfo.CropY * pData.Pitch;
+                ptr   = std::min({ pData.R, pData.G, pData.B });
+                ptr   = ptr + pInfo.CropX * 4 + pInfo.CropY * pData.Pitch;
 
                 for (i = 0; i < h; i++) {
                     nBytesRead = (mfxU32)fread(ptr + i * pitch, 1, 4 * w, m_files[vid]);
@@ -308,31 +257,11 @@ mfxStatus CSmplYUVReader::LoadNextFrame(mfxFrameSurface1* pSurface) {
                     }
                 }
                 break;
-            case MFX_FOURCC_AYUV:
-                pitch = pData.Pitch;
-                ptr   = pData.V + pInfo.CropX * 4 + pInfo.CropY * pData.Pitch;
-
-                for (i = 0; i < h; i++) {
-                    nBytesRead = (mfxU32)fread(ptr + i * pitch, 4, w, m_files[vid]);
-
-                    if ((mfxU32)w != nBytesRead) {
-                        return MFX_ERR_MORE_DATA;
-                    }
-                }
-                break;
-
-#if (MFX_VERSION >= 1027)
             case MFX_FOURCC_Y210:
             case MFX_FOURCC_Y410:
-    #if (MFX_VERSION >= 1031)
             case MFX_FOURCC_Y216:
-    #endif
                 pitch = pData.Pitch;
-                ptr   = ((pInfo.FourCC == MFX_FOURCC_Y210
-    #if (MFX_VERSION >= 1031)
-                        || pInfo.FourCC == MFX_FOURCC_Y216
-    #endif
-                        )
+                ptr   = ((pInfo.FourCC == MFX_FOURCC_Y210 || pInfo.FourCC == MFX_FOURCC_Y216)
                            ? pData.Y
                            : (mfxU8*)pData.Y410) +
                       pInfo.CropX * 4 + pInfo.CropY * pData.Pitch;
@@ -344,11 +273,7 @@ mfxStatus CSmplYUVReader::LoadNextFrame(mfxFrameSurface1* pSurface) {
                         return MFX_ERR_MORE_DATA;
                     }
 
-                    if ((MFX_FOURCC_Y210 == pInfo.FourCC
-    #if (MFX_VERSION >= 1031)
-                         || MFX_FOURCC_Y216 == pInfo.FourCC
-    #endif
-                         ) &&
+                    if ((MFX_FOURCC_Y210 == pInfo.FourCC || MFX_FOURCC_Y216 == pInfo.FourCC) &&
                         shouldShift10BitsHigh) {
                         mfxU16* shortPtr = (mfxU16*)(ptr + i * pitch);
                         for (int idx = 0; idx < w * 2; idx++) {
@@ -357,20 +282,15 @@ mfxStatus CSmplYUVReader::LoadNextFrame(mfxFrameSurface1* pSurface) {
                     }
                 }
                 break;
-#endif
             default:
                 return MFX_ERR_UNSUPPORTED;
         }
     }
     else if (MFX_FOURCC_NV12 == pInfo.FourCC || MFX_FOURCC_YV12 == pInfo.FourCC ||
-             MFX_FOURCC_P010 == pInfo.FourCC || MFX_FOURCC_P210 == pInfo.FourCC
-#if (MFX_VERSION >= 1031)
-             || MFX_FOURCC_P016 == pInfo.FourCC
-#endif
-#if (MFX_VERSION >= 2000)
-             || MFX_FOURCC_I420 == pInfo.FourCC || MFX_FOURCC_I010 == pInfo.FourCC
-#endif
-    ) {
+             MFX_FOURCC_P010 == pInfo.FourCC || MFX_FOURCC_P210 == pInfo.FourCC ||
+             MFX_FOURCC_P016 == pInfo.FourCC || MFX_FOURCC_I010 == pInfo.FourCC ||
+             MFX_FOURCC_P016 == pInfo.FourCC || MFX_FOURCC_I010 == pInfo.FourCC ||
+             MFX_FOURCC_I420 == pInfo.FourCC) {
         pitch = pData.Pitch;
         ptr   = pData.Y + pInfo.CropX + pInfo.CropY * pData.Pitch;
 
@@ -383,11 +303,8 @@ mfxStatus CSmplYUVReader::LoadNextFrame(mfxFrameSurface1* pSurface) {
             }
 
             // Shifting data if required
-            if ((MFX_FOURCC_P010 == pInfo.FourCC || MFX_FOURCC_P210 == pInfo.FourCC
-#if (MFX_VERSION >= 1031)
-                 || MFX_FOURCC_P016 == pInfo.FourCC
-#endif
-                 ) &&
+            if ((MFX_FOURCC_P010 == pInfo.FourCC || MFX_FOURCC_P210 == pInfo.FourCC ||
+                 MFX_FOURCC_P016 == pInfo.FourCC) &&
                 shouldShift10BitsHigh) {
                 mfxU16* shortPtr = (mfxU16*)(ptr + i * pitch);
                 for (int idx = 0; idx < w; idx++) {
@@ -506,9 +423,7 @@ mfxStatus CSmplYUVReader::LoadNextFrame(mfxFrameSurface1* pSurface) {
             case MFX_FOURCC_NV12:
             case MFX_FOURCC_P010:
             case MFX_FOURCC_P210:
-#if (MFX_VERSION >= 1031)
             case MFX_FOURCC_P016:
-#endif
                 if (MFX_FOURCC_P210 != pInfo.FourCC) {
                     h /= 2;
                 }
@@ -521,11 +436,8 @@ mfxStatus CSmplYUVReader::LoadNextFrame(mfxFrameSurface1* pSurface) {
                     }
 
                     // Shifting data if required
-                    if ((MFX_FOURCC_P010 == pInfo.FourCC || MFX_FOURCC_P210 == pInfo.FourCC
-#if (MFX_VERSION >= 1031)
-                         || MFX_FOURCC_P016 == pInfo.FourCC
-#endif
-                         ) &&
+                    if ((MFX_FOURCC_P010 == pInfo.FourCC || MFX_FOURCC_P210 == pInfo.FourCC ||
+                         MFX_FOURCC_P016 == pInfo.FourCC) &&
                         shouldShift10BitsHigh) {
                         mfxU16* shortPtr = (mfxU16*)(ptr + i * pitch);
                         for (int idx = 0; idx < w; idx++) {
@@ -539,28 +451,25 @@ mfxStatus CSmplYUVReader::LoadNextFrame(mfxFrameSurface1* pSurface) {
                 return MFX_ERR_UNSUPPORTED;
         }
     }
-    else {
-        return MFX_ERR_UNSUPPORTED;
-    }
 
     return MFX_ERR_NONE;
 }
 
-CSmplBitstreamWriter::CSmplBitstreamWriter() : m_sFile() {
-    m_fSink               = NULL;
-    m_bInited             = false;
-    m_nProcessedFramesNum = 0;
-    m_bSkipWriting        = false;
-}
+CSmplBitstreamWriter::CSmplBitstreamWriter()
+        : m_nProcessedFramesNum(0),
+          m_bSkipWriting(false),
+          m_fSource(NULL),
+          m_bInited(false),
+          m_sFile() {}
 
 CSmplBitstreamWriter::~CSmplBitstreamWriter() {
     Close();
 }
 
 void CSmplBitstreamWriter::Close() {
-    if (m_fSink) {
-        fclose(m_fSink);
-        m_fSink = NULL;
+    if (m_fSource) {
+        fclose(m_fSource);
+        m_fSource = NULL;
     }
 
     m_bInited = false;
@@ -574,8 +483,8 @@ mfxStatus CSmplBitstreamWriter::Init(const msdk_char* strFileName) {
     Close();
 
     //init file to write encoded data
-    MSDK_FOPEN(m_fSink, strFileName, MSDK_STRING("wb+"));
-    MSDK_CHECK_POINTER(m_fSink, MFX_ERR_NULL_PTR);
+    MSDK_FOPEN(m_fSource, strFileName, MSDK_STRING("wb+"));
+    MSDK_CHECK_POINTER(m_fSource, MFX_ERR_NULL_PTR);
 
     m_sFile = msdk_string(strFileName);
     //set init state to true in case of success
@@ -591,57 +500,58 @@ mfxStatus CSmplBitstreamWriter::Reset() {
     return Init(m_sFile.c_str());
 }
 
-mfxStatus CSmplBitstreamWriter::WriteNextFrame(mfxBitstream* pMfxBitstream, bool isPrint) {
+mfxStatus CSmplBitstreamWriter::WriteNextFrame(mfxBitstream* pMfxBitstream,
+                                               bool isPrint,
+                                               bool isCompleteFrame) {
+    if (m_bSkipWriting)
+        return MFX_ERR_NONE;
+
     // check if writer is initialized
     MSDK_CHECK_ERROR(m_bInited, false, MFX_ERR_NOT_INITIALIZED);
     MSDK_CHECK_POINTER(pMfxBitstream, MFX_ERR_NULL_PTR);
 
-    if (pMfxBitstream->DataLength) {
+    if (isCompleteFrame) {
         mfxU32 nBytesWritten = 0;
 
-        // when there's no destfile assigned
-        if (m_bSkipWriting == false) {
-            nBytesWritten = (mfxU32)fwrite(pMfxBitstream->Data + pMfxBitstream->DataOffset,
-                                           1,
-                                           pMfxBitstream->DataLength,
-                                           m_fSink);
-            MSDK_CHECK_NOT_EQUAL(nBytesWritten,
-                                 pMfxBitstream->DataLength,
-                                 MFX_ERR_UNDEFINED_BEHAVIOR);
-        }
-        else {
-            // mark that we don't need bit stream data any more
-            pMfxBitstream->DataLength = 0;
-        }
+        nBytesWritten = (mfxU32)fwrite(pMfxBitstream->Data + pMfxBitstream->DataOffset,
+                                       1,
+                                       pMfxBitstream->DataLength,
+                                       m_fSource);
+        MSDK_CHECK_NOT_EQUAL(nBytesWritten, pMfxBitstream->DataLength, MFX_ERR_UNDEFINED_BEHAVIOR);
+
+        // mark that we don't need bit stream data any more
+        pMfxBitstream->DataLength = 0;
+        pMfxBitstream->DataOffset = 0;
 
         m_nProcessedFramesNum++;
-    }
 
-    // print encoding progress to console every certain number of frames (not to affect performance too much)
-    if (m_bSkipWriting == false) {
+        // print encoding progress to console every certain number of frames (not to affect performance too much)
         if (isPrint && (1 == m_nProcessedFramesNum || (0 == (m_nProcessedFramesNum % 100)))) {
             msdk_printf(MSDK_STRING("Frame number: %u\r"), (unsigned int)m_nProcessedFramesNum);
         }
+    }
+    else {
+        // append new chunk of partial output to output buffer
     }
 
     return MFX_ERR_NONE;
 }
 
 CSmplBitstreamDuplicateWriter::CSmplBitstreamDuplicateWriter() : CSmplBitstreamWriter() {
-    m_fSinkDuplicate = NULL;
-    m_bJoined        = false;
+    m_fSourceDuplicate = NULL;
+    m_bJoined          = false;
 }
 
 mfxStatus CSmplBitstreamDuplicateWriter::InitDuplicate(const msdk_char* strFileName) {
     MSDK_CHECK_POINTER(strFileName, MFX_ERR_NULL_PTR);
     MSDK_CHECK_ERROR(msdk_strlen(strFileName), 0, MFX_ERR_NOT_INITIALIZED);
 
-    if (m_fSinkDuplicate) {
-        fclose(m_fSinkDuplicate);
-        m_fSinkDuplicate = NULL;
+    if (m_fSourceDuplicate) {
+        fclose(m_fSourceDuplicate);
+        m_fSourceDuplicate = NULL;
     }
-    MSDK_FOPEN(m_fSinkDuplicate, strFileName, MSDK_STRING("wb+"));
-    MSDK_CHECK_POINTER(m_fSinkDuplicate, MFX_ERR_NULL_PTR);
+    MSDK_FOPEN(m_fSourceDuplicate, strFileName, MSDK_STRING("wb+"));
+    MSDK_CHECK_POINTER(m_fSourceDuplicate, MFX_ERR_NULL_PTR);
 
     m_bJoined = false; // mark we own the file handle
 
@@ -650,22 +560,22 @@ mfxStatus CSmplBitstreamDuplicateWriter::InitDuplicate(const msdk_char* strFileN
 
 mfxStatus CSmplBitstreamDuplicateWriter::JoinDuplicate(CSmplBitstreamDuplicateWriter* pJoinee) {
     MSDK_CHECK_POINTER(pJoinee, MFX_ERR_NULL_PTR);
-    MSDK_CHECK_ERROR(pJoinee->m_fSinkDuplicate, NULL, MFX_ERR_NOT_INITIALIZED);
+    MSDK_CHECK_ERROR(pJoinee->m_fSourceDuplicate, NULL, MFX_ERR_NOT_INITIALIZED);
 
-    m_fSinkDuplicate = pJoinee->m_fSinkDuplicate;
-    m_bJoined        = true; // mark we do not own the file handle
+    m_fSourceDuplicate = pJoinee->m_fSourceDuplicate;
+    m_bJoined          = true; // mark we do not own the file handle
 
     return MFX_ERR_NONE;
 }
 
 mfxStatus CSmplBitstreamDuplicateWriter::WriteNextFrame(mfxBitstream* pMfxBitstream, bool isPrint) {
-    MSDK_CHECK_ERROR(m_fSinkDuplicate, NULL, MFX_ERR_NOT_INITIALIZED);
+    MSDK_CHECK_ERROR(m_fSourceDuplicate, NULL, MFX_ERR_NOT_INITIALIZED);
     MSDK_CHECK_POINTER(pMfxBitstream, MFX_ERR_NULL_PTR);
 
     mfxU32 nBytesWritten = (mfxU32)fwrite(pMfxBitstream->Data + pMfxBitstream->DataOffset,
                                           1,
                                           pMfxBitstream->DataLength,
-                                          m_fSinkDuplicate);
+                                          m_fSourceDuplicate);
     MSDK_CHECK_NOT_EQUAL(nBytesWritten, pMfxBitstream->DataLength, MFX_ERR_UNDEFINED_BEHAVIOR);
 
     CSmplBitstreamWriter::WriteNextFrame(pMfxBitstream, isPrint);
@@ -674,12 +584,12 @@ mfxStatus CSmplBitstreamDuplicateWriter::WriteNextFrame(mfxBitstream* pMfxBitstr
 }
 
 void CSmplBitstreamDuplicateWriter::Close() {
-    if (m_fSinkDuplicate && !m_bJoined) {
-        fclose(m_fSinkDuplicate);
+    if (m_fSourceDuplicate && !m_bJoined) {
+        fclose(m_fSourceDuplicate);
     }
 
-    m_fSinkDuplicate = NULL;
-    m_bJoined        = false;
+    m_fSourceDuplicate = NULL;
+    m_bJoined          = false;
 
     CSmplBitstreamWriter::Close();
 }
@@ -874,7 +784,6 @@ mfxStatus CIVFFrameReader::ReadNextFrame(mfxBitstream* pBS) {
     return MFX_ERR_NONE;
 }
 
-#if (MFX_VERSION >= 2000)
 CIVFFrameWriter::CIVFFrameWriter() {
     MSDK_ZERO_MEMORY(m_streamHeader);
     MSDK_ZERO_MEMORY(m_frameHeader);
@@ -882,7 +791,7 @@ CIVFFrameWriter::CIVFFrameWriter() {
 }
 
 mfxStatus CIVFFrameWriter::WriteStreamHeader() {
-    mfxU32 nBytesWritten = (mfxU32)fwrite(&m_streamHeader, 1, sizeof(m_streamHeader), m_fSink);
+    mfxU32 nBytesWritten = (mfxU32)fwrite(&m_streamHeader, 1, sizeof(m_streamHeader), m_fSource);
     if (nBytesWritten != sizeof(m_streamHeader))
         return MFX_ERR_MORE_BITSTREAM;
 
@@ -890,7 +799,7 @@ mfxStatus CIVFFrameWriter::WriteStreamHeader() {
 }
 
 mfxStatus CIVFFrameWriter::WriteFrameHeader() {
-    mfxU32 nBytesWritten = (mfxU32)fwrite(&m_frameHeader, 1, sizeof(m_frameHeader), m_fSink);
+    mfxU32 nBytesWritten = (mfxU32)fwrite(&m_frameHeader, 1, sizeof(m_frameHeader), m_fSource);
     if (nBytesWritten != sizeof(m_frameHeader))
         return MFX_ERR_MORE_BITSTREAM;
 
@@ -898,9 +807,9 @@ mfxStatus CIVFFrameWriter::WriteFrameHeader() {
 }
 
 void CIVFFrameWriter::UpdateNumberOfFrames() {
-    if (m_fSink) {
-        fseek(m_fSink, 24, SEEK_SET);
-        fwrite(&m_frameNum, 1, sizeof(mfxU32), m_fSink);
+    if (m_fSource) {
+        fseek(m_fSource, 24, SEEK_SET);
+        fwrite(&m_frameNum, 1, sizeof(mfxU32), m_fSource);
     }
 }
 
@@ -937,26 +846,17 @@ mfxStatus CIVFFrameWriter::Init(const msdk_char* strFileName,
 
 // write a complete frame into given bitstream
 mfxStatus CIVFFrameWriter::WriteNextFrame(mfxBitstream* pMfxBitstream, bool isPrint) {
-    if (m_bSkipWriting == false)
-        MSDK_CHECK_ERROR(m_fSink, NULL, MFX_ERR_NOT_INITIALIZED);
-
+    MSDK_CHECK_ERROR(m_fSource, NULL, MFX_ERR_NOT_INITIALIZED);
     MSDK_CHECK_POINTER(pMfxBitstream, MFX_ERR_NULL_PTR);
 
     if (pMfxBitstream->DataLength) {
-        if (m_bSkipWriting == false) {
-            m_frameHeader.frame_size = pMfxBitstream->DataLength;
-            m_frameHeader.pts_low    = (mfxU32)(m_frameNum >> 32);
-            m_frameHeader.pts_high   = (mfxU32)(m_frameNum & 0xFFFFFFFF);
+        m_frameHeader.frame_size = pMfxBitstream->DataLength;
+        m_frameHeader.pts_low    = (mfxU32)(m_frameNum & 0xFFFFFFFF);
+        m_frameHeader.pts_high   = (mfxU32)(m_frameNum >> 32);
 
-            WriteFrameHeader();
-            CSmplBitstreamWriter::WriteNextFrame(pMfxBitstream, isPrint);
-        }
-        else {
-            // mark that we don't need bit stream data any more
-            pMfxBitstream->DataLength = 0;
-        }
+        WriteFrameHeader();
 
-        m_frameNum++;
+        CSmplBitstreamWriter::WriteNextFrame(pMfxBitstream, isPrint);
     }
 
     return MFX_ERR_NONE;
@@ -966,16 +866,15 @@ void CIVFFrameWriter::Close() {
     UpdateNumberOfFrames();
     CSmplBitstreamWriter::Close();
 }
-#endif
 
-CSmplYUVWriter::CSmplYUVWriter() : m_sFile() {
-    m_bInited         = false;
-    m_bIsMultiView    = false;
-    m_fDest           = NULL;
-    m_fDestMVC        = NULL;
-    m_numCreatedFiles = 0;
-    m_nViews          = 0;
-};
+CSmplYUVWriter::CSmplYUVWriter()
+        : m_fDest(NULL),
+          m_fDestMVC(NULL),
+          m_bInited(false),
+          m_bIsMultiView(false),
+          m_numCreatedFiles(0),
+          m_sFile(),
+          m_nViews(0){};
 
 mfxStatus CSmplYUVWriter::Init(const msdk_char* strFileName, const mfxU32 numViews) {
     MSDK_CHECK_POINTER(strFileName, MFX_ERR_NULL_PTR);
@@ -1151,11 +1050,8 @@ mfxStatus CSmplYUVWriter::WriteNextFrame(mfxFrameSurface1* pSurface) {
                     MFX_ERR_UNDEFINED_BEHAVIOR);
             }
             break;
-#if (MFX_VERSION >= 1027)
         case MFX_FOURCC_Y210:
-    #if (MFX_VERSION >= 1031)
         case MFX_FOURCC_Y216: // Luma and chroma will be filled below
-    #endif
         {
             for (i = 0; i < pInfo.CropH; i++) {
                 mfxU8* pBuffer = ((mfxU8*)pData.Y) + (pInfo.CropY * pData.Pitch + pInfo.CropX * 4) +
@@ -1181,8 +1077,6 @@ mfxStatus CSmplYUVWriter::WriteNextFrame(mfxFrameSurface1* pSurface) {
             }
             return MFX_ERR_NONE;
         } break;
-#endif
-#if (MFX_VERSION >= 1027)
         case MFX_FOURCC_Y410: // Luma and chroma will be filled below
         {
             mfxU8* pBuffer = (mfxU8*)pData.Y410;
@@ -1198,8 +1092,7 @@ mfxStatus CSmplYUVWriter::WriteNextFrame(mfxFrameSurface1* pSurface) {
             }
             return MFX_ERR_NONE;
         } break;
-#endif
-#if (MFX_VERSION >= 1031)
+#if (MFX_VERSION >= MFX_VERSION_NEXT)
         case MFX_FOURCC_Y416: // Luma and chroma will be filled below
         {
             for (i = 0; i < pInfo.CropH; i++) {
@@ -1237,7 +1130,7 @@ mfxStatus CSmplYUVWriter::WriteNextFrame(mfxFrameSurface1* pSurface) {
             }
             break;
         case MFX_FOURCC_P010:
-#if (MFX_VERSION >= 1031)
+#if (MFX_VERSION >= MFX_VERSION_NEXT)
         case MFX_FOURCC_P016:
 #endif
         case MFX_FOURCC_P210: {
@@ -1276,8 +1169,6 @@ mfxStatus CSmplYUVWriter::WriteNextFrame(mfxFrameSurface1* pSurface) {
         default:
             return MFX_ERR_UNSUPPORTED;
     }
-
-    //chroma
     switch (pInfo.FourCC) {
         case MFX_FOURCC_YV12: {
             for (i = 0; i < ChromaH; i++) {
@@ -1372,7 +1263,7 @@ mfxStatus CSmplYUVWriter::WriteNextFrame(mfxFrameSurface1* pSurface) {
             break;
         }
         case MFX_FOURCC_P010:
-#if (MFX_VERSION >= 1031)
+#if (MFX_VERSION >= MFX_VERSION_NEXT)
         case MFX_FOURCC_P016:
 #endif
         case MFX_FOURCC_P210: {
@@ -1407,9 +1298,7 @@ mfxStatus CSmplYUVWriter::WriteNextFrame(mfxFrameSurface1* pSurface) {
         case MFX_FOURCC_YUY2:
         case MFX_FOURCC_A2RGB10: {
             mfxU8* ptr;
-            ptr = (pData.R < pData.G) ? pData.R : pData.G;
-            ptr = (ptr < pData.B) ? ptr : pData.B;
-            //ptr = std::min( pData.R, pData.G, pData.B );
+            ptr = std::min({ pData.R, pData.G, pData.B });
             ptr = ptr + pInfo.CropX + pInfo.CropY * pData.Pitch;
 
             for (i = 0; i < ChromaH; i++) {
@@ -1598,8 +1487,8 @@ void QPFile::Reader::ResetState() {
 }
 
 void QPFile::Reader::ResetState(ReaderStatus set_sts) {
-    m_CurFrameNum = UINT_MAX;
-    m_nFrames     = UINT_MAX;
+    m_CurFrameNum = std::numeric_limits<mfxU32>::max();
+    m_nFrames     = std::numeric_limits<mfxU32>::max();
     m_ReaderSts   = set_sts;
     m_FrameVals.clear();
 }
@@ -1710,7 +1599,41 @@ void FreeSurfacePool(mfxFrameSurface1* pSurfacesPool, mfxU16 nPoolSize) {
     }
 }
 
+void FreeSurfacePool(mfxFrameSurface1** pSurfacesPool, mfxU16 nPoolSize) {
+    if (pSurfacesPool) {
+        for (mfxU16 i = 0; i < nPoolSize; i++) {
+            pSurfacesPool[i]->Data.Locked = 0;
+        }
+    }
+}
+
 mfxU16 GetFreeSurface(mfxFrameSurface1* pSurfacesPool, mfxU16 nPoolSize) {
+    mfxU32 SleepInterval = 10; // milliseconds
+
+    mfxU16 idx = MSDK_INVALID_SURF_IDX;
+
+    CTimer t;
+    t.Start();
+    //wait if there's no free surface
+    do {
+        idx = GetFreeSurfaceIndex(pSurfacesPool, nPoolSize);
+
+        if (MSDK_INVALID_SURF_IDX != idx) {
+            break;
+        }
+        else {
+            MSDK_SLEEP(SleepInterval);
+        }
+    } while (t.GetTime() < MSDK_SURFACE_WAIT_INTERVAL / 1000);
+
+    if (idx == MSDK_INVALID_SURF_IDX) {
+        msdk_printf(MSDK_STRING("ERROR: No free surfaces in pool (during long period)\n"));
+    }
+
+    return idx;
+}
+
+mfxU16 GetFreeSurface(mfxFrameSurface1** pSurfacesPool, mfxU16 nPoolSize) {
     mfxU32 SleepInterval = 10; // milliseconds
 
     mfxU16 idx = MSDK_INVALID_SURF_IDX;
@@ -1949,18 +1872,14 @@ const msdk_char* ColorFormatToStr(mfxU32 format) {
             return MSDK_STRING("P010");
         case MFX_FOURCC_P210:
             return MSDK_STRING("P210");
-#if (MFX_VERSION >= 1027)
         case MFX_FOURCC_Y210:
             return MSDK_STRING("Y210");
         case MFX_FOURCC_Y410:
             return MSDK_STRING("Y410");
-#endif
-#if (MFX_VERSION >= 1031)
         case MFX_FOURCC_P016:
             return MSDK_STRING("P016");
         case MFX_FOURCC_Y216:
             return MSDK_STRING("Y216");
-#endif
         default:
             return MSDK_STRING("unsupported");
     }
@@ -2000,17 +1919,20 @@ std::basic_string<msdk_char> FormMVCFileName(const msdk_char* strFileNamePattern
     if (NULL == strFileNamePattern)
         return MSDK_STRING("");
 
-    std::basic_string<msdk_char> fileName, mvcFileName, fileExt;
-    fileName = strFileNamePattern;
-
-    msdk_char postfixBuffer[4];
-    msdk_itoa_decimal(numView, postfixBuffer);
+    std::basic_string<msdk_char> mvcFileName, fileExt;
+    msdk_char fileName[MSDK_MAX_FILENAME_LEN];
+#if defined(_WIN32) || defined(_WIN64)
+    msdk_sprintf(fileName,
+                 MSDK_MAX_FILENAME_LEN,
+                 MSDK_STRING("%s_%d.yuv"),
+                 strFileNamePattern,
+                 numView);
+#else
+    msdk_sprintf(fileName, MSDK_STRING("%s_%d.yuv"), strFileNamePattern, numView);
+#endif
     mvcFileName = fileName;
-    mvcFileName.append(MSDK_STRING("_"));
-    mvcFileName.append(postfixBuffer);
-    mvcFileName.append(MSDK_STRING(".yuv"));
 
-    return mvcFileName;
+    return std::basic_string<msdk_char>(mvcFileName);
 }
 
 // function for getting a pointer to a specific external buffer from the array
@@ -2110,7 +2032,7 @@ mfxVersion getMinimalRequiredVersion(const APIChangeFeatures& features) {
     if (features.LookAheadBRC) {
         version.Minor = 7;
     }
-#if (MFX_VERSION < 2000)
+
     if (features.AudioDecode) {
         version.Minor = 8;
     }
@@ -2118,7 +2040,7 @@ mfxVersion getMinimalRequiredVersion(const APIChangeFeatures& features) {
     if (features.SupportCodecPluginAPI) {
         version.Minor = 8;
     }
-#endif
+
     return version;
 }
 
@@ -2366,9 +2288,7 @@ bool IsDecodeCodecSupported(mfxU32 codecFormat) {
         case MFX_CODEC_VC1:
         case CODEC_MVC:
         case MFX_CODEC_JPEG:
-#if (MFX_VERSION < 2000)
         case MFX_CODEC_VP8:
-#endif
         case MFX_CODEC_VP9:
         case MFX_CODEC_AV1:
             break;
@@ -2384,16 +2304,11 @@ bool IsEncodeCodecSupported(mfxU32 codecFormat) {
         case MFX_CODEC_HEVC:
         case MFX_CODEC_MPEG2:
         case CODEC_MVC:
-#if (MFX_VERSION < 2000)
         case MFX_CODEC_VP8:
-#endif
         case MFX_CODEC_JPEG:
         case MFX_CODEC_VP9:
-            break;
-#if (MFX_VERSION >= 2000)
         case MFX_CODEC_AV1:
             break;
-#endif
         default:
             return false;
     }
@@ -2406,9 +2321,7 @@ bool IsPluginCodecSupported(mfxU32 codecFormat) {
         case MFX_CODEC_AVC:
         case MFX_CODEC_MPEG2:
         case MFX_CODEC_VC1:
-#if (MFX_VERSION < 2000)
         case MFX_CODEC_VP8:
-#endif
         case MFX_CODEC_VP9:
             break;
         default:
@@ -2443,11 +2356,9 @@ mfxStatus StrFormatToCodecFormatFourCC(msdk_char* strInput, mfxU32& codecFormat)
         else if (0 == msdk_strcmp(strInput, MSDK_STRING("jpeg"))) {
             codecFormat = MFX_CODEC_JPEG;
         }
-#if (MFX_VERSION < 2000)
         else if (0 == msdk_strcmp(strInput, MSDK_STRING("vp8"))) {
             codecFormat = MFX_CODEC_VP8;
         }
-#endif
         else if (0 == msdk_strcmp(strInput, MSDK_STRING("vp9"))) {
             codecFormat = MFX_CODEC_VP9;
         }
@@ -2516,12 +2427,6 @@ msdk_string StatusToString(mfxStatus sts) {
             return msdk_string(MSDK_STRING("MFX_ERR_DEVICE_FAILED"));
         case MFX_ERR_MORE_BITSTREAM:
             return msdk_string(MSDK_STRING("MFX_ERR_MORE_BITSTREAM"));
-#if (MFX_VERSION < 2000)
-        case MFX_ERR_INCOMPATIBLE_AUDIO_PARAM:
-            return msdk_string(MSDK_STRING("MFX_ERR_INCOMPATIBLE_AUDIO_PARAM"));
-        case MFX_ERR_INVALID_AUDIO_PARAM:
-            return msdk_string(MSDK_STRING("MFX_ERR_INVALID_AUDIO_PARAM"));
-#endif
         case MFX_ERR_GPU_HANG:
             return msdk_string(MSDK_STRING("MFX_ERR_GPU_HANG"));
         case MFX_ERR_REALLOC_SURFACE:
@@ -2542,10 +2447,6 @@ msdk_string StatusToString(mfxStatus sts) {
             return msdk_string(MSDK_STRING("MFX_WRN_OUT_OF_RANGE"));
         case MFX_WRN_FILTER_SKIPPED:
             return msdk_string(MSDK_STRING("MFX_WRN_FILTER_SKIPPED"));
-#if (MFX_VERSION < 2000)
-        case MFX_WRN_INCOMPATIBLE_AUDIO_PARAM:
-            return msdk_string(MSDK_STRING("MFX_WRN_INCOMPATIBLE_AUDIO_PARAM"));
-#endif
         case MFX_TASK_WORKING:
             return msdk_string(MSDK_STRING("MFX_TASK_WORKING"));
         case MFX_TASK_BUSY:
@@ -2628,9 +2529,9 @@ mfxStatus CH264FrameReader::Init(const msdk_char* strFileName) {
     m_processedBS   = NULL;
 
     m_originalBS.Extend(1024 * 1024);
-#if (MFX_VERSION < 2000)
+
     m_pNALSplitter.reset(new ProtectedLibrary::AVC_Spl());
-#endif
+
     m_frame           = 0;
     m_plainBuffer     = 0;
     m_plainBufferSize = 0;
@@ -2709,8 +2610,7 @@ mfxStatus CH264FrameReader::PrepareNextFrame(mfxBitstream* in, mfxBitstream** ou
     }
 
     MSDK_MEMCPY_BUF(m_plainBuffer, 0, m_plainBufferSize, m_frame->Data, m_frame->DataLength);
-
-    m_outBS            = { 0 };
+    m_outBS            = {};
     m_outBS.Data       = m_plainBuffer;
     m_outBS.DataOffset = 0;
     m_outBS.DataLength = m_frame->DataLength;
@@ -2726,27 +2626,26 @@ mfxStatus CH264FrameReader::PrepareNextFrame(mfxBitstream* in, mfxBitstream** ou
     return sts;
 }
 
-// This function either performs synchronization using provided syncpoint,
-// or just waits for predefined time if no available syncpoint
+// 1 ms provides better result in range [0..5] ms
+#define DEVICE_WAIT_TIME 1
+
+// This function either performs synchronization using provided syncpoint, or just waits for predefined time if syncpoint is already 0 (this usually happens if syncpoint was already processed)
 void WaitForDeviceToBecomeFree(MFXVideoSession& session,
                                mfxSyncPoint& syncPoint,
                                mfxStatus& currentStatus) {
+    // Wait 1ms will be probably enough to device release
     if (syncPoint) {
-        mfxStatus stsSync = session.SyncOperation(syncPoint, MSDK_WAIT_INTERVAL);
+        mfxStatus stsSync = session.SyncOperation(syncPoint, DEVICE_WAIT_TIME);
         if (MFX_ERR_NONE == stsSync) {
-            // Retire completed sync point (otherwise we may start active polling)
-            syncPoint     = NULL;
-            currentStatus = MFX_ERR_NONE;
+            // retire completed sync point (otherwise we may start active polling)
+            syncPoint = NULL;
         }
-        else {
-            MSDK_TRACE_ERROR(MSDK_STRING("WaitForDeviceToBecomeFree: SyncOperation failed, sts = ")
-                             << stsSync);
-            currentStatus = MFX_ERR_ABORTED;
+        else if (stsSync < 0) {
+            currentStatus = stsSync;
         }
     }
     else {
-        MSDK_SLEEP(1);
-        currentStatus = MFX_ERR_NONE;
+        MSDK_SLEEP(DEVICE_WAIT_TIME);
     }
 }
 
@@ -2754,27 +2653,18 @@ mfxU16 FourCCToChroma(mfxU32 fourCC) {
     switch (fourCC) {
         case MFX_FOURCC_NV12:
         case MFX_FOURCC_P010:
-#if (MFX_VERSION >= 1031)
         case MFX_FOURCC_P016:
-#endif
             return MFX_CHROMAFORMAT_YUV420;
         case MFX_FOURCC_NV16:
         case MFX_FOURCC_I422:
         case MFX_FOURCC_I210:
         case MFX_FOURCC_P210:
-#if (MFX_VERSION >= 1027)
         case MFX_FOURCC_Y210:
-#endif
-#if (MFX_VERSION >= 1031)
         case MFX_FOURCC_Y216:
-#endif
         case MFX_FOURCC_YUY2:
-        case MFX_FOURCC_UYVY:
             return MFX_CHROMAFORMAT_YUV422;
-#if (MFX_VERSION >= 1027)
         case MFX_FOURCC_Y410:
         case MFX_FOURCC_A2RGB10:
-#endif
         case MFX_FOURCC_AYUV:
         case MFX_FOURCC_RGB4:
             return MFX_CHROMAFORMAT_YUV444;
@@ -2783,86 +2673,71 @@ mfxU16 FourCCToChroma(mfxU32 fourCC) {
     return MFX_CHROMAFORMAT_YUV420;
 }
 
-#if (MFX_VERSION >= 2000)
+#if defined(_WIN32) || defined(_WIN64)
 
-// VPL (API 2.x) utility functions
-mfxStatus VPL_SetAccelMode(mfxLoader loader, MemType memType) {
-    mfxStatus sts                 = MFX_ERR_NONE;
-    mfxConfig cfg                 = MFXCreateConfig(loader);
-    mfxAccelerationMode accelMode = MFX_ACCEL_MODE_NA;
+mfxStatus PrintLoadedModules() {
+    DWORD currProcessID = GetCurrentProcessId();
 
-    if (memType == D3D11_MEMORY) {
-        accelMode = MFX_ACCEL_MODE_VIA_D3D11;
+    void* hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, currProcessID);
+    if (NULL == hProcess) {
+        return MFX_ERR_UNDEFINED_BEHAVIOR;
     }
-    else if (memType == D3D9_MEMORY) {
-    #if defined(_WIN32) || defined(_WIN64)
-        accelMode = MFX_ACCEL_MODE_VIA_D3D9;
-    #else
-        // on Linux -vaapi switch in samples set sets memType = D3D9_MEMORY
-        accelMode = MFX_ACCEL_MODE_VIA_VAAPI;
-    #endif
+
+    // get buffee size for array of loaded libs
+    DWORD needed;
+    if (!EnumProcessModules(hProcess, nullptr, 0, &needed)) {
+        CloseHandle(hProcess);
+        return MFX_ERR_UNDEFINED_BEHAVIOR;
     }
-    else {
-        // if system memory RT sets default accel mode
-        return sts;
+
+    // get a list of all the loaded modules in this process.
+    std::vector<HMODULE> modules(needed / sizeof(HMODULE));
+    if (!EnumProcessModulesEx(hProcess, modules.data(), needed, &needed, LIST_MODULES_ALL)) {
+        CloseHandle(hProcess);
+        return MFX_ERR_UNDEFINED_BEHAVIOR;
     }
-    mfxVariant implValue;
-    implValue.Type     = MFX_VARIANT_TYPE_U32;
-    implValue.Data.U32 = accelMode;
 
-    sts = MFXSetConfigFilterProperty(
-        cfg,
-        reinterpret_cast<mfxU8*>(const_cast<char*>("mfxImplDescription.AccelerationMode")),
-        implValue);
-
-    return sts;
-}
-
-mfxStatus VPL_EnableDispatcherLowLatency(mfxLoader loader, mfxU32 adapterNum) {
-    #if defined(_WIN32) || defined(_WIN64)
-
-    mfxStatus sts    = MFX_ERR_NONE;
-    mfxConfig config = MFXCreateConfig(loader);
-
-    mfxVariant var      = {};
-    var.Version.Version = MFX_VARIANT_VERSION;
-
-    var.Type     = MFX_VARIANT_TYPE_U32;
-    var.Data.U32 = MFX_IMPL_TYPE_HARDWARE;
-    MFXSetConfigFilterProperty(config, (const mfxU8*)"mfxImplDescription.Impl", var);
-
-    var.Type     = MFX_VARIANT_TYPE_PTR;
-    var.Data.Ptr = (mfxHDL) "mfx-gen";
-    MFXSetConfigFilterProperty(config, (const mfxU8*)"mfxImplDescription.ImplName", var);
-
-    var.Type     = MFX_VARIANT_TYPE_U32;
-    var.Data.U32 = 0x8086;
-    MFXSetConfigFilterProperty(config, (const mfxU8*)"mfxImplDescription.VendorID", var);
-
-    var.Type     = MFX_VARIANT_TYPE_U32;
-    var.Data.U32 = MFX_ACCEL_MODE_VIA_D3D11;
-    MFXSetConfigFilterProperty(config, (const mfxU8*)"mfxImplDescription.AccelerationMode", var);
-
-    // set which minimum version is required
-    mfxVersion ver = {};
-    ver.Major      = 1;
-    ver.Minor      = 0;
-
-    var.Type     = MFX_VARIANT_TYPE_U32;
-    var.Data.U32 = ver.Version;
-    sts          = MFXSetConfigFilterProperty(config,
-                                     (const mfxU8*)"mfxImplDescription.ApiVersion.Version",
-                                     var);
-
-    var.Type     = MFX_VARIANT_TYPE_U32;
-    var.Data.U32 = adapterNum;
-    sts          = MFXSetConfigFilterProperty(config, (const mfxU8*)"DXGIAdapterIndex", var);
-
+    const DWORD MAX_FILE_PATH = 1024;
+    for (auto module : modules) {
+        TCHAR moduleName[MAX_PATH];
+        if (GetModuleBaseName(hProcess, module, moduleName, MAX_PATH)) {
+            if (_tcsstr(moduleName, _T(LIBMFXHW_MASK)) != NULL ||
+                _tcsstr(moduleName, _T(LIBMFXSW_MASK)) != NULL ||
+                _tcsstr(moduleName, _T(ONEVPL32)) != NULL ||
+                _tcsstr(moduleName, _T(ONEVPL64)) != NULL ||
+                _tcsstr(moduleName, _T(ONEVPLSW_MASK)) != NULL) {
+                TCHAR modulePath[MAX_FILE_PATH];
+                DWORD charsReturned = GetModuleFileName(module, modulePath, MAX_FILE_PATH);
+                // path can be bigger than MAX_FILE_PATH, in this case it will be truncated
+                // so, print whole or truncated part of path and, if we get truncated path, print module name too
+                if (GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
+                    msdk_printf(MSDK_STRING("Loaded module name: %s ; "), moduleName);
+                }
+                msdk_printf(MSDK_STRING("Loaded module path: %s \n"), modulePath);
+            }
+        }
+    }
+    CloseHandle(hProcess);
     return MFX_ERR_NONE;
-    #else
-    // only supported on Windows for now
-    return MFX_ERR_UNSUPPORTED;
-    #endif
 }
 
-#endif
+#else // #if defined(_WIN32) || defined(_WIN64)
+
+int PrintLibMFXPath(struct dl_phdr_info* info, size_t size, void* data) {
+    std::string libPath = info->dlpi_name;
+    if (libPath.find(LIBMFXSW_MASK) != std::string::npos ||
+        libPath.find(LIBMFXHW_MASK) != std::string::npos ||
+        libPath.find(ONEVPLSW_MASK) != std::string::npos ||
+        libPath.find(ONEVPL_MASK) != std::string::npos) {
+        if (data) {
+            msdk_printf(MSDK_STRING("   %d: %s \n"), *((int*)data), info->dlpi_name);
+            *(int*)data += 1;
+        }
+        else {
+            msdk_printf(MSDK_STRING("Loaded module: %s \n"), info->dlpi_name);
+        }
+    }
+    return 0;
+}
+
+#endif // #if defined(_WIN32) || defined(_WIN64)

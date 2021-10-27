@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2005 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <exception>
 
+#include <algorithm>
 #include "avc_spl.h"
 #include "sample_defs.h"
 
@@ -92,7 +93,7 @@ mfxStatus AVC_Spl::DecodeHeader(mfxBitstream* nalUnit) {
         bitStream.Reset(swappingMemory, swappingSize);
 
         NAL_Unit_Type uNALUnitType;
-        mfxU8 uNALStorageIDC;
+        mfxU8 uNALStorageIDC = 0;
 
         bitStream.GetNALUnitType(uNALUnitType, uNALStorageIDC);
 
@@ -102,12 +103,11 @@ mfxStatus AVC_Spl::DecodeHeader(mfxBitstream* nalUnit) {
                 AVCSeqParamSet sps;
                 umcRes = bitStream.GetSequenceParamSet(&sps);
                 if (umcRes == MFX_ERR_NONE) {
-                    AVCSeqParamSet* temp =
-                        m_headers.m_SeqParams.GetHeader(sps.seq_parameter_set_id);
+                    m_headers.m_SeqParams.GetHeader(sps.seq_parameter_set_id);
                     m_headers.m_SeqParams.AddHeader(&sps);
 
                     // Validate the incoming bitstream's image dimensions.
-                    temp = m_headers.m_SeqParams.GetHeader(sps.seq_parameter_set_id);
+                    m_headers.m_SeqParams.GetHeader(sps.seq_parameter_set_id);
 
                     m_pNALSplitter->SetSuggestedSize(CalculateSuggestedSize(&sps));
 
@@ -218,7 +218,7 @@ mfxStatus AVC_Spl::DecodeSEI(mfxBitstream* nalUnit) {
         bitStream.Reset(swappingMemory, swappingSize);
 
         NAL_Unit_Type uNALUnitType;
-        mfxU8 uNALStorageIDC;
+        mfxU8 uNALStorageIDC = 0;
 
         bitStream.GetNALUnitType(uNALUnitType, uNALStorageIDC);
 

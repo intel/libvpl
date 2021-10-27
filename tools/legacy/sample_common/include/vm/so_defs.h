@@ -1,5 +1,5 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2005 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
@@ -7,8 +7,8 @@
 #ifndef __SO_DEFS_H__
 #define __SO_DEFS_H__
 
-#include "mfxdefs.h"
 #include "strings_defs.h"
+#include "vpl/mfxdefs.h"
 
 /* Declare shared object handle */
 typedef void* msdk_so_handle;

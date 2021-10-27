@@ -1,10 +1,10 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2018 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
 
-#include "include/cttmetrics_utils.h"
+#include "cttmetrics_utils.h"
 
 #include <errno.h>
 #include <fcntl.h>
@@ -145,7 +145,7 @@ static int perf_i915_open(int gem_fd, int config, int group, int read_format) {
 
     attr.read_format = read_format;
     if (group != -1)
-        attr.read_format &= ~PERF_FORMAT_GROUP;
+        attr.read_format &= ~((__u64)PERF_FORMAT_GROUP);
 
     return perf_event_open(&attr, -1, 0, group, 0);
 }
@@ -236,6 +236,9 @@ static int perf_init(struct i915_pmu_collector_ctx_t* ctx, int num_configs, int 
         if (res >= 0) {
             if (is_engine_config(configs[i])) {
                 int sample_type = I915_PMU_SAMPLE_MASK & configs[i];
+                if (sample_type >= I915_ENGINE_SAMPLE_COUNT) {
+                    sample_type = I915_ENGINE_SAMPLE_COUNT - 1;
+                }
                 ctx->pm.groups[ctx->pm.num_groups].num_metrics++;
                 ctx->pm.groups[ctx->pm.num_groups].metrics[sample_type].config = configs[i];
             }

@@ -1,41 +1,39 @@
 /*############################################################################
-  # Copyright (C) Intel Corporation
+  # Copyright (C) 2005 Intel Corporation
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
 
-#if (MFX_VERSION < 2000)
-    #include "mfx_samples_config.h"
+#include "mfx_samples_config.h"
 
-    #include "pipeline_region_encode.h"
-    #include "sysmem_allocator.h"
+#include "pipeline_region_encode.h"
+#include "sysmem_allocator.h"
 
-    #if D3D_SURFACES_SUPPORT
-        #include "d3d11_allocator.h"
-        #include "d3d_allocator.h"
+#if D3D_SURFACES_SUPPORT
+    #include "d3d11_allocator.h"
+    #include "d3d_allocator.h"
 
-        #include "d3d11_device.h"
-        #include "d3d_device.h"
-    #endif
+    #include "d3d11_device.h"
+    #include "d3d_device.h"
 
-    #ifdef LIBVA_SUPPORT
-        #include "vaapi_allocator.h"
-        #include "vaapi_device.h"
-    #endif
+#endif
 
-    #include "plugin_loader.h"
+#ifdef LIBVA_SUPPORT
+    #include "vaapi_allocator.h"
+    #include "vaapi_device.h"
+#endif
 
-    #ifndef MFX_VERSION
-        #error MFX_VERSION not defined
-    #endif
+#ifndef MFX_VERSION
+    #error MFX_VERSION not defined
+#endif
 
 mfxStatus CResourcesPool::GetFreeTask(int resourceNum, sTask** ppTask) {
     // get a pointer to a free task (bit stream and sync point for encoder)
     mfxStatus sts = m_resources[resourceNum].TaskPool.GetFreeTask(ppTask);
     if (MFX_ERR_NOT_FOUND == sts) {
         // We should syncrhonize every first task in all task pools to write regions (slices) into destination in correct order
-        for (int i = 0; i < size; i++) {
-            sts = m_resources[i].TaskPool.SynchronizeFirstTask();
+        for (int i = 0; i < m_size; i++) {
+            sts = m_resources[i].TaskPool.SynchronizeFirstTask(m_nSyncOpTimeout);
             MSDK_CHECK_STATUS(sts, "m_resources[i].TaskPool.SynchronizeFirstTask failed");
         }
 
@@ -46,13 +44,15 @@ mfxStatus CResourcesPool::GetFreeTask(int resourceNum, sTask** ppTask) {
     return sts;
 }
 
-mfxStatus CResourcesPool::Init(int sz, mfxIMPL impl, mfxVersion* pVer) {
+mfxStatus CResourcesPool::Init(int sz, VPLImplementationLoader* Loader, mfxU32 nSyncOpTimeout) {
     MSDK_CHECK_NOT_EQUAL(m_resources, NULL, MFX_ERR_INVALID_HANDLE);
-    this->size  = sz;
-    m_resources = new CMSDKResource[sz];
+    m_size           = sz;
+    m_resources      = new CMSDKResource[sz];
+    m_nSyncOpTimeout = nSyncOpTimeout;
+
     for (int i = 0; i < sz; i++) {
-        mfxStatus sts = m_resources[i].Session.Init(impl, pVer);
-        MSDK_CHECK_STATUS(sts, "m_resources[i].Session.Init failed");
+        mfxStatus sts = m_resources[i].Session.CreateSession(Loader);
+        MSDK_CHECK_STATUS(sts, "m_resources[i].Session.CreateSession failed");
     }
     return MFX_ERR_NONE;
 }
@@ -60,20 +60,25 @@ mfxStatus CResourcesPool::Init(int sz, mfxIMPL impl, mfxVersion* pVer) {
 mfxStatus CResourcesPool::InitTaskPools(CSmplBitstreamWriter* pWriter,
                                         mfxU32 nPoolSize,
                                         mfxU32 nBufferSize,
-                                        CSmplBitstreamWriter* pOtherWriter) {
-    for (int i = 0; i < size; i++) {
+                                        mfxU32 CodecId,
+                                        void* pOtherWriter,
+                                        bool bUseHWLib) {
+    for (int i = 0; i < m_size; i++) {
         mfxStatus sts = m_resources[i].TaskPool.Init(&m_resources[i].Session,
                                                      pWriter,
                                                      nPoolSize,
                                                      nBufferSize,
-                                                     pOtherWriter);
+                                                     CodecId,
+                                                     pOtherWriter,
+                                                     bUseHWLib);
+
         MSDK_CHECK_STATUS(sts, "m_resources[i].TaskPool.Init failed");
     }
     return MFX_ERR_NONE;
 }
 
 mfxStatus CResourcesPool::CreateEncoders() {
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < m_size; i++) {
         MFXVideoENCODE* pEnc = new MFXVideoENCODE(m_resources[i].Session);
         MSDK_CHECK_POINTER(pEnc, MFX_ERR_MEMORY_ALLOC);
         m_resources[i].pEncoder = pEnc;
@@ -81,31 +86,10 @@ mfxStatus CResourcesPool::CreateEncoders() {
     return MFX_ERR_NONE;
 }
 
-mfxStatus CResourcesPool::CreatePlugins(mfxPluginUID pluginGUID, mfxChar* pluginPath) {
-    for (int i = 0; i < size; i++) {
-        MFXPlugin* pPlugin =
-            pluginPath
-                ? LoadPlugin(MFX_PLUGINTYPE_VIDEO_ENCODE,
-                             m_resources[i].Session,
-                             pluginGUID,
-                             1,
-                             pluginPath,
-                             (mfxU32)msdk_strnlen(pluginPath, 1024))
-                : LoadPlugin(MFX_PLUGINTYPE_VIDEO_ENCODE, m_resources[i].Session, pluginGUID, 1);
-
-        if (pPlugin == NULL) {
-            return MFX_ERR_UNSUPPORTED;
-        }
-        m_resources[i].pPlugin = pPlugin;
-    }
-    return MFX_ERR_NONE;
-}
-
 void CResourcesPool::CloseAndDeleteEverything() {
-    for (int i = 0; i < size; i++) {
+    for (int i = 0; i < m_size; i++) {
         m_resources[i].TaskPool.Close();
         MSDK_SAFE_DELETE(m_resources[i].pEncoder);
-        MSDK_SAFE_DELETE(m_resources[i].pPlugin);
         m_resources[i].Session.Close();
     }
 }
@@ -140,15 +124,15 @@ mfxStatus CRegionEncodingPipeline::CreateAllocator() {
     mfxStatus sts = MFX_ERR_NONE;
 
     if (D3D9_MEMORY == m_memType || D3D11_MEMORY == m_memType) {
-    #if D3D_SURFACES_SUPPORT
+#if D3D_SURFACES_SUPPORT
         sts = CreateHWDevice();
         MSDK_CHECK_STATUS(sts, "CreateHWDevice failed");
 
         mfxHDL hdl = NULL;
         mfxHandleType hdl_t =
-        #if MFX_D3D11_SUPPORT
+    #if MFX_D3D11_SUPPORT
             D3D11_MEMORY == m_memType ? MFX_HANDLE_D3D11_DEVICE :
-        #endif // #if MFX_D3D11_SUPPORT
+    #endif // #if MFX_D3D11_SUPPORT
                                       MFX_HANDLE_D3D9_DEVICE_MANAGER;
 
         sts = m_hwdev->GetHandle(hdl_t, &hdl);
@@ -164,8 +148,8 @@ mfxStatus CRegionEncodingPipeline::CreateAllocator() {
             }
         }
 
-            // create D3D allocator
-        #if MFX_D3D11_SUPPORT
+        // create D3D allocator
+    #if MFX_D3D11_SUPPORT
         if (D3D11_MEMORY == m_memType) {
             m_pMFXAllocator = new D3D11FrameAllocator;
             MSDK_CHECK_POINTER(m_pMFXAllocator, MFX_ERR_MEMORY_ALLOC);
@@ -177,7 +161,7 @@ mfxStatus CRegionEncodingPipeline::CreateAllocator() {
             m_pmfxAllocatorParams = pd3dAllocParams;
         }
         else
-        #endif // #if MFX_D3D11_SUPPORT
+    #endif // #if MFX_D3D11_SUPPORT
         {
             m_pMFXAllocator = new D3DFrameAllocator;
             MSDK_CHECK_POINTER(m_pMFXAllocator, MFX_ERR_MEMORY_ALLOC);
@@ -198,8 +182,8 @@ mfxStatus CRegionEncodingPipeline::CreateAllocator() {
         }
 
         m_bExternalAlloc = true;
-    #endif
-    #ifdef LIBVA_SUPPORT
+#endif
+#ifdef LIBVA_SUPPORT
         sts = CreateHWDevice();
         MSDK_CHECK_STATUS(sts, "CreateHWDevice failed");
         /* It's possible to skip failed result here and switch to SW implementation,
@@ -230,10 +214,10 @@ mfxStatus CRegionEncodingPipeline::CreateAllocator() {
             MSDK_CHECK_STATUS(sts, "m_resources[i].Session.SetFrameAllocator failed");
         }
         m_bExternalAlloc = true;
-    #endif
+#endif
     }
     else {
-    #ifdef LIBVA_SUPPORT
+#ifdef LIBVA_SUPPORT
         //in case of system memory allocator we also have to pass MFX_HANDLE_VA_DISPLAY to HW library
         mfxIMPL impl;
         m_resources[0].Session.QueryIMPL(&impl);
@@ -250,7 +234,7 @@ mfxStatus CRegionEncodingPipeline::CreateAllocator() {
                 MSDK_CHECK_STATUS(sts, "m_resources[i].Session.SetHandle failed");
             }
         }
-    #endif
+#endif
 
         // create system memory allocator
         m_pMFXAllocator = new SysMemFrameAllocator;
@@ -279,6 +263,8 @@ CRegionEncodingPipeline::~CRegionEncodingPipeline() {
 mfxStatus CRegionEncodingPipeline::Init(sInputParams* pParams) {
     MSDK_CHECK_POINTER(pParams, MFX_ERR_NULL_PTR);
 
+    m_pLoader.reset(new VPLImplementationLoader);
+
     mfxStatus sts = MFX_ERR_NONE;
 
     // prepare input file reader
@@ -298,26 +284,24 @@ mfxStatus CRegionEncodingPipeline::Init(sInputParams* pParams) {
     if (pParams->nNumSlice == 0)
         pParams->nNumSlice = 1;
 
-    mfxVersion min_version;
-    mfxVersion version; // real API version with which library is initialized
-
-    // we set version to 1.0 and later we will query actual version of the library which will got leaded
-    min_version.Major = 1;
-    min_version.Minor = 0;
-
     // Init session
     if (pParams->bUseHWLib) {
         msdk_printf(MSDK_STRING("Hardware library is unsupported in Region Encoding mode\n"));
         return MFX_ERR_UNSUPPORTED;
     }
     else {
-        sts = m_resources.Init(pParams->nNumSlice, MFX_IMPL_SOFTWARE, &min_version);
+        sts = m_pLoader->ConfigureImplementation(MFX_IMPL_SOFTWARE);
+        MSDK_CHECK_STATUS(sts, "m_mfxSession.ConfigureImplementation failed");
+        sts = m_pLoader->ConfigureAccelerationMode(pParams->accelerationMode, pParams->bUseHWLib);
+        MSDK_CHECK_STATUS(sts, "m_mfxSession.ConfigureAccelerationMode failed");
+        sts = m_pLoader->EnumImplementations();
+        MSDK_CHECK_STATUS(sts, "m_mfxSession.EnumImplementations failed");
+
+        sts = m_resources.Init(pParams->nNumSlice, m_pLoader.get(), pParams->nSyncOpTimeout);
         MSDK_CHECK_STATUS(sts, "m_resources.Init failed");
     }
 
-    sts = MFXQueryVersion(m_resources[0].Session,
-                          &version); // get real API version of the loaded library
-    MSDK_CHECK_STATUS(sts, "MFXQueryVersion failed");
+    mfxVersion version = m_pLoader->GetVersion(); // get real API version of the loaded library
 
     if ((pParams->MVC_flags & MVC_ENABLED) != 0 && !CheckVersion(&version, MSDK_FEATURE_MVC)) {
         msdk_printf(MSDK_STRING("error: MVC is not supported in the %d.%d API version\n"),
@@ -346,36 +330,6 @@ mfxStatus CRegionEncodingPipeline::Init(sInputParams* pParams) {
                     version.Major,
                     version.Minor);
         return MFX_ERR_UNSUPPORTED;
-    }
-
-    if (CheckVersion(&version, MSDK_FEATURE_PLUGIN_API)) {
-        /* Here we actually define the following codec initialization scheme:
-        *  1. If plugin path or guid is specified: we load user-defined plugin (example: HEVC encoder plugin)
-        *  2. If plugin path not specified:
-        *    2.a) we check if codec is distributed as a mediasdk plugin and load it if yes
-        *    2.b) if codec is not in the list of mediasdk plugins, we assume, that it is supported inside mediasdk library
-        */
-        if (pParams->pluginParams.type == MFX_PLUGINLOAD_TYPE_FILE &&
-            msdk_strnlen(pParams->pluginParams.strPluginPath,
-                         sizeof(pParams->pluginParams.strPluginPath))) {
-            m_pUserModule.reset(new MFXVideoUSER(m_resources[0].Session));
-            sts = m_resources.CreatePlugins(pParams->pluginParams.pluginGuid,
-                                            pParams->pluginParams.strPluginPath);
-            MSDK_CHECK_STATUS(sts, "m_resources.CreatePlugins failed");
-        }
-        else {
-            bool isDefaultPlugin = false;
-            if (AreGuidsEqual(pParams->pluginParams.pluginGuid, MSDK_PLUGINGUID_NULL)) {
-                mfxIMPL impl = pParams->bUseHWLib ? MFX_IMPL_HARDWARE : MFX_IMPL_SOFTWARE;
-                pParams->pluginParams.pluginGuid =
-                    msdkGetPluginUID(impl, MSDK_VENCODE, pParams->CodecId);
-                isDefaultPlugin = true;
-            }
-            if (!AreGuidsEqual(pParams->pluginParams.pluginGuid, MSDK_PLUGINGUID_NULL)) {
-                sts = m_resources.CreatePlugins(pParams->pluginParams.pluginGuid, NULL);
-                MSDK_CHECK_STATUS(sts, "m_resources.CreatePlugins failed");
-            }
-        }
     }
 
     // set memory type
@@ -476,7 +430,9 @@ mfxStatus CRegionEncodingPipeline::ResetMFXComponents(sInputParams* pParams) {
     sts = m_resources.InitTaskPools(m_FileWriters.first,
                                     m_mfxEncParams.AsyncDepth,
                                     nEncodedDataBufferSize,
-                                    m_FileWriters.second);
+                                    pParams->CodecId,
+                                    m_FileWriters.second,
+                                    pParams->bUseHWLib);
     MSDK_CHECK_STATUS(sts, "m_resources.InitTaskPools failed");
 
     sts = FillBuffers();
@@ -517,7 +473,7 @@ mfxStatus CRegionEncodingPipeline::Run() {
         MSDK_CHECK_ERROR(nEncSurfIdx, MSDK_INVALID_SURF_IDX, MFX_ERR_MEMORY_ALLOC);
 
         // point pSurf to encoder surface
-        pSurf                      = &m_pEncSurfaces[nEncSurfIdx];
+        pSurf                      = m_pEncSurfaces[nEncSurfIdx];
         pSurf->Info.FrameId.ViewId = currViewNum;
 
         m_statFile.StartTimeMeasurement();
@@ -557,7 +513,7 @@ mfxStatus CRegionEncodingPipeline::Run() {
                 m_bInsertIDR = false;
 
                 sts = m_resources[regId].pEncoder->EncodeFrameAsync(&pCurrentTask->encCtrl,
-                                                                    &m_pEncSurfaces[nEncSurfIdx],
+                                                                    m_pEncSurfaces[nEncSurfIdx],
                                                                     &pCurrentTask->mfxBS,
                                                                     &pCurrentTask->EncSyncP);
 
@@ -671,4 +627,3 @@ mfxStatus CRegionEncodingPipeline::Run() {
     m_statOverall.StopTimeMeasurement();
     return sts;
 }
-#endif
