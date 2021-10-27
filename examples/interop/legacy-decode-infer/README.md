@@ -9,15 +9,15 @@ perform a simple video decode using 1.x common APIs, and inference using OpenVIN
 | Hardware         | Compatible with Intel® oneAPI Video Processing Library(oneVPL) GPU implementation, which can be found at https://github.com/oneapi-src/oneVPL-intel-gpu 
 |                  | and Intel® Media SDK GPU implementation, which can be found at https://github.com/Intel-Media-SDK/MediaSDK
 | Software         | Intel® oneAPI Video Processing Library(oneVPL) CPU implementation
-| What You Will Learn | How to use oneVPL to decode an H.265 encoded video file and perform objection classification inference
+| What You Will Learn | How to use oneVPL to decode an H.265 encoded video file and perform image classification inference
 | Time to Complete | 5 minutes
 
 
 ## Purpose
 
 This sample is a command line application that takes a file containing an H.265
-video elementary stream as an argument, decodes it with oneVPL and perform 
-object classification on each frame using OpenVINO.
+video elementary stream and network model as an argument, decodes it with oneVPL and perform 
+image classification on each frame using OpenVINO.
 
 
 ## Key Implementation details
@@ -26,7 +26,7 @@ object classification on each frame using OpenVINO.
 | ----------------- | ----------------------------------
 | Target device     | CPU
 | Input format      | H.265 video elementary stream
-
+| Input network model | image classification network model
 
 ## License
 
@@ -35,31 +35,49 @@ This code sample is licensed under MIT license.
 
 ## Building the `legacy-decode-infer` Program
 
-### On a Linux* System
+The first step is to set up a build environment with prerequisites installed.  
+This can be set up in a bare metal Ubuntu 20.04 system or with Docker. 
 
-Perform the following steps:
+### On a Linux system
 
-1. Install the prerequisite software. To build and run the sample you need to
-   install prerequisite software and set up your environment:
+#### On a bare metal Linux* System
+
+Install the prerequisite software:
 
    - Intel® oneAPI Base Toolkit for Linux*
    - Intel® OpenVINO 2021.2 for Linux*
    - [Python](http://python.org)
    - [CMake](https://cmake.org)
 
-2. Set up your environment using the following command.
-   ```
-   source <oneapi_install_dir>/setvars.sh
-   source <openvino_install_dir>/bin/setupvars.sh
-   ```
-   Here `<oneapi_install_dir>` represents the root folder of your oneAPI
-   installation, which is `/opt/intel/oneapi/` when installed as root, and
-   `~/intel/oneapi/` when installed as a normal user.  `<openvino_install_dir>` 
-   represents the root folder of your OpenVINO installation, which is 
-   `/opt/intel/openvino/` when installed as root.  If you customized the
-   installation folders, it is in your custom location.
+#### In a docker container
 
-3. Build the program using the following commands:
+   ```
+docker build -t openvino_vpl_environment docker
+   ```
+
+Start the container, mounting the examples directory
+```
+cd ../../..
+docker run -it --rm --privileged -v `pwd`/examples:`pwd`/examples -w `pwd`/examples  openvino_vpl_environment
+```
+In the container, cd back to interop/hello-decode-infer.  
+
+#### Common steps
+Continue with the rest of these steps in your bare metal shell or in the container shell.
+
+1. Set up your environment using the following commands.
+
+   ```
+source /opt/intel/oneapi/setvars.sh
+source /opt/intel/openvino_2021/bin/setupvars.sh
+   ```
+
+Note: /opt/intel is the default location.  If you installed oneAPI and/or OpenVINO
+to custom locations use them instead. 
+ 
+
+2. Build the program using the following commands:
+
    ```
    mkdir build
    cd build
@@ -67,15 +85,16 @@ Perform the following steps:
    cmake --build .
    ```
 
-4. Download the Alexnet classification model from OpenVINO model zoo
+3. Download the Alexnet classification model from OpenVINO model zoo
    ```
-   pip3 install -r <openvino_install_dir>/deployment_tools/model_optimizer/requirements.txt
-   pip3 install -r <openvino_install_dir>/deployment_tools/open_model_zoo/tools/downloader/requirements.in
-   <openvino_install_dir>/deployment_tools/open_model_zoo/tools/downloader/downloader.py --output_dir ../../content --precisions FP32 --name alexnet
-   <openvino_install_dir>/deployment_tools/open_model_zoo/tools/downloader/converter.py --download_dir ../../content --name alexnet
+pip3 install -r /opt/intel/openvino_2021/deployment_tools/model_optimizer/requirements.txt
+pip3 install -r /opt/intel/openvino_2021/deployment_tools/open_model_zoo/tools/downloader/requirements.in
+/opt/intel/openvino_2021/deployment_tools/open_model_zoo/tools/downloader/downloader.py --output_dir ../../content --precisions FP32 --name alexnet
+/opt/intel/openvino_2021/deployment_tools/open_model_zoo/tools/downloader/converter.py --download_dir ../../content --name alexnet
    ```
 
-5. Run the program using the following command:
+4. Run the program with defaults using the following command:
+
    ```
    cmake --build . --target run
    ```
@@ -140,7 +159,7 @@ Perform the following steps:
 ### Application Parameters
 
 The instructions given above run the sample executable with the argument
-`examples/content/cars_128x96.h265` and `examples/content/public/alexnet/FP32/alexnet.xml`.
+`-sw -i ../../../content/cars_128x96.h265 -m ../../..//content/public/alexnet/FP32/alexnet.xml`.
 
 
 ### Example of Output

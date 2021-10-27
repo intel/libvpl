@@ -20,7 +20,7 @@ endif()
 set(TARGET advanced-decvpp-infer)
 set(SOURCES src/advanced-decvpp-infer.cpp src/util.h)
 set(CONTENTPATH ${CMAKE_CURRENT_SOURCE_DIR}/../../content)
-set(RUNARGS -sw -i ${CONTENTPATH}/cars_128x96.h265 -m
+set(RUNARGS -i ${CONTENTPATH}/cars_128x96.h265 -m
             ${CONTENTPATH}/public/mobilenet-ssd/FP32/mobilenet-ssd.xml)
 
 # Set default build type to RelWithDebInfo if not specified
