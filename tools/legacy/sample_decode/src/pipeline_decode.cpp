@@ -222,6 +222,10 @@ mfxStatus CDecodingPipeline::Init(sInputParams* pParams) {
     // Initializing file reader
     totalBytesProcessed = 0;
     sts                 = m_FileReader->Init(pParams->strSrcFile);
+    if (sts == MFX_ERR_UNSUPPORTED && pParams->videoType == MFX_CODEC_AV1) {
+        m_FileReader.reset(new CSmplBitstreamReader());
+        msdk_printf(MSDK_STRING("WARNING: Stream is not IVF, default reader\n"));
+    }
     MSDK_CHECK_STATUS(sts, "m_FileReader->Init failed");
 
     mfxInitParamlWrap initPar;
@@ -267,11 +271,6 @@ mfxStatus CDecodingPipeline::Init(sInputParams* pParams) {
 
     m_pLoader.reset(new VPLImplementationLoader);
 
-    sts = m_pLoader->ConfigureImplementation(initPar.Implementation);
-    MSDK_CHECK_STATUS(sts, "m_mfxSession.ConfigureImplementation failed");
-    sts = m_pLoader->ConfigureAccelerationMode(pParams->accelerationMode, initPar.Implementation);
-    MSDK_CHECK_STATUS(sts, "m_mfxSession.ConfigureAccelerationMode failed");
-
     if (pParams->dGfxIdx >= 0)
         m_pLoader->SetDiscreteAdapterIndex(pParams->dGfxIdx);
     else
@@ -280,7 +279,16 @@ mfxStatus CDecodingPipeline::Init(sInputParams* pParams) {
     if (pParams->adapterNum >= 0)
         m_pLoader->SetAdapterNum(pParams->adapterNum);
 
-    sts = m_pLoader->EnumImplementations();
+    if (!pParams->accelerationMode && pParams->bUseHWLib) {
+#if D3D_SURFACES_SUPPORT
+        pParams->accelerationMode = MFX_ACCEL_MODE_VIA_D3D11;
+#elif defined(LIBVA_SUPPORT)
+        pParams->accelerationMode = MFX_ACCEL_MODE_VIA_VAAPI;
+#endif
+    }
+
+    sts = m_pLoader->ConfigureAndEnumImplementations(initPar.Implementation,
+                                                     pParams->accelerationMode);
     MSDK_CHECK_STATUS(sts, "m_mfxSession.EnumImplementations failed");
 
     sts = m_mfxSession.CreateSession(m_pLoader.get());

@@ -962,88 +962,84 @@ mfxStatus CEncodingPipeline::AllocFrames() {
         nEncSurfNum += nVppSurfNum - m_mfxEncParams.AsyncDepth + 1;
     }
 
-    if (m_MemoryModel == GENERAL_ALLOC) {
-        // prepare allocation requests
-        EncRequest.NumFrameSuggested = EncRequest.NumFrameMin = nEncSurfNum;
-        MSDK_MEMCPY_VAR(EncRequest.Info, &(m_mfxEncParams.mfx.FrameInfo), sizeof(mfxFrameInfo));
-        if (m_pmfxVPP) {
-            EncRequest.Type |=
-                MFX_MEMTYPE_FROM_VPPOUT; // surfaces are shared between vpp output and encode input
-        }
+    // prepare allocation requests
+    EncRequest.NumFrameSuggested = EncRequest.NumFrameMin = nEncSurfNum;
+    MSDK_MEMCPY_VAR(EncRequest.Info, &(m_mfxEncParams.mfx.FrameInfo), sizeof(mfxFrameInfo));
+    if (m_pmfxVPP) {
+        EncRequest.Type |=
+            MFX_MEMTYPE_FROM_VPPOUT; // surfaces are shared between vpp output and encode input
+    }
 
-        // alloc frames for encoder
-        sts = m_pMFXAllocator->Alloc(m_pMFXAllocator->pthis, &EncRequest, &m_EncResponse);
-        MSDK_CHECK_STATUS(sts, "m_pMFXAllocator->Alloc failed");
+    // alloc frames for encoder
+    sts = m_pMFXAllocator->Alloc(m_pMFXAllocator->pthis, &EncRequest, &m_EncResponse);
+    MSDK_CHECK_STATUS(sts, "m_pMFXAllocator->Alloc failed");
 
-        // alloc frames for vpp if vpp is enabled
-        if (m_pmfxVPP) {
-            VppRequest[0].NumFrameSuggested = VppRequest[0].NumFrameMin = nVppSurfNum;
-            MSDK_MEMCPY_VAR(VppRequest[0].Info, &(m_mfxVppParams.vpp.In), sizeof(mfxFrameInfo));
+    // alloc frames for vpp if vpp is enabled
+    if (m_pmfxVPP) {
+        VppRequest[0].NumFrameSuggested = VppRequest[0].NumFrameMin = nVppSurfNum;
+        MSDK_MEMCPY_VAR(VppRequest[0].Info, &(m_mfxVppParams.vpp.In), sizeof(mfxFrameInfo));
 
 #if defined(ENABLE_V4L2_SUPPORT)
-            if (isV4L2InputEnabled) {
-                VppRequest[0].Type |= MFX_MEMTYPE_EXPORT_FRAME;
-            }
+        if (isV4L2InputEnabled) {
+            VppRequest[0].Type |= MFX_MEMTYPE_EXPORT_FRAME;
+        }
 #endif
 
-            sts = m_pMFXAllocator->Alloc(m_pMFXAllocator->pthis, &(VppRequest[0]), &m_VppResponse);
-            MSDK_CHECK_STATUS(sts, "m_pMFXAllocator->Alloc failed");
+        sts = m_pMFXAllocator->Alloc(m_pMFXAllocator->pthis, &(VppRequest[0]), &m_VppResponse);
+        MSDK_CHECK_STATUS(sts, "m_pMFXAllocator->Alloc failed");
+    }
+
+    // prepare mfxFrameSurface1 array for encoder
+    m_pEncSurfaces = new mfxFrameSurface1[m_EncResponse.NumFrameActual];
+    MSDK_CHECK_POINTER(m_pEncSurfaces, MFX_ERR_MEMORY_ALLOC);
+
+    for (int i = 0; i < m_EncResponse.NumFrameActual; i++) {
+        memset(&(m_pEncSurfaces[i]), 0, sizeof(mfxFrameSurface1));
+        MSDK_MEMCPY_VAR(m_pEncSurfaces[i].Info,
+                        &(m_mfxEncParams.mfx.FrameInfo),
+                        sizeof(mfxFrameInfo));
+
+        if (m_bExternalAlloc) {
+            m_pEncSurfaces[i].Data.MemId = m_EncResponse.mids[i];
         }
+        else {
+            // get YUV pointers
+            sts = m_pMFXAllocator->Lock(m_pMFXAllocator->pthis,
+                                        m_EncResponse.mids[i],
+                                        &(m_pEncSurfaces[i].Data));
+            MSDK_CHECK_STATUS(sts, "m_pMFXAllocator->Lock failed");
+        }
+    }
 
-        // prepare mfxFrameSurface1 array for encoder
-        m_pEncSurfaces = new mfxFrameSurface1*[m_EncResponse.NumFrameActual];
-        MSDK_CHECK_POINTER(m_pEncSurfaces, MFX_ERR_MEMORY_ALLOC);
+    // prepare mfxFrameSurface1 array for vpp if vpp is enabled
+    if (m_pmfxVPP) {
+        m_pVppSurfaces = new mfxFrameSurface1[m_VppResponse.NumFrameActual];
+        MSDK_CHECK_POINTER(m_pVppSurfaces, MFX_ERR_MEMORY_ALLOC);
 
-        for (int i = 0; i < m_EncResponse.NumFrameActual; i++) {
-            m_pEncSurfaces[i] = new mfxFrameSurface1();
-            MSDK_ZERO_MEMORY(*(m_pEncSurfaces[i]));
-            MSDK_MEMCPY_VAR(m_pEncSurfaces[i]->Info,
-                            &(m_mfxEncParams.mfx.FrameInfo),
+        for (int i = 0; i < m_VppResponse.NumFrameActual; i++) {
+            MSDK_ZERO_MEMORY(m_pVppSurfaces[i]);
+            MSDK_MEMCPY_VAR(m_pVppSurfaces[i].Info,
+                            &(m_mfxVppParams.mfx.FrameInfo),
                             sizeof(mfxFrameInfo));
 
             if (m_bExternalAlloc) {
-                m_pEncSurfaces[i]->Data.MemId = m_EncResponse.mids[i];
+                m_pVppSurfaces[i].Data.MemId = m_VppResponse.mids[i];
             }
             else {
-                // get YUV pointers
                 sts = m_pMFXAllocator->Lock(m_pMFXAllocator->pthis,
-                                            m_EncResponse.mids[i],
-                                            &(m_pEncSurfaces[i]->Data));
+                                            m_VppResponse.mids[i],
+                                            &(m_pVppSurfaces[i].Data));
                 MSDK_CHECK_STATUS(sts, "m_pMFXAllocator->Lock failed");
             }
         }
+    }
 
-        // prepare mfxFrameSurface1 array for vpp if vpp is enabled
-        if (m_pmfxVPP) {
-            m_pVppSurfaces = new mfxFrameSurface1*[m_VppResponse.NumFrameActual];
-            MSDK_CHECK_POINTER(m_pVppSurfaces, MFX_ERR_MEMORY_ALLOC);
-
-            for (int i = 0; i < m_VppResponse.NumFrameActual; i++) {
-                m_pVppSurfaces[i] = new mfxFrameSurface1();
-                MSDK_ZERO_MEMORY(*(m_pVppSurfaces[i]));
-                MSDK_MEMCPY_VAR(m_pVppSurfaces[i]->Info,
-                                &(m_mfxVppParams.mfx.FrameInfo),
-                                sizeof(mfxFrameInfo));
-
-                if (m_bExternalAlloc) {
-                    m_pVppSurfaces[i]->Data.MemId = m_VppResponse.mids[i];
-                }
-                else {
-                    sts = m_pMFXAllocator->Lock(m_pMFXAllocator->pthis,
-                                                m_VppResponse.mids[i],
-                                                &(m_pVppSurfaces[i]->Data));
-                    MSDK_CHECK_STATUS(sts, "m_pMFXAllocator->Lock failed");
-                }
-            }
-        }
-
-        // prepare mfxEncodeCtrl array for encoder if qpfile mode is enabled
-        if (m_bQPFileMode) {
-            m_EncCtrls.resize(m_EncResponse.NumFrameActual);
-            for (auto& ctrl : m_EncCtrls) {
-                ctrl.Payload    = m_UserDataUnregSEI.data();
-                ctrl.NumPayload = (mfxU16)m_UserDataUnregSEI.size();
-            }
+    // prepare mfxEncodeCtrl array for encoder if qpfile mode is enabled
+    if (m_bQPFileMode) {
+        m_EncCtrls.resize(m_EncResponse.NumFrameActual);
+        for (auto& ctrl : m_EncCtrls) {
+            ctrl.Payload    = m_UserDataUnregSEI.data();
+            ctrl.NumPayload = (mfxU16)m_UserDataUnregSEI.size();
         }
     }
 
@@ -1076,40 +1072,38 @@ mfxStatus CEncodingPipeline::CreateAllocator() {
             MSDK_CHECK_STATUS(sts, "m_mfxSession.SetHandle failed");
         }
 
-        if (m_MemoryModel == GENERAL_ALLOC) {
-            // create D3D allocator
+        // create D3D allocator
     #if MFX_D3D11_SUPPORT
-            if (D3D11_MEMORY == m_memType) {
-                m_pMFXAllocator = new D3D11FrameAllocator;
-                MSDK_CHECK_POINTER(m_pMFXAllocator, MFX_ERR_MEMORY_ALLOC);
+        if (D3D11_MEMORY == m_memType) {
+            m_pMFXAllocator = new D3D11FrameAllocator;
+            MSDK_CHECK_POINTER(m_pMFXAllocator, MFX_ERR_MEMORY_ALLOC);
 
-                D3D11AllocatorParams* pd3dAllocParams = new D3D11AllocatorParams;
-                MSDK_CHECK_POINTER(pd3dAllocParams, MFX_ERR_MEMORY_ALLOC);
-                pd3dAllocParams->pDevice           = reinterpret_cast<ID3D11Device*>(hdl);
-                pd3dAllocParams->bUseSingleTexture = m_bSingleTexture;
-                m_pmfxAllocatorParams              = pd3dAllocParams;
-            }
-            else
-    #endif // #if MFX_D3D11_SUPPORT
-            {
-                m_pMFXAllocator = new D3DFrameAllocator;
-                MSDK_CHECK_POINTER(m_pMFXAllocator, MFX_ERR_MEMORY_ALLOC);
-
-                D3DAllocatorParams* pd3dAllocParams = new D3DAllocatorParams;
-                MSDK_CHECK_POINTER(pd3dAllocParams, MFX_ERR_MEMORY_ALLOC);
-                pd3dAllocParams->pManager = reinterpret_cast<IDirect3DDeviceManager9*>(hdl);
-
-                m_pmfxAllocatorParams = pd3dAllocParams;
-            }
-
-            /* In case of video memory we must provide MediaSDK with external allocator
-            thus we demonstrate "external allocator" usage model.
-            Call SetAllocator to pass allocator to Media SDK */
-            sts = m_mfxSession.SetFrameAllocator(m_pMFXAllocator);
-            MSDK_CHECK_STATUS(sts, "m_mfxSession.SetFrameAllocator failed");
-
-            m_bExternalAlloc = true;
+            D3D11AllocatorParams* pd3dAllocParams = new D3D11AllocatorParams;
+            MSDK_CHECK_POINTER(pd3dAllocParams, MFX_ERR_MEMORY_ALLOC);
+            pd3dAllocParams->pDevice           = reinterpret_cast<ID3D11Device*>(hdl);
+            pd3dAllocParams->bUseSingleTexture = m_bSingleTexture;
+            m_pmfxAllocatorParams              = pd3dAllocParams;
         }
+        else
+    #endif // #if MFX_D3D11_SUPPORT
+        {
+            m_pMFXAllocator = new D3DFrameAllocator;
+            MSDK_CHECK_POINTER(m_pMFXAllocator, MFX_ERR_MEMORY_ALLOC);
+
+            D3DAllocatorParams* pd3dAllocParams = new D3DAllocatorParams;
+            MSDK_CHECK_POINTER(pd3dAllocParams, MFX_ERR_MEMORY_ALLOC);
+            pd3dAllocParams->pManager = reinterpret_cast<IDirect3DDeviceManager9*>(hdl);
+
+            m_pmfxAllocatorParams = pd3dAllocParams;
+        }
+
+        /* In case of video memory we must provide MediaSDK with external allocator
+        thus we demonstrate "external allocator" usage model.
+        Call SetAllocator to pass allocator to Media SDK */
+        sts = m_mfxSession.SetFrameAllocator(m_pMFXAllocator);
+        MSDK_CHECK_STATUS(sts, "m_mfxSession.SetFrameAllocator failed");
+
+        m_bExternalAlloc = true;
 #endif
 #ifdef LIBVA_SUPPORT
         sts = CreateHWDevice();
@@ -1123,28 +1117,26 @@ mfxStatus CEncodingPipeline::CreateAllocator() {
         sts = m_mfxSession.SetHandle(MFX_HANDLE_VA_DISPLAY, hdl);
         MSDK_CHECK_STATUS(sts, "m_mfxSession.SetHandle failed");
 
-        if (m_MemoryModel == GENERAL_ALLOC) {
-            // create VAAPI allocator
-            m_pMFXAllocator = new vaapiFrameAllocator;
-            MSDK_CHECK_POINTER(m_pMFXAllocator, MFX_ERR_MEMORY_ALLOC);
+        // create VAAPI allocator
+        m_pMFXAllocator = new vaapiFrameAllocator;
+        MSDK_CHECK_POINTER(m_pMFXAllocator, MFX_ERR_MEMORY_ALLOC);
 
-            vaapiAllocatorParams* p_vaapiAllocParams = new vaapiAllocatorParams;
-            MSDK_CHECK_POINTER(p_vaapiAllocParams, MFX_ERR_MEMORY_ALLOC);
+        vaapiAllocatorParams* p_vaapiAllocParams = new vaapiAllocatorParams;
+        MSDK_CHECK_POINTER(p_vaapiAllocParams, MFX_ERR_MEMORY_ALLOC);
 
-            p_vaapiAllocParams->m_dpy = (VADisplay)hdl;
+        p_vaapiAllocParams->m_dpy = (VADisplay)hdl;
     #ifdef ENABLE_V4L2_SUPPORT
-            p_vaapiAllocParams->m_export_mode = vaapiAllocatorParams::PRIME;
+        p_vaapiAllocParams->m_export_mode = vaapiAllocatorParams::PRIME;
     #endif
-            m_pmfxAllocatorParams = p_vaapiAllocParams;
+        m_pmfxAllocatorParams = p_vaapiAllocParams;
 
-            /* In case of video memory we must provide MediaSDK with external allocator
-            thus we demonstrate "external allocator" usage model.
-            Call SetAllocator to pass allocator to mediasdk */
-            sts = m_mfxSession.SetFrameAllocator(m_pMFXAllocator);
-            MSDK_CHECK_STATUS(sts, "m_mfxSession.SetFrameAllocator failed");
+        /* In case of video memory we must provide MediaSDK with external allocator
+        thus we demonstrate "external allocator" usage model.
+        Call SetAllocator to pass allocator to mediasdk */
+        sts = m_mfxSession.SetFrameAllocator(m_pMFXAllocator);
+        MSDK_CHECK_STATUS(sts, "m_mfxSession.SetFrameAllocator failed");
 
-            m_bExternalAlloc = true;
-        }
+        m_bExternalAlloc = true;
 #endif
     }
     else {
@@ -1164,36 +1156,25 @@ mfxStatus CEncodingPipeline::CreateAllocator() {
             MSDK_CHECK_STATUS(sts, "m_mfxSession.SetHandle failed");
         }
 #endif
-        if (m_MemoryModel == GENERAL_ALLOC) {
-            // create system memory allocator
-            m_pMFXAllocator = new SysMemFrameAllocator;
-            MSDK_CHECK_POINTER(m_pMFXAllocator, MFX_ERR_MEMORY_ALLOC);
+        // create system memory allocator
+        m_pMFXAllocator = new SysMemFrameAllocator;
+        MSDK_CHECK_POINTER(m_pMFXAllocator, MFX_ERR_MEMORY_ALLOC);
 
-            /* In case of system memory we demonstrate "no external allocator" usage model.
-            We don't call SetAllocator, Media SDK uses internal allocator.
-            We use system memory allocator simply as a memory manager for application*/
-        }
+        /* In case of system memory we demonstrate "no external allocator" usage model.
+        We don't call SetAllocator, Media SDK uses internal allocator.
+        We use system memory allocator simply as a memory manager for application*/
     }
 
-    if (m_MemoryModel == GENERAL_ALLOC) {
-        // initialize memory allocator
-        sts = m_pMFXAllocator->Init(m_pmfxAllocatorParams);
-        MSDK_CHECK_STATUS(sts, "m_pMFXAllocator->Init failed");
-    }
+    // initialize memory allocator
+    sts = m_pMFXAllocator->Init(m_pmfxAllocatorParams);
+    MSDK_CHECK_STATUS(sts, "m_pMFXAllocator->Init failed");
 
     return MFX_ERR_NONE;
 }
 
 void CEncodingPipeline::DeleteFrames() {
     // delete surfaces array
-    if (m_pEncSurfaces)
-        for (int i = 0; i < m_EncResponse.NumFrameActual; i++)
-            MSDK_SAFE_DELETE_ARRAY(m_pEncSurfaces[i]);
     MSDK_SAFE_DELETE_ARRAY(m_pEncSurfaces);
-
-    if (m_pVppSurfaces)
-        for (int i = 0; i < m_VppResponse.NumFrameActual; i++)
-            MSDK_SAFE_DELETE_ARRAY(m_pVppSurfaces[i]);
     MSDK_SAFE_DELETE_ARRAY(m_pVppSurfaces);
 
     // delete frames
@@ -1240,7 +1221,6 @@ CEncodingPipeline::CEncodingPipeline()
           m_memType(SYSTEM_MEMORY),
           m_nPerfOpt(0),
           m_bExternalAlloc(false),
-          m_MemoryModel(UNKNOWN_ALLOC),
           m_pEncSurfaces(NULL),
           m_pVppSurfaces(NULL),
           m_EncResponse({}),
@@ -1450,15 +1430,6 @@ mfxStatus CEncodingPipeline::Init(sInputParams* pParams) {
 
     initPar.Implementation = pParams->bUseHWLib ? MFX_IMPL_HARDWARE : MFX_IMPL_SOFTWARE;
 
-    mfxStatus sts = m_pLoader->ConfigureImplementation(initPar.Implementation);
-    MSDK_CHECK_STATUS(sts, "m_mfxSession.ConfigureImplementation failed");
-    sts = m_pLoader->ConfigureAccelerationMode(pParams->accelerationMode, initPar.Implementation);
-    // new memory models are suppotred in lib with version >2.0
-    if (pParams->nMemoryModel == VISIBLE_INT_ALLOC) {
-        m_pLoader->ConfigureVersion({ { 0, 2 } });
-        msdk_printf(MSDK_STRING("warning: internal memory allocation requires 2.x API\n"));
-    }
-    MSDK_CHECK_STATUS(sts, "m_mfxSession.ConfigureAccelerationMode failed");
     if (pParams->dGfxIdx >= 0)
         m_pLoader->SetDiscreteAdapterIndex(pParams->dGfxIdx);
     else
@@ -1466,13 +1437,25 @@ mfxStatus CEncodingPipeline::Init(sInputParams* pParams) {
 
     if (pParams->adapterNum >= 0)
         m_pLoader->SetAdapterNum(pParams->adapterNum);
-    sts = m_pLoader->EnumImplementations();
+
+    if (!pParams->accelerationMode && pParams->bUseHWLib) {
+#if D3D_SURFACES_SUPPORT
+        pParams->accelerationMode = MFX_ACCEL_MODE_VIA_D3D11;
+#elif defined(LIBVA_SUPPORT)
+        pParams->accelerationMode = MFX_ACCEL_MODE_VIA_VAAPI;
+#endif
+    }
+
+    mfxStatus sts = m_pLoader->ConfigureAndEnumImplementations(initPar.Implementation,
+                                                               pParams->accelerationMode);
     MSDK_CHECK_STATUS(sts, "m_mfxSession.EnumImplementations failed");
 
     sts = m_mfxSession.CreateSession(m_pLoader.get());
     MSDK_CHECK_STATUS(sts, "m_mfxSession.CreateSession failed");
 
-    mfxVersion version = m_pLoader->GetVersion();
+    mfxVersion version;
+    sts = m_mfxSession.QueryVersion(&version);
+    MSDK_CHECK_STATUS(sts, "m_mfxSession.QueryVersion failed");
 
     if ((pParams->MVC_flags & MVC_ENABLED) != 0 && !CheckVersion(&version, MSDK_FEATURE_MVC)) {
         msdk_printf(MSDK_STRING("error: MVC is not supported in the %d.%d API version\n"),
@@ -1583,21 +1566,12 @@ mfxStatus CEncodingPipeline::Init(sInputParams* pParams) {
 
     m_bSoftRobustFlag = pParams->bSoftRobustFlag;
 
-    m_MemoryModel =
-        (UNKNOWN_ALLOC == pParams->nMemoryModel) ? GENERAL_ALLOC : pParams->nMemoryModel;
-
     // create and init frame allocator
     sts = CreateAllocator();
     MSDK_CHECK_STATUS(sts, "CreateAllocator failed");
 
     sts = InitMfxEncParams(pParams);
     MSDK_CHECK_STATUS(sts, "InitMfxEncParams failed");
-
-    if (m_bQPFileMode && m_MemoryModel != GENERAL_ALLOC) {
-        msdk_printf(
-            MSDK_STRING("ERROR: QPFileMode not supported with the required memory model.\n"));
-        return MFX_ERR_UNSUPPORTED;
-    }
 
     sts = InitMfxVppParams(pParams);
     MSDK_CHECK_STATUS(sts, "InitMfxVppParams failed");
@@ -1800,54 +1774,19 @@ void CEncodingPipeline::FreeFileWriters() {
 
 mfxStatus CEncodingPipeline::FillBuffers() {
     if (m_nPerfOpt) {
-        mfxStatus sts = MFX_ERR_NONE;
-
-        if (m_MemoryModel == VISIBLE_INT_ALLOC) {
-            if (m_pmfxVPP) {
-                // prepare mfxFrameSurface1 array for vpp
-                m_pVppSurfaces = new mfxFrameSurface1*[m_nPerfOpt];
-                for (mfxU32 i = 0; i < m_nPerfOpt; i++) {
-                    sts = m_pmfxVPP->GetSurfaceIn(&m_pVppSurfaces[i]);
-                    MSDK_CHECK_STATUS(sts, "m_pmfxVPP->GetSurfaceIn() failed");
-                }
-            }
-            else {
-                // prepare mfxFrameSurface1 array for encoder
-                m_pEncSurfaces = new mfxFrameSurface1*[m_nPerfOpt];
-                for (mfxU32 i = 0; i < m_nPerfOpt; i++) {
-                    sts = m_pmfxENC->GetSurface(&m_pEncSurfaces[i]);
-                    MSDK_CHECK_STATUS(sts, "m_pmfxENC->GetSurface() failed");
-                }
-            }
-        }
-
         for (mfxU32 i = 0; i < m_nPerfOpt; i++) {
-            mfxFrameSurface1* surface = m_pmfxVPP ? m_pVppSurfaces[i] : m_pEncSurfaces[i];
+            mfxFrameSurface1* surface = m_pmfxVPP ? &m_pVppSurfaces[i] : &m_pEncSurfaces[i];
 
-            if (m_MemoryModel == GENERAL_ALLOC) {
-                sts = m_pMFXAllocator->Lock(m_pMFXAllocator->pthis,
-                                            surface->Data.MemId,
-                                            &surface->Data);
-                MSDK_CHECK_STATUS(sts, "m_pMFXAllocator->Lock failed");
-            }
-            else {
-                sts = surface->FrameInterface->Map(surface, MFX_MAP_WRITE);
-                MSDK_CHECK_STATUS(sts, "FrameInterface->Map failed");
-            }
-
+            mfxStatus sts =
+                m_pMFXAllocator->Lock(m_pMFXAllocator->pthis, surface->Data.MemId, &surface->Data);
+            MSDK_CHECK_STATUS(sts, "m_pMFXAllocator->Lock failed");
             sts = m_FileReader.LoadNextFrame(surface);
             MSDK_CHECK_STATUS(sts, "m_FileReader.LoadNextFrame failed");
 
-            if (m_MemoryModel == GENERAL_ALLOC) {
-                sts = m_pMFXAllocator->Unlock(m_pMFXAllocator->pthis,
-                                              surface->Data.MemId,
-                                              &surface->Data);
-                MSDK_CHECK_STATUS(sts, "m_pMFXAllocator->Unlock failed");
-            }
-            else {
-                sts = surface->FrameInterface->Unmap(surface);
-                MSDK_CHECK_STATUS(sts, "FrameInterface->Unmap failed");
-            }
+            sts = m_pMFXAllocator->Unlock(m_pMFXAllocator->pthis,
+                                          surface->Data.MemId,
+                                          &surface->Data);
+            MSDK_CHECK_STATUS(sts, "m_pMFXAllocator->Unlock failed");
         }
     }
 
@@ -2029,9 +1968,6 @@ mfxStatus CEncodingPipeline::Run() {
 
     mfxStatus sts = MFX_ERR_NONE;
 
-    mfxFrameSurface1* pSurfEnc = NULL;
-    mfxFrameSurface1* pSurfVpp = NULL;
-
     mfxFrameSurface1* pSurf = NULL; // dispatching pointer
     mfxEncodeCtrl* pCtrl    = NULL;
 
@@ -2077,24 +2013,15 @@ mfxStatus CEncodingPipeline::Run() {
         // find free surface for encoder input
         if (m_nPerfOpt && !m_pmfxVPP) {
             nEncSurfIdx %= m_nPerfOpt;
-            pSurfEnc = m_pEncSurfaces[nEncSurfIdx];
         }
         else {
-            if (m_MemoryModel == GENERAL_ALLOC) {
-                nEncSurfIdx = GetFreeSurface(m_pEncSurfaces, m_EncResponse.NumFrameActual);
-                MSDK_CHECK_ERROR(nEncSurfIdx, MSDK_INVALID_SURF_IDX, MFX_ERR_MEMORY_ALLOC);
-                pSurfEnc = m_pEncSurfaces[nEncSurfIdx];
-            }
-            else if (m_MemoryModel == VISIBLE_INT_ALLOC) {
-                sts = m_pmfxENC->GetSurface(&pSurfEnc);
-                MSDK_CHECK_STATUS(sts, "m_pmfxENC->GetSurface failed");
-            }
+            nEncSurfIdx = GetFreeSurface(m_pEncSurfaces, m_EncResponse.NumFrameActual);
         }
 
-        MSDK_CHECK_ERROR(pSurfEnc, NULL, MFX_ERR_MEMORY_ALLOC);
+        MSDK_CHECK_ERROR(nEncSurfIdx, MSDK_INVALID_SURF_IDX, MFX_ERR_MEMORY_ALLOC);
 
         // point pSurf to encoder surface
-        pSurf = pSurfEnc;
+        pSurf = &m_pEncSurfaces[nEncSurfIdx];
 
         if (!bVppMultipleOutput) {
             if (!skipLoadingNextFrame) {
@@ -2107,28 +2034,16 @@ mfxStatus CEncodingPipeline::Run() {
 #else
                     // find free surface for vpp input
                     if (m_nPerfOpt) {
-                        nVppSurfIdx %= m_nPerfOpt;
-                        pSurfVpp = m_pVppSurfaces[nVppSurfIdx];
+                        nVppSurfIdx = nVppSurfIdx % m_nPerfOpt;
                     }
                     else {
-                        if (m_MemoryModel == GENERAL_ALLOC) {
-                            nVppSurfIdx =
-                                GetFreeSurface(m_pVppSurfaces, m_VppResponse.NumFrameActual);
-                            MSDK_CHECK_ERROR(nVppSurfIdx,
-                                             MSDK_INVALID_SURF_IDX,
-                                             MFX_ERR_MEMORY_ALLOC);
-                            pSurfVpp = m_pVppSurfaces[nVppSurfIdx];
-                        }
-                        else if (m_MemoryModel == VISIBLE_INT_ALLOC) {
-                            sts = m_pmfxVPP->GetSurfaceIn(&pSurfVpp);
-                            MSDK_CHECK_STATUS(sts, "m_pmfxVPP->GetSurfaceIn failed");
-                        }
+                        nVppSurfIdx = GetFreeSurface(m_pVppSurfaces, m_VppResponse.NumFrameActual);
                     }
 #endif
-                    MSDK_CHECK_ERROR(pSurfVpp, NULL, MFX_ERR_MEMORY_ALLOC);
+                    MSDK_CHECK_ERROR(nVppSurfIdx, MSDK_INVALID_SURF_IDX, MFX_ERR_MEMORY_ALLOC);
 
                     // point pSurf to vpp surface
-                    pSurf = pSurfVpp;
+                    pSurf = &m_pVppSurfaces[nVppSurfIdx];
                 }
 
                 pSurf->Info.FrameId.ViewId = currViewNum;
@@ -2158,10 +2073,11 @@ mfxStatus CEncodingPipeline::Run() {
         if (m_pmfxVPP) {
             bVppMultipleOutput = false; // reset the flag before a call to VPP
             for (;;) {
-                sts = m_pmfxVPP->RunFrameVPPAsync(skipLoadingNextFrame ? NULL : pSurfVpp,
-                                                  pSurfEnc,
-                                                  NULL,
-                                                  &VppSyncPoint);
+                sts = m_pmfxVPP->RunFrameVPPAsync(
+                    skipLoadingNextFrame ? NULL : &m_pVppSurfaces[nVppSurfIdx],
+                    &m_pEncSurfaces[nEncSurfIdx],
+                    NULL,
+                    &VppSyncPoint);
 
                 if (MFX_ERR_NONE < sts && !VppSyncPoint) // repeat the call if warning and no output
                 {
@@ -2178,13 +2094,6 @@ mfxStatus CEncodingPipeline::Run() {
                     if (m_nPerfOpt)
                         nVppSurfIdx++;
                     break; // not a warning
-                }
-            }
-
-            if (m_MemoryModel == VISIBLE_INT_ALLOC && !m_nPerfOpt) {
-                if (pSurfVpp) {
-                    mfxStatus sts_release = pSurfVpp->FrameInterface->Release(pSurfVpp);
-                    MSDK_CHECK_STATUS(sts_release, "FrameInterface->Release failed");
                 }
             }
 
@@ -2219,7 +2128,7 @@ mfxStatus CEncodingPipeline::Run() {
             // at this point surface for encoder contains either a frame from file or a frame processed by vpp
             m_TaskPool.firstOut_start = m_TaskPool.lastOut_start = time_get_tick();
             sts = m_pmfxENC->EncodeFrameAsync(&pCurrentTask->encCtrl,
-                                              pSurfEnc,
+                                              &m_pEncSurfaces[nEncSurfIdx],
                                               &pCurrentTask->mfxBS,
                                               &pCurrentTask->EncSyncP);
 
@@ -2248,11 +2157,6 @@ mfxStatus CEncodingPipeline::Run() {
             }
         }
 
-        if (!(m_nPerfOpt && !m_pmfxVPP) && (m_MemoryModel == VISIBLE_INT_ALLOC)) {
-            mfxStatus sts_release = pSurfEnc->FrameInterface->Release(pSurfEnc);
-            MSDK_CHECK_STATUS(sts_release, "FrameInterface->Release failed");
-        }
-
         nFramesProcessed++;
     }
 
@@ -2268,20 +2172,14 @@ mfxStatus CEncodingPipeline::Run() {
         // MFX_ERR_MORE_DATA is accepted only from EncodeFrameAsync
         {
             // find free surface for encoder input (vpp output)
-            if (m_MemoryModel == GENERAL_ALLOC) {
-                nEncSurfIdx = GetFreeSurface(m_pEncSurfaces, m_EncResponse.NumFrameActual);
-                MSDK_CHECK_ERROR(nEncSurfIdx, MSDK_INVALID_SURF_IDX, MFX_ERR_MEMORY_ALLOC);
-                pSurfEnc = m_pEncSurfaces[nEncSurfIdx];
-            }
-            else if (m_MemoryModel == VISIBLE_INT_ALLOC) {
-                sts = m_pmfxENC->GetSurface(&pSurfEnc);
-                MSDK_CHECK_STATUS(sts, "m_pmfxENC->GetSurface failed");
-            }
-
-            MSDK_CHECK_ERROR(pSurfEnc, NULL, MFX_ERR_MEMORY_ALLOC);
+            nEncSurfIdx = GetFreeSurface(m_pEncSurfaces, m_EncResponse.NumFrameActual);
+            MSDK_CHECK_ERROR(nEncSurfIdx, MSDK_INVALID_SURF_IDX, MFX_ERR_MEMORY_ALLOC);
 
             for (;;) {
-                sts = m_pmfxVPP->RunFrameVPPAsync(NULL, pSurfEnc, NULL, &VppSyncPoint);
+                sts = m_pmfxVPP->RunFrameVPPAsync(NULL,
+                                                  &m_pEncSurfaces[nEncSurfIdx],
+                                                  NULL,
+                                                  &VppSyncPoint);
 
                 if (MFX_ERR_NONE < sts && !VppSyncPoint) // repeat the call if warning and no output
                 {
@@ -2319,7 +2217,7 @@ mfxStatus CEncodingPipeline::Run() {
                 m_bInsertIDR = false;
 
                 sts = m_pmfxENC->EncodeFrameAsync(&pCurrentTask->encCtrl,
-                                                  pSurfEnc,
+                                                  &m_pEncSurfaces[nEncSurfIdx],
                                                   &pCurrentTask->mfxBS,
                                                   &pCurrentTask->EncSyncP);
 
@@ -2342,11 +2240,6 @@ mfxStatus CEncodingPipeline::Run() {
                     MSDK_IGNORE_MFX_STS(sts, MFX_ERR_MORE_BITSTREAM);
                     break;
                 }
-            }
-
-            if (m_MemoryModel == VISIBLE_INT_ALLOC) {
-                mfxStatus sts_release = pSurfEnc->FrameInterface->Release(pSurfEnc);
-                MSDK_CHECK_STATUS(sts_release, "FrameInterface->Release failed");
             }
         }
 
@@ -2480,17 +2373,7 @@ mfxStatus CEncodingPipeline::LoadNextFrame(mfxFrameSurface1* pSurf) {
                 MSDK_CHECK_STATUS(sts, "m_FileReader.SkipNframesFromBeginning failed");
             }
 
-            if (m_MemoryModel == VISIBLE_INT_ALLOC) {
-                mfxStatus sts_map = pSurf->FrameInterface->Map(pSurf, MFX_MAP_WRITE);
-                MSDK_CHECK_STATUS(sts_map, "FrameInterface->Map failed");
-            }
-
             sts = m_FileReader.LoadNextFrame(pSurf);
-
-            if (m_MemoryModel == VISIBLE_INT_ALLOC) {
-                mfxStatus sts_map = pSurf->FrameInterface->Unmap(pSurf);
-                MSDK_CHECK_STATUS(sts_map, "FrameInterface->Unmap failed");
-            }
         }
 
         if ((MFX_ERR_MORE_DATA == sts) && !m_bTimeOutExceed) {

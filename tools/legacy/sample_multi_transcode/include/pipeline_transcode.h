@@ -229,6 +229,7 @@ struct __sInputParams {
     mfxU16 GopPicSize;
     mfxU16 GopRefDist;
     mfxU16 NumRefFrame;
+    mfxU16 nNumRefActiveP;
     mfxU16 nBRefType;
     mfxU16 RepartitionCheckMode;
     mfxU16 GPB;
@@ -273,6 +274,12 @@ struct __sInputParams {
     mfxU16 nQPP;
     mfxU16 nQPB;
     bool bDisableQPOffset;
+    mfxU8 nMinQPI;
+    mfxU8 nMaxQPI;
+    mfxU8 nMinQPP;
+    mfxU8 nMaxQPP;
+    mfxU8 nMinQPB;
+    mfxU8 nMaxQPB;
 
     mfxU16 nAvcTemp;
     mfxU16 nBaseLayerPID;
@@ -718,6 +725,7 @@ public:
     virtual mfxStatus ProcessOutputBitstream(mfxBitstreamWrapper* pBitstream);
     virtual mfxStatus ResetInput();
     virtual mfxStatus ResetOutput();
+    virtual bool IsNulOutput();
 
 protected:
     std::unique_ptr<CSmplBitstreamReader> m_pFileReader;

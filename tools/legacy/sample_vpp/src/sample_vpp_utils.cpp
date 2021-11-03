@@ -428,10 +428,6 @@ mfxStatus CreateFrameProcessor(sFrameProcessor* pProcessor,
 
     //MFX session
     pProcessor->pLoader.reset(new VPLImplementationLoader);
-    sts = pProcessor->pLoader->ConfigureImplementation(impl);
-    MSDK_CHECK_STATUS(sts, "mfxSession.ConfigureImplementation failed");
-    sts = pProcessor->pLoader->ConfigureAccelerationMode(pInParams->accelerationMode, impl);
-    MSDK_CHECK_STATUS(sts, "mfxSession.ConfigureAccelerationMode failed");
 
     if (pInParams->dGfxIdx >= 0)
         pProcessor->pLoader->SetDiscreteAdapterIndex(pInParams->dGfxIdx);
@@ -441,7 +437,7 @@ mfxStatus CreateFrameProcessor(sFrameProcessor* pProcessor,
     if (pInParams->adapterNum >= 0)
         pProcessor->pLoader->SetAdapterNum(pInParams->adapterNum);
 
-    sts = pProcessor->pLoader->EnumImplementations();
+    sts = pProcessor->pLoader->ConfigureAndEnumImplementations(impl, pInParams->accelerationMode);
     MSDK_CHECK_STATUS(sts, "mfxSession.EnumImplementations failed");
     sts = pProcessor->mfxSession.CreateSession(pProcessor->pLoader.get());
     MSDK_CHECK_STATUS(sts, "m_mfxSession.CreateSession failed");

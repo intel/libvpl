@@ -86,25 +86,24 @@ mfxStatus CUserPipeline::AllocFrames() {
     MSDK_CHECK_STATUS(sts, "m_pMFXAllocator->Alloc failed");
 
     // prepare mfxFrameSurface1 array for components
-    m_pEncSurfaces = new mfxFrameSurface1*[nEncSurfNum];
+    m_pEncSurfaces = new mfxFrameSurface1[nEncSurfNum];
     MSDK_CHECK_POINTER(m_pEncSurfaces, MFX_ERR_MEMORY_ALLOC);
     m_pPluginSurfaces = new mfxFrameSurface1[nRotateSurfNum];
     MSDK_CHECK_POINTER(m_pPluginSurfaces, MFX_ERR_MEMORY_ALLOC);
 
     for (int i = 0; i < nEncSurfNum; i++) {
-        m_pEncSurfaces[i] = new mfxFrameSurface1();
-        MSDK_ZERO_MEMORY(*(m_pEncSurfaces[i]));
-        MSDK_MEMCPY_VAR(m_pEncSurfaces[i]->Info,
+        MSDK_ZERO_MEMORY(m_pEncSurfaces[i]);
+        MSDK_MEMCPY_VAR(m_pEncSurfaces[i].Info,
                         &(m_mfxEncParams.mfx.FrameInfo),
                         sizeof(mfxFrameInfo));
         if (SYSTEM_MEMORY != m_memType) {
             // external allocator used - provide just MemIds
-            m_pEncSurfaces[i]->Data.MemId = m_EncResponse.mids[i];
+            m_pEncSurfaces[i].Data.MemId = m_EncResponse.mids[i];
         }
         else {
             sts = m_pMFXAllocator->Lock(m_pMFXAllocator->pthis,
                                         m_EncResponse.mids[i],
-                                        &(m_pEncSurfaces[i]->Data));
+                                        &(m_pEncSurfaces[i].Data));
             MSDK_CHECK_STATUS(sts, "m_pMFXAllocator->Lock failed");
         }
     }
@@ -179,15 +178,18 @@ mfxStatus CUserPipeline::Init(sInputParams* pParams) {
     if (D3D11_MEMORY == pParams->memType)
         impl |= MFX_IMPL_VIA_D3D11;
 
+    if (!pParams->accelerationMode && pParams->bUseHWLib) {
+#if D3D_SURFACES_SUPPORT
+        pParams->accelerationMode = MFX_ACCEL_MODE_VIA_D3D11;
+#elif defined(LIBVA_SUPPORT)
+        pParams->accelerationMode = MFX_ACCEL_MODE_VIA_VAAPI;
+#endif
+    }
+
     sts = m_pLoader->ConfigureImplementation(impl);
     MSDK_CHECK_STATUS(sts, "m_mfxSession.ConfigureImplementation failed");
     sts = m_pLoader->ConfigureAccelerationMode(pParams->accelerationMode, impl);
     MSDK_CHECK_STATUS(sts, "m_mfxSession.ConfigureAccelerationMode failed");
-    // new memory models are suppotred in lib with version >2.0
-    if (pParams->nMemoryModel == VISIBLE_INT_ALLOC) {
-        m_pLoader->ConfigureVersion({ { 0, 2 } });
-        msdk_printf(MSDK_STRING("warning: internal memory allocation requires 2.x API\n"));
-    }
     sts = m_pLoader->EnumImplementations();
     MSDK_CHECK_STATUS(sts, "m_mfxSession.EnumImplementations failed");
 
@@ -317,7 +319,7 @@ mfxStatus CUserPipeline::Run() {
             m_bInsertIDR = false;
 
             sts = m_pmfxENC->EncodeFrameAsync(&pCurrentTask->encCtrl,
-                                              m_pEncSurfaces[nEncSurfIdx],
+                                              &m_pEncSurfaces[nEncSurfIdx],
                                               &pCurrentTask->mfxBS,
                                               &pCurrentTask->EncSyncP);
 

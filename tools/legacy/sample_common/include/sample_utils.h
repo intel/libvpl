@@ -1058,26 +1058,9 @@ mfxU16 GetFreeSurfaceIndex(T* pSurfacesPool, mfxU16 nPoolSize) {
     return MSDK_INVALID_SURF_IDX;
 }
 
-template <class T>
-mfxU16 GetFreeSurfaceIndex(T** pSurfacesPool, mfxU16 nPoolSize) {
-    constexpr mfxU16 MSDK_INVALID_SURF_IDX = 0xffff;
-
-    if (pSurfacesPool) {
-        for (mfxU16 i = 0; i < nPoolSize; i++) {
-            if (0 == pSurfacesPool[i]->Data.Locked) {
-                return i;
-            }
-        }
-    }
-
-    return MSDK_INVALID_SURF_IDX;
-}
-
 mfxU16 GetFreeSurface(mfxFrameSurface1* pSurfacesPool, mfxU16 nPoolSize);
-mfxU16 GetFreeSurface(mfxFrameSurface1** pSurfacesPool, mfxU16 nPoolSize);
 
 void FreeSurfacePool(mfxFrameSurface1* pSurfacesPool, mfxU16 nPoolSize);
-void FreeSurfacePool(mfxFrameSurface1** pSurfacesPool, mfxU16 nPoolSize);
 
 mfxU16 CalculateDefaultBitrate(mfxU32 nCodecId,
                                mfxU32 nTargetUsage,
@@ -1166,6 +1149,10 @@ inline mfxU32 MakeVersion(const mfxU16 major, const mfxU16 minor) {
 
 inline mfxU32 MakeVersion(const mfxVersion version) {
     return MakeVersion(version.Major, version.Minor);
+}
+
+inline bool operator<(const mfxVersion& l, const mfxVersion& r) {
+    return MakeVersion(l) < MakeVersion(r);
 }
 
 mfxVersion getMinimalRequiredVersion(const APIChangeFeatures& features);

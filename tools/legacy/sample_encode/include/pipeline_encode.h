@@ -68,12 +68,6 @@ enum MemType {
     D3D11_MEMORY  = 0x02,
 };
 
-enum MemoryModel {
-    UNKNOWN_ALLOC     = 0, // GENERAL_ALLOC will be used by default
-    GENERAL_ALLOC     = 1,
-    VISIBLE_INT_ALLOC = 2
-};
-
 struct sInputParams {
     mfxU16 nTargetUsage;
     mfxU32 CodecId;
@@ -252,8 +246,6 @@ struct sInputParams {
     mfxI16 DeblockingAlphaTcOffset;
     mfxI16 DeblockingBetaOffset;
 #endif
-
-    mfxU16 nMemoryModel;
 };
 
 struct sTask {
@@ -374,10 +366,8 @@ protected:
     mfxU16 m_nPerfOpt; // size of pre-load buffer which used for loop encode
     bool m_bExternalAlloc; // use memory allocator as external for Media SDK
 
-    mfxU16 m_MemoryModel;
-
-    mfxFrameSurface1** m_pEncSurfaces; // frames array for encoder input (vpp output)
-    mfxFrameSurface1** m_pVppSurfaces; // frames array for vpp input
+    mfxFrameSurface1* m_pEncSurfaces; // frames array for encoder input (vpp output)
+    mfxFrameSurface1* m_pVppSurfaces; // frames array for vpp input
     mfxFrameAllocResponse m_EncResponse; // memory allocation response for encoder
     mfxFrameAllocResponse m_VppResponse; // memory allocation response for vpp
 

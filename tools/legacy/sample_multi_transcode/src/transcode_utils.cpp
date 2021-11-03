@@ -123,8 +123,10 @@ void TranscodingSample::PrintHelp() {
     msdk_printf(MSDK_STRING("                 Set raw input file and color format\n"));
     msdk_printf(MSDK_STRING(
         "  -i::rgb4_frame Set input rgb4 file for compositon. File should contain just one single frame (-vpp_comp_src_h and -vpp_comp_src_w should be specified as well).\n"));
-    msdk_printf(MSDK_STRING("  -o::h265|h264|mpeg2|mvc|jpeg|vp9|av1|raw <file-name>\n"));
+    msdk_printf(MSDK_STRING("  -o::h265|h264|mpeg2|mvc|jpeg|vp9|av1|raw <file-name>|null\n"));
     msdk_printf(MSDK_STRING("                Set output file and encoder type\n"));
+    msdk_printf(MSDK_STRING(
+        "                \'null\' keyword as file-name disables output file writing \n"));
     msdk_printf(MSDK_STRING("  -sw|-hw|-hw_d3d11|-hw_d3d9\n"));
     msdk_printf(MSDK_STRING("                SDK implementation to use: \n"));
     msdk_printf(MSDK_STRING(
@@ -162,7 +164,6 @@ void TranscodingSample::PrintHelp() {
     msdk_printf(MSDK_STRING("            1, MFE is disabled\n"));
     msdk_printf(MSDK_STRING("            2, MFE operates as AUTO mode\n"));
     msdk_printf(MSDK_STRING("            3, MFE operates as MANUAL mode\n"));
-
     msdk_printf(MSDK_STRING(
         "  -mfe_timeout <N> multi-frame encode timeout in milliseconds - set per sessions control\n"));
 
@@ -224,7 +225,6 @@ void TranscodingSample::PrintHelp() {
         MSDK_STRING("  -MemType::video    Force usage of external video allocator (default)\n"));
     msdk_printf(MSDK_STRING("  -MemType::system   Force usage of external system allocator\n"));
     msdk_printf(MSDK_STRING("  -MemType::opaque   Force usage of internal allocator\n"));
-
     msdk_printf(MSDK_STRING("  -MemModel::GeneralAlloc (default)\n"));
     msdk_printf(MSDK_STRING("        Force usage of:\n"));
     msdk_printf(
@@ -235,7 +235,6 @@ void TranscodingSample::PrintHelp() {
         "  -MemModel::VisibleIntAlloc   Force usage of internal allocation with manual surfaces control\n"));
     msdk_printf(MSDK_STRING(
         "  -MemModel::HiddenIntAlloc    Force usage of internal allocation without manual surfaces control\n"));
-
     msdk_printf(MSDK_STRING(
         "  -AllocPolicy::optimal       Force optimal allocation policy for surface pool\n"));
     msdk_printf(MSDK_STRING(
@@ -282,7 +281,7 @@ void TranscodingSample::PrintHelp() {
     msdk_printf(MSDK_STRING(
         "                Overwrites framerate of stream going into encoder input with provided value (this option does not enable FRC, it just ovewrites framerate value)\n"));
     msdk_printf(MSDK_STRING("  -override_encoder_picstruct <picstruct> \n"));
-    msdk_printf(MSDK_STRING("                Overwrites encoder picstruct with specific value"));
+    msdk_printf(MSDK_STRING("                Overwrites encoder picstruct with specific value\n"));
     msdk_printf(MSDK_STRING(
         "  -u <usage>    Target usage. Valid for H.265, H.264, MPEG2 and MVC encoders. Expected values:\n"));
     msdk_printf(MSDK_STRING(
@@ -319,6 +318,8 @@ void TranscodingSample::PrintHelp() {
         "  -nobref       Do not use B-pyramid (by default the decision is made by library)\n"));
     msdk_printf(MSDK_STRING("  -bpyr         Enable B pyramid\n"));
     msdk_printf(
+        MSDK_STRING("  -NumActiveRefP         - Number of active reference frames for P Frames\n"));
+    msdk_printf(
         MSDK_STRING("  -gpb:<on,off>          - Enable or disable Generalized P/B frames\n"));
     msdk_printf(MSDK_STRING("  -TransformSkip:<on,off>- Enable or disable TransformSkip\n"));
     msdk_printf(MSDK_STRING("  -trows <rows>          - Number of rows for tiled encoding\n"));
@@ -350,6 +351,18 @@ void TranscodingSample::PrintHelp() {
         "  -qpb          Constant quantizer for B frames (if bitrace control method is CQP). In range [1,51]. 0 by default, i.e.no limitations on QP.\n"));
     msdk_printf(MSDK_STRING(
         "  -DisableQPOffset         Disable QP adjustment for GOP pyramid-level frames\n"));
+    msdk_printf(MSDK_STRING(
+        "  -MinQPI <QP>  min QP for I frames. In range [1,51]. 0 by default i.e. no limits\n"));
+    msdk_printf(MSDK_STRING(
+        "  -MaxQPI <QP>  max QP for I frames. In range [1,51]. 0 by default i.e. no limits\n"));
+    msdk_printf(MSDK_STRING(
+        "  -MinQPP <QP>  min QP for P frames. In range [1,51]. 0 by default i.e. no limits\n"));
+    msdk_printf(MSDK_STRING(
+        "  -MaxQPP <QP>  max QP for P frames. In range [1,51]. 0 by default i.e. no limits\n"));
+    msdk_printf(MSDK_STRING(
+        "  -MinQPB <QP>  min QP for B frames. In range [1,51]. 0 by default i.e. no limits\n"));
+    msdk_printf(MSDK_STRING(
+        "  -MaxQPB <QP>  max QP for B frames. In range [1,51]. 0 by default i.e. no limits\n"));
     msdk_printf(MSDK_STRING(
         "  -lowpower:<on,off>       Turn this option ON to enable QuickSync Fixed Function (low-power HW) encoding mode\n"));
     msdk_printf(MSDK_STRING(
@@ -1458,6 +1471,58 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
         }
         InputParams.bEmbeddedDenoiser = true;
     }
+    else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-MinQPI"))) {
+        VAL_CHECK(i + 1 >= argc, i, argv[i]);
+        if (MFX_ERR_NONE != msdk_opt_read(argv[++i], InputParams.nMinQPI)) {
+            PrintError(MSDK_STRING("Min Quantizer for I frames is invalid"));
+            return MFX_ERR_UNSUPPORTED;
+        }
+    }
+    else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-MinQPP"))) {
+        VAL_CHECK(i + 1 >= argc, i, argv[i]);
+        if (MFX_ERR_NONE != msdk_opt_read(argv[++i], InputParams.nMinQPP)) {
+            PrintError(MSDK_STRING("Min Quantizer for P frames is invalid"));
+            return MFX_ERR_UNSUPPORTED;
+        }
+    }
+    else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-MinQPB"))) {
+        VAL_CHECK(i + 1 >= argc, i, argv[i]);
+        if (MFX_ERR_NONE != msdk_opt_read(argv[++i], InputParams.nMinQPB)) {
+            PrintError(MSDK_STRING("Min Quantizer for B frames is invalid"));
+            return MFX_ERR_UNSUPPORTED;
+        }
+    }
+    else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-MaxQPI"))) {
+        VAL_CHECK(i + 1 >= argc, i, argv[i]);
+        if (MFX_ERR_NONE != msdk_opt_read(argv[++i], InputParams.nMaxQPI)) {
+            PrintError(MSDK_STRING("Max Quantizer for I frames is invalid"));
+            return MFX_ERR_UNSUPPORTED;
+        }
+    }
+    else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-MaxQPP"))) {
+        VAL_CHECK(i + 1 >= argc, i, argv[i]);
+        if (MFX_ERR_NONE != msdk_opt_read(argv[++i], InputParams.nMaxQPP)) {
+            PrintError(MSDK_STRING("Max Quantizer for P frames is invalid"));
+            return MFX_ERR_UNSUPPORTED;
+        }
+    }
+    else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-MaxQPB"))) {
+        VAL_CHECK(i + 1 >= argc, i, argv[i]);
+        if (MFX_ERR_NONE != msdk_opt_read(argv[++i], InputParams.nMaxQPB)) {
+            PrintError(MSDK_STRING("Max Quantizer for B frames is invalid"));
+            return MFX_ERR_UNSUPPORTED;
+        }
+    }
+    else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-NumActiveRefP"))) {
+        VAL_CHECK(i + 1 == argc, i, argv[i]);
+        i++;
+        if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.nNumRefActiveP)) {
+            PrintError(
+                MSDK_STRING("Number of active reference frames for P frames \"%s\" is invalid"),
+                argv[i]);
+            return MFX_ERR_UNSUPPORTED;
+        }
+    }
     else {
         // no matching argument was found
         return MFX_ERR_NOT_FOUND;
@@ -2451,7 +2516,6 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
         else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-ExtBrcAdaptiveLTR:off"))) {
             InputParams.ExtBrcAdaptiveLTR = MFX_CODINGOPTION_OFF;
         }
-
         else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-pp"))) {
             InputParams.shouldPrintPresets = true;
         }

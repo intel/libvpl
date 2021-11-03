@@ -89,8 +89,7 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
     MSDK_CHECK_STATUS(sts, "VerifyCrossSessionsOptions failed");
 
     m_pLoader.reset(new VPLImplementationLoader);
-    m_pLoader->ConfigureImplementation(m_InputParamsArray[0].libType);
-    m_pLoader->ConfigureAccelerationMode(m_accelerationMode, m_InputParamsArray[0].libType);
+
     // new memory models are suppotred in lib with version >2.0
     if (m_InputParamsArray[0].nMemoryModel == VISIBLE_INT_ALLOC ||
         m_InputParamsArray[0].nMemoryModel == HIDDEN_INT_ALLOC) {
@@ -105,7 +104,8 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
     if (m_InputParamsArray[0].adapterNum >= 0)
         m_pLoader->SetAdapterNum(m_InputParamsArray[0].adapterNum);
 
-    sts = m_pLoader->EnumImplementations();
+    sts = m_pLoader->ConfigureAndEnumImplementations(m_InputParamsArray[0].libType,
+                                                     m_accelerationMode);
     MSDK_CHECK_STATUS(sts, "EnumImplementations failed");
 
     for (i = 0; i < m_InputParamsArray.size(); i++) {
@@ -366,6 +366,10 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
 
         if (reader.get()) {
             sts = reader->Init(m_InputParamsArray[i].strSrcFile);
+            if (sts == MFX_ERR_UNSUPPORTED && m_InputParamsArray[i].DecodeId == MFX_CODEC_AV1) {
+                reader.reset(new CSmplBitstreamReader());
+                msdk_printf(MSDK_STRING("WARNING: Stream is not IVF, default reader\n"));
+            }
             MSDK_CHECK_STATUS(sts, "reader->Init failed");
             sts = m_pExtBSProcArray.back()->SetReader(reader);
             MSDK_CHECK_STATUS(sts, "m_pExtBSProcArray.back()->SetReader failed");
@@ -379,11 +383,15 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
             MSDK_CHECK_STATUS(sts, "m_pExtBSProcArray.back()->SetReader failed");
         }
 
-        std::unique_ptr<CSmplBitstreamWriter> writer(new CSmplBitstreamWriter());
-        sts = writer->Init(m_InputParamsArray[i].strDstFile);
+        if (msdk_strncmp(MSDK_STRING("null"),
+                         m_InputParamsArray[i].strDstFile,
+                         msdk_strlen(MSDK_STRING("null")))) {
+            std::unique_ptr<CSmplBitstreamWriter> writer(new CSmplBitstreamWriter());
+            sts = writer->Init(m_InputParamsArray[i].strDstFile);
 
-        sts = m_pExtBSProcArray.back()->SetWriter(writer);
-        MSDK_CHECK_STATUS(sts, "m_pExtBSProcArray.back()->SetWriter failed");
+            sts = m_pExtBSProcArray.back()->SetWriter(writer);
+            MSDK_CHECK_STATUS(sts, "m_pExtBSProcArray.back()->SetWriter failed");
+        }
 
         if (Sink == m_InputParamsArray[i].eMode) {
             /* N_to_1 mode */
@@ -423,63 +431,33 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
         // if session has VPP plus ENCODE only (-i::source option)
         // use decode source session as input
         sts = MFX_ERR_MORE_DATA;
-        if (Source == m_InputParamsArray[i].eMode) {
-            sts = CheckAndFixAdapterDependency(i, pSinkPipeline);
-            MSDK_CHECK_STATUS(sts, "CheckAndFixAdapterDependency failed");
-            // force implementation type based on iGfx/dGfx parameters
-            if (sts == MFX_WRN_VIDEO_PARAM_CHANGED &&
-                m_InputParamsArray[i].libType != MFX_IMPL_SOFTWARE) {
-                if (m_InputParamsArray[i].dGfxIdx >= 0)
-                    m_pLoader->SetDiscreteAdapterIndex(m_InputParamsArray[i].dGfxIdx);
-                else
-                    m_pLoader->SetAdapterType(m_InputParamsArray[i].adapterType);
 
-                if (m_InputParamsArray[i].adapterNum >= 0)
-                    m_pLoader->SetAdapterNum(m_InputParamsArray[i].adapterNum);
+        auto pipeline = Source == m_InputParamsArray[i].eMode ? pSinkPipeline : pParentPipeline;
+        sts           = CheckAndFixAdapterDependency(i, pipeline);
+        MSDK_CHECK_STATUS(sts, "CheckAndFixAdapterDependency failed");
+        // force implementation type based on iGfx/dGfx parameters
+        if (sts == MFX_WRN_VIDEO_PARAM_CHANGED &&
+            m_InputParamsArray[i].libType != MFX_IMPL_SOFTWARE) {
+            if (m_InputParamsArray[i].dGfxIdx >= 0)
+                m_pLoader->SetDiscreteAdapterIndex(m_InputParamsArray[i].dGfxIdx);
+            else
+                m_pLoader->SetAdapterType(m_InputParamsArray[i].adapterType);
 
-                sts = m_pLoader->EnumImplementations();
-                MSDK_CHECK_STATUS(
-                    sts,
-                    "EnumImplementations(m_InputParamsArray[i].adapterType, m_InputParamsArray[i].dGfxIdx) failed");
-            }
-            sts = pThreadPipeline->pPipeline->Init(&m_InputParamsArray[i],
-                                                   m_pAllocArray[i].get(),
-                                                   hdls[i],
-                                                   pSinkPipeline,
-                                                   pBuffer,
-                                                   m_pExtBSProcArray.back().get(),
-                                                   m_pLoader.get(),
-                                                   CreateCascadeScalerConfig());
+            if (m_InputParamsArray[i].adapterNum >= 0)
+                m_pLoader->SetAdapterNum(m_InputParamsArray[i].adapterNum);
+
+            sts = m_pLoader->ConfigureAndEnumImplementations(m_InputParamsArray[i].libType,
+                                                             m_accelerationMode);
+            MSDK_CHECK_STATUS(sts, "ConfigureAndEnumImplementations failed");
         }
-        else {
-            sts = CheckAndFixAdapterDependency(i, pParentPipeline);
-            MSDK_CHECK_STATUS(sts, "CheckAndFixAdapterDependency failed");
-            // force implementation type based on iGfx/dGfx parameters
-            if (sts == MFX_WRN_VIDEO_PARAM_CHANGED &&
-                m_InputParamsArray[i].libType != MFX_IMPL_SOFTWARE) {
-                if (m_InputParamsArray[i].dGfxIdx >= 0)
-                    m_pLoader->SetDiscreteAdapterIndex(m_InputParamsArray[i].dGfxIdx);
-                else
-                    m_pLoader->SetAdapterType(m_InputParamsArray[i].adapterType);
-
-                if (m_InputParamsArray[i].adapterNum >= 0)
-                    m_pLoader->SetAdapterNum(m_InputParamsArray[i].adapterNum);
-
-                sts = m_pLoader->EnumImplementations();
-                MSDK_CHECK_STATUS(
-                    sts,
-                    "EnumImplementations(m_InputParamsArray[i].adapterType, m_InputParamsArray[i].dGfxIdx) failed");
-            }
-
-            sts = pThreadPipeline->pPipeline->Init(&m_InputParamsArray[i],
-                                                   m_pAllocArray[i].get(),
-                                                   hdls[i],
-                                                   pParentPipeline,
-                                                   pBuffer,
-                                                   m_pExtBSProcArray.back().get(),
-                                                   m_pLoader.get(),
-                                                   CreateCascadeScalerConfig());
-        }
+        sts = pThreadPipeline->pPipeline->Init(&m_InputParamsArray[i],
+                                               m_pAllocArray[i].get(),
+                                               hdls[i],
+                                               pipeline,
+                                               pBuffer,
+                                               m_pExtBSProcArray.back().get(),
+                                               m_pLoader.get(),
+                                               CreateCascadeScalerConfig());
 
         MSDK_CHECK_STATUS(sts, "pThreadPipeline->pPipeline->Init failed");
 

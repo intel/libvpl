@@ -301,7 +301,9 @@ mfxStatus CRegionEncodingPipeline::Init(sInputParams* pParams) {
         MSDK_CHECK_STATUS(sts, "m_resources.Init failed");
     }
 
-    mfxVersion version = m_pLoader->GetVersion(); // get real API version of the loaded library
+    mfxVersion version;
+    sts = m_mfxSession.QueryVersion(&version);
+    MSDK_CHECK_STATUS(sts, "m_mfxSession.QueryVersion failed");
 
     if ((pParams->MVC_flags & MVC_ENABLED) != 0 && !CheckVersion(&version, MSDK_FEATURE_MVC)) {
         msdk_printf(MSDK_STRING("error: MVC is not supported in the %d.%d API version\n"),
@@ -473,7 +475,7 @@ mfxStatus CRegionEncodingPipeline::Run() {
         MSDK_CHECK_ERROR(nEncSurfIdx, MSDK_INVALID_SURF_IDX, MFX_ERR_MEMORY_ALLOC);
 
         // point pSurf to encoder surface
-        pSurf                      = m_pEncSurfaces[nEncSurfIdx];
+        pSurf                      = &m_pEncSurfaces[nEncSurfIdx];
         pSurf->Info.FrameId.ViewId = currViewNum;
 
         m_statFile.StartTimeMeasurement();
@@ -513,7 +515,7 @@ mfxStatus CRegionEncodingPipeline::Run() {
                 m_bInsertIDR = false;
 
                 sts = m_resources[regId].pEncoder->EncodeFrameAsync(&pCurrentTask->encCtrl,
-                                                                    m_pEncSurfaces[nEncSurfIdx],
+                                                                    &m_pEncSurfaces[nEncSurfIdx],
                                                                     &pCurrentTask->mfxBS,
                                                                     &pCurrentTask->EncSyncP);
 

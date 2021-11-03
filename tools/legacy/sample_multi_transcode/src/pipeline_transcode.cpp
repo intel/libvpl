@@ -2075,44 +2075,46 @@ mfxStatus CTranscodingPipeline::Surface2BS(ExtendedSurface* pSurf,
         MSDK_CHECK_ERR_NONE_STATUS(sts, MFX_ERR_ABORTED, "SyncOperation failed");
         pSurf->Syncp = 0;
 
-        //--- Copying data from surface to bitstream
-        if (m_MemoryModel == GENERAL_ALLOC) {
-            sts = m_pMFXAllocator->Lock(m_pMFXAllocator->pthis,
-                                        pSurf->pSurface->Data.MemId,
-                                        &pSurf->pSurface->Data);
-            MSDK_CHECK_STATUS(sts, "m_pMFXAllocator->Lock failed");
-        }
-        else {
-            sts = pSurf->pSurface->FrameInterface->Map(pSurf->pSurface, MFX_MAP_READ);
-            MSDK_CHECK_STATUS(sts, "FrameInterface->Map failed");
-        }
+        if (!m_pBSProcessor->IsNulOutput()) {
+            //--- Copying data from surface to bitstream
+            if (m_MemoryModel == GENERAL_ALLOC) {
+                sts = m_pMFXAllocator->Lock(m_pMFXAllocator->pthis,
+                                            pSurf->pSurface->Data.MemId,
+                                            &pSurf->pSurface->Data);
+                MSDK_CHECK_STATUS(sts, "m_pMFXAllocator->Lock failed");
+            }
+            else {
+                sts = pSurf->pSurface->FrameInterface->Map(pSurf->pSurface, MFX_MAP_READ);
+                MSDK_CHECK_STATUS(sts, "FrameInterface->Map failed");
+            }
 
-        switch (fourCC) {
-            case 0: // Default value is MFX_FOURCC_I420
-            case MFX_FOURCC_I420:
-                sts = NV12asI420toBS(pSurf->pSurface, pBS);
-                break;
-            case MFX_FOURCC_NV12:
-                sts = NV12toBS(pSurf->pSurface, pBS);
-                break;
-            case MFX_FOURCC_RGB4:
-                sts = RGB4toBS(pSurf->pSurface, pBS);
-                break;
-            case MFX_FOURCC_YUY2:
-                sts = YUY2toBS(pSurf->pSurface, pBS);
-                break;
-        }
-        MSDK_CHECK_STATUS(sts, "<FourCC>toBS failed");
+            switch (fourCC) {
+                case 0: // Default value is MFX_FOURCC_I420
+                case MFX_FOURCC_I420:
+                    sts = NV12asI420toBS(pSurf->pSurface, pBS);
+                    break;
+                case MFX_FOURCC_NV12:
+                    sts = NV12toBS(pSurf->pSurface, pBS);
+                    break;
+                case MFX_FOURCC_RGB4:
+                    sts = RGB4toBS(pSurf->pSurface, pBS);
+                    break;
+                case MFX_FOURCC_YUY2:
+                    sts = YUY2toBS(pSurf->pSurface, pBS);
+                    break;
+            }
+            MSDK_CHECK_STATUS(sts, "<FourCC>toBS failed");
 
-        if (m_MemoryModel == GENERAL_ALLOC) {
-            sts = m_pMFXAllocator->Unlock(m_pMFXAllocator->pthis,
-                                          pSurf->pSurface->Data.MemId,
-                                          &pSurf->pSurface->Data);
-            MSDK_CHECK_STATUS(sts, "m_pMFXAllocator->Unlock failed");
-        }
-        else {
-            sts = pSurf->pSurface->FrameInterface->Unmap(pSurf->pSurface);
-            MSDK_CHECK_STATUS(sts, "FrameInterface->Unmap failed");
+            if (m_MemoryModel == GENERAL_ALLOC) {
+                sts = m_pMFXAllocator->Unlock(m_pMFXAllocator->pthis,
+                                              pSurf->pSurface->Data.MemId,
+                                              &pSurf->pSurface->Data);
+                MSDK_CHECK_STATUS(sts, "m_pMFXAllocator->Unlock failed");
+            }
+            else {
+                sts = pSurf->pSurface->FrameInterface->Unmap(pSurf->pSurface);
+                MSDK_CHECK_STATUS(sts, "FrameInterface->Unmap failed");
+            }
         }
     }
 
@@ -2540,7 +2542,9 @@ mfxStatus CTranscodingPipeline::InitEncMfxParams(sInputParams* pInParams) {
         (pInParams->nExtBRC &&
          (pInParams->EncodeId == MFX_CODEC_HEVC || pInParams->EncodeId == MFX_CODEC_AVC)) ||
         pInParams->IntRefType || pInParams->IntRefCycleSize || pInParams->IntRefQPDelta ||
-        pInParams->nMaxFrameSize || pInParams->AdaptiveI || pInParams->AdaptiveB) {
+        pInParams->nMaxFrameSize || pInParams->AdaptiveI || pInParams->AdaptiveB ||
+        pInParams->nMinQPI || pInParams->nMaxQPI || pInParams->nMinQPP || pInParams->nMaxQPP ||
+        pInParams->nMinQPB || pInParams->nMaxQPB) {
         auto co2            = m_mfxEncParams.AddExtBuffer<mfxExtCodingOption2>();
         co2->LookAheadDepth = pInParams->nLADepth;
         co2->MaxSliceSize   = pInParams->nMaxSliceSize;
@@ -2553,6 +2557,13 @@ mfxStatus CTranscodingPipeline::InitEncMfxParams(sInputParams* pInParams) {
         co2->IntRefQPDelta   = pInParams->IntRefQPDelta;
         co2->AdaptiveI       = pInParams->AdaptiveI;
         co2->AdaptiveB       = pInParams->AdaptiveB;
+
+        co2->MinQPI = pInParams->nMinQPI;
+        co2->MaxQPI = pInParams->nMaxQPI;
+        co2->MinQPP = pInParams->nMinQPP;
+        co2->MaxQPP = pInParams->nMaxQPP;
+        co2->MinQPB = pInParams->nMinQPB;
+        co2->MaxQPB = pInParams->nMaxQPB;
 
         if (pInParams->nExtBRC != EXTBRC_DEFAULT &&
             (pInParams->EncodeId == MFX_CODEC_HEVC || pInParams->EncodeId == MFX_CODEC_AVC)) {
@@ -2578,13 +2589,14 @@ mfxStatus CTranscodingPipeline::InitEncMfxParams(sInputParams* pInParams) {
     }
 
     if (pInParams->WeightedPred || pInParams->WeightedBiPred || pInParams->IntRefCycleDist ||
-        pInParams->nAdaptiveMaxFrameSize || pInParams->LowDelayBRC) {
+        pInParams->nAdaptiveMaxFrameSize || pInParams->LowDelayBRC || pInParams->nNumRefActiveP) {
         auto co3                  = m_mfxEncParams.AddExtBuffer<mfxExtCodingOption3>();
         co3->WeightedPred         = pInParams->WeightedPred;
         co3->WeightedBiPred       = pInParams->WeightedBiPred;
         co3->LowDelayBRC          = pInParams->LowDelayBRC;
         co3->IntRefCycleDist      = pInParams->IntRefCycleDist;
         co3->AdaptiveMaxFrameSize = pInParams->nAdaptiveMaxFrameSize;
+        std::fill(co3->NumRefActiveP, co3->NumRefActiveP + 8, pInParams->nNumRefActiveP);
     }
     if (pInParams->ExtBrcAdaptiveLTR) {
         auto co3               = m_mfxEncParams.AddExtBuffer<mfxExtCodingOption3>();
@@ -3882,10 +3894,10 @@ mfxStatus CTranscodingPipeline::CompleteInit() {
         mfxF64 frcFactor       = frOut / frIn;
         mfxU32 framesForEncode = std::min(mfxU32(std::ceil(m_MaxFramesForTranscode / frcFactor)),
                                           m_MaxFramesForTranscode);
-
-        m_pParentPipeline->m_MaxFramesForEncode =
-            std::max(m_pParentPipeline->m_MaxFramesForEncode,
-                     framesForEncode); // Inform decoder how many frames required by encode
+        if (m_pParentPipeline)
+            m_pParentPipeline->m_MaxFramesForEncode =
+                std::max(m_pParentPipeline->m_MaxFramesForEncode,
+                         framesForEncode); // Inform decoder how many frames required by encode
 
         if (m_bIsPlugin && m_bIsVpp)
             sts = m_pmfxVPP->InitMulti(&m_mfxPluginParams, &m_mfxVppParams);
@@ -3912,7 +3924,7 @@ mfxStatus CTranscodingPipeline::CompleteInit() {
 
     // Init encode
     if (m_pmfxENC.get()) {
-        if (!m_pmfxVPP.get())
+        if (!m_pmfxVPP.get() && m_pParentPipeline)
             m_pParentPipeline->m_MaxFramesForEncode = std::max(
                 m_pParentPipeline->m_MaxFramesForEncode,
                 m_MaxFramesForTranscode); // Inform decoder how many frames required by encode
@@ -4564,6 +4576,10 @@ mfxStatus FileBitstreamProcessor::ResetOutput() {
         m_pFileWriter->Reset();
     }
     return MFX_ERR_NONE;
+}
+
+bool FileBitstreamProcessor::IsNulOutput() {
+    return !m_pFileWriter.get();
 }
 
 void CTranscodingPipeline::ModifyParamsUsingPresets(sInputParams& params,

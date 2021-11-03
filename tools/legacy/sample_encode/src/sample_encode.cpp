@@ -321,14 +321,6 @@ void PrintHelp(msdk_char* strAppName, const msdk_char* strErrorMessage, ...) {
     msdk_printf(MSDK_STRING(
         "   [-preset <default,dss,conference,gaming>] - Use particular preset for encoding parameters\n"));
     msdk_printf(MSDK_STRING("   [-pp] - Print preset parameters\n"));
-    msdk_printf(MSDK_STRING("   [-MemModel::GeneralAlloc (default)]\n"));
-    msdk_printf(MSDK_STRING("        Force usage of:\n"));
-    msdk_printf(
-        MSDK_STRING("              External allocator in the case of video/system memory type\n"));
-    msdk_printf(
-        MSDK_STRING("              Internal allocator in the case of opaque memory type\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-MemModel::VisibleIntAlloc]   Force usage of internal allocation with manual surfaces control\n"));
 #if D3D_SURFACES_SUPPORT
     msdk_printf(MSDK_STRING("   [-d3d] - work with d3d surfaces\n"));
     msdk_printf(MSDK_STRING("   [-d3d11] - work with d3d11 surfaces\n"));
@@ -605,12 +597,6 @@ mfxStatus ParseAdditionalParams(msdk_char* strInput[],
         pParams->hyperMode  = MFX_HYPERMODE_ADAPTIVE;
     }
 #endif
-    else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-MemModel::GeneralAlloc"))) {
-        pParams->nMemoryModel = GENERAL_ALLOC;
-    }
-    else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-MemModel::VisibleIntAlloc"))) {
-        pParams->nMemoryModel = VISIBLE_INT_ALLOC;
-    }
     else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-icq"))) {
         pParams->nRateControlMethod = MFX_RATECONTROL_ICQ;
 
@@ -745,7 +731,7 @@ mfxStatus ParseInputString(msdk_char* strInput[], mfxU8 nArgNum, sInputParams* p
             pParams->adapterType = mfxMediaAdapterType::MFX_MEDIA_DISCRETE;
             if (i + 1 < nArgNum && isdigit(*strInput[1 + i])) {
                 if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->dGfxIdx)) {
-                    msdk_printf(MSDK_STRING("value of -dGfx is %s invalid\n"), strInput[i]);
+                    msdk_printf(MSDK_STRING("value of -dGfx is invalid\n"));
                     return MFX_ERR_UNSUPPORTED;
                 }
             }

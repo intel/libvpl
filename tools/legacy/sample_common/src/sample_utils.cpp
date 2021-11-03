@@ -1599,41 +1599,7 @@ void FreeSurfacePool(mfxFrameSurface1* pSurfacesPool, mfxU16 nPoolSize) {
     }
 }
 
-void FreeSurfacePool(mfxFrameSurface1** pSurfacesPool, mfxU16 nPoolSize) {
-    if (pSurfacesPool) {
-        for (mfxU16 i = 0; i < nPoolSize; i++) {
-            pSurfacesPool[i]->Data.Locked = 0;
-        }
-    }
-}
-
 mfxU16 GetFreeSurface(mfxFrameSurface1* pSurfacesPool, mfxU16 nPoolSize) {
-    mfxU32 SleepInterval = 10; // milliseconds
-
-    mfxU16 idx = MSDK_INVALID_SURF_IDX;
-
-    CTimer t;
-    t.Start();
-    //wait if there's no free surface
-    do {
-        idx = GetFreeSurfaceIndex(pSurfacesPool, nPoolSize);
-
-        if (MSDK_INVALID_SURF_IDX != idx) {
-            break;
-        }
-        else {
-            MSDK_SLEEP(SleepInterval);
-        }
-    } while (t.GetTime() < MSDK_SURFACE_WAIT_INTERVAL / 1000);
-
-    if (idx == MSDK_INVALID_SURF_IDX) {
-        msdk_printf(MSDK_STRING("ERROR: No free surfaces in pool (during long period)\n"));
-    }
-
-    return idx;
-}
-
-mfxU16 GetFreeSurface(mfxFrameSurface1** pSurfacesPool, mfxU16 nPoolSize) {
     mfxU32 SleepInterval = 10; // milliseconds
 
     mfxU16 idx = MSDK_INVALID_SURF_IDX;
