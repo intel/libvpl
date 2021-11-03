@@ -100,7 +100,7 @@ def main(args):
     sel_default = pyvpl.default_selector(opts)
 
     with pyvpl.raw_frame_file_reader_by_name(args.width, args.height,
-                                             pyvpl.color_format_fourcc.i420,
+                                             input_fourcc,
                                              args.input) as source:
         with open("out.h265", "wb") as sink:
 
