@@ -857,6 +857,8 @@ mfxStatus CIVFFrameWriter::WriteNextFrame(mfxBitstream* pMfxBitstream, bool isPr
         WriteFrameHeader();
 
         CSmplBitstreamWriter::WriteNextFrame(pMfxBitstream, isPrint);
+
+        m_frameNum++;
     }
 
     return MFX_ERR_NONE;

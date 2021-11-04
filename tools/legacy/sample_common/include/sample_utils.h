@@ -1346,6 +1346,9 @@ public:
                            const mfxU32 fr_denom);
     virtual mfxStatus WriteNextFrame(mfxBitstream* pMfxBitstream, bool isPrint = true);
     virtual void Close();
+    mfxU64 GetProcessedFrame() {
+        return m_frameNum;
+    }
 
 protected:
     /* 32 bytes for stream header

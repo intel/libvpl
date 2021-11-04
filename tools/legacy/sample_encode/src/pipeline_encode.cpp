@@ -1705,6 +1705,17 @@ mfxStatus CEncodingPipeline::InitEncFrameParams(sTask* pTask) {
 }
 
 void CEncodingPipeline::Close() {
+    if (m_IVFFileWriters.first) {
+        mfxU64 nFrames = (mfxU32)m_IVFFileWriters.first->GetProcessedFrame();
+
+        msdk_printf(MSDK_STRING("Frame number: %lld\r\n"), (long long int)nFrames);
+
+        mfxF64 ProcDeltaTime = m_statOverall.GetDeltaTime() - m_statFile.GetDeltaTime() -
+                               m_TaskPool.GetFileStatistics().GetDeltaTime();
+
+        msdk_printf(MSDK_STRING("Encoding fps: %.0f\n"), (double)(nFrames / ProcDeltaTime));
+    }
+
     if (m_FileWriters.first) {
         msdk_printf(MSDK_STRING("Frame number: %u\r\n"),
                     m_FileWriters.first->m_nProcessedFramesNum);
