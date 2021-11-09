@@ -81,7 +81,7 @@ if(DPCPP_COMPILER)
     else()
       message(WARNING "libva not found: building without libVA support")
     endif()
-    target_compile_options(${TARGET} PRIVATE -Wall -Wextra -pedantic -Werror)
+    target_compile_options(${TARGET} PRIVATE -Wall -Wextra -pedantic)
   endif()
 
   get_directory_property(has_parent PARENT_DIRECTORY)
