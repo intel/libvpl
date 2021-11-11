@@ -44,11 +44,6 @@ enum eMFXHWType {
 
     MFX_HW_JSL = 0x1500001,
     MFX_HW_EHL = 0x1500002,
-
-    MFX_HW_TGL_LP = 0x1600000,
-    MFX_HW_RKL    = MFX_HW_TGL_LP + 2,
-    MFX_HW_ADL_S  = MFX_HW_TGL_LP + 4,
-    MFX_HW_DG1    = 0x1600003,
 };
 
 enum eMFXGTConfig { MFX_GT_UNKNOWN = 0, MFX_GT1 = 1, MFX_GT2 = 2, MFX_GT3 = 3, MFX_GT4 = 4 };
@@ -365,44 +360,6 @@ static const mfx_device_item listLegalDevIDs[] = {
     { 0x4555, MFX_HW_EHL, MFX_GT2 },
     { 0x4569, MFX_HW_EHL, MFX_GT2 },
     { 0x4571, MFX_HW_EHL, MFX_GT2 },
-
-    /* TGL */
-    { 0x9A40, MFX_HW_TGL_LP, MFX_GT2 },
-    { 0x9A49, MFX_HW_TGL_LP, MFX_GT2 },
-    { 0x9A59, MFX_HW_TGL_LP, MFX_GT2 },
-    { 0x9A60, MFX_HW_TGL_LP, MFX_GT2 },
-    { 0x9A68, MFX_HW_TGL_LP, MFX_GT2 },
-    { 0x9A70, MFX_HW_TGL_LP, MFX_GT2 },
-    { 0x9A78, MFX_HW_TGL_LP, MFX_GT2 },
-    { 0x9AC0, MFX_HW_TGL_LP, MFX_GT2 },
-    { 0x9AC9, MFX_HW_TGL_LP, MFX_GT2 },
-    { 0x9AD9, MFX_HW_TGL_LP, MFX_GT2 },
-    { 0x9AF8, MFX_HW_TGL_LP, MFX_GT2 },
-
-    /* DG1/SG1 */
-    { 0x4905, MFX_HW_DG1, MFX_GT2 },
-    { 0x4906, MFX_HW_DG1, MFX_GT2 },
-    { 0x4907, MFX_HW_DG1, MFX_GT2 },
-    { 0x4908, MFX_HW_DG1, MFX_GT2 },
-
-    /* RKL */
-    { 0x4C80, MFX_HW_RKL, MFX_GT1 },
-    { 0x4C8A, MFX_HW_RKL, MFX_GT1 },
-    { 0x4C81, MFX_HW_RKL, MFX_GT1 },
-    { 0x4C8B, MFX_HW_RKL, MFX_GT1 },
-    { 0x4C90, MFX_HW_RKL, MFX_GT1 },
-    { 0x4C9A, MFX_HW_RKL, MFX_GT1 },
-
-    /* ADL */
-    { 0x4600, MFX_HW_ADL_S, MFX_GT1 }, //ADL-S
-    { 0x4680, MFX_HW_ADL_S, MFX_GT1 }, //ADL-S
-    { 0x4681, MFX_HW_ADL_S, MFX_GT1 }, //ADL-S
-    { 0x4683, MFX_HW_ADL_S, MFX_GT1 }, //ADL-S
-    { 0x4690, MFX_HW_ADL_S, MFX_GT1 }, //ADL-S
-    { 0x4691, MFX_HW_ADL_S, MFX_GT1 }, //ADL-S
-    { 0x4693, MFX_HW_ADL_S, MFX_GT1 }, //ADL-S
-    { 0x4698, MFX_HW_ADL_S, MFX_GT1 }, //ADL-S
-    { 0x4699, MFX_HW_ADL_S, MFX_GT1 }, //ADL-S
 };
 
 typedef struct {
@@ -457,9 +414,9 @@ static mfxStatus get_devices(std::vector<Device> &allDevices) {
         allDevices.emplace_back(device);
     }
 
-    // sort by device_id
+    // sort by platform, unknown will appear at beginning
     std::sort(allDevices.begin(), allDevices.end(), [](const Device &a, const Device &b) {
-        return a.device_id < b.device_id;
+        return a.platform < b.platform;
     });
 
     if (allDevices.size() == 0)

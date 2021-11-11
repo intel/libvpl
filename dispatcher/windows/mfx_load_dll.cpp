@@ -14,6 +14,7 @@
 #if defined(_WIN64)
 const wchar_t *const defaultDLLName[2]      = { L"libmfxhw64.dll", L"libvplswref64.dll" };
 const wchar_t *const defaultAudioDLLName[2] = { L"libmfxaudiosw64.dll", L"libmfxaudiosw64.dll" };
+const wchar_t *const defaultOneVPLDLLName   = { L"libmfx64-gen.dll" };
 
 const wchar_t *const defaultPluginDLLName[2] = { L"mfxplugin64_hw.dll", L"mfxplugin64_sw.dll" };
     #if defined(MEDIASDK_UWP_DISPATCHER)
@@ -24,6 +25,8 @@ const wchar_t *const IntelGFXAPIDLLName = { L"intel_gfx_api-x64.dll" };
 const wchar_t *const defaultDLLName[2] = { L"libmfxhw32.dll", L"libvplswref32.dll" };
 
 const wchar_t *const defaultAudioDLLName[2] = { L"libmfxaudiosw32.dll", L"libmfxaudiosw32.dll" };
+
+const wchar_t *const defaultOneVPLDLLName = { L"libmfx32-gen.dll" };
 
 const wchar_t *const defaultPluginDLLName[2] = { L"mfxplugin32_hw.dll", L"mfxplugin32_sw.dll" };
 
@@ -49,6 +52,20 @@ mfxStatus mfx_get_default_dll_name(wchar_t *pPath, size_t pathSize, eMfxImplType
     return MFX_ERR_NONE;
 #endif
 } // mfxStatus mfx_get_default_dll_name(wchar_t *pPath, size_t pathSize, eMfxImplType implType)
+
+mfxStatus mfx_get_default_onevpl_dll_name(wchar_t *pPath, size_t pathSize) {
+    if (!pPath) {
+        return MFX_ERR_NULL_PTR;
+    }
+
+    // there are only 2 implementation with default DLL names
+#if _MSC_VER >= 1400
+    return 0 == wcscpy_s(pPath, pathSize, defaultOneVPLDLLName) ? MFX_ERR_NONE : MFX_ERR_UNKNOWN;
+#else
+    wcscpy(pPath, defaultOneVPLDLLName);
+    return MFX_ERR_NONE;
+#endif
+} // mfxStatus mfx_get_default_onevpl_dll_name(wchar_t *pPath, size_t pathSize, eMfxImplType implType)
 
 #if defined(MEDIASDK_UWP_DISPATCHER)
 mfxStatus mfx_get_default_intel_gfx_api_dll_name(wchar_t *pPath, size_t pathSize) {

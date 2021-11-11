@@ -103,8 +103,19 @@ private:
 };
 
 static int HandleSort(const void *plhs, const void *prhs) {
-    const MFX_DISP_HANDLE_EX *lhs = *(const MFX_DISP_HANDLE_EX **)plhs;
-    const MFX_DISP_HANDLE_EX *rhs = *(const MFX_DISP_HANDLE_EX **)prhs;
+    const MFX_DISP_HANDLE_EX *lhs   = *(const MFX_DISP_HANDLE_EX **)plhs;
+    const MFX_DISP_HANDLE_EX *rhs   = *(const MFX_DISP_HANDLE_EX **)prhs;
+    const mfxVersion vplInitVersion = { 255, 1 };
+
+    // prefer oneVPL runtime (API = 1.255)
+    if ((lhs->actualApiVersion.Version == vplInitVersion.Version) &&
+        (rhs->actualApiVersion < lhs->actualApiVersion)) {
+        return -1;
+    }
+    if ((rhs->actualApiVersion.Version == vplInitVersion.Version) &&
+        (lhs->actualApiVersion < rhs->actualApiVersion)) {
+        return 1;
+    }
 
     // prefer HW implementation
     if (lhs->implType != MFX_LIB_HARDWARE && rhs->implType == MFX_LIB_HARDWARE) {

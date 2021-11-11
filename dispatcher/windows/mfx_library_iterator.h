@@ -23,15 +23,16 @@ namespace MFX {
 // declare desired storage ID
 enum {
 #if defined(MFX_TRACER_WA_FOR_DS)
-    MFX_UNKNOWN_KEY       = -1,
-    MFX_TRACER            = 0,
-    MFX_DRIVER_STORE      = 1,
-    MFX_CURRENT_USER_KEY  = 2,
-    MFX_LOCAL_MACHINE_KEY = 3,
-    MFX_APP_FOLDER        = 4,
-    MFX_PATH_MSDK_FOLDER  = 5,
-    MFX_STORAGE_ID_FIRST  = MFX_TRACER,
-    MFX_STORAGE_ID_LAST   = MFX_PATH_MSDK_FOLDER,
+    MFX_UNKNOWN_KEY                 = -1,
+    MFX_TRACER                      = 0,
+    MFX_DRIVER_STORE_ONEVPL_MFXINIT = 1,
+    MFX_DRIVER_STORE                = 2,
+    MFX_CURRENT_USER_KEY            = 3,
+    MFX_LOCAL_MACHINE_KEY           = 4,
+    MFX_APP_FOLDER                  = 5,
+    MFX_PATH_MSDK_FOLDER            = 6,
+    MFX_STORAGE_ID_FIRST            = MFX_TRACER,
+    MFX_STORAGE_ID_LAST             = MFX_PATH_MSDK_FOLDER,
 #else
     MFX_UNKNOWN_KEY       = -1,
     MFX_DRIVER_STORE      = 0,

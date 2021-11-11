@@ -233,7 +233,7 @@ mfxStatus MFXLibraryIterator::Init(eMfxImplType implType,
             return MFX_ERR_UNSUPPORTED;
         }
     }
-    else if (storageID == MFX_DRIVER_STORE_ONEVPL) {
+    else if (storageID == MFX_DRIVER_STORE_ONEVPL || storageID == MFX_DRIVER_STORE_ONEVPL_MFXINIT) {
         // get path to runtime directory only (without library name)
         m_driverStoreDir[0] = 0;
         if (!m_driverStoreLoader.GetDriverStorePath(m_driverStoreDir,
@@ -330,6 +330,9 @@ mfxStatus MFXLibraryIterator::InitFolder(eMfxImplType implType,
         // we looking for runtime in application folder, it should be named libmfxsw64 or libmfxsw32
         mfx_get_default_dll_name(m_path + pathLen, msdk_disp_path_len - pathLen, MFX_LIB_SOFTWARE);
     }
+    else if (storageID == MFX_DRIVER_STORE_ONEVPL_MFXINIT) {
+        mfx_get_default_onevpl_dll_name(m_path + pathLen, msdk_disp_path_len - pathLen);
+    }
     else {
         mfx_get_default_dll_name(m_path + pathLen, msdk_disp_path_len - pathLen, implType);
     }
@@ -355,7 +358,8 @@ mfxStatus MFXLibraryIterator::SelectDLLVersion(wchar_t *pPath,
         return MFX_ERR_NONE;
     }
 
-    if (m_StorageID == MFX_PATH_MSDK_FOLDER || m_StorageID == MFX_DRIVER_STORE) {
+    if (m_StorageID == MFX_PATH_MSDK_FOLDER || m_StorageID == MFX_DRIVER_STORE ||
+        m_StorageID == MFX_DRIVER_STORE_ONEVPL_MFXINIT) {
         if (m_lastLibIndex != 0)
             return MFX_ERR_NOT_FOUND;
         if (m_vendorID != INTEL_VENDOR_ID)

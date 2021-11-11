@@ -167,7 +167,7 @@ mfxStatus LoaderCtx::Init(mfxInitParam &par,
 
     std::vector<std::string> libs;
     std::vector<Device> devices;
-    eMFXHWType platform;
+    eMFXHWType msdk_platform;
 
     // query graphics device_id
     // if it is found on list of legacy devices, load MSDK RT
@@ -176,14 +176,14 @@ mfxStatus LoaderCtx::Init(mfxInitParam &par,
     mfx_res         = get_devices(devices);
     if (mfx_res == MFX_ERR_NOT_FOUND) {
         // query failed
-        platform = MFX_HW_UNKNOWN;
+        msdk_platform = MFX_HW_UNKNOWN;
     }
     else {
         // query succeeded:
         //   may be a valid platform from listLegalDevIDs[] or MFX_HW_UNKNOWN
         //   if underlying device_id is unrecognized (i.e. new platform)
-        platform = devices[0].platform;
-        deviceID = devices[0].device_id;
+        msdk_platform = devices[0].platform;
+        deviceID      = devices[0].device_id;
     }
 
     if (pDeviceID)
@@ -199,16 +199,15 @@ mfxStatus LoaderCtx::Init(mfxInitParam &par,
         // add HW lib
         if (implType == MFX_IMPL_AUTO || implType == MFX_IMPL_AUTO_ANY ||
             (implType & MFX_IMPL_HARDWARE) || (implType & MFX_IMPL_HARDWARE_ANY)) {
-            if (platform == MFX_HW_UNKNOWN) {
-                // use oneVPL
+            if (msdk_platform == MFX_HW_UNKNOWN) {
+                // if not on list of known MSDK platforms, prefer oneVPL
                 libs.emplace_back(ONEVPLHW);
                 libs.emplace_back(MFX_MODULES_DIR "/" ONEVPLHW);
             }
-            else {
-                // use MSDK
-                libs.emplace_back(LIBMFXHW);
-                libs.emplace_back(MFX_MODULES_DIR "/" LIBMFXHW);
-            }
+
+            // use MSDK (fallback if oneVPL is not installed)
+            libs.emplace_back(LIBMFXHW);
+            libs.emplace_back(MFX_MODULES_DIR "/" LIBMFXHW);
         }
 
         // add SW lib (oneVPL only)
