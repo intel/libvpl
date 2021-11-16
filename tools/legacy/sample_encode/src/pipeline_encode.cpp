@@ -752,6 +752,16 @@ mfxStatus CEncodingPipeline::InitMfxEncParams(sInputParams* pInParams) {
         }
     }
 
+    if (pInParams->nIVFHeader) {
+        if (MFX_CODEC_AV1 == pInParams->CodecId) {
+            auto av1BitstreamParam = m_mfxEncParams.AddExtBuffer<mfxExtAV1BitstreamParam>();
+            av1BitstreamParam->WriteIVFHeaders = pInParams->nIVFHeader;
+        }
+        else {
+            msdk_printf(MSDK_STRING("WARNING: -ivf:on/off, support AV1 only\n"));
+        }
+    }
+
     // JPEG encoder settings overlap with other encoders settings in mfxInfoMFX structure
     if (MFX_CODEC_JPEG == pInParams->CodecId) {
         m_mfxEncParams.mfx.Interleaved     = 1;

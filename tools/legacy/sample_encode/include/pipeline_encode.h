@@ -226,6 +226,8 @@ struct sInputParams {
 
     bool bSingleTexture;
 
+    mfxU16 nIVFHeader;
+
     msdk_char* RoundingOffsetFile;
     mfxU16 TargetBitDepthLuma;
     mfxU16 TargetBitDepthChroma;

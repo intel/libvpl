@@ -374,6 +374,7 @@ void PrintHelp(msdk_char* strAppName, const msdk_char* strErrorMessage, ...) {
     msdk_printf(MSDK_STRING(
         "   [-angle 180] - enables 180 degrees picture rotation before encoding, CPU implementation by default. Rotation requires NV12 input. Options -tff|bff, -dstw, -dsth, -d3d are not effective together with this one, -nv12 is required.\n"));
     msdk_printf(MSDK_STRING("   [-opencl] - rotation implementation through OPENCL\n"));
+    msdk_printf(MSDK_STRING("   [-ivf:<on,off>] - Turn IVF header on/off\n\n"));
     msdk_printf(
         MSDK_STRING(
             "Example: %s h264|h265|mpeg2|mvc|jpeg -i InputYUVFile -o OutputEncodedFile -w width -h height -angle 180 -opencl \n"),
@@ -645,6 +646,12 @@ mfxStatus ParseAdditionalParams(msdk_char* strInput[],
     }
     else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-TransformSkip:off"))) {
         pParams->nTransformSkip = MFX_CODINGOPTION_OFF;
+    }
+    else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-ivf:on"))) {
+        pParams->nIVFHeader = MFX_CODINGOPTION_ON;
+    }
+    else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-ivf:off"))) {
+        pParams->nIVFHeader = MFX_CODINGOPTION_OFF;
     }
     else {
         return MFX_ERR_NOT_FOUND;
