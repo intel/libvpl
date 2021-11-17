@@ -2673,6 +2673,10 @@ mfxStatus CTranscodingPipeline::InitEncMfxParams(sInputParams* pInParams) {
         m_mfxEncParams.mfx.InitialDelayInKB = pInParams->InitialDelayInKB;
     }
 
+    if (pInParams->nBitRateMultiplier) {
+        m_mfxEncParams.mfx.BRCParamMultiplier = pInParams->nBitRateMultiplier;
+    }
+
 #if (defined(_WIN64) || defined(_WIN32))
     if (pInParams->isDualMode) {
         auto hyperEncodeParam  = m_mfxEncParams.AddExtBuffer<mfxExtHyperModeParam>();

@@ -190,7 +190,7 @@ struct __sInputParams {
     mfxF64 dEncoderFrameRateOverride;
     mfxU16 EncoderPicstructOverride;
     mfxF64 dVPPOutFramerate;
-    mfxU16 nBitRate;
+    mfxU32 nBitRate;
     mfxU16 nBitRateMultiplier;
     mfxU16 nQuality; // quality parameter for JPEG encoder
     mfxU16 nDstWidth; // destination picture width, specified if resizing required
@@ -225,7 +225,7 @@ struct __sInputParams {
 
     mfxU16 WinBRCMaxAvgKbps;
     mfxU16 WinBRCSize;
-    mfxU16 BufferSizeInKB;
+    mfxU32 BufferSizeInKB;
     mfxU16 GopPicSize;
     mfxU16 GopRefDist;
     mfxU16 NumRefFrame;
@@ -237,8 +237,8 @@ struct __sInputParams {
 
     mfxU16 CodecLevel;
     mfxU16 CodecProfile;
-    mfxU16 MaxKbps;
-    mfxU16 InitialDelayInKB;
+    mfxU32 MaxKbps;
+    mfxU32 InitialDelayInKB;
     mfxU16 GopOptFlag;
     mfxU16 AdaptiveI;
     mfxU16 AdaptiveB;

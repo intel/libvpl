@@ -31,6 +31,7 @@
 #include <cstring>
 #include <fstream>
 #include <iterator>
+#include <limits>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -2860,6 +2861,39 @@ mfxStatus CmdProcessor::VerifyAndCorrectInputParams(TranscodingSample::sInputPar
     if (InputParams.forceSyncAllSession && InputParams.nMemoryModel == GENERAL_ALLOC) {
         msdk_printf(MSDK_STRING(
             "WARNING: forceSyncAllSession option is not valid for general memory type, this parameter will be ignored.\n"));
+    }
+
+    mfxU16 mfxU16Limit = std::numeric_limits<mfxU16>::max();
+    if (InputParams.MaxKbps > mfxU16Limit || InputParams.nBitRate > mfxU16Limit ||
+        InputParams.InitialDelayInKB > mfxU16Limit || InputParams.BufferSizeInKB > mfxU16Limit) {
+        mfxU32 maxVal = std::max<mfxU32>({ InputParams.MaxKbps,
+                                           InputParams.nBitRate,
+                                           InputParams.InitialDelayInKB,
+                                           InputParams.BufferSizeInKB });
+        InputParams.nBitRateMultiplier =
+            (mfxU16)std::ceil(static_cast<double>(maxVal) / mfxU16Limit);
+        msdk_printf(MSDK_STRING("WARNING: BitRateMultiplier(-bm) was updated, new value: %d. \n"),
+                    InputParams.nBitRateMultiplier);
+
+        auto recalculate = [mfxU16Limit, InputParams](mfxU32& param, std::string paramName) {
+            if (param) {
+                if (param > mfxU16Limit) {
+                    msdk_printf(MSDK_STRING("WARNING: %s (%d) > allow limit (%d). \n"),
+                                paramName.c_str(),
+                                param,
+                                mfxU16Limit);
+                }
+                param = param / InputParams.nBitRateMultiplier;
+                msdk_printf(MSDK_STRING("WARNING: %s was updated, new value: %d. \n"),
+                            paramName.c_str(),
+                            param);
+            }
+        };
+
+        recalculate(InputParams.MaxKbps, "MaxKbps");
+        recalculate(InputParams.nBitRate, "nBitRate(-b)");
+        recalculate(InputParams.InitialDelayInKB, "InitialDelayInKB");
+        recalculate(InputParams.BufferSizeInKB, "BufferSizeInKB");
     }
 
     return MFX_ERR_NONE;

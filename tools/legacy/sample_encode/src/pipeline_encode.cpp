@@ -440,12 +440,13 @@ mfxStatus CEncodingPipeline::InitMfxEncParams(sInputParams* pInParams) {
     m_mfxEncParams.mfx.NumRefFrame       = pInParams->nNumRefFrame;
     m_mfxEncParams.mfx.IdrInterval       = pInParams->nIdrInterval;
 
-    m_mfxEncParams.mfx.CodecProfile     = pInParams->CodecProfile;
-    m_mfxEncParams.mfx.CodecLevel       = pInParams->CodecLevel;
-    m_mfxEncParams.mfx.MaxKbps          = pInParams->MaxKbps;
-    m_mfxEncParams.mfx.InitialDelayInKB = pInParams->InitialDelayInKB;
-    m_mfxEncParams.mfx.GopOptFlag       = pInParams->GopOptFlag;
-    m_mfxEncParams.mfx.BufferSizeInKB   = pInParams->BufferSizeInKB;
+    m_mfxEncParams.mfx.CodecProfile       = pInParams->CodecProfile;
+    m_mfxEncParams.mfx.CodecLevel         = pInParams->CodecLevel;
+    m_mfxEncParams.mfx.MaxKbps            = pInParams->MaxKbps;
+    m_mfxEncParams.mfx.InitialDelayInKB   = pInParams->InitialDelayInKB;
+    m_mfxEncParams.mfx.GopOptFlag         = pInParams->GopOptFlag;
+    m_mfxEncParams.mfx.BufferSizeInKB     = pInParams->BufferSizeInKB;
+    m_mfxEncParams.mfx.BRCParamMultiplier = pInParams->nBitRateMultiplier;
 
     if (m_mfxEncParams.mfx.RateControlMethod == MFX_RATECONTROL_CQP) {
         m_mfxEncParams.mfx.QPI = pInParams->nQPI;
