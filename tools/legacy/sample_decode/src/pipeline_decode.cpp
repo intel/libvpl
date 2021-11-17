@@ -469,6 +469,14 @@ bool CDecodingPipeline::IsVppRequired(sInputParams* pParams) {
     if (pParams->eDeinterlace) {
         bVppIsUsed = true;
     }
+
+    if ((MODE_DECODER_POSTPROC_AUTO == pParams->nDecoderPostProcessing) ||
+        (MODE_DECODER_POSTPROC_FORCE == pParams->nDecoderPostProcessing)) {
+        /* Decoder will make decision about internal post-processing usage slightly later */
+        if ((pParams->videoType == MFX_CODEC_AVC) || (pParams->videoType == MFX_CODEC_HEVC))
+            bVppIsUsed = false;
+    }
+
     return bVppIsUsed;
 }
 
@@ -672,6 +680,8 @@ mfxStatus CDecodingPipeline::InitMfxParams(sInputParams* pParams) {
     if (!m_bVppIsUsed) {
         if ((m_mfxVideoParams.mfx.FrameInfo.CropW != pParams->Width && pParams->Width) ||
             (m_mfxVideoParams.mfx.FrameInfo.CropH != pParams->Height && pParams->Height) ||
+            (pParams->nDecoderPostProcessing && pParams->videoType == MFX_CODEC_AVC) ||
+            (pParams->nDecoderPostProcessing && pParams->videoType == MFX_CODEC_HEVC) ||
             (pParams->nDecoderPostProcessing && pParams->videoType == MFX_CODEC_JPEG &&
              pParams->fourcc == MFX_FOURCC_RGB4 &&
              // No need to use decoder's post processing for decoding of JPEG with RGB 4:4:4
@@ -685,9 +695,9 @@ mfxStatus CDecodingPipeline::InitMfxParams(sInputParams* pParams) {
             if (((MODE_DECODER_POSTPROC_AUTO == pParams->nDecoderPostProcessing) ||
                  (MODE_DECODER_POSTPROC_FORCE == pParams->nDecoderPostProcessing)) &&
                 (MFX_CODEC_AVC == m_mfxVideoParams.mfx.CodecId ||
-                 MFX_CODEC_JPEG == m_mfxVideoParams.mfx.CodecId || /* Only for AVC */
-                 MFX_CODEC_HEVC == m_mfxVideoParams.mfx.CodecId || /* Only for AVC */
-                 MFX_CODEC_VP9 == m_mfxVideoParams.mfx.CodecId || /* and HEVC */
+                 MFX_CODEC_JPEG == m_mfxVideoParams.mfx.CodecId ||
+                 MFX_CODEC_HEVC == m_mfxVideoParams.mfx.CodecId ||
+                 MFX_CODEC_VP9 == m_mfxVideoParams.mfx.CodecId ||
                  MFX_CODEC_AV1 == m_mfxVideoParams.mfx.CodecId) &&
                 (MFX_PICSTRUCT_PROGRESSIVE ==
                  m_mfxVideoParams.mfx.FrameInfo.PicStruct)) /* ...And only for progressive!*/
@@ -711,12 +721,69 @@ mfxStatus CDecodingPipeline::InitMfxParams(sInputParams* pParams) {
 
                 decPostProcessing->Out.FourCC       = m_mfxVideoParams.mfx.FrameInfo.FourCC;
                 decPostProcessing->Out.ChromaFormat = m_mfxVideoParams.mfx.FrameInfo.ChromaFormat;
-                decPostProcessing->Out.Width        = MSDK_ALIGN16(pParams->Width);
-                decPostProcessing->Out.Height       = MSDK_ALIGN16(pParams->Height);
-                decPostProcessing->Out.CropX        = 0;
-                decPostProcessing->Out.CropY        = 0;
-                decPostProcessing->Out.CropW        = pParams->Width;
-                decPostProcessing->Out.CropH        = pParams->Height;
+
+                if (pParams->videoType == MFX_CODEC_AVC || pParams->videoType == MFX_CODEC_HEVC) {
+                    switch (pParams->fourcc) {
+                        case MFX_FOURCC_RGB4:
+                            decPostProcessing->Out.FourCC       = MFX_FOURCC_RGB4;
+                            decPostProcessing->Out.ChromaFormat = MFX_CHROMAFORMAT_YUV444;
+                            break;
+
+                        case MFX_FOURCC_NV12:
+                            decPostProcessing->Out.FourCC       = MFX_FOURCC_NV12;
+                            decPostProcessing->Out.ChromaFormat = MFX_CHROMAFORMAT_YUV420;
+                            break;
+
+                        case MFX_FOURCC_P010:
+                            decPostProcessing->Out.FourCC       = MFX_FOURCC_P010;
+                            decPostProcessing->Out.ChromaFormat = MFX_CHROMAFORMAT_YUV420;
+                            break;
+
+                        case MFX_FOURCC_P016:
+                            decPostProcessing->Out.FourCC       = MFX_FOURCC_P016;
+                            decPostProcessing->Out.ChromaFormat = MFX_CHROMAFORMAT_YUV420;
+                            break;
+
+                        case MFX_FOURCC_YUY2:
+                            decPostProcessing->Out.FourCC       = MFX_FOURCC_YUY2;
+                            decPostProcessing->Out.ChromaFormat = MFX_CHROMAFORMAT_YUV422;
+                            break;
+
+                        case MFX_FOURCC_Y210:
+                            decPostProcessing->Out.FourCC       = MFX_FOURCC_Y210;
+                            decPostProcessing->Out.ChromaFormat = MFX_CHROMAFORMAT_YUV422;
+                            break;
+
+                        case MFX_FOURCC_Y216:
+                            decPostProcessing->Out.FourCC       = MFX_FOURCC_Y216;
+                            decPostProcessing->Out.ChromaFormat = MFX_CHROMAFORMAT_YUV422;
+                            break;
+
+                        case MFX_FOURCC_AYUV:
+                            decPostProcessing->Out.FourCC       = MFX_FOURCC_AYUV;
+                            decPostProcessing->Out.ChromaFormat = MFX_CHROMAFORMAT_YUV444;
+                            break;
+
+                        case MFX_FOURCC_Y410:
+                            decPostProcessing->Out.FourCC       = MFX_FOURCC_Y410;
+                            decPostProcessing->Out.ChromaFormat = MFX_CHROMAFORMAT_YUV444;
+                            break;
+
+                        case MFX_FOURCC_Y416:
+                            decPostProcessing->Out.FourCC       = MFX_FOURCC_Y416;
+                            decPostProcessing->Out.ChromaFormat = MFX_CHROMAFORMAT_YUV444;
+                            break;
+
+                        default:
+                            break;
+                    }
+                }
+                decPostProcessing->Out.Width  = MSDK_ALIGN16(pParams->Width);
+                decPostProcessing->Out.Height = MSDK_ALIGN16(pParams->Height);
+                decPostProcessing->Out.CropX  = 0;
+                decPostProcessing->Out.CropY  = 0;
+                decPostProcessing->Out.CropW  = pParams->Width;
+                decPostProcessing->Out.CropH  = pParams->Height;
 
                 msdk_printf(MSDK_STRING("Decoder's post-processing is used for resizing\n"));
             }
