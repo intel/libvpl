@@ -1853,8 +1853,9 @@ mfxStatus CEncodingPipeline::ResetMFXComponents(sInputParams* pParams) {
         MSDK_CHECK_STATUS(sts, "m_pmfxVPP->Init failed");
     }
 
-    mfxU32 nEncodedDataBufferSize =
-        m_mfxEncParams.mfx.FrameInfo.Width * m_mfxEncParams.mfx.FrameInfo.Height * 4;
+    mfxU32 nEncodedDataBufferSize = GetSufficientBufferSize();
+    if (nEncodedDataBufferSize == 0)
+        MSDK_CHECK_STATUS(MFX_ERR_UNKNOWN, "ERROR: GetSufficientBufferSize failed");
 
     void* fw_First  = m_FileWriters.first;
     void* fw_Second = m_FileWriters.second;
@@ -1904,17 +1905,44 @@ mfxStatus CEncodingPipeline::OpenRoundingOffsetFile(sInputParams* pInParams) {
 
     return MFX_ERR_NONE;
 }
-mfxStatus CEncodingPipeline::AllocateSufficientBuffer(mfxBitstreamWrapper& bs) {
-    MSDK_CHECK_POINTER(GetFirstEncoder(), MFX_ERR_NOT_INITIALIZED);
+
+mfxU32 CEncodingPipeline::GetSufficientBufferSize() {
+    if (!GetFirstEncoder()) {
+        msdk_printf(MSDK_STRING("ERROR: GetFirstEncoder() fail \n"));
+        return 0;
+    }
 
     mfxVideoParam par;
     MSDK_ZERO_MEMORY(par);
 
     // find out the required buffer size
     mfxStatus sts = GetFirstEncoder()->GetVideoParam(&par);
-    MSDK_CHECK_STATUS(sts, "GetFirstEncoder failed");
 
-    bs.Extend(par.mfx.BufferSizeInKB * 1000);
+    if (sts < MFX_ERR_NONE) {
+        MSDK_CHECK_STATUS_NO_RET(sts, "ERROR: GetVideoParam() fail")
+        return 0;
+    }
+
+    mfxU32 new_size = 0;
+    if (par.mfx.CodecId == MFX_CODEC_JPEG) {
+        new_size = 4 + (par.mfx.FrameInfo.Width * par.mfx.FrameInfo.Height * 3 + 1023);
+    }
+    else {
+        // temp solution for cpu (sw lib)
+        mfxU16 tempBRCParamMultiplier =
+            par.mfx.BRCParamMultiplier == 0 ? 1 : par.mfx.BRCParamMultiplier;
+        new_size = par.mfx.BufferSizeInKB * tempBRCParamMultiplier * 1000u;
+    }
+
+    return new_size;
+}
+
+mfxStatus CEncodingPipeline::AllocateSufficientBuffer(mfxBitstreamWrapper& bs) {
+    mfxU32 new_size = GetSufficientBufferSize();
+    if (new_size == 0)
+        MSDK_CHECK_STATUS(MFX_ERR_UNKNOWN, "ERROR: GetSufficientBufferSize failed");
+
+    bs.Extend(new_size);
 
     return MFX_ERR_NONE;
 }

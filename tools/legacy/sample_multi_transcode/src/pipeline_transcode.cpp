@@ -4322,21 +4322,15 @@ mfxStatus CTranscodingPipeline::AllocateSufficientBuffer(mfxBitstreamWrapper* pB
 
     mfxU32 new_size = 0;
 
-    // if encoder provided us information about buffer size
-    if (0 != par.mfx.BufferSizeInKB) {
-        //--- If value calculated basing on par.mfx.BufferSizeInKB is too low, just double the buffer size
-        new_size = par.mfx.BufferSizeInKB * 1000u > pBS->MaxLength ? par.mfx.BufferSizeInKB * 1000u
-                                                                   : pBS->MaxLength * 2;
+    if (par.mfx.CodecId == MFX_CODEC_JPEG) {
+        new_size = 4 + (par.mfx.FrameInfo.Width * par.mfx.FrameInfo.Height * 3 + 1023);
     }
     else {
-        // trying to guess the size (e.g. for JPEG encoder)
-        new_size = (0 == pBS->MaxLength)
-                       // some heuristic init value
-                       ? 4 + (par.mfx.FrameInfo.Width * par.mfx.FrameInfo.Height * 3 + 1023)
-                       // double existing size
-                       : 2 * pBS->MaxLength;
+        // temp solution for cpu (sw lib)
+        mfxU16 tempBRCParamMultiplier =
+            par.mfx.BRCParamMultiplier == 0 ? 1 : par.mfx.BRCParamMultiplier;
+        new_size = par.mfx.BufferSizeInKB * tempBRCParamMultiplier * 1000u;
     }
-
     pBS->Extend(new_size);
 
     return MFX_ERR_NONE;
