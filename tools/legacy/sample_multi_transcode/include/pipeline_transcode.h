@@ -171,7 +171,6 @@ struct __sInputParams {
     mfxI32 dGfxIdx;
     mfxI32 adapterNum;
 
-    bool bIsPerf; // special performance mode. Use pre-allocated bitstreams, output
     mfxU16 nThreadsNum; // number of internal session threads number
     bool bRobustFlag; // Robust transcoding mode. Allows auto-recovery after hardware errors
     bool bSoftRobustFlag;

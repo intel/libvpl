@@ -224,7 +224,10 @@ void TranscodingSample::PrintHelp() {
 
     msdk_printf(
         MSDK_STRING("  -MemType::video    Force usage of external video allocator (default)\n"));
+    msdk_printf(
+        MSDK_STRING("  -ext_allocator     Force usage of external video allocator (default)\n"));
     msdk_printf(MSDK_STRING("  -MemType::system   Force usage of external system allocator\n"));
+    msdk_printf(MSDK_STRING("  -sys   Force usage of external system allocator\n"));
     msdk_printf(MSDK_STRING("  -MemType::opaque   Force usage of internal allocator\n"));
     msdk_printf(MSDK_STRING("  -MemModel::GeneralAlloc (default)\n"));
     msdk_printf(MSDK_STRING("        Force usage of:\n"));
@@ -236,6 +239,9 @@ void TranscodingSample::PrintHelp() {
         "  -MemModel::VisibleIntAlloc   Force usage of internal allocation with manual surfaces control\n"));
     msdk_printf(MSDK_STRING(
         "  -MemModel::HiddenIntAlloc    Force usage of internal allocation without manual surfaces control\n"));
+    msdk_printf(MSDK_STRING("  -memory [1/2/3]\n"));
+    msdk_printf(
+        MSDK_STRING("  1 - GeneralAlloc(default), 2 - VisibleIntAlloc, 3 - HiddenIntAlloc \n"));
     msdk_printf(MSDK_STRING(
         "  -AllocPolicy::optimal       Force optimal allocation policy for surface pool\n"));
     msdk_printf(MSDK_STRING(
@@ -367,6 +373,8 @@ void TranscodingSample::PrintHelp() {
     msdk_printf(MSDK_STRING(
         "  -lowpower:<on,off>       Turn this option ON to enable QuickSync Fixed Function (low-power HW) encoding mode\n"));
     msdk_printf(MSDK_STRING(
+        "  -qsv-ff                  Turn option lowpower ON to enable QuickSync Fixed Function (low-power HW) encoding mode\n"));
+    msdk_printf(MSDK_STRING(
         "   [-TargetBitDepthLuma] - Encoding target bit depth for luma samples, by default same as source one.\n"));
     msdk_printf(MSDK_STRING(
         "   [-TargetBitDepthChroma] - Encoding target bit depth for chroma samples, by default same as source one.\n"));
@@ -424,9 +432,9 @@ void TranscodingSample::PrintHelp() {
         MSDK_STRING("  -FRC::INTERP  Enables FRC filter with Frame Interpolation algorithm\n"));
     msdk_printf(MSDK_STRING("  -scaling_mode <mode> Specifies scaling mode (lowpower/quality)\n"));
     msdk_printf(MSDK_STRING(
-        "  -ec::nv12|rgb4|yuy2|nv16|p010|p210|y210|y410|p016|y216|y416   Forces encoder input to use provided chroma mode\n"));
+        "  -ec::nv12|rgb4|yuy2|nv16|p010|p210|y210|y410|p016|y216   Forces encoder input to use provided chroma mode\n"));
     msdk_printf(MSDK_STRING(
-        "  -dc::nv12|rgb4|yuy2|p010|y210|y410|p016|y216   Forces decoder output to use provided chroma mode\n"));
+        "  -dc::nv12|rgb4|yuy2|p010|y210|y410|p016|y216|y416   Forces decoder output to use provided chroma mode\n"));
     msdk_printf(MSDK_STRING(
         "     NOTE: chroma transform VPP may be automatically enabled if -ec/-dc parameters are provided\n"));
     msdk_printf(MSDK_STRING(
@@ -468,6 +476,8 @@ void TranscodingSample::PrintHelp() {
     msdk_printf(MSDK_STRING(
         "  -vpp_comp_num_tiles <Num>   Quantity of tiles for composition. if equal to 0 tiles processing ignored\n"));
     msdk_printf(MSDK_STRING(
+        "  -vpp_comp_render            Set pipeline mode when pipeline makes vpp composition + encode and get data from shared buffer\n"));
+    msdk_printf(MSDK_STRING(
         "  -vpp_comp_dst_x             X position of this stream in composed stream (should be used in decoder session)\n"));
     msdk_printf(MSDK_STRING(
         "  -vpp_comp_dst_y             Y position of this stream in composed stream (should be used in decoder session)\n"));
@@ -504,6 +514,19 @@ void TranscodingSample::PrintHelp() {
         "                              Opion is ON by default for -MemModel::VisibleIntAlloc/HiddenIntAlloc(-memory 2/3) and 1->N scenarios"));
     msdk_printf(MSDK_STRING(
         "                              Option is not intended for -memory 1 and for transcoding scenarios  \n"));
+    msdk_printf(MSDK_STRING(
+        "   -dump [fileName]         - dump MSDK components configuration to the file in text form\n"));
+    msdk_printf(MSDK_STRING("   -cs                      - turn on cascade scaling\n"));
+    msdk_printf(MSDK_STRING("   -trace                   - turn on tracing \n"));
+#if defined(LIBVA_X11_SUPPORT)
+    msdk_printf(MSDK_STRING("   -rx11                    - use libva X11 backend \n"));
+#endif
+#if defined(LIBVA_WAYLAND_SUPPORT)
+    msdk_printf(MSDK_STRING("   -rwld                    - use libva WAYLAND backend \n"));
+#endif
+#if defined(LIBVA_DRM_SUPPORT)
+    msdk_printf(MSDK_STRING("   -rdrm                    - use libva DRM backend \n"));
+#endif
     msdk_printf(MSDK_STRING("\n"));
     msdk_printf(MSDK_STRING("ParFile format:\n"));
     msdk_printf(MSDK_STRING(
@@ -1877,9 +1900,6 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             InputParams.strDevicePath = argv[++i];
         }
 #endif
-        else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-perf_opt"))) {
-            InputParams.bIsPerf = true;
-        }
         else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-robust"))) {
             InputParams.bRobustFlag = true;
         }
