@@ -209,7 +209,7 @@ end:
     if (bitstream.Data)
         free(bitstream.Data);
 
-    if (encSurfPool) {
+    if (encSurfPool || encOutBuf) {
         FreeExternalSystemMemorySurfacePool(encOutBuf, encSurfPool);
     }
 

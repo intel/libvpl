@@ -74,7 +74,12 @@ mfxFrameInfo GetFrameInfo(const MfxVideoParamsWrapper& param) {
 }
 
 // set structure to define values
-sInputParams::sInputParams() : __sInputParams() {
+sInputParams::sInputParams()
+        : __sInputParams(),
+          DumpLogFileName(),
+          m_ROIData(),
+          bDecoderPostProcessing(false),
+          bROIasQPMAP(false) {
 #ifdef ENABLE_MCTF
     mctfParam.mode                  = VPP_FILTER_DISABLED;
     mctfParam.params.FilterStrength = 0;
@@ -105,9 +110,6 @@ sInputParams::sInputParams() : __sInputParams() {
     numMFEFrames = 0;
     mfeTimeout   = 0;
 
-    bDecoderPostProcessing = false;
-    bROIasQPMAP            = false;
-
     forceSyncAllSession = MFX_CODINGOPTION_UNKNOWN;
 
     bEmbeddedDenoiser = false;
@@ -116,78 +118,116 @@ sInputParams::sInputParams() : __sInputParams() {
 
 CTranscodingPipeline::CTranscodingPipeline()
         : m_pmfxBS(NULL),
+          m_Version({ 0 }),
+          m_mfxLoader(),
+          m_pmfxCSSession(),
+          m_pmfxCSVPP(),
+          m_pmfxSession(),
+          m_pmfxDEC(),
+          m_pmfxENC(),
+          m_pmfxVPP(),
+          m_mfxDecResponse({ 0 }),
+          m_mfxEncResponse({ 0 }),
           m_pMFXAllocator(NULL),
           m_hdl(NULL),
+          m_bIsInterOrJoined(false),
+          m_numEncoders(0),
           m_encoderFourCC(0),
+          m_dumpVppCompFileWriter(),
           m_vppCompDumpRenderMode(0),
           m_hwdev4Rendering(NULL),
+          m_pSurfaceDecPool(),
+          m_pSurfaceEncPool(),
+          m_DecOutAllocReques({ 0 }),
+          m_VPPOutAllocReques({ 0 }),
+          m_CSSurfacePools(),
           m_EncSurfaceType(0),
           m_DecSurfaceType(0),
+          m_pPreEncAuxPool(),
+          m_BSPool(),
+          m_initPar(),
+          m_bForceStop(false),
+          m_forceSyncAllSession(false),
+          m_pSurfaceUtilizationSynchronizer(),
+          m_decoderPluginParams(),
+          m_encoderPluginParams(),
+          m_mfxDecParams(),
+          m_mfxEncParams(),
+          m_mfxVppParams(),
+          m_mfxCSVppParams(),
+          m_mfxPluginParams(),
           m_bIsVpp(false),
+          m_bIsFieldWeaving(false),
+          m_bIsFieldSplitting(false),
           m_bIsPlugin(false),
+          m_RotateParam({ 0 }),
+          m_mfxPreEncParams(),
           m_nTimeout(0),
+          m_bUseOverlay(false),
+          m_bROIasQPMAP(false),
+          m_bExtMBQP(false),
           m_bOwnMVCSeqDescMemory(true),
+          m_tabDoUseAlg{ 0 },
           m_nID(0),
           m_AsyncDepth(0),
           m_nProcessedFramesNum(0),
           m_bIsJoinSession(false),
+          m_bAllocHint(),
+          m_nPreallocate(),
           m_bDecodeEnable(true),
           m_bEncodeEnable(true),
           m_nVPPCompEnable(0),
+          m_libvaBackend(0),
           m_MemoryModel(UNKNOWN_ALLOC),
           m_LastDecSyncPoint(0),
           m_pBuffer(NULL),
           m_pParentPipeline(NULL),
+          m_Request({ 0 }),
           m_bIsInit(false),
           m_NumFramesForReset(0),
+          m_mReset(),
+          m_mStopSession(),
+          m_bRobustFlag(false),
+          m_bSoftGpuHangRecovery(false),
           isHEVCSW(false),
           m_bInsertIDR(false),
           m_rawInput(false),
+          m_pBSStore(),
           m_FrameNumberPreference(0xFFFFFFFF),
           m_MaxFramesForTranscode(0xFFFFFFFF),
           m_MaxFramesForEncode(0),
           m_pBSProcessor(NULL),
           m_nReqFrameTime(0),
+          statisticsWindowSize(0),
           m_nOutputFramesNum(0),
+          inputStatistics(),
+          outputStatistics(),
           shouldUseGreedyFormula(false),
-          m_nRotationAngle(0)
-#if defined(_WIN32) || defined(_WIN64)
-          ,
-          m_adapterNum(-1)
+          m_ROIData(),
+          m_nSubmittedFramesNum(0),
+          m_bUseQPMap(0),
+          m_bufExtMBQP(),
+          m_qpMapStorage(),
+          m_extBuffPtrStorage(),
+          encControlStorage(),
+          m_QPmapWidth(0),
+          m_QPmapHeight(0),
+          m_GOPSize(0),
+          m_QPforI(0),
+          m_QPforP(0),
+          m_sGenericPluginPath(),
+          m_nRotationAngle(0),
+          m_strMfxParamsDumpFile(),
+#ifdef ENABLE_MCTF
+          m_MctfRTParams(),
 #endif
-{
-    MSDK_ZERO_MEMORY(m_RotateParam);
-    MSDK_ZERO_MEMORY(m_mfxDecResponse);
-    MSDK_ZERO_MEMORY(m_mfxEncResponse);
-    MSDK_ZERO_MEMORY(m_DecOutAllocReques);
-    MSDK_ZERO_MEMORY(m_VPPOutAllocReques);
-    MSDK_ZERO_MEMORY(m_Request);
-
-    m_bUseQPMap           = 0;
-    m_QPmapWidth          = 0;
-    m_QPmapHeight         = 0;
-    m_GOPSize             = 0;
-    m_QPforI              = 0;
-    m_QPforP              = 0;
-    m_nSubmittedFramesNum = 0;
-
+          m_adapterType(),
+          m_dGfxIdx(),
+          m_adapterNum(-1),
+          TargetID(0),
+          m_ScalerConfig() {
     inputStatistics.SetDirection(MSDK_STRING("Input"));
     outputStatistics.SetDirection(MSDK_STRING("Output"));
-
-    m_numEncoders          = 0;
-    m_encoderFourCC        = 0;
-    m_libvaBackend         = 0;
-    statisticsWindowSize   = 0;
-    m_bIsFieldWeaving      = false;
-    m_bIsFieldSplitting    = false;
-    m_bUseOverlay          = false;
-    m_bForceStop           = false;
-    m_bIsInterOrJoined     = false;
-    m_bRobustFlag          = false;
-    m_bSoftGpuHangRecovery = false;
-    m_nRotationAngle       = 0;
-    m_bROIasQPMAP          = false;
-    m_bExtMBQP             = false;
 } //CTranscodingPipeline::CTranscodingPipeline()
 
 CTranscodingPipeline::~CTranscodingPipeline() {
@@ -2921,8 +2961,11 @@ mfxStatus CTranscodingPipeline::InitVppMfxParams(MfxVideoParamsWrapper& par,
         auto mctf            = par.AddExtBuffer<mfxExtVppMctf>();
         mctf->FilterStrength = pInParams->mctfParam.params.FilterStrength;
         // If an external file is given & at least 1 value is given, use it
-        if (!pInParams->mctfParam.rtParams.Empty() && pInParams->mctfParam.rtParams.GetCurParam()) {
-            mctf->FilterStrength = pInParams->mctfParam.rtParams.GetCurParam()->FilterStrength;
+        if (!pInParams->mctfParam.rtParams.Empty()) {
+            auto param = pInParams->mctfParam.rtParams.GetCurParam();
+            if (param) {
+                mctf->FilterStrength = param->FilterStrength;
+            }
         }
     #if defined ENABLE_MCTF_EXT
         mctf->Overlap           = pInParams->mctfParam.pInParams.Overlap;

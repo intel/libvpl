@@ -110,7 +110,7 @@ struct sMctfRunTimeParam {
 };
 
 struct sMctfRunTimeParams {
-    sMctfRunTimeParams() : CurIdx(0) {}
+    sMctfRunTimeParams() : CurIdx(0), RunTimeParams() {}
 
     mfxU32 CurIdx;
     std::vector<sMctfRunTimeParam> RunTimeParams;
@@ -514,6 +514,13 @@ public:
         InParams; //key is target ID, copy of par file for cascade VPP initialization
 
     SMTTracer* Tracer = nullptr;
+    CascadeScalerConfig()
+            : ParFileImported(false),
+              CascadeScalerRequired(false),
+              Targets(),
+              Pools(),
+              InParams(),
+              Tracer(nullptr) {}
 };
 
 struct PreEncAuxBuffer {
@@ -737,6 +744,10 @@ private:
     DISALLOW_COPY_AND_ASSIGN(FileBitstreamProcessor);
 };
 
+typedef std::vector<mfxFrameSurface1*> SurfPointersArray;
+typedef std::vector<PreEncAuxBuffer> PreEncAuxArray;
+typedef std::list<ExtendedBS*> BSList;
+
 // Bitstream is external via BitstreamProcessor
 class CTranscodingPipeline {
 public:
@@ -934,7 +945,6 @@ protected:
     CHWDevice* m_hwdev4Rendering;
 #endif
 
-    typedef std::vector<mfxFrameSurface1*> SurfPointersArray;
     SurfPointersArray m_pSurfaceDecPool;
     SurfPointersArray m_pSurfaceEncPool;
 
@@ -946,11 +956,9 @@ protected:
     mfxU16 m_EncSurfaceType; // actual type of encoder surface pool
     mfxU16 m_DecSurfaceType; // actual type of decoder surface pool
 
-    typedef std::vector<PreEncAuxBuffer> PreEncAuxArray;
     PreEncAuxArray m_pPreEncAuxPool;
 
     // transcoding pipeline specific
-    typedef std::list<ExtendedBS*> BSList;
     BSList m_BSPool;
 
     mfxInitParamlWrap m_initPar;
@@ -1078,7 +1086,7 @@ protected:
     mfxU16 m_adapterType;
     mfxI32 m_dGfxIdx;
     mfxI32 m_adapterNum;
-    mfxU32 TargetID = 0;
+    mfxU32 TargetID;
     CascadeScalerConfig m_ScalerConfig;
 
 private:

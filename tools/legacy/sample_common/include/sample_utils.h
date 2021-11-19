@@ -644,9 +644,9 @@ class mfxBitstreamWrapper : public ExtBufHolder<mfxBitstream> {
     typedef ExtBufHolder<mfxBitstream> base;
 
 public:
-    mfxBitstreamWrapper() : base() {}
+    mfxBitstreamWrapper() : base(), m_data() {}
 
-    mfxBitstreamWrapper(mfxU32 n_bytes) : base() {
+    mfxBitstreamWrapper(mfxU32 n_bytes) : base(), m_data() {
         Extend(n_bytes);
     }
 

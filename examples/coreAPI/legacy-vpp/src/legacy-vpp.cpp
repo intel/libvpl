@@ -177,6 +177,12 @@ int main(int argc, char *argv[]) {
                 sts = WriteRawFrame(pmfxOutSurface, sink);
                 if (sts != MFX_ERR_NONE) {
                     printf("Error in WriteRawFrame\n");
+                    if (source) {
+                        fclose(source);
+                    }
+                    if (sink) {
+                        fclose(sink);
+                    }
                     return sts;
                 }
 
@@ -222,10 +228,13 @@ end:
         MFXClose(session);
     }
 
-    if (vppInBuf)
+    if (vppInBuf || vppInSurfacePool) {
         FreeExternalSystemMemorySurfacePool(vppInBuf, vppInSurfacePool);
-    if (vppOutBuf)
+    }
+
+    if (vppOutBuf || vppOutSurfacePool) {
         FreeExternalSystemMemorySurfacePool(vppOutBuf, vppOutSurfacePool);
+    }
 
     if (source)
         fclose(source);

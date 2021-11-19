@@ -402,11 +402,15 @@ mfxStatus AllocateExternalSystemMemorySurfacePool(mfxU8 **buf,
 }
 
 void FreeExternalSystemMemorySurfacePool(mfxU8 *dec_buf, mfxFrameSurface1 *surfpool) {
-    if (dec_buf)
+    if (dec_buf) {
         free(dec_buf);
+        dec_buf = nullptr;
+    }
 
-    if (surfpool)
+    if (surfpool) {
         free(surfpool);
+        surfpool = nullptr;
+    }
 }
 
 // Read encoded stream from file

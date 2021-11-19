@@ -203,7 +203,7 @@ end:
     if (bitstream.Data)
         free(bitstream.Data);
 
-    if (decSurfPool) {
+    if (decSurfPool || decOutBuf) {
         FreeExternalSystemMemorySurfacePool(decOutBuf, decSurfPool);
     }
 
