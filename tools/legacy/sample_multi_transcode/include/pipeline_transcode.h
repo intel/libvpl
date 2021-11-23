@@ -167,9 +167,9 @@ struct __sInputParams {
     mfxU16 nIdrInterval;
 
     //Adapter type
-    mfxU16 adapterType;
-    mfxI32 dGfxIdx;
-    mfxI32 adapterNum;
+    mfxU16 adapterType = mfxMediaAdapterType::MFX_MEDIA_UNKNOWN;
+    mfxI32 dGfxIdx     = -1;
+    mfxI32 adapterNum  = -1;
 
     mfxU16 nThreadsNum; // number of internal session threads number
     bool bRobustFlag; // Robust transcoding mode. Allows auto-recovery after hardware errors
@@ -1083,10 +1083,10 @@ protected:
 #endif
 
     //Adapter type
-    mfxU16 m_adapterType;
-    mfxI32 m_dGfxIdx;
-    mfxI32 m_adapterNum;
-    mfxU32 TargetID;
+    mfxU16 m_adapterType = mfxMediaAdapterType::MFX_MEDIA_UNKNOWN;
+    mfxI32 m_dGfxIdx     = -1;
+    mfxI32 m_adapterNum  = -1;
+    mfxU32 TargetID      = 0;
     CascadeScalerConfig m_ScalerConfig;
 
 private:

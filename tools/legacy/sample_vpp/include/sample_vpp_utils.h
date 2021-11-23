@@ -158,10 +158,11 @@ struct sInputParams {
     // flag describes type of memory
     // true  - frames in video memory (d3d surfaces),
     // false - in system memory
-    //bool   bd3dAlloc;
+    // bool   bd3dAlloc;
     mfxU16 IOPattern;
     mfxIMPL ImpLib;
     mfxAccelerationMode accelerationMode;
+    bool lowLatencyMode;
 
     #if defined(LINUX32) || defined(LINUX64)
     std::string strDevicePath; // path to device for processing
@@ -275,9 +276,10 @@ struct sInputParams {
         rtContrast   = {};
     #endif
 
-        adapterType = mfxMediaAdapterType::MFX_MEDIA_UNKNOWN;
-        dGfxIdx     = -1;
-        adapterNum  = -1;
+        adapterType    = mfxMediaAdapterType::MFX_MEDIA_UNKNOWN;
+        dGfxIdx        = -1;
+        adapterNum     = -1;
+        lowLatencyMode = false;
     }
 };
 

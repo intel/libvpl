@@ -12,6 +12,9 @@
 #if defined(LINUX32) || defined(LINUX64)
     #include <link.h>
     #include <string.h>
+#else
+    #include <atlbase.h>
+    #include <dxgi.h>
 #endif
 
 #include <map>
@@ -27,6 +30,31 @@ static mfxI32 GetAdapterNumber(const mfxChar* cDeviceID) {
 
     return adapterIdx;
 }
+
+#if defined(_WIN32)
+static mfxU16 FoundSuitableAdapter() {
+    HRESULT hRes = E_FAIL;
+
+    CComPtr<IDXGIFactory> pFactory;
+    hRes = CreateDXGIFactory(__uuidof(pFactory), reinterpret_cast<void**>(&pFactory));
+    if (FAILED(hRes)) {
+        return -1;
+    }
+
+    CComPtr<IDXGIAdapter> pAdapter;
+    DXGI_ADAPTER_DESC desc = { 0 };
+    for (UINT i = 0; SUCCEEDED(hRes = pFactory->EnumAdapters(i, &pAdapter)); ++i) {
+        hRes = pAdapter->GetDesc(&desc);
+        if (FAILED(hRes)) {
+            return -1;
+        }
+
+        if (desc.VendorId == 0x8086)
+            return i;
+    }
+    return -1;
+}
+#endif
 
 const std::map<mfxAccelerationMode, const msdk_tstring> mfxAccelerationModeNames = {
     { MFX_ACCEL_MODE_NA, MSDK_STRING("MFX_ACCEL_MODE_NA") },
@@ -154,7 +182,7 @@ mfxStatus VPLImplementationLoader::ConfigureVersion(mfxVersion const version) {
 }
 
 void VPLImplementationLoader::SetAdapterType(mfxU16 adapterType) {
-    if (m_adapterNum != -1) {
+    if (m_adapterNum != -1 && adapterType != mfxMediaAdapterType::MFX_MEDIA_UNKNOWN) {
         msdk_printf(MSDK_STRING(
             "CONFIGURE LOADER: required adapter type may conflict with adapter number, adapter type will be ignored \n"));
     }
@@ -210,19 +238,22 @@ mfxStatus VPLImplementationLoader::EnumImplementations() {
             MFXEnumImplementations(m_Loader, impl, MFX_IMPLCAPS_IMPLDESCSTRUCTURE, (mfxHDL*)&idesc);
         if (!idesc) {
             sts = MFX_ERR_NONE;
+            if (impl == 0)
+                msdk_printf(MSDK_STRING("No implementation was found \n"));
             break;
         }
         else if (idesc->ApiVersion < m_MinVersion) {
             continue;
         }
 
+        // collect uniq devices, try to dound if adapter already collected
         auto it = std::find_if(unique_devices.begin(),
                                unique_devices.end(),
                                [idesc](const std::pair<mfxU32, mfxImplDescription*> val) {
                                    return (GetAdapterNumber(idesc->Dev.DeviceID) ==
                                            GetAdapterNumber(val.second->Dev.DeviceID));
                                });
-
+        // if adpater type is not specified, we give preference MFX_MEDIA_INTEGRATED
         if (it == unique_devices.end()) {
             unique_devices.push_back(std::make_pair(impl, idesc));
             if (m_adapterNum == -1 && m_adapterType == mfxMediaAdapterType::MFX_MEDIA_UNKNOWN &&
@@ -275,7 +306,8 @@ mfxStatus VPLImplementationLoader::EnumImplementations() {
 
 mfxStatus VPLImplementationLoader::ConfigureAndEnumImplementations(
     mfxIMPL impl,
-    mfxAccelerationMode accelerationMode) {
+    mfxAccelerationMode accelerationMode,
+    bool lowLatencyMode) {
     mfxStatus sts = ConfigureImplementation(impl);
     MSDK_CHECK_STATUS(sts, "ConfigureImplementation failed");
     sts = ConfigureAccelerationMode(accelerationMode, impl);
@@ -285,7 +317,8 @@ mfxStatus VPLImplementationLoader::ConfigureAndEnumImplementations(
     sts = EnumImplementations();
     MSDK_CHECK_STATUS(sts, "EnumImplementations failed");
 #else
-    if (m_Impl != MFX_IMPL_HARDWARE || m_adapterType != mfxMediaAdapterType::MFX_MEDIA_UNKNOWN) {
+    if (m_Impl != MFX_IMPL_HARDWARE || m_adapterType != mfxMediaAdapterType::MFX_MEDIA_UNKNOWN ||
+        !lowLatencyMode) {
         sts = EnumImplementations();
         MSDK_CHECK_STATUS(sts, "EnumImplementations failed");
     }
@@ -299,8 +332,10 @@ mfxStatus VPLImplementationLoader::ConfigureAndEnumImplementations(
         sts = CreateConfig(mfxU32(0x8086), "mfxImplDescription.VendorID");
         MSDK_CHECK_STATUS(sts, "Failed to configure mfxImplDescription.VendorID");
 
-        if (m_adapterNum == -1)
-            m_adapterNum = 0;
+        if (m_adapterNum == -1) {
+            m_adapterNum = FoundSuitableAdapter();
+            MSDK_CHECK_ERROR(m_adapterNum, -1, MFX_ERR_DEVICE_FAILED);
+        }
 
         sts = CreateConfig(mfxU32(m_adapterNum), "DXGIAdapterIndex");
         MSDK_CHECK_STATUS(sts, "Failed to configure DXGIAdapterIndex");
@@ -380,11 +415,23 @@ void VPLImplementationLoader::SetMinVersion(mfxVersion const& version) {
 mfxStatus MainVideoSession::CreateSession(VPLImplementationLoader* Loader) {
     mfxStatus sts      = MFXCreateSession(Loader->GetLoader(), Loader->GetImplIndex(), &m_session);
     mfxVersion version = Loader->GetVersion();
-    msdk_printf(MSDK_STRING("Loaded Library Version: %d.%d \n"), version.Major, version.Minor);
+    msdk_printf(MSDK_STRING("Loaded Library configuration: \n"));
+    msdk_printf(MSDK_STRING("    Version: %d.%d \n"), version.Major, version.Minor);
     std::string implName = Loader->GetImplName();
     msdk_tstring strImplName;
     std::copy(std::begin(implName), std::end(implName), back_inserter(strImplName));
-    msdk_printf(MSDK_STRING("Loaded Library ImplName: %s \n"), strImplName.c_str());
+    msdk_printf(MSDK_STRING("    ImplName: %s \n"), strImplName.c_str());
+
+    msdk_printf(MSDK_STRING("    Adapter number : %d \n"), Loader->GetDeviceIDAndAdapter().second);
+    if (Loader->GetAdapterType() != mfxMediaAdapterType::MFX_MEDIA_UNKNOWN) {
+        msdk_stringstream ss;
+        ss << MSDK_STRING("    Adapter type: ")
+           << (Loader->GetAdapterType() == mfxMediaAdapterType::MFX_MEDIA_INTEGRATED
+                   ? MSDK_STRING("integrated")
+                   : MSDK_STRING("discrete"));
+        ss << std::endl;
+        msdk_printf(MSDK_STRING("%s"), ss.str().c_str());
+    }
 
 #if (defined(LINUX32) || defined(LINUX64))
     msdk_printf(MSDK_STRING("Used implementation number: %d \n"), Loader->GetImplIndex());

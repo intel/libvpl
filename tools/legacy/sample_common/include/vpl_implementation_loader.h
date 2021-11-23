@@ -39,7 +39,9 @@ public:
     void SetDiscreteAdapterIndex(mfxI32 dGfxIdx);
     void SetAdapterNum(mfxI32 adapterNum);
     mfxStatus EnumImplementations();
-    mfxStatus ConfigureAndEnumImplementations(mfxIMPL impl, mfxAccelerationMode accelerationMode);
+    mfxStatus ConfigureAndEnumImplementations(mfxIMPL impl,
+                                              mfxAccelerationMode accelerationMode,
+                                              bool lowLatencyMode = true);
     mfxLoader GetLoader() const;
     mfxU32 GetImplIndex() const;
     std::string GetImplName() const;

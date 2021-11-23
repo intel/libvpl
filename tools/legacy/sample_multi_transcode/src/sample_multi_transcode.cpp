@@ -61,6 +61,7 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
     std::vector<mfxHDL> hdls;
     sInputParams InputParams;
     bool bNeedToCreateDevice = true;
+    bool lowLatencyMode      = true;
 
     //parent transcode pipeline
     CTranscodingPipeline* pParentPipeline = NULL;
@@ -90,14 +91,18 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
 
     m_pLoader.reset(new VPLImplementationLoader);
 
-    // new memory models are suppotred in lib with version >2.0
+    // new memory models are suppotred in lib with version >2.0 and not supported SetHandle, so lowLatencyMode need to turn off
     if (m_InputParamsArray[0].nMemoryModel == VISIBLE_INT_ALLOC ||
         m_InputParamsArray[0].nMemoryModel == HIDDEN_INT_ALLOC) {
         m_pLoader->ConfigureVersion({ { 0, 2 } });
         msdk_printf(MSDK_STRING("warning: internal memory allocation requires 2.x API\n"));
+
+        lowLatencyMode = false;
     }
-    if (m_InputParamsArray[0].dGfxIdx >= 0)
+
+    if (m_InputParamsArray[0].dGfxIdx >= 0) {
         m_pLoader->SetDiscreteAdapterIndex(m_InputParamsArray[0].dGfxIdx);
+    }
     else
         m_pLoader->SetAdapterType(m_InputParamsArray[0].adapterType);
 
@@ -105,7 +110,8 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
         m_pLoader->SetAdapterNum(m_InputParamsArray[0].adapterNum);
 
     sts = m_pLoader->ConfigureAndEnumImplementations(m_InputParamsArray[0].libType,
-                                                     m_accelerationMode);
+                                                     m_accelerationMode,
+                                                     lowLatencyMode);
     MSDK_CHECK_STATUS(sts, "EnumImplementations failed");
 
     for (i = 0; i < m_InputParamsArray.size(); i++) {
@@ -341,8 +347,12 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
 
         pThreadPipeline->pPipeline.reset(CreatePipeline());
 
-        pThreadPipeline->pPipeline->SetAdapterType(m_pLoader->GetAdapterType());
-        pThreadPipeline->pPipeline->SetPrefferdGfx(m_InputParamsArray[i].dGfxIdx);
+        // no need, in lowLatencyMode adapter type is unknown
+        if (!lowLatencyMode) {
+            pThreadPipeline->pPipeline->SetAdapterType(m_pLoader->GetAdapterType());
+            pThreadPipeline->pPipeline->SetPrefferdGfx(m_InputParamsArray[i].dGfxIdx);
+        }
+
         pThreadPipeline->pPipeline->SetAdapterNum(m_pLoader->GetDeviceIDAndAdapter().second);
 
         pThreadPipeline->pBSProcessor = m_pExtBSProcArray.back().get();
@@ -447,7 +457,8 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
                 m_pLoader->SetAdapterNum(m_InputParamsArray[i].adapterNum);
 
             sts = m_pLoader->ConfigureAndEnumImplementations(m_InputParamsArray[i].libType,
-                                                             m_accelerationMode);
+                                                             m_accelerationMode,
+                                                             lowLatencyMode);
             MSDK_CHECK_STATUS(sts, "ConfigureAndEnumImplementations failed");
         }
         sts = pThreadPipeline->pPipeline->Init(&m_InputParamsArray[i],
