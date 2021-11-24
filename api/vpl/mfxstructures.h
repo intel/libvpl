@@ -128,7 +128,7 @@ enum {
     MFX_FOURCC_RGB565       = MFX_MAKEFOURCC('R','G','B','2'),   /*!< 2 bytes per pixel, uint16 in little-endian format, where 0-4 bits are blue, bits 5-10 are green and bits 11-15 are red. */
     /*! RGB 24 bit planar layout (3 separate channels, 8-bits per sample each). This format should be mapped to D3DFMT_R8G8B8 or VA_FOURCC_RGBP. */
     MFX_FOURCC_RGBP         = MFX_MAKEFOURCC('R','G','B','P'),
-    MFX_FOURCC_RGB3         = MFX_MAKEFOURCC('R','G','B','3'),   /* Deprecated */
+    MFX_DEPRECATED_ENUM_FIELD_INSIDE(MFX_FOURCC_RGB3)         = MFX_MAKEFOURCC('R','G','B','3'),   /* Deprecated. */
     MFX_FOURCC_RGB4         = MFX_MAKEFOURCC('R','G','B','4'),   /*!< RGB4 (RGB32) color planes. BGRA is the order, ‘B’ is 8 MSBs, then 8 bits for ‘G’ channel, then ‘R’ and ‘A’ channels. */
     /*!
        Internal color format. The application should use the following functions to create a surface that corresponds to the Direct3D* version in use.
@@ -353,6 +353,9 @@ typedef enum {
     MFX_HANDLE_VA_CONTEXT_ID                    = 7, /*!< Pointer to VAContextID interface. It represents external VA context for Common Encryption usage model. */
     MFX_HANDLE_CM_DEVICE                        = 8,  /*!< Pointer to CmDevice interface ( Intel(r) C for Metal Runtime ). */
     MFX_HANDLE_HDDLUNITE_WORKLOADCONTEXT        = 9,  /*!< Pointer to HddlUnite::WorkloadContext interface. */
+#ifdef ONEVPL_EXPERIMENTAL 
+    MFX_HANDLE_PXP_CONTEXT                      = 10, /*!< Pointer to PXP context for protected content support. */
+#endif
 } mfxHandleType;
 
 /*! The mfxMemoryFlags enumerator specifies memory access mode. */
@@ -616,7 +619,7 @@ MFX_PACK_BEGIN_USUAL_STRUCT()
 typedef struct {
     mfxU32  reserved[7]; /*!< Reserved for future use. */
 
-    /*! For encoders, set this flag to ON to reduce power consumption and GPU usage. See the CodingOptionValue enumerator for values
+    /*! Hint to enable low power consumption mode for encoders. See the CodingOptionValue enumerator for values
         of this option. Use the Query API function to check if this feature is supported. */
     mfxU16  LowPower;
     /*! Specifies a multiplier for bitrate control parameters. Affects the following variables: InitialDelayInKB, BufferSizeInKB,
@@ -1166,7 +1169,7 @@ typedef struct {
     mfxU16      MECostType;             /*!< Motion estimation cost type. This value is reserved and must be zero. */
     mfxU16      MESearchType;           /*!< Motion estimation search algorithm. This value is reserved and must be zero. */
     mfxI16Pair  MVSearchWindow;         /*!< Rectangular size of the search window for motion estimation. This parameter is reserved and must be (0, 0). */
-    mfxU16      EndOfSequence;          /* Deprecated */
+    MFX_DEPRECATED mfxU16      EndOfSequence;          /* Deprecated */
     mfxU16      FramePicture;           /*!< Set this flag to encode interlaced fields as interlaced frames. This flag does not affect progressive input frames. See the CodingOptionValue enumerator for values of this option. */
 
     mfxU16      CAVLC;                  /*!< If set, CAVLC is used; if unset, CABAC is used for encoding. See the CodingOptionValue enumerator for values of this option. */
@@ -1228,7 +1231,7 @@ typedef struct {
     mfxU16      MaxDecFrameBuffering; /*!< Specifies the maximum number of frames buffered in a DPB. A value of zero means unspecified. */
 
     mfxU16      AUDelimiter;            /*!< Set this flag to insert the Access Unit Delimiter NAL. See the CodingOptionValue enumerator for values of this option. */
-    mfxU16      EndOfStream;            /* Deprecated */
+    MFX_DEPRECATED mfxU16      EndOfStream;            /* Deprecated */
     /*!
        Set this flag to insert the picture timing SEI with pic_struct syntax element. See sub-clauses D.1.2 and D.2.2 of the ISO/IEC 14496-10
        specification for the definition of this syntax element. See the CodingOptionValue enumerator for values of this option.
@@ -1693,7 +1696,7 @@ typedef struct {
     mfxU16      EnableNalUnitType;
 
     union {
-        mfxU16      ExtBrcAdaptiveLTR; /* Deprecated */
+        MFX_DEPRECATED mfxU16      ExtBrcAdaptiveLTR; /* Deprecated */
         
         /*!
             If this flag is set to ON, encoder will mark, modify, or remove LTR frames based on encoding parameters and content          
@@ -1715,7 +1718,19 @@ typedef struct {
        If this flag is set to OFF, regular reference frames are used for encoding.
     */
     mfxU16      AdaptiveRef;
+  
+#ifdef ONEVPL_EXPERIMENTAL
+    /*!
+       The tri-state option specifies hint for the library to execute encoding tools processing on CPU. 
+       It may give better encoding quality, but leads to higher CPU utilization. 
+       The library can ignore MFX_CODINGOPTION_ON if processing on CPU is not supported.
+    */
+    mfxU16      CPUEncToolsProcessing;
+    mfxU16      reserved[160];
+#else
     mfxU16      reserved[161];
+#endif     
+  
 } mfxExtCodingOption3;
 MFX_PACK_END()
 
@@ -1786,9 +1801,9 @@ enum {
        The application can attach this buffer to the mfxVideoParam structure for video processing initialization.
     */
     MFX_EXTBUFF_VPP_DENOISE2                    = MFX_MAKEFOURCC('D','N','I','2'),
-    MFX_EXTBUFF_VPP_DENOISE                     = MFX_MAKEFOURCC('D','N','I','S'), /*!< Deprecated in 2.2 API version.*/
-    MFX_EXTBUFF_VPP_SCENE_ANALYSIS              = MFX_MAKEFOURCC('S','C','L','Y'),
-    MFX_EXTBUFF_VPP_SCENE_CHANGE                = MFX_EXTBUFF_VPP_SCENE_ANALYSIS, /* Deprecated */
+    MFX_DEPRECATED_ENUM_FIELD_INSIDE(MFX_EXTBUFF_VPP_DENOISE)                     = MFX_MAKEFOURCC('D','N','I','S'), /*!< Deprecated in 2.2 API version.*/
+    MFX_EXTBUFF_VPP_SCENE_ANALYSIS              = MFX_MAKEFOURCC('S','C','L','Y'), /*!< Reserved for future use. */
+    MFX_DEPRECATED_ENUM_FIELD_INSIDE(MFX_EXTBUFF_VPP_SCENE_CHANGE)                = MFX_EXTBUFF_VPP_SCENE_ANALYSIS, /* Deprecated. */
     /*!
        The extended buffer defines control parameters for the VPP ProcAmp filter algorithm. See the mfxExtVPPProcAmp structure for details.
        The application can attach this buffer to the mfxVideoParam structure for video processing initialization or to the mfxFrameData
@@ -2124,6 +2139,14 @@ enum {
        See the mfxExtTemporalLayers structure for more details.
     */
     MFX_EXTBUFF_UNIVERSAL_TEMPORAL_LAYERS = MFX_MAKEFOURCC('U', 'T', 'M', 'P'),
+#ifdef ONEVPL_EXPERIMENTAL    
+    /*!
+       This extended buffer defines additional encoding controls for reference list. See the mfxExtRefListCtrl structure for details.
+       The application can attach this buffer to the mfxVideoParam structure for encoding & decoding initialization, or
+       the mfxEncodeCtrl structure for per-frame encoding configuration.
+    */
+    MFX_EXTBUFF_UNIVERSAL_REFLIST_CTRL = MFX_EXTBUFF_AVC_REFLIST_CTRL,
+#endif
     /*!
        See the mfxExtVPP3DLut structure for more details.
     */
@@ -2355,8 +2378,8 @@ typedef struct {
 
     union{
         struct{
-            mfxU32  SpatialComplexity; /* Deprecated */
-            mfxU32  TemporalComplexity; /* Deprecated */
+            MFX_DEPRECATED mfxU32  SpatialComplexity; /* Deprecated */
+            MFX_DEPRECATED mfxU32  TemporalComplexity; /* Deprecated */
         };
         struct{
             /*!
@@ -2368,8 +2391,8 @@ typedef struct {
             mfxU16  reserved[3];
         };
     };
-    mfxU16          SceneChangeRate; /* Deprecated */
-    mfxU16          RepeatedFrame;   /* Deprecated */
+    MFX_DEPRECATED  mfxU16          SceneChangeRate; /* Deprecated */
+    MFX_DEPRECATED  mfxU16          RepeatedFrame;   /* Deprecated */
 } mfxExtVppAuxData;
 MFX_PACK_END()
 
@@ -3616,13 +3639,37 @@ MFX_PACK_END()
 
 /*! The ErrorTypes enumerator uses bit-ORed values to itemize bitstream error types. */
 enum {
-    MFX_ERROR_NO            =        0, /*!< No error in bitstream. */
-    MFX_ERROR_PPS           = (1 << 0), /*!< Invalid/corrupted PPS. */
-    MFX_ERROR_SPS           = (1 << 1), /*!< Invalid/corrupted SPS. */
-    MFX_ERROR_SLICEHEADER   = (1 << 2), /*!< Invalid/corrupted slice header. */
-    MFX_ERROR_SLICEDATA     = (1 << 3), /*!< Invalid/corrupted slice data. */
-    MFX_ERROR_FRAME_GAP     = (1 << 4), /*!< Missed frames. */
+    MFX_ERROR_NO                  =        0,  /*!< No error in bitstream. */
+    MFX_ERROR_PPS                 = (1 << 0),  /*!< Invalid/corrupted PPS. */
+    MFX_ERROR_SPS                 = (1 << 1),  /*!< Invalid/corrupted SPS. */
+    MFX_ERROR_SLICEHEADER         = (1 << 2),  /*!< Invalid/corrupted slice header. */
+    MFX_ERROR_SLICEDATA           = (1 << 3),  /*!< Invalid/corrupted slice data. */
+    MFX_ERROR_FRAME_GAP           = (1 << 4),  /*!< Missed frames. */
+#ifdef ONEVPL_EXPERIMENTAL
+    MFX_ERROR_JPEG_APP0_MARKER    = (1 << 5),  /*!< Invalid/corrupted APP0 marker. */
+    MFX_ERROR_JPEG_APP1_MARKER    = (1 << 6),  /*!< Invalid/corrupted APP1 marker. */
+    MFX_ERROR_JPEG_APP2_MARKER    = (1 << 7),  /*!< Invalid/corrupted APP2 marker. */
+    MFX_ERROR_JPEG_APP3_MARKER    = (1 << 8),  /*!< Invalid/corrupted APP3 marker. */
+    MFX_ERROR_JPEG_APP4_MARKER    = (1 << 9),  /*!< Invalid/corrupted APP4 marker. */
+    MFX_ERROR_JPEG_APP5_MARKER    = (1 << 10), /*!< Invalid/corrupted APP5 marker. */
+    MFX_ERROR_JPEG_APP6_MARKER    = (1 << 11), /*!< Invalid/corrupted APP6 marker. */
+    MFX_ERROR_JPEG_APP7_MARKER    = (1 << 12), /*!< Invalid/corrupted APP7 marker. */
+    MFX_ERROR_JPEG_APP8_MARKER    = (1 << 13), /*!< Invalid/corrupted APP8 marker. */
+    MFX_ERROR_JPEG_APP9_MARKER    = (1 << 14), /*!< Invalid/corrupted APP9 marker. */
+    MFX_ERROR_JPEG_APP10_MARKER   = (1 << 15), /*!< Invalid/corrupted APP10 marker. */
+    MFX_ERROR_JPEG_APP11_MARKER   = (1 << 16), /*!< Invalid/corrupted APP11 marker. */
+    MFX_ERROR_JPEG_APP12_MARKER   = (1 << 17), /*!< Invalid/corrupted APP12 marker. */
+    MFX_ERROR_JPEG_APP13_MARKER   = (1 << 18), /*!< Invalid/corrupted APP13 marker. */
+    MFX_ERROR_JPEG_APP14_MARKER   = (1 << 19), /*!< Invalid/corrupted APP14 marker. */
+    MFX_ERROR_JPEG_DQT_MARKER     = (1 << 20), /*!< Invalid/corrupted DQT marker. */
+    MFX_ERROR_JPEG_SOF0_MARKER    = (1 << 21), /*!< Invalid/corrupted SOF0 marker. */
+    MFX_ERROR_JPEG_DHT_MARKER     = (1 << 22), /*!< Invalid/corrupted DHT marker. */
+    MFX_ERROR_JPEG_DRI_MARKER     = (1 << 23), /*!< Invalid/corrupted DRI marker. */
+    MFX_ERROR_JPEG_SOS_MARKER     = (1 << 24), /*!< Invalid/corrupted SOS marker. */
+    MFX_ERROR_JPEG_UNKNOWN_MARKER = (1 << 25), /*!< Unknown Marker. */
+#endif
 };
+
 
 MFX_PACK_BEGIN_USUAL_STRUCT()
 /*!
@@ -3888,6 +3935,10 @@ MFX_PACK_END()
 typedef mfxExtAVCRefListCtrl mfxExtHEVCRefListCtrl;
 typedef mfxExtAVCRefLists mfxExtHEVCRefLists;
 typedef mfxExtAvcTemporalLayers mfxExtHEVCTemporalLayers;
+
+#ifdef ONEVPL_EXPERIMENTAL
+typedef mfxExtAVCRefListCtrl mfxExtRefListCtrl;
+#endif
 
 /* The MirroringType enumerator itemizes mirroring types. */
 enum
@@ -4357,7 +4408,9 @@ MFX_PACK_BEGIN_USUAL_STRUCT()
 typedef struct {
     mfxExtBuffer Header;   /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_AV1_BITSTREAM_PARAM. */
 
-    mfxU16 WriteIVFHeaders; /*!< Tri-state option to control IVF headers insertion, default is ON. */
+    mfxU16 WriteIVFHeaders; /*!< Tri-state option to control IVF headers insertion, default is ON.
+                                Writing IVF headers is enabled in the encoder when mfxExtAV1BitstreamParam is attached and its value is ON or zero.
+                                Writing IVF headers is disabled by default in the encoder when mfxExtAV1BitstreamParam is not attached. */
 
     mfxU16 reserved[31];
 } mfxExtAV1BitstreamParam;

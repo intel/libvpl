@@ -39,6 +39,10 @@ endif()
 
 add_definitions(-DMFX_DEPRECATED_OFF)
 
+if(BUILD_DISPATCHER_ONEVPL_EXPERIMENTAL)
+  add_definitions(-DONEVPL_EXPERIMENTAL)
+endif()
+
 list(
   APPEND
   SOURCES

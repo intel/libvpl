@@ -8,7 +8,7 @@
 #define __MFXDEFS_H__
 
 #define MFX_VERSION_MAJOR 2
-#define MFX_VERSION_MINOR 5
+#define MFX_VERSION_MINOR 6
 
 // MFX_VERSION - version of API that 'assumed' by build may be provided externally
 // if it omitted then latest stable API derived from Major.Minor is assumed
@@ -208,7 +208,7 @@ typedef enum {
 } mfxVariantType;
 
 MFX_PACK_BEGIN_STRUCT_W_PTR()
-/*! The mfxVariantType enumerator data types for mfxVarianf type. */
+/*! The mfxVariantType enumerator data types for mfxVariant type. */
 typedef struct {
     mfxStructVersion Version;    /*!< Version of the structure. */
     mfxVariantType   Type;       /*!< Value type. */
@@ -224,7 +224,7 @@ typedef struct {
         mfxI64 I64; /*!< mfxI64 data. */
         mfxF32 F32; /*!< mfxF32 data. */
         mfxF64 F64; /*!< mfxF64 data. */
-       mfxHDL Ptr;  /*!< Pointer. */
+        mfxHDL Ptr; /*!< Pointer. When this points to a string the string must be null terminated. */
     } Data;         /*!< Value data member. */
 } mfxVariant;
 MFX_PACK_END()

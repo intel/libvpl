@@ -769,8 +769,8 @@ mfxStatus MFX_CDECL MFXVideoDECODE_GetPayload(mfxSession session, mfxU64 *ts, mf
    MFX_WRN_DEVICE_BUSY  Hardware device is currently busy. Call this function again after MFXVideoCORE_SyncOperation or in a few milliseconds.  \n
    MFX_WRN_VIDEO_PARAM_CHANGED  The decoder detected a new sequence header in the bitstream. Video parameters may have changed. \n
    MFX_ERR_INCOMPATIBLE_VIDEO_PARAM  The decoder detected incompatible video parameters in the bitstream and failed to follow them. \n
-   MFX_ERR_REALLOC_SURFACE  Bigger surface_work required. May be returned only if mfxInfoMFX::EnableReallocRequest was set to ON during initialization.
-   MFX_WRN_ALLOC_TIMEOUT_EXPIRED Timeout expired for internal output frame allocation (if set with mfxExtAllocationHints and NULL passed as surface_work). Repeat the call in a few milliseconds or re-initialize decoder with higher surface limit. \n
+   MFX_ERR_REALLOC_SURFACE  Bigger surface_work required. May be returned only if mfxInfoMFX::EnableReallocRequest was set to ON during initialization. \n
+   MFX_WRN_ALLOC_TIMEOUT_EXPIRED Timeout expired for internal output frame allocation (if set with mfxExtAllocationHints and NULL passed as surface_work). Repeat the call in a few milliseconds or re-initialize decoder with higher surface limit.
 
    @since This function is available since API version 1.0.
 */
@@ -987,10 +987,12 @@ mfxStatus MFX_CDECL MFXVideoVPP_ProcessFrameAsync(mfxSession session, mfxFrameSu
 
 /*!
    @brief
-   Initialize the SDK in (decode + vpp) mode. The logic of this function is similar to  MFXVideoDECODE_Init, but application has to      provide array of pointers to mfxVideoChannelParam and num_channel_param - number of channels. Application is responsible for    
+   Initialize the SDK in (decode + vpp) mode. The logic of this function is similar to  MFXVideoDECODE_Init,
+   but application has to provide array of pointers to mfxVideoChannelParam and num_channel_param - number of channels. Application is responsible for    
    memory allocation for mfxVideoChannelParam parameters and for each channel it should specify channel IDs:    
-   mfxVideoChannelParam::mfxFrameInfo::ChannelId. ChannelId should be unique value within one session.
-   The application can attach mfxExtInCrops  to mfxVideoChannelParam::ExtParam to annotate input video frame if it wants to enable 
+   mfxVideoChannelParam::mfxFrameInfo::ChannelId. ChannelId should be unique value within one session. ChannelID equals to the 0
+   is reserved for the orginal decoded frame.
+   The application can attach mfxExtInCrops to mfxVideoChannelParam::ExtParam to annotate input video frame if it wants to enable 
    letterboxing operation.
    @param[in] session SDK session handle.
    @param[in] decode_par Pointer to the mfxVideoParam structure which contains initialization parameters for decoder.
@@ -1013,11 +1015,17 @@ mfxStatus  MFX_CDECL MFXVideoDECODE_VPP_Init(mfxSession session, mfxVideoParam* 
 
 /*!
    @brief
-   This function is similar to MFXVideoDECODE_DecodeFrameAsync and inherits all bitstream processing logic. As output it allocates    
-   and returns array of processed surfaces according to the chain of filters specified by applicaton in MFXVideoDECODE_VPP_Init. The 
-   original decoded frames are returned through surfaces with mfxFrameInfo::ChannelId == 0. In other words, zero 
-   ChannelId is reserved by the SDK for decoded output and cannot be used by application to set video processing channels during   
-   initialization.
+   This function is similar to MFXVideoDECODE_DecodeFrameAsync and inherits all bitstream processing logic. As output,
+   it allocates and returns @p surf_array_out array of processed surfaces according to the chain of filters specified
+   by application in MFXVideoDECODE_VPP_Init, including original decoded frames. In the @p surf_array_out, the original
+   decoded frames are returned through surfaces with mfxFrameInfo::ChannelId == 0, followed by each of the subsequent
+   frame surfaces for each of the requested mfxVideoChannelParam entries provided to the MFXVideoCECODE_VPP_Init
+   function. At maximum, the number of frame surfaces return is 1 + the value of @p num_vpp_par to the
+   MFXVideoDECODE_VPP_Init function, but the application must be prepared to the case when some particular filters
+   are not ready to output surfaces, so the length of @p surf_array_out will be less. Application should use
+   mfxFrameInfo::ChannelId parameter to match output surface against configured filter.
+
+   An application must synchronize each output surface from the @p surf_array_out surface array independently.
 
    @param[in] session SDK session handle.
    @param[in] bs Pointer to the input bitstream.
