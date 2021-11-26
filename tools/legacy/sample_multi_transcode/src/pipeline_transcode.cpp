@@ -1121,9 +1121,10 @@ mfxStatus CTranscodingPipeline::Decode() {
                     }
                 }
             }
-            // check for interlaced stream
 
-            if (m_MemoryModel != GENERAL_ALLOC && DecExtSurface.pSurface) {
+            // do not decrease decoder's surface reference in case of MFX_ERR_MORE_SURFACE since it is used several times for VP processing
+            if (m_MemoryModel != GENERAL_ALLOC && DecExtSurface.pSurface &&
+                sts != MFX_ERR_MORE_SURFACE) {
                 mfxStatus sts_release =
                     DecExtSurface.pSurface->FrameInterface->Release(DecExtSurface.pSurface);
                 MSDK_CHECK_STATUS(sts_release, "FrameInterface->Release failed");
