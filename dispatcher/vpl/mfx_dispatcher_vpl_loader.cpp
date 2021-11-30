@@ -600,6 +600,17 @@ mfxU32 LoaderCtxVPL::CheckValidLibraries() {
                     msdkLibBest = libInfo;
                 }
 
+#if defined(_WIN32) || defined(_WIN64)
+                // workaround for double-init issue in old versions of MSDK runtime
+                //   (allow DLL to be fully unloaded after each call to MFXClose)
+                // apply to MSDK with API version <= 1.27
+                if (libInfo->hModuleVPL && (libInfo->msdkVersion.Major == 1) &&
+                    (libInfo->msdkVersion.Minor <= 27)) {
+                    MFX::mfx_dll_free(libInfo->hModuleVPL);
+                    libInfo->hModuleVPL = nullptr;
+                }
+#endif
+
                 it++;
                 continue;
             }
@@ -756,11 +767,11 @@ mfxU32 LoaderCtxVPL::LoadAPIExports(LibInfo *libInfo, LibType libType) {
         }
     }
     else if (libType == LibTypeMSDK) {
+        // don't actually need to save the function pointers for MSDK, just check if they are defined
         for (i = 0; i < NumMSDKFunctions; i += 1) {
             VPLFunctionPtr pProc =
                 (VPLFunctionPtr)GetFunctionAddr(libInfo->hModuleVPL, MSDKCompatFunctions[i].pName);
             if (pProc) {
-                libInfo->msdkFuncTable[i] = pProc;
                 numFunctions++;
             }
         }

@@ -373,9 +373,6 @@ struct LibInfo {
     void *hModuleVPL;
     VPLFunctionPtr vplFuncTable[NumVPLFunctions]; // NOLINT
 
-    // select MSDK functions for 1.x style caps query
-    VPLFunctionPtr msdkFuncTable[NumMSDKFunctions]; // NOLINT
-
     // loader context for legacy MSDK
     LoaderCtxMSDK msdkCtx[MAX_NUM_IMPL_MSDK];
 
@@ -392,7 +389,6 @@ struct LibInfo {
               libType(LibTypeUnknown),
               hModuleVPL(nullptr),
               vplFuncTable(),
-              msdkFuncTable(),
               msdkCtx(),
               msdkVersion(),
               implCapsPath() {}
