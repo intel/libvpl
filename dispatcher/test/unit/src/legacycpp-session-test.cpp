@@ -11,9 +11,13 @@
 
 #include <gtest/gtest.h>
 
+#include "src/unit_api.h"
+
 #include "vpl/mfxvideo++.h"
 
 TEST(LegacycppCreateSession, InitSucceeds) {
+    SKIP_IF_DISP_GPU_DISABLED();
+
     mfxIMPL impl   = MFX_IMPL_AUTO_ANY;
     mfxVersion ver = { { 0, 1 } };
     MFXVideoSession session;
@@ -22,6 +26,8 @@ TEST(LegacycppCreateSession, InitSucceeds) {
 }
 
 TEST(LegacycppCreateSession, DoubleInitSucceeds) {
+    SKIP_IF_DISP_GPU_DISABLED();
+
     mfxIMPL impl   = MFX_IMPL_AUTO_ANY;
     mfxVersion ver = { { 0, 1 } };
     MFXVideoSession session;
@@ -32,6 +38,8 @@ TEST(LegacycppCreateSession, DoubleInitSucceeds) {
 }
 
 TEST(LegacycppCreateSession, CloseSucceeds) {
+    SKIP_IF_DISP_GPU_DISABLED();
+
     mfxIMPL impl   = MFX_IMPL_AUTO_ANY;
     mfxVersion ver = { { 0, 1 } };
     MFXVideoSession session;
@@ -41,7 +49,10 @@ TEST(LegacycppCreateSession, CloseSucceeds) {
     ASSERT_EQ(sts, MFX_ERR_NONE) << "mfxvideo++ Close failed with code " << sts;
 }
 
-TEST(LegacycppCreateSession, DoubleCloseSucceeds) {
+// update when mfxvideo++.h switches to MFXLoad() instead of MFXInitEx()
+TEST(DISABLED_LegacycppCreateSession, DoubleCloseSucceeds) {
+    SKIP_IF_DISP_GPU_DISABLED();
+
     mfxIMPL impl   = MFX_IMPL_AUTO_ANY;
     mfxVersion ver = { { 0, 1 } };
     MFXVideoSession session;
@@ -54,6 +65,8 @@ TEST(LegacycppCreateSession, DoubleCloseSucceeds) {
 }
 
 TEST(LegacycppCreateSession, InitSucceedsImplAuto) {
+    SKIP_IF_DISP_GPU_DISABLED();
+
     mfxIMPL impl   = MFX_IMPL_AUTO;
     mfxVersion ver = { { 0, 1 } };
     MFXVideoSession session;
@@ -61,7 +74,10 @@ TEST(LegacycppCreateSession, InitSucceedsImplAuto) {
     ASSERT_EQ(sts, MFX_ERR_NONE) << "mfxvideo++ Init failed with code " << sts;
 }
 
-TEST(LegacycppCreateSession, InitSucceedsImplSoftware) {
+// update when mfxvideo++.h switches to MFXLoad() instead of MFXInitEx()
+TEST(DISABLED_LegacycppCreateSession, InitSucceedsImplSoftware) {
+    SKIP_IF_DISP_GPU_DISABLED();
+
     mfxIMPL impl   = MFX_IMPL_SOFTWARE;
     mfxVersion ver = { { 0, 1 } };
     MFXVideoSession session;
@@ -70,6 +86,8 @@ TEST(LegacycppCreateSession, InitSucceedsImplSoftware) {
 }
 
 TEST(LegacycppCreateSession, InitSucceedsImplHardware) {
+    SKIP_IF_DISP_GPU_DISABLED();
+
     mfxIMPL impl   = MFX_IMPL_HARDWARE;
     mfxVersion ver = { { 0, 1 } };
     MFXVideoSession session;
@@ -78,6 +96,8 @@ TEST(LegacycppCreateSession, InitSucceedsImplHardware) {
 }
 
 TEST(LegacycppCreateSession, InitSucceedsImplHardwareAny) {
+    SKIP_IF_DISP_GPU_DISABLED();
+
     mfxIMPL impl   = MFX_IMPL_HARDWARE_ANY;
     mfxVersion ver = { { 0, 1 } };
     MFXVideoSession session;
@@ -88,7 +108,10 @@ TEST(LegacycppCreateSession, InitSucceedsImplHardwareAny) {
 //Tests for HARDWARE2,3,4 require specific hardware setup and are not suitable for
 //general unit tests which can be run anywhere
 
-TEST(LegacycppCreateSession, InitFailsImplInvalid) {
+// update when mfxvideo++.h switches to MFXLoad() instead of MFXInitEx()
+TEST(DISABLED_LegacycppCreateSession, InitFailsImplInvalid) {
+    SKIP_IF_DISP_GPU_DISABLED();
+
     mfxIMPL impl   = MFX_IMPL_RUNTIME;
     mfxVersion ver = { { 0, 1 } };
     MFXVideoSession session;
