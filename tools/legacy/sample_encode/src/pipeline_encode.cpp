@@ -32,6 +32,7 @@
 #include "version.h"
 
 #include <algorithm>
+#include <memory>
 
 #ifndef MFX_VERSION
     #error MFX_VERSION not defined
@@ -1362,7 +1363,7 @@ mfxStatus CEncodingPipeline::InitFileWriters(sInputParams* pParams) {
     }
     // ViewOutput mode: 3 bitstreams - 2 separate & 1 merged
     else if ((MVC_VIEWOUTPUT & pParams->MVC_flags) && (pParams->dstFileBuff.size() <= 3)) {
-        std::unique_ptr<CSmplBitstreamDuplicateWriter> first(new CSmplBitstreamDuplicateWriter);
+        auto first = std::make_unique<CSmplBitstreamDuplicateWriter>();
 
         // init first duplicate writer
         MSDK_CHECK_POINTER(first.get(), MFX_ERR_MEMORY_ALLOC);
@@ -1372,7 +1373,7 @@ mfxStatus CEncodingPipeline::InitFileWriters(sInputParams* pParams) {
         MSDK_CHECK_STATUS(sts, "first->InitDuplicate failed");
 
         // init second duplicate writer
-        std::unique_ptr<CSmplBitstreamDuplicateWriter> second(new CSmplBitstreamDuplicateWriter);
+        auto second = std::make_unique<CSmplBitstreamDuplicateWriter>();
         MSDK_CHECK_POINTER(second.get(), MFX_ERR_MEMORY_ALLOC);
         sts = second->Init(pParams->dstFileBuff[1]);
         MSDK_CHECK_STATUS(sts, "second->Init failed");

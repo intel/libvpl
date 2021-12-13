@@ -89,8 +89,22 @@ const struct {
 #define VPLVERSION(major, minor) (major << 16 | minor)
 
 #if !defined(WIN32) && !defined(strncpy_s)
-    // strncpy_s proxy to allow use safe version where supported
-    #define strncpy_s(dest, destsz, src, count) strncpy(dest, src, count)
+// strncpy_s proxy to allow use safe version where supported
+inline int strncpy_s(char *dest, size_t destsz, const char *src, size_t count) {
+    if (!dest) {
+        return 1;
+    }
+    if (!src) {
+        return 2;
+    }
+    if (count >= destsz) {
+        if (destsz <= strnlen(src, count)) {
+            return 3;
+        }
+    }
+    strncpy(dest, src, count);
+    return 0;
+}
 #endif
 
 enum ExampleParams { PARAM_IMPL = 0, PARAM_INFILE, PARAM_INRES, PARAM_COUNT };
@@ -561,6 +575,7 @@ mfxStatus InitAcceleratorHandle(mfxSession session, int *fd) {
                 else {
                     sts = MFX_ERR_DEVICE_FAILED;
                     close(*fd);
+                    *fd = 0;
                 }
             }
             else {
@@ -581,8 +596,12 @@ mfxStatus InitAcceleratorHandle(mfxSession session, int *fd) {
 void FreeAcceleratorHandle(void *accelHandle, int fd) {
 #if defined(__linux)
     #ifdef LIBVA_SUPPORT
-    vaTerminate((VADisplay)accelHandle);
-    close(fd);
+    if (accelHandle) {
+        vaTerminate((VADisplay)accelHandle);
+    }
+    if (fd) {
+        close(fd);
+    }
     #endif
 #endif
 }

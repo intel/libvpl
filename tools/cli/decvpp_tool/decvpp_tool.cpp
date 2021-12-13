@@ -248,10 +248,12 @@ int main(int argc, char *argv[]) {
                         }
                     }
                     else { // VPP filter output
-                        if (cliParams.bIsAvailableVPPOutFileName) {
-                            sts = WriteRawFrame_InternalMem(aSurf,
-                                                            sinkVPP[aSurf->Info.ChannelId - 1]);
-                            VERIFY(MFX_ERR_NONE == sts, "ERROR - Could not write vpp output");
+                        if (cliParams.bIsAvailableVPPOutFileName && sinkVPP) {
+                            if (aSurf->Info.ChannelId <= cliParams.vppNum) {
+                                sts = WriteRawFrame_InternalMem(aSurf,
+                                                                sinkVPP[aSurf->Info.ChannelId - 1]);
+                                VERIFY(MFX_ERR_NONE == sts, "ERROR - Could not write vpp output");
+                            }
                         }
                     }
 
@@ -332,22 +334,21 @@ end:
     if (sinkDec)
         fclose(sinkDec);
 
-    if (cliParams.bIsAvailableVPPOutFileName) {
-        if (sinkVPP) {
-            for (mfxU16 i = 0; i < cliParams.vppNum; i++) {
-                if (sinkVPP[i])
-                    fclose(sinkVPP[i]);
-            }
-
-            delete[] sinkVPP;
+    if (cliParams.bIsAvailableVPPOutFileName && sinkVPP) {
+        for (mfxU16 i = 0; i < cliParams.vppNum; i++) {
+            if (sinkVPP[i])
+                fclose(sinkVPP[i]);
         }
+
+        delete[] sinkVPP;
     }
 
     if (bitstream.Data)
         free(bitstream.Data);
 
-    if (accelHandle)
-        FreeAcceleratorHandle(accelHandle, accel_fd);
+    FreeAcceleratorHandle(accelHandle, accel_fd);
+    accelHandle = NULL;
+    accel_fd    = 0;
 
     if (loader)
         MFXUnload(loader);

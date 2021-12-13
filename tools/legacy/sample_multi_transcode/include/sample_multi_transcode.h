@@ -17,6 +17,7 @@
 #include "transcode_utils.h"
 #include "vpl_implementation_loader.h"
 
+#include <memory>
 #include "d3d11_allocator.h"
 #include "d3d11_device.h"
 #include "d3d_allocator.h"

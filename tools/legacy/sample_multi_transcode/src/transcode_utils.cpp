@@ -32,6 +32,7 @@
 #include <fstream>
 #include <iterator>
 #include <limits>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -816,7 +817,7 @@ mfxStatus CmdProcessor::ParseParFile(FILE* parFile) {
     fseek(parFile, 0, SEEK_SET);
 
     // allocate buffer for parsing
-    std::unique_ptr<msdk_char[]> parBuf(new msdk_char[fileSize]);
+    auto parBuf = std::make_unique<msdk_char[]>(fileSize);
     msdk_char* pCur;
 
     while (currPos < fileSize) {
@@ -870,8 +871,8 @@ mfxStatus CmdProcessor::TokenizeLine(msdk_char* pLine, mfxU32 length) {
     mfxU32 i, strArgLen;
     const mfxU8 maxArgNum = 255;
     msdk_char* argv[maxArgNum + 1];
-    mfxU32 argc = 0;
-    std::unique_ptr<msdk_char[]> pMemLine(new msdk_char[length + 2]);
+    mfxU32 argc   = 0;
+    auto pMemLine = std::make_unique<msdk_char[]>(length + 2);
 
     msdk_char* pTempLine = pMemLine.get();
     pTempLine[0]         = ' ';

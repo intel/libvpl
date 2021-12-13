@@ -134,11 +134,10 @@ mfxStatus CSmplYUVReader::Init(std::list<msdk_string> inputs,
     }
 
     for (ls_iterator it = inputs.begin(); it != inputs.end(); it++) {
-        FILE* f = 0;
+        m_files.push_back(NULL);
+        auto& f = m_files.back();
         MSDK_FOPEN(f, (*it).c_str(), MSDK_STRING("rb"));
         MSDK_CHECK_POINTER(f, MFX_ERR_NULL_PTR);
-
-        m_files.push_back(f);
     }
 
     m_ColorFormat = ColorFormat;

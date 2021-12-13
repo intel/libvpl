@@ -16,6 +16,7 @@
 #include "vpl/mfxbrc.h"
 
 #include <algorithm>
+#include <memory>
 
 #define MFX_CHECK_NULL_PTR1(pointer) MSDK_CHECK_POINTER(pointer, MFX_ERR_NULL_PTR);
 

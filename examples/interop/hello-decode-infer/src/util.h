@@ -214,8 +214,12 @@ void *InitAcceleratorHandle(mfxSession session, int *fd) {
 
 void FreeAcceleratorHandle(void *accelHandle, int fd) {
 #ifdef LIBVA_SUPPORT
-    vaTerminate((VADisplay)accelHandle);
-    close(fd);
+    if (accelHandle) {
+        vaTerminate((VADisplay)accelHandle);
+    }
+    if (fd) {
+        close(fd);
+    }
 #endif
 }
 

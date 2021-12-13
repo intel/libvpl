@@ -46,13 +46,14 @@ int main(int argc, char *argv[]) {
     int accel_fd         = 0;
     int nIndexVPPInSurf  = 0;
     int nIndexVPPOutSurf = 0;
+    int result           = 0;
     mfxConfig cfg[1];
 
     mfxFrameAllocRequest VPPRequest[2]  = {};
     mfxFrameSurface1 *vppInSurfacePool  = NULL;
     mfxFrameSurface1 *vppOutSurfacePool = NULL;
     mfxLoader loader                    = NULL;
-    mfxSession session                  = {};
+    mfxSession session                  = NULL;
     mfxStatus sts                       = MFX_ERR_NONE;
     mfxSyncPoint syncp;
     mfxU16 nSurfNumVPPIn    = 0;
@@ -177,13 +178,8 @@ int main(int argc, char *argv[]) {
                 sts = WriteRawFrame(pmfxOutSurface, sink);
                 if (sts != MFX_ERR_NONE) {
                     printf("Error in WriteRawFrame\n");
-                    if (source) {
-                        fclose(source);
-                    }
-                    if (sink) {
-                        fclose(sink);
-                    }
-                    return sts;
+                    result = sts;
+                    goto end;
                 }
 
                 printf("Frame number: %d\r", ++framenum);
@@ -242,11 +238,12 @@ end:
     if (sink)
         fclose(sink);
 
-    if (accelHandle)
-        FreeAcceleratorHandle(accelHandle, accel_fd);
+    FreeAcceleratorHandle(accelHandle, accel_fd);
+    accelHandle = NULL;
+    accel_fd    = 0;
 
     if (loader)
         MFXUnload(loader);
 
-    return 0;
+    return result;
 }

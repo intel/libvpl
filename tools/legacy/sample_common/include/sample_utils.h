@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <fstream>
 #include <map>
+#include <memory>
 #include <mutex>
 #include <sstream>
 #include <stdexcept>

@@ -370,9 +370,10 @@ void CRegionEncodingPipeline::Close() {
         mfxU32 frameNum = m_resources.GetSize()
                               ? m_FileWriters.first->m_nProcessedFramesNum / m_resources.GetSize()
                               : 0;
-        msdk_printf(MSDK_STRING("Frame number: %u   \r"), frameNum);
-        msdk_printf(MSDK_STRING("\nEncode fps: %.2lf\n"),
-                    m_timeAll ? frameNum * ((double)time_get_frequency()) / m_timeAll : 0);
+        msdk_printf(MSDK_STRING("Frame number: %u   \r"), (unsigned int)frameNum);
+        msdk_printf(
+            MSDK_STRING("\nEncode fps: %.2lf\n"),
+            (double)(m_timeAll ? frameNum * ((double)time_get_frequency()) / m_timeAll : 0.0));
     }
 
     DeallocateExtMVCBuffers();

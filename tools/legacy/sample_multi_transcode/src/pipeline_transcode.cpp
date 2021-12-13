@@ -13,6 +13,7 @@
 #include <assert.h>
 #include <algorithm>
 #include <cstring>
+#include <memory>
 #include <set>
 #include "mfx_itt_trace.h"
 #include "pipeline_transcode.h"
@@ -3099,7 +3100,7 @@ mfxStatus CTranscodingPipeline::AllocFrames(mfxFrameAllocRequest* pRequest, bool
     MSDK_CHECK_STATUS(sts, "m_pMFXAllocator->Alloc failed");
 
     for (i = 0; i < nSurfNum; i++) {
-        auto surface  = std::unique_ptr<mfxFrameSurfaceWrap>(new mfxFrameSurfaceWrap());
+        auto surface  = std::make_unique<mfxFrameSurfaceWrap>();
         surface->Info = pRequest->Info;
 
         if (m_rawInput) {

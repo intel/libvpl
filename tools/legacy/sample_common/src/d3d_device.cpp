@@ -95,7 +95,7 @@ bool CD3D9Device::CheckOverlaySupport() {
         overlaySupported = false;
     }
     else {
-        hr = m_pD3D9->QueryInterface(IID_PPV_ARGS(&d3d9overlay));
+        hr = m_pD3D9->QueryInterface(__uuidof(IDirect3D9ExOverlayExtension), (void**)&d3d9overlay);
         if (FAILED(hr) || (d3d9overlay == NULL)) {
             overlaySupported = false;
         }

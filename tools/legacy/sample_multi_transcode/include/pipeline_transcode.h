@@ -436,22 +436,22 @@ private:
     void AddFlowEvents();
     void AddFlowEvent(const Event a, const Event b);
 
-    void WriteEvent(const Event ev);
-    void WriteDurationEvent(const Event ev);
-    void WriteFlowEvent(const Event ev);
-    void WriteCounterEvent(const Event ev);
+    void WriteEvent(std::ofstream& trace_file, const Event ev);
+    void WriteDurationEvent(std::ofstream& trace_file, const Event ev);
+    void WriteFlowEvent(std::ofstream& trace_file, const Event ev);
+    void WriteCounterEvent(std::ofstream& trace_file, const Event ev);
 
-    void WriteEventPID();
-    void WriteEventTID(const Event ev);
-    void WriteEventTS(const Event ev);
-    void WriteEventPhase(const Event ev);
-    void WriteEventName(const Event ev);
-    void WriteBindingPoint(const Event ev);
-    void WriteEventInOutIDs(const Event ev);
-    void WriteEventCounter(const Event ev);
-    void WriteEventCategory();
-    void WriteEvID(const Event ev);
-    void WriteComma();
+    void WriteEventPID(std::ofstream& trace_file);
+    void WriteEventTID(std::ofstream& trace_file, const Event ev);
+    void WriteEventTS(std::ofstream& trace_file, const Event ev);
+    void WriteEventPhase(std::ofstream& trace_file, const Event ev);
+    void WriteEventName(std::ofstream& trace_file, const Event ev);
+    void WriteBindingPoint(std::ofstream& trace_file, const Event ev);
+    void WriteEventInOutIDs(std::ofstream& trace_file, const Event ev);
+    void WriteEventCounter(std::ofstream& trace_file, const Event ev);
+    void WriteEventCategory(std::ofstream& trace_file);
+    void WriteEvID(std::ofstream& trace_file, const Event ev);
+    void WriteComma(std::ofstream& trace_file);
 
     const static mfxU32 TraceBufferSizeInMBytes = 7;
 
@@ -461,7 +461,6 @@ private:
     std::vector<Event> AddonLog;
     std::chrono::steady_clock::time_point TimeBase;
     std::mutex TracerFileMutex;
-    std::ofstream TraceFile;
 };
 
 static const mfxU32 DecoderTargetID = 100;

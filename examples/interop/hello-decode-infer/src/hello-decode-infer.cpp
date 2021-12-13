@@ -345,8 +345,9 @@ end:
     if (bitstream.Data)
         free(bitstream.Data);
 
-    if (accelHandle)
-        FreeAcceleratorHandle(accelHandle, accel_fd);
+    FreeAcceleratorHandle(accelHandle, accel_fd);
+    accelHandle = NULL;
+    accel_fd    = 0;
 
     return 0;
 }

@@ -15,9 +15,7 @@
 
 class CMSDKResource {
 public:
-    CMSDKResource() {
-        pEncoder = NULL;
-    }
+    CMSDKResource() : Session(), pEncoder(NULL), TaskPool() {}
 
     MainVideoSession Session;
     MFXVideoENCODE* pEncoder;

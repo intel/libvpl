@@ -5,6 +5,7 @@
   ############################################################################*/
 
 #include "sysmem_allocator.h"
+#include <memory>
 #include "sample_utils.h"
 
 #define MSDK_ALIGN32(X) (((mfxU32)((X) + 31)) & (~(mfxU32)31))
@@ -397,7 +398,7 @@ mfxStatus SysMemFrameAllocator::AllocImpl(mfxFrameAllocRequest* request,
     if (!nbytes)
         return MFX_ERR_UNSUPPORTED;
 
-    std::unique_ptr<mfxMemId[]> mids(new mfxMemId[request->NumFrameSuggested]);
+    auto mids = std::make_unique<mfxMemId[]>(request->NumFrameSuggested);
 
     // allocate frames
     for (numAllocated = 0; numAllocated < request->NumFrameSuggested; numAllocated++) {

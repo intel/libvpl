@@ -21,6 +21,7 @@
 
 #include <future>
 #include <iomanip>
+#include <memory>
 
 using namespace std;
 using namespace TranscodingSample;
@@ -123,10 +124,10 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
 #if defined(_WIN32) || defined(_WIN64)
         if (m_eDevType == MFX_HANDLE_D3D9_DEVICE_MANAGER) {
             if (bNeedToCreateDevice) {
-                std::shared_ptr<mfxAllocatorParams> pAllocParam(new D3DAllocatorParams());
+                auto pAllocParam = std::make_shared<D3DAllocatorParams>();
                 D3DAllocatorParams* pD3DParams =
                     dynamic_cast<D3DAllocatorParams*>(pAllocParam.get());
-                std::unique_ptr<CHWDevice> hwdev(new CD3D9Device());
+                auto hwdev = std::make_unique<CD3D9Device>();
 
                 /* The last param set in vector always describe VPP+ENCODE or Only VPP
                  * So, if we want to do rendering we need to do pass HWDev to CTranscodingPipeline */
@@ -163,10 +164,10 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
     #if MFX_D3D11_SUPPORT
         else if (m_eDevType == MFX_HANDLE_D3D11_DEVICE) {
             if (bNeedToCreateDevice) {
-                std::shared_ptr<mfxAllocatorParams> pAllocParam(new D3D11AllocatorParams());
+                auto pAllocParam = std::make_shared<D3D11AllocatorParams>();
                 D3D11AllocatorParams* pD3D11Params =
                     dynamic_cast<D3D11AllocatorParams*>(pAllocParam.get());
-                std::unique_ptr<CHWDevice> hwdev(new CD3D11Device());
+                auto hwdev = std::make_unique<CD3D11Device>();
 
                 /* The last param set in vector always describe VPP+ENCODE or Only VPP
                  * So, if we want to do rendering we need to do pass HWDev to CTranscodingPipeline */
@@ -301,7 +302,7 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
 #endif
     }
     if (m_pAllocParams.empty()) {
-        m_pAllocParams.push_back(std::shared_ptr<mfxAllocatorParams>(new SysMemAllocatorParams));
+        m_pAllocParams.push_back(std::make_shared<mfxAllocatorParams>());
         hdls.push_back(NULL);
 
         for (i = 1; i < m_InputParamsArray.size(); i++) {
@@ -334,16 +335,15 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
     // create sessions, allocators
     for (i = 0; i < m_InputParamsArray.size(); i++) {
         msdk_printf(MSDK_STRING("Session %d:\n"), (int)i);
-        std::unique_ptr<GeneralAllocator> pAllocator(new GeneralAllocator);
-        sts = pAllocator->Init(m_pAllocParams[i].get());
+        auto pAllocator = std::make_unique<GeneralAllocator>();
+        sts             = pAllocator->Init(m_pAllocParams[i].get());
         MSDK_CHECK_STATUS(sts, "pAllocator->Init failed");
 
         m_pAllocArray.push_back(std::move(pAllocator));
 
-        std::unique_ptr<ThreadTranscodeContext> pThreadPipeline(new ThreadTranscodeContext);
+        auto pThreadPipeline = std::make_unique<ThreadTranscodeContext>();
         // extend BS processing init
-        m_pExtBSProcArray.push_back(
-            std::unique_ptr<FileBitstreamProcessor>(new FileBitstreamProcessor));
+        m_pExtBSProcArray.push_back(std::make_unique<FileBitstreamProcessor>());
 
         pThreadPipeline->pPipeline.reset(CreatePipeline());
 
@@ -396,8 +396,8 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
         if (msdk_strncmp(MSDK_STRING("null"),
                          m_InputParamsArray[i].strDstFile,
                          msdk_strlen(MSDK_STRING("null")))) {
-            std::unique_ptr<CSmplBitstreamWriter> writer(new CSmplBitstreamWriter());
-            sts = writer->Init(m_InputParamsArray[i].strDstFile);
+            auto writer = std::make_unique<CSmplBitstreamWriter>();
+            sts         = writer->Init(m_InputParamsArray[i].strDstFile);
 
             sts = m_pExtBSProcArray.back()->SetWriter(writer);
             MSDK_CHECK_STATUS(sts, "m_pExtBSProcArray.back()->SetWriter failed");
@@ -1209,7 +1209,7 @@ void TranscodingSample::CascadeScalerConfig::CreatePoolList() {
     }
 }
 
-SMTTracer::SMTTracer() : Log(), AddonLog(), TracerFileMutex(), TraceFile() {
+SMTTracer::SMTTracer() : Log(), AddonLog(), TracerFileMutex() {
     TimeBase = std::chrono::steady_clock::now();
 }
 
@@ -1261,11 +1261,8 @@ void SMTTracer::AddCounterEvent(const ThreadType thType,
 
 void SMTTracer::SaveTrace(mfxU32 FileID) {
     string FileName = "smt_trace_" + to_string(FileID) + ".json";
-    if (TraceFile.is_open()) {
-        TraceFile.close();
-    }
-    TraceFile.open(FileName, std::ios::out);
-    if (!TraceFile) {
+    std::ofstream trace_file(FileName, std::ios::out);
+    if (!trace_file) {
         return;
     }
 
@@ -1275,16 +1272,16 @@ void SMTTracer::SaveTrace(mfxU32 FileID) {
            100. * Log.size() / Log.capacity());
     printf("trace file name %s\n", FileName.c_str());
 
-    TraceFile << "[" << endl;
+    trace_file << "[" << endl;
 
     for (const Event ev : Log) {
-        WriteEvent(ev);
+        WriteEvent(trace_file, ev);
     }
     for (const Event ev : AddonLog) {
-        WriteEvent(ev);
+        WriteEvent(trace_file, ev);
     }
 
-    TraceFile.close();
+    trace_file.close();
 }
 
 void SMTTracer::AddEvent(const EventType evType,
@@ -1360,215 +1357,215 @@ void SMTTracer::AddFlowEvent(const Event a, const Event b) {
     AddonLog.push_back(ev);
 }
 
-void SMTTracer::WriteEvent(const Event ev) {
+void SMTTracer::WriteEvent(std::ofstream& trace_file, const Event ev) {
     switch (ev.EvType) {
         case EventType::DurationStart:
         case EventType::DurationEnd:
-            WriteDurationEvent(ev);
+            WriteDurationEvent(trace_file, ev);
             break;
         case EventType::FlowStart:
         case EventType::FlowEnd:
-            WriteFlowEvent(ev);
+            WriteFlowEvent(trace_file, ev);
             break;
         case EventType::Counter:
-            WriteCounterEvent(ev);
+            WriteCounterEvent(trace_file, ev);
             break;
         default:;
     }
 }
 
-void SMTTracer::WriteDurationEvent(const Event ev) {
-    TraceFile << "{";
-    WriteEventPID();
-    WriteComma();
-    WriteEventTID(ev);
-    WriteComma();
-    WriteEventTS(ev);
-    WriteComma();
-    WriteEventPhase(ev);
-    WriteComma();
-    WriteEventName(ev);
-    WriteComma();
-    WriteEventInOutIDs(ev);
-    TraceFile << "}," << endl;
+void SMTTracer::WriteDurationEvent(std::ofstream& trace_file, const Event ev) {
+    trace_file << "{";
+    WriteEventPID(trace_file);
+    WriteComma(trace_file);
+    WriteEventTID(trace_file, ev);
+    WriteComma(trace_file);
+    WriteEventTS(trace_file, ev);
+    WriteComma(trace_file);
+    WriteEventPhase(trace_file, ev);
+    WriteComma(trace_file);
+    WriteEventName(trace_file, ev);
+    WriteComma(trace_file);
+    WriteEventInOutIDs(trace_file, ev);
+    trace_file << "}," << endl;
 }
 
-void SMTTracer::WriteFlowEvent(const Event ev) {
-    TraceFile << "{";
-    WriteEventPID();
-    WriteComma();
-    WriteEventTID(ev);
-    WriteComma();
-    WriteEventTS(ev);
-    WriteComma();
-    WriteEventPhase(ev);
-    WriteComma();
-    WriteEventName(ev);
-    WriteComma();
-    WriteBindingPoint(ev);
-    WriteComma();
-    WriteEventCategory();
-    WriteComma();
-    WriteEvID(ev);
-    TraceFile << "}," << endl;
+void SMTTracer::WriteFlowEvent(std::ofstream& trace_file, const Event ev) {
+    trace_file << "{";
+    WriteEventPID(trace_file);
+    WriteComma(trace_file);
+    WriteEventTID(trace_file, ev);
+    WriteComma(trace_file);
+    WriteEventTS(trace_file, ev);
+    WriteComma(trace_file);
+    WriteEventPhase(trace_file, ev);
+    WriteComma(trace_file);
+    WriteEventName(trace_file, ev);
+    WriteComma(trace_file);
+    WriteBindingPoint(trace_file, ev);
+    WriteComma(trace_file);
+    WriteEventCategory(trace_file);
+    WriteComma(trace_file);
+    WriteEvID(trace_file, ev);
+    trace_file << "}," << endl;
 }
 
-void SMTTracer::WriteCounterEvent(const Event ev) {
-    TraceFile << "{";
-    WriteEventPID();
-    WriteComma();
-    WriteEventTID(ev);
-    WriteComma();
-    WriteEventTS(ev);
-    WriteComma();
-    WriteEventPhase(ev);
-    WriteComma();
-    WriteEventName(ev);
-    WriteComma();
-    WriteEventCounter(ev);
-    TraceFile << "}," << endl;
+void SMTTracer::WriteCounterEvent(std::ofstream& trace_file, const Event ev) {
+    trace_file << "{";
+    WriteEventPID(trace_file);
+    WriteComma(trace_file);
+    WriteEventTID(trace_file, ev);
+    WriteComma(trace_file);
+    WriteEventTS(trace_file, ev);
+    WriteComma(trace_file);
+    WriteEventPhase(trace_file, ev);
+    WriteComma(trace_file);
+    WriteEventName(trace_file, ev);
+    WriteComma(trace_file);
+    WriteEventCounter(trace_file, ev);
+    trace_file << "}," << endl;
 }
 
-void SMTTracer::WriteEventPID() {
-    TraceFile << "\"pid\":\"smt\"";
+void SMTTracer::WriteEventPID(std::ofstream& trace_file) {
+    trace_file << "\"pid\":\"smt\"";
 }
 
-void SMTTracer::WriteEventTID(const Event ev) {
-    TraceFile << "\"tid\":\"";
+void SMTTracer::WriteEventTID(std::ofstream& trace_file, const Event ev) {
+    trace_file << "\"tid\":\"";
     switch (ev.ThType) {
         case ThreadType::DEC:
-            TraceFile << "dec";
+            trace_file << "dec";
             break;
         case ThreadType::VPP:
-            TraceFile << "enc" << ev.ThID;
+            trace_file << "enc" << ev.ThID;
             break;
         case ThreadType::ENC:
-            TraceFile << "enc" << ev.ThID;
+            trace_file << "enc" << ev.ThID;
             break;
         case ThreadType::CSVPP:
-            TraceFile << "vpp" << ev.ThID;
+            trace_file << "vpp" << ev.ThID;
             break;
         default:
-            TraceFile << "unknown";
+            trace_file << "unknown";
             break;
     }
-    TraceFile << "\"";
+    trace_file << "\"";
 }
 
-void SMTTracer::WriteEventTS(const Event ev) {
-    TraceFile << "\"ts\":" << ev.TS;
+void SMTTracer::WriteEventTS(std::ofstream& trace_file, const Event ev) {
+    trace_file << "\"ts\":" << ev.TS;
 }
 
-void SMTTracer::WriteEventPhase(const Event ev) {
-    TraceFile << "\"ph\":\"";
+void SMTTracer::WriteEventPhase(std::ofstream& trace_file, const Event ev) {
+    trace_file << "\"ph\":\"";
 
     switch (ev.EvType) {
         case EventType::DurationStart:
-            TraceFile << "B";
+            trace_file << "B";
             break;
         case EventType::DurationEnd:
-            TraceFile << "E";
+            trace_file << "E";
             break;
         case EventType::FlowStart:
-            TraceFile << "s";
+            trace_file << "s";
             break;
         case EventType::FlowEnd:
-            TraceFile << "f";
+            trace_file << "f";
             break;
         case EventType::Counter:
-            TraceFile << "C";
+            trace_file << "C";
             break;
         default:
-            TraceFile << "unknown";
+            trace_file << "unknown";
             break;
     }
-    TraceFile << "\"";
+    trace_file << "\"";
 }
 
-void SMTTracer::WriteEventName(const Event ev) {
-    TraceFile << "\"name\":\"";
+void SMTTracer::WriteEventName(std::ofstream& trace_file, const Event ev) {
+    trace_file << "\"name\":\"";
     if (ev.EvType == EventType::FlowStart || ev.EvType == EventType::FlowEnd) {
-        TraceFile << "link";
+        trace_file << "link";
     }
     else if (ev.EvType == EventType::Counter) {
         switch (ev.ThType) {
             case ThreadType::DEC:
-                TraceFile << "dec_pool";
+                trace_file << "dec_pool";
                 break;
             case ThreadType::VPP:
-                TraceFile << "enc_pool" << ev.ThID;
+                trace_file << "enc_pool" << ev.ThID;
                 break;
             case ThreadType::ENC:
-                TraceFile << "enc_pool" << ev.ThID;
+                trace_file << "enc_pool" << ev.ThID;
                 break;
             case ThreadType::CSVPP:
-                TraceFile << "vpp_pool" << ev.ThID;
+                trace_file << "vpp_pool" << ev.ThID;
                 break;
             default:
-                TraceFile << "unknown";
+                trace_file << "unknown";
                 break;
         }
     }
     else if (ev.Name != EventName::UNDEF) {
         switch (ev.Name) {
             case EventName::BUSY:
-                TraceFile << "busy";
+                trace_file << "busy";
                 break;
             case EventName::SYNC:
-                TraceFile << "syncp";
+                trace_file << "syncp";
                 break;
             default:
-                TraceFile << "unknown";
+                trace_file << "unknown";
                 break;
         }
     }
     else {
         switch (ev.ThType) {
             case ThreadType::DEC:
-                TraceFile << "dec";
+                trace_file << "dec";
                 break;
             case ThreadType::VPP:
-                TraceFile << "vpp";
+                trace_file << "vpp";
                 break;
             case ThreadType::ENC:
-                TraceFile << "enc";
+                trace_file << "enc";
                 break;
             case ThreadType::CSVPP:
-                TraceFile << "csvpp";
+                trace_file << "csvpp";
                 break;
             default:
-                TraceFile << "unknown";
+                trace_file << "unknown";
                 break;
         }
     }
-    TraceFile << "\"";
+    trace_file << "\"";
 }
 
-void SMTTracer::WriteBindingPoint(const Event ev) {
+void SMTTracer::WriteBindingPoint(std::ofstream& trace_file, const Event ev) {
     if (ev.EvType != EventType::FlowStart && ev.EvType != EventType::FlowEnd) {
         return;
     }
-    TraceFile << "\"bp\":\"e\"";
+    trace_file << "\"bp\":\"e\"";
 }
 
-void SMTTracer::WriteEventInOutIDs(const Event ev) {
-    TraceFile << "\"args\":{\"InID\":" << ev.InID << ",\"OutID\":" << ev.OutID << "}";
+void SMTTracer::WriteEventInOutIDs(std::ofstream& trace_file, const Event ev) {
+    trace_file << "\"args\":{\"InID\":" << ev.InID << ",\"OutID\":" << ev.OutID << "}";
 }
 
-void SMTTracer::WriteEventCounter(const Event ev) {
-    TraceFile << "\"args\":{\"free surfaces\":" << ev.InID << "}";
+void SMTTracer::WriteEventCounter(std::ofstream& trace_file, const Event ev) {
+    trace_file << "\"args\":{\"free surfaces\":" << ev.InID << "}";
 }
 
-void SMTTracer::WriteEventCategory() {
-    TraceFile << "\"cat\":\"link\"";
+void SMTTracer::WriteEventCategory(std::ofstream& trace_file) {
+    trace_file << "\"cat\":\"link\"";
 }
 
-void SMTTracer::WriteEvID(const Event ev) {
-    TraceFile << "\"id\":\"id_" << ev.EvID << "\"";
+void SMTTracer::WriteEvID(std::ofstream& trace_file, const Event ev) {
+    trace_file << "\"id\":\"id_" << ev.EvID << "\"";
 }
 
-void SMTTracer::WriteComma() {
-    TraceFile << ",";
+void SMTTracer::WriteComma(std::ofstream& trace_file) {
+    trace_file << ",";
 }
 
 void Launcher::Close() {

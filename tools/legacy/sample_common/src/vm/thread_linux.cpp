@@ -18,16 +18,10 @@
 MSDKSemaphore::MSDKSemaphore(mfxStatus& sts, mfxU32 count) : msdkSemaphoreHandle(count) {
     sts     = MFX_ERR_NONE;
     int res = pthread_cond_init(&m_semaphore, NULL);
-    if (!res) {
-        res = pthread_mutex_init(&m_mutex, NULL);
-        if (res) {
-            if (!pthread_cond_destroy(&m_semaphore)) {
-                // do nothing
-            }
-        }
-    }
-    if (res)
+    if (res) {
+        // If pthread_cond_init reports an error m_semaphore was not allocated
         throw std::bad_alloc();
+    }
 }
 
 MSDKSemaphore::~MSDKSemaphore(void) {
@@ -82,19 +76,12 @@ mfxStatus MSDKSemaphore::Wait(void) {
 /* ****************************************************************************** */
 
 MSDKEvent::MSDKEvent(mfxStatus& sts, bool manual, bool state) : msdkEventHandle(manual, state) {
-    sts = MFX_ERR_NONE;
-
+    sts     = MFX_ERR_NONE;
     int res = pthread_cond_init(&m_event, NULL);
-    if (!res) {
-        res = pthread_mutex_init(&m_mutex, NULL);
-        if (res) {
-            if (!pthread_cond_destroy(&m_event)) {
-                // do nothing
-            }
-        }
-    }
-    if (res)
+    if (res) {
+        // If pthread_cond_init reports an error m_event was not allocated
         throw std::bad_alloc();
+    }
 }
 
 MSDKEvent::~MSDKEvent(void) {
