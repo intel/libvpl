@@ -193,6 +193,8 @@ CTranscodingPipeline::CTranscodingPipeline()
           isHEVCSW(false),
           m_bInsertIDR(false),
           m_rawInput(false),
+          m_shouldUseShifted10BitVPP(false),
+          m_shouldUseShifted10BitEnc(false),
           m_pBSStore(),
           m_FrameNumberPreference(0xFFFFFFFF),
           m_MaxFramesForTranscode(0xFFFFFFFF),
@@ -574,50 +576,40 @@ mfxStatus CTranscodingPipeline::DecodeOneFrame(ExtendedSurface* pExtSurface) {
             MSDK_BREAK_ON_ERROR(sts);
         }
 
-        if (m_MemoryModel == GENERAL_ALLOC) {
-            // Find new working surface
-            m_ScalerConfig.Tracer->BeginEvent(SMTTracer::ThreadType::DEC,
-                                              0,
-                                              SMTTracer::EventName::SURF_WAIT,
-                                              nullptr,
-                                              nullptr);
-            pmfxSurface = GetFreeSurface(true, MSDK_SURFACE_WAIT_INTERVAL);
-            m_ScalerConfig.Tracer->EndEvent(SMTTracer::ThreadType::DEC,
-                                            0,
-                                            SMTTracer::EventName::SURF_WAIT,
-                                            nullptr,
-                                            nullptr);
-
-            if (m_bForceStop)
-                m_nTimeout = 0;
-            sts = CheckStopCondition();
-            MSDK_BREAK_ON_ERROR(sts);
-
-            // return an error if a free surface wasn't found
-            MSDK_CHECK_POINTER_SAFE(
-                pmfxSurface,
-                MFX_ERR_MEMORY_ALLOC,
-                msdk_printf(
-                    MSDK_STRING("ERROR: No free surfaces in decoder pool (during long period)\n")));
-        }
-        else if (m_MemoryModel == VISIBLE_INT_ALLOC) {
-            sts = m_pmfxDEC->GetSurface(&pmfxSurface);
-            MSDK_CHECK_STATUS(sts, "m_pmfxDEC->GetSurface failed");
-
-            if (m_bForceStop)
-                m_nTimeout = 0;
-            sts = CheckStopCondition();
-            MSDK_BREAK_ON_ERROR(sts);
-
-            // return an error if a free surface wasn't found
-            MSDK_CHECK_POINTER_SAFE(
-                pmfxSurface,
-                MFX_ERR_MEMORY_ALLOC,
-                msdk_printf(
-                    MSDK_STRING("ERROR: No free surfaces in decoder pool (during long period)\n")));
-        }
-
         if (!m_rawInput) {
+            if (m_MemoryModel == GENERAL_ALLOC) {
+                // Find new working surface
+                m_ScalerConfig.Tracer->BeginEvent(SMTTracer::ThreadType::DEC,
+                                                  0,
+                                                  SMTTracer::EventName::SURF_WAIT,
+                                                  nullptr,
+                                                  nullptr);
+                pmfxSurface = GetFreeSurface(true, MSDK_SURFACE_WAIT_INTERVAL);
+                m_ScalerConfig.Tracer->EndEvent(SMTTracer::ThreadType::DEC,
+                                                0,
+                                                SMTTracer::EventName::SURF_WAIT,
+                                                nullptr,
+                                                nullptr);
+            }
+            else if (m_MemoryModel == VISIBLE_INT_ALLOC) {
+                sts = m_pmfxDEC->GetSurface(&pmfxSurface);
+                MSDK_CHECK_STATUS(sts, "m_pmfxDEC->GetSurface failed");
+            }
+
+            if (m_MemoryModel != HIDDEN_INT_ALLOC) {
+                if (m_bForceStop)
+                    m_nTimeout = 0;
+                sts = CheckStopCondition();
+                MSDK_BREAK_ON_ERROR(sts);
+
+                // return an error if a free surface wasn't found
+                MSDK_CHECK_POINTER_SAFE(
+                    pmfxSurface,
+                    MFX_ERR_MEMORY_ALLOC,
+                    msdk_printf(MSDK_STRING(
+                        "ERROR: No free surfaces in decoder pool (during long period)\n")));
+            }
+
             m_ScalerConfig.Tracer->BeginEvent(SMTTracer::ThreadType::DEC,
                                               0,
                                               SMTTracer::EventName::UNDEF,
@@ -2537,6 +2529,8 @@ mfxStatus CTranscodingPipeline::InitEncMfxParams(sInputParams* pInParams) {
     m_mfxEncParams.AsyncDepth      = m_AsyncDepth;
     m_mfxEncParams.mfx.IdrInterval = pInParams->nIdrInterval;
 
+    m_mfxEncParams.mfx.FrameInfo.Shift = m_shouldUseShifted10BitEnc;
+
     { m_mfxEncParams.mfx.RateControlMethod = pInParams->nRateControlMethod; }
     m_mfxEncParams.mfx.NumSlice = pInParams->nSlices;
 
@@ -2858,7 +2852,7 @@ mfxStatus CTranscodingPipeline::InitVppMfxParams(MfxVideoParamsWrapper& par,
     if (pInParams->VppOutPattern) {
         par.IOPattern = (mfxU16)(InPatternFromParent | pInParams->VppOutPattern);
     }
-    else if (pInParams->bForceSysMem || (MFX_IMPL_SOFTWARE == pInParams->libType)) {
+    else if (pInParams->bForceSysMem || (MFX_IMPL_SOFTWARE == pInParams->libType) || m_rawInput) {
         par.IOPattern = (mfxU16)(InPatternFromParent | MFX_IOPATTERN_OUT_SYSTEM_MEMORY);
     }
     else {
@@ -2886,6 +2880,11 @@ mfxStatus CTranscodingPipeline::InitVppMfxParams(MfxVideoParamsWrapper& par,
     else {
         MSDK_MEMCPY_VAR(par.vpp.In, &m_mfxDecParams.mfx.FrameInfo, sizeof(mfxFrameInfo));
     }
+
+    // Fill Shift bit
+    par.vpp.In.Shift = m_shouldUseShifted10BitVPP;
+    par.vpp.Out.Shift =
+        m_shouldUseShifted10BitEnc; // This output should correspond to Encoder settings
 
     if (par.vpp.In.Width * par.vpp.In.Height == 0) {
         par.vpp.In.Width  = MSDK_ALIGN32(pInParams->nDstWidth);
@@ -3885,6 +3884,19 @@ mfxStatus CTranscodingPipeline::Init(sInputParams* pParams,
     }
     else {
         m_mfxDecParams.mfx.FrameInfo.PicStruct = MFX_PICSTRUCT_PROGRESSIVE;
+        if (MFX_CODEC_I420 == pParams->DecodeId || MFX_CODEC_NV12 == pParams->DecodeId ||
+            MFX_CODEC_P010 == pParams->DecodeId) {
+            m_mfxDecParams.mfx.FrameInfo.FourCC       = FileFourCC2EncFourCC(pParams->DecodeId);
+            m_mfxDecParams.mfx.FrameInfo.ChromaFormat = FourCCToChroma(pParams->DecoderFourCC);
+        }
+        else if (pParams->DecoderFourCC) {
+            m_mfxDecParams.mfx.FrameInfo.FourCC = pParams->DecoderFourCC;
+        }
+    }
+
+    if (pParams->IsSourceMSB) {
+        m_shouldUseShifted10BitVPP = true;
+        m_shouldUseShifted10BitEnc = true;
     }
 
     // VPP component initialization

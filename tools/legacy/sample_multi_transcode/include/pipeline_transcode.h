@@ -378,6 +378,8 @@ struct __sInputParams {
     mfxU16 forceSyncAllSession;
 
     mfxU16 nIVFHeader;
+
+    bool IsSourceMSB = false;
 };
 
 struct sInputParams : public __sInputParams {
@@ -962,6 +964,8 @@ protected:
     bool m_bInsertIDR;
 
     bool m_rawInput;
+    bool m_shouldUseShifted10BitVPP;
+    bool m_shouldUseShifted10BitEnc;
 
     std::unique_ptr<ExtendedBSStore> m_pBSStore;
 

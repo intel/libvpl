@@ -381,7 +381,8 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
         }
         else if (m_InputParamsArray[i].DecodeId == MFX_CODEC_RGB4 ||
                  m_InputParamsArray[i].DecodeId == MFX_CODEC_I420 ||
-                 m_InputParamsArray[i].DecodeId == MFX_CODEC_NV12) {
+                 m_InputParamsArray[i].DecodeId == MFX_CODEC_NV12 ||
+                 m_InputParamsArray[i].DecodeId == MFX_CODEC_P010) {
             // YUV reader for RGB4 overlay and raw input
             yuvreader.reset(new CSmplYUVReader());
         }
