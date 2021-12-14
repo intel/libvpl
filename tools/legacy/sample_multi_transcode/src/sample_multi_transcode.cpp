@@ -107,6 +107,19 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
     else
         m_pLoader->SetAdapterType(m_InputParamsArray[0].adapterType);
 
+#ifdef ONEVPL_EXPERIMENTAL
+    if (m_InputParamsArray[0].PCIDeviceSetup)
+        m_pLoader->SetPCIDevice(m_InputParamsArray[0].PCIDomain,
+                                m_InputParamsArray[0].PCIBus,
+                                m_InputParamsArray[0].PCIDevice,
+                                m_InputParamsArray[0].PCIFunction);
+
+    #if defined(_WIN32)
+    if (m_InputParamsArray[0].luid.HighPart > 0 || m_InputParamsArray[0].luid.LowPart > 0)
+        m_pLoader->SetupLUID(m_InputParamsArray[0].luid);
+    #endif
+#endif
+
     if (m_InputParamsArray[0].adapterNum >= 0)
         m_pLoader->SetAdapterNum(m_InputParamsArray[0].adapterNum);
 

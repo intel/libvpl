@@ -103,6 +103,16 @@ struct sInputParams {
 #if defined(LINUX32) || defined(LINUX64)
     std::string strDevicePath;
 #endif
+#ifdef ONEVPL_EXPERIMENTAL
+    #if (defined(_WIN64) || defined(_WIN32))
+    LUID luid;
+    #endif
+    mfxU32 PCIDomain    = 0;
+    mfxU32 PCIBus       = 0;
+    mfxU32 PCIDevice    = 0;
+    mfxU32 PCIFunction  = 0;
+    bool PCIDeviceSetup = false;
+#endif
     mfxU16 adapterType;
     mfxI32 dGfxIdx;
     mfxI32 adapterNum;

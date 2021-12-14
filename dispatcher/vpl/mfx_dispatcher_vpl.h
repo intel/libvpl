@@ -409,6 +409,10 @@ struct ImplInfo {
     // list of implemented functions
     mfxHDL implFuncs;
 
+#ifdef ONEVPL_EXPERIMENTAL
+    mfxHDL implExtDeviceID;
+#endif
+
     // used for session initialization with this implementation
     mfxInitializationParam vplParam;
     mfxVersion version;
@@ -430,12 +434,16 @@ struct ImplInfo {
             : libInfo(nullptr),
               implDesc(nullptr),
               implFuncs(nullptr),
+#ifdef ONEVPL_EXPERIMENTAL
+              implExtDeviceID(nullptr),
+#endif
               vplParam(),
               version(),
               msdkImplIdx(0),
               adapterIdx(ADAPTER_IDX_UNKNOWN),
               libImplIdx(0),
-              validImplIdx(-1) {}
+              validImplIdx(-1) {
+    }
 };
 
 // loader class implementation

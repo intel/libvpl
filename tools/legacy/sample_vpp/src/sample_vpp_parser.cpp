@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <cctype>
 #include <fstream>
+#include <regex>
 #include <sstream>
 #include <string>
 #include "sample_vpp_utils.h"
@@ -43,6 +44,14 @@ void vppPrintHelp(const msdk_char* strAppName, const msdk_char* strErrorMessage)
         "                                               '-device /dev/dri/renderD128'\n"));
     msdk_printf(MSDK_STRING(
         "                                  If not specified, defaults to the first Intel device found on the system\n\n"));
+#endif
+#ifdef ONEVPL_EXPERIMENTAL
+    #if (defined(_WIN64) || defined(_WIN32))
+    msdk_printf(MSDK_STRING("   [-luid HighPart:LowPart] - setup adapter by LUID  \n"));
+    msdk_printf(MSDK_STRING("                                 For example: \"0x0:0x8a46\"  \n"));
+    #endif
+    msdk_printf(MSDK_STRING("   [-pci domain:bus:device.function] - setup device with PCI \n"));
+    msdk_printf(MSDK_STRING("                                 For example: \"0:3:0.0\"  \n"));
 #endif
     msdk_printf(MSDK_STRING(
         "   [-dGfx]                     - preffer processing on dGfx (by default system decides)\n"));
@@ -1826,6 +1835,72 @@ mfxStatus vppParseInputString(msdk_char* strInput[],
                 }
                 VAL_CHECK(i + 1 == nArgNum);
                 pParams->strDevicePath = strInput[++i];
+            }
+#endif
+#ifdef ONEVPL_EXPERIMENTAL
+    #if defined(_WIN32)
+            else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-luid"))) {
+                // <HighPart:LowPart>
+                msdk_char luid[MSDK_MAX_FILENAME_LEN];
+                if (i + 1 >= nArgNum) {
+                    msdk_printf(MSDK_STRING("error: Not enough parameters for -luid key\n"));
+                    return MFX_ERR_UNSUPPORTED;
+                }
+                i++;
+                if (MFX_ERR_NONE != msdk_opt_read(strInput[i], luid)) {
+                    msdk_printf(MSDK_STRING("error: '-luid' arguments is invalid\n"));
+                    return MFX_ERR_UNSUPPORTED;
+                }
+
+                std::string temp = std::string(luid);
+                const std::regex pieces_regex("(0[xX][0-9a-fA-F]+):(0[xX][0-9a-fA-F]+)");
+                std::smatch pieces_match;
+
+                // pieces_match = [full match, HighPart, LowPart]
+                if (std::regex_match(temp, pieces_match, pieces_regex) &&
+                    pieces_match.size() == 3) {
+                    pParams->luid.HighPart = std::strtol(pieces_match[1].str().c_str(), 0, 16);
+                    pParams->luid.LowPart  = std::strtol(pieces_match[2].str().c_str(), 0, 16);
+                }
+                else {
+                    msdk_printf(MSDK_STRING(
+                        "error: format of -LUID is invalid, please, use: HighPart:LowPart\n"));
+                    return MFX_ERR_UNSUPPORTED;
+                }
+            }
+    #endif
+            else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-pci"))) {
+                msdk_char deviceInfo[MSDK_MAX_FILENAME_LEN];
+                if (i + 1 >= nArgNum) {
+                    msdk_printf(MSDK_STRING("error: Not enough parameters for -pci key\n"));
+                    return MFX_ERR_UNSUPPORTED;
+                }
+                i++;
+                if ((msdk_strlen(strInput[i]) + 1) > MSDK_ARRAY_LEN(deviceInfo)) {
+                    msdk_printf(MSDK_STRING("error: '-pci' arguments is too long\n"));
+                    return MFX_ERR_UNSUPPORTED;
+                }
+                msdk_opt_read(strInput[i], deviceInfo);
+
+                // template: <domain:bus:device.function>
+                std::string temp = std::string(deviceInfo);
+                const std::regex pieces_regex("([0-9]+):([0-9]+):([0-9]+).([0-9]+)");
+                std::smatch pieces_match;
+
+                // pieces_match = [full match, PCIDomain, PCIBus, PCIDevice, PCIFunction]
+                if (std::regex_match(temp, pieces_match, pieces_regex) &&
+                    pieces_match.size() == 5) {
+                    pParams->PCIDomain      = std::atoi(pieces_match[1].str().c_str());
+                    pParams->PCIBus         = std::atoi(pieces_match[2].str().c_str());
+                    pParams->PCIDevice      = std::atoi(pieces_match[3].str().c_str());
+                    pParams->PCIFunction    = std::atoi(pieces_match[4].str().c_str());
+                    pParams->PCIDeviceSetup = true;
+                }
+                else {
+                    msdk_printf(MSDK_STRING(
+                        "format of -pci is invalid, please, use: domain:bus:device.function"));
+                    return MFX_ERR_UNSUPPORTED;
+                }
             }
 #endif
             else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-dGfx"))) {

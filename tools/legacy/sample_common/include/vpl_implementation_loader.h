@@ -13,6 +13,10 @@
 #include "vpl/mfxdispatcher.h"
 #include "vpl/mfxvideo++.h"
 
+#if defined(_WIN32)
+    #include <dxgi.h>
+#endif
+
 class VPLImplementationLoader {
     std::shared_ptr<_mfxLoader> m_loader;
     std::shared_ptr<mfxImplDescription> m_idesc;
@@ -24,6 +28,16 @@ class VPLImplementationLoader {
     mfxI32 m_dGfxIdx;
     mfxI32 m_adapterNum;
     mfxVersion m_MinVersion;
+#ifdef ONEVPL_EXPERIMENTAL
+    mfxU32 m_PCIDomain;
+    mfxU32 m_PCIBus;
+    mfxU32 m_PCIDevice;
+    mfxU32 m_PCIFunction;
+    bool m_PCIDeviceSetup;
+    #if defined(_WIN32)
+    mfxU64 m_LUID;
+    #endif
+#endif
 
 public:
     VPLImplementationLoader();
@@ -49,6 +63,12 @@ public:
     std::pair<mfxI16, mfxI32> GetDeviceIDAndAdapter() const;
     mfxU16 GetAdapterType() const;
     void SetMinVersion(mfxVersion const& version);
+#ifdef ONEVPL_EXPERIMENTAL
+    mfxStatus SetPCIDevice(mfxI32 domain, mfxI32 bus, mfxI32 device, mfxI32 function);
+    #if defined(_WIN32)
+    mfxStatus SetupLUID(LUID luid);
+    #endif
+#endif
 };
 
 class MainVideoSession : public MFXVideoSession {

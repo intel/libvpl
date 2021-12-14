@@ -186,6 +186,19 @@ mfxStatus CUserPipeline::Init(sInputParams* pParams) {
 #endif
     }
 
+#ifdef ONEVPL_EXPERIMENTAL
+    if (pParams->m_PCIDeviceSetup)
+        m_pLoader->SetPCIDevice(pParams->PCIDomain,
+                                pParams->PCIBus,
+                                pParams->PCIDevice,
+                                pParams->PCIFunction);
+
+    #if (defined(_WIN64) || defined(_WIN32))
+    if (pParams->luid.HighPart > 0 || pParams->luid.LowPart > 0)
+        m_pLoader->SetupLUID(pParams->luid);
+    #endif
+#endif
+
     sts = m_pLoader->ConfigureImplementation(impl);
     MSDK_CHECK_STATUS(sts, "m_mfxSession.ConfigureImplementation failed");
     sts = m_pLoader->ConfigureAccelerationMode(pParams->accelerationMode, impl);

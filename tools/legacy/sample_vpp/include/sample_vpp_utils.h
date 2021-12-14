@@ -168,6 +168,17 @@ struct sInputParams {
     std::string strDevicePath; // path to device for processing
     #endif
 
+    #ifdef ONEVPL_EXPERIMENTAL
+        #if defined(_WIN32)
+    LUID luid;
+        #endif
+    mfxU32 PCIDomain    = 0;
+    mfxU32 PCIBus       = 0;
+    mfxU32 PCIDevice    = 0;
+    mfxU32 PCIFunction  = 0;
+    bool PCIDeviceSetup = false;
+    #endif
+
     mfxU16 adapterType;
     mfxI32 dGfxIdx;
     mfxI32 adapterNum;

@@ -440,6 +440,19 @@ mfxStatus CreateFrameProcessor(sFrameProcessor* pProcessor,
     if (pInParams->adapterNum >= 0)
         pProcessor->pLoader->SetAdapterNum(pInParams->adapterNum);
 
+#ifdef ONEVPL_EXPERIMENTAL
+    if (pInParams->PCIDeviceSetup)
+        pProcessor->pLoader->SetPCIDevice(pInParams->PCIDomain,
+                                          pInParams->PCIBus,
+                                          pInParams->PCIDevice,
+                                          pInParams->PCIFunction);
+
+    #if (defined(_WIN64) || defined(_WIN32))
+    if (pInParams->luid.HighPart > 0 || pInParams->luid.LowPart > 0)
+        pProcessor->pLoader->SetupLUID(pInParams->luid);
+    #endif
+#endif
+
     sts = pProcessor->pLoader->ConfigureAndEnumImplementations(impl, pInParams->accelerationMode);
     MSDK_CHECK_STATUS(sts, "mfxSession.EnumImplementations failed");
     sts = pProcessor->mfxSession.CreateSession(pProcessor->pLoader.get());

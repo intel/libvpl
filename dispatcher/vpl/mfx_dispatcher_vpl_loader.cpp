@@ -741,6 +741,13 @@ mfxStatus LoaderCtxVPL::UnloadSingleImplementation(ImplInfo *implInfo) {
                 (*(mfxStatus(MFX_CDECL *)(mfxHDL))pFunc)(implInfo->implFuncs);
                 implInfo->implFuncs = nullptr;
             }
+#ifdef ONEVPL_EXPERIMENTAL
+            if (implInfo->implExtDeviceID) {
+                // MFX_IMPLCAPS_DEVICE_ID_EXTENDED;
+                (*(mfxStatus(MFX_CDECL *)(mfxHDL))pFunc)(implInfo->implExtDeviceID);
+                implInfo->implExtDeviceID = nullptr;
+            }
+#endif
 
             // nothing to do if (capsFormat == MFX_IMPLCAPS_IMPLPATH) since no new memory was allocated
         }
@@ -850,6 +857,11 @@ mfxStatus LoaderCtxVPL::QueryLibraryCaps() {
             mfxHDL *hImpl   = nullptr;
             mfxU32 numImpls = 0;
 
+#ifdef ONEVPL_EXPERIMENTAL
+            mfxHDL *hImplExtDeviceID   = nullptr;
+            mfxU32 numImplsExtDeviceID = 0;
+#endif
+
             if (m_bLowLatency == false) {
                 // call MFXQueryImplsDescription() for this implementation
                 // return handle to description in requested format
@@ -877,6 +889,12 @@ mfxStatus LoaderCtxVPL::QueryLibraryCaps() {
                     it = m_libInfoList.erase(it);
                     continue;
                 }
+
+#ifdef ONEVPL_EXPERIMENTAL
+                hImplExtDeviceID =
+                    (*(mfxHDL * (MFX_CDECL *)(mfxImplCapsDeliveryFormat, mfxU32 *))
+                         pFunc)(MFX_IMPLCAPS_DEVICE_ID_EXTENDED, &numImplsExtDeviceID);
+#endif
             }
 
             // query for list of implemented functions
@@ -902,6 +920,11 @@ mfxStatus LoaderCtxVPL::QueryLibraryCaps() {
 
                 // library which contains this implementation
                 implInfo->libInfo = libInfo;
+
+#ifdef ONEVPL_EXPERIMENTAL
+                if (hImplExtDeviceID && i < numImplsExtDeviceID)
+                    implInfo->implExtDeviceID = hImplExtDeviceID[i];
+#endif
 
                 // implemented function description, if available
                 if (hImplFuncs && i < numImplsFuncs)
@@ -1181,6 +1204,11 @@ mfxStatus LoaderCtxVPL::QueryImpl(mfxU32 idx, mfxImplCapsDeliveryFormat format, 
             else if (format == MFX_IMPLCAPS_IMPLPATH) {
                 *idesc = implInfo->libInfo->implCapsPath;
             }
+#ifdef ONEVPL_EXPERIMENTAL
+            else if (format == MFX_IMPLCAPS_DEVICE_ID_EXTENDED) {
+                *idesc = implInfo->implExtDeviceID;
+            }
+#endif
 
             // implementation found, but requested query format is not supported
             if (*idesc == nullptr)
@@ -1226,6 +1254,11 @@ mfxStatus LoaderCtxVPL::ReleaseImpl(mfxHDL idesc) {
         else if (implInfo->libInfo->implCapsPath == idesc) {
             capsFormat = MFX_IMPLCAPS_IMPLPATH;
         }
+#ifdef ONEVPL_EXPERIMENTAL
+        else if (implInfo->implExtDeviceID == idesc) {
+            capsFormat = MFX_IMPLCAPS_DEVICE_ID_EXTENDED;
+        }
+#endif
         else {
             // no match - try next implementation
             it++;
@@ -1252,6 +1285,12 @@ mfxStatus LoaderCtxVPL::ReleaseImpl(mfxHDL idesc) {
                 sts                 = (*(mfxStatus(MFX_CDECL *)(mfxHDL))pFunc)(implInfo->implFuncs);
                 implInfo->implFuncs = nullptr;
             }
+#ifdef ONEVPL_EXPERIMENTAL
+            else if (capsFormat == MFX_IMPLCAPS_DEVICE_ID_EXTENDED) {
+                sts = (*(mfxStatus(MFX_CDECL *)(mfxHDL))pFunc)(implInfo->implExtDeviceID);
+                implInfo->implExtDeviceID = nullptr;
+            }
+#endif
 
             // nothing to do if (capsFormat == MFX_IMPLCAPS_IMPLPATH) since no new memory was allocated
         }

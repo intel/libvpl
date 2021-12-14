@@ -1450,6 +1450,19 @@ mfxStatus CEncodingPipeline::Init(sInputParams* pParams) {
     if (pParams->adapterNum >= 0)
         m_pLoader->SetAdapterNum(pParams->adapterNum);
 
+#ifdef ONEVPL_EXPERIMENTAL
+    if (pParams->PCIDeviceSetup)
+        m_pLoader->SetPCIDevice(pParams->PCIDomain,
+                                pParams->PCIBus,
+                                pParams->PCIDevice,
+                                pParams->PCIFunction);
+
+    #if (defined(_WIN64) || defined(_WIN32))
+    if (pParams->luid.HighPart > 0 || pParams->luid.LowPart > 0)
+        m_pLoader->SetupLUID(pParams->luid);
+    #endif
+#endif
+
     if (!pParams->accelerationMode && pParams->bUseHWLib) {
 #if D3D_SURFACES_SUPPORT
         pParams->accelerationMode = MFX_ACCEL_MODE_VIA_D3D11;

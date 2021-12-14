@@ -16,6 +16,9 @@
     #include <atlbase.h>
     #include <dxgi.h>
 #endif
+#if defined(_WIN32)
+    #include <dxgi.h>
+#endif
 
 #include <map>
 #include <regex>
@@ -80,6 +83,16 @@ VPLImplementationLoader::VPLImplementationLoader() {
     m_adapterType = mfxMediaAdapterType::MFX_MEDIA_UNKNOWN;
     m_dGfxIdx     = -1;
     m_adapterNum  = -1;
+#ifdef ONEVPL_EXPERIMENTAL
+    m_PCIDomain      = 0;
+    m_PCIBus         = 0;
+    m_PCIDevice      = 0;
+    m_PCIFunction    = 0;
+    m_PCIDeviceSetup = false;
+    #if defined(_WIN32)
+    m_LUID = 0;
+    #endif
+#endif
 }
 
 VPLImplementationLoader::~VPLImplementationLoader() {}
@@ -181,6 +194,36 @@ mfxStatus VPLImplementationLoader::ConfigureVersion(mfxVersion const version) {
     return sts;
 }
 
+#ifdef ONEVPL_EXPERIMENTAL
+    #if defined(_WIN32)
+mfxStatus VPLImplementationLoader::SetupLUID(LUID luid) {
+    *((LUID*)&m_LUID) = luid;
+
+    msdk_printf(MSDK_STRING("CONFIGURE LOADER: required LUID %x\n"), luid);
+
+    return MFX_ERR_NONE;
+}
+    #endif
+
+mfxStatus VPLImplementationLoader::SetPCIDevice(mfxI32 domain,
+                                                mfxI32 bus,
+                                                mfxI32 device,
+                                                mfxI32 function) {
+    m_PCIDomain      = domain;
+    m_PCIBus         = bus;
+    m_PCIDevice      = device;
+    m_PCIFunction    = function;
+    m_PCIDeviceSetup = true;
+    msdk_printf(MSDK_STRING("CONFIGURE LOADER: required domain:bus:device.function: %d:%d:%d.%d\n"),
+                domain,
+                bus,
+                device,
+                function);
+
+    return MFX_ERR_NONE;
+}
+#endif
+
 void VPLImplementationLoader::SetAdapterType(mfxU16 adapterType) {
     if (m_adapterNum != -1 && adapterType != mfxMediaAdapterType::MFX_MEDIA_UNKNOWN) {
         msdk_printf(MSDK_STRING(
@@ -228,7 +271,10 @@ void VPLImplementationLoader::SetAdapterNum(mfxI32 adapterNum) {
 
 mfxStatus VPLImplementationLoader::EnumImplementations() {
     mfxImplDescription* idesc = nullptr;
-    mfxStatus sts             = MFX_ERR_NONE;
+#ifdef ONEVPL_EXPERIMENTAL
+    mfxExtendedDeviceId* idescDevice = nullptr;
+#endif
+    mfxStatus sts = MFX_ERR_NONE;
 
     std::vector<std::pair<mfxU32, mfxImplDescription*>> unique_devices;
 
@@ -245,7 +291,48 @@ mfxStatus VPLImplementationLoader::EnumImplementations() {
         else if (idesc->ApiVersion < m_MinVersion) {
             continue;
         }
+#ifdef ONEVPL_EXPERIMENTAL
+        sts = MFXEnumImplementations(m_Loader,
+                                     impl,
+                                     MFX_IMPLCAPS_DEVICE_ID_EXTENDED,
+                                     (mfxHDL*)&idescDevice);
+        if (idescDevice) {
+            if (m_PCIDeviceSetup &&
+                (idescDevice->PCIDomain != m_PCIDomain || idescDevice->PCIBus != m_PCIBus ||
+                 idescDevice->PCIDevice != m_PCIDevice ||
+                 idescDevice->PCIFunction != m_PCIFunction)) {
+                continue;
+            }
 
+    #if defined(_WIN32)
+            if (m_LUID > 0) {
+                if (!idescDevice->LUIDValid)
+                    continue;
+
+                mfxU64 tempLuid = m_LUID;
+
+                bool luidEq = true;
+                for (int i = 0; i < 8; i++, tempLuid >>= 8) {
+                    if (mfxU8((tempLuid)&0xFF) != idescDevice->DeviceLUID[i]) {
+                        luidEq = false;
+                    }
+                }
+                if (!luidEq)
+                    continue;
+            }
+    #endif
+        }
+        else {
+            sts = MFX_ERR_NONE;
+            if (m_PCIDeviceSetup
+    #if defined(_WIN32)
+                || m_LUID > 0
+    #endif
+            ) {
+                continue;
+            }
+        }
+#endif
         // collect uniq devices, try to dound if adapter already collected
         auto it = std::find_if(unique_devices.begin(),
                                unique_devices.end(),
@@ -317,8 +404,16 @@ mfxStatus VPLImplementationLoader::ConfigureAndEnumImplementations(
     sts = EnumImplementations();
     MSDK_CHECK_STATUS(sts, "EnumImplementations failed");
 #else
+
     if (m_Impl != MFX_IMPL_HARDWARE || m_adapterType != mfxMediaAdapterType::MFX_MEDIA_UNKNOWN ||
-        !lowLatencyMode) {
+        !lowLatencyMode
+    #ifdef ONEVPL_EXPERIMENTAL
+        #if defined(_WIN32)
+        || m_LUID > 0
+        #endif
+        || (m_PCIDeviceSetup)
+    #endif
+    ) {
         sts = EnumImplementations();
         MSDK_CHECK_STATUS(sts, "EnumImplementations failed");
     }

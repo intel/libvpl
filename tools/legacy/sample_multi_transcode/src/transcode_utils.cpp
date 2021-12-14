@@ -4,6 +4,7 @@
   # SPDX-License-Identifier: MIT
   ############################################################################*/
 
+#include <regex>
 #include "mfx_samples_config.h"
 #include "plugin_utils.h"
 #include "sample_defs.h"
@@ -149,6 +150,14 @@ void TranscodingSample::PrintHelp() {
 #if (defined(_WIN64) || defined(_WIN32))
     msdk_printf(MSDK_STRING(
         "   [-dual_gfx::<on,off,adaptive>] - prefer encode processing on both iGfx and dGfx simultaneously\n"));
+#endif
+#ifdef ONEVPL_EXPERIMENTAL
+    #if (defined(_WIN64) || defined(_WIN32))
+    msdk_printf(MSDK_STRING("   -luid <HighPart:LowPart> - setup adapter by LUID  \n"));
+    msdk_printf(MSDK_STRING("                                 For example: \"0x0:0x8a46\"  \n"));
+    #endif
+    msdk_printf(MSDK_STRING("   -pci <domain:bus:device.function> - setup device with PCI \n"));
+    msdk_printf(MSDK_STRING("                                 For example: \"0:3:0.0\"  \n"));
 #endif
     msdk_printf(MSDK_STRING(
         "   [-dGfx] - preffer processing on dGfx (by default system decides), also can be set with index, for example: '-dGfx 1'\n"));
@@ -1548,6 +1557,67 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
             return MFX_ERR_UNSUPPORTED;
         }
     }
+#ifdef ONEVPL_EXPERIMENTAL
+    else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-pci"))) {
+        msdk_char deviceInfo[MSDK_MAX_FILENAME_LEN];
+        VAL_CHECK(i + 1 == argc, i, argv[i]);
+        i++;
+        SIZE_CHECK((msdk_strlen(argv[i]) + 1) > MSDK_ARRAY_LEN(deviceInfo));
+        if (MFX_ERR_NONE != msdk_opt_read(argv[i], deviceInfo)) {
+            PrintError(MSDK_STRING("-pci is invalid"));
+            return MFX_ERR_UNSUPPORTED;
+        }
+
+        // template: <domain:bus:device.function>
+        std::string temp = std::string(deviceInfo);
+        const std::regex pieces_regex("([0-9]+):([0-9]+):([0-9]+).([0-9]+)");
+        std::smatch pieces_match;
+
+        // pieces_match = [full match, PCIDomain, PCIBus, PCIDevice, PCIFunction]
+        if (std::regex_match(temp, pieces_match, pieces_regex) && pieces_match.size() == 5) {
+            InputParams.PCIDomain      = std::atoi(pieces_match[1].str().c_str());
+            InputParams.PCIBus         = std::atoi(pieces_match[2].str().c_str());
+            InputParams.PCIDevice      = std::atoi(pieces_match[3].str().c_str());
+            InputParams.PCIFunction    = std::atoi(pieces_match[4].str().c_str());
+            InputParams.PCIDeviceSetup = true;
+        }
+        else {
+            PrintError(
+                MSDK_STRING(
+                    "format of -pci \"%s\" is invalid, please, use: domain:bus:device.function"),
+                argv[i]);
+            return MFX_ERR_UNSUPPORTED;
+        }
+    }
+    #if defined(_WIN32)
+    else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-LUID"))) {
+        // <HighPart:LowPart>
+        msdk_char luid[MSDK_MAX_FILENAME_LEN];
+        VAL_CHECK(i + 1 == argc, i, argv[i]);
+        i++;
+        if (MFX_ERR_NONE != msdk_opt_read(argv[i], luid)) {
+            PrintError(MSDK_STRING("-LUID is invalid"));
+            return MFX_ERR_UNSUPPORTED;
+        }
+
+        std::string temp = std::string(luid);
+        const std::regex pieces_regex("(0[xX][0-9a-fA-F]+):(0[xX][0-9a-fA-F]+)");
+        std::smatch pieces_match;
+
+        // pieces_match = [full match, HighPart, LowPart]
+        if (std::regex_match(temp, pieces_match, pieces_regex) && pieces_match.size() == 3) {
+            InputParams.luid.HighPart = std::strtol(pieces_match[1].str().c_str(), 0, 16);
+            InputParams.luid.LowPart  = std::strtol(pieces_match[2].str().c_str(), 0, 16);
+        }
+        else {
+            PrintError(
+                MSDK_STRING("format of -LUID \"%s\" is invalid, please, use: HighPart:LowPart"),
+                argv[i]);
+            return MFX_ERR_UNSUPPORTED;
+        }
+    }
+    #endif
+#endif
     else {
         // no matching argument was found
         return MFX_ERR_NOT_FOUND;
