@@ -50,10 +50,10 @@ public:
     decode_session_template(const py::module &m, const std::string &typestr)
             : pyclass(m, typestr.c_str()) {
         pyclass
-            .def(py::init<vpl::implemetation_selector &,
+            .def(py::init<vpl::implementation_selector &,
                           const vpl::decoder_video_param &,
                           Reader *>())
-            .def(py::init<vpl::implemetation_selector &, vpl::codec_format_fourcc, Reader *>())
+            .def(py::init<vpl::implementation_selector &, vpl::codec_format_fourcc, Reader *>())
             .def(
                 "init_by_header",
                 &Class::init_by_header,
@@ -115,8 +115,8 @@ void init_session(const py::module &m) {
         vpl::encode_session,
         vpl::session<vpl::encoder_video_param, vpl::encoder_init_list, vpl::encoder_reset_list>,
         std::shared_ptr<vpl::encode_session>>(m, "encode_session")
-        .def(py::init<vpl::implemetation_selector &>())
-        .def(py::init<vpl::implemetation_selector &, vpl::frame_source_reader *>())
+        .def(py::init<vpl::implementation_selector &>())
+        .def(py::init<vpl::implementation_selector &, vpl::frame_source_reader *>())
         .def("alloc_input",
              &vpl::encode_session::alloc_input,
              "Allocate and return shared pointer to the surface")
@@ -168,8 +168,8 @@ void init_session(const py::module &m) {
         vpl::vpp_session,
         vpl::session<vpl::vpp_video_param, vpl::vpp_init_reset_list, vpl::vpp_init_reset_list>,
         std::shared_ptr<vpl::vpp_session>>(m, "vpp_session")
-        .def(py::init<vpl::implemetation_selector &>())
-        .def(py::init<vpl::implemetation_selector &, vpl::frame_source_reader *>())
+        .def(py::init<vpl::implementation_selector &>())
+        .def(py::init<vpl::implementation_selector &, vpl::frame_source_reader *>())
         .def("alloc_input",
              &vpl::vpp_session::alloc_input,
              "Allocate and return shared pointer to the surface")

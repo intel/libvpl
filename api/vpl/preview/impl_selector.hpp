@@ -24,18 +24,18 @@ namespace vpl {
 /// based on the @p list of properties. API user can create an instance of that class. If user
 /// wants to change the implementation selection behaviour they need to subslass and
 /// implement operator ().
-class implemetation_selector {
+class implementation_selector {
 protected:
     /// @brief Protected ctor.
     /// @param list List of properties
-    implemetation_selector()
+    implementation_selector()
             : format_(MFX_IMPLCAPS_IMPLDESCSTRUCTURE) {}
 
     virtual std::vector<std::pair<std::string, detail::variant>> get_properties() const = 0;
 
 public:
     /// @brief dtor
-    virtual ~implemetation_selector() {}
+    virtual ~implementation_selector() {}
 
     /// @brief Creates session which has the requested properties. Session class object calls
     /// this method at the ctor and takes care on deletion of loader and session handles.
@@ -97,13 +97,13 @@ protected:
     mfxImplCapsDeliveryFormat format_;
 };
 
-/// @brief Default implemetation selector. It accepts first implementation matching provided properties.
-template<typename property_collection=property_list> class default_selector : public implemetation_selector {
+/// @brief Default implementation selector. It accepts first implementation matching provided properties.
+template<typename property_collection=property_list> class default_selector : public implementation_selector {
 public:
     /// @brief Protected ctor.
     /// @param list List of properties
     explicit default_selector(property_collection props = {})
-            : implemetation_selector(),
+            : implementation_selector(),
             props_(props) {}
 
     /// @brief Acccept first found implementation.

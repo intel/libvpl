@@ -159,7 +159,7 @@ mfxStatus VPLImplementationLoader::ConfigureImplementation(mfxIMPL impl) {
         MFXSetConfigFilterProperty(cfgImpl, (mfxU8*)"mfxImplDescription.Impl", ImplVariant);
     MSDK_CHECK_STATUS(sts, "MFXSetConfigFilterProperty failed");
     msdk_printf(
-        MSDK_STRING("CONFIGURE LOADER: required implemetation: %s \n"),
+        MSDK_STRING("CONFIGURE LOADER: required implementation: %s \n"),
         ImplVariant.Data.U32 == MFX_IMPL_TYPE_HARDWARE ? MSDK_STRING("hw") : MSDK_STRING("sw"));
     return sts;
 }
@@ -173,7 +173,7 @@ mfxStatus VPLImplementationLoader::ConfigureAccelerationMode(mfxAccelerationMode
     if (accelerationMode != MFX_ACCEL_MODE_NA || !isHW) {
         sts = CreateConfig((mfxU32)accelerationMode, "mfxImplDescription.AccelerationMode");
         msdk_printf(
-            MSDK_STRING("CONFIGURE LOADER: required implemetation mfxAccelerationMode: %s \n"),
+            MSDK_STRING("CONFIGURE LOADER: required implementation mfxAccelerationMode: %s \n"),
             mfxAccelerationModeNames.at(accelerationMode).c_str());
     }
 

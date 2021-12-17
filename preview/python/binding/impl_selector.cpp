@@ -11,7 +11,7 @@ namespace vpl = oneapi::vpl;
 void init_impl_selector(const py::module &m) {
     // Note: we are handling a pointer to the base class. All instances of default_selector
     // simply have alternate constructors.
-    py::class_<vpl::implemetation_selector, std::shared_ptr<vpl::implemetation_selector>>(
+    py::class_<vpl::implementation_selector, std::shared_ptr<vpl::implementation_selector>>(
         m,
         "default_selector")
         .def(py::init<>([]() {
@@ -31,12 +31,12 @@ void init_impl_selector(const py::module &m) {
             return new vpl::default_selector<vpl::property_list>(list);
         }));
 
-    py::class_<vpl::cpu_selector, vpl::implemetation_selector, std::shared_ptr<vpl::cpu_selector>>(
+    py::class_<vpl::cpu_selector, vpl::implementation_selector, std::shared_ptr<vpl::cpu_selector>>(
         m,
         "cpu_selector")
         .def(py::init<>());
 
-    py::class_<vpl::gpu_selector, vpl::implemetation_selector, std::shared_ptr<vpl::gpu_selector>>(
+    py::class_<vpl::gpu_selector, vpl::implementation_selector, std::shared_ptr<vpl::gpu_selector>>(
         m,
         "gpu_selector")
         .def(py::init<>());

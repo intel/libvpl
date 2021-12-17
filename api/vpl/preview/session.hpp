@@ -53,7 +53,7 @@ protected:
     /// @brief Protected ctor. Creates session by using supplyed implementation selector.
     /// @param[in] sel Implementation selector
     /// @param[in] callable C API functions table
-    session(const implemetation_selector &sel, detail::sdk_c_api callable)
+    session(const implementation_selector &sel, detail::sdk_c_api callable)
             : c_api_callable_(callable),
               state_(state::Processing),
               component_(component::unknown),
@@ -284,7 +284,7 @@ public:
     /// @param[in] sel Implementation selector
     /// @param[in] codecID Codec ID
     /// @param[in] rdr Bitstream reader
-    decode_session(const implemetation_selector &sel, codec_format_fourcc codecID, Reader *rdr)
+    decode_session(const implementation_selector &sel, codec_format_fourcc codecID, Reader *rdr)
             : session(sel, detail::CAPI<>::Decoder),
               bits_(codecID),
               rdr_(rdr),
@@ -298,7 +298,7 @@ public:
     /// @param[in] sel Implementation selector
     /// @param[in] params Video params
     /// @param[in] rdr Bitstream reader
-    decode_session(const implemetation_selector &sel,
+    decode_session(const implementation_selector &sel,
                    const decoder_video_param &params,
                    Reader *rdr)
             : session(sel, detail::CAPI<>::Decoder),
@@ -484,7 +484,7 @@ class encode_session : public session<encoder_video_param, encoder_init_list, en
 public:
     /// @brief Constructs encoder session
     /// @param[in] sel Implementation selector
-    explicit encode_session(const implemetation_selector &sel)
+    explicit encode_session(const implementation_selector &sel)
             : session(sel, detail::CAPI<>::Encoder),
               rdr_(nullptr) {
         component_ = component::encoder;
@@ -493,7 +493,7 @@ public:
     /// @brief Constructs encoder session
     /// @param[in] sel Implementation selector
     /// @param[in] rdr Pointer to the raw frame reader
-    encode_session(const implemetation_selector &sel, frame_source_reader *rdr)
+    encode_session(const implementation_selector &sel, frame_source_reader *rdr)
             : session(sel, detail::CAPI<>::Encoder),
               rdr_(rdr) {
         component_ = component::encoder;
@@ -706,7 +706,7 @@ class vpp_session : public session<vpp_video_param, vpp_init_reset_list, vpp_ini
 public:
     /// @brief Constructs encoder session
     /// @param[in] sel Implementation selector
-    explicit vpp_session(const implemetation_selector &sel)
+    explicit vpp_session(const implementation_selector &sel)
             : session(sel, detail::CAPI<>::VPP),
               rdr_(nullptr) {
         component_ = component::vpp;
@@ -715,7 +715,7 @@ public:
     /// @brief Constructs encoder session
     /// @param[in] sel Implementation selector
     /// @param[in] rdr Pointer to the raw frame reader
-    vpp_session(const implemetation_selector &sel, frame_source_reader *rdr)
+    vpp_session(const implementation_selector &sel, frame_source_reader *rdr)
             : session(sel, detail::CAPI<>::VPP),
               rdr_(rdr) {
         component_ = component::vpp;
