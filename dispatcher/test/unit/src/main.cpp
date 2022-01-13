@@ -30,6 +30,7 @@ static void Usage(void) {
 // clang-format on
 
 // globals controlling test configuration
+bool g_bDispInclStub     = false;
 bool g_bDispInclSW       = false;
 bool g_bDispInclGPU_VPL  = false;
 bool g_bDispInclGPU_MSDK = false;
@@ -43,7 +44,11 @@ int main(int argc, char **argv) {
     for (int idx = 1; idx < argc; idx++) {
         std::string nextArg = argv[idx];
 
-        if (nextArg == "-disp:sw") {
+        if (nextArg == "-disp:stub") {
+            bDispCustom = true;
+            SET_UTEST_PARAMETER(g_bDispInclStub, true);
+        }
+        else if (nextArg == "-disp:sw") {
             bDispCustom = true;
             SET_UTEST_PARAMETER(g_bDispInclSW, true);
         }
@@ -67,8 +72,8 @@ int main(int argc, char **argv) {
     }
 
     if (!bDispCustom) {
-        // default dispatcher behavior - only run common + SW tests
-        g_bDispInclSW = true;
+        // default dispatcher behavior - only run stub implementation tests
+        g_bDispInclStub = true;
     }
 
     return RUN_ALL_TESTS();

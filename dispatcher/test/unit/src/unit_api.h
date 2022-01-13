@@ -12,9 +12,17 @@
 #include "vpl/mfxvideo.h"
 
 // globals controlling test configuration
+extern bool g_bDispInclStub;
 extern bool g_bDispInclSW;
 extern bool g_bDispInclGPU_VPL;
 extern bool g_bDispInclGPU_MSDK;
+
+#define SKIP_IF_DISP_STUB_DISABLED()    \
+    {                                   \
+        if (g_bDispInclStub == false) { \
+            GTEST_SKIP();               \
+        }                               \
+    }
 
 #define SKIP_IF_DISP_SW_DISABLED()    \
     {                                 \

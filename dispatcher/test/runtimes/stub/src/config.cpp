@@ -24,6 +24,10 @@ mfxStatus MFXInitialize(mfxInitializationParam par, mfxSession *session) {
     return MFX_ERR_NONE;
 }
 
+mfxStatus MFXClose(mfxSession session) {
+    return MFX_ERR_NONE;
+}
+
 #define NUM_CPU_IMPLS 1
 
 #define NUM_ACCELERATION_MODES_CPU 1
@@ -49,7 +53,7 @@ static const mfxImplDescription minImplDesc = {
     MFX_ACCEL_MODE_NA,                              // AccelerationMode
     { MFX_VERSION_MINOR, MFX_VERSION_MAJOR },       // ApiVersion
 
-    "Stub Implementation",                       // ImplName
+    "Stub Implementation",                          // ImplName
 
     "MIT",                                          // License
 

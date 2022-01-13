@@ -35,5 +35,9 @@ TEST(CreateSession, SucceedsWithStubImpl) {
     mfxSession session = NULL;
     sts                = MFXCreateSession(loader, 0, &session);
     EXPECT_EQ(sts, MFX_ERR_NONE) << "MFXCreateSession failed with code " << sts;
+
+    sts = MFXClose(session);
+    EXPECT_EQ(sts, MFX_ERR_NONE) << "MFXClose failed with code " << sts;
+
     MFXUnload(loader);
 }

@@ -14,10 +14,6 @@ mfxStatus MFXInitEx(mfxInitParam par, mfxSession *session) {
     return MFX_ERR_NOT_IMPLEMENTED;
 }
 
-mfxStatus MFXClose(mfxSession session) {
-    return MFX_ERR_NOT_IMPLEMENTED;
-}
-
 mfxStatus MFXJoinSession(mfxSession session, mfxSession child) {
     return MFX_ERR_NOT_IMPLEMENTED;
 }
