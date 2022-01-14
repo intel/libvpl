@@ -95,6 +95,7 @@ enum PropIdx {
     // special properties not part of description struct
     ePropSpecial_HandleType,
     ePropSpecial_Handle,
+    ePropSpecial_NumThread,
     ePropSpecial_DXGIAdapterIndex,
 
     // functions which must report as implemented
@@ -153,6 +154,7 @@ static const PropVariant PropIdxTab[] = {
 
     { "ePropSpecial_HandleType",            MFX_VARIANT_TYPE_U32 },
     { "ePropSpecial_Handle",                MFX_VARIANT_TYPE_PTR },
+    { "ePropSpecial_NumThread",             MFX_VARIANT_TYPE_U32 },
     { "ePropSpecial_DXGIAdapterIndex",      MFX_VARIANT_TYPE_U32 },
 
     { "ePropFunc_FunctionName",             MFX_VARIANT_TYPE_PTR },
@@ -425,6 +427,9 @@ mfxStatus ConfigCtxVPL::SetFilterProperty(const mfxU8 *name, mfxVariant value) {
     }
     else if (nextProp == "mfxHDL") {
         return ValidateAndSetProp(ePropSpecial_Handle, value);
+    }
+    else if (nextProp == "NumThread") {
+        return ValidateAndSetProp(ePropSpecial_NumThread, value);
     }
     else if (nextProp == "DXGIAdapterIndex") {
 #if defined(_WIN32) || defined(_WIN64)
@@ -1048,6 +1053,11 @@ mfxStatus ConfigCtxVPL::ValidateConfig(const mfxImplDescription *libImplDesc,
             specialConfig->bIsSet_deviceHandle = true;
         }
 
+        if (cfgPropsAll[ePropSpecial_NumThread].Type != MFX_VARIANT_TYPE_UNSET) {
+            specialConfig->NumThread        = cfgPropsAll[ePropSpecial_NumThread].Data.U32;
+            specialConfig->bIsSet_NumThread = true;
+        }
+
         if (cfgPropsAll[ePropSpecial_DXGIAdapterIndex].Type != MFX_VARIANT_TYPE_UNSET) {
             specialConfig->dxgiAdapterIdx =
                 (mfxU32)cfgPropsAll[ePropSpecial_DXGIAdapterIndex].Data.U32;
@@ -1208,6 +1218,13 @@ bool ConfigCtxVPL::CheckLowLatencyConfig(std::list<ConfigCtxVPL *> configCtxList
                 if (cfgPropsAll[ePropSpecial_Handle].Type != MFX_VARIANT_TYPE_UNSET) {
                     specialConfig->deviceHandle = (mfxHDL)cfgPropsAll[ePropSpecial_Handle].Data.Ptr;
                     specialConfig->bIsSet_deviceHandle = true;
+                }
+                break;
+
+            case ePropSpecial_NumThread:
+                if (cfgPropsAll[ePropSpecial_NumThread].Type != MFX_VARIANT_TYPE_UNSET) {
+                    specialConfig->NumThread        = cfgPropsAll[ePropSpecial_NumThread].Data.U32;
+                    specialConfig->bIsSet_NumThread = true;
                 }
                 break;
 

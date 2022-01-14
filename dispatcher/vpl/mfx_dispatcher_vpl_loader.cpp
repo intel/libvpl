@@ -1481,6 +1481,28 @@ mfxStatus LoaderCtxVPL::CreateSession(mfxU32 idx, mfxSession *session) {
                     msdkImpl = msdkImplTab[m_specialConfig.dxgiAdapterIdx];
             }
 
+            // add any extension buffers set via special filter properties
+            std::vector<mfxExtBuffer *> extBufs;
+
+            // pass NumThread via mfxExtThreadsParam
+            mfxExtThreadsParam extThreadsParam = {};
+            if (m_specialConfig.bIsSet_NumThread) {
+                DISP_LOG_MESSAGE(&m_dispLog,
+                                 "message:  extBuf enabled -- NumThread (%d)",
+                                 m_specialConfig.NumThread);
+
+                extThreadsParam.Header.BufferId = MFX_EXTBUFF_THREADS_PARAM;
+                extThreadsParam.Header.BufferSz = sizeof(mfxExtThreadsParam);
+                extThreadsParam.NumThread       = m_specialConfig.NumThread;
+
+                extBufs.push_back((mfxExtBuffer *)&extThreadsParam);
+            }
+
+            // attach vector of extBufs to mfxInitializationParam
+            implInfo->vplParam.NumExtParam = static_cast<mfxU16>(extBufs.size());
+            implInfo->vplParam.ExtParam =
+                (implInfo->vplParam.NumExtParam ? extBufs.data() : nullptr);
+
             // initialize this library via MFXInitialize or else fail
             //   (specify full path to library)
             sts = MFXInitEx2(implInfo->version,

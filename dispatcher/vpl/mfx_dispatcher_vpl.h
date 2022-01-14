@@ -165,7 +165,7 @@ enum PropRanges {
 
 // must match eProp_TotalProps, is checked with static_assert in _config.cpp
 //   (should throw error at compile time if !=)
-#define NUM_TOTAL_FILTER_PROPS 40
+#define NUM_TOTAL_FILTER_PROPS 41
 
 // typedef child structures for easier reading
 typedef struct mfxDecoderDescription::decoder DecCodec;
@@ -232,6 +232,9 @@ struct SpecialConfig {
 
     bool bIsSet_dxgiAdapterIdx;
     mfxU32 dxgiAdapterIdx;
+
+    bool bIsSet_NumThread;
+    mfxU32 NumThread;
 };
 
 // config class implementation
