@@ -39,6 +39,22 @@ void CheckDispatcherLog(const char *expectedString, bool expectMatch) {
         EXPECT_EQ(logPos, std::string::npos);
 }
 
+// no mechanism defined yet to control runtime logging, so just capture stdout
+void CaptureRuntimeLog() {
+    // start capturing log output
+    testing::internal::CaptureStdout();
+}
+
+void CheckRuntimeLog(const char *expectedString, bool expectMatch) {
+    std::string consoleOutput = testing::internal::GetCapturedStdout();
+    size_t logPos             = consoleOutput.find(expectedString);
+
+    if (expectMatch)
+        EXPECT_NE(logPos, std::string::npos);
+    else
+        EXPECT_EQ(logPos, std::string::npos);
+}
+
 // set implementation type
 mfxStatus SetConfigImpl(mfxLoader loader, mfxU32 implType) {
     mfxVariant ImplValue;

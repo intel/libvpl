@@ -4,6 +4,9 @@
   # SPDX-License-Identifier: MIT
   ############################################################################*/
 
+#include <stdarg.h>
+#include <stdio.h>
+
 #include "vpl/mfx.h"
 
 #include "src/caps.h"
@@ -14,14 +17,92 @@
 #include "src/caps_enc_none.h"
 #include "src/caps_vpp_none.h"
 
+// print messages to be parsed in unit tests to stdout, and other errors to stderr
+static void StubRTLogMessage(const char *msg, ...) {
+    fprintf(stdout, "[STUB RT]: message -- ");
+
+    va_list args;
+    va_start(args, msg);
+    vfprintf(stdout, msg, args);
+    va_end(args);
+}
+
+static void StubRTLogError(const char *msg, ...) {
+    fprintf(stderr, "[STUB RT]: ERROR -- ");
+    va_list args;
+    va_start(args, msg);
+    vfprintf(stderr, msg, args);
+    va_end(args);
+}
+
+static mfxStatus ValidateExtBuf(const char *strInitFunc,
+                                mfxExtBuffer *extBuf,
+                                mfxU32 expectedId,
+                                mfxU32 expectedSz) {
+    if (extBuf == nullptr) {
+        StubRTLogError("%s -- extBuf is NULL\n", strInitFunc);
+        return MFX_ERR_NULL_PTR;
+    }
+
+    if (extBuf->BufferId == expectedId) {
+        if (extBuf->BufferSz != expectedSz) {
+            StubRTLogError("%s -- invalid extBuf size (expected = %d, actual = %d)\n",
+                           strInitFunc,
+                           expectedSz,
+                           extBuf->BufferSz);
+
+            return MFX_ERR_UNSUPPORTED;
+        }
+
+        // valid buffer
+        mfxExtThreadsParam *extBufThreads = (mfxExtThreadsParam *)extBuf;
+        StubRTLogMessage("%s -- extBuf enabled -- NumThread (%d)",
+                         strInitFunc,
+                         extBufThreads->NumThread);
+
+        return MFX_ERR_NONE;
+    }
+
+    // unsupported extBuf type
+    return MFX_ERR_UNSUPPORTED;
+}
+
 // preferred entrypoint for 2.0 implementations (instead of MFXInitEx)
 mfxStatus MFXInitialize(mfxInitializationParam par, mfxSession *session) {
     if (!session)
         return MFX_ERR_NULL_PTR;
 
+    // check for valid extBufs
+    if (par.NumExtParam > 0 && par.ExtParam == nullptr) {
+        StubRTLogError("MFXInitialize -- ExtParam base ptr is NULL\n");
+        return MFX_ERR_NULL_PTR;
+    }
+
+    for (mfxU32 idx = 0; idx < par.NumExtParam; idx++) {
+        mfxStatus sts = MFX_ERR_NONE;
+
+        if (par.ExtParam[idx]->BufferId == MFX_EXTBUFF_THREADS_PARAM) {
+            sts = ValidateExtBuf("MFXInitialize",
+                                 par.ExtParam[idx],
+                                 MFX_EXTBUFF_THREADS_PARAM,
+                                 sizeof(mfxExtThreadsParam));
+        }
+        else {
+            // unsupported BufferId
+            sts = MFX_ERR_UNSUPPORTED;
+        }
+
+        if (sts != MFX_ERR_NONE)
+            return sts;
+    }
+
     *session = (mfxSession)0x01;
 
     return MFX_ERR_NONE;
+}
+
+mfxStatus MFXInitEx(mfxInitParam par, mfxSession *session) {
+    return MFX_ERR_NOT_IMPLEMENTED;
 }
 
 mfxStatus MFXClose(mfxSession session) {

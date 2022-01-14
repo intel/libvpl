@@ -22,6 +22,9 @@ mfxStatus SetConfigImpl(mfxLoader loader, mfxU32 implType);
 void CaptureDispatcherLog();
 void CheckDispatcherLog(const char *expectedString, bool expectMatch = true);
 
+void CaptureRuntimeLog();
+void CheckRuntimeLog(const char *expectedString, bool expectMatch = true);
+
 // create mfxConfig object and apply to loader
 template <typename varDataType>
 mfxStatus SetConfigFilterProperty(mfxLoader loader, const char *name, varDataType data);
@@ -49,5 +52,7 @@ mfxStatus SetSingleProperty(mfxLoader loader,
 
 // common kernels - set implType for stub, SW, GPU, etc.
 void Dispatcher_CreateSession_SimpleConfigCanCreateSession(mfxImplType implType);
+void Dispatcher_CreateSession_SetValidNumThreadCreatesSession(mfxImplType implType);
+void Dispatcher_CreateSession_SetInvalidNumThreadTypeReturnsErrUnsupported(mfxImplType implType);
 
 #endif // DISPATCHER_TEST_UNIT_SRC_DISPATCHER_COMMON_H_
