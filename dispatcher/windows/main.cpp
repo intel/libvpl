@@ -534,6 +534,10 @@ mfxStatus MFXInitEx2(mfxVersion version,
             break;
     }
 
+    // also pass extBuf array (if any) to MFXInitEx for 1.x API
+    par.NumExtParam = vplParam.NumExtParam;
+    par.ExtParam    = (vplParam.NumExtParam ? vplParam.ExtParam : nullptr);
+
     eMfxImplType implType =
         (par.Implementation == MFX_IMPL_SOFTWARE ? MFX_LIB_SOFTWARE : MFX_LIB_HARDWARE);
     mfxIMPL implInterface    = par.Implementation & -MFX_IMPL_VIA_ANY;

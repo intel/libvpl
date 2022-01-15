@@ -13,8 +13,9 @@
 
 #include "src/unit_api.h"
 
-// define special stub impl type for testing only
-#define MFX_IMPL_TYPE_STUB ((mfxImplType)0xFFFF)
+// define special stub impl types for testing only
+#define MFX_IMPL_TYPE_STUB    ((mfxImplType)0xFFFF)
+#define MFX_IMPL_TYPE_STUB_1X ((mfxImplType)0xAAAA)
 
 // helper functions for dispatcher tests
 mfxStatus SetConfigImpl(mfxLoader loader, mfxU32 implType);

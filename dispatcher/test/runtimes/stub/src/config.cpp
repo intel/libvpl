@@ -17,6 +17,9 @@
 #include "src/caps_enc_none.h"
 #include "src/caps_vpp_none.h"
 
+#define DEFAULT_SESSION_HANDLE_1X 0x01
+#define DEFAULT_SESSION_HANDLE_2X 0x02
+
 // print messages to be parsed in unit tests to stdout, and other errors to stderr
 static void StubRTLogMessage(const char *msg, ...) {
     fprintf(stdout, "[STUB RT]: message -- ");
@@ -96,16 +99,52 @@ mfxStatus MFXInitialize(mfxInitializationParam par, mfxSession *session) {
             return sts;
     }
 
-    *session = (mfxSession)0x01;
+    *session = (mfxSession)DEFAULT_SESSION_HANDLE_2X;
 
     return MFX_ERR_NONE;
 }
 
 mfxStatus MFXInitEx(mfxInitParam par, mfxSession *session) {
-    return MFX_ERR_NOT_IMPLEMENTED;
+    if (!session)
+        return MFX_ERR_NULL_PTR;
+
+    // check for valid extBufs
+    if (par.NumExtParam > 0 && par.ExtParam == nullptr) {
+        StubRTLogError("MFXInitEx -- ExtParam base ptr is NULL\n");
+        return MFX_ERR_NULL_PTR;
+    }
+
+    for (mfxU32 idx = 0; idx < par.NumExtParam; idx++) {
+        mfxStatus sts = MFX_ERR_NONE;
+
+        if (par.ExtParam[idx]->BufferId == MFX_EXTBUFF_THREADS_PARAM) {
+            sts = ValidateExtBuf("MFXInitEx",
+                                 par.ExtParam[idx],
+                                 MFX_EXTBUFF_THREADS_PARAM,
+                                 sizeof(mfxExtThreadsParam));
+        }
+        else {
+            // unsupported BufferId
+            sts = MFX_ERR_UNSUPPORTED;
+        }
+
+        if (sts != MFX_ERR_NONE)
+            return sts;
+    }
+
+    *session = (mfxSession)DEFAULT_SESSION_HANDLE_1X;
+
+    return MFX_ERR_NONE;
 }
 
 mfxStatus MFXClose(mfxSession session) {
+    if (!session)
+        return MFX_ERR_INVALID_HANDLE;
+
+    mfxU64 s = (mfxU64)session;
+    if (s != DEFAULT_SESSION_HANDLE_1X && s != DEFAULT_SESSION_HANDLE_2X)
+        return MFX_ERR_INVALID_HANDLE;
+
     return MFX_ERR_NONE;
 }
 
@@ -132,9 +171,13 @@ static const mfxImplDescription minImplDesc = {
     { 2, 1 },                                       // struct Version
     MFX_IMPL_TYPE_SOFTWARE,                         // Impl
     MFX_ACCEL_MODE_NA,                              // AccelerationMode
+#ifdef ENABLE_STUB_1X
+    { 99, 1},                                       // ApiVersion
+    "Stub Implementation 1X",                       // ImplName
+#else
     { MFX_VERSION_MINOR, MFX_VERSION_MAJOR },       // ApiVersion
-
     "Stub Implementation",                          // ImplName
+#endif
 
     "MIT",                                          // License
 

@@ -74,6 +74,17 @@ mfxStatus SetConfigImpl(mfxLoader loader, mfxU32 implType) {
             reinterpret_cast<const mfxU8 *>("mfxImplDescription.ImplName"),
             ImplValue);
     }
+    else if (implType == MFX_IMPL_TYPE_STUB_1X) {
+        // for 1.x API stub library, filter by ImplName (1.x API version)
+        ImplValue.Version.Version = (mfxU16)MFX_VARIANT_VERSION;
+        ImplValue.Type            = MFX_VARIANT_TYPE_PTR;
+        ImplValue.Data.Ptr        = (mfxHDL) "Stub Implementation 1X";
+
+        sts = MFXSetConfigFilterProperty(
+            cfg,
+            reinterpret_cast<const mfxU8 *>("mfxImplDescription.ImplName"),
+            ImplValue);
+    }
     else if (implType == MFX_IMPL_TYPE_SOFTWARE) {
         // for SW, filter by ImplName and ImplType (to exclude stub SW lib)
         ImplValue.Version.Version = (mfxU16)MFX_VARIANT_VERSION;

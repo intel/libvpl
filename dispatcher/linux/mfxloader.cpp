@@ -362,6 +362,10 @@ mfxStatus MFXInitEx2(mfxVersion version,
             break;
     }
 
+    // also pass extBuf array (if any) to MFXInitEx for 1.x API
+    par.NumExtParam = vplParam.NumExtParam;
+    par.ExtParam    = (vplParam.NumExtParam ? vplParam.ExtParam : nullptr);
+
     try {
         std::unique_ptr<MFX::LoaderCtx> loader;
 
