@@ -44,7 +44,16 @@ See [Preview Documentation](https://software.intel.com/content/www/us/en/develop
 for details.
 
 ### Installing a compatible version of Python
-The oneVPL Python preview requires Python 3.7.   This is the latest 3.x version.
+This example uses Python 3.x.
+
+The oneVPL Python Binding is built against a specific version of Python.
+
+The version of python targeted depends on the version available on the system
+where the binding is built, so in most cases if you have built the binding
+for yourself the versions will match.
+
+Many prebuilt versions of the oneVPL Python Binding target Python 3.7
+which may need to be installed.
 
 For Ubuntu 20.04, install with ``sudo apt install python3.7``.
 
@@ -86,5 +95,5 @@ py -3.7 hello-decode-py\hello-decode.py -sw -i <examples path>\content\cars_128x
 On Linux:
 
 ```
-python3.9 hello-decode-py/hello-decode.py -sw -i <examples path>\content\cars_128x96.h265
+python3.7 hello-decode-py/hello-decode.py -sw -i <examples path>\content\cars_128x96.h265
 ```
