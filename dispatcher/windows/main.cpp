@@ -759,19 +759,26 @@ mfxStatus MFXCloneSession(mfxSession session, mfxSession *clone) {
     // check error(s)
     if (pHandle) {
         // initialize the clone session
+        // currently supported for 1.x API only
+        // for 2.x runtimes, need to use RT implementation (passthrough)
         apiVersion = pHandle->apiVersion;
-        impl       = pHandle->impl | pHandle->implInterface;
-        mfxRes     = MFXInit(impl, &apiVersion, clone);
-        if (MFX_ERR_NONE != mfxRes) {
-            return mfxRes;
-        }
+        if (apiVersion.Major == 1) {
+            impl   = pHandle->impl | pHandle->implInterface;
+            mfxRes = MFXInit(impl, &apiVersion, clone);
+            if (MFX_ERR_NONE != mfxRes) {
+                return mfxRes;
+            }
 
-        // join the sessions
-        mfxRes = MFXJoinSession(session, *clone);
-        if (MFX_ERR_NONE != mfxRes) {
-            MFXClose(*clone);
-            *clone = NULL;
-            return mfxRes;
+            // join the sessions
+            mfxRes = MFXJoinSession(session, *clone);
+            if (MFX_ERR_NONE != mfxRes) {
+                MFXClose(*clone);
+                *clone = NULL;
+                return mfxRes;
+            }
+        }
+        else {
+            return MFX_ERR_UNSUPPORTED;
         }
     }
 

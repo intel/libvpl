@@ -143,7 +143,8 @@ enum LibPriority {
     LIB_PRIORITY_04 = 4,
     LIB_PRIORITY_05 = 5,
 
-    LIB_PRIORITY_LEGACY = 9999,
+    LIB_PRIORITY_LEGACY_DRIVERSTORE = 10000,
+    LIB_PRIORITY_LEGACY,
 };
 
 enum CfgPropState {
@@ -497,7 +498,7 @@ private:
     mfxStatus UnloadSingleImplementation(ImplInfo *implInfo);
     VPLFunctionPtr GetFunctionAddr(void *hModuleVPL, const char *pName);
 
-    mfxU32 GetSearchPathsDriverStore(std::list<STRING_TYPE> &searchDirs);
+    mfxU32 GetSearchPathsDriverStore(std::list<STRING_TYPE> &searchDirs, LibType libType);
     mfxU32 GetSearchPathsSystemDefault(std::list<STRING_TYPE> &searchDirs);
     mfxU32 GetSearchPathsCurrentExe(std::list<STRING_TYPE> &searchDirs);
     mfxU32 GetSearchPathsCurrentDir(std::list<STRING_TYPE> &searchDirs);

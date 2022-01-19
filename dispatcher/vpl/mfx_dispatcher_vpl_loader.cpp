@@ -275,12 +275,17 @@ mfxStatus LoaderCtxVPL::SearchDirForLibs(STRING_TYPE searchDir,
 }
 
 // fill in m_gpuAdapterInfo before calling
-mfxU32 LoaderCtxVPL::GetSearchPathsDriverStore(std::list<STRING_TYPE> &searchDirs) {
+mfxU32 LoaderCtxVPL::GetSearchPathsDriverStore(std::list<STRING_TYPE> &searchDirs,
+                                               LibType libType) {
     searchDirs.clear();
 
 #if defined(_WIN32) || defined(_WIN64)
     mfxStatus sts = MFX_ERR_UNSUPPORTED;
     STRING_TYPE vplPath;
+
+    int storageID = MFX::MFX_DRIVER_STORE_ONEVPL;
+    if (libType == LibTypeMSDK)
+        storageID = MFX::MFX_DRIVER_STORE;
 
     // get path to Windows driver store (if any) for each adapter
     for (mfxU32 adapterID = 0; adapterID < (mfxU32)m_gpuAdapterInfo.size(); adapterID++) {
@@ -288,7 +293,7 @@ mfxU32 LoaderCtxVPL::GetSearchPathsDriverStore(std::list<STRING_TYPE> &searchDir
         sts = MFX::MFXLibraryIterator::GetDriverStoreDir(vplPath,
                                                          MAX_VPL_SEARCH_PATH,
                                                          m_gpuAdapterInfo[adapterID].deviceID,
-                                                         MFX::MFX_DRIVER_STORE_ONEVPL);
+                                                         storageID);
         if (sts == MFX_ERR_NONE)
             searchDirs.push_back(vplPath);
     }
@@ -345,17 +350,6 @@ mfxU32 LoaderCtxVPL::GetSearchPathsLegacy(std::list<STRING_TYPE> &searchDirs) {
 #if defined(_WIN32) || defined(_WIN64)
     mfxStatus sts = MFX_ERR_UNSUPPORTED;
     STRING_TYPE msdkPath;
-
-    // get path to Windows driver store (MSDK)
-    for (mfxU32 adapterID = 0; adapterID < (mfxU32)m_gpuAdapterInfo.size(); adapterID++) {
-        msdkPath.clear();
-        sts = MFX::MFXLibraryIterator::GetDriverStoreDir(msdkPath,
-                                                         MAX_VPL_SEARCH_PATH,
-                                                         m_gpuAdapterInfo[adapterID].deviceID,
-                                                         MFX::MFX_DRIVER_STORE);
-        if (sts == MFX_ERR_NONE)
-            searchDirs.push_back(msdkPath);
-    }
 
     // get path via dispatcher regkey - HKCU
     msdkPath.clear();
@@ -435,7 +429,7 @@ mfxStatus LoaderCtxVPL::BuildListOfCandidateLibs() {
 
     // first priority: Windows driver store
     searchDirList.clear();
-    GetSearchPathsDriverStore(searchDirList);
+    GetSearchPathsDriverStore(searchDirList, LibTypeVPL);
     it = searchDirList.begin();
     while (it != searchDirList.end()) {
         STRING_TYPE nextDir = (*it);
@@ -483,7 +477,17 @@ mfxStatus LoaderCtxVPL::BuildListOfCandidateLibs() {
         it++;
     }
 
-    // lowest priority: legacy MSDK installation
+    // legacy MSDK installation: DriverStore has priority
+    searchDirList.clear();
+    GetSearchPathsDriverStore(searchDirList, LibTypeMSDK);
+    it = searchDirList.begin();
+    while (it != searchDirList.end()) {
+        STRING_TYPE nextDir = (*it);
+        sts = SearchDirForLibs(nextDir, m_libInfoList, LIB_PRIORITY_LEGACY_DRIVERSTORE);
+        it++;
+    }
+
+    // lowest priority: other legacy search paths
     searchDirList.clear();
     GetSearchPathsLegacy(searchDirList);
     it = searchDirList.begin();
@@ -551,7 +555,8 @@ mfxStatus LoaderCtxVPL::BuildListOfCandidateLibs() {
 mfxU32 LoaderCtxVPL::CheckValidLibraries() {
     DISP_LOG_FUNCTION(&m_dispLog);
 
-    LibInfo *msdkLibBest = nullptr;
+    LibInfo *msdkLibBest   = nullptr;
+    LibInfo *msdkLibBestDS = nullptr;
 
     // load all libraries
     std::list<LibInfo *>::iterator it = m_libInfoList.begin();
@@ -572,7 +577,7 @@ mfxU32 LoaderCtxVPL::CheckValidLibraries() {
         //   during UpdateValidImplList() since the minimum API version requested
         //   by application is not known yet (use SetConfigFilterProperty)
         if (libInfo->vplFuncTable[IdxMFXInitialize] &&
-            libInfo->libPriority != LIB_PRIORITY_LEGACY) {
+            libInfo->libPriority < LIB_PRIORITY_LEGACY_DRIVERSTORE) {
             libInfo->libType = LibTypeVPL;
             it++;
             continue;
@@ -600,6 +605,13 @@ mfxU32 LoaderCtxVPL::CheckValidLibraries() {
                     msdkLibBest = libInfo;
                 }
 
+                if (libInfo->libPriority == LIB_PRIORITY_LEGACY_DRIVERSTORE) {
+                    if (msdkLibBestDS == nullptr ||
+                        (libInfo->msdkVersion.Version > msdkLibBestDS->msdkVersion.Version)) {
+                        msdkLibBestDS = libInfo;
+                    }
+                }
+
 #if defined(_WIN32) || defined(_WIN64)
                 // workaround for double-init issue in old versions of MSDK runtime
                 //   (allow DLL to be fully unloaded after each call to MFXClose)
@@ -621,6 +633,9 @@ mfxU32 LoaderCtxVPL::CheckValidLibraries() {
         UnloadSingleLibrary(libInfo);
         it = m_libInfoList.erase(it);
     }
+
+    if (msdkLibBestDS)
+        msdkLibBest = msdkLibBestDS;
 
     // prune duplicate MSDK libraries (only keep one with highest API version)
     it = m_libInfoList.begin();

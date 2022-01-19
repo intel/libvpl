@@ -647,19 +647,27 @@ mfxStatus MFXCloneSession(mfxSession session, mfxSession *clone) {
         return MFX_ERR_INVALID_HANDLE;
 
     MFX::LoaderCtx *loader = (MFX::LoaderCtx *)session;
-    // initialize the clone session
-    mfxVersion version = loader->getVersion();
-    mfxStatus mfx_res  = MFXInit(loader->getImpl(), &version, clone);
-    if (MFX_ERR_NONE != mfx_res) {
-        return mfx_res;
-    }
+    mfxVersion version     = loader->getVersion();
 
-    // join the sessions
-    mfx_res = MFXJoinSession(session, *clone);
-    if (MFX_ERR_NONE != mfx_res) {
-        MFXClose(*clone);
-        *clone = nullptr;
-        return mfx_res;
+    // initialize the clone session
+    // currently supported for 1.x API only
+    // for 2.x runtimes, need to use RT implementation (passthrough)
+    if (version.Major == 1) {
+        mfxStatus mfx_res = MFXInit(loader->getImpl(), &version, clone);
+        if (MFX_ERR_NONE != mfx_res) {
+            return mfx_res;
+        }
+
+        // join the sessions
+        mfx_res = MFXJoinSession(session, *clone);
+        if (MFX_ERR_NONE != mfx_res) {
+            MFXClose(*clone);
+            *clone = nullptr;
+            return mfx_res;
+        }
+    }
+    else {
+        return MFX_ERR_UNSUPPORTED;
     }
 
     return MFX_ERR_NONE;
