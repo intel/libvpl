@@ -47,9 +47,11 @@ typedef char CHAR_TYPE;
         // Windows x64
         #define MSDK_LIB_NAME L"libmfxhw64."
     #endif
+    #define ONEVPL_PRIORITY_PATH_VAR L"ONEVPL_PRIORITY_PATH"
 #elif defined(__linux__)
     // Linux x64
-    #define MSDK_LIB_NAME "libmfxhw64."
+    #define MSDK_LIB_NAME            "libmfxhw64."
+    #define ONEVPL_PRIORITY_PATH_VAR "ONEVPL_PRIORITY_PATH"
 #endif
 
 #define MSDK_MIN_VERSION_MAJOR 1
@@ -137,6 +139,8 @@ struct DXGI1DeviceInfo {
 
 // priority of runtime loading, based on oneAPI-spec
 enum LibPriority {
+    LIB_PRIORITY_SPECIAL = 0, // highest priority regardless of other priority rules
+
     LIB_PRIORITY_01 = 1,
     LIB_PRIORITY_02 = 2,
     LIB_PRIORITY_03 = 3,
@@ -490,6 +494,7 @@ public:
     bool m_bNeedUpdateValidImpls;
     bool m_bNeedFullQuery;
     bool m_bNeedLowLatencyQuery;
+    bool m_bPriorityPathEnabled;
 
 private:
     // helper functions

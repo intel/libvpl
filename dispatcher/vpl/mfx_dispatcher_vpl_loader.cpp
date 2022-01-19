@@ -67,6 +67,7 @@ LoaderCtxVPL::LoaderCtxVPL()
     m_bNeedUpdateValidImpls = true;
     m_bNeedFullQuery        = true;
     m_bNeedLowLatencyQuery  = true;
+    m_bPriorityPathEnabled  = false;
 
     return;
 }
@@ -416,6 +417,20 @@ mfxStatus LoaderCtxVPL::BuildListOfCandidateLibs() {
     STRING_TYPE emptyPath; // default construction = empty
     std::list<STRING_TYPE> searchDirList;
     std::list<STRING_TYPE>::iterator it;
+
+    // special case: ONEVPL_PRIORITY_PATH may be used to specify user-defined path
+    //   and bypass priority sorting (API >= 2.6)
+    searchDirList.clear();
+    ParseEnvSearchPaths(ONEVPL_PRIORITY_PATH_VAR, searchDirList);
+    it = searchDirList.begin();
+    while (it != searchDirList.end()) {
+        STRING_TYPE nextDir = (*it);
+        sts                 = SearchDirForLibs(nextDir, m_libInfoList, LIB_PRIORITY_SPECIAL);
+        it++;
+    }
+
+    if (searchDirList.size() > 0)
+        m_bPriorityPathEnabled = true;
 
 #if defined(_WIN32) || defined(_WIN64)
     // retrieve list of DX11 graphics adapters (lightweight)
@@ -1391,6 +1406,25 @@ mfxStatus LoaderCtxVPL::UpdateValidImplList(void) {
 mfxStatus LoaderCtxVPL::PrioritizeImplList(void) {
     DISP_LOG_FUNCTION(&m_dispLog);
 
+    // API 2.6 introduced special search location ONEVPL_PRIORITY_PATH
+    // Libs here always have highest priority = LIB_PRIORITY_SPECIAL
+    //   and are not sorted by the other priority rules,
+    //   so we move them to a temporary list before priority sorting and
+    //   then add back to the full implementation list at the end.
+    std::list<ImplInfo *> implInfoListPriority;
+    if (m_bPriorityPathEnabled) {
+        auto it = m_implInfoList.begin();
+        while (it != m_implInfoList.end()) {
+            ImplInfo *implInfo = (*it);
+
+            auto it2 = std::next(it, 1);
+            if (implInfo->libInfo->libPriority == LIB_PRIORITY_SPECIAL)
+                implInfoListPriority.splice(implInfoListPriority.end(), m_implInfoList, it);
+
+            it = it2;
+        }
+    }
+
     // stable sort - work from lowest to highest priority conditions
 
     // 4 - sort by search path priority
@@ -1426,6 +1460,11 @@ mfxStatus LoaderCtxVPL::PrioritizeImplList(void) {
         // prioritize greatest Impl value (HW = 2, SW = 1)
         return (implDesc1->Impl > implDesc2->Impl);
     });
+
+    if (m_bPriorityPathEnabled) {
+        // add back unsorted ONEVPL_PRIORITY_PATH libs to beginning of list
+        m_implInfoList.splice(m_implInfoList.begin(), implInfoListPriority);
+    }
 
     // final pass - update index to match new priority order
     // validImplIdx will be the index associated with MFXEnumImplememntations()
