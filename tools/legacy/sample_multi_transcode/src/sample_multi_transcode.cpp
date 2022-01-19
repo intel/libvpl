@@ -360,12 +360,8 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
 
         pThreadPipeline->pPipeline.reset(CreatePipeline());
 
-        // no need, in lowLatencyMode adapter type is unknown
-        if (!lowLatencyMode) {
-            pThreadPipeline->pPipeline->SetAdapterType(m_pLoader->GetAdapterType());
-            pThreadPipeline->pPipeline->SetPrefferdGfx(m_InputParamsArray[i].dGfxIdx);
-        }
-
+        pThreadPipeline->pPipeline->SetAdapterType(m_pLoader->GetAdapterType());
+        pThreadPipeline->pPipeline->SetPrefferdGfx(m_InputParamsArray[i].dGfxIdx);
         pThreadPipeline->pPipeline->SetAdapterNum(m_pLoader->GetDeviceIDAndAdapter().second);
 
         pThreadPipeline->pBSProcessor = m_pExtBSProcArray.back().get();

@@ -76,10 +76,25 @@ mfxStatus MSDKSemaphore::Wait(void) {
 /* ****************************************************************************** */
 
 MSDKEvent::MSDKEvent(mfxStatus& sts, bool manual, bool state) : msdkEventHandle(manual, state) {
-    sts     = MFX_ERR_NONE;
+    sts = MFX_ERR_NONE;
+    //initialize m_event condition variable
     int res = pthread_cond_init(&m_event, NULL);
-    if (res) {
-        // If pthread_cond_init reports an error m_event was not allocated
+
+    //zero result indicates success
+    if (!res) {
+        //if successful, initialize the mutex
+        res = pthread_mutex_init(&m_mutex, NULL);
+
+        //zero result indicates success
+        //if not successful, destroy m_event
+        if (res) {
+            if (!pthread_cond_destroy(&m_event)) {
+                // do nothing
+            }
+        }
+    }
+    else {
+        //non-zero means something is wrong, throw bad_alloc
         throw std::bad_alloc();
     }
 }
