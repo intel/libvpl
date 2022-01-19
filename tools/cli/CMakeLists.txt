@@ -9,6 +9,10 @@ if(MSVC)
   add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 endif()
 
+if(BUILD_TOOLS_ONEVPL_EXPERIMENTAL)
+  add_definitions(-DONEVPL_EXPERIMENTAL)
+endif()
+
 add_subdirectory(decvpp_tool)
 
 add_executable(vpl-inspect vpl-inspect.cpp)

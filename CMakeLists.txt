@@ -63,6 +63,10 @@ set(BUILD_DISPATCHER_ONEVPL_EXPERIMENTAL
     ON
     CACHE BOOL "Build dispatcher with ONEVPL_EXPERIMENTAL APIs.")
 
+set(BUILD_TOOLS_ONEVPL_EXPERIMENTAL
+    ON
+    CACHE BOOL "Build tools with ONEVPL_EXPERIMENTAL APIs.")
+
 option(BUILD_DISPATCHER_ONLY "Build dispatcher only." OFF)
 option(BUILD_DEV_ONLY "Build only developer package." OFF)
 option(BUILD_PYTHON_BINDING_ONLY "Build only Python binding." OFF)

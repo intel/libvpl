@@ -232,10 +232,16 @@ int main(int argc, char *argv[]) {
 
     bool bPrintImplementedFunctions = false;
     bool bFullInfo                  = true;
+    bool bPrintExtendedDeviceID     = false;
     if (argc == 2) {
         if (!strncmp(argv[1], "-f", 2)) {
             bPrintImplementedFunctions = true;
         }
+#ifdef ONEVPL_EXPERIMENTAL
+        else if (!strncmp(argv[1], "-ex", 2)) {
+            bPrintExtendedDeviceID = true;
+        }
+#endif
         else if (!strncmp(argv[1], "-b", 2)) {
             bFullInfo = false;
         }
@@ -508,6 +514,36 @@ int main(int argc, char *argv[]) {
                 printf("%2sWarning - MFX_IMPLCAPS_IMPLEMENTEDFUNCTIONS not supported\n", "");
             }
         }
+
+#ifdef ONEVPL_EXPERIMENTAL
+        if (bPrintExtendedDeviceID) {
+            mfxExtendedDeviceId *idescDevice;
+
+            mfxStatus sts = MFXEnumImplementations(loader,
+                                                   i,
+                                                   MFX_IMPLCAPS_DEVICE_ID_EXTENDED,
+                                                   reinterpret_cast<mfxHDL *>(&idescDevice));
+            if (sts == MFX_ERR_NONE) {
+                printf("%2sExtended DeviceID's:\n", "");
+                printf("%6sVendorID: 0x%04X\n", "", idescDevice->VendorID);
+                printf("%6sDeviceID: 0x%04X\n", "", idescDevice->DeviceID);
+                printf("%6sPCIDomain: 0x%04X\n", "", idescDevice->PCIDomain);
+                printf("%6sPCIBus: 0x%04X\n", "", idescDevice->PCIBus);
+                printf("%6sPCIdevice: 0x%04X\n", "", idescDevice->PCIDevice);
+                printf("%6sPCIFunction: 0x%04X\n", "", idescDevice->PCIFunction);
+                printf("%6sLUIDDeviceNodeMask: 0x%04X\n", "", idescDevice->LUIDDeviceNodeMask);
+                printf("%6sLUIDValid: 0x%04X\n", "", idescDevice->LUIDValid);
+                printf("%6sDRMRenderNodeNum: 0x%04X\n", "", idescDevice->DRMRenderNodeNum);
+                printf("%6sDRMPrimaryNodeNum: 0x%04X\n", "", idescDevice->DRMPrimaryNodeNum);
+                printf("%6sDeviceName: %s\n", "", idescDevice->DeviceName);
+                MFXDispReleaseImplDescription(loader, idescDevice);
+            }
+
+            else {
+                printf("%2sWarning - MFX_IMPLCAPS_DEVICE_ID_EXTENDED not supported\n", "");
+            }
+        }
+#endif
 
         i++;
     }
