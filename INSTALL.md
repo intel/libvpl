@@ -13,7 +13,7 @@ To build this project you will need:
 
 On Windows, you will also need:
 
-- Visual Studio Build Tools 2017
+- Visual Studio Build Tools 2019
 	* Visual C++ ATL for x86 and x64
 - Visual Studio 2019
 	* C++ ATL for latest 'X' build tools (x86 & x64)

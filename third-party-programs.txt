@@ -46,7 +46,7 @@ installed under this license.
 2. Visual C++ Redistributable for Visual Studio
    Copyright Microsoft Corp.
 
-Terms for Microsoft “Distributable Code” provided as part of Microsoft’s Visual Studio Enterprise and Professional software under the terms of the MICROSOFT VISUAL STUDIO ENTERPRISE 2017, VISUAL STUDIO PROFESSIONAL 2017,  VISUAL STUDIO TEST PROFESSIONAL 2017 AND TRIAL EDITION AGREEMENT
+Terms for Microsoft “Distributable Code” provided as part of Microsoft’s Visual Studio Enterprise and Professional software under the terms of the MICROSOFT VISUAL STUDIO ENTERPRISE, VISUAL STUDIO PROFESSIONAL,  VISUAL STUDIO TEST PROFESSIONAL AND TRIAL EDITION AGREEMENT
 1.	License. This software package from Intel (the “Software Package”) contains code from Microsoft (the “Distributable Code”).  You are provided a non-transferable, non-exclusive, non-sublicensable, limited right and license only to use the Distributable Code as part of this Software Package.  You are not allowed to copy, modify, remove the Distributable Code from the Software Package or redistribute the Distributable Code.
 2.	Restrictions. The Distributable Code is licensed, not sold. You are only provided the above rights to use the Distributable Code.  Intel and Microsoft reserve all other rights. Unless applicable law gives you more rights, you may use the Distributable Code only as expressly permitted in these terms. In using the Distributable Code, you must comply with any technical limitations in the Distributable Code that only allow you to use it in certain ways. You may not:
 •	work around any technical limitations in the Distributable Code; 
