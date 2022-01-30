@@ -139,7 +139,7 @@ mfxU32 LoaderCtxVPL::ParseEnvSearchPaths(const CHAR_TYPE *envVarName,
     return (mfxU32)searchDirs.size();
 }
 
-#define NUM_LIB_PREFIXES 2
+#define NUM_LIB_PREFIXES 3
 
 mfxStatus LoaderCtxVPL::SearchDirForLibs(STRING_TYPE searchDir,
                                          std::list<LibInfo *> &libInfoList,
@@ -152,8 +152,18 @@ mfxStatus LoaderCtxVPL::SearchDirForLibs(STRING_TYPE searchDir,
     HANDLE hTestFile = nullptr;
     WIN32_FIND_DATAW testFileData;
     DWORD err;
-    STRING_TYPE testFileName[NUM_LIB_PREFIXES] = { searchDir + MAKE_STRING("/libvpl*.dll"),
-                                                   searchDir + MAKE_STRING("/libmfx*.dll") };
+    STRING_TYPE testFileName[NUM_LIB_PREFIXES] = {
+        searchDir + MAKE_STRING("/libvpl*.dll"),
+    #if defined _M_IX86
+        // 32-bit GPU RT names
+        searchDir + MAKE_STRING("/libmfx32-gen.dll"),
+        searchDir + MAKE_STRING("/libmfxhw32.dll")
+    #else
+        // 64-bit GPU RT names
+        searchDir + MAKE_STRING("/libmfx64-gen.dll"),
+        searchDir + MAKE_STRING("/libmfxhw64.dll")
+    #endif
+    };
 
     CHAR_TYPE currDir[MAX_VPL_SEARCH_PATH] = L"";
     if (GetCurrentDirectoryW(MAX_VPL_SEARCH_PATH, currDir))
@@ -223,7 +233,8 @@ mfxStatus LoaderCtxVPL::SearchDirForLibs(STRING_TYPE searchDir,
             if (strstr(currFile->d_name, ".so")) {
                 // library names must begin with "libvpl*" or "libmfx*"
                 if ((strstr(currFile->d_name, "libvpl") != currFile->d_name) &&
-                    (strstr(currFile->d_name, "libmfx") != currFile->d_name))
+                    (strcmp(currFile->d_name, "libmfx-gen.so.1.2") != 0) &&
+                    (strcmp(currFile->d_name, "libmfxhw64.so.1") != 0))
                     continue;
 
                 // special case: do not include dispatcher itself (libmfx.so*, libvpl.so*) or tracer library
