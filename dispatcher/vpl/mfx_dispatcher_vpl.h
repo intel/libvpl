@@ -334,9 +334,24 @@ public:
 
     static mfxStatus QueryAPIVersion(STRING_TYPE libNameFull, mfxVersion *msdkVersion);
 
+#ifdef ONEVPL_EXPERIMENTAL
+    static mfxStatus QueryExtDeviceID(mfxExtendedDeviceId *extDeviceID,
+                                      mfxU32 adapterID,
+                                      mfxU16 deviceID,
+                                      mfxU64 luid);
+#endif
+
     // required by MFXCreateSession
     mfxIMPL m_msdkAdapter;
     mfxIMPL m_msdkAdapterD3D9;
+
+    mfxU16 m_deviceID;
+    mfxU64 m_luid;
+
+#ifdef ONEVPL_EXPERIMENTAL
+    mfxExtendedDeviceId m_extDeviceID;
+    bool m_bHaveQueriedExtDeviceID;
+#endif
 
 private:
     // session management

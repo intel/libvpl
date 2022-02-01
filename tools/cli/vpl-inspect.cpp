@@ -527,14 +527,26 @@ int main(int argc, char *argv[]) {
                 printf("%2sExtended DeviceID's:\n", "");
                 printf("%6sVendorID: 0x%04X\n", "", idescDevice->VendorID);
                 printf("%6sDeviceID: 0x%04X\n", "", idescDevice->DeviceID);
-                printf("%6sPCIDomain: 0x%04X\n", "", idescDevice->PCIDomain);
-                printf("%6sPCIBus: 0x%04X\n", "", idescDevice->PCIBus);
-                printf("%6sPCIdevice: 0x%04X\n", "", idescDevice->PCIDevice);
-                printf("%6sPCIFunction: 0x%04X\n", "", idescDevice->PCIFunction);
-                printf("%6sLUIDDeviceNodeMask: 0x%04X\n", "", idescDevice->LUIDDeviceNodeMask);
+
+                printf("%6sPCIDomain: 0x%08X\n", "", idescDevice->PCIDomain);
+                printf("%6sPCIBus: 0x%08X\n", "", idescDevice->PCIBus);
+                printf("%6sPCIdevice: 0x%08X\n", "", idescDevice->PCIDevice);
+                printf("%6sPCIFunction: 0x%08X\n", "", idescDevice->PCIFunction);
+
+                if (idescDevice->LUIDValid) {
+                    printf("%6sDeviceLUID: ", "");
+                    for (mfxU32 idx = 0; idx < 8; idx++) {
+                        printf("%02x", idescDevice->DeviceLUID[7 - idx]);
+                    }
+                    printf("\n");
+                    printf("%6sLUIDDeviceNodeMask: 0x%04X\n", "", idescDevice->LUIDDeviceNodeMask);
+                }
+
                 printf("%6sLUIDValid: 0x%04X\n", "", idescDevice->LUIDValid);
-                printf("%6sDRMRenderNodeNum: 0x%04X\n", "", idescDevice->DRMRenderNodeNum);
+
+                printf("%6sDRMRenderNodeNum: %d\n", "", idescDevice->DRMRenderNodeNum);
                 printf("%6sDRMPrimaryNodeNum: 0x%04X\n", "", idescDevice->DRMPrimaryNodeNum);
+
                 printf("%6sDeviceName: %s\n", "", idescDevice->DeviceName);
                 MFXDispReleaseImplDescription(loader, idescDevice);
             }
