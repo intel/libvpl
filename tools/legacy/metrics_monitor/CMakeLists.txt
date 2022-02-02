@@ -9,7 +9,7 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES Linux)
 endif()
 
 find_package(PkgConfig REQUIRED)
-pkg_check_modules(PKGConfig_LIBDRM REQUIRED libdrm>=2.4.91 IMPORTED_TARGET)
+pkg_check_modules(PKGConfig_LIBDRM libdrm>=2.4.91 IMPORTED_TARGET)
 
 # cttmetrics
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/)
@@ -22,42 +22,45 @@ set(sources
 file(GLOB_RECURSE srcs "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 list(APPEND sources ${srcs})
 
-set(DEPENDENCIES libdrm)
+if(PKGConfig_LIBDRM_FOUND)
+  set(DEPENDENCIES libdrm)
 
-add_library(cttmetrics SHARED ${sources})
+  add_library(cttmetrics SHARED ${sources})
 
-target_include_directories(cttmetrics PUBLIC include)
-target_link_libraries(cttmetrics PRIVATE PkgConfig::PKGConfig_LIBDRM)
+  target_include_directories(cttmetrics PUBLIC include)
+  target_link_libraries(cttmetrics PRIVATE PkgConfig::PKGConfig_LIBDRM)
 
-target_compile_definitions(cttmetrics PRIVATE LIBVA_DRM_SUPPORT LIBVA_SUPPORT)
+  target_compile_definitions(cttmetrics PRIVATE LIBVA_DRM_SUPPORT LIBVA_SUPPORT)
 
-# cttmetrics_static
-add_library(cttmetrics_static STATIC ${sources})
-set_property(TARGET cttmetrics_static PROPERTY FOLDER "samples")
+  # cttmetrics_static
+  add_library(cttmetrics_static STATIC ${sources})
+  set_property(TARGET cttmetrics_static PROPERTY FOLDER "samples")
 
-target_include_directories(cttmetrics_static PUBLIC include)
-target_link_libraries(cttmetrics_static PUBLIC PkgConfig::PKGConfig_LIBDRM)
+  target_include_directories(cttmetrics_static PUBLIC include)
+  target_link_libraries(cttmetrics_static PUBLIC PkgConfig::PKGConfig_LIBDRM)
 
-target_compile_definitions(cttmetrics_static PRIVATE LIBVA_DRM_SUPPORT
+  target_compile_definitions(cttmetrics_static PRIVATE LIBVA_DRM_SUPPORT
+                                                       LIBVA_SUPPORT)
+
+  # metrics_monitor
+  set(sources sample/cttmetrics_sample.cpp)
+  file(GLOB_RECURSE srcs "${CMAKE_CURRENT_SOURCE_DIR}/sample/*.cpp")
+
+  add_executable(metrics_monitor ${sources})
+  set_property(TARGET metrics_monitor PROPERTY FOLDER "samples")
+  if(NOT CMAKE_C_COMPILER_ID MATCHES Intel)
+    set_property(TARGET metrics_monitor
+                 PROPERTY INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
+  endif()
+
+  target_link_libraries(metrics_monitor PUBLIC cttmetrics)
+
+  target_compile_definitions(metrics_monitor PRIVATE LIBVA_DRM_SUPPORT
                                                      LIBVA_SUPPORT)
 
-# metrics_monitor
-
-set(sources sample/cttmetrics_sample.cpp)
-
-file(GLOB_RECURSE srcs "${CMAKE_CURRENT_SOURCE_DIR}/sample/*.cpp")
-
-add_executable(metrics_monitor ${sources})
-set_property(TARGET metrics_monitor PROPERTY FOLDER "samples")
-if(NOT CMAKE_C_COMPILER_ID MATCHES Intel)
-  set_property(TARGET metrics_monitor
-               PROPERTY INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
+else()
+  message(WARNING "libdrm not found: skipping build of metrics monitor")
 endif()
-
-target_link_libraries(metrics_monitor PUBLIC cttmetrics)
-
-target_compile_definitions(metrics_monitor PRIVATE LIBVA_DRM_SUPPORT
-                                                   LIBVA_SUPPORT)
 
 # test_monitor
 

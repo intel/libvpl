@@ -12,8 +12,21 @@ if(POLICY CMP0074)
 endif()
 
 if(CMAKE_SYSTEM_NAME MATCHES Linux)
-  if(NOT (PKG_LIBVA_FOUND AND PKG_LIBVA_DRM_FOUND))
-    message("Skipping sample_encode build.")
+  if(NOT
+     (PKG_LIBDRM_FOUND
+      AND PKG_LIBVA_FOUND
+      AND PKG_LIBVA_DRM_FOUND))
+    if(NOT PKG_LIBDRM_FOUND)
+      message("libdrm not found: skipping build of sample_encode")
+    endif()
+
+    if(NOT PKG_LIBVA_FOUND)
+      message("libva not found: skipping build of sample_encode")
+    endif()
+
+    if(NOT PKG_LIBVA_DRM_FOUND)
+      message("libvadrm not found: skipping build of sample_encode")
+    endif()
     return()
   endif()
   if(BUILD_TOOLS_ONEVPL_EXPERIMENTAL)

@@ -7,6 +7,7 @@
 #ifndef LISTENER_WAYLAND_H
 #define LISTENER_WAYLAND_H
 
+#include <stdint.h>
 #include "class_wayland.h"
 
 /* drm listeners */
