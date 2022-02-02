@@ -1,0 +1,7 @@
+services:
+  onevpl:
+    build:
+      context: .
+      dockerfile: Dockerfile  
+    devices:
+      - /dev/dri:/dev/dri
