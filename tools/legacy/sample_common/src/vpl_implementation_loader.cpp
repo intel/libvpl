@@ -83,15 +83,14 @@ VPLImplementationLoader::VPLImplementationLoader() {
     m_adapterType = mfxMediaAdapterType::MFX_MEDIA_UNKNOWN;
     m_dGfxIdx     = -1;
     m_adapterNum  = -1;
-#ifdef ONEVPL_EXPERIMENTAL
+    // Extended device ID info, available in 2.6 and newer APIs
     m_PCIDomain      = 0;
     m_PCIBus         = 0;
     m_PCIDevice      = 0;
     m_PCIFunction    = 0;
     m_PCIDeviceSetup = false;
-    #if defined(_WIN32)
+#if defined(_WIN32)
     m_LUID = 0;
-    #endif
 #endif
 }
 

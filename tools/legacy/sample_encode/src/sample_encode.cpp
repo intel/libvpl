@@ -671,7 +671,7 @@ mfxStatus ParseAdditionalParams(msdk_char* strInput[],
             PrintHelp(strInput[0], MSDK_STRING("error: '-pci' arguments is too long\n"));
             return MFX_ERR_UNSUPPORTED;
         }
-        if (MFX_ERR_NONE != msdk_opt_read(strInput[i], luiddeviceInfo {
+        if (MFX_ERR_NONE != msdk_opt_read(strInput[i], deviceInfo)) {
             PrintHelp(strInput[0], MSDK_STRING("error: '-pci' arguments is invalid\n"));
             return MFX_ERR_UNSUPPORTED;
         }

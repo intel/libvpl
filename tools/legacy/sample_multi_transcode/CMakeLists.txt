@@ -23,6 +23,10 @@ if(CMAKE_SYSTEM_NAME MATCHES Linux)
     )
     return()
   endif()
+
+  if(BUILD_TOOLS_ONEVPL_EXPERIMENTAL)
+    add_definitions(-DONEVPL_EXPERIMENTAL)
+  endif()
 endif()
 
 add_executable(sample_multi_transcode)

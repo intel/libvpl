@@ -28,15 +28,14 @@ class VPLImplementationLoader {
     mfxI32 m_dGfxIdx;
     mfxI32 m_adapterNum;
     mfxVersion m_MinVersion;
-#ifdef ONEVPL_EXPERIMENTAL
+    // Extended device ID info, available in 2.6 and newer APIs
     mfxU32 m_PCIDomain;
     mfxU32 m_PCIBus;
     mfxU32 m_PCIDevice;
     mfxU32 m_PCIFunction;
     bool m_PCIDeviceSetup;
-    #if defined(_WIN32)
+#if defined(_WIN32)
     mfxU64 m_LUID;
-    #endif
 #endif
 
 public:

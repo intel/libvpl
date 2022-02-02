@@ -187,7 +187,7 @@ mfxStatus CUserPipeline::Init(sInputParams* pParams) {
     }
 
 #ifdef ONEVPL_EXPERIMENTAL
-    if (pParams->m_PCIDeviceSetup)
+    if (pParams->PCIDeviceSetup)
         m_pLoader->SetPCIDevice(pParams->PCIDomain,
                                 pParams->PCIBus,
                                 pParams->PCIDevice,

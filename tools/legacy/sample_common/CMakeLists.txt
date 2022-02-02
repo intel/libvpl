@@ -64,6 +64,11 @@ target_link_libraries(sample_common PUBLIC VPL::dispatcher
                                            media_sdk_compatibility_headers)
 
 if(CMAKE_SYSTEM_NAME MATCHES Linux)
+
+  if(BUILD_TOOLS_ONEVPL_EXPERIMENTAL)
+    add_definitions(-DONEVPL_EXPERIMENTAL)
+  endif()
+
   target_compile_definitions(sample_common PUBLIC LINUX64)
 
   find_package(PkgConfig REQUIRED)
