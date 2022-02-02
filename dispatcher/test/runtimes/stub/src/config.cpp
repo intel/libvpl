@@ -316,6 +316,38 @@ static const mfxImplementedFunctions *minImplFuncsArray[NUM_CPU_IMPLS] = {
     &minImplFuncs,
 };
 
+
+#ifndef ENABLE_STUB_1X
+static const mfxExtendedDeviceId minExtDeviceID = {
+    {0, 1},         // Version
+
+    0x8086,         // VendorID
+    0x1595,         // DeviceID
+    
+    1,              // PCIDomain
+    3,              // PCIBus
+    7,              // PCIDevice
+    9,              // PCIFunction
+    
+    { 0x4f, 0x59, 0x2e, 0xa1, 0x33, 0x78, 0xdb, 0x29 }, // DeviceLUID
+    
+    0x0000AEAE,     // LUIDDeviceNodeMask
+    1,              // LUIDValid
+
+    130,            // DRMRenderNodeNum
+    2,              // DRMPrimaryNodeNum
+
+    {},             // reserved1
+
+    "stub-extDev",  // DeviceName
+};
+
+static const mfxExtendedDeviceId *minExtDeviceIDArray[NUM_CPU_IMPLS] = {
+    &minExtDeviceID,
+};
+#endif
+
+
 // end table formatting
 // clang-format on
 
@@ -329,6 +361,13 @@ mfxHDL *MFXQueryImplsDescription(mfxImplCapsDeliveryFormat format, mfxU32 *num_i
     }
     else if (format == MFX_IMPLCAPS_IMPLEMENTEDFUNCTIONS) {
         return (mfxHDL *)(minImplFuncsArray);
+    }
+    else if (format == MFX_IMPLCAPS_DEVICE_ID_EXTENDED) {
+#ifdef ENABLE_STUB_1X
+        return nullptr;
+#else
+        return (mfxHDL *)(minExtDeviceIDArray);
+#endif
     }
     else {
         return nullptr;

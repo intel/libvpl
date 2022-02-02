@@ -1048,6 +1048,9 @@ mfxStatus LoaderCtxVPL::QueryLibraryCaps() {
             for (mfxU32 i = 0; i < maxImplMSDK; i++) {
                 mfxImplDescription *implDesc       = nullptr;
                 mfxImplementedFunctions *implFuncs = nullptr;
+#ifdef ONEVPL_EXPERIMENTAL
+                mfxExtendedDeviceId *implExtDeviceID = nullptr;
+#endif
 
                 LoaderCtxMSDK *msdkCtx = &(libInfo->msdkCtx[i]);
                 if (m_bLowLatency == false) {
@@ -1068,6 +1071,16 @@ mfxStatus LoaderCtxVPL::QueryLibraryCaps() {
                         // this adapter (i) is not supported
                         continue;
                     }
+
+#ifdef ONEVPL_EXPERIMENTAL
+                    sts = LoaderCtxMSDK::QueryExtDeviceID(&(msdkCtx->m_extDeviceID),
+                                                          i,
+                                                          msdkCtx->m_deviceID,
+                                                          msdkCtx->m_luid);
+                    if (sts == MFX_ERR_NONE)
+                        implExtDeviceID = &(msdkCtx->m_extDeviceID);
+
+#endif
                 }
                 else {
                     // unknown API - unable to create session on any adapter
@@ -1091,8 +1104,8 @@ mfxStatus LoaderCtxVPL::QueryLibraryCaps() {
                 implInfo->implFuncs = implFuncs;
 
 #ifdef ONEVPL_EXPERIMENTAL
-                // for MSDK extended device ID will be filled in on-demand (QueryImpls)
-                implInfo->implExtDeviceID = nullptr;
+                // extended device ID description, if available
+                implInfo->implExtDeviceID = implExtDeviceID;
 #endif
                 // fill out mfxInitializationParam for use in CreateSession (MFXInitialize path)
                 memset(&(implInfo->vplParam), 0, sizeof(mfxInitializationParam));
@@ -1251,24 +1264,6 @@ mfxStatus LoaderCtxVPL::QueryImpl(mfxU32 idx, mfxImplCapsDeliveryFormat format, 
             }
 #ifdef ONEVPL_EXPERIMENTAL
             else if (format == MFX_IMPLCAPS_DEVICE_ID_EXTENDED) {
-                // for MSDK query extDeviceID only when requested, to minimize startup latency
-                if (implInfo->implExtDeviceID == nullptr &&
-                    implInfo->libInfo->libType == LibTypeMSDK) {
-                    LoaderCtxMSDK *msdkCtx = &(implInfo->libInfo->msdkCtx[implInfo->msdkImplIdx]);
-
-                    if (msdkCtx->m_bHaveQueriedExtDeviceID == false) {
-                        mfxStatus sts = LoaderCtxMSDK::QueryExtDeviceID(&(msdkCtx->m_extDeviceID),
-                                                                        implInfo->msdkImplIdx,
-                                                                        msdkCtx->m_deviceID,
-                                                                        msdkCtx->m_luid);
-                        if (sts == MFX_ERR_NONE)
-                            implInfo->implExtDeviceID = &(msdkCtx->m_extDeviceID);
-                    }
-
-                    // whether it succeeds or not, only attempt to query one time
-                    msdkCtx->m_bHaveQueriedExtDeviceID = true;
-                }
-
                 *idesc = implInfo->implExtDeviceID;
             }
 #endif
@@ -1398,6 +1393,9 @@ mfxStatus LoaderCtxVPL::UpdateValidImplList(void) {
         // compare caps from this library vs. config filters
         sts = ConfigCtxVPL::ValidateConfig((mfxImplDescription *)implInfo->implDesc,
                                            (mfxImplementedFunctions *)implInfo->implFuncs,
+#ifdef ONEVPL_EXPERIMENTAL
+                                           (mfxExtendedDeviceId *)implInfo->implExtDeviceID,
+#endif
                                            m_configCtxList,
                                            implInfo->libInfo->libType,
                                            &m_specialConfig);

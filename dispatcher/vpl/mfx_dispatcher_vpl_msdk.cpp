@@ -106,7 +106,6 @@ LoaderCtxMSDK::LoaderCtxMSDK()
           m_luid(0),
 #ifdef ONEVPL_EXPERIMENTAL
           m_extDeviceID(),
-          m_bHaveQueriedExtDeviceID(false),
 #endif
           m_libNameFull(),
           m_id(),

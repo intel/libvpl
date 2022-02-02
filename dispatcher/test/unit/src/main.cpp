@@ -20,7 +20,8 @@
 
 static void Usage(void) {
     printf("\nCustom parameters for oneVPLTests:\n");
-    printf("   -disp:sw        ....  run dispatcher tests with CPU runtime (default)\n");
+    printf("   -disp:stub      ....  run dispatcher tests with stub runtime (default)\n");
+    printf("   -disp:sw        ....  run dispatcher tests with CPU runtime\n");
     printf("   -disp:gpu-all   ....  run dispatcher tests with GPU oneVPL runtime\n");
     printf("   -disp:gpu-msdk  ....  run dispatcher tests with GPU MSDK runtime (exclude tests only applicable to oneVPL RT)\n");
 

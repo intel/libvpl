@@ -170,7 +170,7 @@ enum PropRanges {
 
 // must match eProp_TotalProps, is checked with static_assert in _config.cpp
 //   (should throw error at compile time if !=)
-#define NUM_TOTAL_FILTER_PROPS 41
+#define NUM_TOTAL_FILTER_PROPS 52
 
 // typedef child structures for easier reading
 typedef struct mfxDecoderDescription::decoder DecCodec;
@@ -257,6 +257,9 @@ public:
     // compare library caps vs. set of configuration filters
     static mfxStatus ValidateConfig(const mfxImplDescription *libImplDesc,
                                     const mfxImplementedFunctions *libImplFuncs,
+#ifdef ONEVPL_EXPERIMENTAL
+                                    const mfxExtendedDeviceId *libImplExtDevID,
+#endif
                                     std::list<ConfigCtxVPL *> configCtxList,
                                     LibType libType,
                                     SpecialConfig *specialConfig);
@@ -306,6 +309,12 @@ private:
 
     static mfxStatus CheckPropString(const mfxChar *implString, const std::string filtString);
 
+#ifdef ONEVPL_EXPERIMENTAL
+    static mfxStatus CheckPropsExtDevID(const mfxVariant cfgPropsAll[],
+                                        const mfxExtendedDeviceId *libImplExtDevID);
+
+#endif
+
     mfxVariant m_propVar[NUM_TOTAL_FILTER_PROPS];
 
     // special containers for properties which are passed by pointer
@@ -316,6 +325,9 @@ private:
     std::string m_implKeywords;
     std::string m_deviceIdStr;
     std::string m_implFunctionName;
+
+    mfxU8 m_extDevLUID8U[8];
+    std::string m_extDevNameStr;
 };
 
 // MSDK compatibility loader implementation
@@ -350,7 +362,6 @@ public:
 
 #ifdef ONEVPL_EXPERIMENTAL
     mfxExtendedDeviceId m_extDeviceID;
-    bool m_bHaveQueriedExtDeviceID;
 #endif
 
 private:
