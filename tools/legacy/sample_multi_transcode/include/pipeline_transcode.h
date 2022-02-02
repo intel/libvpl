@@ -161,6 +161,8 @@ struct __sInputParams {
 // Extended device ID info, available in 2.6 and newer APIs
 #if (defined(_WIN64) || defined(_WIN32))
     LUID luid;
+#else
+    mfxU32 DRMRenderNodeNum = 0;
 #endif
     mfxU32 PCIDomain    = 0;
     mfxU32 PCIBus       = 0;

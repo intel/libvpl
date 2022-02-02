@@ -806,6 +806,11 @@ mfxStatus ParseInputString(msdk_char* strInput[], mfxU8 nArgNum, sInputParams* p
             }
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             pParams->strDevicePath = strInput[++i];
+
+            size_t pos = pParams->strDevicePath.find("renderD");
+            if (pos != std::string::npos) {
+                pParams->DRMRenderNodeNum = std::stoi(pParams->strDevicePath.substr(pos + 7, 3));
+            }
         }
 #endif
         else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-dGfx"))) {

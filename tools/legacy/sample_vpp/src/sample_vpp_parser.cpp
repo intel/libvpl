@@ -1835,6 +1835,13 @@ mfxStatus vppParseInputString(msdk_char* strInput[],
                 }
                 VAL_CHECK(i + 1 == nArgNum);
                 pParams->strDevicePath = strInput[++i];
+    #ifdef ONEVPL_EXPERIMENTAL
+                size_t pos = pParams->strDevicePath.find("renderD");
+                if (pos != std::string::npos) {
+                    pParams->DRMRenderNodeNum =
+                        std::stoi(pParams->strDevicePath.substr(pos + 7, 3));
+                }
+    #endif
             }
 #endif
 #ifdef ONEVPL_EXPERIMENTAL

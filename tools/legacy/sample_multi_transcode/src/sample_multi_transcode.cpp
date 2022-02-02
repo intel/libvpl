@@ -117,6 +117,9 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
     #if defined(_WIN32)
     if (m_InputParamsArray[0].luid.HighPart > 0 || m_InputParamsArray[0].luid.LowPart > 0)
         m_pLoader->SetupLUID(m_InputParamsArray[0].luid);
+    #else
+    if (m_InputParamsArray[0].DRMRenderNodeNum > 0)
+        m_pLoader->SetupDRMRenderNodeNum(m_InputParamsArray[0].DRMRenderNodeNum);
     #endif
 #endif
 

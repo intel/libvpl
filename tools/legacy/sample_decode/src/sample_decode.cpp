@@ -468,6 +468,11 @@ mfxStatus ParseInputString(msdk_char* strInput[], mfxU8 nArgNum, sInputParams* p
                 return MFX_ERR_UNSUPPORTED;
             }
             pParams->strDevicePath = strInput[++i];
+
+            size_t pos = pParams->strDevicePath.find("renderD");
+            if (pos != std::string::npos) {
+                pParams->DRMRenderNodeNum = std::stoi(pParams->strDevicePath.substr(pos + 7, 3));
+            }
         }
 #endif
 #ifdef ONEVPL_EXPERIMENTAL

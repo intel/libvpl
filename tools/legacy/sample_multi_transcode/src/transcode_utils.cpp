@@ -1969,6 +1969,12 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
 
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             InputParams.strDevicePath = argv[++i];
+
+            size_t pos = InputParams.strDevicePath.find("renderD");
+            if (pos != std::string::npos) {
+                InputParams.DRMRenderNodeNum =
+                    std::stoi(InputParams.strDevicePath.substr(pos + 7, 3));
+            }
         }
 #endif
         else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-robust"))) {

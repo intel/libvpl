@@ -171,6 +171,8 @@ struct sInputParams {
     #ifdef ONEVPL_EXPERIMENTAL
         #if defined(_WIN32)
     LUID luid;
+        #else
+    mfxU32 DRMRenderNodeNum = 0;
         #endif
     mfxU32 PCIDomain    = 0;
     mfxU32 PCIBus       = 0;
@@ -291,6 +293,8 @@ struct sInputParams {
         dGfxIdx        = -1;
         adapterNum     = -1;
         lowLatencyMode = false;
+        frameInfoIn.clear(); //redundant, for the benefit of picky static analyzers
+        frameInfoOut.clear();
     }
 };
 

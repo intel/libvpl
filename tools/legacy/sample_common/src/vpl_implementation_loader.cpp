@@ -91,6 +91,9 @@ VPLImplementationLoader::VPLImplementationLoader() {
     m_PCIDeviceSetup = false;
 #if defined(_WIN32)
     m_LUID = 0;
+#else
+    m_DRMRenderNodeNum     = 0;
+    m_DRMRenderNodeNumUsed = 0;
 #endif
 }
 
@@ -202,6 +205,17 @@ mfxStatus VPLImplementationLoader::SetupLUID(LUID luid) {
 
     return MFX_ERR_NONE;
 }
+    #else
+
+mfxStatus VPLImplementationLoader::SetupDRMRenderNodeNum(mfxU32 DRMRenderNodeNum) {
+    m_DRMRenderNodeNum = DRMRenderNodeNum;
+    return MFX_ERR_NONE;
+}
+
+mfxU32 VPLImplementationLoader::GetDRMRenderNodeNumUsed() {
+    return m_DRMRenderNodeNumUsed;
+}
+
     #endif
 
 mfxStatus VPLImplementationLoader::SetPCIDevice(mfxI32 domain,
@@ -319,6 +333,11 @@ mfxStatus VPLImplementationLoader::EnumImplementations() {
                 if (!luidEq)
                     continue;
             }
+    #else
+            if (m_DRMRenderNodeNum > 0) {
+                if (idescDevice->DRMRenderNodeNum != m_DRMRenderNodeNum)
+                    continue;
+            }
     #endif
         }
         else {
@@ -332,14 +351,14 @@ mfxStatus VPLImplementationLoader::EnumImplementations() {
             }
         }
 #endif
-        // collect uniq devices, try to dound if adapter already collected
+        // collect uniq devices, try to find if adapter already collected
         auto it = std::find_if(unique_devices.begin(),
                                unique_devices.end(),
                                [idesc](const std::pair<mfxU32, mfxImplDescription*> val) {
                                    return (GetAdapterNumber(idesc->Dev.DeviceID) ==
                                            GetAdapterNumber(val.second->Dev.DeviceID));
                                });
-        // if adpater type is not specified, we give preference MFX_MEDIA_INTEGRATED
+        // if adapter type is not specified, we give preference MFX_MEDIA_INTEGRATED
         if (it == unique_devices.end()) {
             unique_devices.push_back(std::make_pair(impl, idesc));
             if (m_adapterNum == -1 && m_adapterType == mfxMediaAdapterType::MFX_MEDIA_UNKNOWN &&
@@ -386,6 +405,11 @@ mfxStatus VPLImplementationLoader::EnumImplementations() {
         msdk_printf(MSDK_STRING("Library was not found with required adapter type/num \n"));
         sts = MFX_ERR_NOT_FOUND;
     }
+
+#ifdef ONEVPL_EXPERIMENTAL
+    if (idescDevice)
+        m_DRMRenderNodeNumUsed = idescDevice->DRMRenderNodeNum;
+#endif
 
     return sts;
 }
@@ -528,6 +552,9 @@ mfxStatus MainVideoSession::CreateSession(VPLImplementationLoader* Loader) {
     }
 
 #if (defined(LINUX32) || defined(LINUX64))
+    #ifdef ONEVPL_EXPERIMENTAL
+    msdk_printf(MSDK_STRING("    DRMRenderNodeNum: %d \n"), Loader->GetDRMRenderNodeNumUsed());
+    #endif
     msdk_printf(MSDK_STRING("Used implementation number: %d \n"), Loader->GetImplIndex());
     msdk_printf(MSDK_STRING("Loaded modules:\n"));
     int numLoad = 0;

@@ -36,6 +36,9 @@ class VPLImplementationLoader {
     bool m_PCIDeviceSetup;
 #if defined(_WIN32)
     mfxU64 m_LUID;
+#else
+    mfxU32 m_DRMRenderNodeNum;
+    mfxU32 m_DRMRenderNodeNumUsed;
 #endif
 
 public:
@@ -66,6 +69,9 @@ public:
     mfxStatus SetPCIDevice(mfxI32 domain, mfxI32 bus, mfxI32 device, mfxI32 function);
     #if defined(_WIN32)
     mfxStatus SetupLUID(LUID luid);
+    #else
+    mfxStatus SetupDRMRenderNodeNum(mfxU32 DRMRenderNodeNum);
+    mfxU32 GetDRMRenderNodeNumUsed();
     #endif
 #endif
 };

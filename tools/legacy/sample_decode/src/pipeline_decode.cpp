@@ -289,6 +289,8 @@ mfxStatus CDecodingPipeline::Init(sInputParams* pParams) {
     #if (defined(_WIN64) || defined(_WIN32))
     if (pParams->luid.HighPart > 0 || pParams->luid.LowPart)
         m_pLoader->SetupLUID(pParams->luid);
+    #else
+    m_pLoader->SetupDRMRenderNodeNum(pParams->DRMRenderNodeNum);
     #endif
 #endif
 

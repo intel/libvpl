@@ -8,6 +8,7 @@
 #include "sample_utils.h"
 #include "vm/time_defs.h"
 #include "vpl/mfxvideo++.h"
+#include "vpl_implementation_loader.h"
 
 #include "sample_vpp_pts.h"
 
@@ -450,6 +451,8 @@ mfxStatus CreateFrameProcessor(sFrameProcessor* pProcessor,
     #if (defined(_WIN64) || defined(_WIN32))
     if (pInParams->luid.HighPart > 0 || pInParams->luid.LowPart > 0)
         pProcessor->pLoader->SetupLUID(pInParams->luid);
+    #else
+    pProcessor->pLoader->SetupDRMRenderNodeNum(pInParams->DRMRenderNodeNum);
     #endif
 #endif
 
