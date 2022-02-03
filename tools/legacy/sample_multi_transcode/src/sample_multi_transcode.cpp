@@ -813,12 +813,14 @@ mfxStatus Launcher::CheckAndFixAdapterDependency(mfxU32 idxSession,
 }
 
 mfxStatus Launcher::VerifyCrossSessionsOptions() {
-    bool IsSinkPresence       = false;
-    bool IsSourcePresence     = false;
-    bool IsHeterSessionJoin   = false;
-    bool IsFirstInTopology    = true;
+    bool IsSinkPresence     = false;
+    bool IsSourcePresence   = false;
+    bool IsHeterSessionJoin = false;
+    bool IsFirstInTopology  = true;
+#if defined(_WIN32) || defined(_WIN64)
     bool IsInterOrJoined      = false;
     bool IsNeedToCreateDevice = false;
+#endif
 
     mfxU16 minAsyncDepth      = 0;
     bool bSingleTexture       = false;
@@ -975,6 +977,7 @@ mfxStatus Launcher::VerifyCrossSessionsOptions() {
             m_InputParamsArray[i].nMemoryModel = GENERAL_ALLOC;
         }
 
+#if defined(_WIN32) || defined(_WIN64)
         // Creating a device is only necessary in case of using external memory (generall alloc) or inter/joined sessions.
         IsInterOrJoined = m_InputParamsArray[i].eMode == Sink ||
                           m_InputParamsArray[i].eMode == Source || m_InputParamsArray[i].bIsJoin;
@@ -982,6 +985,7 @@ mfxStatus Launcher::VerifyCrossSessionsOptions() {
             !m_InputParamsArray[i].bForceSysMem) {
             IsNeedToCreateDevice = true;
         }
+#endif
 
         if (MFX_IMPL_SOFTWARE != m_InputParamsArray[i].libType) {
             // TODO: can we avoid ifdef and use MFX_IMPL_VIA_VAAPI?
@@ -998,8 +1002,7 @@ mfxStatus Launcher::VerifyCrossSessionsOptions() {
                 m_accelerationMode = MFX_ACCEL_MODE_VIA_D3D9;
             }
 #elif defined(LIBVA_SUPPORT)
-            if (IsNeedToCreateDevice)
-                m_eDevType = MFX_HANDLE_VA_DISPLAY;
+            m_eDevType         = MFX_HANDLE_VA_DISPLAY;
             m_accelerationMode = MFX_ACCEL_MODE_VIA_VAAPI;
 #endif
         }
