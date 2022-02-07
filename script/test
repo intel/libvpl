@@ -32,7 +32,7 @@ fi
 
 BUILD_DIR="${VPL_DISP_BUILD_DIR}"
 pushd "${BUILD_DIR}"
-  ctest  --config "${COFIG_OPT}"
+  ctest  --config "${COFIG_OPT}" -T test
   result_all=$?
 popd
 
