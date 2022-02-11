@@ -354,7 +354,6 @@ public:
 
 protected:
     std::pair<CSmplBitstreamWriter*, CSmplBitstreamWriter*> m_FileWriters;
-    std::pair<CIVFFrameWriter*, CIVFFrameWriter*> m_IVFFileWriters;
     CSmplYUVReader m_FileReader;
     CEncTaskPool m_TaskPool;
     QPFile::Reader m_QPFileReader;

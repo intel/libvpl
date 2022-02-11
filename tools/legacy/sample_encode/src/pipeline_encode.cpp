@@ -316,15 +316,8 @@ mfxStatus sTask::Close() {
 
 mfxStatus sTask::WriteBitstream(bool isCompleteFrame) {
     if (pWriter) {
-        //   sw(cpu) av1e returns elementary stream only, so need to add IVF header for playback (access frames).
-        if (codecID == MFX_CODEC_AV1 && bUseHWLib == false) {
-            CIVFFrameWriter* fw = (CIVFFrameWriter*)pWriter;
-            return fw->WriteNextFrame(&mfxBS);
-        }
-        else {
-            CSmplBitstreamWriter* fw = (CSmplBitstreamWriter*)pWriter;
-            return fw->WriteNextFrame(&mfxBS, true, isCompleteFrame);
-        }
+        CSmplBitstreamWriter* fw = (CSmplBitstreamWriter*)pWriter;
+        return fw->WriteNextFrame(&mfxBS, true, isCompleteFrame);
     }
     else
         return MFX_ERR_NONE;
@@ -1215,7 +1208,6 @@ CEncodingPipeline::CEncodingPipeline()
           m_PollThread(),
 #endif
           m_FileWriters(NULL, NULL),
-          m_IVFFileWriters(NULL, NULL),
           m_FileReader(),
           m_TaskPool(),
           m_QPFileReader(),
@@ -1385,21 +1377,7 @@ mfxStatus CEncodingPipeline::InitFileWriters(sInputParams* pParams) {
     }
     // not ViewOutput mode
     else {
-        if (pParams->CodecId == MFX_CODEC_AV1 && pParams->bUseHWLib == false) {
-            mfxU32 fr_nom, fr_denom;
-            ConvertFrameRate(pParams->dFrameRate, &fr_nom, &fr_denom);
-            sts = InitIVFFileWriter(&m_IVFFileWriters.first,
-                                    pParams->dstFileBuff[0],
-                                    pParams->nWidth,
-                                    pParams->nHeight,
-                                    fr_nom,
-                                    fr_denom,
-                                    m_bNoOutFile);
-        }
-        else {
-            sts = InitFileWriter(&m_FileWriters.first, pParams->dstFileBuff[0], m_bNoOutFile);
-        }
-
+        sts = InitFileWriter(&m_FileWriters.first, pParams->dstFileBuff[0], m_bNoOutFile);
         MSDK_CHECK_STATUS(sts, "File writer initialization failed");
     }
 
@@ -1719,17 +1697,6 @@ mfxStatus CEncodingPipeline::InitEncFrameParams(sTask* pTask) {
 }
 
 void CEncodingPipeline::Close() {
-    if (m_IVFFileWriters.first) {
-        mfxU64 nFrames = (mfxU32)m_IVFFileWriters.first->GetProcessedFrame();
-
-        msdk_printf(MSDK_STRING("Frame number: %lld\r\n"), (long long int)nFrames);
-
-        mfxF64 ProcDeltaTime = m_statOverall.GetDeltaTime() - m_statFile.GetDeltaTime() -
-                               m_TaskPool.GetFileStatistics().GetDeltaTime();
-
-        msdk_printf(MSDK_STRING("Encoding fps: %.0f\n"), (double)(nFrames / ProcDeltaTime));
-    }
-
     if (m_FileWriters.first) {
         msdk_printf(MSDK_STRING("Frame number: %u\r\n"),
                     m_FileWriters.first->m_nProcessedFramesNum);
@@ -1783,18 +1750,6 @@ void CEncodingPipeline::Close() {
 }
 
 void CEncodingPipeline::FreeFileWriters() {
-    if (m_IVFFileWriters.second == m_IVFFileWriters.first) {
-        m_IVFFileWriters.second = NULL; // second do not own the writer - just forget pointer
-    }
-
-    if (m_IVFFileWriters.first)
-        m_IVFFileWriters.first->Close();
-    MSDK_SAFE_DELETE(m_IVFFileWriters.first);
-
-    if (m_IVFFileWriters.second)
-        m_IVFFileWriters.second->Close();
-    MSDK_SAFE_DELETE(m_IVFFileWriters.second);
-
     if (m_FileWriters.second == m_FileWriters.first) {
         m_FileWriters.second = NULL; // second do not own the writer - just forget pointer
     }
@@ -1895,11 +1850,6 @@ mfxStatus CEncodingPipeline::ResetMFXComponents(sInputParams* pParams) {
     void* fw_First  = m_FileWriters.first;
     void* fw_Second = m_FileWriters.second;
 
-    if (pParams->CodecId == MFX_CODEC_AV1 && pParams->bUseHWLib == false) {
-        fw_First  = m_IVFFileWriters.first;
-        fw_Second = m_IVFFileWriters.second;
-    }
-
     sts = m_TaskPool.Init(&m_mfxSession,
                           fw_First,
                           m_mfxEncParams.AsyncDepth,
@@ -1986,14 +1936,6 @@ mfxStatus CEncodingPipeline::GetFreeTask(sTask** ppTask) {
     mfxStatus sts = MFX_ERR_NONE;
 
     if (m_bFileWriterReset) {
-        if (m_IVFFileWriters.first) {
-            sts = m_IVFFileWriters.first->Reset();
-            MSDK_CHECK_STATUS(sts, "m_IVFFileWriters.first->Reset failed");
-        }
-        if (m_IVFFileWriters.second) {
-            sts = m_IVFFileWriters.second->Reset();
-            MSDK_CHECK_STATUS(sts, "m_IVFFileWriters.second->Reset failed");
-        }
         if (m_FileWriters.first) {
             sts = m_FileWriters.first->Reset();
             MSDK_CHECK_STATUS(sts, "m_FileWriters.first->Reset failed");
