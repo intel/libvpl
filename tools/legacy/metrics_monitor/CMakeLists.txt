@@ -34,7 +34,6 @@ if(PKGConfig_LIBDRM_FOUND)
 
   # cttmetrics_static
   add_library(cttmetrics_static STATIC ${sources})
-  set_property(TARGET cttmetrics_static PROPERTY FOLDER "samples")
 
   target_include_directories(cttmetrics_static PUBLIC include)
   target_link_libraries(cttmetrics_static PUBLIC PkgConfig::PKGConfig_LIBDRM)
@@ -77,11 +76,6 @@ if(PKG_PCIACCESS_FOUND AND BUILD_TESTS)
     set_property(TARGET test_monitor
                  PROPERTY INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
   endif()
-
-  set_target_properties(
-    test_monitor
-    PROPERTIES FOLDER "samples" RUNTIME_OUTPUT_DIRECTORY
-                                ${CMAKE_BIN_DIR}/${CMAKE_BUILD_TYPE})
 
   target_include_directories(test_monitor PRIVATE ./include)
   target_link_libraries(test_monitor PRIVATE pthread rt gtest cttmetrics
