@@ -333,15 +333,19 @@ mfxStatus CTranscodingPipeline::VPPPreInit(sInputParams* pParams) {
             m_bIsVpp          = true;
         }
 
-        if ((m_mfxDecParams.mfx.FrameInfo.PicStruct & MFX_PICSTRUCT_FIELD_TFF ||
-             m_mfxDecParams.mfx.FrameInfo.PicStruct & MFX_PICSTRUCT_FIELD_BFF ||
-             m_mfxDecParams.mfx.FrameInfo.PicStruct == MFX_PICSTRUCT_UNKNOWN) &&
-            pParams->EncodeId == MFX_CODEC_HEVC && pParams->DecodeId != MFX_CODEC_HEVC &&
-            !pParams->bEnableDeinterlacing) {
-            m_bIsFieldSplitting             = true;
-            m_bIsVpp                        = true;
-            m_mfxVppParams.vpp.In.PicStruct = MFX_PICSTRUCT_UNKNOWN;
-        }
+#if (MFX_VERSION >= 2000)
+        // sw impl supports only progressive format
+        if (pParams->libType != MFX_IMPL_SOFTWARE)
+#endif
+            if ((m_mfxDecParams.mfx.FrameInfo.PicStruct & MFX_PICSTRUCT_FIELD_TFF ||
+                 m_mfxDecParams.mfx.FrameInfo.PicStruct & MFX_PICSTRUCT_FIELD_BFF ||
+                 m_mfxDecParams.mfx.FrameInfo.PicStruct == MFX_PICSTRUCT_UNKNOWN) &&
+                pParams->EncodeId == MFX_CODEC_HEVC && pParams->DecodeId != MFX_CODEC_HEVC &&
+                !pParams->bEnableDeinterlacing) {
+                m_bIsFieldSplitting             = true;
+                m_bIsVpp                        = true;
+                m_mfxVppParams.vpp.In.PicStruct = MFX_PICSTRUCT_UNKNOWN;
+            }
 
         if ((GetFrameInfo(m_mfxDecParams).CropW != pParams->nDstWidth && pParams->nDstWidth) ||
             (GetFrameInfo(m_mfxDecParams).CropH != pParams->nDstHeight && pParams->nDstHeight) ||
@@ -2133,7 +2137,12 @@ mfxStatus CTranscodingPipeline::Surface2BS(ExtendedSurface* pSurf,
             switch (fourCC) {
                 case 0: // Default value is MFX_FOURCC_I420
                 case MFX_FOURCC_I420:
-                    sts = NV12asI420toBS(pSurf->pSurface, pBS);
+#if (MFX_VERSION >= 2000)
+                    if (m_initPar.Implementation == MFX_IMPL_SOFTWARE)
+                        sts = I420toBS(pSurf->pSurface, pBS);
+                    else
+#endif
+                        sts = NV12asI420toBS(pSurf->pSurface, pBS);
                     break;
                 case MFX_FOURCC_NV12:
                     sts = NV12toBS(pSurf->pSurface, pBS);
@@ -2161,6 +2170,39 @@ mfxStatus CTranscodingPipeline::Surface2BS(ExtendedSurface* pSurf,
     }
 
     return sts;
+}
+
+mfxStatus CTranscodingPipeline::I420toBS(mfxFrameSurface1* pSurface, mfxBitstreamWrapper* pBS) {
+    mfxFrameInfo& info = pSurface->Info;
+    mfxFrameData& data = pSurface->Data;
+    if ((int)pBS->MaxLength - (int)pBS->DataLength < (int)(info.CropH * info.CropW * 3 / 2)) {
+        pBS->Extend(pBS->DataLength + (int)(info.CropH * info.CropW * 3 / 2));
+    }
+
+    mfxU16 pitch = data.Pitch;
+    mfxU16 w     = info.CropW;
+    mfxU16 h     = info.CropH;
+
+    for (mfxU16 i = 0; i < h; i++) {
+        MSDK_MEMCPY(pBS->Data + pBS->DataLength, data.Y + i * pitch, w);
+        pBS->DataLength += w;
+    }
+
+    pitch /= 2;
+    w /= 2;
+    h /= 2;
+
+    for (mfxU16 i = 0; i < h; i++) {
+        MSDK_MEMCPY(pBS->Data + pBS->DataLength, data.U + i * pitch, w);
+        pBS->DataLength += w;
+    }
+
+    for (mfxU16 i = 0; i < h; i++) {
+        MSDK_MEMCPY(pBS->Data + pBS->DataLength, data.V + i * pitch, w);
+        pBS->DataLength += w;
+    }
+
+    return MFX_ERR_NONE;
 }
 
 mfxStatus CTranscodingPipeline::NV12asI420toBS(mfxFrameSurface1* pSurface,
@@ -2726,6 +2768,16 @@ mfxStatus CTranscodingPipeline::InitEncMfxParams(sInputParams* pInParams) {
     }
 #endif
 
+    if (pInParams->nIVFHeader) {
+        if (MFX_CODEC_AV1 == pInParams->EncodeId) {
+            auto av1BitstreamParam = m_mfxEncParams.AddExtBuffer<mfxExtAV1BitstreamParam>();
+            av1BitstreamParam->WriteIVFHeaders = pInParams->nIVFHeader;
+        }
+        else {
+            msdk_printf(MSDK_STRING("WARNING: -ivf:on/off, support AV1 only\n"));
+        }
+    }
+
     return MFX_ERR_NONE;
 } // mfxStatus CTranscodingPipeline::InitEncMfxParams(sInputParams *pInParams)
 
@@ -2834,10 +2886,21 @@ mfxStatus CTranscodingPipeline::InitVppMfxParams(MfxVideoParamsWrapper& par,
     if (pInParams->bEnableDeinterlacing)
         par.vpp.Out.PicStruct = MFX_PICSTRUCT_PROGRESSIVE;
 
+#if (MFX_VERSION >= 2000)
+    // sw impl supports only progressive format
+    if (pInParams->libType == MFX_IMPL_SOFTWARE)
+        par.vpp.Out.PicStruct = MFX_PICSTRUCT_PROGRESSIVE;
+#endif
+
     // Resizing
     if (pInParams->nDstWidth) {
         par.vpp.Out.CropW = pInParams->nDstWidth;
-        par.vpp.Out.Width = MSDK_ALIGN16(pInParams->nDstWidth);
+#if (MFX_VERSION >= 2000)
+        if (pInParams->libType == MFX_IMPL_SOFTWARE)
+            par.vpp.Out.Width = pInParams->nDstWidth;
+        else
+#endif
+            par.vpp.Out.Width = MSDK_ALIGN16(pInParams->nDstWidth);
     }
 
     // Framerate conversion
@@ -2848,17 +2911,31 @@ mfxStatus CTranscodingPipeline::InitVppMfxParams(MfxVideoParamsWrapper& par,
     }
 
     if (pInParams->nDstHeight) {
-        par.vpp.Out.CropH  = pInParams->nDstHeight;
-        par.vpp.Out.Height = (MFX_PICSTRUCT_PROGRESSIVE == par.vpp.Out.PicStruct)
-                                 ? MSDK_ALIGN16(pInParams->nDstHeight)
-                                 : MSDK_ALIGN32(pInParams->nDstHeight);
+        par.vpp.Out.CropH = pInParams->nDstHeight;
+#if (MFX_VERSION >= 2000)
+        if (pInParams->libType == MFX_IMPL_SOFTWARE)
+            par.vpp.Out.Height = pInParams->nDstHeight;
+        else
+#endif
+            par.vpp.Out.Height = (MFX_PICSTRUCT_PROGRESSIVE == par.vpp.Out.PicStruct)
+                                     ? MSDK_ALIGN16(pInParams->nDstHeight)
+                                     : MSDK_ALIGN32(pInParams->nDstHeight);
     }
 
     if (pInParams->bEnableDeinterlacing) {
-        // If stream were interlaced before then 32 bit alignment were applied.
-        // Discard 32 bit alignment as progressive doesn't require it.
-        par.vpp.Out.Height = MSDK_ALIGN16(par.vpp.Out.CropH);
-        par.vpp.Out.Width  = MSDK_ALIGN16(par.vpp.Out.CropW);
+#if (MFX_VERSION >= 2000)
+        if (pInParams->libType == MFX_IMPL_SOFTWARE) {
+            par.vpp.Out.Height = par.vpp.Out.CropH;
+            par.vpp.Out.Width  = par.vpp.Out.CropW;
+        }
+        else
+#endif
+        {
+            // If stream were interlaced before then 32 bit alignment were applied.
+            // Discard 32 bit alignment as progressive doesn't require it.
+            par.vpp.Out.Height = MSDK_ALIGN16(par.vpp.Out.CropH);
+            par.vpp.Out.Width  = MSDK_ALIGN16(par.vpp.Out.CropW);
+        }
     }
 
     // configure and attach external parameters
@@ -4335,16 +4412,20 @@ mfxStatus CTranscodingPipeline::AllocAndInitVppDoNotUse(MfxVideoParamsWrapper& p
     filtersDisabled.push_back(
         MFX_EXTBUFF_VPP_SCENE_ANALYSIS); // turn off scene analysis (on by default)
 
-    if (filtersDisabled.size()) {
-        auto doNotUse = par.AddExtBuffer<mfxExtVPPDoNotUse>();
-        delete[] doNotUse->AlgList;
+#if (MFX_VERSION >= 2000)
+    // sw impl does not support vpp ext param yet
+    if (pInParams->libType != MFX_IMPL_SOFTWARE)
+#endif
+        if (filtersDisabled.size()) {
+            auto doNotUse = par.AddExtBuffer<mfxExtVPPDoNotUse>();
+            delete[] doNotUse->AlgList;
 
-        doNotUse->NumAlg  = (mfxU32)filtersDisabled.size();
-        doNotUse->AlgList = new mfxU32[doNotUse->NumAlg];
-        MSDK_MEMCPY(doNotUse->AlgList,
-                    filtersDisabled.data(),
-                    sizeof(mfxU32) * filtersDisabled.size());
-    }
+            doNotUse->NumAlg  = (mfxU32)filtersDisabled.size();
+            doNotUse->AlgList = new mfxU32[doNotUse->NumAlg];
+            MSDK_MEMCPY(doNotUse->AlgList,
+                        filtersDisabled.data(),
+                        sizeof(mfxU32) * filtersDisabled.size());
+        }
 
     return MFX_ERR_NONE;
 } // CTranscodingPipeline::AllocAndInitVppDoNotUse()

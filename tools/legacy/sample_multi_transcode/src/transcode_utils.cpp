@@ -418,7 +418,8 @@ void TranscodingSample::PrintHelp() {
     msdk_printf(MSDK_STRING("               1005 - manual mode for post-processing, need level\n"));
     msdk_printf(MSDK_STRING("           level - range of noise level is [0, 100]\n"));
     msdk_printf(MSDK_STRING(
-        "   -idr_interval size      idr interval, default 0 means every I is an IDR, 1 means every other I frame is an IDR etc\n"));
+        "  -idr_interval size      idr interval, default 0 means every I is an IDR, 1 means every other I frame is an IDR etc\n"));
+    msdk_printf(MSDK_STRING("  -ivf:<on,off> Turn IVF header on/off\n"));
     msdk_printf(MSDK_STRING("\n"));
     msdk_printf(MSDK_STRING("Pipeline description (vpp options):\n"));
     msdk_printf(MSDK_STRING("  -deinterlace             Forces VPP to deinterlace input stream\n"));
@@ -1618,6 +1619,12 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
     }
     #endif
 #endif
+    else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-ivf:on"))) {
+        InputParams.nIVFHeader = MFX_CODINGOPTION_ON;
+    }
+    else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-ivf:off"))) {
+        InputParams.nIVFHeader = MFX_CODINGOPTION_OFF;
+    }
     else {
         // no matching argument was found
         return MFX_ERR_NOT_FOUND;

@@ -373,6 +373,8 @@ struct __sInputParams {
     mfxU32 preallocate                  = 0;
 
     mfxU16 forceSyncAllSession;
+
+    mfxU16 nIVFHeader;
 };
 
 struct sInputParams : public __sInputParams {
@@ -903,6 +905,7 @@ protected:
     mfxStatus DumpSurface2File(mfxFrameSurface1* pSurface);
     mfxStatus Surface2BS(ExtendedSurface* pSurf, mfxBitstreamWrapper* pBS, mfxU32 fourCC);
     mfxStatus NV12toBS(mfxFrameSurface1* pSurface, mfxBitstreamWrapper* pBS);
+    mfxStatus I420toBS(mfxFrameSurface1* pSurface, mfxBitstreamWrapper* pBS);
     mfxStatus NV12asI420toBS(mfxFrameSurface1* pSurface, mfxBitstreamWrapper* pBS);
     mfxStatus RGB4toBS(mfxFrameSurface1* pSurface, mfxBitstreamWrapper* pBS);
     mfxStatus YUY2toBS(mfxFrameSurface1* pSurface, mfxBitstreamWrapper* pBS);
