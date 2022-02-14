@@ -1178,21 +1178,37 @@ mfxStatus LoaderCtxVPL::QueryLibraryCaps() {
                 implInfo->adapterIdx = adapterIdx;
             }
 
-            // per spec: if both VPL (HW) and MSDK are installed on the same system, only load
-            //   the VPL library (mark MSDK as invalid)
+            // per spec: if both VPL (HW) and MSDK are installed for the same accelerator, only load
+            //   the VPL implementation (mark MSDK as invalid)
             if (implInfo->libInfo->libType == LibTypeMSDK) {
+                mfxImplDescription *msdkImplDesc = (mfxImplDescription *)(implInfo->implDesc);
+                std::string msdkDeviceID         = (msdkImplDesc ? msdkImplDesc->Dev.DeviceID : "");
+
+                // check if VPL impl also exists for this deviceID
                 auto vplIdx = std::find_if(
                     m_implInfoList.begin(),
                     m_implInfoList.end(),
 
-                    [](const ImplInfo *t) {
+                    [&](const ImplInfo *t) {
                         mfxImplDescription *implDesc = (mfxImplDescription *)(t->implDesc);
 
+                        bool bMatchingDeviceID = false;
+                        if (implDesc) {
+                            std::string vplDeviceID = implDesc->Dev.DeviceID;
+                            if (vplDeviceID == msdkDeviceID)
+                                bMatchingDeviceID = true;
+                        }
+
                         return (t->libInfo->libType == LibTypeVPL && implDesc != nullptr &&
-                                implDesc->Impl == MFX_IMPL_TYPE_HARDWARE);
+                                implDesc->Impl == MFX_IMPL_TYPE_HARDWARE && bMatchingDeviceID);
                     });
 
                 if (vplIdx != m_implInfoList.end())
+                    implInfo->validImplIdx = -1;
+
+                // avoid loading VPL RT via compatibility entrypoint
+                if (msdkImplDesc && msdkImplDesc->ApiVersion.Major == 1 &&
+                    msdkImplDesc->ApiVersion.Minor == 255)
                     implInfo->validImplIdx = -1;
             }
 
