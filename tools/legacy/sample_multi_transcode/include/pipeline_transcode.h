@@ -182,6 +182,8 @@ struct __sInputParams {
     mfxI32 dGfxIdx     = -1;
     mfxI32 adapterNum  = -1;
 
+    bool dispFullSearch = false;
+
     mfxU16 nThreadsNum; // number of internal session threads number
     bool bRobustFlag; // Robust transcoding mode. Allows auto-recovery after hardware errors
     bool bSoftRobustFlag;

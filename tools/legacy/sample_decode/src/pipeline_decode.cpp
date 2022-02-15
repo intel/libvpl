@@ -302,8 +302,11 @@ mfxStatus CDecodingPipeline::Init(sInputParams* pParams) {
 #endif
     }
 
+    bool bLowLatencyMode = !pParams->dispFullSearch;
+
     sts = m_pLoader->ConfigureAndEnumImplementations(initPar.Implementation,
-                                                     pParams->accelerationMode);
+                                                     pParams->accelerationMode,
+                                                     bLowLatencyMode);
     MSDK_CHECK_STATUS(sts, "m_mfxSession.EnumImplementations failed");
 
     sts = m_mfxSession.CreateSession(m_pLoader.get());

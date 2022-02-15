@@ -63,6 +63,8 @@ void PrintHelp(msdk_char* strAppName, const msdk_char* strErrorMessage) {
         "   [-iGfx]                   - preffer processing on iGfx (by default system decides)\n"));
     msdk_printf(MSDK_STRING(
         "   [-AdapterNum]             - specifies adpter number for processing, starts from 0\n"));
+    msdk_printf(MSDK_STRING(
+        "   [-dispatcher:fullSearch]  - enable search for all available implementations in oneVPL dispatcher\n"));
 #if defined(LINUX32) || defined(LINUX64)
     msdk_printf(MSDK_STRING("   [-device /path/to/device] - set graphics device for processing\n"));
     msdk_printf(
@@ -200,6 +202,7 @@ mfxStatus ParseInputString(msdk_char* strInput[], mfxU8 nArgNum, sInputParams* p
     pParams->adapterType        = mfxMediaAdapterType::MFX_MEDIA_UNKNOWN;
     pParams->dGfxIdx            = -1;
     pParams->adapterNum         = -1;
+    pParams->dispFullSearch     = false;
 
 #if defined(LIBVA_SUPPORT)
     pParams->libvaBackend = MFX_LIBVA_DRM;
@@ -565,6 +568,9 @@ mfxStatus ParseInputString(msdk_char* strInput[], mfxU8 nArgNum, sInputParams* p
                 PrintHelp(strInput[0], MSDK_STRING("AdapterNum is invalid"));
                 return MFX_ERR_UNSUPPORTED;
             }
+        }
+        else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-dispatcher:fullSearch"))) {
+            pParams->dispFullSearch = true;
         }
 #if !defined(_WIN32) && !defined(_WIN64)
         else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-d"))) {

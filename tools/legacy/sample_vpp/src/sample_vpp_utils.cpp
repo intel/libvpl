@@ -456,7 +456,11 @@ mfxStatus CreateFrameProcessor(sFrameProcessor* pProcessor,
     #endif
 #endif
 
-    sts = pProcessor->pLoader->ConfigureAndEnumImplementations(impl, pInParams->accelerationMode);
+    bool bLowLatencyMode = !pInParams->dispFullSearch;
+
+    sts = pProcessor->pLoader->ConfigureAndEnumImplementations(impl,
+                                                               pInParams->accelerationMode,
+                                                               bLowLatencyMode);
     MSDK_CHECK_STATUS(sts, "mfxSession.EnumImplementations failed");
     sts = pProcessor->mfxSession.CreateSession(pProcessor->pLoader.get());
     MSDK_CHECK_STATUS(sts, "m_mfxSession.CreateSession failed");

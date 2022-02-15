@@ -118,6 +118,7 @@ struct sInputParams {
     mfxU16 adapterType;
     mfxI32 dGfxIdx;
     mfxI32 adapterNum;
+    bool dispFullSearch;
 
     bool bIgnoreLevelConstrain;
 

@@ -92,6 +92,9 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
 
     m_pLoader.reset(new VPLImplementationLoader);
 
+    if (m_InputParamsArray[0].dispFullSearch == true)
+        lowLatencyMode = false;
+
     // new memory models are suppotred in lib with version >2.0 and not supported SetHandle, so lowLatencyMode need to turn off
     if (m_InputParamsArray[0].nMemoryModel == VISIBLE_INT_ALLOC ||
         m_InputParamsArray[0].nMemoryModel == HIDDEN_INT_ALLOC) {

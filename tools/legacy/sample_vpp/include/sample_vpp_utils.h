@@ -162,7 +162,6 @@ struct sInputParams {
     mfxU16 IOPattern;
     mfxIMPL ImpLib;
     mfxAccelerationMode accelerationMode;
-    bool lowLatencyMode;
 
     #if defined(LINUX32) || defined(LINUX64)
     std::string strDevicePath; // path to device for processing
@@ -184,6 +183,7 @@ struct sInputParams {
     mfxU16 adapterType;
     mfxI32 dGfxIdx;
     mfxI32 adapterNum;
+    bool dispFullSearch;
 
     mfxU16 asyncNum;
     mfxU32 vaType;
@@ -292,7 +292,7 @@ struct sInputParams {
         adapterType    = mfxMediaAdapterType::MFX_MEDIA_UNKNOWN;
         dGfxIdx        = -1;
         adapterNum     = -1;
-        lowLatencyMode = false;
+        dispFullSearch = false;
         frameInfoIn.clear(); //redundant, for the benefit of picky static analyzers
         frameInfoOut.clear();
     }

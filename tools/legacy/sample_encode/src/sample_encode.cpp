@@ -91,6 +91,8 @@ void PrintHelp(msdk_char* strAppName, const msdk_char* strErrorMessage, ...) {
         MSDK_STRING("   [-iGfx] - preffer processing on iGfx (by default system decides)\n"));
     msdk_printf(
         MSDK_STRING("   [-AdapterNum] - specifies adpter number for processing, starts from 0\n"));
+    msdk_printf(MSDK_STRING(
+        "   [-dispatcher:fullSearch]  - enable search for all available implementations in oneVPL dispatcher\n"));
 #ifdef MOD_ENC
     MOD_ENC_PRINT_HELP;
 #endif
@@ -662,6 +664,9 @@ mfxStatus ParseAdditionalParams(msdk_char* strInput[],
     else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-ivf:off"))) {
         pParams->nIVFHeader = MFX_CODINGOPTION_OFF;
     }
+    else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-dispatcher:fullSearch"))) {
+        pParams->dispFullSearch = true;
+    }
 #ifdef ONEVPL_EXPERIMENTAL
     else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-pci"))) {
         msdk_char deviceInfo[MSDK_MAX_FILENAME_LEN];
@@ -755,6 +760,7 @@ mfxStatus ParseInputString(msdk_char* strInput[], mfxU8 nArgNum, sInputParams* p
     pParams->adapterType        = mfxMediaAdapterType::MFX_MEDIA_UNKNOWN;
     pParams->dGfxIdx            = -1;
     pParams->adapterNum         = -1;
+    pParams->dispFullSearch     = false;
     pParams->RoundingOffsetFile = NULL;
 #if defined(ENABLE_V4L2_SUPPORT)
     pParams->MipiPort   = -1;

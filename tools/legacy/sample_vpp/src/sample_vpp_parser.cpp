@@ -59,6 +59,8 @@ void vppPrintHelp(const msdk_char* strAppName, const msdk_char* strErrorMessage)
         "   [-iGfx]                     - preffer processing on iGfx (by default system decides)\n"));
     msdk_printf(MSDK_STRING(
         "   [-AdapterNum]               - specifies adpter number for processing, starts from 0\n"));
+    msdk_printf(MSDK_STRING(
+        "   [-dispatcher:fullSearch]    - enable search for all available implementations in oneVPL dispatcher\n"));
 #if defined(D3D_SURFACES_SUPPORT)
     msdk_printf(MSDK_STRING("   [-d3d]                      - use d3d9 surfaces\n\n"));
 #endif
@@ -1928,6 +1930,9 @@ mfxStatus vppParseInputString(msdk_char* strInput[],
                 msdk_sscanf(strInput[i],
                             MSDK_STRING("%d"),
                             reinterpret_cast<mfxI32*>(&pParams->adapterNum));
+            }
+            else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-dispatcher:fullSearch"))) {
+                pParams->dispFullSearch = true;
             }
 #if defined(D3D_SURFACES_SUPPORT)
             else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-d3d"))) {
