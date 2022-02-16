@@ -243,3 +243,35 @@ TEST(Dispatcher_Stub_CreateSession, ExtDeviceID_EnumImpl_InvalidStub) {
     MFXDispReleaseImplDescription(loader, idescDevice);
     MFXUnload(loader);
 }
+
+TEST(Dispatcher_Stub_CloneSession, Basic_Clone_Succeeds) {
+    SKIP_IF_DISP_STUB_DISABLED();
+
+    mfxLoader loader = MFXLoad();
+    EXPECT_FALSE(loader == nullptr);
+
+    mfxStatus sts = SetConfigImpl(loader, MFX_IMPL_TYPE_STUB);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // create session with first implementation
+    mfxSession session = nullptr;
+    sts                = MFXCreateSession(loader, 0, &session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    mfxSession cloneSession = nullptr;
+    sts                     = MFXCloneSession(session, &cloneSession);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // disjoin the child (cloned) session
+    sts = MFXDisjoinSession(cloneSession);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // free internal resources
+    sts = MFXClose(session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    sts = MFXClose(cloneSession);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    MFXUnload(loader);
+}

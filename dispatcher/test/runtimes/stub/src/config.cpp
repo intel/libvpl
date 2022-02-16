@@ -20,6 +20,8 @@
 #define DEFAULT_SESSION_HANDLE_1X 0x01
 #define DEFAULT_SESSION_HANDLE_2X 0x02
 
+#define DEFAULT_CLONE_SESSION_HANDLE 0x08
+
 // print messages to be parsed in unit tests to stdout, and other errors to stderr
 static void StubRTLogMessage(const char *msg, ...) {
     fprintf(stdout, "[STUB RT]: message -- ");
@@ -137,12 +139,37 @@ mfxStatus MFXInitEx(mfxInitParam par, mfxSession *session) {
     return MFX_ERR_NONE;
 }
 
-mfxStatus MFXClose(mfxSession session) {
+mfxStatus MFXCloneSession(mfxSession session, mfxSession *clone) {
     if (!session)
         return MFX_ERR_INVALID_HANDLE;
 
     mfxU64 s = (mfxU64)session;
     if (s != DEFAULT_SESSION_HANDLE_1X && s != DEFAULT_SESSION_HANDLE_2X)
+        return MFX_ERR_INVALID_HANDLE;
+
+    *clone = (mfxSession)DEFAULT_CLONE_SESSION_HANDLE;
+
+    return MFX_ERR_NONE;
+}
+
+mfxStatus MFXDisjoinSession(mfxSession session) {
+    if (!session)
+        return MFX_ERR_INVALID_HANDLE;
+
+    mfxU64 s = (mfxU64)session;
+    if (s != DEFAULT_CLONE_SESSION_HANDLE)
+        return MFX_ERR_UNDEFINED_BEHAVIOR;
+
+    return MFX_ERR_NONE;
+}
+
+mfxStatus MFXClose(mfxSession session) {
+    if (!session)
+        return MFX_ERR_INVALID_HANDLE;
+
+    mfxU64 s = (mfxU64)session;
+    if (s != DEFAULT_SESSION_HANDLE_1X && s != DEFAULT_SESSION_HANDLE_2X &&
+        s != DEFAULT_CLONE_SESSION_HANDLE)
         return MFX_ERR_INVALID_HANDLE;
 
     return MFX_ERR_NONE;

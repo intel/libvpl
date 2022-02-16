@@ -69,7 +69,8 @@ mfxStatus MFX_DISP_HANDLE::LoadSelectedDLL(const wchar_t *pPath,
                                            mfxIMPL reqImpl,
                                            mfxIMPL reqImplInterface,
                                            mfxInitParam &par,
-                                           mfxInitializationParam &vplParam) {
+                                           mfxInitializationParam &vplParam,
+                                           bool bCloneSession) {
     mfxStatus mfxRes = MFX_ERR_NONE;
 
     // check error(s)
@@ -181,6 +182,11 @@ mfxStatus MFX_DISP_HANDLE::LoadSelectedDLL(const wchar_t *pPath,
             DISPATCHER_LOG_WRN((("can't find DLL: GetLastErr()=0x%x\n"), GetLastError()))
             mfxRes = MFX_ERR_UNSUPPORTED;
         }
+    }
+
+    if (bCloneSession == true) {
+        loadStatus = mfxRes;
+        return mfxRes;
     }
 
     // initialize the loaded DLL

@@ -14,14 +14,6 @@ mfxStatus MFXJoinSession(mfxSession session, mfxSession child) {
     return MFX_ERR_NOT_IMPLEMENTED;
 }
 
-mfxStatus MFXDisjoinSession(mfxSession session) {
-    return MFX_ERR_NOT_IMPLEMENTED;
-}
-
-mfxStatus MFXCloneSession(mfxSession session, mfxSession *clone) {
-    return MFX_ERR_NOT_IMPLEMENTED;
-}
-
 mfxStatus MFXSetPriority(mfxSession session, mfxPriority priority) {
     return MFX_ERR_NOT_IMPLEMENTED;
 }

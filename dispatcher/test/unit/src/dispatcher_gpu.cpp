@@ -77,3 +77,77 @@ TEST(Dispatcher_GPU_CreateSession, ExtDeviceID_InvalidProps) {
     // free internal resources
     MFXUnload(loader);
 }
+
+TEST(Dispatcher_GPU_CloneSession, Basic_Clone_Succeeds) {
+    SKIP_IF_DISP_GPU_VPL_DISABLED();
+
+    mfxLoader loader = MFXLoad();
+    EXPECT_FALSE(loader == nullptr);
+
+    mfxStatus sts = SetConfigImpl(loader, MFX_IMPL_TYPE_HARDWARE);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // require 2.x RT
+    sts = SetConfigFilterProperty<mfxU16>(loader, "mfxImplDescription.ApiVersion.Major", 2);
+    sts = SetConfigFilterProperty<mfxU16>(loader, "mfxImplDescription.ApiVersion.Minor", 0);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // create session with first implementation
+    mfxSession session = nullptr;
+    sts                = MFXCreateSession(loader, 0, &session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    mfxSession cloneSession = nullptr;
+    sts                     = MFXCloneSession(session, &cloneSession);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // disjoin the child (cloned) session
+    sts = MFXDisjoinSession(cloneSession);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // free internal resources
+    sts = MFXClose(session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    sts = MFXClose(cloneSession);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    MFXUnload(loader);
+}
+
+TEST(Dispatcher_GPU_CloneSession, Basic_Clone_Succeeds_Legacy) {
+    SKIP_IF_DISP_GPU_MSDK_DISABLED();
+
+    mfxLoader loader = MFXLoad();
+    EXPECT_FALSE(loader == nullptr);
+
+    mfxStatus sts = SetConfigImpl(loader, MFX_IMPL_TYPE_HARDWARE);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // require 1.x RT
+    sts = SetConfigFilterProperty<mfxU16>(loader, "mfxImplDescription.ApiVersion.Major", 1);
+    sts = SetConfigFilterProperty<mfxU16>(loader, "mfxImplDescription.ApiVersion.Minor", 0);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // create session with first implementation
+    mfxSession session = nullptr;
+    sts                = MFXCreateSession(loader, 0, &session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    mfxSession cloneSession = nullptr;
+    sts                     = MFXCloneSession(session, &cloneSession);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // disjoin the child (cloned) session
+    sts = MFXDisjoinSession(cloneSession);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // free internal resources
+    sts = MFXClose(session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    sts = MFXClose(cloneSession);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    MFXUnload(loader);
+}

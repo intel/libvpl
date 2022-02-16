@@ -45,4 +45,11 @@ extern bool g_bDispInclGPU_MSDK;
         }                                  \
     }
 
+#define SKIP_IF_DISP_GPU_MSDK_DISABLED()    \
+    {                                       \
+        if (g_bDispInclGPU_MSDK == false) { \
+            GTEST_SKIP();                   \
+        }                                   \
+    }
+
 #endif // DISPATCHER_TEST_UNIT_SRC_UNIT_API_H_

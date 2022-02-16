@@ -22,8 +22,9 @@ static void Usage(void) {
     printf("\nCustom parameters for oneVPLTests:\n");
     printf("   -disp:stub      ....  run dispatcher tests with stub runtime (default)\n");
     printf("   -disp:sw        ....  run dispatcher tests with CPU runtime\n");
-    printf("   -disp:gpu-all   ....  run dispatcher tests with GPU oneVPL runtime\n");
+    printf("   -disp:gpu-all   ....  run dispatcher tests with all GPU runtimes\n");
     printf("   -disp:gpu-msdk  ....  run dispatcher tests with GPU MSDK runtime (exclude tests only applicable to oneVPL RT)\n");
+    printf("   -disp:gpu-vpl   ....  run dispatcher tests with GPU oneVPL runtime (exclude tests only applicable to MSDK RT)\n");
 
     printf("\nNote: standard gtest flags (e.g. --gtest_filter) may be used along with custom parameters\n");
 }
@@ -65,6 +66,12 @@ int main(int argc, char **argv) {
             bDispCustom = true;
             SET_UTEST_PARAMETER(g_bDispInclGPU_VPL, false);
             SET_UTEST_PARAMETER(g_bDispInclGPU_MSDK, true);
+        }
+        else if (nextArg == "-disp:gpu-vpl") {
+            // only run GPU tests that are expected to pass with oneVPL (2.x) runtimes
+            bDispCustom = true;
+            SET_UTEST_PARAMETER(g_bDispInclGPU_VPL, true);
+            SET_UTEST_PARAMETER(g_bDispInclGPU_MSDK, false);
         }
         else {
             Usage();
