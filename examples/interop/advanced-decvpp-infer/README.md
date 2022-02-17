@@ -42,7 +42,7 @@ This can be set up in a bare metal Ubuntu 20.04 system or with Docker.
 Install the prerequisite software:
 
    - Intel® oneAPI Base Toolkit for Linux*
-   - Intel® OpenVINO 2021.2 for Linux*
+   - Intel® OpenVINO for Linux*
    - [Python](http://python.org)
    - [CMake](https://cmake.org)
    - OpenCL headers: 'sudo apt install -y opencl-headers' 
