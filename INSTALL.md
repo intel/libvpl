@@ -48,8 +48,6 @@ cmake --build . --config Release --target install
 
 You can find the build output in the location chosen for CMAKE_INSTALL_PREFIX, VPL_INSTALL_DIR.
 
-For more build/install information see INSTALL.md
-
 ## Helper scripts and options
 
 Additionally, helper scripts are available in the `script` folder to run these cmake commands.
