@@ -25,7 +25,7 @@ Build the project with the following commands:
 Linux:
 ```
 cd <vpl-repo-clone-location>
-export VPL_INSTALL_DIR=`pwd`/_vplbuild
+export VPL_INSTALL_DIR=`pwd`/_vplinstall
 mkdir _build
 mkdir $VPL_INSTALL_DIR
 cd _build
@@ -37,7 +37,7 @@ cmake --build . --config Release --target install
 Windows DOS cmd prompt:
 ```
 cd <vpl-repo-clone-location>
-set VPL_INSTALL_DIR=%cd%\_vplbuild
+set VPL_INSTALL_DIR=%cd%\_vplinstall
 mkdir _build
 mkdir %VPL_INSTALL_DIR%
 cd _build
