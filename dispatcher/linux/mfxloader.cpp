@@ -710,8 +710,8 @@ mfxStatus MFXCloneSession(mfxSession session, mfxSession *clone) {
     *clone                 = nullptr;
 
     // initialize the clone session
-    // currently supported for 1.x API only
-    // for 2.x runtimes, need to use RT implementation (passthrough)
+    // for runtimes with 1.x API, call MFXInit followed by MFXJoinSession
+    // for runtimes with 2.x API, use RT implementation of MFXCloneSession (passthrough)
     if (version.Major == 1) {
         mfxStatus mfx_res = MFXInit(loader->getImpl(), &version, clone);
         if (MFX_ERR_NONE != mfx_res) {
@@ -757,6 +757,7 @@ mfxStatus MFXCloneSession(mfxSession session, mfxSession *clone) {
         // get version of cloned session
         mfxVersion cloneVersion = {};
         mfx_res                 = MFXQueryVersion((mfxSession)cloneLoader, &cloneVersion);
+        cloneLoader->setVersion(cloneVersion);
         if (mfx_res != MFX_ERR_NONE) {
             MFXClose((mfxSession)cloneLoader);
             return mfx_res;

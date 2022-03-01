@@ -13,9 +13,11 @@ set(test_sources
     src/low-latency.cpp
     src/main.cpp
     src/dispatcher_common.cpp
+    src/dispatcher_common_multiprop.cpp
     src/dispatcher_gpu.cpp
     src/dispatcher_stub.cpp
     src/dispatcher_sw.cpp
+    src/dispatcher_sw_multiprop.cpp
     src/dispatcher_util.cpp)
 add_executable(${PROJECT_NAME} ${test_sources})
 

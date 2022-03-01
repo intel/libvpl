@@ -56,7 +56,7 @@ void CheckRuntimeLog(const char *expectedString, bool expectMatch) {
 }
 
 // set implementation type
-mfxStatus SetConfigImpl(mfxLoader loader, mfxU32 implType) {
+mfxStatus SetConfigImpl(mfxLoader loader, mfxU32 implType, bool bRequire2xGPU) {
     mfxVariant ImplValue;
     mfxConfig cfg = MFXCreateConfig(loader);
     if (!cfg)
@@ -112,6 +112,18 @@ mfxStatus SetConfigImpl(mfxLoader loader, mfxU32 implType) {
         sts = MFXSetConfigFilterProperty(cfg,
                                          reinterpret_cast<const mfxU8 *>("mfxImplDescription.Impl"),
                                          ImplValue);
+
+        if (bRequire2xGPU) {
+            // for systems with both MSDK and oneVPL GPU's, limit the test to only the VPL device
+            ImplValue.Version.Version = (mfxU16)MFX_VARIANT_VERSION;
+            ImplValue.Type            = MFX_VARIANT_TYPE_PTR;
+            ImplValue.Data.Ptr        = (mfxHDL) "mfx-gen";
+
+            sts = MFXSetConfigFilterProperty(
+                cfg,
+                reinterpret_cast<const mfxU8 *>("mfxImplDescription.ImplName"),
+                ImplValue);
+        }
     }
 
     return sts;
