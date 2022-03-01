@@ -22,6 +22,13 @@ MSDKSemaphore::MSDKSemaphore(mfxStatus& sts, mfxU32 count) : msdkSemaphoreHandle
         // If pthread_cond_init reports an error m_semaphore was not allocated
         throw std::bad_alloc();
     }
+    res = pthread_mutex_init(&m_mutex, NULL);
+    if (res) {
+        if (!pthread_cond_destroy(&m_semaphore)) {
+            // do nothing
+        }
+        throw std::bad_alloc();
+    }
 }
 
 MSDKSemaphore::~MSDKSemaphore(void) {
