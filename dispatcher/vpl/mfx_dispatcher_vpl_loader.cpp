@@ -143,7 +143,8 @@ mfxU32 LoaderCtxVPL::ParseEnvSearchPaths(const CHAR_TYPE *envVarName,
 
 mfxStatus LoaderCtxVPL::SearchDirForLibs(STRING_TYPE searchDir,
                                          std::list<LibInfo *> &libInfoList,
-                                         mfxU32 priority) {
+                                         mfxU32 priority,
+                                         bool bLoadVPLOnly) {
     // okay to call with empty searchDir
     if (searchDir.empty())
         return MFX_ERR_NONE;
@@ -169,8 +170,13 @@ mfxStatus LoaderCtxVPL::SearchDirForLibs(STRING_TYPE searchDir,
     if (GetCurrentDirectoryW(MAX_VPL_SEARCH_PATH, currDir))
         SetCurrentDirectoryW(searchDir.c_str());
 
+    // skip search for MSDK runtime (last entry) if bLoadVPLOnly is set
+    mfxU32 numLibPrefixes = NUM_LIB_PREFIXES;
+    if (bLoadVPLOnly)
+        numLibPrefixes--;
+
     // iterate over all candidate files in directory
-    for (mfxU32 i = 0; i < NUM_LIB_PREFIXES; i++) {
+    for (mfxU32 i = 0; i < numLibPrefixes; i++) {
         hTestFile = FindFirstFileW(testFileName[i].c_str(), &testFileData);
         if (hTestFile != INVALID_HANDLE_VALUE) {
             do {
@@ -459,7 +465,7 @@ mfxStatus LoaderCtxVPL::BuildListOfCandidateLibs() {
     it = searchDirList.begin();
     while (it != searchDirList.end()) {
         STRING_TYPE nextDir = (*it);
-        sts                 = SearchDirForLibs(nextDir, m_libInfoList, LIB_PRIORITY_01);
+        sts                 = SearchDirForLibs(nextDir, m_libInfoList, LIB_PRIORITY_01, true);
         it++;
     }
 
@@ -1167,6 +1173,9 @@ mfxStatus LoaderCtxVPL::QueryLibraryCaps() {
     }
 
     if (m_bLowLatency == false && !m_implInfoList.empty()) {
+        bool bD3D9Requested = (m_specialConfig.bIsSet_accelerationMode &&
+                               m_specialConfig.accelerationMode == MFX_ACCEL_MODE_VIA_D3D9);
+
         std::list<ImplInfo *>::iterator it2 = m_implInfoList.begin();
         while (it2 != m_implInfoList.end()) {
             ImplInfo *implInfo = (*it2);
@@ -1180,6 +1189,7 @@ mfxStatus LoaderCtxVPL::QueryLibraryCaps() {
 
             // per spec: if both VPL (HW) and MSDK are installed for the same accelerator, only load
             //   the VPL implementation (mark MSDK as invalid)
+            // exception: if application requests D3D9, load MSDK if available
             if (implInfo->libInfo->libType == LibTypeMSDK) {
                 mfxImplDescription *msdkImplDesc = (mfxImplDescription *)(implInfo->implDesc);
                 std::string msdkDeviceID         = (msdkImplDesc ? msdkImplDesc->Dev.DeviceID : "");
@@ -1203,7 +1213,7 @@ mfxStatus LoaderCtxVPL::QueryLibraryCaps() {
                                 implDesc->Impl == MFX_IMPL_TYPE_HARDWARE && bMatchingDeviceID);
                     });
 
-                if (vplIdx != m_implInfoList.end())
+                if (vplIdx != m_implInfoList.end() && bD3D9Requested == false)
                     implInfo->validImplIdx = -1;
 
                 // avoid loading VPL RT via compatibility entrypoint

@@ -197,8 +197,37 @@ TEST(Dispatcher_GPU_CloneSession, Double_Clone_Succeeds) {
     sts = MFXClose(cloneSession);
     EXPECT_EQ(sts, MFX_ERR_NONE);
 
+    sts = MFXClose(cloneSession2);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
     MFXUnload(loader);
 }
+
+#if defined(_WIN32) || defined(_WIN64)
+TEST(Dispatcher_GPU_CreateSession, D3D9CanCreateSession) {
+    SKIP_IF_DISP_GPU_MSDK_DISABLED();
+
+    mfxLoader loader = MFXLoad();
+    EXPECT_FALSE(loader == nullptr);
+
+    mfxStatus sts = SetConfigImpl(loader, MFX_IMPL_TYPE_HARDWARE);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    SetConfigFilterProperty<mfxU32>(loader,
+                                    "mfxImplDescription.AccelerationMode",
+                                    MFX_ACCEL_MODE_VIA_D3D9);
+
+    // create session with first implementation
+    mfxSession session = nullptr;
+    sts                = MFXCreateSession(loader, 0, &session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // free internal resources
+    sts = MFXClose(session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+    MFXUnload(loader);
+}
+#endif
 
 // MFXEnumImplementations
 TEST(Dispatcher_GPU_EnumImplementations, ValidInputsReturnValidDesc) {

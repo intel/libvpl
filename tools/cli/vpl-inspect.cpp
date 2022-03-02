@@ -233,17 +233,48 @@ int main(int argc, char *argv[]) {
     bool bPrintImplementedFunctions = false;
     bool bFullInfo                  = true;
     bool bPrintExtendedDeviceID     = false;
+    bool bRequireD3D9               = false;
     if (argc == 2) {
         if (!strncmp(argv[1], "-f", 2)) {
             bPrintImplementedFunctions = true;
         }
 #ifdef ONEVPL_EXPERIMENTAL
-        else if (!strncmp(argv[1], "-ex", 2)) {
+        else if (!strncmp(argv[1], "-ex", 3)) {
             bPrintExtendedDeviceID = true;
         }
 #endif
         else if (!strncmp(argv[1], "-b", 2)) {
             bFullInfo = false;
+        }
+        else if (!strncmp(argv[1], "-d3d9", 5)) {
+            bRequireD3D9 = true;
+        }
+        else {
+            printf("Error - unknown option %s\n", argv[1]);
+            return -1;
+        }
+    }
+
+    if (bRequireD3D9) {
+        printf("Warning - Enumerating D3D9 implementations ONLY\n");
+        mfxConfig cfg = MFXCreateConfig(loader);
+        if (!cfg) {
+            printf("Error - MFXCreateConfig() returned null\n");
+            return -1;
+        }
+
+        mfxVariant var      = {};
+        var.Version.Version = MFX_VARIANT_VERSION;
+        var.Type            = MFX_VARIANT_TYPE_U32;
+        var.Data.U32        = MFX_ACCEL_MODE_VIA_D3D9;
+
+        mfxStatus sts =
+            MFXSetConfigFilterProperty(cfg,
+                                       (const mfxU8 *)"mfxImplDescription.AccelerationMode",
+                                       var);
+        if (sts) {
+            printf("Error - MFXSetConfigFilterProperty() returned %d\n", sts);
+            return -1;
         }
     }
 

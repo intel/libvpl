@@ -540,7 +540,8 @@ private:
 
     mfxStatus SearchDirForLibs(STRING_TYPE searchDir,
                                std::list<LibInfo *> &libInfoList,
-                               mfxU32 priority);
+                               mfxU32 priority,
+                               bool bLoadVPLOnly = false);
 
     mfxU32 LoadAPIExports(LibInfo *libInfo, LibType libType);
     mfxStatus ValidateAPIExports(VPLFunctionPtr *vplFuncTable, mfxVersion reportedVersion);
