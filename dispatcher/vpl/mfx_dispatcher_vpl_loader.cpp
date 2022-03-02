@@ -1155,11 +1155,6 @@ mfxStatus LoaderCtxVPL::QueryLibraryCaps() {
 
                 // update number of valid MSDK adapters
                 numImplMSDK++;
-
-#ifdef __linux__
-                // currently only one adapter on Linux (avoid multiple copies)
-                break;
-#endif
             }
 
             if (numImplMSDK == 0) {

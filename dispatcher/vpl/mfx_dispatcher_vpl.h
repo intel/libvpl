@@ -376,6 +376,7 @@ private:
     static mfxAccelerationMode CvtAccelType(mfxIMPL implType, mfxIMPL implMethod);
     static mfxStatus GetDefaultAccelType(mfxU32 adapterID, mfxIMPL *implDefault, mfxU64 *luid);
     static mfxStatus CheckD3D9Support(mfxU64 luid, STRING_TYPE libNameFull, mfxIMPL *implD3D9);
+    static mfxStatus GetRenderNodeDescription(mfxU32 adapterID, mfxU32 &vendorID, mfxU16 &deviceID);
 
     // internal state variables
     STRING_TYPE m_libNameFull;

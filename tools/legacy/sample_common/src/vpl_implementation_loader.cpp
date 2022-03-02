@@ -407,8 +407,14 @@ mfxStatus VPLImplementationLoader::EnumImplementations() {
     }
 
 #ifdef ONEVPL_EXPERIMENTAL
-    if (idescDevice)
+    mfxStatus stsExt = MFXEnumImplementations(m_Loader,
+                                              m_ImplIndex,
+                                              MFX_IMPLCAPS_DEVICE_ID_EXTENDED,
+                                              (mfxHDL*)&idescDevice);
+    if (stsExt == MFX_ERR_NONE && idescDevice) {
         m_DRMRenderNodeNumUsed = idescDevice->DRMRenderNodeNum;
+        MFXDispReleaseImplDescription(m_Loader, idescDevice);
+    }
 #endif
 
     return sts;

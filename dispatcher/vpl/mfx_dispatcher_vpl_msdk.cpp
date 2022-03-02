@@ -247,6 +247,7 @@ mfxStatus LoaderCtxMSDK::QueryMSDKCaps(STRING_TYPE libNameFull,
     mfxSession session = nullptr;
 
     m_libNameFull = libNameFull;
+    m_deviceID    = 0;
 
 #ifdef __linux__
     // require pthreads to be linked in for MSDK RT to load
@@ -254,6 +255,15 @@ mfxStatus LoaderCtxMSDK::QueryMSDKCaps(STRING_TYPE libNameFull,
     if (pthread_key_create(&pkey, NULL) == 0) {
         pthread_key_delete(pkey);
     }
+
+    mfxU32 vendorID = 0;
+    mfxU16 deviceID = 0;
+    sts             = GetRenderNodeDescription(adapterID, vendorID, deviceID);
+    if (sts != MFX_ERR_NONE)
+        return MFX_ERR_UNSUPPORTED;
+
+    // on Linux read deviceID from the render node path
+    m_deviceID = deviceID;
 #endif
 
     // try HW session, default acceleration mode
@@ -340,17 +350,19 @@ mfxStatus LoaderCtxMSDK::QueryMSDKCaps(STRING_TYPE libNameFull,
     Dev->MediaAdapterType = MFX_MEDIA_UNKNOWN;
 
     // query for underlying deviceID (requires API >= 1.19)
-    m_deviceID = 0x0000;
-    if (IsVersionSupported(MAKE_MFX_VERSION(1, 19), m_id.ApiVersion)) {
-        mfxPlatform platform = {};
+    // for Linux, we may already have the deviceID from parsing render node path earlier
+    if (m_deviceID == 0) {
+        if (IsVersionSupported(MAKE_MFX_VERSION(1, 19), m_id.ApiVersion)) {
+            mfxPlatform platform = {};
 
-        sts = MFXVideoCORE_QueryPlatform(session, &platform);
-        if (sts == MFX_ERR_NONE)
-            m_deviceID = platform.DeviceId;
+            sts = MFXVideoCORE_QueryPlatform(session, &platform);
+            if (sts == MFX_ERR_NONE)
+                m_deviceID = platform.DeviceId;
 
-        // mfxPlatform::MediaAdapterType was added in API 1.31
-        if (IsVersionSupported(MAKE_MFX_VERSION(1, 31), m_id.ApiVersion)) {
-            Dev->MediaAdapterType = platform.MediaAdapterType;
+            // mfxPlatform::MediaAdapterType was added in API 1.31
+            if (IsVersionSupported(MAKE_MFX_VERSION(1, 31), m_id.ApiVersion)) {
+                Dev->MediaAdapterType = platform.MediaAdapterType;
+            }
         }
     }
 
@@ -434,6 +446,51 @@ mfxStatus LoaderCtxMSDK::CheckD3D9Support(mfxU64 luid, STRING_TYPE libNameFull, 
 #endif
 }
 
+mfxStatus LoaderCtxMSDK::GetRenderNodeDescription(mfxU32 adapterID,
+                                                  mfxU32 &vendorID,
+                                                  mfxU16 &deviceID) {
+    vendorID = 0;
+    deviceID = 0;
+
+#if defined(__linux__)
+    mfxU32 DRMRenderNodeNum = 128 + adapterID;
+    std::string nodeStr     = std::to_string(DRMRenderNodeNum);
+
+    std::string vendorPath = "/sys/class/drm/renderD" + nodeStr + "/device/vendor";
+    std::string devPath    = "/sys/class/drm/renderD" + nodeStr + "/device/device";
+
+    // check if vendor == 0x8086
+    FILE *vendorFile = fopen(vendorPath.c_str(), "r");
+    if (vendorFile) {
+        unsigned int u32 = 0;
+        int nRead        = fscanf(vendorFile, "%x", &u32);
+        if (nRead == 1)
+            vendorID = (mfxU32)u32;
+        fclose(vendorFile);
+    }
+
+    if (vendorID != 0x8086)
+        return MFX_ERR_UNSUPPORTED;
+
+    // get deviceID for this node
+    FILE *devFile = fopen(devPath.c_str(), "r");
+    if (devFile) {
+        unsigned int u32 = 0;
+        int nRead        = fscanf(devFile, "%x", &u32);
+        if (nRead == 1)
+            deviceID = (mfxU32)u32;
+        fclose(devFile);
+    }
+
+    if (deviceID == 0)
+        return MFX_ERR_UNSUPPORTED;
+
+    return MFX_ERR_NONE;
+#else
+    return MFX_ERR_UNSUPPORTED;
+#endif
+}
+
 // avoid confusing #ifdef indentation
 // clang-format off
 
@@ -484,7 +541,6 @@ mfxStatus LoaderCtxMSDK::QueryExtDeviceID(mfxExtendedDeviceId *extDeviceID,
         }
     }
 #elif defined(__linux__)
-    // fill in Linux-specific properties
     extDeviceID->DRMPrimaryNodeNum = adapterID;
     extDeviceID->DRMRenderNodeNum  = 128 + adapterID;
 #endif
