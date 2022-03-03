@@ -518,8 +518,30 @@ mfxStatus CTranscodingPipeline::DecodeOneFrame(ExtendedSurface* pExtSurface) {
     DevBusyTimer.Start();
     while (MFX_ERR_MORE_DATA == sts || MFX_ERR_MORE_SURFACE == sts || MFX_ERR_NONE < sts) {
         if (m_rawInput) {
+            m_ScalerConfig.Tracer->BeginEvent(SMTTracer::ThreadType::DEC,
+                                              0,
+                                              SMTTracer::EventName::SURF_WAIT,
+                                              nullptr,
+                                              nullptr);
             pExtSurface->pSurface = GetFreeSurface(false, MSDK_SURFACE_WAIT_INTERVAL);
-            sts                   = m_pBSProcessor->GetInputFrame(pExtSurface->pSurface);
+            m_ScalerConfig.Tracer->EndEvent(SMTTracer::ThreadType::DEC,
+                                            0,
+                                            SMTTracer::EventName::SURF_WAIT,
+                                            nullptr,
+                                            nullptr);
+
+            m_ScalerConfig.Tracer->BeginEvent(SMTTracer::ThreadType::DEC,
+                                              0,
+                                              SMTTracer::EventName::READ_YUV,
+                                              nullptr,
+                                              nullptr);
+            sts = m_pBSProcessor->GetInputFrame(pExtSurface->pSurface);
+            m_ScalerConfig.Tracer->EndEvent(SMTTracer::ThreadType::DEC,
+                                            0,
+                                            SMTTracer::EventName::READ_YUV,
+                                            nullptr,
+                                            pExtSurface->pSurface);
+
             if (sts != MFX_ERR_NONE)
                 return sts;
         }
@@ -537,14 +559,34 @@ mfxStatus CTranscodingPipeline::DecodeOneFrame(ExtendedSurface* pExtSurface) {
                                             nullptr);
         }
         else if (MFX_ERR_MORE_DATA == sts) {
+            m_ScalerConfig.Tracer->BeginEvent(SMTTracer::ThreadType::DEC,
+                                              0,
+                                              SMTTracer::EventName::READ_BS,
+                                              nullptr,
+                                              nullptr);
             sts =
                 m_pBSProcessor->GetInputBitstream(&m_pmfxBS); // read more data to input bit stream
+            m_ScalerConfig.Tracer->EndEvent(SMTTracer::ThreadType::DEC,
+                                            0,
+                                            SMTTracer::EventName::READ_BS,
+                                            nullptr,
+                                            nullptr);
             MSDK_BREAK_ON_ERROR(sts);
         }
 
         if (m_MemoryModel == GENERAL_ALLOC) {
             // Find new working surface
+            m_ScalerConfig.Tracer->BeginEvent(SMTTracer::ThreadType::DEC,
+                                              0,
+                                              SMTTracer::EventName::SURF_WAIT,
+                                              nullptr,
+                                              nullptr);
             pmfxSurface = GetFreeSurface(true, MSDK_SURFACE_WAIT_INTERVAL);
+            m_ScalerConfig.Tracer->EndEvent(SMTTracer::ThreadType::DEC,
+                                            0,
+                                            SMTTracer::EventName::SURF_WAIT,
+                                            nullptr,
+                                            nullptr);
 
             if (m_bForceStop)
                 m_nTimeout = 0;
@@ -1266,7 +1308,7 @@ mfxStatus CTranscodingPipeline::Decode() {
                 m_ScalerConfig.Tracer->EndEvent(SMTTracer::ThreadType::DEC,
                                                 0,
                                                 SMTTracer::EventName::SYNC,
-                                                nullptr,
+                                                frontSurface.pSurface,
                                                 nullptr);
 
                 HandlePossibleGpuHang(sts);
@@ -2047,7 +2089,7 @@ mfxStatus CTranscodingPipeline::PutBS() {
         m_ScalerConfig.Tracer->EndEvent(SMTTracer::ThreadType::ENC,
                                         TargetID,
                                         SMTTracer::EventName::SYNC,
-                                        nullptr,
+                                        pBitstreamEx->Syncp,
                                         nullptr);
         HandlePossibleGpuHang(sts);
         MSDK_CHECK_ERR_NONE_STATUS(sts, MFX_ERR_ABORTED, "Encode: SyncOperation failed");
