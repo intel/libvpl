@@ -279,6 +279,10 @@ void PrintHelp(msdk_char* strAppName, const msdk_char* strErrorMessage, ...) {
     msdk_printf(MSDK_STRING(
         "   [-qpfile <filepath>]     - if specified, the encoder will take frame parameters (frame number, QP, frame type) from text file\n"));
     msdk_printf(MSDK_STRING(
+        "   [-tcbrctestfile <filepath>] - if specified, the encoder will take targetFrameSize parameters for TCBRC test from text file. \
+                            The parameters for TCBRC should be calculated based on the channel width conditions, sample doesn't have this functionality. \
+                            Therefore the file data from <filepath> is used for TCBRC test. This is a test model\n"));
+    msdk_printf(MSDK_STRING(
         "   [-usei]                  - insert user data unregistered SEI. eg: 7fc92488825d11e7bb31be2e44b06b34:0:MSDK (uuid:type<0-preifx/1-suffix>:message)\n"));
     msdk_printf(MSDK_STRING(
         "                              the suffix SEI for HEVCe can be inserted when CQP used or HRD disabled\n"));
@@ -415,6 +419,13 @@ mfxStatus ParseAdditionalParams(msdk_char* strInput[],
         for (j = 0; j < 8; j++) {
             pParams->nTemporalLayers[j] = arr[j];
         }
+        i += 1;
+    }
+
+    else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-tcbrctestfile"))) {
+        VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
+        pParams->TCBRCFileMode    = true;
+        pParams->strTCBRCFilePath = strInput[++i];
         i += 1;
     }
 
@@ -761,6 +772,7 @@ mfxStatus ParseInputString(msdk_char* strInput[], mfxU8 nArgNum, sInputParams* p
     pParams->EncodeFourCC       = 0;
     pParams->nPRefType          = MFX_P_REF_DEFAULT;
     pParams->QPFileMode         = false;
+    pParams->TCBRCFileMode      = false;
     pParams->BitrateLimit       = MFX_CODINGOPTION_OFF;
     pParams->adapterType        = mfxMediaAdapterType::MFX_MEDIA_UNKNOWN;
     pParams->dGfxIdx            = -1;
