@@ -102,6 +102,9 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 
 include(cmake/oneAPIInstallDirs.cmake)
 
+# Set POSITION_INDEPENDENT_CODE property for all targets
+set(CMAKE_POSITION_INDEPENDENT_CODE true)
+
 # Keep executable bits on shared objects when installing regardless of distro
 set(CMAKE_INSTALL_SO_NO_EXE 0)
 

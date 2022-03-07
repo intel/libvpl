@@ -4,7 +4,6 @@
 # SPDX-License-Identifier: MIT
 # ##############################################################################
 
-set(CMAKE_POSITION_INDEPENDENT_CODE true)
 add_library(sample_common STATIC)
 
 target_sources(
