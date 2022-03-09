@@ -53,11 +53,6 @@ endif()
 
 target_compile_definitions(sample_common PUBLIC MFX_DEPRECATED_OFF)
 
-if(POLICY CMP0074)
-  # ignore warning of VPL_ROOT in find_package search path
-  cmake_policy(SET CMP0074 OLD)
-endif()
-
 find_package(VPL REQUIRED)
 target_link_libraries(sample_common PUBLIC VPL::dispatcher
                                            media_sdk_compatibility_headers)

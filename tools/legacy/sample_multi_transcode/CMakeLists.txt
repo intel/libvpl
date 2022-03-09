@@ -4,11 +4,6 @@
 # SPDX-License-Identifier: MIT
 # ##############################################################################
 
-if(POLICY CMP0074)
-  # ignore warning of VPL_ROOT in find_package search path
-  cmake_policy(SET CMP0074 OLD)
-endif()
-
 find_package(VPL REQUIRED)
 
 if(CMAKE_SYSTEM_NAME MATCHES Linux)

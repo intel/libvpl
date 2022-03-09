@@ -6,11 +6,6 @@
 
 find_package(VPL REQUIRED)
 
-if(POLICY CMP0074)
-  # ignore warning of VPL_ROOT in find_package search path
-  cmake_policy(SET CMP0074 OLD)
-endif()
-
 if(CMAKE_SYSTEM_NAME MATCHES Linux)
   if(NOT
      (PKG_LIBVA_FOUND

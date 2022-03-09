@@ -3,10 +3,6 @@ cmake_minimum_required(VERSION 3.10.2)
 project(pyvpl)
 set(TARGET pyvpl)
 
-if(POLICY CMP0074)
-  # ignore warning of VPL_ROOT in find_package search path
-  cmake_policy(SET CMP0074 OLD)
-endif()
 find_package(VPL REQUIRED)
 find_package(pybind11 REQUIRED)
 
