@@ -236,5 +236,6 @@ message(
 
 if(MSVC)
   message(
-    STATUS "  USE_MSVC_STATIC_RUNTIME        : ${USE_MSVC_STATIC_RUNTIME}")
+    STATUS "  USE_MSVC_STATIC_RUNTIME              : ${USE_MSVC_STATIC_RUNTIME}"
+  )
 endif()
