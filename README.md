@@ -1,22 +1,58 @@
 # ![oneAPI](assets/oneapi-logo.png "oneAPI") Video Processing Library
 
-The oneAPI Video Processing Library (oneVPL) provides a single video processing
-API for encode, decode, and video processing that works across a wide range of
-accelerators.
+The oneAPI Video Processing Library (oneVPL) is a programming interface for video decoding, encoding, 
+and processing to build portable media pipelines on CPUs, GPUs, and other accelerators.
+
+It provides device discovery
+and selection in media centric and video analytics workloads and API primitives for zero-copy buffer sharing. oneVPL is backwards
+and cross-architecture compatible to ensure optimal execution on current and next generation hardware without source code changes.
+
+See the [oneVPL Specification](https://spec.oneapi.io/versions/latest/elements/oneVPL/source/index.html) for additional information. This is part of the [oneAPI specification](https://www.oneapi.io/spec/).
 
 This repository contains the following components of oneVPL:
 
-- Copies of the oneVPL Specification API header files
+- Copies of the oneVPL Specification API header files. The version of the oneVPL API is listed in the
+[mfxdefs.h](./api/vpl/mfxdefs.h) file.
 - oneVPL dispatcher
 - Examples demonstrating API usage
 - oneVPL command line tools
 
-This project is part of the larger [oneAPI](https://www.oneapi.io/) project.
-See the [oneAPI Specification](https://spec.oneapi.io) and the
-[oneVPL Specification](https://spec.oneapi.io/versions/latest/elements/oneVPL/source/index.html) for additional information.
+To use oneVPL for video processing you need to install at least one implementation. Here is a list of current implementations.
 
-The version of the oneVPL API is listed in the
-[mfxdefs.h](./api/vpl/mfxdefs.h) file.
+- [oneVPL-cpu](https://github.com/oneapi-src/oneVPL-cpu) for use on CPU
+- [oneVPL-intel-gpu](https://github.com/oneapi-src/oneVPL-intel-gpu) for use on Intel Xe graphics and newer
+- [Media SDK](https://github.com/Intel-Media-SDK/MediaSDK) for use on legacy Intel graphics
+
+## OneVPL Architecture
+```mermaid
+graph TD;
+    VPL[oneVPL Dispatcher]-->oneVPL-cpu;
+    VPL[oneVPL Dispatcher]-->oneVPL-intel-gpu;
+    VPL[oneVPL Dispatcher]-->MediaSDK;
+    VPL[oneVPL Dispatcher]-->Future1;
+    VPL[oneVPL Dispatcher]-->Future2;
+```
+
+As shown in this diagram, the dispatcher dispatches the application to use either the VPL CPU runtime, VPL GPU runtime, or the MediaSDK GPU Runtime. We may support more implementations in the future.
+
+## oneVPL dispatcher behavior when targeting Intel GPUs
+Runtime loaded by oneVPL dispatcher:
+
+
+| GPU                                        | Media SDK        | oneVPL           |
+|--------------------------------------------|------------------|------------------|
+| Earlier platforms, back to BDW (Broadwell) |:heavy_check_mark:|                  |
+| ICL (Ice Lake)                             |:heavy_check_mark:|                  |
+| JSL (Jasper Lake)                          |:heavy_check_mark:|                  |
+| EHL (Elkhart Lake)                         |:heavy_check_mark:|                  |
+| SG1                                        |:heavy_check_mark:|                  |
+| TGL (Tiger Lake)                           |                  |:heavy_check_mark:|
+| DG1 (Iris® Xe MAX)                         |                  |:heavy_check_mark:|
+| RKL (Rocket Lake)                          |                  |:heavy_check_mark:|
+| ADL-S (Alder Lake S)                       |                  |:heavy_check_mark:|
+| ADL-P (Alder Lake P)                       |                  |:heavy_check_mark:|
+| Future platforms...                        |                  |:heavy_check_mark:|
+
 
 ## Installation
 
