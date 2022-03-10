@@ -343,6 +343,8 @@ TEST(Dispatcher_LowLatency, Create_MultipleLoaders_MultipleSessions) {
 }
 
 TEST(Dispatcher_LowLatency, Get_ImplDesc_MFXEnumImplementations_AfterSessionCreated) {
+    SKIP_IF_DISP_GPU_DISABLED();
+
     mfxLoader loader = MFXLoad();
     EXPECT_FALSE(loader == nullptr);
 
