@@ -38,6 +38,7 @@ else()
   file(TO_CMAKE_PATH "${CMAKE_INSTALL_INCLUDEDIR}" _install_includedir)
   file(TO_CMAKE_PATH "${CMAKE_INSTALL_LIBDIR}" _install_libdir)
   file(TO_CMAKE_PATH "${CMAKE_INSTALL_BINDIR}" _install_bindir)
+  file(TO_CMAKE_PATH "${ONEAPI_INSTALL_PKGCONFIGDIR}" _install_pkgconfigdir)
   set(ENV_SCRIPT_NAME "vars.sh")
   configure_file("sh/vars.sh.in" "${ENV_SCRIPT_NAME}" @ONLY)
   install(

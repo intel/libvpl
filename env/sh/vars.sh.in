@@ -198,6 +198,7 @@ vpl_prefix=$(cd "$vpl_prefix" && pwd)
 vpl_include="$vpl_prefix/@_install_includedir@"
 vpl_lib="$vpl_prefix/@_install_libdir@"
 vpl_bin="$vpl_prefix/@_install_bindir@"
+vpl_pkgconfig="$vpl_prefix/@_install_pkgconfigdir@"
 
 CPATH=$(prepend_path "$vpl_include" "${CPATH:-}")
 export CPATH
@@ -209,5 +210,5 @@ LD_LIBRARY_PATH=$(prepend_path "$vpl_lib" "${LD_LIBRARY_PATH:-}")
 export LD_LIBRARY_PATH
 CMAKE_PREFIX_PATH=$(prepend_path "$vpl_prefix" "${CMAKE_PREFIX_PATH:-}")
 export CMAKE_PREFIX_PATH
-PKG_CONFIG_PATH=$(prepend_path "$vpl_lib/pkgconfig" "${PKG_CONFIG_PATH:-}")
+PKG_CONFIG_PATH=$(prepend_path "$vpl_pkgconfig" "${PKG_CONFIG_PATH:-}")
 export PKG_CONFIG_PATH

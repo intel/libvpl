@@ -34,8 +34,8 @@ IF DEFINED CMAKE_PREFIX_PATH (
 )
 
 IF DEFINED PKG_CONFIG_PATH (
-  set "PKG_CONFIG_PATH=%VPL_PREFIX%\@_install_libdir@\pkgconfig;%PKG_CONFIG_PATH%"
+  set "PKG_CONFIG_PATH=%VPL_PREFIX%\@_install_pkgconfigdir@;%PKG_CONFIG_PATH%"
 ) ELSE (
-  set "PKG_CONFIG_PATH=%VPL_PREFIX%\@_install_libdir@\pkgconfig"
+  set "PKG_CONFIG_PATH=%VPL_PREFIX%\@_install_pkgconfigdir@"
 )
 set VPL_PREFIX=
