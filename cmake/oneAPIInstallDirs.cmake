@@ -27,6 +27,8 @@ if(USE_ONEAPI_INSTALL_LAYOUT)
   set(ONEAPI_INSTALL_EXAMPLEDIR "examples")
   set(ONEAPI_INSTALL_LICENSEDIR "licensing/${PROJECT_NAME}")
   set(ONEAPI_INSTALL_PYTHONDIR "python/lib")
+else()
+  set(CMAKE_INSTALL_DOCDIR ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/doc)
 endif()
 
 # See https://cmake.org/cmake/help/latest/module/GNUInstallDirs.html for
