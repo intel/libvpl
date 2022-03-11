@@ -114,12 +114,12 @@ mfxStatus CSmplYUVReader::Init(std::list<msdk_string> inputs,
 
     if (MFX_FOURCC_NV12 != ColorFormat && MFX_FOURCC_YV12 != ColorFormat &&
         MFX_FOURCC_I420 != ColorFormat && MFX_FOURCC_YUY2 != ColorFormat &&
-        MFX_FOURCC_RGB4 != ColorFormat && MFX_FOURCC_BGR4 != ColorFormat &&
-        MFX_FOURCC_P010 != ColorFormat && MFX_FOURCC_P210 != ColorFormat &&
-        MFX_FOURCC_AYUV != ColorFormat && MFX_FOURCC_A2RGB10 != ColorFormat &&
-        MFX_FOURCC_Y210 != ColorFormat && MFX_FOURCC_Y410 != ColorFormat &&
-        MFX_FOURCC_P016 != ColorFormat && MFX_FOURCC_Y216 != ColorFormat &&
-        MFX_FOURCC_I010 != ColorFormat) {
+        MFX_FOURCC_UYVY != ColorFormat && MFX_FOURCC_RGB4 != ColorFormat &&
+        MFX_FOURCC_BGR4 != ColorFormat && MFX_FOURCC_P010 != ColorFormat &&
+        MFX_FOURCC_P210 != ColorFormat && MFX_FOURCC_AYUV != ColorFormat &&
+        MFX_FOURCC_A2RGB10 != ColorFormat && MFX_FOURCC_Y210 != ColorFormat &&
+        MFX_FOURCC_Y410 != ColorFormat && MFX_FOURCC_P016 != ColorFormat &&
+        MFX_FOURCC_Y216 != ColorFormat && MFX_FOURCC_I010 != ColorFormat) {
         return MFX_ERR_UNSUPPORTED;
     }
 
