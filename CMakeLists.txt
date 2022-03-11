@@ -12,7 +12,7 @@ else()
 endif()
 
 file(STRINGS "version.txt" version_txt)
-project(oneVPL VERSION ${version_txt})
+project(vpl VERSION ${version_txt})
 
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
