@@ -123,7 +123,7 @@ Perform the following steps:
 ### Application Parameters
 
 The instructions given above run the sample executable with the arguments
-`-i ${CONTENTPATH}/cars_128x96.i420 -w 128 -h 96`.
+`-i ${CONTENTPATH}/cars_320x240.i420 -w 320 -h 240`.
 
 Use nv12 input format for GPU encode.
 
@@ -136,7 +136,7 @@ Implementation details:
   AccelerationMode via: NA 
   Path: /opt/intel/oneapi/vpl/2021.6.0/lib/libvplswref64.so.1
 
-Encoding /home/test/intel_innersource/frameworks.media.onevpl.dispatcher/examples/hello/hello-encode/content/cars_128x96.i420 -> out.h265
+Encoding /home/test/intel_innersource/frameworks.media.onevpl.dispatcher/examples/hello/hello-encode/content/cars_320x240.i420 -> out.h265
 Input colorspace: I420 (aka yuv420p)
 Encoded 60 frames
 ```

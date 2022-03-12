@@ -23,11 +23,11 @@ set(CONTENTPATH ${CMAKE_CURRENT_SOURCE_DIR}/../../content)
 set(RUNARGS
     -sw
     -i
-    ${CONTENTPATH}/cars_128x96.i420
+    ${CONTENTPATH}/cars_320x240.i420
     -w
-    128
+    320
     -h
-    96)
+    240)
 
 # Set default build type to RelWithDebInfo if not specified
 if(NOT CMAKE_BUILD_TYPE)
