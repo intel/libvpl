@@ -228,6 +228,7 @@ CTranscodingPipeline::CTranscodingPipeline()
           m_sGenericPluginPath(),
           m_nRotationAngle(0),
           m_strMfxParamsDumpFile(),
+          m_bTCBRCFileMode(false),
 #ifdef ENABLE_MCTF
           m_MctfRTParams(),
 #endif
@@ -901,6 +902,11 @@ mfxStatus CTranscodingPipeline::EncodeOneFrame(ExtendedSurface* pExtSurface,
     }
 
     for (;;) {
+        if (m_bTCBRCFileMode && pExtSurface->pSurface) {
+            sts = ConfigTCBRCTest(pExtSurface->pSurface);
+            MSDK_CHECK_STATUS(sts, "TCBRC reset failed");
+        }
+
         // at this point surface for encoder contains either a frame from file or a frame processed by vpp
         m_ScalerConfig.Tracer->BeginEvent(SMTTracer::ThreadType::ENC,
                                           TargetID,
@@ -949,6 +955,22 @@ mfxStatus CTranscodingPipeline::EncodeOneFrame(ExtendedSurface* pExtSurface,
     return sts;
 
 } //CTranscodingPipeline::EncodeOneFrame(ExtendedSurface *pExtSurface)
+
+mfxStatus CTranscodingPipeline::ConfigTCBRCTest(mfxFrameSurface1* pSurf) {
+    mfxStatus sts = MFX_ERR_NONE;
+    if (m_bTCBRCFileMode && pSurf) {
+        mfxU32 targetFrameSize = m_TCBRCFileReader.GetTargetFrameSize(pSurf->Data.FrameOrder);
+        if (targetFrameSize) {
+            mfxU32 newBitrate = targetFrameSize * 8 * m_mfxEncParams.mfx.FrameInfo.FrameRateExtN /
+                                (m_mfxEncParams.mfx.FrameInfo.FrameRateExtD * 1000);
+            if (m_mfxEncParams.mfx.TargetKbps != newBitrate) {
+                m_mfxEncParams.mfx.TargetKbps = (mfxU16)newBitrate;
+                sts                           = m_pmfxENC->Reset(&m_mfxEncParams);
+            }
+        }
+    }
+    return sts;
+}
 
 // signal that there are no more frames
 void CTranscodingPipeline::NoMoreFramesSignal() {
@@ -2636,6 +2658,17 @@ mfxStatus CTranscodingPipeline::InitEncMfxParams(sInputParams* pInParams) {
             spspps->SPSId = pInParams->nSPSId;
             spspps->PPSId = pInParams->nPPSId;
         }
+    }
+
+    m_bTCBRCFileMode = pInParams->TCBRCFileMode;
+    if (m_bTCBRCFileMode) {
+        mfxStatus sts = m_TCBRCFileReader.Read(pInParams->strTCBRCFilePath, pInParams->EncodeId);
+        MSDK_CHECK_STATUS(sts, m_TCBRCFileReader.GetErrorMessage().c_str());
+        m_mfxEncParams.AsyncDepth            = 1;
+        m_mfxEncParams.mfx.RateControlMethod = MFX_RATECONTROL_VBR;
+        m_mfxEncParams.mfx.GopRefDist        = 1;
+        pInParams->nNalHrdConformance        = MFX_CODINGOPTION_OFF;
+        pInParams->LowDelayBRC               = MFX_CODINGOPTION_ON;
     }
 
     if (pInParams->nPicTimingSEI || pInParams->nNalHrdConformance ||

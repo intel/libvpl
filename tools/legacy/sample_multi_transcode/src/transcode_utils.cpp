@@ -534,6 +534,10 @@ void TranscodingSample::PrintHelp() {
         "                              Option is not intended for -memory 1 and for transcoding scenarios  \n"));
     msdk_printf(MSDK_STRING(
         "   -dump [fileName]         - dump MSDK components configuration to the file in text form\n"));
+    msdk_printf(MSDK_STRING(
+        "   -tcbrctestfile <filepath> - if specified, the encoder will take targetFrameSize parameters for TCBRC test from text file. \
+                            The parameters for TCBRC should be calculated based on the channel width conditions, sample doesn't have this functionality. \
+                            Therefore the file data from <filepath> is used for TCBRC test. This is a test model\n"));
     msdk_printf(MSDK_STRING("   -cs                      - turn on cascade scaling\n"));
     msdk_printf(MSDK_STRING("   -trace                   - turn on tracing \n"));
 #if defined(LIBVA_X11_SUPPORT)
@@ -1400,6 +1404,14 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
         VAL_CHECK(i + 1 >= argc, i, argv[i]);
         if (MFX_ERR_NONE != msdk_opt_read(argv[++i], InputParams.adapterNum)) {
             PrintError(argv[0], MSDK_STRING("Value of -AdapterNum is invalid"));
+            return MFX_ERR_UNSUPPORTED;
+        }
+    }
+    else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-tcbrctestfile"))) {
+        VAL_CHECK(i + 1 >= argc, i, argv[i]);
+        InputParams.TCBRCFileMode = true;
+        if (MFX_ERR_NONE != msdk_opt_read(argv[++i], InputParams.strTCBRCFilePath)) {
+            PrintError(argv[0], MSDK_STRING("Value of -tcbrctestfile is invalid"));
             return MFX_ERR_UNSUPPORTED;
         }
     }

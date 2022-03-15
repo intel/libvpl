@@ -206,6 +206,8 @@ struct __sInputParams {
     msdk_char strDumpVppCompFile[MSDK_MAX_FILENAME_LEN]; // VPP composition output dump file
     msdk_char strMfxParamsDumpFile[MSDK_MAX_FILENAME_LEN];
 
+    msdk_char strTCBRCFilePath[MSDK_MAX_FILENAME_LEN];
+
     // specific encode parameters
     mfxU16 nTargetUsage;
     mfxF64 dDecoderFrameRateOverride;
@@ -390,11 +392,14 @@ struct __sInputParams {
 
     bool IsSourceMSB      = false;
     mfxU32 nSyncOpTimeout = MSDK_WAIT_INTERVAL; // SyncOperation timeout in msec
+
+    bool TCBRCFileMode;
 };
 
 struct sInputParams : public __sInputParams {
     sInputParams();
     msdk_string DumpLogFileName;
+
     std::vector<mfxExtEncoderROI> m_ROIData;
 
     bool bDecoderPostProcessing;
@@ -1044,6 +1049,10 @@ protected:
     msdk_string m_strMfxParamsDumpFile;
 
     void FillMBQPBuffer(mfxExtMBQP& qpMap, mfxU16 pictStruct);
+
+    TCBRCTestFile::Reader m_TCBRCFileReader;
+    bool m_bTCBRCFileMode;
+    mfxStatus ConfigTCBRCTest(mfxFrameSurface1* pSurf);
 
 #ifdef ENABLE_MCTF
     sMctfRunTimeParams m_MctfRTParams;
