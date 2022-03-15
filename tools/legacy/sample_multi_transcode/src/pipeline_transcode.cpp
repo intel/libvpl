@@ -2686,7 +2686,8 @@ mfxStatus CTranscodingPipeline::InitEncMfxParams(sInputParams* pInParams) {
         co2->MaxQPB = pInParams->nMaxQPB;
 
         if (pInParams->nExtBRC != EXTBRC_DEFAULT &&
-            (pInParams->EncodeId == MFX_CODEC_HEVC || pInParams->EncodeId == MFX_CODEC_AVC)) {
+            (pInParams->EncodeId == MFX_CODEC_HEVC || pInParams->EncodeId == MFX_CODEC_AVC ||
+             pInParams->EncodeId == MFX_CODEC_AV1)) {
             co2->ExtBRC = (mfxU16)(pInParams->nExtBRC == EXTBRC_OFF ? MFX_CODINGOPTION_OFF
                                                                     : MFX_CODINGOPTION_ON);
         }
