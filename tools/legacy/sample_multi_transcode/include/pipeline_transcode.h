@@ -940,7 +940,7 @@ protected:
 
     bool m_bDecodeEnable;
     bool m_bEncodeEnable;
-    mfxU32 m_nVPPCompEnable;
+    mfxU32 m_nVPPCompMode;
     mfxI32 m_libvaBackend;
 
     mfxU16 m_MemoryModel;

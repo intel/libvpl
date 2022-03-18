@@ -1018,7 +1018,8 @@ mfxStatus Launcher::VerifyCrossSessionsOptions() {
         forceSyncAllSession |=
             m_InputParamsArray[i].forceSyncAllSession == MFX_CODINGOPTION_ON ||
             (m_InputParamsArray[i].forceSyncAllSession == MFX_CODINGOPTION_UNKNOWN &&
-             m_InputParamsArray.size() > 1 &&
+             m_InputParamsArray[i].eMode !=
+                 Native && // synchronization is actual in case when data producer and data consumer from different threads
              (m_InputParamsArray[i].nMemoryModel == VISIBLE_INT_ALLOC ||
               m_InputParamsArray[i].nMemoryModel == HIDDEN_INT_ALLOC));
     }

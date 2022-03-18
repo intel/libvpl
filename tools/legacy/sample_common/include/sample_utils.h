@@ -1278,6 +1278,8 @@ private:
                  it++) {
                 mfxU32 refCount = -1;
                 mfxStatus sts   = (*it)->FrameInterface->GetRefCounter((*it), &refCount);
+                // 2 means that only library and synchronizer have control over surface
+                // and all components don't use it now
                 if (sts == MFX_ERR_NONE && refCount <= 2 && (*it)->Data.Locked == 0) {
                     (*it)->FrameInterface->Release((*it));
                     m_Surfaces.erase(it);

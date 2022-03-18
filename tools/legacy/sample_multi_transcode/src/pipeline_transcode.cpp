@@ -177,7 +177,7 @@ CTranscodingPipeline::CTranscodingPipeline()
           m_nPreallocate(),
           m_bDecodeEnable(true),
           m_bEncodeEnable(true),
-          m_nVPPCompEnable(0),
+          m_nVPPCompMode(0),
           m_libvaBackend(0),
           m_MemoryModel(UNKNOWN_ALLOC),
           m_LastDecSyncPoint(0),
@@ -318,7 +318,7 @@ mfxStatus CTranscodingPipeline::VPPPreInit(sInputParams* pParams) {
     m_bIsFieldWeaving        = false;
     m_bIsFieldSplitting      = false;
 
-    if (((pParams->eModeExt == VppComp) || (pParams->eModeExt == VppCompOnly)) &&
+    if ((pParams->eModeExt == VppComp || pParams->eModeExt == VppCompOnly) &&
         (pParams->eMode == Source))
         bVppCompInitRequire = true;
 
@@ -427,7 +427,7 @@ mfxStatus CTranscodingPipeline::EncodePreInit(sInputParams* pParams) {
             // create encoder
             m_pmfxENC.reset(new MFXVideoENCODE(*m_pmfxSession.get()));
 
-            if (m_nVPPCompEnable == VppCompOnlyEncode) {
+            if (m_nVPPCompMode == VppCompOnlyEncode) {
                 pParams->EncoderFourCC = MFX_FOURCC_NV12;
             }
 
@@ -686,11 +686,6 @@ mfxStatus CTranscodingPipeline::DecodeLastFrame(ExtendedSurface* pExtSurface) {
                     MFX_ERR_MEMORY_ALLOC,
                     msdk_printf(MSDK_STRING(
                         "ERROR: No free surfaces in decoder pool (during long period)\n"))); // return an error if a free surface wasn't found
-
-                sts = m_pmfxDEC->DecodeFrameAsync(nullptr,
-                                                  pmfxSurface,
-                                                  &pExtSurface->pSurface,
-                                                  &pExtSurface->Syncp);
             }
             else if (m_MemoryModel == VISIBLE_INT_ALLOC) {
                 sts = m_pmfxDEC->GetSurface(&pmfxSurface);
@@ -702,20 +697,14 @@ mfxStatus CTranscodingPipeline::DecodeLastFrame(ExtendedSurface* pExtSurface) {
                     MFX_ERR_MEMORY_ALLOC,
                     msdk_printf(MSDK_STRING(
                         "ERROR: No free surfaces in decoder pool (during long period)\n")));
-
-                sts = m_pmfxDEC->DecodeFrameAsync(nullptr,
-                                                  pmfxSurface,
-                                                  &pExtSurface->pSurface,
-                                                  &pExtSurface->Syncp);
-
+            }
+            sts = m_pmfxDEC->DecodeFrameAsync(nullptr,
+                                              pmfxSurface,
+                                              &pExtSurface->pSurface,
+                                              &pExtSurface->Syncp);
+            if (m_MemoryModel == VISIBLE_INT_ALLOC) {
                 mfxStatus sts_release = pmfxSurface->FrameInterface->Release(pmfxSurface);
                 MSDK_CHECK_STATUS(sts_release, "FrameInterface->Release failed");
-            }
-            else {
-                sts = m_pmfxDEC->DecodeFrameAsync(nullptr,
-                                                  pmfxSurface,
-                                                  &pExtSurface->pSurface,
-                                                  &pExtSurface->Syncp);
             }
         }
 
@@ -959,7 +948,7 @@ void CTranscodingPipeline::NoMoreFramesSignal() {
     pNextBuffer->AddSurface(surf);
 
     /*if 1_to_N mode */
-    if (0 == m_nVPPCompEnable) {
+    if (0 == m_nVPPCompMode) {
         while (pNextBuffer->m_pNext) {
             pNextBuffer = pNextBuffer->m_pNext;
             pNextBuffer->AddSurface(surf);
@@ -1269,7 +1258,7 @@ mfxStatus CTranscodingPipeline::Decode() {
             /* one of key parts for N_to_1 mode:
             * decoded frame should be in one buffer only as we have only 1 (one!) sink
             * */
-            if (0 == m_nVPPCompEnable) {
+            if (0 == m_nVPPCompMode) {
                 while (pNextBuffer->m_pNext) {
                     pNextBuffer = pNextBuffer->m_pNext;
                     pNextBuffer->AddSurface(PreEncExtSurface);
@@ -1438,7 +1427,7 @@ mfxStatus CTranscodingPipeline::Encode() {
                 curBuffer->ReleaseSurface(DecExtSurface.pSurface);
 
                 //--- We should switch to another buffer ONLY in case of Composition
-                if (curBuffer->m_pNext != NULL && m_nVPPCompEnable > 0) {
+                if (curBuffer->m_pNext != NULL && m_nVPPCompMode > 0) {
                     curBuffer = curBuffer->m_pNext;
                     continue;
                 }
@@ -1451,12 +1440,12 @@ mfxStatus CTranscodingPipeline::Encode() {
 
         MSDK_CHECK_STATUS(sts, "Unexpected error!!");
 
-        if (m_nVPPCompEnable > 0)
+        if (m_nVPPCompMode > 0)
             curBuffer->ReleaseSurface(DecExtSurface.pSurface);
 
         // Do RenderFrame before Encode to improves on-screen performance
         // Presentation packet would now precedes "ENC" packet within the EU
-        if ((m_nVPPCompEnable == VppCompOnly) || (m_nVPPCompEnable == VppCompOnlyEncode)) {
+        if ((m_nVPPCompMode == VppCompOnly) || (m_nVPPCompMode == VppCompOnlyEncode)) {
             if (VppExtSurface.pSurface) {
                 // Sync to ensure VPP is completed to avoid flicker
                 sts = m_pmfxSession->SyncOperation(VppExtSurface.Syncp, MSDK_WAIT_INTERVAL);
@@ -1500,7 +1489,7 @@ mfxStatus CTranscodingPipeline::Encode() {
         SetEncCtrlRT(VppExtSurface, m_bInsertIDR);
         m_bInsertIDR = false;
 
-        if ((m_nVPPCompEnable != VppCompOnly) || (m_nVPPCompEnable == VppCompOnlyEncode)) {
+        if ((m_nVPPCompMode != VppCompOnly) || (m_nVPPCompMode == VppCompOnlyEncode)) {
             if (m_mfxEncParams.mfx.CodecId != MFX_CODEC_DUMP) {
                 if (bPollFlag) {
                     VppExtSurface.pSurface = 0;
@@ -1571,7 +1560,7 @@ mfxStatus CTranscodingPipeline::Encode() {
 
         /* Actually rendering... if enabled
          * SYNC have not done by driver !!! */
-        if ((m_nVPPCompEnable == VppCompOnly) || (m_nVPPCompEnable == VppCompOnlyEncode)) {
+        if ((m_nVPPCompMode == VppCompOnly) || (m_nVPPCompMode == VppCompOnlyEncode)) {
             if (m_BSPool.size()) {
                 ExtendedBS* pBitstreamEx_temp = m_BSPool.front();
 
@@ -1579,7 +1568,7 @@ mfxStatus CTranscodingPipeline::Encode() {
                 ////Note! Better to do rendering before encode
                 //                if(VppExtSurface.pSurface)
                 //                {
-                //                    if(m_nVPPCompEnable != VppCompOnlyEncode)
+                //                    if(m_nVPPCompMode != VppCompOnlyEncode)
                 //                    {
                 //                        sts = m_pmfxSession->SyncOperation(VppExtSurface.Syncp, MSDK_WAIT_INTERVAL);
                 //                        MSDK_CHECK_ERR_NONE_STATUS(sts, MFX_ERR_ABORTED, "VPP: SyncOperation failed");
@@ -1594,7 +1583,7 @@ mfxStatus CTranscodingPipeline::Encode() {
 
                 UnPreEncAuxBuffer(pBitstreamEx_temp->pCtrl);
 
-                if (m_nVPPCompEnable != VppCompOnlyEncode) {
+                if (m_nVPPCompMode != VppCompOnlyEncode) {
                     pBitstreamEx_temp->Bitstream.DataLength = 0;
                     pBitstreamEx_temp->Bitstream.DataOffset = 0;
 
@@ -1609,7 +1598,7 @@ mfxStatus CTranscodingPipeline::Encode() {
             }
         }
 
-        if ((m_nVPPCompEnable != VppCompOnly) || (m_nVPPCompEnable == VppCompOnlyEncode)) {
+        if ((m_nVPPCompMode != VppCompOnly) || (m_nVPPCompMode == VppCompOnlyEncode)) {
             if (m_BSPool.size() == m_AsyncDepth) {
                 sts = PutBS();
                 MSDK_CHECK_STATUS(sts, "PutBS failed");
@@ -1617,7 +1606,7 @@ mfxStatus CTranscodingPipeline::Encode() {
             else {
                 continue;
             }
-        } // if (m_nVPPCompEnable != VppCompOnly)
+        } // if (m_nVPPCompMode != VppCompOnly)
 
         msdk_tick nFrameTime = msdk_time_get_tick() - nBeginTime;
         if (nFrameTime < m_nReqFrameTime) {
@@ -1626,7 +1615,7 @@ mfxStatus CTranscodingPipeline::Encode() {
     }
     MSDK_IGNORE_MFX_STS(sts, MFX_ERR_MORE_DATA);
 
-    if (m_nVPPCompEnable != VppCompOnly || (m_nVPPCompEnable == VppCompOnlyEncode)) {
+    if (m_nVPPCompMode != VppCompOnly || (m_nVPPCompMode == VppCompOnlyEncode)) {
         // need to get buffered bitstream
         if (MFX_ERR_NONE == sts) {
             while (m_BSPool.size()) {
@@ -1637,7 +1626,7 @@ mfxStatus CTranscodingPipeline::Encode() {
     }
 
     // Clean up decoder buffers to avoid locking them (if some decoder still have some data to decode, but does not have enough surfaces)
-    if (m_nVPPCompEnable != 0) {
+    if (m_nVPPCompMode != 0) {
         // Composition case - we have to clean up all buffers (all of them have data from decoders)
         for (SafetySurfaceBuffer* buf = m_pBuffer; buf != NULL; buf = buf->m_pNext) {
             while (buf->GetSurface(DecExtSurface) != MFX_ERR_MORE_SURFACE) {
@@ -2078,6 +2067,7 @@ mfxStatus CTranscodingPipeline::PutBS() {
                                           pBitstreamEx->Syncp,
                                           nullptr);
         sts = m_pmfxSession->SyncOperation(pBitstreamEx->Syncp, MSDK_WAIT_INTERVAL);
+
         m_ScalerConfig.Tracer->EndEvent(SMTTracer::ThreadType::ENC,
                                         TargetID,
                                         SMTTracer::EventName::SYNC,
@@ -3019,8 +3009,8 @@ mfxStatus CTranscodingPipeline::InitVppMfxParams(MfxVideoParamsWrapper& par,
     /* VPP Comp Init */
     if (((pInParams->eModeExt == VppComp) || (pInParams->eModeExt == VppCompOnly)) &&
         (pInParams->numSurf4Comp != 0)) {
-        if (m_nVPPCompEnable != VppCompOnlyEncode)
-            m_nVPPCompEnable = pInParams->eModeExt;
+        if (m_nVPPCompMode != VppCompOnlyEncode)
+            m_nVPPCompMode = pInParams->eModeExt;
 
         auto vppCompPar            = par.AddExtBuffer<mfxExtVPPComposite>();
         vppCompPar->NumInputStream = (mfxU16)pInParams->numSurf4Comp;
@@ -3340,8 +3330,8 @@ mfxStatus CTranscodingPipeline::SetupSurfacePool(mfxU32 preallocateNum) {
 
         // Do not correct anything if we're using raw output - we'll need those surfaces for storing data for writer
         if (m_mfxEncParams.mfx.CodecId != MFX_CODEC_DUMP) {
-            // In case of rendering enabled we need to add 1 additional surface for renderer
-            if ((m_nVPPCompEnable == VppCompOnly) || (m_nVPPCompEnable == VppCompOnlyEncode)) {
+            // In case of rendering enabled we need to add 1 additional surface for render
+            if ((m_nVPPCompMode == VppCompOnly) || (m_nVPPCompMode == VppCompOnlyEncode)) {
                 m_VPPOutAllocReques.NumFrameSuggested++;
                 m_VPPOutAllocReques.NumFrameMin++;
             }
@@ -3358,7 +3348,7 @@ mfxStatus CTranscodingPipeline::SetupSurfacePool(mfxU32 preallocateNum) {
         }
 
 #ifdef LIBVA_SUPPORT
-        if (((m_nVPPCompEnable == VppCompOnly) || (m_nVPPCompEnable == VppCompOnlyEncode)) &&
+        if (((m_nVPPCompMode == VppCompOnly) || (m_nVPPCompMode == VppCompOnlyEncode)) &&
             ((m_libvaBackend == MFX_LIBVA_DRM_MODESET) ||
     #if defined(X11_DRI3_SUPPORT)
              (m_libvaBackend == MFX_LIBVA_X11) ||
@@ -3393,7 +3383,7 @@ mfxStatus CTranscodingPipeline::SetupSurfacePool(mfxU32 preallocateNum) {
         }
 
         if (m_bDecodeEnable) {
-            if (0 == m_nVPPCompEnable && m_mfxEncParams.mfx.CodecId != MFX_CODEC_DUMP &&
+            if (0 == m_nVPPCompMode && m_mfxEncParams.mfx.CodecId != MFX_CODEC_DUMP &&
                 !m_forceSyncAllSession) {
                 //--- Make correction to number of surfaces only if composition is not enabled. In case of composition we need all the surfaces QueryIOSurf has requested to pass them to another session's VPP
                 // In other inter-session cases, other sessions request additional surfaces using additional calls to AllocFrames
@@ -3405,7 +3395,7 @@ mfxStatus CTranscodingPipeline::SetupSurfacePool(mfxU32 preallocateNum) {
             static mfxU32 mark_alloc    = 0;
             m_mfxDecParams.AllocId      = mark_alloc;
             m_DecOutAllocReques.AllocId = mark_alloc;
-            if (m_nVPPCompEnable) // WORKAROUND: Remove this if clause after problem with AllocID is fixed in library (mark_alloc++ should be left here)
+            if (m_nVPPCompMode) // WORKAROUND: Remove this if clause after problem with AllocID is fixed in library (mark_alloc++ should be left here)
             {
                 mark_alloc++;
             }
@@ -3435,7 +3425,7 @@ mfxStatus CTranscodingPipeline::SetupSurfacePool(mfxU32 preallocateNum) {
             }
         }
         else {
-            if ((m_pParentPipeline) && (0 == m_nVPPCompEnable) /* case if 1_to_N  */) {
+            if ((m_pParentPipeline) && (0 == m_nVPPCompMode) /* case if 1_to_N  */) {
                 m_pParentPipeline->CorrectNumberOfAllocatedFrames(&m_DecOutAllocReques, TargetID);
             }
         }
@@ -3763,7 +3753,7 @@ mfxStatus CTranscodingPipeline::Init(sInputParams* pParams,
                 m_hwdev4Rendering->Init(RenderParam);
 #else
                 if (pParams->EncodeId) {
-                    m_nVPPCompEnable = VppCompOnlyEncode;
+                    m_nVPPCompMode = VppCompOnlyEncode;
                 }
                 m_hwdev4Rendering = pParams->m_hwdev;
 #endif
@@ -3775,8 +3765,8 @@ mfxStatus CTranscodingPipeline::Init(sInputParams* pParams,
     }
 
     if ((VppComp == pParams->eModeExt) || (VppCompOnly == pParams->eModeExt)) {
-        if (m_nVPPCompEnable != VppCompOnlyEncode)
-            m_nVPPCompEnable = pParams->eModeExt;
+        if (m_nVPPCompMode != VppCompOnlyEncode)
+            m_nVPPCompMode = pParams->eModeExt;
     }
 
 #ifdef LIBVA_SUPPORT
@@ -3915,14 +3905,14 @@ mfxStatus CTranscodingPipeline::Init(sInputParams* pParams,
     }
 
     // Encode component initialization
-    if ((m_nVPPCompEnable != VppCompOnly) || (m_nVPPCompEnable == VppCompOnlyEncode)) {
+    if ((m_nVPPCompMode != VppCompOnly) || (m_nVPPCompMode == VppCompOnlyEncode)) {
         sts = EncodePreInit(pParams);
         MSDK_CHECK_STATUS(sts, "EncodePreInit failed");
     }
 
     if ((pParams->eMode == Source) &&
-        ((m_nVPPCompEnable == VppCompOnly) || (m_nVPPCompEnable == VppCompOnlyEncode) ||
-         (m_nVPPCompEnable == VppComp))) {
+        ((m_nVPPCompMode == VppCompOnly) || (m_nVPPCompMode == VppCompOnlyEncode) ||
+         (m_nVPPCompMode == VppComp))) {
         if ((0 == msdk_strncmp(MSDK_STRING("null_render"),
                                pParams->strDumpVppCompFile,
                                msdk_strlen(MSDK_STRING("null_render")))))
@@ -3953,7 +3943,7 @@ mfxStatus CTranscodingPipeline::Init(sInputParams* pParams,
     else if (pParams->forceSyncAllSession) {
         // not included real allocation, just calculating needed surface number
         sts = SetupSurfacePool(0);
-        MSDK_CHECK_STATUS(sts, "AllocFrames failed");
+        MSDK_CHECK_STATUS(sts, "SetupSurfacePool failed");
     }
 
     isHEVCSW = AreGuidsEqual(pParams->decoderPluginParams.pluginGuid, MFX_PLUGINID_HEVCD_SW);
