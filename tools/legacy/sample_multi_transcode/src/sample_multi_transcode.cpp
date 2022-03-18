@@ -104,11 +104,7 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
         lowLatencyMode = false;
     }
 
-    if (m_InputParamsArray[0].dGfxIdx >= 0) {
-        m_pLoader->SetDiscreteAdapterIndex(m_InputParamsArray[0].dGfxIdx);
-    }
-    else
-        m_pLoader->SetAdapterType(m_InputParamsArray[0].adapterType);
+    m_pLoader->SetAdapterType(m_InputParamsArray[0].adapterType);
 
 #ifdef ONEVPL_EXPERIMENTAL
     if (m_InputParamsArray[0].PCIDeviceSetup)
@@ -126,9 +122,6 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
     #endif
 #endif
 
-    if (m_InputParamsArray[0].adapterNum >= 0)
-        m_pLoader->SetAdapterNum(m_InputParamsArray[0].adapterNum);
-
     sts = m_pLoader->ConfigureAndEnumImplementations(m_InputParamsArray[0].libType,
                                                      m_accelerationMode,
                                                      lowLatencyMode);
@@ -139,6 +132,25 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
          * In the case of a shared buffer, need to create device only for decode */
         if ((m_InputParamsArray[i].bIsJoin && i != 0) || m_InputParamsArray[i].eMode == Source)
             bNeedToCreateDevice = false;
+
+        /* By default is used the adapter specified in the first session
+         * In the case of multiple adapters in different sessions, need to use it for creating a device */
+        if ((m_InputParamsArray[i].dGfxIdx >= 0 || m_InputParamsArray[i].adapterNum >= 0) &&
+            (m_InputParamsArray[i].eMode == Sink || m_InputParamsArray[i].eMode == Native) &&
+            (m_InputParamsArray[i].libType != MFX_IMPL_SOFTWARE)) {
+            if (m_InputParamsArray[i].dGfxIdx >= 0)
+                m_pLoader->SetDiscreteAdapterIndex(m_InputParamsArray[i].dGfxIdx);
+            else
+                m_pLoader->SetAdapterType(m_InputParamsArray[i].adapterType);
+
+            if (m_InputParamsArray[i].adapterNum >= 0)
+                m_pLoader->SetAdapterNum(m_InputParamsArray[i].adapterNum);
+
+            sts = m_pLoader->ConfigureAndEnumImplementations(m_InputParamsArray[i].libType,
+                                                             m_accelerationMode,
+                                                             lowLatencyMode);
+            MSDK_CHECK_STATUS(sts, "EnumImplementations failed");
+        }
 
 #if defined(_WIN32) || defined(_WIN64)
         if (m_eDevType == MFX_HANDLE_D3D9_DEVICE_MANAGER) {
@@ -464,8 +476,9 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
         sts           = CheckAndFixAdapterDependency(i, pipeline);
         MSDK_CHECK_STATUS(sts, "CheckAndFixAdapterDependency failed");
         // force implementation type based on iGfx/dGfx parameters
-        if (sts == MFX_WRN_VIDEO_PARAM_CHANGED &&
-            m_InputParamsArray[i].libType != MFX_IMPL_SOFTWARE) {
+        if ((sts == MFX_WRN_VIDEO_PARAM_CHANGED || m_InputParamsArray[i].dGfxIdx >= 0 ||
+             m_InputParamsArray[i].adapterNum >= 0) &&
+            (m_InputParamsArray[i].libType != MFX_IMPL_SOFTWARE)) {
             if (m_InputParamsArray[i].dGfxIdx >= 0)
                 m_pLoader->SetDiscreteAdapterIndex(m_InputParamsArray[i].dGfxIdx);
             else
