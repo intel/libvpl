@@ -139,7 +139,7 @@ TEST(Dispatcher_Stub_CreateSession, RuntimeParsesExtBuf) {
     SKIP_IF_DISP_STUB_DISABLED();
 
     // stub RT logs results from parsing extBuf
-    CaptureRuntimeLog();
+    CaptureOutputLog();
 
     mfxLoader loader = MFXLoad();
     EXPECT_FALSE(loader == nullptr);
@@ -156,7 +156,10 @@ TEST(Dispatcher_Stub_CreateSession, RuntimeParsesExtBuf) {
     EXPECT_EQ(sts, MFX_ERR_NONE);
 
     // check for RT log string which indicates that extBuf was parsed properly
-    CheckRuntimeLog("[STUB RT]: message -- MFXInitialize -- extBuf enabled -- NumThread (4)");
+    std::string outputLog;
+    GetOutputLog(outputLog);
+    CheckOutputLog(outputLog,
+                   "[STUB RT]: message -- MFXInitialize -- extBuf enabled -- NumThread (4)");
 
     // free internal resources
     sts = MFXClose(session);
@@ -169,7 +172,7 @@ TEST(Dispatcher_Stub_CreateSession, LegacyRuntimeParsesExtBuf) {
     SKIP_IF_DISP_STUB_DISABLED();
 
     // stub RT logs results from parsing extBuf
-    CaptureRuntimeLog();
+    CaptureOutputLog();
 
     mfxLoader loader = MFXLoad();
     EXPECT_FALSE(loader == nullptr);
@@ -186,7 +189,9 @@ TEST(Dispatcher_Stub_CreateSession, LegacyRuntimeParsesExtBuf) {
     EXPECT_EQ(sts, MFX_ERR_NONE);
 
     // check for RT log string which indicates that extBuf was parsed properly
-    CheckRuntimeLog("[STUB RT]: message -- MFXInitEx -- extBuf enabled -- NumThread (5)");
+    std::string outputLog;
+    GetOutputLog(outputLog);
+    CheckOutputLog(outputLog, "[STUB RT]: message -- MFXInitEx -- extBuf enabled -- NumThread (5)");
 
     // free internal resources
     sts = MFXClose(session);

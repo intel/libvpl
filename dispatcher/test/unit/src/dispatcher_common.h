@@ -7,6 +7,22 @@
 #ifndef DISPATCHER_TEST_UNIT_SRC_DISPATCHER_COMMON_H_
 #define DISPATCHER_TEST_UNIT_SRC_DISPATCHER_COMMON_H_
 
+#if defined(_WIN32) || defined(_WIN64)
+    #include <windows.h>
+
+    #include <shlwapi.h>
+
+    #define PATH_SEPARATOR "\\"
+#else
+    #include <dirent.h>
+    #include <sys/stat.h>
+
+    #define PATH_SEPARATOR "/"
+#endif
+
+#include <list>
+#include <string>
+
 #include "vpl/mfxdispatcher.h"
 #include "vpl/mfximplcaps.h"
 #include "vpl/mfxvideo.h"
@@ -20,11 +36,24 @@
 // helper functions for dispatcher tests
 mfxStatus SetConfigImpl(mfxLoader loader, mfxU32 implType, bool bRequire2xGPU = false);
 
-void CaptureDispatcherLog();
-void CheckDispatcherLog(const char *expectedString, bool expectMatch = true);
+// enable gtest to capture output sent to stdout for parsing
+// set bEnableDispatcherLog to true to enable dispatcher log output as well
+void CaptureOutputLog(bool bEnableDispatcherLog = false);
 
-void CaptureRuntimeLog();
-void CheckRuntimeLog(const char *expectedString, bool expectMatch = true);
+// stop capturing output log and save it to a string
+void GetOutputLog(std::string &dispLog);
+
+// check whether expectedString is found in dispLog (gtest fails if not)
+// set expectMatch to false to check that expectedString is NOT in dispLog
+void CheckOutputLog(std::string dispLog, const char *expectedString, bool expectMatch = true);
+
+int CreateWorkingDirectory(const char *dirPath);
+
+void SetWorkingDirectoryPath(std::string workDirPath);
+void GetWorkingDirectoryPath(std::string &workDirPath);
+
+int AddDeviceID(std::string deviceID);
+void GetDeviceIDList(std::list<std::string> &deviceIDList);
 
 // create mfxConfig object and apply to loader
 template <typename varDataType>

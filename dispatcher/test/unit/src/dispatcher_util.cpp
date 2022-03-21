@@ -6,32 +6,37 @@
 
 #include <gtest/gtest.h>
 
-#if defined(_WIN32) || defined(_WIN64)
-    #include <windows.h>
-#endif
-
 #include "src/dispatcher_common.h"
 
-void CaptureDispatcherLog() {
+void CaptureOutputLog(bool bEnableDispatcherLog) {
+    if (bEnableDispatcherLog) {
 #if defined(_WIN32) || defined(_WIN64)
-    SetEnvironmentVariable("ONEVPL_DISPATCHER_LOG", "ON");
+        SetEnvironmentVariable("ONEVPL_DISPATCHER_LOG", "ON");
 #else
-    setenv("ONEVPL_DISPATCHER_LOG", "ON", 1);
+        setenv("ONEVPL_DISPATCHER_LOG", "ON", 1);
 #endif
+    }
 
     // start capturing log output
     testing::internal::CaptureStdout();
 }
 
-void CheckDispatcherLog(const char *expectedString, bool expectMatch) {
+void GetOutputLog(std::string &outputLog) {
 #if defined(_WIN32) || defined(_WIN64)
     SetEnvironmentVariable("ONEVPL_DISPATCHER_LOG", NULL);
 #else
     unsetenv("ONEVPL_DISPATCHER_LOG");
 #endif
 
-    std::string consoleOutput = testing::internal::GetCapturedStdout();
-    size_t logPos             = consoleOutput.find(expectedString);
+    outputLog = testing::internal::GetCapturedStdout();
+}
+
+void CheckOutputLog(std::string outputLog, const char *expectedString, bool expectMatch) {
+    size_t logPos = outputLog.find(expectedString);
+
+    printf("Info: CheckOutputLog(%s) -- string %s\n",
+           (expectMatch ? "true" : "false"),
+           expectedString);
 
     if (expectMatch)
         EXPECT_NE(logPos, std::string::npos);
@@ -39,20 +44,119 @@ void CheckDispatcherLog(const char *expectedString, bool expectMatch) {
         EXPECT_EQ(logPos, std::string::npos);
 }
 
-// no mechanism defined yet to control runtime logging, so just capture stdout
-void CaptureRuntimeLog() {
-    // start capturing log output
-    testing::internal::CaptureStdout();
+// helper functions to get/set global string to working dir
+static std::string g_workDirPath; // NOLINT
+
+void SetWorkingDirectoryPath(std::string workDirPath) {
+    g_workDirPath = workDirPath;
 }
 
-void CheckRuntimeLog(const char *expectedString, bool expectMatch) {
-    std::string consoleOutput = testing::internal::GetCapturedStdout();
-    size_t logPos             = consoleOutput.find(expectedString);
+void GetWorkingDirectoryPath(std::string &workDirPath) {
+    workDirPath = g_workDirPath;
+}
 
-    if (expectMatch)
-        EXPECT_NE(logPos, std::string::npos);
-    else
-        EXPECT_EQ(logPos, std::string::npos);
+// helper functions add/check deviceID's of this system
+static std::list<std::string> g_deviceIDList; // NOLINT
+
+// return number of elements in deviceID list
+int AddDeviceID(std::string deviceID) {
+    g_deviceIDList.push_back(deviceID);
+
+    return (int)g_deviceIDList.size();
+}
+
+void GetDeviceIDList(std::list<std::string> &deviceIDList) {
+    deviceIDList = g_deviceIDList;
+}
+
+// check if working directory exists at 'dirPath/oneVPLTests-work'
+//   if not, attempt to create it
+// return zero on success, non-zero if dirPath is invalid or not writable
+// for simplicity, does not check if working directory itself is writable
+//   (assuming it already exists) -- tests which try to write to it will
+//   just fail in that case
+int CreateWorkingDirectory(const char *dirPath) {
+    // check null pointer or empty string
+    if (!dirPath || !dirPath[0])
+        return -1;
+
+    std::string workDirPath = dirPath;
+
+    // erase any trailing backslash
+    size_t lastSep = workDirPath.find_last_of(PATH_SEPARATOR);
+    if (lastSep == workDirPath.size() - 1)
+        workDirPath.erase(lastSep);
+
+    // create path to working directory
+    workDirPath = workDirPath + std::string(PATH_SEPARATOR) + std::string("oneVPLTests-work");
+
+#if defined(_WIN32) || defined(_WIN64)
+    // check whether working directory exists
+    // if not, attempt to create it
+    if (!PathIsDirectoryA(workDirPath.c_str())) {
+        // check that parent directory exists
+        if (!PathIsDirectoryA(dirPath))
+            return -1;
+
+        // create working directory
+        if (CreateDirectoryA(workDirPath.c_str(), NULL) == 0)
+            return -1; // CreateDirectory returns 0 on fail
+
+        // verify working directory exists
+        if (!PathIsDirectoryA(workDirPath.c_str()))
+            return -1;
+    }
+
+    // convert to canonical, absolute path (ASCII version limited to MAX_PATH - see WinAPI docs)
+    char fullPath[MAX_PATH + 1] = {};
+    int n = GetFullPathNameA(workDirPath.c_str(), sizeof(fullPath), fullPath, NULL);
+    if (n > MAX_PATH) {
+        printf("Error - absolute workDir path is too long (max length %d chars)\n", MAX_PATH);
+        return -1;
+    }
+    else if (n == 0) {
+        return -1;
+    }
+    workDirPath = fullPath;
+#else
+    // check whether working directory exists
+    // if not, attempt to create it
+    DIR *workDir = opendir(workDirPath.c_str());
+    if (workDir) {
+        closedir(workDir);
+    }
+    else {
+        // check that parent directory exists
+        DIR *parentDir = opendir(dirPath);
+        if (parentDir == NULL)
+            return -1;
+        closedir(parentDir);
+
+        // create working directory
+        // to make world-writable, need to call chmod as second step
+        // both functions return 0 on success, non-zero on error
+        if (mkdir(workDirPath.c_str(), 0) || chmod(workDirPath.c_str(), 0666))
+            return -1;
+
+        // verify working directory exists
+        workDir = opendir(workDirPath.c_str());
+        if (workDir == NULL)
+            return -1;
+        closedir(workDir);
+    }
+
+    // convert to canonical, absolute path (limited to PATH_MAX bytes per manual)
+    char fullPath[PATH_MAX] = {};
+    char *t = realpath(workDirPath.c_str(), fullPath);
+    if (!t || t != fullPath)
+        return -1;
+    workDirPath = fullPath;
+#endif
+
+    // success - store working directory in global path
+    SetWorkingDirectoryPath(workDirPath);
+
+    return 0;
 }
 
 // set implementation type

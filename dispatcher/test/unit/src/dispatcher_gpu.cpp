@@ -203,6 +203,47 @@ TEST(Dispatcher_GPU_CloneSession, Double_Clone_Succeeds) {
     MFXUnload(loader);
 }
 
+TEST(Dispatcher_GPU_JoinSession, Basic_Join_Succeeds) {
+    SKIP_IF_DISP_GPU_DISABLED();
+
+    mfxLoader loader = MFXLoad();
+    EXPECT_FALSE(loader == nullptr);
+
+    mfxStatus sts = SetConfigImpl(loader, MFX_IMPL_TYPE_HARDWARE);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // require 2.x RT
+    sts = SetConfigFilterProperty<mfxU16>(loader, "mfxImplDescription.ApiVersion.Major", 1);
+    sts = SetConfigFilterProperty<mfxU16>(loader, "mfxImplDescription.ApiVersion.Minor", 0);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // create session with first implementation
+    mfxSession session = nullptr;
+    sts                = MFXCreateSession(loader, 0, &session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // create another session with first implementation
+    mfxSession cloneSession = nullptr;
+    sts                     = MFXCreateSession(loader, 0, &cloneSession);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    sts = MFXJoinSession(session, cloneSession);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // disjoin the child (cloned) session
+    sts = MFXDisjoinSession(cloneSession);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // free internal resources
+    sts = MFXClose(session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    sts = MFXClose(cloneSession);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    MFXUnload(loader);
+}
+
 #if defined(_WIN32) || defined(_WIN64)
 TEST(Dispatcher_GPU_CreateSession, D3D9CanCreateSession) {
     SKIP_IF_DISP_GPU_MSDK_DISABLED();

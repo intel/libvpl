@@ -16,6 +16,9 @@ extern bool g_bDispInclStub;
 extern bool g_bDispInclSW;
 extern bool g_bDispInclGPU_VPL;
 extern bool g_bDispInclGPU_MSDK;
+extern bool g_bDispEnumImpl;
+extern bool g_bDeviceAdded;
+extern bool g_bWorkDirAvailable;
 
 #define SKIP_IF_DISP_STUB_DISABLED()    \
     {                                   \
@@ -50,6 +53,13 @@ extern bool g_bDispInclGPU_MSDK;
         if (g_bDispInclGPU_MSDK == false) { \
             GTEST_SKIP();                   \
         }                                   \
+    }
+
+#define SKIP_IF_DISP_ENUM_IMPL_DISABLED() \
+    {                                     \
+        if (g_bDispEnumImpl == false) {   \
+            GTEST_SKIP();                 \
+        }                                 \
     }
 
 #endif // DISPATCHER_TEST_UNIT_SRC_UNIT_API_H_

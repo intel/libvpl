@@ -11,27 +11,11 @@
 
 #include <gtest/gtest.h>
 
-#include "src/unit_api.h"
+#include "src/dispatcher_common.h"
 
 #if defined(_WIN32) || defined(_WIN64)
 
     #include <windows.h>
-
-static void EnableDispatcherLog() {
-    #if defined(_WIN32) || defined(_WIN64)
-    SetEnvironmentVariable("ONEVPL_DISPATCHER_LOG", "ON");
-    #else
-    setenv("ONEVPL_DISPATCHER_LOG", "ON", 1);
-    #endif
-}
-
-static void DisableDispatcherLog() {
-    #if defined(_WIN32) || defined(_WIN64)
-    SetEnvironmentVariable("ONEVPL_DISPATCHER_LOG", NULL);
-    #else
-    unsetenv("ONEVPL_DISPATCHER_LOG");
-    #endif
-}
 
 enum ConfigTypesLowLatency {
     LL_SINGLE_CONFIG = 0,
@@ -58,9 +42,6 @@ static mfxStatus EnableLowLatency(mfxLoader loader,
     mfxConfig config2 = nullptr;
     mfxConfig config3 = nullptr;
     mfxConfig config4 = nullptr;
-
-    if (testType != LL_CONFIG_ONLY)
-        testing::internal::CaptureStdout();
 
     config1 = MFXCreateConfig(loader);
     EXPECT_FALSE(config1 == nullptr);
@@ -137,22 +118,23 @@ static mfxStatus EnableLowLatency(mfxLoader loader,
         MFXClose(session);
 
     // check for dispatcher log string which indicates that low latency mode was enabled
-    std::string consoleOutput = testing::internal::GetCapturedStdout();
-    size_t logPos             = consoleOutput.find("message:  low latency mode enabled");
+    std::string outputLog;
+    GetOutputLog(outputLog);
 
     if (testType == LL_VALID)
-        EXPECT_NE(logPos, std::string::npos);
+        CheckOutputLog(outputLog, "message:  low latency mode enabled");
     else
-        EXPECT_EQ(logPos, std::string::npos);
+        CheckOutputLog(outputLog, "message:  low latency mode disabled");
 
     return MFX_ERR_NONE;
 }
 
 // tests for low-latency mode configuration - single mfxConfig object
 TEST(Dispatcher_LowLatency, Valid_SingleConfig) {
-    EnableDispatcherLog();
+    // capture dispatcher log
+    CaptureOutputLog(true);
+
     mfxLoader loader = MFXLoad();
-    DisableDispatcherLog();
 
     EXPECT_FALSE(loader == nullptr);
 
@@ -163,9 +145,10 @@ TEST(Dispatcher_LowLatency, Valid_SingleConfig) {
 }
 
 TEST(Dispatcher_LowLatency, Invalid_SingleConfig_MissingProp) {
-    EnableDispatcherLog();
+    // capture dispatcher log
+    CaptureOutputLog(true);
+
     mfxLoader loader = MFXLoad();
-    DisableDispatcherLog();
 
     EXPECT_FALSE(loader == nullptr);
 
@@ -176,9 +159,10 @@ TEST(Dispatcher_LowLatency, Invalid_SingleConfig_MissingProp) {
 }
 
 TEST(Dispatcher_LowLatency, Invalid_SingleConfig_OverwriteProp) {
-    EnableDispatcherLog();
+    // capture dispatcher log
+    CaptureOutputLog(true);
+
     mfxLoader loader = MFXLoad();
-    DisableDispatcherLog();
 
     EXPECT_FALSE(loader == nullptr);
 
@@ -189,9 +173,10 @@ TEST(Dispatcher_LowLatency, Invalid_SingleConfig_OverwriteProp) {
 }
 
 TEST(Dispatcher_LowLatency, Invalid_SingleConfig_WrongValue) {
-    EnableDispatcherLog();
+    // capture dispatcher log
+    CaptureOutputLog(true);
+
     mfxLoader loader = MFXLoad();
-    DisableDispatcherLog();
 
     EXPECT_FALSE(loader == nullptr);
 
@@ -203,9 +188,10 @@ TEST(Dispatcher_LowLatency, Invalid_SingleConfig_WrongValue) {
 
 // tests for low-latency mode configuration - multiple mfxConfig objects
 TEST(Dispatcher_LowLatency, ValidPropsEnable_MultiConfig) {
-    EnableDispatcherLog();
+    // capture dispatcher log
+    CaptureOutputLog(true);
+
     mfxLoader loader = MFXLoad();
-    DisableDispatcherLog();
 
     EXPECT_FALSE(loader == nullptr);
 
@@ -216,9 +202,10 @@ TEST(Dispatcher_LowLatency, ValidPropsEnable_MultiConfig) {
 }
 
 TEST(Dispatcher_LowLatency, Invalid_MultiConfig_MissingProp) {
-    EnableDispatcherLog();
+    // capture dispatcher log
+    CaptureOutputLog(true);
+
     mfxLoader loader = MFXLoad();
-    DisableDispatcherLog();
 
     EXPECT_FALSE(loader == nullptr);
 
@@ -229,9 +216,10 @@ TEST(Dispatcher_LowLatency, Invalid_MultiConfig_MissingProp) {
 }
 
 TEST(Dispatcher_LowLatency, Invalid_MultiConfig_OverwriteProp) {
-    EnableDispatcherLog();
+    // capture dispatcher log
+    CaptureOutputLog(true);
+
     mfxLoader loader = MFXLoad();
-    DisableDispatcherLog();
 
     EXPECT_FALSE(loader == nullptr);
 
@@ -242,9 +230,10 @@ TEST(Dispatcher_LowLatency, Invalid_MultiConfig_OverwriteProp) {
 }
 
 TEST(Dispatcher_LowLatency, Invalid_MultiConfig_WrongValue) {
-    EnableDispatcherLog();
+    // capture dispatcher log
+    CaptureOutputLog(true);
+
     mfxLoader loader = MFXLoad();
-    DisableDispatcherLog();
 
     EXPECT_FALSE(loader == nullptr);
 

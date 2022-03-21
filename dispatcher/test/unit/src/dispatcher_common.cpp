@@ -30,7 +30,7 @@ void Dispatcher_CreateSession_SimpleConfigCanCreateSession(mfxImplType implType)
 
 void Dispatcher_CreateSession_SetValidNumThreadCreatesSession(mfxImplType implType) {
     // dispatcher logs extBufs that are passed to MFXInitialize
-    CaptureDispatcherLog();
+    CaptureOutputLog(true);
 
     mfxLoader loader = MFXLoad();
     EXPECT_FALSE(loader == nullptr);
@@ -47,7 +47,9 @@ void Dispatcher_CreateSession_SetValidNumThreadCreatesSession(mfxImplType implTy
     EXPECT_EQ(sts, MFX_ERR_NONE);
 
     // check for dispatcher log string which indicates that extBuf was set properly
-    CheckDispatcherLog("message:  extBuf enabled -- NumThread (2)");
+    std::string outputLog;
+    GetOutputLog(outputLog);
+    CheckOutputLog(outputLog, "message:  extBuf enabled -- NumThread (2)");
 
     // free internal resources
     sts = MFXClose(session);
@@ -1993,4 +1995,83 @@ TEST(Dispatcher_Common_SetConfigFilterProperty, OutOfRangeValueReturnsErrNone) {
 
     // free internal resources
     MFXUnload(loader);
+}
+
+// dispatcher logging
+TEST(Dispatcher_Common_Logger, LogEnabledReturnsMessages) {
+    // capture dispatcher log
+    CaptureOutputLog(true);
+
+    mfxLoader loader = MFXLoad();
+    EXPECT_FALSE(loader == nullptr);
+
+    mfxStatus sts = SetConfigImpl(loader, MFX_IMPL_TYPE_STUB);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // create session with first implementation of implType
+    mfxSession session = nullptr;
+    sts                = MFXCreateSession(loader, 0, &session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+    EXPECT_NE(session, nullptr);
+
+    sts = MFXClose(session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // free internal resources
+    MFXUnload(loader);
+
+    // check for some expected dispatcher log strings
+    std::string outputLog;
+    GetOutputLog(outputLog);
+
+#if defined(_WIN32) || defined(_WIN64)
+    CheckOutputLog(outputLog, "function: MFXCreateSession (enter)", true);
+    CheckOutputLog(outputLog, "function: MFXCreateSession (return)", true);
+#else
+    CheckOutputLog(outputLog,
+                   "function: mfxStatus MFXCreateSession(mfxLoader, mfxU32, _mfxSession**) (enter)",
+                   true);
+    CheckOutputLog(outputLog,
+                   "function: mfxStatus MFXCreateSession(mfxLoader, mfxU32, _mfxSession**) (enter)",
+                   true);
+#endif
+}
+
+TEST(Dispatcher_Common_Logger, LogDisabledReturnsNoMessages) {
+    // capture all output, but do not enable dispatcher log
+    CaptureOutputLog(false);
+
+    mfxLoader loader = MFXLoad();
+    EXPECT_FALSE(loader == nullptr);
+
+    mfxStatus sts = SetConfigImpl(loader, MFX_IMPL_TYPE_STUB);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // create session with first implementation of implType
+    mfxSession session = nullptr;
+    sts                = MFXCreateSession(loader, 0, &session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+    EXPECT_NE(session, nullptr);
+
+    sts = MFXClose(session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // free internal resources
+    MFXUnload(loader);
+
+    // check for some expected dispatcher log strings
+    std::string outputLog;
+    GetOutputLog(outputLog);
+
+#if defined(_WIN32) || defined(_WIN64)
+    CheckOutputLog(outputLog, "function: MFXCreateSession (enter)", false);
+    CheckOutputLog(outputLog, "function: MFXCreateSession (return)", false);
+#else
+    CheckOutputLog(outputLog,
+                   "function: mfxStatus MFXCreateSession(mfxLoader, mfxU32, _mfxSession**) (enter)",
+                   false);
+    CheckOutputLog(outputLog,
+                   "function: mfxStatus MFXCreateSession(mfxLoader, mfxU32, _mfxSession**) (enter)",
+                   false);
+#endif
 }

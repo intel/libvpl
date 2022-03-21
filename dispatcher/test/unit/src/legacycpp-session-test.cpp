@@ -33,6 +33,7 @@ TEST(LegacycppCreateSession, DoubleInitSucceeds) {
     MFXVideoSession session;
     mfxStatus sts = session.Init(impl, &ver);
     ASSERT_EQ(sts, MFX_ERR_NONE) << "mfxvideo++ Init failed with code " << sts;
+    sts = session.Close(); // avoid memleak
     sts = session.Init(impl, &ver);
     ASSERT_EQ(sts, MFX_ERR_NONE) << "mfxvideo++ Init failed with code " << sts;
 }
