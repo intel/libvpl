@@ -20,7 +20,7 @@ endif()
 set(TARGET hello-decvpp)
 set(SOURCES src/hello-decvpp.cpp)
 set(CONTENTPATH ${CMAKE_CURRENT_SOURCE_DIR}/../../content)
-set(RUNARGS -sw -i ${CONTENTPATH}/cars_128x96.h265)
+set(RUNARGS -sw -i ${CONTENTPATH}/cars_320x240.h265)
 
 # Set default build type to RelWithDebInfo if not specified
 if(NOT CMAKE_BUILD_TYPE)

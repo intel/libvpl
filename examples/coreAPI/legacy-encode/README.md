@@ -117,14 +117,14 @@ Perform the following steps:
 ### Application Parameters
 
 The instructions given above run the sample executable with the arguments
-`-i <sample_dir>/content/cars_128x96.i420 -w 128 -h 96`.
+`-i <sample_dir>/content/cars_320x240.i420 -w 320 -h 240`.
 
 
 ### Example of Output
 
 ```
-Encoding hello-encode/content/cars_128x96.i420 -> out.h265
-Encoded 60 frames
+Encoding hello-encode/content/cars_320x240.i420 -> out.h265
+Encoded 30 frames
 ```
 
 You can find the output file `out.h265` in the build directory.

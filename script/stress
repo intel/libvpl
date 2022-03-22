@@ -68,16 +68,16 @@ PROCESS_TIMER_INTERVAL=5
 PROCESS_TIME_OUT_MAX=60
 
 # vpl-decode in/out file
-FI_DECODE_H264=${proj_dir}/test/content/cars_128x96.h264
+FI_DECODE_H264=${proj_dir}/test/content/cars_320x240.h264
 FO_DECODE_H264=out_dec_h264.i420
-FI_DECODE_H265=${proj_dir}/test/content/cars_128x96.h265
+FI_DECODE_H265=${proj_dir}/test/content/cars_320x240.h265
 FO_DECODE_H265=out_dec_h265.i420
-FI_DECODE_AV1=${proj_dir}/test/content/cars_128x96.ivf
+FI_DECODE_AV1=${proj_dir}/test/content/cars_320x240.ivf
 FO_DECODE_AV1=out_dec_av1.i420
-FI_DECODE_JPEG=${proj_dir}/test/content/cars_128x96.mjpeg
+FI_DECODE_JPEG=${proj_dir}/test/content/cars_320x240.mjpeg
 FO_DECODE_JPEG=out_dec_mjpeg.i420
 # vpl-encode in/out file
-FI_ENCODE=${proj_dir}/test/content/cars_128x96.i420
+FI_ENCODE=${proj_dir}/test/content/cars_320x240.i420
 FO_ENCODE_H264=out_enc.h264
 FO_ENCODE_H265=out_enc.h265
 FO_ENCODE_AV1=out_enc.ivf
@@ -93,12 +93,12 @@ VPL_DECODE_H265="${work_dir}/vpl-decode -if H265 -i ${FI_DECODE_H265} -o ${FO_DE
 VPL_DECODE_AV1="${work_dir}/vpl-decode -if AV1 -i ${FI_DECODE_AV1} -o ${FO_DECODE_AV1} -int"
 VPL_DECODE_JPEG="${work_dir}/vpl-decode -if JPEG -i ${FI_DECODE_JPEG} -o ${FO_DECODE_JPEG} -int"
 ## vpl-encode processing list
-VPL_ENCODE_H264="${work_dir}/vpl-encode -of H264 -if I420 -sw 128 -sh 96 -i ${FI_ENCODE} -o ${FO_ENCODE_H264} -int"
-VPL_ENCODE_H265="${work_dir}/vpl-encode -of H265 -if I420 -sw 128 -sh 96 -i ${FI_ENCODE} -o ${FO_ENCODE_H265} -int"
-VPL_ENCODE_AV1="${work_dir}/vpl-encode -of AV1 -if I420 -sw 128 -sh 96 -i ${FI_ENCODE} -o ${FO_ENCODE_AV1} -gs 30 -fr 30 -bm 2 -br 4000 -tu 7 -int"
-VPL_ENCODE_JPEG="${work_dir}/vpl-encode -of JPEG -if I420 -sw 128 -sh 96 -i ${FI_ENCODE} -o ${FO_ENCODE_JPEG} -int"
+VPL_ENCODE_H264="${work_dir}/vpl-encode -of H264 -if I420 -sw 320 -sh 240 -i ${FI_ENCODE} -o ${FO_ENCODE_H264} -int"
+VPL_ENCODE_H265="${work_dir}/vpl-encode -of H265 -if I420 -sw 320 -sh 240 -i ${FI_ENCODE} -o ${FO_ENCODE_H265} -int"
+VPL_ENCODE_AV1="${work_dir}/vpl-encode -of AV1 -if I420 -sw 320 -sh 240 -i ${FI_ENCODE} -o ${FO_ENCODE_AV1} -gs 30 -fr 30 -bm 2 -br 4000 -tu 7 -int"
+VPL_ENCODE_JPEG="${work_dir}/vpl-encode -of JPEG -if I420 -sw 320 -sh 240 -i ${FI_ENCODE} -o ${FO_ENCODE_JPEG} -int"
 ## vpl-vpp processing list
-VPL_VPP="${work_dir}/vpl-vpp -sw 128 -sh 96 -scrx 10 -scry 10 -scrw 50 -scrh 50 -if I420\
+VPL_VPP="${work_dir}/vpl-vpp -sw 320 -sh 240 -scrx 10 -scry 10 -scrw 50 -scrh 50 -if I420\
         -i ${FI_VPP}\
         -dw 640 -dh 480 -dcrx 10 -dcry 10 -dcrw 300 -dcrh 300 -of BGRA\
         -o ${FO_VPP} -int"
@@ -190,7 +190,7 @@ while true; do
           -i ${FI_DECODE_H264} \
           -f rawvideo -pixel_format yuv420p ${FO_REF}
      python3 ${PYTHONPATH}/check_content/check_smoke_output.py \
-          ${FO_DECODE_H264} ${FO_REF} I420 128x96@30
+          ${FO_DECODE_H264} ${FO_REF} I420 320x240@30
 
      ret=$?
      if [ $ret -ne 0 ]; then
@@ -205,7 +205,7 @@ while true; do
           -i ${FI_DECODE_H265} \
           -f rawvideo -pixel_format yuv420p ${FO_REF}
      python3 ${PYTHONPATH}/check_content/check_smoke_output.py \
-          ${FO_DECODE_H265} ${FO_REF} I420 128x96@30
+          ${FO_DECODE_H265} ${FO_REF} I420 320x240@30
 
      ret=$?
      if [ $ret -ne 0 ]; then
@@ -220,7 +220,7 @@ while true; do
           -i ${FI_DECODE_AV1} \
           -f rawvideo -pixel_format yuv420p ${FO_REF}
      python3 ${PYTHONPATH}/check_content/check_smoke_output.py \
-          ${FO_DECODE_AV1} ${FO_REF} I420 128x96@30
+          ${FO_DECODE_AV1} ${FO_REF} I420 320x240@30
 
      ret=$?
      if [ $ret -ne 0 ]; then
@@ -235,7 +235,7 @@ while true; do
           -i ${FI_DECODE_JPEG} \
           -f rawvideo -pixel_format yuv420p ${FO_REF}
      python3 ${PYTHONPATH}/check_content/check_smoke_output.py \
-          ${FO_DECODE_JPEG} ${FO_REF} I420 128x96@30
+          ${FO_DECODE_JPEG} ${FO_REF} I420 320x240@30
 
      ret=$?
      if [ $ret -ne 0 ]; then
@@ -247,13 +247,13 @@ while true; do
 
      # check encode h264 output
      ${VPL_BUILD_DEPENDENCIES}/bin/ffmpeg -y \
-          -f rawvideo -pixel_format yuv420p -video_size 128x96 \
+          -f rawvideo -pixel_format yuv420p -video_size 320x240 \
           -i ${FI_ENCODE} \
           -c:v libx264 \
           -g 30 -rc 1 -preset ultrafast -b:v 4000*1000 -f h264 \
           ${FO_REF}
      python3 ${PYTHONPATH}/check_content/check_smoke_output.py \
-          ${FO_ENCODE_H264} ${FO_REF} H264 128x96@30
+          ${FO_ENCODE_H264} ${FO_REF} H264 320x240@30
 
      ret=$?
      if [ $ret -ne 0 ]; then
@@ -265,13 +265,13 @@ while true; do
 
      # check encode h265 output
      ${VPL_BUILD_DEPENDENCIES}/bin/ffmpeg -y \
-          -f rawvideo -pixel_format yuv420p -video_size 128x96 \
+          -f rawvideo -pixel_format yuv420p -video_size 320x240 \
           -i ${FI_ENCODE} \
           -c:v libsvt_hevc \
           -g 30 -rc 1 -preset 9 -b:v 4000*1000 -f hevc \
           ${FO_REF}
      python3 ${PYTHONPATH}/check_content/check_smoke_output.py \
-          ${FO_ENCODE_H265} ${FO_REF} H265 128x96@30
+          ${FO_ENCODE_H265} ${FO_REF} H265 320x240@30
 
      ret=$?
      if [ $ret -ne 0 ]; then
@@ -283,13 +283,13 @@ while true; do
 
      # check encode av1 output
      ${VPL_BUILD_DEPENDENCIES}/bin/ffmpeg -y \
-          -f rawvideo -pixel_format yuv420p -video_size 128x96 \
+          -f rawvideo -pixel_format yuv420p -video_size 320x240 \
           -i ${FI_ENCODE} \
           -c:v libsvt_av1 \
           -g 30 -rc 1 -preset 8 -b:v 4000*1000 -f ivf \
           ${FO_REF}
      python3 ${PYTHONPATH}/check_content/check_smoke_output.py \
-          ${FO_ENCODE_AV1} ${FO_REF} AV1 128x96@30
+          ${FO_ENCODE_AV1} ${FO_REF} AV1 320x240@30
 
      ret=$?
      if [ $ret -ne 0 ]; then
@@ -301,13 +301,13 @@ while true; do
 
      # check encode jpeg output
      ${VPL_BUILD_DEPENDENCIES}/bin/ffmpeg -y \
-          -f rawvideo -pixel_format yuv420p -video_size 128x96 \
+          -f rawvideo -pixel_format yuv420p -video_size 320x240 \
           -i ${FI_ENCODE} \
           -c:v mjpeg \
           -g 30 -b:v 4000*1000 -f mjpeg \
           ${FO_REF}
      python3 ${PYTHONPATH}/check_content/check_smoke_output.py \
-          ${FO_ENCODE_JPEG} ${FO_REF} MJPEG 128x96@30
+          ${FO_ENCODE_JPEG} ${FO_REF} MJPEG 320x240@30
 
      ret=$?
      if [ $ret -ne 0 ]; then
@@ -324,7 +324,7 @@ while true; do
                     [bg2][ovr]overlay=10:10,format=pix_fmts=bgra"
 
      ${VPL_BUILD_DEPENDENCIES}/bin/ffmpeg -y \
-          -f rawvideo -pixel_format yuv420p -video_size 128x96 \
+          -f rawvideo -pixel_format yuv420p -video_size 320x240 \
           -i ${FI_VPP} \
           -filter_complex "${VPP_FILTER}" \
           -f rawvideo \

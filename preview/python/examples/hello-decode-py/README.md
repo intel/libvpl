@@ -89,11 +89,11 @@ On Windows:
 The sample writes its output in the current directory. Please ensure the current directory is writable when running this sample.
 
 ```
-py -3.7 hello-decode-py\hello-decode.py -sw -i <examples path>\content\cars_128x96.h265
+py -3.7 hello-decode-py\hello-decode.py -sw -i <examples path>\content\cars_320x240.h265
 ```
 
 On Linux:
 
 ```
-python3.7 hello-decode-py/hello-decode.py -sw -i <examples path>\content\cars_128x96.h265
+python3.7 hello-decode-py/hello-decode.py -sw -i <examples path>\content\cars_320x240.h265
 ```

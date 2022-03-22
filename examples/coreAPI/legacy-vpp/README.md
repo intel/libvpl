@@ -117,7 +117,7 @@ Perform the following steps:
 ### Application Parameters
 
 The instructions given above run the sample executable with the argument
-`-i examples/content/cars_128x96.i420 -w 128 -h 96`.
+`-i examples/content/cars_320x240.i420 -w 320 -h 240`.
 
 
 ### Example of Output
@@ -129,8 +129,8 @@ Implementation details:
   AccelerationMode via: NA 
   Path: /opt/intel/oneapi/vpl/2021.4.0/lib/libvplswref64.so.1
 
-Processing ../../../content/cars_128x96.nv12 -> out.raw
-Processed 60 frames
+Processing ../../../content/cars_320x240.nv12 -> out.raw
+Processed 30 frames
 ```
 
 You can find the output file `out.raw` in the build directory and its size is `640x480`.

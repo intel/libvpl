@@ -31,13 +31,13 @@ void Usage(void) {
     printf("     -vmem          use video memory\n\n");
     printf("   Example: \n");
     printf(
-        "     decvpp_tool h265 -sw -i cars_128x96.h265 -o dec.raw -vpp_num 2 -vpp_params 320x240_i420,640x480_bgra -vpp_out o1.raw,o2.raw\n");
+        "     decvpp_tool h265 -sw -i cars_320x240.h265 -o dec.raw -vpp_num 2 -vpp_params 128x96_i420,640x480_bgra -vpp_out o1.raw,o2.raw\n");
     printf("     or\n");
     printf(
-        "     decvpp_tool h265 -hw -i cars_128x96.h265 -o dec.raw -vpp_num 2 -vpp_params 320x240_nv12,640x480_bgra -vpp_out o1.raw,o2.raw\n\n");
+        "     decvpp_tool h265 -hw -i cars_320x240.h265 -o dec.raw -vpp_num 2 -vpp_params 128x96_nv12,640x480_bgra -vpp_out o1.raw,o2.raw\n\n");
     printf("     this will generate 1 decode output file and 2 vpp output files\n");
-    printf("     dec.raw : decode output  : 128 x 96,  (-sw: i420, -hw: nv12)\n");
-    printf("     o1.raw  : 1st vpp output : 320 x 240, (-sw: i420, -hw: nv12)\n");
+    printf("     dec.raw : decode output  : 320 x 240,  (-sw: i420, -hw: nv12)\n");
+    printf("     o1.raw  : 1st vpp output : 128 x 96, (-sw: i420, -hw: nv12)\n");
     printf("     o2.raw  : 2st vpp output : 640 x 480, bgra\n");
 
     return;

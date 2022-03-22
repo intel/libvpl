@@ -84,11 +84,11 @@ On Windows:
 The sample writes its output in the current directory. Please ensure the current directory is writable when running this sample.
 
 ```
-py -3.7 hello-vpp-py\hello-vpp.py <examples path>\content\cars_128x96.i420 128 96
+py -3.7 hello-vpp-py\hello-vpp.py <examples path>\content\cars_320x240.i420 320 240
 ```
 
 On Linux:
 
 ```
-python3.7 hello-vpp-py/hello-vpp.py <examples path>\content\cars_128x96.i420 128 96
+python3.7 hello-vpp-py/hello-vpp.py <examples path>\content\cars_320x240.i420 320 240
 ```

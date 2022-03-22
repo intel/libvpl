@@ -63,16 +63,16 @@ set PROCESS_TIMER_INTERVAL=5
 set PROCESS_TIME_OUT_MAX=60
 
 :: vpl-decode in/out file
-set FI_DECODE_H264=%PROJ_DIR%\test\content\cars_128x96.h264
+set FI_DECODE_H264=%PROJ_DIR%\test\content\cars_320x240.h264
 set FO_DECODE_H264=out_dec_h264.i420
-set FI_DECODE_H265=%PROJ_DIR%\test\content\cars_128x96.h265
+set FI_DECODE_H265=%PROJ_DIR%\test\content\cars_320x240.h265
 set FO_DECODE_H265=out_dec_h265.i420
-set FI_DECODE_AV1=%PROJ_DIR%\test\content\cars_128x96.ivf
+set FI_DECODE_AV1=%PROJ_DIR%\test\content\cars_320x240.ivf
 set FO_DECODE_AV1=out_dec_av1.i420
-set FI_DECODE_JPEG=%PROJ_DIR%\test\content\cars_128x96.mjpeg
+set FI_DECODE_JPEG=%PROJ_DIR%\test\content\cars_320x240.mjpeg
 set FO_DECODE_JPEG=out_dec_mjpeg.i420
 :: vpl-encode in/out file
-set FI_ENCODE=%PROJ_DIR%\test\content\cars_128x96.i420
+set FI_ENCODE=%PROJ_DIR%\test\content\cars_320x240.i420
 set FO_ENCODE_H264=out_enc.h264
 set FO_ENCODE_H265=out_enc.h265
 set FO_ENCODE_AV1=out_enc.ivf
@@ -88,12 +88,12 @@ set VPL_DECODE_H265="%WORK_DIR%\vpl-decode.exe -if H265 -i %FI_DECODE_H265% -o %
 set VPL_DECODE_AV1="%WORK_DIR%\vpl-decode.exe -if AV1 -i %FI_DECODE_AV1% -o %FO_DECODE_AV1% -int"
 set VPL_DECODE_JPEG="%WORK_DIR%\vpl-decode.exe -if JPEG -i %FI_DECODE_JPEG% -o %FO_DECODE_JPEG% -int"
 :::: vpl-encode processing list
-set VPL_ENCODE_H264="%WORK_DIR%\vpl-encode.exe -of H264 -if I420 -sw 128 -sh 96 -i %FI_ENCODE% -o %FO_ENCODE_H264% -int"
-set VPL_ENCODE_H265="%WORK_DIR%\vpl-encode.exe -of H265 -if I420 -sw 128 -sh 96 -i %FI_ENCODE% -o %FO_ENCODE_H265% -int"
-set VPL_ENCODE_AV1="%WORK_DIR%\vpl-encode.exe -of AV1 -if I420 -sw 128 -sh 96 -i %FI_ENCODE% -o %FO_ENCODE_AV1% -gs 30 -fr 30 -bm 2 -br 4000 -tu 7 -int"
-set VPL_ENCODE_JPEG="%WORK_DIR%\vpl-encode.exe -of JPEG -if I420 -sw 128 -sh 96 -i %FI_ENCODE% -o %FO_ENCODE_JPEG% -int"
+set VPL_ENCODE_H264="%WORK_DIR%\vpl-encode.exe -of H264 -if I420 -sw 320 -sh 240 -i %FI_ENCODE% -o %FO_ENCODE_H264% -int"
+set VPL_ENCODE_H265="%WORK_DIR%\vpl-encode.exe -of H265 -if I420 -sw 320 -sh 240 -i %FI_ENCODE% -o %FO_ENCODE_H265% -int"
+set VPL_ENCODE_AV1="%WORK_DIR%\vpl-encode.exe -of AV1 -if I420 -sw 320 -sh 240 -i %FI_ENCODE% -o %FO_ENCODE_AV1% -gs 30 -fr 30 -bm 2 -br 4000 -tu 7 -int"
+set VPL_ENCODE_JPEG="%WORK_DIR%\vpl-encode.exe -of JPEG -if I420 -sw 320 -sh 240 -i %FI_ENCODE% -o %FO_ENCODE_JPEG% -int"
 :::: vpl-vpp processing list
-set VPL_VPP_SRC=-sw 128 -sh 96 -scrx 10 -scry 10 -scrw 50 -scrh 50 -if I420
+set VPL_VPP_SRC=-sw 320 -sh 240 -scrx 10 -scry 10 -scrw 50 -scrh 50 -if I420
 set VPL_VPP_DST=-dw 640 -dh 480 -dcrx 10 -dcry 10 -dcrw 300 -dcrh 300 -of BGRA
 set VPL_VPP="%WORK_DIR%\vpl-vpp.exe %VPL_VPP_SRC% -i %FI_VPP% %VPL_VPP_DST% -o %FO_VPP% -int"
 
@@ -169,7 +169,7 @@ call %VPL_BUILD_DEPENDENCIES%\bin\ffmpeg.exe -y ^
      -i %FI_DECODE_H264% ^
      -f rawvideo -pixel_format yuv420p %FO_REF%
 call py -3 %PYTHONPATH%\check_content\check_smoke_output.py ^
-     %FO_DECODE_H264% %FO_REF% I420 128x96@30
+     %FO_DECODE_H264% %FO_REF% I420 320x240@30
 echo.
 if %errorlevel%==0 goto chk_decode_h264_out_passed
 echo *** Decode (H264) Stress Test FAILED ***
@@ -186,7 +186,7 @@ call %VPL_BUILD_DEPENDENCIES%\bin\ffmpeg.exe -y ^
      -i %FI_DECODE_H265% ^
      -f rawvideo -pixel_format yuv420p %FO_REF%
 call py -3 %PYTHONPATH%\check_content\check_smoke_output.py ^
-     %FO_DECODE_H265% %FO_REF% I420 128x96@30
+     %FO_DECODE_H265% %FO_REF% I420 320x240@30
 echo.
 if %errorlevel%==0 goto chk_decode_h265_out_passed
 echo *** Decode (H265) Stress Test FAILED ***
@@ -203,7 +203,7 @@ call %VPL_BUILD_DEPENDENCIES%\bin\ffmpeg.exe -y ^
      -i %FI_DECODE_AV1% ^
      -f rawvideo -pixel_format yuv420p %FO_REF%
 call py -3 %PYTHONPATH%\check_content\check_smoke_output.py ^
-     %FO_DECODE_AV1% %FO_REF% I420 128x96@30
+     %FO_DECODE_AV1% %FO_REF% I420 320x240@30
 echo.
 if %errorlevel%==0 goto chk_decode_av1_out_passed
 echo *** Decode (AV1) Stress Test FAILED ***
@@ -220,7 +220,7 @@ call %VPL_BUILD_DEPENDENCIES%\bin\ffmpeg.exe -y ^
      -i %FI_DECODE_JPEG% ^
      -f rawvideo -pixel_format yuv420p %FO_REF%
 call py -3 %PYTHONPATH%\check_content\check_smoke_output.py ^
-     %FO_DECODE_JPEG% %FO_REF% I420 128x96@30
+     %FO_DECODE_JPEG% %FO_REF% I420 320x240@30
 echo.
 if %errorlevel%==0 goto chk_decode_jpeg_out_passed
 echo *** Decode (JPEG) Stress Test FAILED ***
@@ -234,13 +234,13 @@ echo *** Decode (JPEG) Stress Test PASSED ***
 
 :: check encode h264 output
 call %VPL_BUILD_DEPENDENCIES%\bin\ffmpeg.exe -y ^
-     -f rawvideo -pixel_format yuv420p -video_size 128x96 ^
+     -f rawvideo -pixel_format yuv420p -video_size 320x240 ^
      -i %FI_ENCODE% ^
      -c:v libx264 ^
      -g 30 -rc 1 -preset ultrafast -b:v 4000*1000 -f h264 ^
      %FO_REF%
 call py -3 %PYTHONPATH%\check_content\check_smoke_output.py ^
-     %FO_ENCODE_H264% %FO_REF% H264 128x96@30
+     %FO_ENCODE_H264% %FO_REF% H264 320x240@30
 echo.
 if %errorlevel%==0 goto chk_encode_h264_out_passed
 echo *** Encode (H264) Stress Test FAILED ***
@@ -253,13 +253,13 @@ echo *** Encode (H264) Stress Test PASSED ***
 :: check encode h265 output
 :chk_encode_h265_out
 call %VPL_BUILD_DEPENDENCIES%\bin\ffmpeg.exe -y ^
-     -f rawvideo -pixel_format yuv420p -video_size 128x96 ^
+     -f rawvideo -pixel_format yuv420p -video_size 320x240 ^
      -i %FI_ENCODE% ^
      -c:v libsvt_hevc ^
      -g 30 -rc 1 -preset 9 -b:v 4000*1000 -f hevc ^
      %FO_REF%
 call py -3 %PYTHONPATH%\check_content\check_smoke_output.py ^
-     %FO_ENCODE_H265% %FO_REF% H265 128x96@30
+     %FO_ENCODE_H265% %FO_REF% H265 320x240@30
 echo.
 if %errorlevel%==0 goto chk_encode_h265_out_passed
 echo *** Encode (H265) Stress Test FAILED ***
@@ -272,13 +272,13 @@ echo *** Encode (H265) Stress Test PASSED ***
 :: check encode av1 output
 :chk_encode_av1_out
 call %VPL_BUILD_DEPENDENCIES%\bin\ffmpeg.exe -y ^
-     -f rawvideo -pixel_format yuv420p -video_size 128x96 ^
+     -f rawvideo -pixel_format yuv420p -video_size 320x240 ^
      -i %FI_ENCODE% ^
      -c:v libsvt_av1 ^
      -g 30 -rc 1 -preset 8 -b:v 4000*1000 -f ivf ^
      %FO_REF%
 call py -3 %PYTHONPATH%\check_content\check_smoke_output.py ^
-     %FO_ENCODE_AV1% %FO_REF% AV1 128x96@30
+     %FO_ENCODE_AV1% %FO_REF% AV1 320x240@30
 echo.
 if %errorlevel%==0 goto chk_encode_av1_out_passed
 echo *** Encode (AV1) Stress Test FAILED ***
@@ -291,13 +291,13 @@ echo *** Encode (AV1) Stress Test PASSED ***
 :: check encode jpeg output
 :chk_encode_jpeg_out
 call %VPL_BUILD_DEPENDENCIES%\bin\ffmpeg.exe -y ^
-     -f rawvideo -pixel_format yuv420p -video_size 128x96 ^
+     -f rawvideo -pixel_format yuv420p -video_size 320x240 ^
      -i %FI_ENCODE% ^
      -c:v mjpeg ^
      -g 30 -b:v 4000*1000 -f mjpeg ^
      %FO_REF%
 call py -3 %PYTHONPATH%\check_content\check_smoke_output.py ^
-     %FO_ENCODE_JPEG% %FO_REF% MJPEG 128x96@30
+     %FO_ENCODE_JPEG% %FO_REF% MJPEG 320x240@30
 echo.
 if %errorlevel%==0 goto chk_encode_jpeg_out_passed
 echo *** Encode (JPEG) Stress Test FAILED ***
@@ -316,7 +316,7 @@ set VPP_FILTER=split=2[bg][main];^
                [bg2][ovr]overlay=10:10,format=pix_fmts=bgra
 
 call %VPL_BUILD_DEPENDENCIES%\bin\ffmpeg.exe -y ^
-     -f rawvideo -pixel_format yuv420p -video_size 128x96 ^
+     -f rawvideo -pixel_format yuv420p -video_size 320x240 ^
      -i %FI_VPP% ^
      -filter_complex "%VPP_FILTER%" ^
      -f rawvideo ^

@@ -27,7 +27,7 @@ void Usage(void) {
     printf("     -i input file name (raw frames)\n");
     printf("     -w input width\n");
     printf("     -h input height\n\n");
-    printf("   Example:  hello-encode -i in.i420 -w 128 -h 96\n");
+    printf("   Example:  hello-encode -i in.i420 -w 320 -h 240\n");
     printf("   To view:  ffplay %s\n\n", OUTPUT_FILE);
     printf(" * Encode raw frames to HEVC/H265 elementary stream in %s\n\n", OUTPUT_FILE);
     printf("   CPU native color format is I420/yuv420p.  GPU native color format is "

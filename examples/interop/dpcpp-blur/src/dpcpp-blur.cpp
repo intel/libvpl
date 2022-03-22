@@ -85,7 +85,7 @@ void Usage(char *app) {
     printf("     -i input file name (sw=I420 raw frames, hw=NV12)\n");
     printf("     -w input width\n");
     printf("     -h input height\n\n");
-    printf("   Example:  %s -i in.i420 -w 128 -h 96\n", app);
+    printf("   Example:  %s -i in.i420 -w 320 -h 240\n", app);
     printf("   To view:  ffplay -f rawvideo -video_size %dx%d "
            "-pixel_format bgra %s\n\n",
            OUTPUT_WIDTH,

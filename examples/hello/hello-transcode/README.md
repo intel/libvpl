@@ -119,7 +119,7 @@ Perform the following steps:
 ### Application Parameters
 
 The instructions given above run the sample executable with the argument
-`-i ${CONTENTPATH}/cars_128x96.mjpeg`.
+`-i ${CONTENTPATH}/cars_320x240.mjpeg`.
 
 
 ### Example of Output
@@ -131,8 +131,8 @@ Implementation details:
   AccelerationMode via: NA 
   Path: /opt/intel/oneapi/vpl/2021.6.0/lib/libvplswref64.so.1
 
-Transcoding /home/test/intel_innersource/frameworks.media.onevpl.dispatcher/examples/hello/hello-transcode/../../content/cars_128x96.mjpeg -> out.h265
-Transcoded 60 frames
+Transcoding /home/test/intel_innersource/frameworks.media.onevpl.dispatcher/examples/hello/hello-transcode/../../content/cars_320x240.mjpeg -> out.h265
+Transcoded 30 frames
 ```
 
 You can find the output file `out.h265` in the build directory.

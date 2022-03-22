@@ -8,7 +8,7 @@
 #  A minimal oneAPI Video Processing Library (oneVPL) vpp application,
 #  using 2.x API with internal memory management
 """
-Example:  hello-vpp in.i420 128 96
+Example:  hello-vpp in.i420 320 240
 To view:  ffplay -f rawvideo -pixel_format yuv420p -video_size 640x480 -pixel_format yuv420p out.raw
 
 * Resize I420 raw frames to 640x480 size in out.raw

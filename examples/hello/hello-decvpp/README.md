@@ -16,7 +16,7 @@ perform simple video decode with fused VPP.
 ## Purpose
 
 This sample is a command line application that takes a file containing an H.265
-video elementary stream as an argument, decodes it and vpp the  output with oneVPL, and writes the decode output to a the file `dec_out.raw` in raw native format and the two vpp outputs to "vpp_320x240_out.raw" in raw native format and "vpp_128x96_out.raw" in raw BGRA format.
+video elementary stream as an argument, decodes it and vpp the  output with oneVPL, and writes the decode output to a the file `dec_out.raw` in raw native format and the two vpp outputs to "vpp_640x480_out.raw" in raw native format and "vpp_128x96_out.raw" in raw BGRA format.
 
 Native raw frame format: CPU=I420, GPU=NV12.
 
@@ -27,7 +27,7 @@ Native raw frame format: CPU=I420, GPU=NV12.
 | Target device     | CPU
 | Input format      | H.265 video elementary stream
 | Output format     | I420, BGRA
-| Output resolution | decode: same as input stream, vpp: 320x240, 128x96
+| Output resolution | decode: same as input stream, vpp: 640x480, 128x96
 
 
 ## License
@@ -122,7 +122,7 @@ Perform the following steps:
 ### Application Parameters
 
 The instructions given above run the sample executable with the argument
-`-i ${CONTENTPATH}/cars_128x96.h265`.
+`-i ${CONTENTPATH}/cars_320x240.h265`.
 
 
 ### Example Output
@@ -135,18 +135,18 @@ Implementation details:
   Path: /opt/intel/oneapi/vpl/2021.6.0/lib/libvplswref64.so.1
 
 Output colorspace: I420 (aka yuv420p)
-Decoding and VPP /home/test/intel_innersource/frameworks.media.onevpl.dispatcher/examples/hello/hello-decvpp/../../content/cars_128x96.h265 -> dec_out.raw and vpp_320x240_out.raw, vpp_128x96_out.raw
-Decode and VPP processed 60 frames
+Decoding and VPP /home/test/intel_innersource/frameworks.media.onevpl.dispatcher/examples/hello/hello-decvpp/../../content/cars_320x240.h265 -> dec_out.raw and vpp_640x480_out.raw, vpp_128x96_out.raw
+Decode and VPP processed 30 frames
 ```
 
-You can find the output file `dec_out.raw`, `vpp_320x240_out.raw`, and `vpp_128x96_out.raw` in the build directory.
+You can find the output file `dec_out.raw`, `vpp_640x480_out.raw`, and `vpp_128x96_out.raw` in the build directory.
 
 You can display the output with a video player that supports raw streams such as
 FFplay. You can use the following command to display the output with FFplay:
 
 ```
-ffplay -video_size 128x96 -pixel_format yuv420p -f rawvideo dec_out.raw
-ffplay -video_size 320x240 -pixel_format yuv420p -f rawvideo vpp_320x240_out.raw
+ffplay -video_size 320x240 -pixel_format yuv420p -f rawvideo dec_out.raw
+ffplay -video_size 640x480 -pixel_format yuv420p -f rawvideo vpp_640x480_out.raw
 ffplay -video_size 128x96 -pixel_format bgra -f rawvideo vpp_128x96_out.raw
 ```
 

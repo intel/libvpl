@@ -20,7 +20,7 @@ endif()
 set(TARGET legacy-decode-infer)
 set(SOURCES src/legacy-decode-infer.cpp)
 set(CONTENTPATH ${CMAKE_CURRENT_SOURCE_DIR}/../../content)
-set(RUNARGS -sw -i ${CONTENTPATH}/cars_128x96.h265 -m
+set(RUNARGS -sw -i ${CONTENTPATH}/cars_320x240.h265 -m
             ${CONTENTPATH}/public/alexnet/FP32/alexnet.xml)
 
 # Set default build type to RelWithDebInfo if not specified

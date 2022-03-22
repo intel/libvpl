@@ -128,7 +128,7 @@ Perform the following steps:
 ### Application Parameters
 
 The instructions given above run the sample executable with these arguments
-`-i ${CONTENTPATH}/cars_128x96.i420 -w 128 -h 96`.
+`-i ${CONTENTPATH}/cars_320x240.i420 -w 320 -h 240`.
 
 In Linux, an additional '-hw' parameter will run on GPU if GPU stack components 
 are found in your environment.
@@ -144,8 +144,8 @@ Implementation details:
   DeviceID:             0000 
   Path: /opt/intel/oneapi/vpl/2021.6.0/lib/libvplswref64.so.1
 
-Processing /home/test/intel_innersource/frameworks.media.onevpl.dispatcher/examples/interop/dpcpp-blur/content/cars_128x96.i420 -> out.raw
-Processed 60 frames
+Processing /home/test/intel_innersource/frameworks.media.onevpl.dispatcher/examples/interop/dpcpp-blur/content/cars_320x240.i420 -> out.raw
+Processed 30 frames
 ```
 
 You can find the 256x192 BGRA output file ``out.raw`` in the build directory.

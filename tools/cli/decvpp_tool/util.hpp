@@ -168,7 +168,7 @@ bool ValidateSize(char *in, mfxU16 *vsize, mfxU32 vmax) {
 }
 
 bool ParseVPPParams(mfxIMPL impl, char *str_params, VPPOutConfigs *voc) {
-    // 128x96_i420
+    // ex) 320x240_i420
     char res_sep    = 'x';
     char fourcc_sep = '_';
     char *ret;

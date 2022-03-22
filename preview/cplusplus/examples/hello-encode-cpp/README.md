@@ -66,7 +66,7 @@ Perform the following steps:
 
 4. Run the program using the following command:
    ```
-   ./hello-encode-cpp -i ../../../content/cars_128x96.i420 -w 128 -h 96
+   ./hello-encode-cpp -i ../../../content/cars_320x240.i420 -w 320 -h 240
    ```
 
 
@@ -75,29 +75,29 @@ Perform the following steps:
 ### Application Parameters
 
 The instructions given above run the sample executable with the arguments
-`-i <sample_dir>/content/cars_128x96.i420 -w 128 -h 96`.
+`-i <sample_dir>/content/cars_320x240.i420 -w 320 -h 240`.
 
 
 ### Example of Output
 
 ```
-./hello-encode-cpp -i ../../../content/cars_128x96.i420 -w 128 -h 96
+./hello-encode-cpp -i ../../../content/cars_320x240.i420 -w 320 -h 240
 
     BitDepthLuma   = 0
     BitDepthChroma = 0
     Shift          = Not Specifyed
     Color Format   = IYUV
-    Size [W,H]     = [128,96]
-    ROI [X,Y,W,H]  = [0,0,128,96]
+    Size [W,H]     = [320,240]
+    ROI [X,Y,W,H]  = [0,0,320,240]
     FrameRate [N:D]= 30:1
     AspecRato [W,H]= [Unset]
     PicStruct      = Progressive Picture
     ChromaFormat   = 4:2:0
 
 Init done
-Encoding ../../../content/cars_128x96.i420 -> out.h265
+Encoding ../../../content/cars_320x240.i420 -> out.h265
 EndOfStream Reached
-Encoded 60 frames
+Encoded 30 frames
 
 -- Encode information --
 
@@ -118,8 +118,8 @@ FrameInfo:
     BitDepthChroma = 8
     Shift          = Not Specifyed
     Color Format   = IYUV
-    Size [W,H]     = [128,96]
-    ROI [X,Y,W,H]  = [0,0,128,96]
+    Size [W,H]     = [320,240]
+    ROI [X,Y,W,H]  = [0,0,320,240]
     FrameRate [N:D]= 30:1
     AspecRato [W,H]= [1,1]
     PicStruct      = Progressive Picture

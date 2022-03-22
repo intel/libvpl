@@ -138,7 +138,7 @@ Implementation details:
 
 Encoding /home/test/intel_innersource/frameworks.media.onevpl.dispatcher/examples/hello/hello-encode/content/cars_320x240.i420 -> out.h265
 Input colorspace: I420 (aka yuv420p)
-Encoded 60 frames
+Encoded 30 frames
 ```
 
 You can find the output file `out.h265` in the build directory.

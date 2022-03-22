@@ -8,7 +8,7 @@
 #  A minimal oneAPI Video Processing Library (oneVPL) encode application,
 #  using 2.x API with internal memory management
 """
-Example:  hello-encode -i in.i420 -w 128 -h 96
+Example:  hello-encode -i in.i420 -w 320 -h 240
 To view:  ffplay out.h265
 
 * Encode raw frames to HEVC/H265 elementary stream in out.h265

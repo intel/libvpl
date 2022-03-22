@@ -159,7 +159,7 @@ pip3 install -r /opt/intel/openvino_2021/deployment_tools/open_model_zoo/tools/d
 ### Application Parameters
 
 The instructions given above run the sample executable with the argument
-`-sw -i ../../../content/cars_128x96.h265 -m ../../..//content/public/alexnet/FP32/alexnet.xml`.
+`-sw -i ../../../content/cars_320x240.h265 -m ../../..//content/public/alexnet/FP32/alexnet.xml`.
 
 
 ### Example of Output
@@ -168,7 +168,7 @@ The instructions given above run the sample executable with the argument
 Implementation info
       version = 2.2
       impl = Software
-Decoding and inferring legacy-decode-infer/../content/cars_128x96.h265 with legacy-decode-infer/../content/public/alexnet/FP32/alexnet.xml
+Decoding and inferring legacy-decode-infer/../content/cars_320x240.h265 with legacy-decode-infer/../content/public/alexnet/FP32/alexnet.xml
 Top 5 results for video frame:
 classid probability
 ------- -----------
@@ -177,5 +177,5 @@ classid probability
 751 0.044094
 627 0.042601
 468 0.039582
-Decoded 60 frames
+Decoded 30 frames
 ```

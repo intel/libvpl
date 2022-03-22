@@ -19,8 +19,8 @@ SCRIPT_PATH = os.path.realpath(
 # Folder content is in
 CONTENT_PATH = os.path.join(SCRIPT_PATH, '..', '..', '..', 'examples',
                             'content')
-HEVC_CLIP = os.path.join(CONTENT_PATH, 'cars_128x96.h265')
-I420_CLIP = os.path.join(CONTENT_PATH, 'cars_128x96.i420')
+HEVC_CLIP = os.path.join(CONTENT_PATH, 'cars_320x240.h265')
+I420_CLIP = os.path.join(CONTENT_PATH, 'cars_320x240.i420')
 
 
 def roundup(value, base=10):
@@ -75,13 +75,13 @@ class TestUseCases(unittest.TestCase):
 
                     # TODO: debug why we get a segfault if we don't do this.
                     frame = None
-        self.assertEqual(frame_count, 60)
+        self.assertEqual(frame_count, 30)
 
     def test_encode(self):
         """Test Encode"""
         frame_count = 0
         with pyvpl.raw_frame_file_reader_by_name(
-                128, 96, pyvpl.color_format_fourcc.i420, I420_CLIP) as source:
+                320, 240, pyvpl.color_format_fourcc.i420, I420_CLIP) as source:
             with open("out.h265", "wb") as sink:
                 opts = []
                 opts.append(pyvpl.dprops.impl(pyvpl.implementation_type.sw))
@@ -99,10 +99,10 @@ class TestUseCases(unittest.TestCase):
                 info = pyvpl.frame_info()
 
                 info.frame_rate = (30, 1)
-                info.frame_size = (roundup(128, 16), roundup(96, 16))
+                info.frame_size = (roundup(320, 16), roundup(240, 16))
                 info.FourCC = pyvpl.color_format_fourcc.i420
                 info.ChromaFormat = pyvpl.chroma_format_idc.yuv420
-                info.ROI = ((0, 0), (128, 96))
+                info.ROI = ((0, 0), (320, 240))
 
                 params.RateControlMethod = pyvpl.rate_control_method.cqp
                 params.frame_info = info
@@ -124,14 +124,14 @@ class TestUseCases(unittest.TestCase):
                     frame_count += 1
                     sink.write(bits)
 
-        self.assertEqual(frame_count, 60)
+        self.assertEqual(frame_count, 30)
 
     def test_vpp(self):
         """Test VPP"""
         frame_count = 0
 
         with pyvpl.raw_frame_file_reader_by_name(
-                128, 96, pyvpl.color_format_fourcc.i420, I420_CLIP) as source:
+                320, 240, pyvpl.color_format_fourcc.i420, I420_CLIP) as source:
             with open("raw.out", "wb") as sink:
                 opts = []
                 opts.append(pyvpl.dprops.impl(pyvpl.implementation_type.sw))
@@ -143,8 +143,8 @@ class TestUseCases(unittest.TestCase):
                 in_frame.ChromaFormat = pyvpl.chroma_format_idc.yuv420
                 in_frame.PicStruct = pyvpl.pic_struct.progressive
                 in_frame.frame_rate = (30, 1)
-                in_frame.ROI = ((0, 0), (128, 96))
-                in_frame.frame_size = (roundup(128, 16), roundup(96, 16))
+                in_frame.ROI = ((0, 0), (320, 240))
+                in_frame.frame_size = (roundup(320, 16), roundup(240, 16))
                 params.in_frame_info = in_frame
                 out_frame = pyvpl.frame_info()
                 out_frame.FourCC = pyvpl.color_format_fourcc.i420
@@ -173,7 +173,7 @@ class TestUseCases(unittest.TestCase):
                             sink.write(plane)
                     finally:
                         frame.unmap()
-        self.assertEqual(frame_count, 60)
+        self.assertEqual(frame_count, 30)
 
 
 if __name__ == '__main__':

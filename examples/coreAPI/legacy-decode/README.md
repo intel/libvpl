@@ -117,7 +117,7 @@ Perform the following steps:
 ### Application Parameters
 
 The instructions given above run the sample executable with the argument
-`-i examples/content/cars_128x96.h265`.
+`-i examples/content/cars_320x240.h265`.
 
 
 ### Example of Output
@@ -126,8 +126,8 @@ The instructions given above run the sample executable with the argument
 Implementation info
       version = 2.2
       impl = Software
-Decoding legacy-decode/../content/cars_128x96.h265 -> out.raw
-Decoded 60 frames
+Decoding legacy-decode/../content/cars_320x240.h265 -> out.raw
+Decoded 30 frames
 ```
 
 You can find the output file `out.raw` in the build directory.
@@ -136,5 +136,5 @@ You can display the output with a video player that supports raw streams such as
 FFplay. You can use the following command to display the output with FFplay:
 
 ```
-ffplay -video_size 128x96 -pixel_format yuv420p -f rawvideo out.raw
+ffplay -video_size 320x240 -pixel_format yuv420p -f rawvideo out.raw
 ```

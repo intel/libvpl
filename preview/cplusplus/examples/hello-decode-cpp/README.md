@@ -66,7 +66,7 @@ Perform the following steps:
 
 4. Run the program using the following command:
    ```
-    ./hello-decode-cpp -i ../../../content/cars_128x96.h265
+    ./hello-decode-cpp -i ../../../content/cars_320x240.h265
    ```
 
 
@@ -75,18 +75,18 @@ Perform the following steps:
 ### Application Parameters
 
 The instructions given above run the sample executable with the argument
-`-i <sample_dir>/content/cars_128x96.h265`.
+`-i <sample_dir>/content/cars_320x240.h265`.
 
 
 ### Example of Output
 
 ```
-./hello-decode-cpp -i ../../../content/cars_128x96.h265
+./hello-decode-cpp -i ../../../content/cars_320x240.h265
 
-Decoding ../../../content/cars_128x96.h265 -> out.raw
+Decoding ../../../content/cars_320x240.h265 -> out.raw
 Got not enough data.
 All input data is processed.
-Decoded 60 frames
+Decoded 30 frames
 
 -- Decode information --
 
@@ -107,8 +107,8 @@ FrameInfo:
     BitDepthChroma = 8
     Shift          = Not Specifyed
     Color Format   = IYUV
-    Size [W,H]     = [128,96]
-    ROI [X,Y,W,H]  = [0,0,128,96]
+    Size [W,H]     = [320,240]
+    ROI [X,Y,W,H]  = [0,0,320,240]
     FrameRate [N:D]= 30:1
     AspecRato [W,H]= [1,1]
     PicStruct      = Unset
@@ -130,7 +130,7 @@ You can display the output with a video player that supports raw streams such as
 FFplay. You can use the following command to display the output with FFplay:
 
 ```
-ffplay -video_size 128x96 -pixel_format yuv420p -f rawvideo out.raw
+ffplay -video_size 320x240 -pixel_format yuv420p -f rawvideo out.raw
 ```
 
 Use nv12 for pixel_format for GPU output.

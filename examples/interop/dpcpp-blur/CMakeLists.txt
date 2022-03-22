@@ -34,8 +34,8 @@ if(DPCPP_COMPILER)
 
   set(TARGET dpcpp-blur)
   set(SOURCES src/dpcpp-blur.cpp)
-  set(RUNARGS -i ${CMAKE_CURRENT_SOURCE_DIR}/../../content/cars_128x96.i420 -w
-              128 -h 96)
+  set(RUNARGS -i ${CMAKE_CURRENT_SOURCE_DIR}/../../content/cars_320x240.i420 -w
+              320 -h 240)
 
   # Set default build type to RelWithDebInfo if not specified
   if(NOT CMAKE_BUILD_TYPE)

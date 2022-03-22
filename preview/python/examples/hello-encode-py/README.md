@@ -88,11 +88,11 @@ On Windows:
 The sample writes its output in the current directory. Please ensure the current directory is writable when running this sample.
 
 ```
-py -3.7 hello-encode-py\hello-encode.py -sw -i <examples path>\content\cars_128x96.i420 -w 128 -h 96
+py -3.7 hello-encode-py\hello-encode.py -sw -i <examples path>\content\cars_320x240.i420 -w 320 -h 240
 ```
 
 On Linux:
 
 ```
-python3.7 hello-encode-py/hello-encode.py -sw -i <examples path>\content\cars_128x96.i420 -w 128 -h 96
+python3.7 hello-encode-py/hello-encode.py -sw -i <examples path>\content\cars_320x240.i420 -w 320 -h 240
 ```

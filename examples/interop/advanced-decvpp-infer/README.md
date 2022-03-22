@@ -107,7 +107,7 @@ cmake --build . --target run
 ### Application Parameters
 
 The instructions given above run the sample executable with the argument
-`-i ../../../content/cars_128x96.h265 -m ../../../content/public/mobilenet-ssd/FP32/mobilenet-ssd.xml`.
+`-i ../../../content/cars_320x240.h265 -m ../../../content/public/mobilenet-ssd/FP32/mobilenet-ssd.xml`.
 
 
 ### Example of Output
@@ -123,11 +123,11 @@ libva info: VA-API version 1.12.0
 libva info: Trying to open /usr/lib/x86_64-linux-gnu/dri/iHD_drv_video.so
 libva info: Found init function __vaDriverInit_1_12
 libva info: va_openDriver() returns 0
-Decoding VPP, and infering /home/jeff/innersource_oneVPL/frameworks.media.onevpl.dispatcher/examples/interop/advanced-decvpp-infer/../../content/cars_128x96.h265 with /home/jeff/innersource_oneVPL/frameworks.media.onevpl.dispatcher/examples/interop/advanced-decvpp-infer/../../content/public/mobilenet-ssd/FP32/mobilenet-ssd.xml
+Decoding VPP, and infering /home/jeff/innersource_oneVPL/frameworks.media.onevpl.dispatcher/examples/interop/advanced-decvpp-infer/../../content/cars_320x240.h265 with /home/jeff/innersource_oneVPL/frameworks.media.onevpl.dispatcher/examples/interop/advanced-decvpp-infer/../../content/public/mobilenet-ssd/FP32/mobilenet-ssd.xml
 [0,7] element, prob = 0.998121    (34,43)-(80,88) batch id : 0 WILL BE PRINTED!
 [1,7] element, prob = 0.996414    (82,18)-(118,58) batch id : 0 WILL BE PRINTED!
 [2,7] element, prob = 0.970787    (14,17)-(46,53) batch id : 0 WILL BE PRINTED!
 [3,7] element, prob = 0.682925    (32,29)-(62,53) batch id : 0 WILL BE PRINTED!
 ...
-Decoded 60 frames
+Decoded 30 frames
 ```

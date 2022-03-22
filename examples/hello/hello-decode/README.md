@@ -123,7 +123,7 @@ Perform the following steps:
 ### Application Parameters
 
 The instructions given above run the sample executable with the argument
-`-i ${CONTENTPATH}/cars_128x96.h265`.
+`-i ${CONTENTPATH}/cars_320x240.h265`.
 
 
 ### Example Output
@@ -135,9 +135,9 @@ Implementation details:
   AccelerationMode via: NA 
   Path: /opt/intel/oneapi/vpl/2021.6.0/lib/libvplswref64.so.1
 
-Decoding /home/test/intel_innersource/frameworks.media.onevpl.dispatcher/examples/hello/hello-decode/content/cars_128x96.h265 -> out.raw
+Decoding /home/test/intel_innersource/frameworks.media.onevpl.dispatcher/examples/hello/hello-decode/content/cars_320x240.h265 -> out.raw
 Output colorspace: I420 (aka yuv420p)
-Decoded 60 frames
+Decoded 30 frames
 ```
 
 You can find the output file `out.raw` in the build directory.
@@ -146,7 +146,7 @@ You can display the output with a video player that supports raw streams such as
 FFplay. You can use the following command to display the output with FFplay:
 
 ```
-ffplay -video_size 128x96 -pixel_format yuv420p -f rawvideo out.raw
+ffplay -video_size 320x240 -pixel_format yuv420p -f rawvideo out.raw
 ```
 
 Use nv12 for pixel_format for GPU output.

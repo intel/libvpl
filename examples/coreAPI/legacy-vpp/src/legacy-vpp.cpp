@@ -25,7 +25,7 @@ void Usage(void) {
     printf("     -i input file name ( -sw=I420 raw frames,-hw=NV12)\n");
     printf("     -w input width\n");
     printf("     -h input height\n\n");
-    printf("   Example:  legacy-vpp -i in.i420 -w 128 -h 96\n");
+    printf("   Example:  legacy-vpp -i in.i420 -w 320 -h 240\n");
     printf("   To view:  ffplay -f rawvideo -pixel_format bgra -video_size %dx%d  "
            "%s\n\n",
            OUTPUT_WIDTH,

@@ -32,7 +32,7 @@ void Usage(void) {
     std::cout << "     -w      input width\n";
     std::cout << "     -h      input height\n";
     std::cout << "     -vmem   use video memory\n\n";
-    std::cout << "   Example:  hello-encode -i in.i420 -w 128 -h 96\n";
+    std::cout << "   Example:  hello-encode -i in.i420 -w 320 -h 240\n";
     std::cout << "   To view:  ffplay " << OUTPUT_FILE << "\n\n";
     std::cout << " * Encode raw frames to HEVC/H265 elementary stream in " << OUTPUT_FILE << "\n\n";
     std::cout << "   CPU native color format is I420/yuv420p.  GPU native color format is NV12\n";

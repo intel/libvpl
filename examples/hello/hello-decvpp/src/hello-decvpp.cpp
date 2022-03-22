@@ -15,7 +15,7 @@
 #include "util.h"
 
 #define DEC_OUTPUT_FILE            "dec_out.raw"
-#define VPP1_OUTPUT_FILE           "vpp_320x240_out.raw"
+#define VPP1_OUTPUT_FILE           "vpp_640x480_out.raw"
 #define VPP2_OUTPUT_FILE           "vpp_128x96_out.raw"
 #define BITSTREAM_BUFFER_SIZE      2000000
 #define SYNC_TIMEOUT               60000
@@ -31,7 +31,7 @@ void Usage(void) {
     printf(
         "   To view:  ffplay -f rawvideo -pixel_format yuv420p -video_size [width]x[height] %s\n\n",
         DEC_OUTPUT_FILE);
-    printf("             ffplay -f rawvideo -pixel_format yuv420p -video_size 320x240 %s\n\n",
+    printf("             ffplay -f rawvideo -pixel_format yuv420p -video_size 640x480 %s\n\n",
            VPP1_OUTPUT_FILE);
     printf("             ffplay -f rawvideo -pixel_format bgra -video_size 128x96 %s\n\n",
            VPP2_OUTPUT_FILE);
@@ -49,7 +49,7 @@ int main(int argc, char *argv[]) {
     bool isDraining                       = false;
     bool isStillGoing                     = true;
     FILE *sinkDec                         = NULL; // for decoded frames
-    FILE *sinkVPP1                        = NULL; // for decoded output -> 320x240 i420 vpp frames
+    FILE *sinkVPP1                        = NULL; // for decoded output -> 640x480 i420 vpp frames
     FILE *sinkVPP2                        = NULL; // for decoded output -> 128x96 bgra vpp frames
     FILE *source                          = NULL;
     int accel_fd                          = 0;
@@ -173,14 +173,14 @@ int main(int argc, char *argv[]) {
         memset(mfxVPPChParams[i], 0, sizeof(mfxVideoChannelParam));
     }
 
-    // scaled output to 320x240
+    // scaled output to 640x480
     mfxVPPChParams[0]->VPP.FourCC        = mfxDecParams.mfx.FrameInfo.FourCC;
     mfxVPPChParams[0]->VPP.ChromaFormat  = MFX_CHROMAFORMAT_YUV420;
     mfxVPPChParams[0]->VPP.PicStruct     = MFX_PICSTRUCT_PROGRESSIVE;
     mfxVPPChParams[0]->VPP.FrameRateExtN = mfxDecParams.mfx.FrameInfo.FrameRateExtN;
     mfxVPPChParams[0]->VPP.FrameRateExtD = mfxDecParams.mfx.FrameInfo.FrameRateExtD;
-    mfxVPPChParams[0]->VPP.CropW         = 320;
-    mfxVPPChParams[0]->VPP.CropH         = 240;
+    mfxVPPChParams[0]->VPP.CropW         = 640;
+    mfxVPPChParams[0]->VPP.CropH         = 480;
     mfxVPPChParams[0]->VPP.Width         = ALIGN16(mfxVPPChParams[0]->VPP.CropW);
     mfxVPPChParams[0]->VPP.Height        = ALIGN16(mfxVPPChParams[0]->VPP.CropH);
     mfxVPPChParams[0]->VPP.ChannelId     = 1;
@@ -205,7 +205,7 @@ int main(int argc, char *argv[]) {
     mfxVPPChParams[1]->ExtParam  = NULL;
     mfxVPPChParams[1]->NumExtParam = 0;
 
-    // mfxVPPChParams[0] for vpp output (320x240), mfxVPPChParams[1] for vpp output (128x96)
+    // mfxVPPChParams[0] for vpp output (640x480), mfxVPPChParams[1] for vpp output (128x96)
     sts = MFXVideoDECODE_VPP_Init(session, &mfxDecParams, mfxVPPChParams, numVPPCh);
     VERIFY(MFX_ERR_NONE == sts, "Error initializing decodevpp\n");
 
