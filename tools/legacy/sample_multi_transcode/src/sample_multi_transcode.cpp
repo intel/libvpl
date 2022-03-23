@@ -370,6 +370,8 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
         pThreadPipeline->pPipeline->SetPrefferdGfx(m_InputParamsArray[i].dGfxIdx);
         pThreadPipeline->pPipeline->SetAdapterNum(m_pLoader->GetDeviceIDAndAdapter().second);
 
+        pThreadPipeline->pPipeline->SetSyncOpTimeout(m_InputParamsArray[i].nSyncOpTimeout);
+
         pThreadPipeline->pBSProcessor = m_pExtBSProcArray.back().get();
 
         std::unique_ptr<CSmplBitstreamReader> reader;
@@ -517,15 +519,15 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
     }
 
     if (m_InputParamsArray[0].forceSyncAllSession == MFX_CODINGOPTION_ON) {
-        auto maxNumFrameForAllocIter = std::max_element(
-            std::begin(m_pThreadContextArray),
-            std::end(m_pThreadContextArray),
-            [](auto const& l, auto const& r) {
-                return l->pPipeline->GetNumFrameForAlloc() < r->pPipeline->GetNumFrameForAlloc();
-            });
+        auto it = std::max_element(std::begin(m_pThreadContextArray),
+                                   std::end(m_pThreadContextArray),
+                                   [](auto const& l, auto const& r) {
+                                       return l->pPipeline->GetNumFrameForAlloc() <
+                                              r->pPipeline->GetNumFrameForAlloc();
+                                   });
 
         auto surfaceUtilizationSynchronizer = std::make_shared<SurfaceUtilizationSynchronizer>(
-            (*maxNumFrameForAllocIter)->pPipeline->GetNumFrameForAlloc());
+            (*it)->pPipeline->GetNumFrameForAlloc());
 
         for (size_t i = 0; i < m_pThreadContextArray.size(); ++i) {
             m_pThreadContextArray[i]->pPipeline->SetSurfaceUtilizationSynchronizer(
@@ -820,25 +822,25 @@ mfxStatus Launcher::CheckAndFixAdapterDependency(mfxU32 idxSession,
 }
 
 mfxStatus Launcher::VerifyCrossSessionsOptions() {
-    bool IsSinkPresence     = false;
-    bool IsSourcePresence   = false;
-    bool IsHeterSessionJoin = false;
-    bool IsFirstInTopology  = true;
+    bool isSinkPresence     = false;
+    bool isSourcePresence   = false;
+    bool isHeterSessionJoin = false;
+    bool isFirstInTopology  = true;
 #if defined(_WIN32) || defined(_WIN64)
-    bool IsInterOrJoined      = false;
-    bool IsNeedToCreateDevice = false;
+    bool isInterOrJoined      = false;
+    bool isNeedToCreateDevice = false;
 #endif
 
-    mfxU16 minAsyncDepth      = 0;
-    bool bSingleTexture       = false;
-    bool allMFEModesEqual     = true;
-    bool allMFEFramesEqual    = true;
-    bool allMFESessionsJoined = true;
+    mfxU16 minAsyncDepth        = 0;
+    bool isSingleTexture        = false;
+    bool isAllMFEModesEqual     = true;
+    bool isAllMFEFramesEqual    = true;
+    bool isAllMFESessionsJoined = true;
 
     mfxU16 usedMFEMaxFrames = 0;
     mfxU16 usedMFEMode      = 0;
 
-    bool forceSyncAllSession = false;
+    bool isForceSyncAllSession = false;
 
     for (mfxU32 i = 0; i < m_InputParamsArray.size(); i++) {
         // loop over all sessions and check mfe-specific params
@@ -849,13 +851,13 @@ mfxStatus Launcher::VerifyCrossSessionsOptions() {
                 if (m_InputParamsArray[j].numMFEFrames &&
                     m_InputParamsArray[j].numMFEFrames != usedMFEMaxFrames) {
                     m_InputParamsArray[j].numMFEFrames = usedMFEMaxFrames;
-                    allMFEFramesEqual                  = false;
+                    isAllMFEFramesEqual                = false;
                     m_InputParamsArray[j].MFMode       = m_InputParamsArray[j].MFMode < MFX_MF_AUTO
                                                        ? MFX_MF_AUTO
                                                        : m_InputParamsArray[j].MFMode;
                 }
                 if (m_InputParamsArray[j].bIsJoin == false) {
-                    allMFESessionsJoined          = false;
+                    isAllMFESessionsJoined        = false;
                     m_InputParamsArray[j].bIsJoin = true;
                 }
             }
@@ -865,32 +867,32 @@ mfxStatus Launcher::VerifyCrossSessionsOptions() {
             for (mfxU32 j = 0; j < m_InputParamsArray.size(); j++) {
                 if (m_InputParamsArray[j].MFMode && m_InputParamsArray[j].MFMode != usedMFEMode) {
                     m_InputParamsArray[j].MFMode = usedMFEMode;
-                    allMFEModesEqual             = false;
+                    isAllMFEModesEqual           = false;
                 }
                 if (m_InputParamsArray[j].bIsJoin == false) {
-                    allMFESessionsJoined          = false;
+                    isAllMFESessionsJoined        = false;
                     m_InputParamsArray[j].bIsJoin = true;
                 }
             }
         }
     }
-    if (!allMFEFramesEqual)
+    if (!isAllMFEFramesEqual)
         msdk_printf(
             MSDK_STRING(
                 "WARNING: All sessions for MFE should have the same number of MFE frames!\n used ammount of frame for MFE: %d\n"),
             (int)usedMFEMaxFrames);
-    if (!allMFEModesEqual)
+    if (!isAllMFEModesEqual)
         msdk_printf(
             MSDK_STRING(
                 "WARNING: All sessions for MFE should have the same mode!\n, used mode: %d\n"),
             (int)usedMFEMode);
-    if (!allMFESessionsJoined)
+    if (!isAllMFESessionsJoined)
         msdk_printf(MSDK_STRING(
             "WARNING: Sessions for MFE should be joined! All sessions forced to be joined\n"));
 
     for (mfxU32 i = 0; i < m_InputParamsArray.size(); i++) {
         if (m_InputParamsArray[i].bSingleTexture) {
-            bSingleTexture = true;
+            isSingleTexture = true;
         }
 
         // All sessions have to know about timeout
@@ -924,60 +926,60 @@ mfxStatus Launcher::VerifyCrossSessionsOptions() {
                 minAsyncDepth = m_InputParamsArray[i].nAsyncDepth;
             }
             // topology definition
-            if (!IsSinkPresence) {
+            if (!isSinkPresence) {
                 PrintError(MSDK_STRING(
                     "Error in par file. Decode source session must be declared BEFORE encode sinks \n"));
                 return MFX_ERR_UNSUPPORTED;
             }
-            IsSourcePresence = true;
+            isSourcePresence = true;
 
-            if (IsFirstInTopology) {
+            if (isFirstInTopology) {
                 if (m_InputParamsArray[i].bIsJoin)
-                    IsHeterSessionJoin = true;
+                    isHeterSessionJoin = true;
                 else
-                    IsHeterSessionJoin = false;
+                    isHeterSessionJoin = false;
             }
             else {
-                if (m_InputParamsArray[i].bIsJoin && !IsHeterSessionJoin) {
+                if (m_InputParamsArray[i].bIsJoin && !isHeterSessionJoin) {
                     PrintError(MSDK_STRING(
                         "Error in par file. All heterogeneous sessions must be joined \n"));
                     return MFX_ERR_UNSUPPORTED;
                 }
-                if (!m_InputParamsArray[i].bIsJoin && IsHeterSessionJoin) {
+                if (!m_InputParamsArray[i].bIsJoin && isHeterSessionJoin) {
                     PrintError(MSDK_STRING(
                         "Error in par file. All heterogeneous sessions must be NOT joined \n"));
                     return MFX_ERR_UNSUPPORTED;
                 }
             }
 
-            if (IsFirstInTopology)
-                IsFirstInTopology = false;
+            if (isFirstInTopology)
+                isFirstInTopology = false;
         }
         else if (Sink == m_InputParamsArray[i].eMode) {
             minAsyncDepth  = m_InputParamsArray[i].nAsyncDepth;
-            IsSinkPresence = true;
+            isSinkPresence = true;
 
-            if (IsFirstInTopology) {
+            if (isFirstInTopology) {
                 if (m_InputParamsArray[i].bIsJoin)
-                    IsHeterSessionJoin = true;
+                    isHeterSessionJoin = true;
                 else
-                    IsHeterSessionJoin = false;
+                    isHeterSessionJoin = false;
             }
             else {
-                if (m_InputParamsArray[i].bIsJoin && !IsHeterSessionJoin) {
+                if (m_InputParamsArray[i].bIsJoin && !isHeterSessionJoin) {
                     PrintError(MSDK_STRING(
                         "Error in par file. All heterogeneous sessions must be joined \n"));
                     return MFX_ERR_UNSUPPORTED;
                 }
-                if (!m_InputParamsArray[i].bIsJoin && IsHeterSessionJoin) {
+                if (!m_InputParamsArray[i].bIsJoin && isHeterSessionJoin) {
                     PrintError(MSDK_STRING(
                         "Error in par file. All heterogeneous sessions must be NOT joined \n"));
                     return MFX_ERR_UNSUPPORTED;
                 }
             }
 
-            if (IsFirstInTopology)
-                IsFirstInTopology = false;
+            if (isFirstInTopology)
+                isFirstInTopology = false;
         }
 
         if (m_InputParamsArray[i].nMemoryModel == UNKNOWN_ALLOC) {
@@ -986,11 +988,11 @@ mfxStatus Launcher::VerifyCrossSessionsOptions() {
 
 #if defined(_WIN32) || defined(_WIN64)
         // Creating a device is only necessary in case of using external memory (generall alloc) or inter/joined sessions.
-        IsInterOrJoined = m_InputParamsArray[i].eMode == Sink ||
+        isInterOrJoined = m_InputParamsArray[i].eMode == Sink ||
                           m_InputParamsArray[i].eMode == Source || m_InputParamsArray[i].bIsJoin;
-        if ((m_InputParamsArray[i].nMemoryModel == GENERAL_ALLOC || IsInterOrJoined) &&
+        if ((m_InputParamsArray[i].nMemoryModel == GENERAL_ALLOC || isInterOrJoined) &&
             !m_InputParamsArray[i].bForceSysMem) {
-            IsNeedToCreateDevice = true;
+            isNeedToCreateDevice = true;
         }
 #endif
 
@@ -999,12 +1001,12 @@ mfxStatus Launcher::VerifyCrossSessionsOptions() {
 #if defined(_WIN32) || defined(_WIN64)
             if (MFX_IMPL_VIA_D3D11 == MFX_IMPL_VIA_MASK(m_InputParamsArray[i].libType)) {
                 // If m_eDevType is not specified here, the device will not be created after.
-                if (IsNeedToCreateDevice)
+                if (isNeedToCreateDevice)
                     m_eDevType = MFX_HANDLE_D3D11_DEVICE;
                 m_accelerationMode = MFX_ACCEL_MODE_VIA_D3D11;
             }
             else {
-                if (IsNeedToCreateDevice)
+                if (isNeedToCreateDevice)
                     m_eDevType = MFX_HANDLE_D3D9_DEVICE_MANAGER;
                 m_accelerationMode = MFX_ACCEL_MODE_VIA_D3D9;
             }
@@ -1015,7 +1017,7 @@ mfxStatus Launcher::VerifyCrossSessionsOptions() {
         }
 
         // forceSyncAllSession is ON by default for 1->N scenarios
-        forceSyncAllSession |=
+        isForceSyncAllSession |=
             m_InputParamsArray[i].forceSyncAllSession == MFX_CODINGOPTION_ON ||
             (m_InputParamsArray[i].forceSyncAllSession == MFX_CODINGOPTION_UNKNOWN &&
              m_InputParamsArray[i].eMode !=
@@ -1024,10 +1026,11 @@ mfxStatus Launcher::VerifyCrossSessionsOptions() {
               m_InputParamsArray[i].nMemoryModel == HIDDEN_INT_ALLOC));
     }
 
-    if (forceSyncAllSession)
+    if (isForceSyncAllSession) {
         std::for_each(std::begin(m_InputParamsArray), std::end(m_InputParamsArray), [](auto& p) {
             p.forceSyncAllSession = MFX_CODINGOPTION_ON;
         });
+    }
 
     // Async depth between inter-sessions should be equal to the minimum async depth of all these sessions.
     for (mfxU32 i = 0; i < m_InputParamsArray.size(); i++) {
@@ -1036,12 +1039,12 @@ mfxStatus Launcher::VerifyCrossSessionsOptions() {
         }
     }
 
-    if (IsSinkPresence && !IsSourcePresence) {
+    if (isSinkPresence && !isSourcePresence) {
         PrintError(MSDK_STRING("Error: Sink must be defined"));
         return MFX_ERR_UNSUPPORTED;
     }
 
-    if (bSingleTexture) {
+    if (isSingleTexture) {
         bool showWarning = false;
         for (mfxU32 j = 0; j < m_InputParamsArray.size(); j++) {
             if (!m_InputParamsArray[j].bSingleTexture) {
@@ -1052,6 +1055,35 @@ mfxStatus Launcher::VerifyCrossSessionsOptions() {
         if (showWarning) {
             msdk_printf(MSDK_STRING(
                 "WARNING: At least one session has -single_texture_d3d11 option, all other sessions are modified to have this setting enabled al well.\n"));
+        }
+    }
+
+    { // The same value will be used for sync operations in all sessions by design
+        bool isDiffSyncOpTimeout = false;
+        for (mfxU32 i = 0; i < m_InputParamsArray.size(); i++) {
+            for (mfxU32 j = 0; j < m_InputParamsArray.size(); j++) {
+                if (i == j) {
+                    continue;
+                }
+                if (m_InputParamsArray[j].nSyncOpTimeout != m_InputParamsArray[i].nSyncOpTimeout) {
+                    isDiffSyncOpTimeout = true;
+                }
+            }
+        }
+
+        if (isDiffSyncOpTimeout) {
+            auto it = std::max_element(std::begin(m_InputParamsArray),
+                                       std::end(m_InputParamsArray),
+                                       [](auto const& l, auto const& r) {
+                                           return l.nSyncOpTimeout < r.nSyncOpTimeout;
+                                       });
+            msdk_printf(
+                MSDK_STRING(
+                    "WARNING: The same value of the timeout should be used for sync operations in all sessions. Max value: %u will be used.\n"),
+                (*it).nSyncOpTimeout);
+            for (size_t i = 0; i < m_InputParamsArray.size(); ++i) {
+                m_InputParamsArray[i].nSyncOpTimeout = (*it).nSyncOpTimeout;
+            }
         }
     }
 

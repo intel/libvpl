@@ -543,6 +543,8 @@ void TranscodingSample::PrintHelp() {
 #if defined(LIBVA_DRM_SUPPORT)
     msdk_printf(MSDK_STRING("   -rdrm                    - use libva DRM backend \n"));
 #endif
+    msdk_printf(
+        MSDK_STRING("   -syncop_timeout          - SyncOperation timeout in milliseconds\n"));
     msdk_printf(MSDK_STRING("\n"));
     msdk_printf(MSDK_STRING("ParFile format:\n"));
     msdk_printf(MSDK_STRING(
@@ -1558,8 +1560,7 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
     }
     else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-NumActiveRefP"))) {
         VAL_CHECK(i + 1 == argc, i, argv[i]);
-        i++;
-        if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.nNumRefActiveP)) {
+        if (MFX_ERR_NONE != msdk_opt_read(argv[++i], InputParams.nNumRefActiveP)) {
             PrintError(
                 MSDK_STRING("Number of active reference frames for P frames \"%s\" is invalid"),
                 argv[i]);
@@ -1635,6 +1636,13 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
     }
     else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-msb10"))) {
         InputParams.IsSourceMSB = true;
+    }
+    else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-syncop_timeout"))) {
+        VAL_CHECK(i + 1 == argc, i, argv[i]);
+        if (MFX_ERR_NONE != msdk_opt_read(argv[++i], InputParams.nSyncOpTimeout)) {
+            PrintError(MSDK_STRING("syncop_timeout is invalid"));
+            return MFX_ERR_UNSUPPORTED;
+        }
     }
     else {
         // no matching argument was found

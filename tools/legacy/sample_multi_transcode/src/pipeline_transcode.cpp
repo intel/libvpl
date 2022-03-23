@@ -322,7 +322,7 @@ mfxStatus CTranscodingPipeline::VPPPreInit(sInputParams* pParams) {
         (pParams->eMode == Source))
         bVppCompInitRequire = true;
 
-    // Obtaining decoder output FourCC - in case of inter-session, just take it from params, in intra-session case, take it from parent session
+    // Obtaining decoder output FourCC - in case of intra-session, just take it from params, in inter-session case, take it from parent session
     // In inter-session case, we'll enable chroma-changing VPP only in encoding session, and only if decoderFourCC!=encoderFourCC
     mfxU32 decoderFourCC = m_bDecodeEnable
                                ? m_mfxDecParams.mfx.FrameInfo.FourCC
@@ -630,7 +630,8 @@ mfxStatus CTranscodingPipeline::DecodeOneFrame(ExtendedSurface* pExtSurface) {
             }
         }
 
-        if ((MFX_WRN_DEVICE_BUSY == sts) && (DevBusyTimer.GetTime() > MSDK_WAIT_INTERVAL / 1000)) {
+        if ((MFX_WRN_DEVICE_BUSY == sts) &&
+            (DevBusyTimer.GetTime() > (mfxF64)GetSyncOpTimeout() / 1000)) {
             msdk_printf(MSDK_STRING("ERROR: Decoder device busy (during long period)\n"));
             return MFX_ERR_DEVICE_FAILED;
         }
@@ -647,7 +648,7 @@ mfxStatus CTranscodingPipeline::DecodeOneFrame(ExtendedSurface* pExtSurface) {
 
     // HEVC SW requires additional synchronization
     if (MFX_ERR_NONE == sts && isHEVCSW) {
-        sts = m_pmfxSession->SyncOperation(pExtSurface->Syncp, MSDK_WAIT_INTERVAL);
+        sts = m_pmfxSession->SyncOperation(pExtSurface->Syncp, GetSyncOpTimeout());
         HandlePossibleGpuHang(sts);
         MSDK_CHECK_ERR_NONE_STATUS(sts, MFX_ERR_ABORTED, "Decode: SyncOperation failed");
     }
@@ -708,7 +709,8 @@ mfxStatus CTranscodingPipeline::DecodeLastFrame(ExtendedSurface* pExtSurface) {
             }
         }
 
-        if ((MFX_WRN_DEVICE_BUSY == sts) && (DevBusyTimer.GetTime() > MSDK_WAIT_INTERVAL / 1000)) {
+        if ((MFX_WRN_DEVICE_BUSY == sts) &&
+            (DevBusyTimer.GetTime() > (mfxF64)GetSyncOpTimeout() / 1000)) {
             msdk_printf(MSDK_STRING("ERROR: Decoder device busy (during long period)\n"));
             return MFX_ERR_DEVICE_FAILED;
         }
@@ -716,7 +718,7 @@ mfxStatus CTranscodingPipeline::DecodeLastFrame(ExtendedSurface* pExtSurface) {
 
     // HEVC SW requires additional synchronization
     if (MFX_ERR_NONE == sts && isHEVCSW) {
-        sts = m_pmfxSession->SyncOperation(pExtSurface->Syncp, MSDK_WAIT_INTERVAL);
+        sts = m_pmfxSession->SyncOperation(pExtSurface->Syncp, GetSyncOpTimeout());
         HandlePossibleGpuHang(sts);
         MSDK_CHECK_ERR_NONE_STATUS(sts, MFX_ERR_ABORTED, "Decode: SyncOperation failed");
     }
@@ -1218,7 +1220,7 @@ mfxStatus CTranscodingPipeline::Decode() {
         // track such dependency on its own.
         if ((!m_bIsJoinSession && m_pParentPipeline)) {
             MFX_ITT_TASK("SyncOperation");
-            sts = m_pmfxSession->SyncOperation(PreEncExtSurface.Syncp, MSDK_WAIT_INTERVAL);
+            sts = m_pmfxSession->SyncOperation(PreEncExtSurface.Syncp, GetSyncOpTimeout());
             HandlePossibleGpuHang(sts);
             PreEncExtSurface.Syncp = NULL;
             MSDK_CHECK_ERR_NONE_STATUS(sts, MFX_ERR_ABORTED, "PreEnc: SyncOperation failed");
@@ -1285,7 +1287,7 @@ mfxStatus CTranscodingPipeline::Decode() {
                                                   SMTTracer::EventName::SYNC,
                                                   frontSurface.pSurface,
                                                   nullptr);
-                sts = m_pmfxSession->SyncOperation(frontSurface.Syncp, MSDK_WAIT_INTERVAL);
+                sts = m_pmfxSession->SyncOperation(frontSurface.Syncp, GetSyncOpTimeout());
                 m_ScalerConfig.Tracer->EndEvent(SMTTracer::ThreadType::DEC,
                                                 0,
                                                 SMTTracer::EventName::SYNC,
@@ -1379,7 +1381,7 @@ mfxStatus CTranscodingPipeline::Encode() {
                 if (DecExtSurface.Syncp) {
                     MFX_ITT_TASK("SyncOperation");
                     sts = m_pParentPipeline->m_pmfxSession->SyncOperation(DecExtSurface.Syncp,
-                                                                          MSDK_WAIT_INTERVAL);
+                                                                          GetSyncOpTimeout());
                     HandlePossibleGpuHang(sts);
                     MSDK_CHECK_ERR_NONE_STATUS(sts,
                                                MFX_ERR_ABORTED,
@@ -1448,7 +1450,7 @@ mfxStatus CTranscodingPipeline::Encode() {
         if ((m_nVPPCompMode == VppCompOnly) || (m_nVPPCompMode == VppCompOnlyEncode)) {
             if (VppExtSurface.pSurface) {
                 // Sync to ensure VPP is completed to avoid flicker
-                sts = m_pmfxSession->SyncOperation(VppExtSurface.Syncp, MSDK_WAIT_INTERVAL);
+                sts = m_pmfxSession->SyncOperation(VppExtSurface.Syncp, GetSyncOpTimeout());
                 HandlePossibleGpuHang(sts);
                 MSDK_CHECK_ERR_NONE_STATUS(sts, MFX_ERR_ABORTED, "VPP: SyncOperation failed");
                 if (m_pSurfaceUtilizationSynchronizer && m_MemoryModel != GENERAL_ALLOC) {
@@ -1570,7 +1572,7 @@ mfxStatus CTranscodingPipeline::Encode() {
                 //                {
                 //                    if(m_nVPPCompMode != VppCompOnlyEncode)
                 //                    {
-                //                        sts = m_pmfxSession->SyncOperation(VppExtSurface.Syncp, MSDK_WAIT_INTERVAL);
+                //                        sts = m_pmfxSession->SyncOperation(VppExtSurface.Syncp, GetSyncOpTimeout());
                 //                        MSDK_CHECK_ERR_NONE_STATUS(sts, MFX_ERR_ABORTED, "VPP: SyncOperation failed");
                 //                    }
                 //#if defined(_WIN32) || defined(_WIN64)
@@ -2066,7 +2068,7 @@ mfxStatus CTranscodingPipeline::PutBS() {
                                           SMTTracer::EventName::SYNC,
                                           pBitstreamEx->Syncp,
                                           nullptr);
-        sts = m_pmfxSession->SyncOperation(pBitstreamEx->Syncp, MSDK_WAIT_INTERVAL);
+        sts = m_pmfxSession->SyncOperation(pBitstreamEx->Syncp, GetSyncOpTimeout());
 
         m_ScalerConfig.Tracer->EndEvent(SMTTracer::ThreadType::ENC,
                                         TargetID,
@@ -2140,7 +2142,7 @@ mfxStatus CTranscodingPipeline::Surface2BS(ExtendedSurface* pSurf,
     }
 
     if (pSurf->Syncp) {
-        sts = m_pmfxSession->SyncOperation(pSurf->Syncp, MSDK_WAIT_INTERVAL);
+        sts = m_pmfxSession->SyncOperation(pSurf->Syncp, GetSyncOpTimeout());
         HandlePossibleGpuHang(sts);
         MSDK_CHECK_ERR_NONE_STATUS(sts, MFX_ERR_ABORTED, "SyncOperation failed");
         pSurf->Syncp = 0;

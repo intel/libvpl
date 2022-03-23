@@ -379,7 +379,8 @@ struct __sInputParams {
 
     mfxU16 nIVFHeader;
 
-    bool IsSourceMSB = false;
+    bool IsSourceMSB      = false;
+    mfxU32 nSyncOpTimeout = MSDK_WAIT_INTERVAL; // SyncOperation timeout in msec
 };
 
 struct sInputParams : public __sInputParams {
@@ -746,6 +747,9 @@ public:
     void SetAdapterNum(mfxU32 adapterNum = 0) {
         m_adapterNum = adapterNum;
     };
+    void SetSyncOpTimeout(mfxU32 syncOpTimeout = MSDK_WAIT_INTERVAL) {
+        m_nSyncOpTimeout = syncOpTimeout;
+    };
 
     mfxU16 GetAdapterType() const {
         return m_adapterType;
@@ -755,6 +759,9 @@ public:
     };
     mfxI32 GetAdapterNum() const {
         return m_adapterNum;
+    };
+    mfxU32 GetSyncOpTimeout() const {
+        return m_nSyncOpTimeout;
     };
 
 protected:
@@ -1020,7 +1027,10 @@ protected:
     mfxI32 m_dGfxIdx     = -1;
     mfxI32 m_adapterNum  = -1;
     mfxU32 TargetID      = 0;
+
     CascadeScalerConfig m_ScalerConfig;
+
+    mfxU32 m_nSyncOpTimeout = MSDK_WAIT_INTERVAL; // SyncOperation timeout in msec
 
 private:
     DISALLOW_COPY_AND_ASSIGN(CTranscodingPipeline);
