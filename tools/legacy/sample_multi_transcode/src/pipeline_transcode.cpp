@@ -3927,23 +3927,17 @@ mfxStatus CTranscodingPipeline::Init(sInputParams* pParams,
     if (m_MemoryModel == GENERAL_ALLOC || pParams->useAllocHints ||
         (pParentPipeline && pParentPipeline->m_bAllocHint)) {
         // Frames allocation for all component
-        if (Native == pParams->eMode) {
+        if (Native == pParams->eMode || (Source == pParams->eMode && !m_bDecodeEnable)) {
             sts = SetupSurfacePool(pParams->preallocate);
             MSDK_CHECK_STATUS(sts, "SetupSurfacePool failed");
-        }
-        else if (Source ==
-                 pParams->eMode) // need allocate frames only for VPP and Encode if VPP exist
-        {
-            if (!m_bDecodeEnable) {
-                sts = SetupSurfacePool(pParams->preallocate);
-                MSDK_CHECK_STATUS(sts, "SetupSurfacePool failed");
-            }
         }
     }
     else if (pParams->forceSyncAllSession) {
         // not included real allocation, just calculating needed surface number
-        sts = SetupSurfacePool(0);
-        MSDK_CHECK_STATUS(sts, "SetupSurfacePool failed");
+        if (Native == pParams->eMode || (Source == pParams->eMode && !m_bDecodeEnable)) {
+            sts = SetupSurfacePool(0);
+            MSDK_CHECK_STATUS(sts, "SetupSurfacePool failed");
+        }
     }
 
     isHEVCSW = AreGuidsEqual(pParams->decoderPluginParams.pluginGuid, MFX_PLUGINID_HEVCD_SW);

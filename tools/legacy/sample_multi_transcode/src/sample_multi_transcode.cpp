@@ -504,6 +504,18 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
         PrintInfo(i, &m_InputParamsArray[i], &ver);
     }
 
+    for (i = 0; i < m_InputParamsArray.size(); i++) {
+        sts = m_pThreadContextArray[i]->pPipeline->CompleteInit();
+        MSDK_CHECK_STATUS(sts, "m_pThreadContextArray[i]->pPipeline->CompleteInit failed");
+
+        if (m_pThreadContextArray[i]->pPipeline->GetJoiningFlag())
+            msdk_printf(MSDK_STRING("Session %d was joined with other sessions\n"), (int)i);
+        else
+            msdk_printf(MSDK_STRING("Session %d was NOT joined with other sessions\n"), (int)i);
+
+        m_pThreadContextArray[i]->pPipeline->SetPipelineID(i);
+    }
+
     if (m_InputParamsArray[0].forceSyncAllSession == MFX_CODINGOPTION_ON) {
         auto maxNumFrameForAllocIter = std::max_element(
             std::begin(m_pThreadContextArray),
@@ -519,18 +531,6 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
             m_pThreadContextArray[i]->pPipeline->SetSurfaceUtilizationSynchronizer(
                 surfaceUtilizationSynchronizer);
         }
-    }
-
-    for (i = 0; i < m_InputParamsArray.size(); i++) {
-        sts = m_pThreadContextArray[i]->pPipeline->CompleteInit();
-        MSDK_CHECK_STATUS(sts, "m_pThreadContextArray[i]->pPipeline->CompleteInit failed");
-
-        if (m_pThreadContextArray[i]->pPipeline->GetJoiningFlag())
-            msdk_printf(MSDK_STRING("Session %d was joined with other sessions\n"), (int)i);
-        else
-            msdk_printf(MSDK_STRING("Session %d was NOT joined with other sessions\n"), (int)i);
-
-        m_pThreadContextArray[i]->pPipeline->SetPipelineID(i);
     }
 
     msdk_printf(MSDK_STRING("\n"));
