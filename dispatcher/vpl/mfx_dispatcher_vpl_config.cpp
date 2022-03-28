@@ -109,6 +109,7 @@ enum PropIdx {
     ePropSpecial_HandleType,
     ePropSpecial_Handle,
     ePropSpecial_NumThread,
+    ePropSpecial_DeviceCopy,
     ePropSpecial_DXGIAdapterIndex,
 
     // functions which must report as implemented
@@ -180,6 +181,7 @@ static const PropVariant PropIdxTab[] = {
     { "ePropSpecial_HandleType",            MFX_VARIANT_TYPE_U32 },
     { "ePropSpecial_Handle",                MFX_VARIANT_TYPE_PTR },
     { "ePropSpecial_NumThread",             MFX_VARIANT_TYPE_U32 },
+    { "ePropSpecial_DeviceCopy",            MFX_VARIANT_TYPE_U16 },
     { "ePropSpecial_DXGIAdapterIndex",      MFX_VARIANT_TYPE_U32 },
 
     { "ePropFunc_FunctionName",             MFX_VARIANT_TYPE_PTR },
@@ -468,6 +470,11 @@ mfxStatus ConfigCtxVPL::SetFilterProperty(const mfxU8 *name, mfxVariant value) {
     else if (nextProp == "NumThread") {
         return ValidateAndSetProp(ePropSpecial_NumThread, value);
     }
+#ifdef ONEVPL_EXPERIMENTAL
+    else if (nextProp == "DeviceCopy") {
+        return ValidateAndSetProp(ePropSpecial_DeviceCopy, value);
+    }
+#endif
     else if (nextProp == "DXGIAdapterIndex") {
 #if defined(_WIN32) || defined(_WIN64)
         // this property is only valid on Windows
@@ -487,6 +494,7 @@ mfxStatus ConfigCtxVPL::SetFilterProperty(const mfxU8 *name, mfxVariant value) {
         return MFX_ERR_NOT_FOUND;
     }
 
+#ifdef ONEVPL_EXPERIMENTAL
     // extended device ID properties must begin with mfxExtendedDeviceId
     if (nextProp == "mfxExtendedDeviceId") {
         nextProp = GetNextProp(propParsedString);
@@ -525,6 +533,7 @@ mfxStatus ConfigCtxVPL::SetFilterProperty(const mfxU8 *name, mfxVariant value) {
         }
         return MFX_ERR_NOT_FOUND;
     }
+#endif
 
     // standard properties must begin with "mfxImplDescription"
     if (nextProp != "mfxImplDescription") {
@@ -1226,6 +1235,11 @@ mfxStatus ConfigCtxVPL::ValidateConfig(const mfxImplDescription *libImplDesc,
             specialConfig->bIsSet_NumThread = true;
         }
 
+        if (cfgPropsAll[ePropSpecial_DeviceCopy].Type != MFX_VARIANT_TYPE_UNSET) {
+            specialConfig->DeviceCopy        = cfgPropsAll[ePropSpecial_DeviceCopy].Data.U16;
+            specialConfig->bIsSet_DeviceCopy = true;
+        }
+
         if (cfgPropsAll[ePropSpecial_DXGIAdapterIndex].Type != MFX_VARIANT_TYPE_UNSET) {
             specialConfig->dxgiAdapterIdx =
                 (mfxU32)cfgPropsAll[ePropSpecial_DXGIAdapterIndex].Data.U32;
@@ -1393,6 +1407,13 @@ bool ConfigCtxVPL::CheckLowLatencyConfig(std::list<ConfigCtxVPL *> configCtxList
                 if (cfgPropsAll[ePropSpecial_NumThread].Type != MFX_VARIANT_TYPE_UNSET) {
                     specialConfig->NumThread        = cfgPropsAll[ePropSpecial_NumThread].Data.U32;
                     specialConfig->bIsSet_NumThread = true;
+                }
+                break;
+
+            case ePropSpecial_DeviceCopy:
+                if (cfgPropsAll[ePropSpecial_DeviceCopy].Type != MFX_VARIANT_TYPE_UNSET) {
+                    specialConfig->DeviceCopy = cfgPropsAll[ePropSpecial_DeviceCopy].Data.U16;
+                    specialConfig->bIsSet_DeviceCopy = true;
                 }
                 break;
 

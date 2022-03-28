@@ -23,6 +23,8 @@ TEST(Dispatcher_GPU_CreateSession, SetInvalidNumThreadTypeReturnsErrUnsupported)
     Dispatcher_CreateSession_SetInvalidNumThreadTypeReturnsErrUnsupported(MFX_IMPL_TYPE_HARDWARE);
 }
 
+#ifdef ONEVPL_EXPERIMENTAL
+
 // fully-implemented test cases (not using common kernels)
 TEST(Dispatcher_GPU_CreateSession, ExtDeviceID_ValidProps) {
     SKIP_IF_DISP_GPU_DISABLED();
@@ -35,12 +37,12 @@ TEST(Dispatcher_GPU_CreateSession, ExtDeviceID_ValidProps) {
 
     // set valid, basic properties
     SetConfigFilterProperty<mfxU16>(loader, "mfxExtendedDeviceId.VendorID", 0x8086);
-#if defined(_WIN32) || defined(_WIN64)
+    #if defined(_WIN32) || defined(_WIN64)
     SetConfigFilterProperty<mfxU32>(loader, "mfxExtendedDeviceId.LUIDDeviceNodeMask", 1);
-#else
+    #else
     SetConfigFilterProperty<mfxU32>(loader, "mfxExtendedDeviceId.DRMRenderNodeNum", 128);
     SetConfigFilterProperty<mfxU32>(loader, "mfxExtendedDeviceId.DRMPrimaryNodeNum", 0);
-#endif
+    #endif
     // create session with first implementation
     mfxSession session = nullptr;
     sts                = MFXCreateSession(loader, 0, &session);
@@ -63,12 +65,12 @@ TEST(Dispatcher_GPU_CreateSession, ExtDeviceID_InvalidProps) {
 
     // set valid, basic properties
     SetConfigFilterProperty<mfxU16>(loader, "mfxExtendedDeviceId.VendorID", 0x8086);
-#if defined(_WIN32) || defined(_WIN64)
+    #if defined(_WIN32) || defined(_WIN64)
     SetConfigFilterProperty<mfxU32>(loader, "mfxExtendedDeviceId.LUIDDeviceNodeMask", 333);
-#else
+    #else
     SetConfigFilterProperty<mfxU32>(loader, "mfxExtendedDeviceId.DRMRenderNodeNum", 999);
     SetConfigFilterProperty<mfxU32>(loader, "mfxExtendedDeviceId.DRMPrimaryNodeNum", 555);
-#endif
+    #endif
     // create session with first implementation
     mfxSession session = nullptr;
     sts                = MFXCreateSession(loader, 0, &session);
@@ -77,6 +79,8 @@ TEST(Dispatcher_GPU_CreateSession, ExtDeviceID_InvalidProps) {
     // free internal resources
     MFXUnload(loader);
 }
+
+#endif // ONEVPL_EXPERIMENTAL
 
 TEST(Dispatcher_GPU_CloneSession, Basic_Clone_Succeeds) {
     SKIP_IF_DISP_GPU_VPL_DISABLED();

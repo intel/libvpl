@@ -23,6 +23,8 @@ TEST(Dispatcher_Stub_CreateSession, SetInvalidNumThreadTypeReturnsErrUnsupported
     Dispatcher_CreateSession_SetInvalidNumThreadTypeReturnsErrUnsupported(MFX_IMPL_TYPE_STUB);
 }
 
+#ifdef ONEVPL_EXPERIMENTAL
+
 // mfxExtendedDeviceId tests
 TEST(Dispatcher_Stub_CreateSession, ExtDeviceID_VendorID_Valid) {
     SKIP_IF_DISP_STUB_DISABLED();
@@ -134,6 +136,8 @@ TEST(Dispatcher_Stub_CreateSession, ExtDeviceID_DeviceName_Invalid) {
     Dispatcher_CreateSession_ExtDeviceID_DeviceName_Invalid(MFX_IMPL_TYPE_STUB);
 }
 
+#endif // ONEVPL_EXPERIMENTAL
+
 // fully-implemented test cases (not using common kernels)
 TEST(Dispatcher_Stub_CreateSession, RuntimeParsesExtBuf) {
     SKIP_IF_DISP_STUB_DISABLED();
@@ -199,6 +203,7 @@ TEST(Dispatcher_Stub_CreateSession, LegacyRuntimeParsesExtBuf) {
     MFXUnload(loader);
 }
 
+#ifdef ONEVPL_EXPERIMENTAL
 TEST(Dispatcher_Stub_CreateSession, ExtDeviceID_EnumImpl_ValidStub) {
     SKIP_IF_DISP_STUB_DISABLED();
 
@@ -248,6 +253,7 @@ TEST(Dispatcher_Stub_CreateSession, ExtDeviceID_EnumImpl_InvalidStub) {
     MFXDispReleaseImplDescription(loader, idescDevice);
     MFXUnload(loader);
 }
+#endif // ONEVPL_EXPERIMENTAL
 
 TEST(Dispatcher_Stub_CloneSession, Basic_Clone_Succeeds) {
     SKIP_IF_DISP_STUB_DISABLED();
@@ -280,3 +286,193 @@ TEST(Dispatcher_Stub_CloneSession, Basic_Clone_Succeeds) {
 
     MFXUnload(loader);
 }
+
+#ifdef ONEVPL_EXPERIMENTAL
+
+TEST(Dispatcher_Stub_CreateSession, DeviceCopySetOn) {
+    SKIP_IF_DISP_STUB_DISABLED();
+
+    // stub RT logs results from MFXInitialize
+    CaptureOutputLog();
+
+    mfxLoader loader = MFXLoad();
+    EXPECT_FALSE(loader == nullptr);
+
+    mfxStatus sts = SetConfigImpl(loader, MFX_IMPL_TYPE_STUB);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // pass special config property - NumThread
+    SetConfigFilterProperty<mfxU16>(loader, "DeviceCopy", MFX_GPUCOPY_ON);
+
+    // create session with first implementation
+    mfxSession session = nullptr;
+    sts                = MFXCreateSession(loader, 0, &session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // check for RT log string which indicates that DeviceCopy was set properly
+    std::string outputLog;
+    GetOutputLog(outputLog);
+    CheckOutputLog(outputLog, "[STUB RT]: message -- MFXInitialize -- DeviceCopy set (1)");
+
+    // free internal resources
+    sts = MFXClose(session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+    MFXUnload(loader);
+}
+
+TEST(Dispatcher_Stub_CreateSession, DeviceCopySetOff) {
+    SKIP_IF_DISP_STUB_DISABLED();
+
+    // stub RT logs results from MFXInitialize
+    CaptureOutputLog();
+
+    mfxLoader loader = MFXLoad();
+    EXPECT_FALSE(loader == nullptr);
+
+    mfxStatus sts = SetConfigImpl(loader, MFX_IMPL_TYPE_STUB);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // pass special config property - NumThread
+    SetConfigFilterProperty<mfxU16>(loader, "DeviceCopy", MFX_GPUCOPY_OFF);
+
+    // create session with first implementation
+    mfxSession session = nullptr;
+    sts                = MFXCreateSession(loader, 0, &session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // check for RT log string which indicates that DeviceCopy was set properly
+    std::string outputLog;
+    GetOutputLog(outputLog);
+    CheckOutputLog(outputLog, "[STUB RT]: message -- MFXInitialize -- DeviceCopy set (2)");
+
+    // free internal resources
+    sts = MFXClose(session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+    MFXUnload(loader);
+}
+
+TEST(Dispatcher_Stub_CreateSession, DeviceCopySetInvalid) {
+    SKIP_IF_DISP_STUB_DISABLED();
+
+    // stub RT logs results from MFXInitialize
+    CaptureOutputLog();
+
+    mfxLoader loader = MFXLoad();
+    EXPECT_FALSE(loader == nullptr);
+
+    mfxStatus sts = SetConfigImpl(loader, MFX_IMPL_TYPE_STUB);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // pass special config property - NumThread
+    SetConfigFilterProperty<mfxU16>(loader, "DeviceCopy", 999);
+
+    // expect to fail
+    mfxSession session = nullptr;
+    sts                = MFXCreateSession(loader, 0, &session);
+    EXPECT_EQ(sts, MFX_ERR_UNSUPPORTED);
+
+    // check for RT log string which indicates that DeviceCopy was set to invalid value
+    std::string outputLog;
+    GetOutputLog(outputLog);
+    CheckOutputLog(outputLog,
+                   "[STUB RT]: message -- MFXInitialize -- DeviceCopy set to invalid value (999)");
+
+    // free internal resources
+    MFXUnload(loader);
+}
+
+TEST(Dispatcher_Stub_CreateSession, DeviceCopySetOn1x) {
+    SKIP_IF_DISP_STUB_DISABLED();
+
+    // stub RT logs results from MFXInitialize
+    CaptureOutputLog();
+
+    mfxLoader loader = MFXLoad();
+    EXPECT_FALSE(loader == nullptr);
+
+    mfxStatus sts = SetConfigImpl(loader, MFX_IMPL_TYPE_STUB_1X);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // pass special config property - NumThread
+    SetConfigFilterProperty<mfxU16>(loader, "DeviceCopy", MFX_GPUCOPY_ON);
+
+    // create session with first implementation
+    mfxSession session = nullptr;
+    sts                = MFXCreateSession(loader, 0, &session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // check for RT log string which indicates that DeviceCopy was set properly
+    std::string outputLog;
+    GetOutputLog(outputLog);
+    CheckOutputLog(outputLog, "[STUB RT]: message -- MFXInitEx -- GPUCopy set (1)");
+
+    // free internal resources
+    sts = MFXClose(session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+    MFXUnload(loader);
+}
+
+TEST(Dispatcher_Stub_CreateSession, DeviceCopySetOff1x) {
+    SKIP_IF_DISP_STUB_DISABLED();
+
+    // stub RT logs results from MFXInitialize
+    CaptureOutputLog();
+
+    mfxLoader loader = MFXLoad();
+    EXPECT_FALSE(loader == nullptr);
+
+    mfxStatus sts = SetConfigImpl(loader, MFX_IMPL_TYPE_STUB_1X);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // pass special config property - NumThread
+    sts = SetConfigFilterProperty<mfxU16>(loader, "DeviceCopy", MFX_GPUCOPY_OFF);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // create session with first implementation
+    mfxSession session = nullptr;
+    sts                = MFXCreateSession(loader, 0, &session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // check for RT log string which indicates that DeviceCopy was set properly
+    std::string outputLog;
+    GetOutputLog(outputLog);
+    CheckOutputLog(outputLog, "[STUB RT]: message -- MFXInitEx -- GPUCopy set (2)");
+
+    // free internal resources
+    sts = MFXClose(session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+    MFXUnload(loader);
+}
+
+TEST(Dispatcher_Stub_CreateSession, DeviceCopySetInvalid1x) {
+    SKIP_IF_DISP_STUB_DISABLED();
+
+    // stub RT logs results from MFXInitialize
+    CaptureOutputLog();
+
+    mfxLoader loader = MFXLoad();
+    EXPECT_FALSE(loader == nullptr);
+
+    mfxStatus sts = SetConfigImpl(loader, MFX_IMPL_TYPE_STUB_1X);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // pass special config property - NumThread
+    sts = SetConfigFilterProperty<mfxU16>(loader, "DeviceCopy", 999);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // expect to fail
+    mfxSession session = nullptr;
+    sts                = MFXCreateSession(loader, 0, &session);
+    EXPECT_EQ(sts, MFX_ERR_UNSUPPORTED);
+
+    // check for RT log string which indicates that DeviceCopy was set to invalid value
+    std::string outputLog;
+    GetOutputLog(outputLog);
+    CheckOutputLog(outputLog,
+                   "[STUB RT]: message -- MFXInitEx -- GPUCopy set to invalid value (999)");
+
+    // free internal resources
+    MFXUnload(loader);
+}
+
+#endif // ONEVPL_EXPERIMENTAL

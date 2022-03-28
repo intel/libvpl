@@ -393,6 +393,12 @@ mfxStatus MFXInitEx2(mfxVersion version,
     par.NumExtParam = vplParam.NumExtParam;
     par.ExtParam    = (vplParam.NumExtParam ? vplParam.ExtParam : nullptr);
 
+#ifdef ONEVPL_EXPERIMENTAL
+    // if GPUCopy is enabled via MFXSetConfigProperty(DeviceCopy), set corresponding
+    //   flag in mfxInitParam for legacy RTs
+    par.GPUCopy = vplParam.DeviceCopy;
+#endif
+
     try {
         std::unique_ptr<MFX::LoaderCtx> loader;
 

@@ -101,6 +101,19 @@ mfxStatus MFXInitialize(mfxInitializationParam par, mfxSession *session) {
             return sts;
     }
 
+#if ONEVPL_EXPERIMENTAL
+    if (par.DeviceCopy) {
+        if (par.DeviceCopy == MFX_GPUCOPY_ON || par.DeviceCopy == MFX_GPUCOPY_OFF) {
+            StubRTLogMessage("MFXInitialize -- DeviceCopy set (%d)", par.DeviceCopy);
+        }
+        else {
+            StubRTLogMessage("MFXInitialize -- DeviceCopy set to invalid value (%d)",
+                             par.DeviceCopy);
+            return MFX_ERR_UNSUPPORTED;
+        }
+    }
+#endif
+
     *session = (mfxSession)DEFAULT_SESSION_HANDLE_2X;
 
     return MFX_ERR_NONE;
@@ -133,6 +146,18 @@ mfxStatus MFXInitEx(mfxInitParam par, mfxSession *session) {
         if (sts != MFX_ERR_NONE)
             return sts;
     }
+
+#ifdef ONEVPL_EXPERIMENTAL
+    if (par.GPUCopy) {
+        if (par.GPUCopy == MFX_GPUCOPY_ON || par.GPUCopy == MFX_GPUCOPY_OFF) {
+            StubRTLogMessage("MFXInitEx -- GPUCopy set (%d)", par.GPUCopy);
+        }
+        else {
+            StubRTLogMessage("MFXInitEx -- GPUCopy set to invalid value (%d)", par.GPUCopy);
+            return MFX_ERR_UNSUPPORTED;
+        }
+    }
+#endif
 
     *session = (mfxSession)DEFAULT_SESSION_HANDLE_1X;
 
@@ -343,8 +368,8 @@ static const mfxImplementedFunctions *minImplFuncsArray[NUM_CPU_IMPLS] = {
     &minImplFuncs,
 };
 
-
 #ifndef ENABLE_STUB_1X
+#ifdef ONEVPL_EXPERIMENTAL
 static const mfxExtendedDeviceId minExtDeviceID = {
     {0, 1},         // Version
 
@@ -373,6 +398,7 @@ static const mfxExtendedDeviceId *minExtDeviceIDArray[NUM_CPU_IMPLS] = {
     &minExtDeviceID,
 };
 #endif
+#endif
 
 
 // end table formatting
@@ -389,13 +415,15 @@ mfxHDL *MFXQueryImplsDescription(mfxImplCapsDeliveryFormat format, mfxU32 *num_i
     else if (format == MFX_IMPLCAPS_IMPLEMENTEDFUNCTIONS) {
         return (mfxHDL *)(minImplFuncsArray);
     }
+#ifdef ONEVPL_EXPERIMENTAL
     else if (format == MFX_IMPLCAPS_DEVICE_ID_EXTENDED) {
-#ifdef ENABLE_STUB_1X
+    #ifdef ENABLE_STUB_1X
         return nullptr;
-#else
+    #else
         return (mfxHDL *)(minExtDeviceIDArray);
-#endif
+    #endif
     }
+#endif
     else {
         return nullptr;
     }

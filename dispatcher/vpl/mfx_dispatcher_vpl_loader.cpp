@@ -1564,6 +1564,11 @@ mfxStatus LoaderCtxVPL::CreateSession(mfxU32 idx, mfxSession *session) {
             if (m_specialConfig.bIsSet_accelerationMode)
                 implInfo->vplParam.AccelerationMode = m_specialConfig.accelerationMode;
 
+#ifdef ONEVPL_EXPERIMENTAL
+            if (m_specialConfig.bIsSet_DeviceCopy)
+                implInfo->vplParam.DeviceCopy = m_specialConfig.DeviceCopy;
+#endif
+
             // in low latency mode there was no implementation filtering, so check here
             //   for minimum API version
             if (m_bLowLatency && m_specialConfig.bIsSet_ApiVersion) {

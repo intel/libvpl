@@ -534,6 +534,12 @@ mfxStatus MFXInitEx2(mfxVersion version,
             break;
     }
 
+    #ifdef ONEVPL_EXPERIMENTAL
+    // if GPUCopy is enabled via MFXSetConfigProperty(DeviceCopy), set corresponding
+    //   flag in mfxInitParam for legacy RTs
+    par.GPUCopy = vplParam.DeviceCopy;
+    #endif
+
     // also pass extBuf array (if any) to MFXInitEx for 1.x API
     par.NumExtParam = vplParam.NumExtParam;
     par.ExtParam    = (vplParam.NumExtParam ? vplParam.ExtParam : nullptr);
