@@ -26,6 +26,56 @@
 using namespace std;
 using namespace TranscodingSample;
 
+#if (defined(_WIN32) || defined(_WIN64)) && (MFX_VERSION >= 1031)
+mfxU32 GetPreferredAdapterNum(const mfxAdaptersInfo& adapters, const sInputParams& params) {
+    if (adapters.NumActual == 0 || !adapters.Adapters)
+        return 0;
+
+    if (params.bPrefferdGfx) {
+        // Find dGfx adapter in list and return it's index
+
+        auto idx = std::find_if(adapters.Adapters,
+                                adapters.Adapters + adapters.NumActual,
+                                [](const mfxAdapterInfo info) {
+                                    return info.Platform.MediaAdapterType ==
+                                           mfxMediaAdapterType::MFX_MEDIA_DISCRETE;
+                                });
+
+        // No dGfx in list
+        if (idx == adapters.Adapters + adapters.NumActual) {
+            msdk_printf(
+                MSDK_STRING("Warning: No dGfx detected on machine. Will pick another adapter\n"));
+            return 0;
+        }
+
+        return static_cast<mfxU32>(std::distance(adapters.Adapters, idx));
+    }
+
+    if (params.bPrefferiGfx) {
+        // Find iGfx adapter in list and return it's index
+
+        auto idx = std::find_if(adapters.Adapters,
+                                adapters.Adapters + adapters.NumActual,
+                                [](const mfxAdapterInfo info) {
+                                    return info.Platform.MediaAdapterType ==
+                                           mfxMediaAdapterType::MFX_MEDIA_INTEGRATED;
+                                });
+
+        // No iGfx in list
+        if (idx == adapters.Adapters + adapters.NumActual) {
+            msdk_printf(
+                MSDK_STRING("Warning: No iGfx detected on machine. Will pick another adapter\n"));
+            return 0;
+        }
+
+        return static_cast<mfxU32>(std::distance(adapters.Adapters, idx));
+    }
+
+    // Other ways return 0, i.e. best suitable detected by dispatcher
+    return 0;
+}
+#endif
+
 Launcher::Launcher()
         : m_parser(),
           m_pThreadContextArray(),
@@ -90,42 +140,57 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
     sts = VerifyCrossSessionsOptions();
     MSDK_CHECK_STATUS(sts, "VerifyCrossSessionsOptions failed");
 
-    m_pLoader.reset(new VPLImplementationLoader);
+    if (InputParams.verSessionInit == API_1X) {
+#if (defined(_WIN32) || defined(_WIN64)) && (MFX_VERSION >= 1031)
+        // check available adapters
+        sts = QueryAdapters();
+        MSDK_CHECK_STATUS(sts, "QueryAdapters failed");
 
-    if (m_InputParamsArray[0].dispFullSearch == true)
-        lowLatencyMode = false;
-
-    // new memory models are suppotred in lib with version >2.0 and not supported SetHandle, so lowLatencyMode need to turn off
-    if (m_InputParamsArray[0].nMemoryModel == VISIBLE_INT_ALLOC ||
-        m_InputParamsArray[0].nMemoryModel == HIDDEN_INT_ALLOC) {
-        m_pLoader->ConfigureVersion({ { 0, 2 } });
-        msdk_printf(MSDK_STRING("warning: internal memory allocation requires 2.x API\n"));
-
-        lowLatencyMode = false;
+        if (m_eDevType && m_DisplaysData.empty()) {
+            msdk_printf(
+                MSDK_STRING("No adapters found. HW-accelerated transcoding is impossible.\n"));
+            return MFX_ERR_UNSUPPORTED;
+        }
+#endif
     }
+    else {
+        m_pLoader.reset(new VPLImplementationLoader);
 
-    m_pLoader->SetAdapterType(m_InputParamsArray[0].adapterType);
+        if (m_InputParamsArray[0].dispFullSearch == true)
+            lowLatencyMode = false;
+
+        // new memory models are suppotred in lib with version >2.0 and not supported SetHandle, so lowLatencyMode need to turn off
+        if (m_InputParamsArray[0].nMemoryModel == VISIBLE_INT_ALLOC ||
+            m_InputParamsArray[0].nMemoryModel == HIDDEN_INT_ALLOC) {
+            m_pLoader->ConfigureVersion({ { 0, 2 } });
+            msdk_printf(MSDK_STRING("warning: internal memory allocation requires 2.x API\n"));
+
+            lowLatencyMode = false;
+        }
+
+        m_pLoader->SetAdapterType(m_InputParamsArray[0].adapterType);
 
 #ifdef ONEVPL_EXPERIMENTAL
-    if (m_InputParamsArray[0].PCIDeviceSetup)
-        m_pLoader->SetPCIDevice(m_InputParamsArray[0].PCIDomain,
-                                m_InputParamsArray[0].PCIBus,
-                                m_InputParamsArray[0].PCIDevice,
-                                m_InputParamsArray[0].PCIFunction);
+        if (m_InputParamsArray[0].PCIDeviceSetup)
+            m_pLoader->SetPCIDevice(m_InputParamsArray[0].PCIDomain,
+                                    m_InputParamsArray[0].PCIBus,
+                                    m_InputParamsArray[0].PCIDevice,
+                                    m_InputParamsArray[0].PCIFunction);
 
     #if defined(_WIN32)
-    if (m_InputParamsArray[0].luid.HighPart > 0 || m_InputParamsArray[0].luid.LowPart > 0)
-        m_pLoader->SetupLUID(m_InputParamsArray[0].luid);
+        if (m_InputParamsArray[0].luid.HighPart > 0 || m_InputParamsArray[0].luid.LowPart > 0)
+            m_pLoader->SetupLUID(m_InputParamsArray[0].luid);
     #else
-    if (m_InputParamsArray[0].DRMRenderNodeNum > 0)
-        m_pLoader->SetupDRMRenderNodeNum(m_InputParamsArray[0].DRMRenderNodeNum);
+        if (m_InputParamsArray[0].DRMRenderNodeNum > 0)
+            m_pLoader->SetupDRMRenderNodeNum(m_InputParamsArray[0].DRMRenderNodeNum);
     #endif
 #endif
 
-    sts = m_pLoader->ConfigureAndEnumImplementations(m_InputParamsArray[0].libType,
-                                                     m_accelerationMode,
-                                                     lowLatencyMode);
-    MSDK_CHECK_STATUS(sts, "EnumImplementations failed");
+        sts = m_pLoader->ConfigureAndEnumImplementations(m_InputParamsArray[0].libType,
+                                                         m_accelerationMode,
+                                                         lowLatencyMode);
+        MSDK_CHECK_STATUS(sts, "EnumImplementations failed");
+    }
 
     for (i = 0; i < m_InputParamsArray.size(); i++) {
         /* In the case of joined sessions, need to create device only for a zero session
@@ -153,6 +218,10 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
         }
 
 #if defined(_WIN32) || defined(_WIN64)
+        if (m_InputParamsArray[i].verSessionInit == API_1X) {
+            ForceImplForSession(i);
+        }
+
         if (m_eDevType == MFX_HANDLE_D3D9_DEVICE_MANAGER) {
             if (bNeedToCreateDevice) {
                 auto pAllocParam = std::make_shared<D3DAllocatorParams>();
@@ -160,16 +229,23 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
                     dynamic_cast<D3DAllocatorParams*>(pAllocParam.get());
                 auto hwdev = std::make_unique<CD3D9Device>();
 
+                mfxU32 adapterNum =
+                    (m_InputParamsArray[i].verSessionInit == API_1X)
+                        ? MSDKAdapter::GetNumber(
+                              0,
+                              MFX_IMPL_VIA_D3D9 | MFX_IMPL_BASETYPE(m_InputParamsArray[i].libType))
+                        : MSDKAdapter::GetNumber(m_pLoader.get());
+
                 /* The last param set in vector always describe VPP+ENCODE or Only VPP
                  * So, if we want to do rendering we need to do pass HWDev to CTranscodingPipeline */
                 if (m_InputParamsArray[m_InputParamsArray.size() - 1].eModeExt == VppCompOnly) {
                     /* Rendering case */
-                    sts = hwdev->Init(NULL, 1, MSDKAdapter::GetNumber(m_pLoader.get()));
+                    sts = hwdev->Init(NULL, 1, adapterNum);
                     m_InputParamsArray[m_InputParamsArray.size() - 1].m_hwdev = hwdev.get();
                 }
                 else /* NO RENDERING */
                 {
-                    sts = hwdev->Init(NULL, 0, MSDKAdapter::GetNumber(m_pLoader.get()));
+                    sts = hwdev->Init(NULL, 0, adapterNum);
                 }
                 MSDK_CHECK_STATUS(sts, "hwdev->Init failed");
                 sts = hwdev->GetHandle(MFX_HANDLE_D3D9_DEVICE_MANAGER, (mfxHDL*)&hdl);
@@ -200,16 +276,23 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
                     dynamic_cast<D3D11AllocatorParams*>(pAllocParam.get());
                 auto hwdev = std::make_unique<CD3D11Device>();
 
+                mfxU32 adapterNum =
+                    (m_InputParamsArray[i].verSessionInit == API_1X)
+                        ? MSDKAdapter::GetNumber(
+                              0,
+                              MFX_IMPL_VIA_D3D11 | MFX_IMPL_BASETYPE(m_InputParamsArray[i].libType))
+                        : MSDKAdapter::GetNumber(m_pLoader.get());
+
                 /* The last param set in vector always describe VPP+ENCODE or Only VPP
                  * So, if we want to do rendering we need to do pass HWDev to CTranscodingPipeline */
                 if (m_InputParamsArray[m_InputParamsArray.size() - 1].eModeExt == VppCompOnly) {
                     /* Rendering case */
-                    sts = hwdev->Init(NULL, 1, MSDKAdapter::GetNumber(m_pLoader.get()));
+                    sts = hwdev->Init(NULL, 1, adapterNum);
                     m_InputParamsArray[m_InputParamsArray.size() - 1].m_hwdev = hwdev.get();
                 }
                 else /* NO RENDERING */
                 {
-                    sts = hwdev->Init(NULL, 0, MSDKAdapter::GetNumber(m_pLoader.get()));
+                    sts = hwdev->Init(NULL, 0, adapterNum);
                 }
                 MSDK_CHECK_STATUS(sts, "hwdev->Init failed");
                 sts = hwdev->GetHandle(MFX_HANDLE_D3D11_DEVICE, (mfxHDL*)&hdl);
@@ -256,9 +339,12 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
                         msdk_printf(MSDK_STRING("error: failed to initialize VAAPI device\n"));
                         return MFX_ERR_DEVICE_FAILED;
                     }
-                    sts = hwdev->Init(&params.monitorType,
-                                      1,
-                                      MSDKAdapter::GetNumber(m_pLoader.get()));
+
+                    mfxU32 adapterNum = (m_InputParamsArray[i].verSessionInit == API_1X)
+                                            ? MSDKAdapter::GetNumber(0, 0)
+                                            : MSDKAdapter::GetNumber(m_pLoader.get());
+
+                    sts = hwdev->Init(&params.monitorType, 1, adapterNum);
     #if defined(LIBVA_X11_SUPPORT) || defined(LIBVA_DRM_SUPPORT)
                     if (params.libvaBackend == MFX_LIBVA_DRM_MODESET) {
                         CVAAPIDeviceDRM* drmdev     = dynamic_cast<CVAAPIDeviceDRM*>(hwdev.get());
@@ -305,7 +391,12 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
                         msdk_printf(MSDK_STRING("error: failed to initialize VAAPI device\n"));
                         return MFX_ERR_DEVICE_FAILED;
                     }
-                    sts = hwdev->Init(NULL, 0, MSDKAdapter::GetNumber(m_pLoader.get()));
+
+                    mfxU32 adapterNum = (m_InputParamsArray[i].verSessionInit == API_1X)
+                                            ? MSDKAdapter::GetNumber(0, 0)
+                                            : MSDKAdapter::GetNumber(m_pLoader.get());
+
+                    sts = hwdev->Init(NULL, 0, adapterNum);
                 }
                 if (libvaBackend != MFX_LIBVA_WAYLAND) {
                     MSDK_CHECK_STATUS(sts, "hwdev->Init failed");
@@ -378,9 +469,17 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
 
         pThreadPipeline->pPipeline.reset(CreatePipeline());
 
-        pThreadPipeline->pPipeline->SetAdapterType(m_pLoader->GetAdapterType());
-        pThreadPipeline->pPipeline->SetPrefferdGfx(m_InputParamsArray[i].dGfxIdx);
-        pThreadPipeline->pPipeline->SetAdapterNum(m_pLoader->GetDeviceIDAndAdapter().second);
+        if (m_InputParamsArray[i].verSessionInit == API_1X) {
+#if (defined(_WIN32) || defined(_WIN64)) && (MFX_VERSION >= 1031)
+            pThreadPipeline->pPipeline->SetPrefferiGfx(m_InputParamsArray[i].bPrefferiGfx);
+            pThreadPipeline->pPipeline->SetPrefferdGfx(m_InputParamsArray[i].bPrefferdGfx);
+#endif
+        }
+        else {
+            pThreadPipeline->pPipeline->SetAdapterType(m_pLoader->GetAdapterType());
+            pThreadPipeline->pPipeline->SetPrefferdGfx(m_InputParamsArray[i].dGfxIdx);
+            pThreadPipeline->pPipeline->SetAdapterNum(m_pLoader->GetDeviceIDAndAdapter().second);
+        }
 
         pThreadPipeline->pPipeline->SetSyncOpTimeout(m_InputParamsArray[i].nSyncOpTimeout);
 
@@ -473,24 +572,35 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
         sts = MFX_ERR_MORE_DATA;
 
         auto pipeline = Source == m_InputParamsArray[i].eMode ? pSinkPipeline : pParentPipeline;
-        sts           = CheckAndFixAdapterDependency(i, pipeline);
-        MSDK_CHECK_STATUS(sts, "CheckAndFixAdapterDependency failed");
-        // force implementation type based on iGfx/dGfx parameters
-        if ((sts == MFX_WRN_VIDEO_PARAM_CHANGED || m_InputParamsArray[i].dGfxIdx >= 0 ||
-             m_InputParamsArray[i].adapterNum >= 0) &&
-            (m_InputParamsArray[i].libType != MFX_IMPL_SOFTWARE)) {
-            if (m_InputParamsArray[i].dGfxIdx >= 0)
-                m_pLoader->SetDiscreteAdapterIndex(m_InputParamsArray[i].dGfxIdx);
-            else
-                m_pLoader->SetAdapterType(m_InputParamsArray[i].adapterType);
+        if (m_InputParamsArray[i].verSessionInit == API_1X) {
+#if (defined(_WIN32) || defined(_WIN64)) && (MFX_VERSION >= 1031)
+            sts = CheckAndFixAdapterDependency_1X(i, pipeline);
+            MSDK_CHECK_STATUS(sts, "CheckAndFixAdapterDependency_1X failed");
+            // force implementation type based on iGfx/dGfx parameters
+            ForceImplForSession(i);
+#endif
+        }
+        else {
+            sts = CheckAndFixAdapterDependency(i, pipeline);
+            MSDK_CHECK_STATUS(sts, "CheckAndFixAdapterDependency failed");
 
-            if (m_InputParamsArray[i].adapterNum >= 0)
-                m_pLoader->SetAdapterNum(m_InputParamsArray[i].adapterNum);
+            // force implementation type based on iGfx/dGfx parameters
+            if ((sts == MFX_WRN_VIDEO_PARAM_CHANGED || m_InputParamsArray[i].dGfxIdx >= 0 ||
+                 m_InputParamsArray[i].adapterNum >= 0) &&
+                (m_InputParamsArray[i].libType != MFX_IMPL_SOFTWARE)) {
+                if (m_InputParamsArray[i].dGfxIdx >= 0)
+                    m_pLoader->SetDiscreteAdapterIndex(m_InputParamsArray[i].dGfxIdx);
+                else
+                    m_pLoader->SetAdapterType(m_InputParamsArray[i].adapterType);
 
-            sts = m_pLoader->ConfigureAndEnumImplementations(m_InputParamsArray[i].libType,
-                                                             m_accelerationMode,
-                                                             lowLatencyMode);
-            MSDK_CHECK_STATUS(sts, "ConfigureAndEnumImplementations failed");
+                if (m_InputParamsArray[i].adapterNum >= 0)
+                    m_pLoader->SetAdapterNum(m_InputParamsArray[i].adapterNum);
+
+                sts = m_pLoader->ConfigureAndEnumImplementations(m_InputParamsArray[i].libType,
+                                                                 m_accelerationMode,
+                                                                 lowLatencyMode);
+                MSDK_CHECK_STATUS(sts, "ConfigureAndEnumImplementations failed");
+            }
         }
         sts = pThreadPipeline->pPipeline->Init(&m_InputParamsArray[i],
                                                m_pAllocArray[i].get(),
@@ -673,7 +783,12 @@ void Launcher::DoRobustTranscoding() {
     for (;;) {
         if (bGPUHang) {
             for (size_t i = 0; i < m_pThreadContextArray.size(); i++) {
-                sts = m_pThreadContextArray[i]->pPipeline->Reset(m_pLoader.get());
+                if (m_pThreadContextArray[i]->pPipeline->GetVersionOfSessionInitAPI() == API_1X) {
+                    sts = m_pThreadContextArray[i]->pPipeline->Reset();
+                }
+                else {
+                    sts = m_pThreadContextArray[i]->pPipeline->Reset(m_pLoader.get());
+                }
                 if (sts) {
                     msdk_printf(
                         MSDK_STRING("\n[WARNING] GPU Hang recovery wasn't succeed. Exiting...\n"));
@@ -757,6 +872,123 @@ mfxStatus Launcher::ProcessResult() {
     }
     return FinalSts;
 } // mfxStatus Launcher::ProcessResult()
+
+#if (defined(_WIN32) || defined(_WIN64)) && (MFX_VERSION >= 1031)
+mfxStatus Launcher::QueryAdapters() {
+    mfxU32 num_adapters_available;
+
+    mfxStatus sts = MFXQueryAdaptersNumber(&num_adapters_available);
+    MFX_CHECK_STS(sts);
+
+    // no adapters on the machine, able to use software implementation
+    if (!num_adapters_available) {
+        return MFX_ERR_NONE;
+    }
+
+    m_DisplaysData.resize(num_adapters_available);
+    m_Adapters = { m_DisplaysData.data(), mfxU32(m_DisplaysData.size()), 0u };
+
+    sts = MFXQueryAdapters(nullptr, &m_Adapters);
+    MFX_CHECK_STS(sts);
+
+    return MFX_ERR_NONE;
+}
+
+void Launcher::ForceImplForSession(mfxU32 idxSession) {
+    if (m_InputParamsArray[idxSession].libType == MFX_IMPL_SOFTWARE)
+        return;
+
+    //change only 8 bit of the implementation. Don't touch type of frames
+    mfxIMPL impl = m_InputParamsArray[idxSession].libType & mfxI32(~0xFF);
+
+    mfxU32 idx = GetPreferredAdapterNum(m_Adapters, m_InputParamsArray[idxSession]);
+    switch (m_Adapters.Adapters[idx].Number) {
+        case 0:
+            impl |= MFX_IMPL_HARDWARE;
+            break;
+        case 1:
+            impl |= MFX_IMPL_HARDWARE2;
+            break;
+        case 2:
+            impl |= MFX_IMPL_HARDWARE3;
+            break;
+        case 3:
+            impl |= MFX_IMPL_HARDWARE4;
+            break;
+
+        default:
+            // try searching on all display adapters
+            impl |= MFX_IMPL_HARDWARE_ANY;
+            break;
+    }
+
+    m_InputParamsArray[idxSession].libType = impl;
+}
+
+mfxStatus Launcher::CheckAndFixAdapterDependency_1X(mfxU32 idxSession,
+                                                    CTranscodingPipeline* pParentPipeline) {
+    if (!pParentPipeline)
+        return MFX_ERR_NONE;
+
+    // Inherited sessions must have the same adapter as parent
+    if ((pParentPipeline->IsPrefferiGfx() || pParentPipeline->IsPrefferdGfx()) &&
+        !m_InputParamsArray[idxSession].bPrefferiGfx &&
+        !m_InputParamsArray[idxSession].bPrefferdGfx) {
+        m_InputParamsArray[idxSession].bPrefferiGfx = pParentPipeline->IsPrefferiGfx();
+        m_InputParamsArray[idxSession].bPrefferdGfx = pParentPipeline->IsPrefferdGfx();
+        msdk_stringstream ss;
+        ss << MSDK_STRING("\n\n session with index: ") << idxSession
+           << MSDK_STRING(" adapter type was forced to ")
+           << (pParentPipeline->IsPrefferiGfx() ? MSDK_STRING("integrated")
+                                                : MSDK_STRING("discrete"))
+           << std::endl
+           << std::endl;
+        msdk_printf(MSDK_STRING("%s"), ss.str().c_str());
+
+        return MFX_ERR_NONE;
+    }
+
+    // App can't change initialization of the previous session (parent session)
+    if (!pParentPipeline->IsPrefferiGfx() && !pParentPipeline->IsPrefferdGfx() &&
+        (m_InputParamsArray[idxSession].bPrefferiGfx ||
+         m_InputParamsArray[idxSession].bPrefferdGfx)) {
+        msdk_stringstream ss;
+        ss << MSDK_STRING("\n\n session with index: ") << idxSession
+           << MSDK_STRING(" failed because parent session [") << pParentPipeline->GetSessionText()
+           << MSDK_STRING("] doesn't have explicit adapter setting") << std::endl
+           << std::endl;
+        msdk_printf(MSDK_STRING("%s"), ss.str().c_str());
+
+        return MFX_ERR_UNSUPPORTED;
+    }
+
+    // Inherited sessions must have the same adapter as parent
+    if (pParentPipeline->IsPrefferiGfx() && !m_InputParamsArray[idxSession].bPrefferiGfx) {
+        msdk_stringstream ss;
+        ss << MSDK_STRING("\n\n session with index: ") << idxSession
+           << MSDK_STRING(" failed because it has different adapter type with parent session [")
+           << pParentPipeline->GetSessionText() << MSDK_STRING("]") << std::endl
+           << std::endl;
+        msdk_printf(MSDK_STRING("%s"), ss.str().c_str());
+
+        return MFX_ERR_UNSUPPORTED;
+    }
+
+    // Inherited sessions must have the same adapter as parent
+    if (pParentPipeline->IsPrefferdGfx() && !m_InputParamsArray[idxSession].bPrefferdGfx) {
+        msdk_stringstream ss;
+        ss << MSDK_STRING("\n\n session with index: ") << idxSession
+           << MSDK_STRING(" failed because it has different adapter type with parent session [")
+           << pParentPipeline->GetSessionText() << MSDK_STRING("]") << std::endl
+           << std::endl;
+        msdk_printf(MSDK_STRING("%s"), ss.str().c_str());
+
+        return MFX_ERR_UNSUPPORTED;
+    }
+
+    return MFX_ERR_NONE;
+}
+#endif
 
 mfxStatus Launcher::CheckAndFixAdapterDependency(mfxU32 idxSession,
                                                  CTranscodingPipeline* pParentPipeline) {

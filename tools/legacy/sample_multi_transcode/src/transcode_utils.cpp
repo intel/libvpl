@@ -280,6 +280,8 @@ void TranscodingSample::PrintHelp() {
     msdk_printf(MSDK_STRING(
         "                Supported values: hevcd_sw, hevcd_hw, hevce_sw, hevce_gacc, hevce_hw, vp8d_hw, vp8e_hw, vp9d_hw, vp9e_hw, camera_hw, capture_hw, h264_la_hw, ptir_hw, hevce_fei_hw\n"));
     msdk_printf(MSDK_STRING("                Direct GUID number can be used as well\n"));
+    msdk_printf(MSDK_STRING(
+        "  -api_ver_init::<1x,2x>  Select the api version for the session initialization\n"));
     msdk_printf(MSDK_STRING("\n"));
     msdk_printf(MSDK_STRING("Pipeline description (encoding options):\n"));
     MOD_SMT_PRINT_HELP;
@@ -1378,6 +1380,9 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
     }
     else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-iGfx"))) {
         InputParams.adapterType = mfxMediaAdapterType::MFX_MEDIA_INTEGRATED;
+#if (defined(_WIN32) || defined(_WIN64)) && (MFX_VERSION >= 1031)
+        InputParams.bPrefferiGfx = true;
+#endif
     }
     else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-dGfx"))) {
         InputParams.adapterType = mfxMediaAdapterType::MFX_MEDIA_DISCRETE;
@@ -1387,6 +1392,9 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
                 return MFX_ERR_UNSUPPORTED;
             }
         }
+#if (defined(_WIN32) || defined(_WIN64)) && (MFX_VERSION >= 1031)
+        InputParams.bPrefferdGfx = true;
+#endif
     }
     else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-AdapterNum"))) {
         VAL_CHECK(i + 1 >= argc, i, argv[i]);
@@ -1643,6 +1651,12 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
             PrintError(MSDK_STRING("syncop_timeout is invalid"));
             return MFX_ERR_UNSUPPORTED;
         }
+    }
+    else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-api_ver_init::1x"))) {
+        InputParams.verSessionInit = API_1X;
+    }
+    else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-api_ver_init::2x"))) {
+        InputParams.verSessionInit = API_2X;
     }
     else {
         // no matching argument was found
@@ -2996,6 +3010,13 @@ mfxStatus CmdProcessor::VerifyAndCorrectInputParams(TranscodingSample::sInputPar
         msdk_printf(MSDK_STRING(
             "WARNING: forceSyncAllSession option is not valid for general memory type, this parameter will be ignored.\n"));
     }
+
+#if (defined(_WIN32) || defined(_WIN64)) && (MFX_VERSION >= 1031)
+    if (InputParams.bPrefferiGfx && InputParams.bPrefferdGfx) {
+        msdk_printf(MSDK_STRING("WARNING: both dGfx and iGfx flags set. iGfx will be preffered\n"));
+        InputParams.bPrefferdGfx = false;
+    }
+#endif
 
     mfxU16 mfxU16Limit = std::numeric_limits<mfxU16>::max();
     if (InputParams.MaxKbps > mfxU16Limit || InputParams.nBitRate > mfxU16Limit ||

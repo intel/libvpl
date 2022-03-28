@@ -146,6 +146,10 @@ enum MemoryModel {
     HIDDEN_INT_ALLOC  = 3
 };
 
+// the default api version is the latest one
+// it is located at 0
+enum eAPIVersion { API_2X, API_1X };
+
 struct __sInputParams {
     mfxU32 TargetID    = 0;
     bool CascadeScaler = false;
@@ -174,6 +178,11 @@ struct __sInputParams {
 #if (defined(_WIN64) || defined(_WIN32))
     bool isDualMode;
     mfxHyperMode hyperMode;
+#endif
+#if (defined(_WIN32) || defined(_WIN64)) && (MFX_VERSION >= 1031)
+    //Adapter type
+    bool bPrefferiGfx;
+    bool bPrefferdGfx;
 #endif
 
     mfxU16 nIdrInterval;
@@ -393,6 +402,7 @@ struct sInputParams : public __sInputParams {
 #ifdef ENABLE_MCTF
     sMCTFParam mctfParam;
 #endif
+    eAPIVersion verSessionInit;
 };
 
 static const mfxU32 DecoderTargetID = 100;
@@ -697,6 +707,7 @@ public:
     // frames allocation is suspended for heterogeneous pipeline
     virtual mfxStatus CompleteInit();
     virtual void Close();
+    virtual mfxStatus Reset(); // for 1.X init
     virtual mfxStatus Reset(VPLImplementationLoader* mfxLoader);
     virtual mfxStatus Join(MFXVideoSession* pChildSession);
     virtual mfxStatus Run();
@@ -729,6 +740,7 @@ public:
     mfxU16 GetNumFrameForAlloc() const;
     bool IsOverlayUsed();
     size_t GetRobustFlag();
+    eAPIVersion GetVersionOfSessionInitAPI();
 
     msdk_string GetSessionText() {
         msdk_stringstream ss;
@@ -764,6 +776,21 @@ public:
         return m_nSyncOpTimeout;
     };
 
+#if (defined(_WIN32) || defined(_WIN64)) && (MFX_VERSION >= 1031)
+    //Adapter type
+    void SetPrefferiGfx(bool prefferiGfx) {
+        bPrefferiGfx = prefferiGfx;
+    };
+    void SetPrefferdGfx(bool prefferdGfx) {
+        bPrefferdGfx = prefferdGfx;
+    };
+    bool IsPrefferiGfx() {
+        return bPrefferiGfx;
+    };
+    bool IsPrefferdGfx() {
+        return bPrefferdGfx;
+    };
+#endif
 protected:
     virtual mfxStatus CheckRequiredAPIVersion(mfxVersion& version, sInputParams* pParams);
 
@@ -1031,6 +1058,14 @@ protected:
     CascadeScalerConfig m_ScalerConfig;
 
     mfxU32 m_nSyncOpTimeout = MSDK_WAIT_INTERVAL; // SyncOperation timeout in msec
+
+#if (defined(_WIN32) || defined(_WIN64)) && (MFX_VERSION >= 1031)
+        //Adapter type
+    bool bPrefferiGfx;
+    bool bPrefferdGfx;
+#endif
+
+    eAPIVersion m_verSessionInit;
 
 private:
     DISALLOW_COPY_AND_ASSIGN(CTranscodingPipeline);

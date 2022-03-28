@@ -47,6 +47,12 @@ public:
     virtual mfxStatus ProcessResult();
 
 protected:
+#if (defined(_WIN32) || defined(_WIN64)) && (MFX_VERSION >= 1031)
+    mfxStatus QueryAdapters();
+    void ForceImplForSession(mfxU32 idxSession);
+    mfxStatus CheckAndFixAdapterDependency_1X(mfxU32 idxSession,
+                                              CTranscodingPipeline* pParentPipeline);
+#endif
     mfxStatus CheckAndFixAdapterDependency(mfxU32 idxSession,
                                            CTranscodingPipeline* pParentPipeline);
     virtual mfxStatus VerifyCrossSessionsOptions();
@@ -85,6 +91,11 @@ protected:
 
 private:
     DISALLOW_COPY_AND_ASSIGN(Launcher);
+
+#if (defined(_WIN32) || defined(_WIN64)) && (MFX_VERSION >= 1031)
+    std::vector<mfxAdapterInfo> m_DisplaysData;
+    mfxAdaptersInfo m_Adapters;
+#endif
 };
 } // namespace TranscodingSample
 

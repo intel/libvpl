@@ -96,6 +96,12 @@ sInputParams::sInputParams()
     priority = MFX_PRIORITY_NORMAL;
     libType  = MFX_IMPL_SOFTWARE;
 
+#if (defined(_WIN32) || defined(_WIN64)) && (MFX_VERSION >= 1031)
+    //Adapter type
+    bPrefferiGfx = false;
+    bPrefferdGfx = false;
+#endif
+
     //Adapter type
     adapterType = mfxMediaAdapterType::MFX_MEDIA_UNKNOWN;
     dGfxIdx     = -1;
@@ -228,7 +234,8 @@ CTranscodingPipeline::CTranscodingPipeline()
           m_dGfxIdx(),
           m_adapterNum(-1),
           TargetID(0),
-          m_ScalerConfig() {
+          m_ScalerConfig(),
+          m_verSessionInit(API_2X) {
     inputStatistics.SetDirection(MSDK_STRING("Input"));
     outputStatistics.SetDirection(MSDK_STRING("Output"));
 } //CTranscodingPipeline::CTranscodingPipeline()
@@ -3793,8 +3800,18 @@ mfxStatus CTranscodingPipeline::Init(sInputParams* pParams,
     // init session
     m_pmfxSession.reset(new MainVideoSession);
 
-    sts = m_pmfxSession->CreateSession(mfxLoader);
-    MSDK_CHECK_STATUS(sts, "m_pmfxSession->CreateSession failed");
+    m_verSessionInit = pParams->verSessionInit;
+
+    if (m_verSessionInit == API_1X) {
+        m_initPar.Version.Major = 1;
+        m_initPar.Version.Minor = 0;
+        sts                     = m_pmfxSession->InitEx(m_initPar);
+        MSDK_CHECK_STATUS(sts, "m_pmfxSession->InitEx failed");
+    }
+    else {
+        sts = m_pmfxSession->CreateSession(mfxLoader);
+        MSDK_CHECK_STATUS(sts, "m_pmfxSession->CreateSession failed");
+    }
 
     // check the API version of actually loaded library
     sts = m_pmfxSession->QueryVersion(&m_Version);
@@ -3823,8 +3840,15 @@ mfxStatus CTranscodingPipeline::Init(sInputParams* pParams,
             }
 
             m_pmfxCSSession[PoolDesc.ID].reset(new MainVideoSession);
-            sts = m_pmfxCSSession[PoolDesc.ID]->CreateSession(mfxLoader);
-            MSDK_CHECK_STATUS(sts, "m_pmfxCSSession->CreateSession failed");
+
+            if (m_verSessionInit == API_1X) {
+                sts = m_pmfxCSSession[PoolDesc.ID]->InitEx(m_initPar);
+                MSDK_CHECK_STATUS(sts, "m_pmfxCSSession->InitEx failed");
+            }
+            else {
+                sts = m_pmfxCSSession[PoolDesc.ID]->CreateSession(mfxLoader);
+                MSDK_CHECK_STATUS(sts, "m_pmfxCSSession->CreateSession failed");
+            }
         }
     }
 
@@ -4350,6 +4374,102 @@ void CTranscodingPipeline::Close() {
     m_bIsInit = false;
 
 } // void CTranscodingPipeline::Close()
+
+eAPIVersion CTranscodingPipeline::GetVersionOfSessionInitAPI() {
+    return m_verSessionInit;
+}
+
+mfxStatus CTranscodingPipeline::Reset() {
+    mfxStatus sts = MFX_ERR_NONE;
+    bool isDec = m_pmfxDEC.get() ? true : false, isEnc = m_pmfxENC.get() ? true : false,
+         isVPP = m_pmfxVPP.get() ? true : false;
+
+    // Close components being used
+    if (isDec) {
+        m_pmfxDEC->Close();
+        m_pmfxDEC.reset();
+    }
+
+    if (isVPP) {
+        m_pmfxVPP->Close();
+        m_pmfxVPP.reset();
+    }
+
+    if (isEnc) {
+        m_pmfxENC->Close();
+        m_pmfxENC.reset();
+    }
+
+    m_pmfxSession->Close();
+
+    m_pmfxSession.reset(new MainVideoSession());
+    sts = m_pmfxSession->InitEx(m_initPar);
+    MSDK_CHECK_STATUS(sts, "m_pmfxSession->InitEx failed");
+
+    // Release dec and enc surface pools
+    for (size_t i = 0; i < m_pSurfaceDecPool.size(); i++) {
+        m_pSurfaceDecPool[i]->Data.Locked = 0;
+    }
+    for (size_t i = 0; i < m_pSurfaceEncPool.size(); i++) {
+        m_pSurfaceEncPool[i]->Data.Locked = 0;
+    }
+
+    // Release all safety buffers
+    SafetySurfaceBuffer* sptr = m_pBuffer;
+    while (sptr) {
+        sptr->ReleaseSurfaceAll();
+        sptr = sptr->m_pNext;
+    }
+
+    // Release output bitstram pools
+    m_BSPool.clear();
+    m_pBSStore->ReleaseAll();
+    m_pBSStore->FlushAll();
+
+    sts = SetAllocatorAndHandleIfRequired();
+    MSDK_CHECK_STATUS(sts, "SetAllocatorAndHandleIfRequired failed");
+
+    if (isDec)
+        m_pmfxDEC.reset(new MFXVideoDECODE((mfxSession)*m_pmfxSession));
+    if (isVPP)
+        m_pmfxVPP.reset(new MFXVideoMultiVPP((mfxSession)*m_pmfxSession));
+
+    if (isEnc)
+        m_pmfxENC.reset(new MFXVideoENCODE((mfxSession)*m_pmfxSession));
+
+    if (isDec) {
+        sts = m_pmfxDEC->Init(&m_mfxDecParams);
+        MSDK_CHECK_STATUS(sts, "m_pmfxDEC->Init failed");
+    }
+
+    if (isVPP) {
+        if (m_bIsPlugin && m_bIsVpp) {
+            mfxFrameAllocRequest request[2] = {};
+            sts = m_pmfxVPP->QueryIOSurfMulti(&m_mfxPluginParams, request, &m_mfxVppParams);
+            MSDK_CHECK_STATUS(sts, "m_pmfxVPP->QueryIOSurf failed");
+
+            sts = m_pmfxVPP->InitMulti(&m_mfxPluginParams, &m_mfxVppParams);
+        }
+        else if (m_bIsPlugin)
+            sts = m_pmfxVPP->Init(&m_mfxPluginParams);
+        else
+            sts = m_pmfxVPP->Init(&m_mfxVppParams);
+        MSDK_CHECK_STATUS(sts, "m_pmfxVPP->Init failed");
+    }
+
+    if (isEnc) {
+        sts = m_pmfxENC->Init(&m_mfxEncParams);
+        MSDK_CHECK_STATUS(sts, "m_pmfxENC->Init failed");
+    }
+
+    // Joining sessions if required
+    if (m_bIsJoinSession && m_pParentPipeline) {
+        sts = m_pParentPipeline->Join(m_pmfxSession.get());
+        MSDK_CHECK_STATUS(sts, "m_pParentPipeline->Join failed");
+        m_bIsJoinSession = true;
+    }
+    return sts;
+}
 
 mfxStatus CTranscodingPipeline::Reset(VPLImplementationLoader* mfxLoader) {
     mfxStatus sts = MFX_ERR_NONE;
