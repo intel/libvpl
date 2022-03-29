@@ -68,6 +68,10 @@ enum MemType {
     D3D11_MEMORY  = 0x02,
 };
 
+// the default api version is the latest one
+// it is located at 0
+enum eAPIVersion { API_2X, API_1X };
+
 struct sInputParams {
     mfxU16 nTargetUsage;
     mfxU32 CodecId;
@@ -110,6 +114,10 @@ struct sInputParams {
 
 #if defined(LINUX32) || defined(LINUX64)
     std::string strDevicePath;
+#endif
+#if (defined(_WIN64) || defined(_WIN32)) && (MFX_VERSION >= 1031)
+    bool bPrefferdGfx;
+    bool bPrefferiGfx;
 #endif
 // Extended device ID info, available in 2.6 and newer APIs
 #if (defined(_WIN64) || defined(_WIN32))
@@ -262,6 +270,7 @@ struct sInputParams {
     mfxI16 DeblockingAlphaTcOffset;
     mfxI16 DeblockingBetaOffset;
 #endif
+    eAPIVersion verSessionInit;
 };
 
 struct sTask {
@@ -424,6 +433,12 @@ protected:
 
     FPSLimiter m_fpsLimiter;
 
+    eAPIVersion m_verSessionInit;
+
+#if (defined(_WIN64) || defined(_WIN32)) && (MFX_VERSION >= 1031)
+    mfxU32 GetPreferredAdapterNum(const mfxAdaptersInfo& adapters, const sInputParams& params);
+#endif
+    mfxStatus GetImpl(const sInputParams& params, mfxIMPL& impl);
     virtual mfxStatus InitMfxEncParams(sInputParams* pParams);
     virtual mfxStatus InitMfxVppParams(sInputParams* pParams);
 

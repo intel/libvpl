@@ -151,8 +151,6 @@ CUserPipeline::~CUserPipeline() {
 mfxStatus CUserPipeline::Init(sInputParams* pParams) {
     MSDK_CHECK_POINTER(pParams, MFX_ERR_NULL_PTR);
 
-    m_pLoader.reset(new VPLImplementationLoader);
-
     mfxStatus sts = MFX_ERR_NONE;
 
     // prepare input file reader
@@ -186,33 +184,54 @@ mfxStatus CUserPipeline::Init(sInputParams* pParams) {
 #endif
     }
 
+    m_verSessionInit = pParams->verSessionInit;
+
+    if (m_verSessionInit == API_1X) {
+        mfxInitParam initPar;
+        MSDK_ZERO_MEMORY(initPar);
+
+        initPar.Version.Major  = 1;
+        initPar.Version.Minor  = 0;
+        initPar.Implementation = impl;
+
+        sts = m_mfxSession.InitEx(initPar);
+        MSDK_CHECK_STATUS(sts, "m_mfxSession.InitEx failed");
+    }
+    else {
+        m_pLoader.reset(new VPLImplementationLoader);
+
 #ifdef ONEVPL_EXPERIMENTAL
-    if (pParams->PCIDeviceSetup)
-        m_pLoader->SetPCIDevice(pParams->PCIDomain,
-                                pParams->PCIBus,
-                                pParams->PCIDevice,
-                                pParams->PCIFunction);
+        if (pParams->PCIDeviceSetup)
+            m_pLoader->SetPCIDevice(pParams->PCIDomain,
+                                    pParams->PCIBus,
+                                    pParams->PCIDevice,
+                                    pParams->PCIFunction);
 
     #if (defined(_WIN64) || defined(_WIN32))
-    if (pParams->luid.HighPart > 0 || pParams->luid.LowPart > 0)
-        m_pLoader->SetupLUID(pParams->luid);
+        if (pParams->luid.HighPart > 0 || pParams->luid.LowPart > 0)
+            m_pLoader->SetupLUID(pParams->luid);
     #else
-    m_pLoader->SetupDRMRenderNodeNum(pParams->DRMRenderNodeNum);
+        m_pLoader->SetupDRMRenderNodeNum(pParams->DRMRenderNodeNum);
     #endif
 #endif
 
-    sts = m_pLoader->ConfigureImplementation(impl);
-    MSDK_CHECK_STATUS(sts, "m_mfxSession.ConfigureImplementation failed");
-    sts = m_pLoader->ConfigureAccelerationMode(pParams->accelerationMode, impl);
-    MSDK_CHECK_STATUS(sts, "m_mfxSession.ConfigureAccelerationMode failed");
-    sts = m_pLoader->EnumImplementations();
-    MSDK_CHECK_STATUS(sts, "m_mfxSession.EnumImplementations failed");
+        sts = m_pLoader->ConfigureImplementation(impl);
+        MSDK_CHECK_STATUS(sts, "m_mfxSession.ConfigureImplementation failed");
+        sts = m_pLoader->ConfigureAccelerationMode(pParams->accelerationMode, impl);
+        MSDK_CHECK_STATUS(sts, "m_mfxSession.ConfigureAccelerationMode failed");
+        sts = m_pLoader->EnumImplementations();
+        MSDK_CHECK_STATUS(sts, "m_mfxSession.EnumImplementations failed");
 
-    // create a session for the second vpp and encode
-    sts = m_mfxSession.CreateSession(m_pLoader.get());
-    MSDK_CHECK_STATUS(sts, "m_mfxSession.CreateSession failed");
+        // create a session for the second vpp and encode
+        sts = m_mfxSession.CreateSession(m_pLoader.get());
+        MSDK_CHECK_STATUS(sts, "m_mfxSession.CreateSession failed");
+    }
 
-    mfxVersion version = m_pLoader->GetVersion(); // get real API version of the loaded library
+    mfxVersion version;
+    sts = m_mfxSession.QueryVersion(&version);
+    MSDK_CHECK_STATUS(
+        sts,
+        "m_mfxSession.QueryVersion failed"); // get real API version of the loaded library
 
     if (CheckVersion(&version, MSDK_FEATURE_PLUGIN_API)) {
     }

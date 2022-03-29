@@ -415,7 +415,9 @@ void vppPrintHelp(const msdk_char* strAppName, const msdk_char* strErrorMessage)
     msdk_printf(MSDK_STRING(
         "   [-reset_start (frame number)] - after reaching this frame, encoder will be reset with new parameters, followed after this command and before -reset_end \n"));
     msdk_printf(MSDK_STRING(
-        "   [-reset_end]                  - specifies end of reset related options \n\n"));
+        "   [-reset_end]                  - specifies end of reset related options \n"));
+    msdk_printf(MSDK_STRING(
+        "   [-api_ver_init::<1x,2x>]  - select the api version for the session initialization\n\n"));
     msdk_printf(MSDK_STRING("\n"));
 
     msdk_printf(
@@ -1920,9 +1922,15 @@ mfxStatus vppParseInputString(msdk_char* strInput[],
                         return MFX_ERR_UNSUPPORTED;
                     }
                 }
+#if (defined(_WIN64) || defined(_WIN32)) && (MFX_VERSION >= 1031)
+                pParams->bPrefferdGfx = true;
+#endif
             }
             else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-iGfx"))) {
                 pParams->adapterType = mfxMediaAdapterType::MFX_MEDIA_INTEGRATED;
+#if (defined(_WIN64) || defined(_WIN32)) && (MFX_VERSION >= 1031)
+                pParams->bPrefferiGfx = true;
+#endif
             }
             else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-AdapterNum"))) {
                 VAL_CHECK(1 + i == nArgNum);
@@ -2020,6 +2028,12 @@ mfxStatus vppParseInputString(msdk_char* strInput[],
                 pParams->colorfillParam[0].mode   = VPP_FILTER_ENABLED_CONFIGURED;
                 pParams->colorfillParam[0].Enable = MFX_CODINGOPTION_OFF;
             }
+            else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-api_ver_init::1x"))) {
+                pParams->verSessionInit = API_1X;
+            }
+            else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-api_ver_init::2x"))) {
+                pParams->verSessionInit = API_2X;
+            }
             else {
                 msdk_printf(MSDK_STRING("Unknown option: %s\n"), strInput[i]);
 
@@ -2089,6 +2103,13 @@ mfxStatus vppParseInputString(msdk_char* strInput[],
             "Warning: IOPattern has been reset to 'sys_to_sys' mode because software library implementation is selected."));
         pParams->IOPattern = MFX_IOPATTERN_IN_SYSTEM_MEMORY | MFX_IOPATTERN_OUT_SYSTEM_MEMORY;
     }
+
+#if (defined(_WIN64) || defined(_WIN32)) && (MFX_VERSION >= 1031)
+    if (pParams->bPrefferdGfx && pParams->bPrefferiGfx) {
+        msdk_printf(MSDK_STRING("Warning: both dGfx and iGfx flags set. iGfx will be preffered"));
+        pParams->bPrefferdGfx = false;
+    }
+#endif
 
     // Align values of luma and chroma bit depth if only one of them set by user
     AdjustBitDepth(*pParams);

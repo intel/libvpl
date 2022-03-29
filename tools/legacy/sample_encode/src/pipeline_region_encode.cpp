@@ -44,6 +44,17 @@ mfxStatus CResourcesPool::GetFreeTask(int resourceNum, sTask** ppTask) {
     return sts;
 }
 
+mfxStatus CResourcesPool::Init(int sz, mfxIMPL impl, mfxVersion* pVer) {
+    MSDK_CHECK_NOT_EQUAL(m_resources, NULL, MFX_ERR_INVALID_HANDLE);
+    m_size      = sz;
+    m_resources = new CMSDKResource[sz];
+    for (int i = 0; i < sz; i++) {
+        mfxStatus sts = m_resources[i].Session.Init(impl, pVer);
+        MSDK_CHECK_STATUS(sts, "m_resources[i].Session.Init failed");
+    }
+    return MFX_ERR_NONE;
+}
+
 mfxStatus CResourcesPool::Init(int sz, VPLImplementationLoader* Loader, mfxU32 nSyncOpTimeout) {
     MSDK_CHECK_NOT_EQUAL(m_resources, NULL, MFX_ERR_INVALID_HANDLE);
     m_size           = sz;
@@ -263,8 +274,6 @@ CRegionEncodingPipeline::~CRegionEncodingPipeline() {
 mfxStatus CRegionEncodingPipeline::Init(sInputParams* pParams) {
     MSDK_CHECK_POINTER(pParams, MFX_ERR_NULL_PTR);
 
-    m_pLoader.reset(new VPLImplementationLoader);
-
     mfxStatus sts = MFX_ERR_NONE;
 
     // prepare input file reader
@@ -290,15 +299,28 @@ mfxStatus CRegionEncodingPipeline::Init(sInputParams* pParams) {
         return MFX_ERR_UNSUPPORTED;
     }
     else {
-        sts = m_pLoader->ConfigureImplementation(MFX_IMPL_SOFTWARE);
-        MSDK_CHECK_STATUS(sts, "m_mfxSession.ConfigureImplementation failed");
-        sts = m_pLoader->ConfigureAccelerationMode(pParams->accelerationMode, pParams->bUseHWLib);
-        MSDK_CHECK_STATUS(sts, "m_mfxSession.ConfigureAccelerationMode failed");
-        sts = m_pLoader->EnumImplementations();
-        MSDK_CHECK_STATUS(sts, "m_mfxSession.EnumImplementations failed");
+        if (m_verSessionInit == API_1X) {
+            mfxVersion min_version;
+            min_version.Major = 1;
+            min_version.Minor = 0;
 
-        sts = m_resources.Init(pParams->nNumSlice, m_pLoader.get(), pParams->nSyncOpTimeout);
-        MSDK_CHECK_STATUS(sts, "m_resources.Init failed");
+            sts = m_resources.Init(pParams->nNumSlice, MFX_IMPL_SOFTWARE, &min_version);
+            MSDK_CHECK_STATUS(sts, "m_resources.Init failed");
+        }
+        else {
+            m_pLoader.reset(new VPLImplementationLoader);
+
+            sts = m_pLoader->ConfigureImplementation(MFX_IMPL_SOFTWARE);
+            MSDK_CHECK_STATUS(sts, "m_mfxSession.ConfigureImplementation failed");
+            sts =
+                m_pLoader->ConfigureAccelerationMode(pParams->accelerationMode, pParams->bUseHWLib);
+            MSDK_CHECK_STATUS(sts, "m_mfxSession.ConfigureAccelerationMode failed");
+            sts = m_pLoader->EnumImplementations();
+            MSDK_CHECK_STATUS(sts, "m_mfxSession.EnumImplementations failed");
+
+            sts = m_resources.Init(pParams->nNumSlice, m_pLoader.get(), pParams->nSyncOpTimeout);
+            MSDK_CHECK_STATUS(sts, "m_resources.Init failed");
+        }
     }
 
     mfxVersion version;

@@ -86,7 +86,9 @@ void PrintHelp(msdk_char* strAppName, const msdk_char* strErrorMessage) {
     msdk_printf(MSDK_STRING("   [-ignore_level_constrain] - ignore level constrain\n"));
 #endif
     msdk_printf(MSDK_STRING(
-        "   [-disable_film_grain] - disable film grain application(valid only for av1)\n"));
+        "   [-disable_film_grain]     - disable film grain application(valid only for av1)\n"));
+    msdk_printf(MSDK_STRING(
+        "   [-api_ver_init::<1x,2x>]  - select the api version for the session initialization\n"));
     msdk_printf(MSDK_STRING("\n"));
     msdk_printf(MSDK_STRING("JPEG Chroma Type:\n"));
     msdk_printf(MSDK_STRING("   [-jpeg_rgb] - RGB Chroma Type\n"));
@@ -179,6 +181,9 @@ void PrintHelp(msdk_char* strAppName, const msdk_char* strErrorMessage) {
 #if defined(_WIN32) || defined(_WIN64)
     msdk_printf(MSDK_STRING("   [-jpeg_rotate n]          - rotate jpeg frame n degrees \n"));
     msdk_printf(MSDK_STRING("       n(90,180,270)         - number of degrees \n"));
+#endif
+
+#if defined(_WIN32) || defined(_WIN64)
     msdk_printf(MSDK_STRING("\nFeatures: \n"));
     msdk_printf(MSDK_STRING("   Press 1 to toggle fullscreen rendering on/off\n"));
 #endif
@@ -555,9 +560,15 @@ mfxStatus ParseInputString(msdk_char* strInput[], mfxU8 nArgNum, sInputParams* p
                     return MFX_ERR_UNSUPPORTED;
                 }
             }
+#if (defined(_WIN64) || defined(_WIN32)) && (MFX_VERSION >= 1031)
+            pParams->bPrefferdGfx = true;
+#endif
         }
         else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-iGfx"))) {
             pParams->adapterType = mfxMediaAdapterType::MFX_MEDIA_INTEGRATED;
+#if (defined(_WIN64) || defined(_WIN32)) && (MFX_VERSION >= 1031)
+            pParams->bPrefferiGfx = true;
+#endif
         }
         else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-AdapterNum"))) {
             if (i + 1 >= nArgNum) {
@@ -728,6 +739,12 @@ mfxStatus ParseInputString(msdk_char* strInput[], mfxU8 nArgNum, sInputParams* p
         else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-disable_film_grain"))) {
             pParams->bDisableFilmGrain = true;
         }
+        else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-api_ver_init::1x"))) {
+            pParams->verSessionInit = API_1X;
+        }
+        else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-api_ver_init::2x"))) {
+            pParams->verSessionInit = API_2X;
+        }
         else // 1-character options
         {
             switch (strInput[i][1]) {
@@ -791,6 +808,13 @@ mfxStatus ParseInputString(msdk_char* strInput[], mfxU8 nArgNum, sInputParams* p
     if (!pParams->bUseHWLib) { // vpl cpu plugin
         pParams->nAsyncDepth = 1;
     }
+
+#if (defined(_WIN64) || defined(_WIN32)) && (MFX_VERSION >= 1031)
+    if (pParams->bPrefferdGfx && pParams->bPrefferiGfx) {
+        msdk_printf(MSDK_STRING("Warning: both dGfx and iGfx flags set. iGfx will be preffered"));
+        pParams->bPrefferdGfx = false;
+    }
+#endif
 
     return MFX_ERR_NONE;
 }

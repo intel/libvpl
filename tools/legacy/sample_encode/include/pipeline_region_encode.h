@@ -38,6 +38,7 @@ public:
         return m_size;
     }
 
+    mfxStatus Init(int size, mfxIMPL impl, mfxVersion* pVer);
     mfxStatus Init(int size, VPLImplementationLoader* Loader, mfxU32 nSyncOpTimeout);
     mfxStatus InitTaskPools(CSmplBitstreamWriter* pWriter,
                             mfxU32 nPoolSize,

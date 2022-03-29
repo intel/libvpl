@@ -199,20 +199,20 @@ void PrintHelp(msdk_char* strAppName, const msdk_char* strErrorMessage, ...) {
     msdk_printf(
         MSDK_STRING("   [-TransformSkip:<on,off>]- Turn this option ON to enable transformskip\n"));
     msdk_printf(MSDK_STRING(
-        "  -AvcTemporalLayers [array:Layer.Scale]    Configures the temporal layers hierarchy"
+        "   [-AvcTemporalLayers <array:Layer.Scale>]    Configures the temporal layers hierarchy"
         "                                            example: \"3 1 2 4 0 0 0 0 0\" - # 3 temporal layers(temporal_id = 0,1,2)\n"));
     msdk_printf(MSDK_STRING(
-        "  -BaseLayerPID <pid>                       Sets priority ID for the base layer\n"));
+        "   [-BaseLayerPID <pid>]                       Sets priority ID for the base layer\n"));
     msdk_printf(MSDK_STRING(
-        "  -SPSId <pid>                              Sets sequence parameter set ID\n"));
-    msdk_printf(
-        MSDK_STRING("  -PPSId <pid>                              Sets picture parameter set ID\n"));
+        "   [-SPSId <pid>]                              Sets sequence parameter set ID\n"));
     msdk_printf(MSDK_STRING(
-        "  -PicTimingSEI:<on,off>                    Enables or disables picture timing SEI\n"));
+        "   [-PPSId <pid>]                              Sets picture parameter set ID\n"));
     msdk_printf(MSDK_STRING(
-        "  -NalHrdConformance:<on,off>               Enables or disables picture HRD conformance\n"));
+        "   [-PicTimingSEI:<on,off>]                    Enables or disables picture timing SEI\n"));
     msdk_printf(MSDK_STRING(
-        "  -VuiNalHrdParameters:<on,off>             Enables or disables NAL HRD parameters in VUI header\n"));
+        "   [-NalHrdConformance:<on,off>]               Enables or disables picture HRD conformance\n"));
+    msdk_printf(MSDK_STRING(
+        "   [-VuiNalHrdParameters:<on,off>]             Enables or disables NAL HRD parameters in VUI header\n"));
     msdk_printf(MSDK_STRING(
         "   [-ppyr:<on,off>]         - Turn this option ON to enable P-pyramid (by default the decision is made by library)\n"));
     msdk_printf(MSDK_STRING(
@@ -322,16 +322,16 @@ void PrintHelp(msdk_char* strAppName, const msdk_char* strErrorMessage, ...) {
     msdk_printf(MSDK_STRING(
         "   [-et:brc:<on,off>]       - flag for enabling functionality: QP calculation for frame encoding, encoding status calculation after frame encoding\n"));
     msdk_printf(MSDK_STRING(
-        "   [-ScenarioInfo n] - Sets scenario info. 0=unknown, 7=MFX_SCENARIO_GAME_STREAMING, 8=MFX_SCENARIO_REMOTE_GAMING \n"));
+        "   [-ScenarioInfo n]        - Sets scenario info. 0=unknown, 7=MFX_SCENARIO_GAME_STREAMING, 8=MFX_SCENARIO_REMOTE_GAMING \n"));
     msdk_printf(
         MSDK_STRING("   [-ExtBrcAdaptiveLTR:<on,off>] - Set AdaptiveLTR for implicit extbrc\n"));
-    msdk_printf(
-        MSDK_STRING(
-            "Example: %s h265 -i InputYUVFile -o OutputEncodedFile -w width -h height -hw -p 2fca99749fdb49aeb121a5b63ef568f7\n"),
-        strAppName);
     msdk_printf(MSDK_STRING(
         "   [-preset <default,dss,conference,gaming>] - Use particular preset for encoding parameters\n"));
     msdk_printf(MSDK_STRING("   [-pp] - Print preset parameters\n"));
+    msdk_printf(MSDK_STRING("   [-ivf:<on,off>] - Turn IVF header on/off\n"));
+    msdk_printf(MSDK_STRING(
+        "   [-api_ver_init::<1x,2x>]  - select the api version for the session initialization\n"));
+
 #if D3D_SURFACES_SUPPORT
     msdk_printf(MSDK_STRING("   [-d3d] - work with d3d surfaces\n"));
     msdk_printf(MSDK_STRING("   [-d3d11] - work with d3d11 surfaces\n"));
@@ -384,8 +384,7 @@ void PrintHelp(msdk_char* strAppName, const msdk_char* strErrorMessage, ...) {
     msdk_printf(MSDK_STRING("User module options: \n"));
     msdk_printf(MSDK_STRING(
         "   [-angle 180] - enables 180 degrees picture rotation before encoding, CPU implementation by default. Rotation requires NV12 input. Options -tff|bff, -dstw, -dsth, -d3d are not effective together with this one, -nv12 is required.\n"));
-    msdk_printf(MSDK_STRING("   [-opencl] - rotation implementation through OPENCL\n"));
-    msdk_printf(MSDK_STRING("   [-ivf:<on,off>] - Turn IVF header on/off\n\n"));
+    msdk_printf(MSDK_STRING("   [-opencl] - rotation implementation through OPENCL\n\n"));
     msdk_printf(
         MSDK_STRING(
             "Example: %s h264|h265|mpeg2|mvc|jpeg -i InputYUVFile -o OutputEncodedFile -w width -h height -angle 180 -opencl \n"),
@@ -667,6 +666,12 @@ mfxStatus ParseAdditionalParams(msdk_char* strInput[],
     else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-dispatcher:fullSearch"))) {
         pParams->dispFullSearch = true;
     }
+    else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-api_ver_init::1x"))) {
+        pParams->verSessionInit = API_1X;
+    }
+    else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-api_ver_init::2x"))) {
+        pParams->verSessionInit = API_2X;
+    }
 #ifdef ONEVPL_EXPERIMENTAL
     else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-pci"))) {
         msdk_char deviceInfo[MSDK_MAX_FILENAME_LEN];
@@ -827,9 +832,15 @@ mfxStatus ParseInputString(msdk_char* strInput[], mfxU8 nArgNum, sInputParams* p
                     return MFX_ERR_UNSUPPORTED;
                 }
             }
+#if (defined(_WIN64) || defined(_WIN32)) && (MFX_VERSION >= 1031)
+            pParams->bPrefferdGfx = true;
+#endif
         }
         else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-iGfx"))) {
             pParams->adapterType = mfxMediaAdapterType::MFX_MEDIA_INTEGRATED;
+#if (defined(_WIN64) || defined(_WIN32)) && (MFX_VERSION >= 1031)
+            pParams->bPrefferiGfx = true;
+#endif
         }
         else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-AdapterNum"))) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
@@ -1751,6 +1762,13 @@ mfxStatus ParseInputString(msdk_char* strInput[], mfxU8 nArgNum, sInputParams* p
         pParams->nAsyncDepth = 1;
         msdk_printf(MSDK_STRING("Warning: async depth changed to 1 for partial output"));
     }
+
+#if (defined(_WIN64) || defined(_WIN32)) && (MFX_VERSION >= 1031)
+    if (pParams->bPrefferdGfx && pParams->bPrefferiGfx) {
+        msdk_printf(MSDK_STRING("Warning: both dGfx and iGfx flags set. iGfx will be preffered"));
+        pParams->bPrefferdGfx = false;
+    }
+#endif
 
     mfxU16 mfxU16Limit = std::numeric_limits<mfxU16>::max();
     if (pParams->MaxKbps > mfxU16Limit || pParams->nBitRate > mfxU16Limit ||

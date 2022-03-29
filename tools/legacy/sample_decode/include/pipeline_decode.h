@@ -53,6 +53,10 @@ enum eWorkMode { MODE_PERFORMANCE, MODE_RENDERING, MODE_FILE_DUMP };
 
 enum eDecoderPostProc { MODE_DECODER_POSTPROC_AUTO = 0x1, MODE_DECODER_POSTPROC_FORCE = 0x2 };
 
+// the default api version is the latest one
+// it is located at 0
+enum eAPIVersion { API_2X, API_1X };
+
 struct sInputParams {
     mfxU32 videoType;
     eWorkMode mode;
@@ -103,6 +107,10 @@ struct sInputParams {
 #if defined(LINUX32) || defined(LINUX64)
     std::string strDevicePath;
 #endif
+#if (defined(_WIN64) || defined(_WIN32)) && (MFX_VERSION >= 1031)
+    bool bPrefferdGfx;
+    bool bPrefferiGfx;
+#endif
 // Extended device ID info, available in 2.6 and newer APIs
 #if (defined(_WIN64) || defined(_WIN32))
     LUID luid;
@@ -126,6 +134,7 @@ struct sInputParams {
     msdk_char strDstFile[MSDK_MAX_FILENAME_LEN];
 
     bool bDisableFilmGrain;
+    eAPIVersion verSessionInit;
 };
 
 struct CPipelineStatistics {
@@ -188,6 +197,10 @@ public:
     }
 
 protected: // functions
+#if (defined(_WIN64) || defined(_WIN32)) && (MFX_VERSION >= 1031)
+    mfxU32 GetPreferredAdapterNum(const mfxAdaptersInfo& adapters, const sInputParams& params);
+#endif
+    mfxStatus GetImpl(const sInputParams& params, mfxIMPL& impl);
     virtual mfxStatus CreateRenderingWindow(sInputParams* pParams);
     virtual mfxStatus InitMfxParams(sInputParams* pParams);
 
@@ -302,6 +315,8 @@ protected: // variables
 
     bool m_bResetFileWriter;
     bool m_bResetFileReader;
+
+    eAPIVersion m_verSessionInit;
 
 private:
     CDecodingPipeline(const CDecodingPipeline&);

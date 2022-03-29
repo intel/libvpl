@@ -77,6 +77,11 @@ enum {
     ALLOC_IMPL_VIA_D3D11 = 2,
     ALLOC_IMPL_VIA_VAAPI = 4
 };
+
+// the default api version is the latest one
+// it is located at 0
+enum eAPIVersion { API_2X, API_1X };
+
     #ifdef ENABLE_MCTF
 const mfxU16 MCTF_MID_FILTER_STRENGTH = 10;
 const mfxF64 MCTF_AUTO_BPP            = 0.0;
@@ -185,6 +190,11 @@ struct sInputParams {
     mfxI32 adapterNum;
     bool dispFullSearch;
 
+    #if (defined(_WIN64) || defined(_WIN32)) && (MFX_VERSION >= 1031)
+    bool bPrefferdGfx;
+    bool bPrefferiGfx;
+    #endif
+
     mfxU16 asyncNum;
     mfxU32 vaType;
 
@@ -246,6 +256,7 @@ struct sInputParams {
     sCompositionParam compositionParam;
 
     mfxU32 fccSource;
+    eAPIVersion verSessionInit;
 
     sInputParams() {
         IOPattern           = 0;
@@ -289,12 +300,17 @@ struct sInputParams {
         rtContrast   = {};
     #endif
 
+    #if (defined(_WIN64) || defined(_WIN32)) && (MFX_VERSION >= 1031)
+        bPrefferdGfx = false;
+        bPrefferiGfx = false;
+    #endif
         adapterType    = mfxMediaAdapterType::MFX_MEDIA_UNKNOWN;
         dGfxIdx        = -1;
         adapterNum     = -1;
         dispFullSearch = false;
         frameInfoIn.clear(); //redundant, for the benefit of picky static analyzers
         frameInfoOut.clear();
+        verSessionInit = API_2X;
     }
 };
 
