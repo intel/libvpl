@@ -93,17 +93,15 @@ if(CMAKE_SYSTEM_NAME MATCHES Linux)
 
   if(PKG_LIBVA_FOUND AND PKG_LIBVA_DRM_FOUND)
     target_compile_definitions(sample_common PUBLIC LIBVA_SUPPORT)
-    target_link_libraries(sample_common PUBLIC PkgConfig::PKG_LIBVA
-                                               PkgConfig::PKG_LIBVA_DRM)
+    target_include_directories(sample_common PUBLIC ${PKG_LIBVA_INCLUDE_DIRS})
 
     if(PKG_LIBDRM_FOUND)
       target_compile_definitions(sample_common PUBLIC LIBVA_DRM_SUPPORT)
-      target_link_libraries(sample_common PUBLIC PkgConfig::PKG_LIBDRM)
+      target_include_directories(sample_common
+                                 PUBLIC ${PKG_LIBDRM_INCLUDE_DIRS})
 
       if(PKG_WAYLAND_CLIENT_FOUND)
         target_compile_definitions(sample_common PUBLIC LIBVA_WAYLAND_SUPPORT)
-        target_link_libraries(sample_common
-                              PUBLIC PkgConfig::PKG_WAYLAND_CLIENT)
         target_include_directories(
           sample_common
           PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../sample_misc/wayland/include)
