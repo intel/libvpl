@@ -96,7 +96,7 @@ mfxStatus LoaderCtxVPL::FullLoadAndQuery() {
     // may be more than one implementation per library
     sts = QueryLibraryCaps();
     if (MFX_ERR_NONE != sts)
-        return sts;
+        return MFX_ERR_NOT_FOUND;
 
     m_bNeedFullQuery        = false;
     m_bNeedUpdateValidImpls = true;

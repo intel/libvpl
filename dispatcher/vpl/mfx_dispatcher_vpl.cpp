@@ -106,7 +106,7 @@ mfxStatus MFXEnumImplementations(mfxLoader loader,
     if (loaderCtx->m_bNeedFullQuery) {
         sts = loaderCtx->FullLoadAndQuery();
         if (sts)
-            return sts;
+            return MFX_ERR_NOT_FOUND;
     }
 
     // update list of valid libraries based on updated set of
@@ -114,7 +114,7 @@ mfxStatus MFXEnumImplementations(mfxLoader loader,
     if (loaderCtx->m_bNeedUpdateValidImpls) {
         sts = loaderCtx->UpdateValidImplList();
         if (sts)
-            return sts;
+            return MFX_ERR_NOT_FOUND;
     }
 
     sts = loaderCtx->QueryImpl(i, format, idesc);
