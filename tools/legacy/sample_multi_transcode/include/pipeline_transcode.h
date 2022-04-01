@@ -179,7 +179,7 @@ struct __sInputParams {
     bool isDualMode;
     mfxHyperMode hyperMode;
 #endif
-#if (defined(_WIN32) || defined(_WIN64)) && (MFX_VERSION >= 1031)
+#if (defined(_WIN32) || defined(_WIN64))
     //Adapter type
     bool bPrefferiGfx;
     bool bPrefferdGfx;
@@ -776,7 +776,7 @@ public:
         return m_nSyncOpTimeout;
     };
 
-#if (defined(_WIN32) || defined(_WIN64)) && (MFX_VERSION >= 1031)
+#if (defined(_WIN32) || defined(_WIN64))
     //Adapter type
     void SetPrefferiGfx(bool prefferiGfx) {
         bPrefferiGfx = prefferiGfx;
@@ -1059,7 +1059,7 @@ protected:
 
     mfxU32 m_nSyncOpTimeout = MSDK_WAIT_INTERVAL; // SyncOperation timeout in msec
 
-#if (defined(_WIN32) || defined(_WIN64)) && (MFX_VERSION >= 1031)
+#if (defined(_WIN32) || defined(_WIN64))
         //Adapter type
     bool bPrefferiGfx;
     bool bPrefferdGfx;

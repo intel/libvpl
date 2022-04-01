@@ -1380,7 +1380,7 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
     }
     else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-iGfx"))) {
         InputParams.adapterType = mfxMediaAdapterType::MFX_MEDIA_INTEGRATED;
-#if (defined(_WIN32) || defined(_WIN64)) && (MFX_VERSION >= 1031)
+#if (defined(_WIN32) || defined(_WIN64))
         InputParams.bPrefferiGfx = true;
 #endif
     }
@@ -1392,7 +1392,7 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-#if (defined(_WIN32) || defined(_WIN64)) && (MFX_VERSION >= 1031)
+#if (defined(_WIN32) || defined(_WIN64))
         InputParams.bPrefferdGfx = true;
 #endif
     }
@@ -3011,7 +3011,7 @@ mfxStatus CmdProcessor::VerifyAndCorrectInputParams(TranscodingSample::sInputPar
             "WARNING: forceSyncAllSession option is not valid for general memory type, this parameter will be ignored.\n"));
     }
 
-#if (defined(_WIN32) || defined(_WIN64)) && (MFX_VERSION >= 1031)
+#if (defined(_WIN32) || defined(_WIN64))
     if (InputParams.bPrefferiGfx && InputParams.bPrefferdGfx) {
         msdk_printf(MSDK_STRING("WARNING: both dGfx and iGfx flags set. iGfx will be preffered\n"));
         InputParams.bPrefferdGfx = false;

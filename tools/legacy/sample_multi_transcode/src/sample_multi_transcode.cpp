@@ -26,7 +26,7 @@
 using namespace std;
 using namespace TranscodingSample;
 
-#if (defined(_WIN32) || defined(_WIN64)) && (MFX_VERSION >= 1031)
+#if (defined(_WIN32) || defined(_WIN64))
 mfxU32 GetPreferredAdapterNum(const mfxAdaptersInfo& adapters, const sInputParams& params) {
     if (adapters.NumActual == 0 || !adapters.Adapters)
         return 0;
@@ -91,7 +91,15 @@ Launcher::Launcher()
           m_pLoader(),
           m_VppDstRects(),
           m_CSConfig(),
-          m_Tracer() {} // Launcher::Launcher()
+#if (defined(_WIN32) || defined(_WIN64))
+          m_Tracer(),
+          m_DisplaysData() {
+    MSDK_ZERO_MEMORY(m_Adapters);
+}
+#else
+          m_Tracer() {
+} // Launcher::Launcher()
+#endif
 
 Launcher::~Launcher() {
     Close();
@@ -141,7 +149,7 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
     MSDK_CHECK_STATUS(sts, "VerifyCrossSessionsOptions failed");
 
     if (InputParams.verSessionInit == API_1X) {
-#if (defined(_WIN32) || defined(_WIN64)) && (MFX_VERSION >= 1031)
+#if (defined(_WIN32) || defined(_WIN64))
         // check available adapters
         sts = QueryAdapters();
         MSDK_CHECK_STATUS(sts, "QueryAdapters failed");
@@ -470,7 +478,7 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
         pThreadPipeline->pPipeline.reset(CreatePipeline());
 
         if (m_InputParamsArray[i].verSessionInit == API_1X) {
-#if (defined(_WIN32) || defined(_WIN64)) && (MFX_VERSION >= 1031)
+#if (defined(_WIN32) || defined(_WIN64))
             pThreadPipeline->pPipeline->SetPrefferiGfx(m_InputParamsArray[i].bPrefferiGfx);
             pThreadPipeline->pPipeline->SetPrefferdGfx(m_InputParamsArray[i].bPrefferdGfx);
 #endif
@@ -573,7 +581,7 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
 
         auto pipeline = Source == m_InputParamsArray[i].eMode ? pSinkPipeline : pParentPipeline;
         if (m_InputParamsArray[i].verSessionInit == API_1X) {
-#if (defined(_WIN32) || defined(_WIN64)) && (MFX_VERSION >= 1031)
+#if (defined(_WIN32) || defined(_WIN64))
             sts = CheckAndFixAdapterDependency_1X(i, pipeline);
             MSDK_CHECK_STATUS(sts, "CheckAndFixAdapterDependency_1X failed");
             // force implementation type based on iGfx/dGfx parameters
@@ -873,7 +881,7 @@ mfxStatus Launcher::ProcessResult() {
     return FinalSts;
 } // mfxStatus Launcher::ProcessResult()
 
-#if (defined(_WIN32) || defined(_WIN64)) && (MFX_VERSION >= 1031)
+#if (defined(_WIN32) || defined(_WIN64))
 mfxStatus Launcher::QueryAdapters() {
     mfxU32 num_adapters_available;
 

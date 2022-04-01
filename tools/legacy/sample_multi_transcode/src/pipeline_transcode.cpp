@@ -80,7 +80,8 @@ sInputParams::sInputParams()
           DumpLogFileName(),
           m_ROIData(),
           bDecoderPostProcessing(false),
-          bROIasQPMAP(false) {
+          bROIasQPMAP(false),
+          verSessionInit(API_2X) {
 #ifdef ENABLE_MCTF
     mctfParam.mode                  = VPP_FILTER_DISABLED;
     mctfParam.params.FilterStrength = 0;
@@ -96,7 +97,7 @@ sInputParams::sInputParams()
     priority = MFX_PRIORITY_NORMAL;
     libType  = MFX_IMPL_SOFTWARE;
 
-#if (defined(_WIN32) || defined(_WIN64)) && (MFX_VERSION >= 1031)
+#if (defined(_WIN32) || defined(_WIN64))
     //Adapter type
     bPrefferiGfx = false;
     bPrefferdGfx = false;
@@ -235,6 +236,10 @@ CTranscodingPipeline::CTranscodingPipeline()
           m_adapterNum(-1),
           TargetID(0),
           m_ScalerConfig(),
+#if (defined(_WIN32) || defined(_WIN64))
+          bPrefferiGfx(false),
+          bPrefferdGfx(false),
+#endif
           m_verSessionInit(API_2X) {
     inputStatistics.SetDirection(MSDK_STRING("Input"));
     outputStatistics.SetDirection(MSDK_STRING("Output"));

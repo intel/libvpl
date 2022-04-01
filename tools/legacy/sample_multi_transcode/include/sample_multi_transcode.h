@@ -47,7 +47,7 @@ public:
     virtual mfxStatus ProcessResult();
 
 protected:
-#if (defined(_WIN32) || defined(_WIN64)) && (MFX_VERSION >= 1031)
+#if (defined(_WIN32) || defined(_WIN64))
     mfxStatus QueryAdapters();
     void ForceImplForSession(mfxU32 idxSession);
     mfxStatus CheckAndFixAdapterDependency_1X(mfxU32 idxSession,
@@ -92,7 +92,7 @@ protected:
 private:
     DISALLOW_COPY_AND_ASSIGN(Launcher);
 
-#if (defined(_WIN32) || defined(_WIN64)) && (MFX_VERSION >= 1031)
+#if (defined(_WIN32) || defined(_WIN64))
     std::vector<mfxAdapterInfo> m_DisplaysData;
     mfxAdaptersInfo m_Adapters;
 #endif
