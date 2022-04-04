@@ -47,7 +47,7 @@ private:
             if (len > n) {
                 len = n;
             }
-            memcpy_s(s, n, cptr, len);
+            memcpy_s(s, static_cast<size_t>(n), cptr, static_cast<size_t>(len));
             gbump(static_cast<int>(len));
             n -= len;
             bytes_read += len;
