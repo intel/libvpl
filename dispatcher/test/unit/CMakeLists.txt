@@ -19,7 +19,8 @@ set(test_sources
     src/dispatcher_stub.cpp
     src/dispatcher_sw.cpp
     src/dispatcher_sw_multiprop.cpp
-    src/dispatcher_util.cpp)
+    src/dispatcher_util.cpp
+    src/experimental_api.cpp)
 add_executable(${PROJECT_NAME} ${test_sources})
 
 find_package(VPL REQUIRED)
