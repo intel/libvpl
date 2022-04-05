@@ -3859,7 +3859,7 @@ mfxStatus CTranscodingPipeline::Init(sInputParams* pParams,
 
     // common session settings
     mfxU32 version = MakeVersion(m_Version.Major, m_Version.Minor);
-    if (version >= 1001)
+    if (version >= 1001 && pParams->libType != MFX_IMPL_SOFTWARE)
         sts = m_pmfxSession->SetPriority(pParams->priority);
 
     m_bIsInterOrJoined = pParams->eMode == Sink || pParams->eMode == Source || pParams->bIsJoin;
@@ -3976,7 +3976,7 @@ mfxStatus CTranscodingPipeline::Init(sInputParams* pParams,
     // if sink - suspended allocation
 
     // common session settings
-    if (m_Version.Major >= 1 && m_Version.Minor >= 1)
+    if ((m_Version.Major >= 1 && m_Version.Minor >= 1) && (pParams->libType != MFX_IMPL_SOFTWARE))
         sts = m_pmfxSession->SetPriority(pParams->priority);
 
     // if sink - suspended allocation
