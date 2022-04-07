@@ -26,7 +26,7 @@ set /A result_all=0
 
 SET BUILD_DIR=%VPL_DISP_BUILD_DIR%
 PUSHD %BUILD_DIR%
-  ctest --config %COFIG_OPT% -T test
+  ctest --output-on-failure -C %COFIG_OPT% -T test
   SET result_all=%errorlevel%
 POPD
 
