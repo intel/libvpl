@@ -105,6 +105,28 @@ if(CMAKE_SYSTEM_NAME MATCHES Linux)
         target_include_directories(
           sample_common
           PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../sample_misc/wayland/include)
+
+        find_program(WAYLAND_SCANNER_BIN "wayland-scanner")
+        pkg_check_modules(PKG_WAYLAND_PROTCOLS "wayland-protocols>=1.15")
+
+        if(WAYLAND_SCANNER_BIN AND PKG_WAYLAND_PROTCOLS_FOUND)
+          pkg_get_variable(WAYLAND_PROTOCOLS_PATH wayland-protocols pkgdatadir)
+          if(WAYLAND_PROTOCOLS_PATH)
+            find_file(
+              WAYLAND_LINUX_DMABUF_XML_PATH linux-dmabuf-unstable-v1.xml
+              PATHS ${WAYLAND_PROTOCOLS_PATH}/unstable/linux-dmabuf
+              NO_DEFAULT_PATH)
+          endif()
+        endif()
+
+        if(WAYLAND_LINUX_DMABUF_XML_PATH)
+          target_compile_definitions(sample_common
+                                     PUBLIC WAYLAND_LINUX_DMABUF_SUPPORT)
+          target_include_directories(
+            sample_common
+            PUBLIC ${CMAKE_BINARY_DIR}/tools/legacy/sample_misc/wayland)
+        endif()
+
       else()
         message(
           WARNING

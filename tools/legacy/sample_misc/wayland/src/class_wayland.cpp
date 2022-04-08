@@ -13,6 +13,7 @@
 #include <iostream>
 extern "C" {
 #include <drm.h>
+#include <drm_fourcc.h>
 #include <intel_bufmgr.h>
 #include <xf86drm.h>
 }
@@ -37,6 +38,9 @@ Wayland::Wayland()
           m_compositor(NULL),
           m_shell(NULL),
           m_drm(NULL),
+#if defined(WAYLAND_LINUX_DMABUF_SUPPORT)
+          m_dmabuf(NULL),
+#endif
           m_shm(NULL),
           m_pool(NULL),
           m_surface(NULL),
@@ -289,20 +293,50 @@ struct wl_buffer* Wayland::CreatePrimeBuffer(uint32_t name,
                                              int32_t offsets[3],
                                              int32_t pitches[3]) {
     struct wl_buffer* buffer = NULL;
-    if (NULL == m_drm)
-        return NULL;
 
-    buffer = wl_drm_create_prime_buffer(m_drm,
-                                        name,
-                                        width,
-                                        height,
-                                        format,
-                                        offsets[0],
-                                        pitches[0],
-                                        offsets[1],
-                                        pitches[1],
-                                        offsets[2],
-                                        pitches[2]);
+#if defined(WAYLAND_LINUX_DMABUF_SUPPORT)
+    if (format == WL_DRM_FORMAT_NV12) {
+        if (NULL == m_dmabuf)
+            return NULL;
+
+        struct zwp_linux_buffer_params_v1* dmabuf_params = NULL;
+        int i                                            = 0;
+        uint64_t modifier                                = I915_FORMAT_MOD_Y_TILED;
+
+        dmabuf_params = zwp_linux_dmabuf_v1_create_params(m_dmabuf);
+        for (i = 0; i < 2; i++) {
+            zwp_linux_buffer_params_v1_add(dmabuf_params,
+                                           name,
+                                           i,
+                                           offsets[i],
+                                           pitches[i],
+                                           modifier >> 32,
+                                           modifier & 0xffffffff);
+        }
+
+        buffer = zwp_linux_buffer_params_v1_create_immed(dmabuf_params, width, height, format, 0);
+
+        zwp_linux_buffer_params_v1_destroy(dmabuf_params);
+    }
+    else
+#endif
+    {
+        if (NULL == m_drm)
+            return NULL;
+
+        buffer = wl_drm_create_prime_buffer(m_drm,
+                                            name,
+                                            width,
+                                            height,
+                                            format,
+                                            offsets[0],
+                                            pitches[0],
+                                            offsets[1],
+                                            pitches[1],
+                                            offsets[2],
+                                            pitches[2]);
+    }
+
     return buffer;
 }
 
@@ -347,6 +381,11 @@ void Wayland::RegistryGlobal(struct wl_registry* registry,
         m_drm = static_cast<wl_drm*>(wl_registry_bind(registry, name, &wl_drm_interface, 2));
         wl_drm_add_listener(m_drm, &drm_listener, this);
     }
+#if defined(WAYLAND_LINUX_DMABUF_SUPPORT)
+    else if (0 == strcmp(interface, "zwp_linux_dmabuf_v1"))
+        m_dmabuf = static_cast<zwp_linux_dmabuf_v1*>(
+            wl_registry_bind(registry, name, &zwp_linux_dmabuf_v1_interface, version));
+#endif
 }
 
 void Wayland::DrmHandleDevice(const char* name) {
