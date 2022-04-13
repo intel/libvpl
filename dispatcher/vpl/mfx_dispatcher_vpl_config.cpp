@@ -21,7 +21,10 @@ ConfigCtxVPL::ConfigCtxVPL()
           m_implLicense(),
           m_implKeywords(),
           m_deviceIdStr(),
-          m_implFunctionName() {
+          m_implFunctionName(),
+          m_extDevLUID8U(),
+          m_extDevNameStr(),
+          m_extBuf() {
     // initially set Type = unset (invalid)
     // if valid property string and value are passed in,
     //   this will be updated
@@ -110,6 +113,7 @@ enum PropIdx {
     ePropSpecial_Handle,
     ePropSpecial_NumThread,
     ePropSpecial_DeviceCopy,
+    ePropSpecial_ExtBuffer,
     ePropSpecial_DXGIAdapterIndex,
 
     // functions which must report as implemented
@@ -182,6 +186,7 @@ static const PropVariant PropIdxTab[] = {
     { "ePropSpecial_Handle",                MFX_VARIANT_TYPE_PTR },
     { "ePropSpecial_NumThread",             MFX_VARIANT_TYPE_U32 },
     { "ePropSpecial_DeviceCopy",            MFX_VARIANT_TYPE_U16 },
+    { "ePropSpecial_ExtBuffer",             MFX_VARIANT_TYPE_PTR },
     { "ePropSpecial_DXGIAdapterIndex",      MFX_VARIANT_TYPE_U32 },
 
     { "ePropFunc_FunctionName",             MFX_VARIANT_TYPE_PTR },
@@ -216,6 +221,8 @@ mfxStatus ConfigCtxVPL::ValidateAndSetProp(mfxI32 idx, mfxVariant value) {
 
         // local ptr for copying from array
         mfxU8 *pU8 = (mfxU8 *)(value.Data.Ptr);
+
+        mfxExtBuffer *extBuf = nullptr;
 
         // save copy of data passed by pointer, into object of the appropriate type
         switch (idx) {
@@ -274,6 +281,15 @@ mfxStatus ConfigCtxVPL::ValidateAndSetProp(mfxI32 idx, mfxVariant value) {
             case ePropExtDev_DeviceName:
                 m_extDevNameStr         = (char *)(value.Data.Ptr);
                 m_propVar[idx].Data.Ptr = &(m_extDevNameStr);
+                break;
+            case ePropSpecial_ExtBuffer:
+                // Don't assume anything about the lifetime of input mfxExtBuffer in Data.Ptr
+                // Instead, we copy the full extBuf into a vector owned by ConfixCtxVPL and will pass this to MFXInitialize()
+                // if app calls MFXSetConfigFilterProperty('ExtBuffer') again with a different extBuf, the old copy will be overwritten
+                SetExtBuf((mfxExtBuffer *)(value.Data.Ptr));
+
+                if (GetExtBuf(&extBuf))
+                    m_propVar[idx].Data.Ptr = extBuf;
                 break;
             default:
                 break;
@@ -475,6 +491,9 @@ mfxStatus ConfigCtxVPL::SetFilterProperty(const mfxU8 *name, mfxVariant value) {
         return ValidateAndSetProp(ePropSpecial_DeviceCopy, value);
     }
 #endif
+    else if (nextProp == "ExtBuffer") {
+        return ValidateAndSetProp(ePropSpecial_ExtBuffer, value);
+    }
     else if (nextProp == "DXGIAdapterIndex") {
 #if defined(_WIN32) || defined(_WIN64)
         // this property is only valid on Windows
@@ -1148,6 +1167,10 @@ mfxStatus ConfigCtxVPL::ValidateConfig(const mfxImplDescription *libImplDesc,
     bool bVerSetMajor     = false;
     bool bVerSetMinor     = false;
 
+    // clear list of extension buffers
+    specialConfig->bIsSet_ExtBuffer = false;
+    specialConfig->ExtBuffers.clear();
+
     // iterate through all filters and populate cfgPropsAll
     auto it = configCtxList.begin();
 
@@ -1252,6 +1275,12 @@ mfxStatus ConfigCtxVPL::ValidateConfig(const mfxImplDescription *libImplDesc,
             specialConfig->bIsSet_accelerationMode = true;
         }
 
+        if (cfgPropsAll[ePropSpecial_ExtBuffer].Type != MFX_VARIANT_TYPE_UNSET) {
+            specialConfig->ExtBuffers.push_back(
+                (mfxExtBuffer *)cfgPropsAll[ePropSpecial_ExtBuffer].Data.Ptr);
+            specialConfig->bIsSet_ExtBuffer = true;
+        }
+
         // special handling for API version which may be passed either as single U32 (Version)
         //   or two U16 (Major, Minor) which could come in separate cfg objects
         if (cfgPropsAll[ePropMain_ApiVersion].Type != MFX_VARIANT_TYPE_UNSET) {
@@ -1324,6 +1353,11 @@ bool ConfigCtxVPL::CheckLowLatencyConfig(std::list<ConfigCtxVPL *> configCtxList
     // for purposes of low-latency enabling, we check the last (most recent) value of each filter
     //   property, in the case that multiple mfxConfig objects were created
     // preferred usage is just to create one mfxConfig and set all of the required props in it
+    // Exception: there can be more than one ExtBuffer attached via multiple mfxConfig objects (API >= 2.7)
+
+    // clear list of extension buffers
+    specialConfig->bIsSet_ExtBuffer = false;
+    specialConfig->ExtBuffers.clear();
 
     auto it = configCtxList.begin();
     while (it != configCtxList.end()) {
@@ -1337,6 +1371,12 @@ bool ConfigCtxVPL::CheckLowLatencyConfig(std::list<ConfigCtxVPL *> configCtxList
 
             cfgPropsAll[idx].Type = config->m_propVar[idx].Type;
             cfgPropsAll[idx].Data = config->m_propVar[idx].Data;
+
+            if (idx == ePropSpecial_ExtBuffer) {
+                specialConfig->ExtBuffers.push_back(
+                    (mfxExtBuffer *)cfgPropsAll[ePropSpecial_ExtBuffer].Data.Ptr);
+                specialConfig->bIsSet_ExtBuffer = true;
+            }
         }
     }
 
@@ -1415,6 +1455,10 @@ bool ConfigCtxVPL::CheckLowLatencyConfig(std::list<ConfigCtxVPL *> configCtxList
                     specialConfig->DeviceCopy = cfgPropsAll[ePropSpecial_DeviceCopy].Data.U16;
                     specialConfig->bIsSet_DeviceCopy = true;
                 }
+                break;
+
+            case ePropSpecial_ExtBuffer:
+                // extBufs were already pushed into the overall list, above
                 break;
 
             // will be passed to RT in MFXInitialize(), if unset will be 0

@@ -90,18 +90,6 @@ mfxStatus MFX_DISP_HANDLE::LoadSelectedDLL(const wchar_t *pPath,
         loadStatus = MFX_ERR_ABORTED;
         return loadStatus;
     }
-    // only mfxExtThreadsParam is allowed
-    if (par.NumExtParam) {
-        if ((par.NumExtParam > 1) || !par.ExtParam) {
-            loadStatus = MFX_ERR_ABORTED;
-            return loadStatus;
-        }
-        if ((par.ExtParam[0]->BufferId != MFX_EXTBUFF_THREADS_PARAM) ||
-            (par.ExtParam[0]->BufferSz != sizeof(mfxExtThreadsParam))) {
-            loadStatus = MFX_ERR_ABORTED;
-            return loadStatus;
-        }
-    }
 
     // close the handle before initialization
     Close();

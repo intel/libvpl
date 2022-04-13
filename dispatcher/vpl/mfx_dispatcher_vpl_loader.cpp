@@ -61,6 +61,9 @@ LoaderCtxVPL::LoaderCtxVPL()
     m_specialConfig.bIsSet_accelerationMode = false;
     m_specialConfig.bIsSet_ApiVersion       = false;
     m_specialConfig.bIsSet_dxgiAdapterIdx   = false;
+    m_specialConfig.bIsSet_NumThread        = false;
+    m_specialConfig.bIsSet_DeviceCopy       = false;
+    m_specialConfig.bIsSet_ExtBuffer        = false;
 
     // initial state
     m_bLowLatency           = false;
@@ -1607,6 +1610,13 @@ mfxStatus LoaderCtxVPL::CreateSession(mfxU32 idx, mfxSession *session) {
                 extThreadsParam.NumThread       = m_specialConfig.NumThread;
 
                 extBufs.push_back((mfxExtBuffer *)&extThreadsParam);
+            }
+
+            // add extBufs provided via mfxConfig filter property "ExtBuffer"
+            if (m_specialConfig.bIsSet_ExtBuffer) {
+                for (auto extBuf : m_specialConfig.ExtBuffers) {
+                    extBufs.push_back((mfxExtBuffer *)extBuf);
+                }
             }
 
             // attach vector of extBufs to mfxInitializationParam

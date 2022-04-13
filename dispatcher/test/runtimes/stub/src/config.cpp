@@ -40,22 +40,20 @@ static void StubRTLogError(const char *msg, ...) {
     va_end(args);
 }
 
-static mfxStatus ValidateExtBuf(const char *strInitFunc,
-                                mfxExtBuffer *extBuf,
-                                mfxU32 expectedId,
-                                mfxU32 expectedSz) {
+static mfxStatus ValidateExtBuf(const char *strInitFunc, mfxExtBuffer *extBuf) {
     if (extBuf == nullptr) {
         StubRTLogError("%s -- extBuf is NULL\n", strInitFunc);
         return MFX_ERR_NULL_PTR;
     }
 
-    if (extBuf->BufferId == expectedId) {
-        if (extBuf->BufferSz != expectedSz) {
+    // in practice most of these EXTBUFF types would not be relevant at init time,
+    //   but we define some 'valid' ones in the stub RT's in order to validate dispatcher logic
+    if (extBuf->BufferId == MFX_EXTBUFF_THREADS_PARAM) {
+        if (extBuf->BufferSz != sizeof(mfxExtThreadsParam)) {
             StubRTLogError("%s -- invalid extBuf size (expected = %d, actual = %d)\n",
                            strInitFunc,
-                           expectedSz,
+                           sizeof(mfxExtThreadsParam),
                            extBuf->BufferSz);
-
             return MFX_ERR_UNSUPPORTED;
         }
 
@@ -64,12 +62,31 @@ static mfxStatus ValidateExtBuf(const char *strInitFunc,
         StubRTLogMessage("%s -- extBuf enabled -- NumThread (%d)",
                          strInitFunc,
                          extBufThreads->NumThread);
+    }
+    else if (extBuf->BufferId == MFX_EXTBUFF_VPP_PROCAMP) {
+        if (extBuf->BufferSz != sizeof(mfxExtVPPProcAmp)) {
+            StubRTLogError("%s -- invalid extBuf size (expected = %d, actual = %d)\n",
+                           strInitFunc,
+                           sizeof(mfxExtVPPProcAmp),
+                           extBuf->BufferSz);
+            return MFX_ERR_UNSUPPORTED;
+        }
 
-        return MFX_ERR_NONE;
+        // valid buffer
+        mfxExtVPPProcAmp *extVPPProcAmp = (mfxExtVPPProcAmp *)extBuf;
+        StubRTLogMessage("%s -- extBuf enabled -- ProcAmp (%.1f %.2f %.1f %.2f)",
+                         strInitFunc,
+                         extVPPProcAmp->Contrast,
+                         extVPPProcAmp->Brightness,
+                         extVPPProcAmp->Hue,
+                         extVPPProcAmp->Saturation);
+    }
+    else {
+        return MFX_ERR_UNSUPPORTED;
     }
 
     // unsupported extBuf type
-    return MFX_ERR_UNSUPPORTED;
+    return MFX_ERR_NONE;
 }
 
 // preferred entrypoint for 2.0 implementations (instead of MFXInitEx)
@@ -86,16 +103,8 @@ mfxStatus MFXInitialize(mfxInitializationParam par, mfxSession *session) {
     for (mfxU32 idx = 0; idx < par.NumExtParam; idx++) {
         mfxStatus sts = MFX_ERR_NONE;
 
-        if (par.ExtParam[idx]->BufferId == MFX_EXTBUFF_THREADS_PARAM) {
-            sts = ValidateExtBuf("MFXInitialize",
-                                 par.ExtParam[idx],
-                                 MFX_EXTBUFF_THREADS_PARAM,
-                                 sizeof(mfxExtThreadsParam));
-        }
-        else {
-            // unsupported BufferId
-            sts = MFX_ERR_UNSUPPORTED;
-        }
+        // ValidateExtBuf checks for supported BufferId, returns MFX_ERR_UNSUPPORTED if not
+        sts = ValidateExtBuf("MFXInitialize", par.ExtParam[idx]);
 
         if (sts != MFX_ERR_NONE)
             return sts;
@@ -132,16 +141,8 @@ mfxStatus MFXInitEx(mfxInitParam par, mfxSession *session) {
     for (mfxU32 idx = 0; idx < par.NumExtParam; idx++) {
         mfxStatus sts = MFX_ERR_NONE;
 
-        if (par.ExtParam[idx]->BufferId == MFX_EXTBUFF_THREADS_PARAM) {
-            sts = ValidateExtBuf("MFXInitEx",
-                                 par.ExtParam[idx],
-                                 MFX_EXTBUFF_THREADS_PARAM,
-                                 sizeof(mfxExtThreadsParam));
-        }
-        else {
-            // unsupported BufferId
-            sts = MFX_ERR_UNSUPPORTED;
-        }
+        // ValidateExtBuf checks for supported BufferId, returns MFX_ERR_UNSUPPORTED if not
+        sts = ValidateExtBuf("MFXInitEx", par.ExtParam[idx]);
 
         if (sts != MFX_ERR_NONE)
             return sts;

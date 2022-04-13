@@ -138,17 +138,15 @@ TEST(Dispatcher_Stub_CreateSession, ExtDeviceID_DeviceName_Invalid) {
 
 #endif // ONEVPL_EXPERIMENTAL
 
-// fully-implemented test cases (not using common kernels)
-TEST(Dispatcher_Stub_CreateSession, RuntimeParsesExtBuf) {
-    SKIP_IF_DISP_STUB_DISABLED();
-
+// test using NumThread filter property during initialization
+static void Dispatcher_CreateSession_RuntimeParsesExtBuf(mfxImplType implType) {
     // stub RT logs results from parsing extBuf
     CaptureOutputLog();
 
     mfxLoader loader = MFXLoad();
     EXPECT_FALSE(loader == nullptr);
 
-    mfxStatus sts = SetConfigImpl(loader, MFX_IMPL_TYPE_STUB);
+    mfxStatus sts = SetConfigImpl(loader, implType);
     EXPECT_EQ(sts, MFX_ERR_NONE);
 
     // pass special config property - NumThread
@@ -162,8 +160,14 @@ TEST(Dispatcher_Stub_CreateSession, RuntimeParsesExtBuf) {
     // check for RT log string which indicates that extBuf was parsed properly
     std::string outputLog;
     GetOutputLog(outputLog);
-    CheckOutputLog(outputLog,
-                   "[STUB RT]: message -- MFXInitialize -- extBuf enabled -- NumThread (4)");
+    if (implType == MFX_IMPL_TYPE_STUB_1X) {
+        CheckOutputLog(outputLog,
+                       "[STUB RT]: message -- MFXInitEx -- extBuf enabled -- NumThread (4)");
+    }
+    else {
+        CheckOutputLog(outputLog,
+                       "[STUB RT]: message -- MFXInitialize -- extBuf enabled -- NumThread (4)");
+    }
 
     // free internal resources
     sts = MFXClose(session);
@@ -171,21 +175,34 @@ TEST(Dispatcher_Stub_CreateSession, RuntimeParsesExtBuf) {
     MFXUnload(loader);
 }
 
-// test 1.x initialization path (MFXInitEx)
+TEST(Dispatcher_Stub_CreateSession, RuntimeParsesExtBuf) {
+    SKIP_IF_DISP_STUB_DISABLED();
+    Dispatcher_CreateSession_RuntimeParsesExtBuf(MFX_IMPL_TYPE_STUB);
+}
+
 TEST(Dispatcher_Stub_CreateSession, LegacyRuntimeParsesExtBuf) {
     SKIP_IF_DISP_STUB_DISABLED();
+    Dispatcher_CreateSession_RuntimeParsesExtBuf(MFX_IMPL_TYPE_STUB_1X);
+}
 
+// test using ExtBuffer filter property during initialization to pass one extBuffer
+static void Dispatcher_CreateSession_RuntimeParsesSingleExtBufViaMFXConfig(mfxImplType implType) {
     // stub RT logs results from parsing extBuf
     CaptureOutputLog();
 
     mfxLoader loader = MFXLoad();
     EXPECT_FALSE(loader == nullptr);
 
-    mfxStatus sts = SetConfigImpl(loader, MFX_IMPL_TYPE_STUB_1X);
+    mfxStatus sts = SetConfigImpl(loader, implType);
     EXPECT_EQ(sts, MFX_ERR_NONE);
 
-    // pass special config property - NumThread
-    SetConfigFilterProperty<mfxU32>(loader, "NumThread", 5);
+    // pass special config property - ExtBuffer with ptr to buffer
+    mfxExtThreadsParam extThreadsParam = {};
+    extThreadsParam.Header.BufferId    = MFX_EXTBUFF_THREADS_PARAM;
+    extThreadsParam.Header.BufferSz    = sizeof(mfxExtThreadsParam);
+    extThreadsParam.NumThread          = 8;
+
+    SetConfigFilterProperty<mfxHDL>(loader, "ExtBuffer", (void *)&extThreadsParam);
 
     // create session with first implementation
     mfxSession session = nullptr;
@@ -195,11 +212,374 @@ TEST(Dispatcher_Stub_CreateSession, LegacyRuntimeParsesExtBuf) {
     // check for RT log string which indicates that extBuf was parsed properly
     std::string outputLog;
     GetOutputLog(outputLog);
-    CheckOutputLog(outputLog, "[STUB RT]: message -- MFXInitEx -- extBuf enabled -- NumThread (5)");
+    if (implType == MFX_IMPL_TYPE_STUB_1X) {
+        CheckOutputLog(outputLog,
+                       "[STUB RT]: message -- MFXInitEx -- extBuf enabled -- NumThread (8)");
+    }
+    else {
+        CheckOutputLog(outputLog,
+                       "[STUB RT]: message -- MFXInitialize -- extBuf enabled -- NumThread (8)");
+    }
 
     // free internal resources
     sts = MFXClose(session);
     EXPECT_EQ(sts, MFX_ERR_NONE);
+    MFXUnload(loader);
+}
+
+TEST(Dispatcher_Stub_CreateSession, RuntimeParsesSingleExtBufViaMFXConfig) {
+    SKIP_IF_DISP_STUB_DISABLED();
+    Dispatcher_CreateSession_RuntimeParsesSingleExtBufViaMFXConfig(MFX_IMPL_TYPE_STUB);
+}
+
+TEST(Dispatcher_Stub_CreateSession, LegacyRuntimeParsesSingleExtBufViaMFXConfig) {
+    SKIP_IF_DISP_STUB_DISABLED();
+    Dispatcher_CreateSession_RuntimeParsesSingleExtBufViaMFXConfig(MFX_IMPL_TYPE_STUB_1X);
+}
+
+// test using ExtBuffer filter property during initialization to pass multiple extBuffers
+//  in separate mfxConfig objects
+static void Dispatcher_CreateSession_RuntimeParsesMultipleExtBufsViaMFXConfig(
+    mfxImplType implType) {
+    // stub RT logs results from parsing extBuf
+    CaptureOutputLog();
+
+    mfxLoader loader = MFXLoad();
+    EXPECT_FALSE(loader == nullptr);
+
+    mfxStatus sts = SetConfigImpl(loader, implType);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // pass special config properties - ExtBuffer with ptr to buffer
+    mfxExtThreadsParam extThreadsParam = {};
+    extThreadsParam.Header.BufferId    = MFX_EXTBUFF_THREADS_PARAM;
+    extThreadsParam.Header.BufferSz    = sizeof(mfxExtThreadsParam);
+    extThreadsParam.NumThread          = 6;
+
+    SetConfigFilterProperty<mfxHDL>(loader, "ExtBuffer", (void *)&extThreadsParam);
+
+    // would not be valid at init time in a real RT, but use to validate logic with stub impls
+    mfxExtVPPProcAmp extVPPProcAmp = {};
+    extVPPProcAmp.Header.BufferId  = MFX_EXTBUFF_VPP_PROCAMP;
+    extVPPProcAmp.Header.BufferSz  = sizeof(mfxExtVPPProcAmp);
+    extVPPProcAmp.Contrast         = 31.7f;
+    extVPPProcAmp.Brightness       = 16.14f;
+    extVPPProcAmp.Hue              = 54.2f;
+    extVPPProcAmp.Saturation       = -15.63f;
+
+    // creates a new mfxConfig object
+    SetConfigFilterProperty<mfxHDL>(loader, "ExtBuffer", (void *)&extVPPProcAmp);
+
+    // create session with first implementation
+    mfxSession session = nullptr;
+    sts                = MFXCreateSession(loader, 0, &session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // check for RT log strings which indicate that extBufs were parsed properly
+    std::string outputLog;
+    GetOutputLog(outputLog);
+    if (implType == MFX_IMPL_TYPE_STUB_1X) {
+        CheckOutputLog(outputLog,
+                       "[STUB RT]: message -- MFXInitEx -- extBuf enabled -- NumThread (6)");
+
+        CheckOutputLog(
+            outputLog,
+            "[STUB RT]: message -- MFXInitEx -- extBuf enabled -- ProcAmp (31.7 16.14 54.2 -15.63)");
+    }
+    else {
+        CheckOutputLog(outputLog,
+                       "[STUB RT]: message -- MFXInitialize -- extBuf enabled -- NumThread (6)");
+
+        CheckOutputLog(
+            outputLog,
+            "[STUB RT]: message -- MFXInitialize -- extBuf enabled -- ProcAmp (31.7 16.14 54.2 -15.63)");
+    }
+
+    // free internal resources
+    sts = MFXClose(session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+    MFXUnload(loader);
+}
+
+TEST(Dispatcher_Stub_CreateSession, RuntimeParsesMultipleExtBufsViaMFXConfig) {
+    SKIP_IF_DISP_STUB_DISABLED();
+    Dispatcher_CreateSession_RuntimeParsesMultipleExtBufsViaMFXConfig(MFX_IMPL_TYPE_STUB);
+}
+
+TEST(Dispatcher_Stub_CreateSession, LegacyRuntimeParsesMultipleExtBufsViaMFXConfig) {
+    SKIP_IF_DISP_STUB_DISABLED();
+    Dispatcher_CreateSession_RuntimeParsesMultipleExtBufsViaMFXConfig(MFX_IMPL_TYPE_STUB_1X);
+}
+
+// test using ExtBuffer filter property during initialization to pass a single extBuffer
+//   by overwriting the same mfxConfig object
+static void Dispatcher_CreateSession_RuntimeParsesSingleExtBufOverwriteViaMFXConfig(
+    mfxImplType implType) {
+    // stub RT logs results from parsing extBuf
+    CaptureOutputLog();
+
+    mfxLoader loader = MFXLoad();
+    EXPECT_FALSE(loader == nullptr);
+
+    mfxStatus sts = SetConfigImpl(loader, implType);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // pass special config properties - ExtBuffer with ptr to buffer
+    mfxExtThreadsParam extThreadsParam = {};
+    extThreadsParam.Header.BufferId    = MFX_EXTBUFF_THREADS_PARAM;
+    extThreadsParam.Header.BufferSz    = sizeof(mfxExtThreadsParam);
+    extThreadsParam.NumThread          = 6;
+
+    mfxConfig threadsConfig = MFXCreateConfig(loader);
+    SetConfigFilterProperty<mfxHDL>(loader, threadsConfig, "ExtBuffer", (void *)&extThreadsParam);
+
+    // would not be valid at init time in a real RT, but use to validate logic with stub impls
+    mfxExtVPPProcAmp extVPPProcAmp = {};
+    extVPPProcAmp.Header.BufferId  = MFX_EXTBUFF_VPP_PROCAMP;
+    extVPPProcAmp.Header.BufferSz  = sizeof(mfxExtVPPProcAmp);
+    extVPPProcAmp.Contrast         = 31.7f;
+    extVPPProcAmp.Brightness       = 16.14f;
+    extVPPProcAmp.Hue              = 54.2f;
+    extVPPProcAmp.Saturation       = -15.63f;
+
+    // overwrite threadsConfig with extVPPProcAmp
+    SetConfigFilterProperty<mfxHDL>(loader, threadsConfig, "ExtBuffer", (void *)&extVPPProcAmp);
+
+    // create session with first implementation
+    mfxSession session = nullptr;
+    sts                = MFXCreateSession(loader, 0, &session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // check for RT log strings which indicate that extBufs were parsed properly
+    // expect that NumThread is NOT present, since the buffer should have been overwritten
+    std::string outputLog;
+    GetOutputLog(outputLog);
+    if (implType == MFX_IMPL_TYPE_STUB_1X) {
+        CheckOutputLog(outputLog,
+                       "[STUB RT]: message -- MFXInitEx -- extBuf enabled -- NumThread (6)",
+                       false);
+
+        CheckOutputLog(
+            outputLog,
+            "[STUB RT]: message -- MFXInitEx -- extBuf enabled -- ProcAmp (31.7 16.14 54.2 -15.63)");
+    }
+    else {
+        CheckOutputLog(outputLog,
+                       "[STUB RT]: message -- MFXInitialize -- extBuf enabled -- NumThread (6)",
+                       false);
+
+        CheckOutputLog(
+            outputLog,
+            "[STUB RT]: message -- MFXInitialize -- extBuf enabled -- ProcAmp (31.7 16.14 54.2 -15.63)");
+    }
+
+    // free internal resources
+    sts = MFXClose(session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+    MFXUnload(loader);
+}
+
+TEST(Dispatcher_Stub_CreateSession, RuntimeParsesSingleExtBufOverwriteViaMFXConfig) {
+    SKIP_IF_DISP_STUB_DISABLED();
+    Dispatcher_CreateSession_RuntimeParsesSingleExtBufOverwriteViaMFXConfig(MFX_IMPL_TYPE_STUB);
+}
+
+TEST(Dispatcher_Stub_CreateSession, LegacyRuntimeParsesSingleExtBufOverwriteViaMFXConfig) {
+    SKIP_IF_DISP_STUB_DISABLED();
+    Dispatcher_CreateSession_RuntimeParsesSingleExtBufOverwriteViaMFXConfig(MFX_IMPL_TYPE_STUB_1X);
+}
+
+// test using ExtBuffer filter property during initialization to pass multiple extBuffers
+//  in separate mfxConfig objects, plus overwriting one mfxConfig object with a new value
+static void Dispatcher_CreateSession_RuntimeParsesMultipleExtBufsOverwriteViaMFXConfig(
+    mfxImplType implType) {
+    // stub RT logs results from parsing extBuf
+    CaptureOutputLog();
+
+    mfxLoader loader = MFXLoad();
+    EXPECT_FALSE(loader == nullptr);
+
+    mfxStatus sts = SetConfigImpl(loader, implType);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // pass special config properties - ExtBuffer with ptr to buffer
+    mfxExtThreadsParam extThreadsParam = {};
+    extThreadsParam.Header.BufferId    = MFX_EXTBUFF_THREADS_PARAM;
+    extThreadsParam.Header.BufferSz    = sizeof(mfxExtThreadsParam);
+    extThreadsParam.NumThread          = 6;
+
+    mfxConfig threadsConfig = MFXCreateConfig(loader);
+    SetConfigFilterProperty<mfxHDL>(loader, threadsConfig, "ExtBuffer", (void *)&extThreadsParam);
+
+    mfxExtThreadsParam extThreadsParam2 = {};
+    extThreadsParam2.Header.BufferId    = MFX_EXTBUFF_THREADS_PARAM;
+    extThreadsParam2.Header.BufferSz    = sizeof(mfxExtThreadsParam);
+    extThreadsParam2.NumThread          = 9;
+
+    // reuse same mfxConfig object - previous extBuf should be overwritten
+    SetConfigFilterProperty<mfxHDL>(loader, threadsConfig, "ExtBuffer", (void *)&extThreadsParam2);
+
+    // would not be valid at init time in a real RT, but use to validate logic with stub impls
+    mfxExtVPPProcAmp extVPPProcAmp = {};
+    extVPPProcAmp.Header.BufferId  = MFX_EXTBUFF_VPP_PROCAMP;
+    extVPPProcAmp.Header.BufferSz  = sizeof(mfxExtVPPProcAmp);
+    extVPPProcAmp.Contrast         = 31.7f;
+    extVPPProcAmp.Brightness       = 16.14f;
+    extVPPProcAmp.Hue              = 54.2f;
+    extVPPProcAmp.Saturation       = -15.63f;
+
+    SetConfigFilterProperty<mfxHDL>(loader, "ExtBuffer", (void *)&extVPPProcAmp);
+
+    // create session with first implementation
+    mfxSession session = nullptr;
+    sts                = MFXCreateSession(loader, 0, &session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // check for RT log strings which indicate that extBufs were parsed properly
+    std::string outputLog;
+    GetOutputLog(outputLog);
+    if (implType == MFX_IMPL_TYPE_STUB_1X) {
+        CheckOutputLog(outputLog,
+                       "[STUB RT]: message -- MFXInitEx -- extBuf enabled -- NumThread (9)");
+
+        CheckOutputLog(
+            outputLog,
+            "[STUB RT]: message -- MFXInitEx -- extBuf enabled -- ProcAmp (31.7 16.14 54.2 -15.63)");
+    }
+    else {
+        CheckOutputLog(outputLog,
+                       "[STUB RT]: message -- MFXInitialize -- extBuf enabled -- NumThread (9)");
+
+        CheckOutputLog(
+            outputLog,
+            "[STUB RT]: message -- MFXInitialize -- extBuf enabled -- ProcAmp (31.7 16.14 54.2 -15.63)");
+    }
+
+    // free internal resources
+    sts = MFXClose(session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+    MFXUnload(loader);
+}
+
+TEST(Dispatcher_Stub_CreateSession, RuntimeParsesMultipleExtBufsOverwriteViaMFXConfig) {
+    SKIP_IF_DISP_STUB_DISABLED();
+    Dispatcher_CreateSession_RuntimeParsesMultipleExtBufsOverwriteViaMFXConfig(MFX_IMPL_TYPE_STUB);
+}
+
+TEST(Dispatcher_Stub_CreateSession, LegacyRuntimeParsesMultipleExtBufsOverwriteViaMFXConfig) {
+    SKIP_IF_DISP_STUB_DISABLED();
+    Dispatcher_CreateSession_RuntimeParsesMultipleExtBufsOverwriteViaMFXConfig(
+        MFX_IMPL_TYPE_STUB_1X);
+}
+
+static void Dispatcher_CreateSession_RuntimeParsesExtBufsAndNumThreadViaMFXConfig(
+    mfxImplType implType) {
+    // stub RT logs results from parsing extBuf
+    CaptureOutputLog();
+
+    mfxLoader loader = MFXLoad();
+    EXPECT_FALSE(loader == nullptr);
+
+    mfxStatus sts = SetConfigImpl(loader, implType);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // pass special config properties - ExtBuffer with ptr to buffer
+    mfxExtThreadsParam extThreadsParam = {};
+    extThreadsParam.Header.BufferId    = MFX_EXTBUFF_THREADS_PARAM;
+    extThreadsParam.Header.BufferSz    = sizeof(mfxExtThreadsParam);
+    extThreadsParam.NumThread          = 12;
+
+    SetConfigFilterProperty<mfxHDL>(loader, "ExtBuffer", (void *)&extThreadsParam);
+
+    // pass special config property - NumThread
+    SetConfigFilterProperty<mfxU32>(loader, "NumThread", 24);
+
+    // create session with first implementation
+    mfxSession session = nullptr;
+    sts                = MFXCreateSession(loader, 0, &session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // check for RT log strings which indicate that extBufs were parsed properly
+    // effectively we are passing two of the same type of extBuf - it is up to the RT
+    //   how to handle this situation
+    // with the stubs, we just expect to print a valid log message for both
+    std::string outputLog;
+    GetOutputLog(outputLog);
+    if (implType == MFX_IMPL_TYPE_STUB_1X) {
+        CheckOutputLog(outputLog,
+                       "[STUB RT]: message -- MFXInitEx -- extBuf enabled -- NumThread (12)");
+
+        CheckOutputLog(outputLog,
+                       "[STUB RT]: message -- MFXInitEx -- extBuf enabled -- NumThread (24)");
+    }
+    else {
+        CheckOutputLog(outputLog,
+                       "[STUB RT]: message -- MFXInitialize -- extBuf enabled -- NumThread (12)");
+
+        CheckOutputLog(outputLog,
+                       "[STUB RT]: message -- MFXInitialize -- extBuf enabled -- NumThread (24)");
+    }
+
+    // free internal resources
+    sts = MFXClose(session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+    MFXUnload(loader);
+}
+
+TEST(Dispatcher_Stub_CreateSession, RuntimeParsesExtBufsAndNumThreadViaMFXConfig) {
+    SKIP_IF_DISP_STUB_DISABLED();
+    Dispatcher_CreateSession_RuntimeParsesExtBufsAndNumThreadViaMFXConfig(MFX_IMPL_TYPE_STUB);
+}
+
+TEST(Dispatcher_Stub_CreateSession, LegacyRuntimeParsesExtBufsAndNumThreadViaMFXConfig) {
+    SKIP_IF_DISP_STUB_DISABLED();
+    Dispatcher_CreateSession_RuntimeParsesExtBufsAndNumThreadViaMFXConfig(MFX_IMPL_TYPE_STUB_1X);
+}
+
+TEST(Dispatcher_Stub_CreateSession, NullExtBufReturnsErrNull) {
+    SKIP_IF_DISP_STUB_DISABLED();
+
+    mfxLoader loader = MFXLoad();
+    EXPECT_FALSE(loader == nullptr);
+
+    mfxStatus sts = SetConfigImpl(loader, MFX_IMPL_TYPE_STUB);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    mfxConfig cfg = MFXCreateConfig(loader);
+    mfxVariant ImplValue;
+    ImplValue.Version.Version = (mfxU16)MFX_VARIANT_VERSION;
+    ImplValue.Type            = MFX_VARIANT_TYPE_PTR;
+    ImplValue.Data.Ptr        = nullptr;
+
+    sts = MFXSetConfigFilterProperty(cfg, (const mfxU8 *)"ExtBuffer", ImplValue);
+    EXPECT_EQ(sts, MFX_ERR_NULL_PTR);
+
+    MFXUnload(loader);
+}
+
+TEST(Dispatcher_Stub_CreateSession, UnsupportedExtBufReturnsUnsupported) {
+    SKIP_IF_DISP_STUB_DISABLED();
+
+    mfxLoader loader = MFXLoad();
+    EXPECT_FALSE(loader == nullptr);
+
+    mfxStatus sts = SetConfigImpl(loader, MFX_IMPL_TYPE_STUB);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // pass extBuf which the stub RT does not support
+    // spec actually does not address this case so may be runtime
+    //   dependent (RT could ignore unsupported ones and continue)
+    mfxExtVPPDetail extVPPDetail = {};
+    extVPPDetail.Header.BufferId = MFX_EXTBUFF_VPP_DETAIL;
+    extVPPDetail.Header.BufferSz = sizeof(mfxExtVPPDetail);
+
+    SetConfigFilterProperty<mfxHDL>(loader, "ExtBuffer", (void *)&extVPPDetail);
+
+    // create session with first implementation
+    mfxSession session = nullptr;
+    sts                = MFXCreateSession(loader, 0, &session);
+    EXPECT_EQ(sts, MFX_ERR_UNSUPPORTED);
+
     MFXUnload(loader);
 }
 

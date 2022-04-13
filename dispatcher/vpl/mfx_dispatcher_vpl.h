@@ -170,7 +170,7 @@ enum PropRanges {
 
 // must match eProp_TotalProps, is checked with static_assert in _config.cpp
 //   (should throw error at compile time if !=)
-#define NUM_TOTAL_FILTER_PROPS 53
+#define NUM_TOTAL_FILTER_PROPS 54
 
 // typedef child structures for easier reading
 typedef struct mfxDecoderDescription::decoder DecCodec;
@@ -243,6 +243,9 @@ struct SpecialConfig {
 
     bool bIsSet_DeviceCopy;
     mfxU16 DeviceCopy;
+
+    bool bIsSet_ExtBuffer;
+    std::vector<mfxExtBuffer *> ExtBuffers;
 };
 
 // config class implementation
@@ -331,6 +334,37 @@ private:
 
     mfxU8 m_extDevLUID8U[8];
     std::string m_extDevNameStr;
+
+    std::vector<mfxU8> m_extBuf;
+
+    __inline bool SetExtBuf(mfxExtBuffer *extBuf) {
+        if (!extBuf)
+            return false;
+
+        mfxU32 BufferSz = extBuf->BufferSz;
+        if (BufferSz > 0) {
+            m_extBuf.resize(BufferSz);
+            std::copy((mfxU8 *)extBuf, (mfxU8 *)extBuf + BufferSz, m_extBuf.begin());
+            return true;
+        }
+        return false;
+    }
+
+    __inline bool GetExtBuf(mfxExtBuffer **extBuf) {
+        if (!extBuf)
+            return false;
+
+        *extBuf = nullptr;
+        if (!m_extBuf.empty()) {
+            *extBuf = (mfxExtBuffer *)m_extBuf.data();
+            return true;
+        }
+        return false;
+    }
+
+    __inline void ClearExtBuf() {
+        m_extBuf.clear();
+    }
 };
 
 // MSDK compatibility loader implementation
