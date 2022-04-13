@@ -73,12 +73,12 @@ headers.
 
 For Linux:
 ```
-source <vpl-install-location>/share/oneVPL/env/vars.sh
+source <vpl-install-location>/etc/vpl/vars.sh
 ```
 
 For Windows:
 ```
-<vpl-install-location>\share\oneVPL\env\vars.bat
+<vpl-install-location>\etc\vpl\vars.bat
 ```
 
 ### Link to oneVPL with CMake
