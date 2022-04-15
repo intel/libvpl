@@ -200,7 +200,6 @@ CTranscodingPipeline::CTranscodingPipeline()
           isHEVCSW(false),
           m_bInsertIDR(false),
           m_rawInput(false),
-          m_shouldUseShifted10BitVPP(false),
           m_shouldUseShifted10BitEnc(false),
           m_pBSStore(),
           m_FrameNumberPreference(0xFFFFFFFF),
@@ -2920,7 +2919,6 @@ mfxStatus CTranscodingPipeline::InitVppMfxParams(MfxVideoParamsWrapper& par,
     }
 
     // Fill Shift bit
-    par.vpp.In.Shift = m_shouldUseShifted10BitVPP;
     par.vpp.Out.Shift =
         m_shouldUseShifted10BitEnc; // This output should correspond to Encoder settings
 
@@ -3950,7 +3948,6 @@ mfxStatus CTranscodingPipeline::Init(sInputParams* pParams,
     }
 
     if (pParams->IsSourceMSB) {
-        m_shouldUseShifted10BitVPP = true;
         m_shouldUseShifted10BitEnc = true;
     }
 
