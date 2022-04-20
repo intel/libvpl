@@ -80,6 +80,7 @@ enum PropIdx {
     ePropEnc_CodecID,
     ePropEnc_MaxcodecLevel,
     ePropEnc_BiDirectionalPrediction,
+    ePropEnc_ReportedStats,
     ePropEnc_Profile,
     ePropEnc_MemHandleType,
     ePropEnc_Width,
@@ -156,6 +157,7 @@ static const PropVariant PropIdxTab[] = {
     { "ePropEnc_CodecID",                   MFX_VARIANT_TYPE_U32 },
     { "ePropEnc_MaxcodecLevel",             MFX_VARIANT_TYPE_U16 },
     { "ePropEnc_BiDirectionalPrediction",   MFX_VARIANT_TYPE_U16 },
+    { "ePropEnc_ReportedStats",             MFX_VARIANT_TYPE_U16 },
     { "ePropEnc_Profile",                   MFX_VARIANT_TYPE_U32 },
     { "ePropEnc_MemHandleType",             MFX_VARIANT_TYPE_U32 },
     { "ePropEnc_Width",                     MFX_VARIANT_TYPE_PTR },
@@ -373,6 +375,11 @@ mfxStatus ConfigCtxVPL::SetFilterPropertyEnc(std::list<std::string> &propParsedS
     else if (nextProp == "BiDirectionalPrediction") {
         return ValidateAndSetProp(ePropEnc_BiDirectionalPrediction, value);
     }
+#ifdef ONEVPL_EXPERIMENTAL
+    else if (nextProp == "ReportedStats") {
+        return ValidateAndSetProp(ePropEnc_ReportedStats, value);
+    }
+#endif
     else if (nextProp != "encprofile") {
         return MFX_ERR_NOT_FOUND;
     }
@@ -699,6 +706,17 @@ mfxStatus ConfigCtxVPL::GetFlatDescriptionsEnc(const mfxImplDescription *libImpl
     EncProfile *encProfile = nullptr;
     EncMemDesc *encMemDesc = nullptr;
 
+#ifdef ONEVPL_EXPERIMENTAL
+    // ReportedStats was added with API 2.7 under ONEVPL_EXPERIMENTAL.
+    // When it is promoted to production API, MFX_ENCODERDESCRIPTION_VERSION should be bumped up
+    //   and we should check mfxEncoderDescription.Version instead to know whether ReportedStats
+    //   is a valid field (taken from reserved[] space).
+    // Until then, best we can do is to check the overall API version for this impl.
+    mfxVersion reqApiVersionReportedStats = {};
+    reqApiVersionReportedStats.Major      = 2;
+    reqApiVersionReportedStats.Minor      = 7;
+#endif
+
     while (codecIdx < libImplDesc->Enc.NumCodecs) {
         EncConfig ec = {};
 
@@ -706,6 +724,14 @@ mfxStatus ConfigCtxVPL::GetFlatDescriptionsEnc(const mfxImplDescription *libImpl
         ec.CodecID                 = encCodec->CodecID;
         ec.MaxcodecLevel           = encCodec->MaxcodecLevel;
         ec.BiDirectionalPrediction = encCodec->BiDirectionalPrediction;
+
+#ifdef ONEVPL_EXPERIMENTAL
+        // see comment above about checking mfxEncoderDescription version once this is moved out
+        //   of experimental API
+        if (libImplDesc->ApiVersion.Version >= reqApiVersionReportedStats.Version)
+            ec.ReportedStats = encCodec->ReportedStats;
+#endif
+
         CHECK_IDX(codecIdx, profileIdx, encCodec->NumProfiles);
 
         encProfile = &(encCodec->Profiles[profileIdx]);
@@ -973,6 +999,14 @@ mfxStatus ConfigCtxVPL::CheckPropsEnc(const mfxVariant cfgPropsAll[],
 
             if ((height.Max > ec.Height.Max) || (height.Min < ec.Height.Min) ||
                 (height.Step < ec.Height.Step))
+                isCompatible = false;
+        }
+
+        if (cfgPropsAll[ePropEnc_ReportedStats].Type != MFX_VARIANT_TYPE_UNSET) {
+            mfxU16 requestedStats = cfgPropsAll[ePropEnc_ReportedStats].Data.U16;
+
+            // ReportedStats is a logical OR of one or more flags: MFX_ENCODESTATS_LEVEL_xxx
+            if ((requestedStats & ec.ReportedStats) != requestedStats)
                 isCompatible = false;
         }
 

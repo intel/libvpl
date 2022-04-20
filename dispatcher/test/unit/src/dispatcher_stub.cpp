@@ -855,4 +855,252 @@ TEST(Dispatcher_Stub_CreateSession, DeviceCopySetInvalid1x) {
     MFXUnload(loader);
 }
 
+// clang-format off
+// avoid reformatting tables
+
+struct tc_EncodeStats {
+    mfxStatus ErrExpected;
+    mfxU32 CodecId;
+    mfxU16 ReportedStats;
+};
+
+// see stub config (caps_enc.h) for valid combinations
+// fill in first field with ERR_NONE or ERR_NOT_FOUND based on whether combination is
+//   expected to succeed or not
+static const tc_EncodeStats TestEncodeStats[] = {
+    // any codec
+    { MFX_ERR_NONE,       0,               MFX_ENCODESTATS_LEVEL_BLK },
+    { MFX_ERR_NONE,       0,               MFX_ENCODESTATS_LEVEL_BLK | MFX_ENCODESTATS_LEVEL_TILE | MFX_ENCODESTATS_LEVEL_FRAME },
+    { MFX_ERR_NOT_FOUND,  0,               MFX_ENCODESTATS_LEVEL_SLICE },
+    { MFX_ERR_NOT_FOUND,  0,               MFX_ENCODESTATS_LEVEL_BLK | MFX_ENCODESTATS_LEVEL_SLICE },
+
+    // AV1 does not support ReportedStats
+    { MFX_ERR_NONE,       MFX_CODEC_AV1,   0 },
+    { MFX_ERR_NOT_FOUND,  MFX_CODEC_AV1,   MFX_ENCODESTATS_LEVEL_BLK },
+
+    // AVC supports BLK, TILE, FRAME
+    { MFX_ERR_NONE,       MFX_CODEC_AVC,   MFX_ENCODESTATS_LEVEL_BLK },
+    { MFX_ERR_NONE,       MFX_CODEC_AVC,   MFX_ENCODESTATS_LEVEL_BLK | MFX_ENCODESTATS_LEVEL_TILE | MFX_ENCODESTATS_LEVEL_FRAME },
+    { MFX_ERR_NOT_FOUND,  MFX_CODEC_AVC,   MFX_ENCODESTATS_LEVEL_SLICE },
+
+    // HEVC supports FRAME
+    { MFX_ERR_NONE,       MFX_CODEC_HEVC,  MFX_ENCODESTATS_LEVEL_FRAME },
+    { MFX_ERR_NOT_FOUND,  MFX_CODEC_HEVC,  MFX_ENCODESTATS_LEVEL_BLK },
+    { MFX_ERR_NOT_FOUND,  MFX_CODEC_HEVC,  MFX_ENCODESTATS_LEVEL_BLK | MFX_ENCODESTATS_LEVEL_FRAME },
+
+};
+
+#define NUM_TEST_CASES_ENCODE_STATS (sizeof(TestEncodeStats) / sizeof(tc_EncodeStats))
+
+// clang-format on
+
+static mfxStatus RunTestEncodeStats(mfxU32 idx) {
+    EXPECT_LT(idx, NUM_TEST_CASES_ENCODE_STATS);
+
+    mfxLoader loader = MFXLoad();
+    EXPECT_FALSE(loader == nullptr);
+
+    mfxStatus sts = SetConfigImpl(loader, MFX_IMPL_TYPE_STUB);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    mfxConfig cfg = MFXCreateConfig(loader);
+    EXPECT_FALSE(cfg == nullptr);
+
+    // set CodecId if provided, otherwise any codec is okay
+    if (TestEncodeStats[idx].CodecId) {
+        SetConfigFilterProperty<mfxU32>(loader,
+                                        cfg,
+                                        "mfxImplDescription.mfxEncoderDescription.encoder.CodecID",
+                                        TestEncodeStats[idx].CodecId);
+    }
+
+    // set required ReportedStats
+    // this must be in the same cfg object as the CodecId in order to pair them together
+    sts = SetConfigFilterProperty<mfxU16>(
+        loader,
+        cfg,
+        "mfxImplDescription.mfxEncoderDescription.encoder.ReportedStats",
+        TestEncodeStats[idx].ReportedStats);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // create session with first implementation
+    mfxStatus ErrExpected = TestEncodeStats[idx].ErrExpected;
+    mfxSession session    = nullptr;
+    sts                   = MFXCreateSession(loader, 0, &session);
+    EXPECT_EQ(sts, ErrExpected);
+
+    // free internal resources
+    if (sts == MFX_ERR_NONE) {
+        sts = MFXClose(session);
+        EXPECT_EQ(sts, MFX_ERR_NONE);
+    }
+    MFXUnload(loader);
+
+    return sts;
+}
+
+TEST(Dispatcher_Stub_CreateSession, EncodeStatsSingleCodec_00) {
+    SKIP_IF_DISP_STUB_DISABLED();
+    RunTestEncodeStats(0);
+}
+
+TEST(Dispatcher_Stub_CreateSession, EncodeStatsSingleCodec_01) {
+    SKIP_IF_DISP_STUB_DISABLED();
+    RunTestEncodeStats(1);
+}
+
+TEST(Dispatcher_Stub_CreateSession, EncodeStatsSingleCodec_02) {
+    SKIP_IF_DISP_STUB_DISABLED();
+    RunTestEncodeStats(2);
+}
+
+TEST(Dispatcher_Stub_CreateSession, EncodeStatsSingleCodec_03) {
+    SKIP_IF_DISP_STUB_DISABLED();
+    RunTestEncodeStats(3);
+}
+
+TEST(Dispatcher_Stub_CreateSession, EncodeStatsSingleCodec_04) {
+    SKIP_IF_DISP_STUB_DISABLED();
+    RunTestEncodeStats(4);
+}
+
+TEST(Dispatcher_Stub_CreateSession, EncodeStatsSingleCodec_05) {
+    SKIP_IF_DISP_STUB_DISABLED();
+    RunTestEncodeStats(5);
+}
+
+TEST(Dispatcher_Stub_CreateSession, EncodeStatsSingleCodec_06) {
+    SKIP_IF_DISP_STUB_DISABLED();
+    RunTestEncodeStats(6);
+}
+
+TEST(Dispatcher_Stub_CreateSession, EncodeStatsSingleCodec_07) {
+    SKIP_IF_DISP_STUB_DISABLED();
+    RunTestEncodeStats(7);
+}
+
+TEST(Dispatcher_Stub_CreateSession, EncodeStatsSingleCodec_08) {
+    SKIP_IF_DISP_STUB_DISABLED();
+    RunTestEncodeStats(8);
+}
+
+TEST(Dispatcher_Stub_CreateSession, EncodeStatsSingleCodec_09) {
+    SKIP_IF_DISP_STUB_DISABLED();
+    RunTestEncodeStats(9);
+}
+
+TEST(Dispatcher_Stub_CreateSession, EncodeStatsSingleCodec_10) {
+    SKIP_IF_DISP_STUB_DISABLED();
+    RunTestEncodeStats(10);
+}
+
+TEST(Dispatcher_Stub_CreateSession, EncodeStatsSingleCodec_11) {
+    SKIP_IF_DISP_STUB_DISABLED();
+    RunTestEncodeStats(11);
+}
+
+TEST(Dispatcher_Stub_CreateSession, EncodeStatsTwoCodecsValid) {
+    SKIP_IF_DISP_STUB_DISABLED();
+
+    mfxLoader loader = MFXLoad();
+    EXPECT_FALSE(loader == nullptr);
+
+    mfxStatus sts = SetConfigImpl(loader, MFX_IMPL_TYPE_STUB);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // set first CodecId + ReportedStats combination (valid)
+    mfxConfig cfg = MFXCreateConfig(loader);
+    EXPECT_FALSE(cfg == nullptr);
+
+    SetConfigFilterProperty<mfxU32>(loader,
+                                    cfg,
+                                    "mfxImplDescription.mfxEncoderDescription.encoder.CodecID",
+                                    MFX_CODEC_AVC);
+
+    sts = SetConfigFilterProperty<mfxU16>(
+        loader,
+        cfg,
+        "mfxImplDescription.mfxEncoderDescription.encoder.ReportedStats",
+        MFX_ENCODESTATS_LEVEL_BLK | MFX_ENCODESTATS_LEVEL_TILE | MFX_ENCODESTATS_LEVEL_FRAME);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // set second CodecId + ReportedStats combination (valid)
+    mfxConfig cfg2 = MFXCreateConfig(loader);
+    EXPECT_FALSE(cfg2 == nullptr);
+
+    SetConfigFilterProperty<mfxU32>(loader,
+                                    cfg2,
+                                    "mfxImplDescription.mfxEncoderDescription.encoder.CodecID",
+                                    MFX_CODEC_HEVC);
+
+    sts = SetConfigFilterProperty<mfxU16>(
+        loader,
+        cfg2,
+        "mfxImplDescription.mfxEncoderDescription.encoder.ReportedStats",
+        MFX_ENCODESTATS_LEVEL_FRAME);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // create session with first implementation
+    mfxSession session = nullptr;
+    sts                = MFXCreateSession(loader, 0, &session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // free internal resources
+    if (sts == MFX_ERR_NONE) {
+        sts = MFXClose(session);
+        EXPECT_EQ(sts, MFX_ERR_NONE);
+    }
+    MFXUnload(loader);
+}
+
+TEST(Dispatcher_Stub_CreateSession, EncodeStatsTwoCodecsInvalid) {
+    SKIP_IF_DISP_STUB_DISABLED();
+
+    mfxLoader loader = MFXLoad();
+    EXPECT_FALSE(loader == nullptr);
+
+    mfxStatus sts = SetConfigImpl(loader, MFX_IMPL_TYPE_STUB);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // set first CodecId + ReportedStats combination (valid)
+    mfxConfig cfg = MFXCreateConfig(loader);
+    EXPECT_FALSE(cfg == nullptr);
+
+    SetConfigFilterProperty<mfxU32>(loader,
+                                    cfg,
+                                    "mfxImplDescription.mfxEncoderDescription.encoder.CodecID",
+                                    MFX_CODEC_AVC);
+
+    sts = SetConfigFilterProperty<mfxU16>(
+        loader,
+        cfg,
+        "mfxImplDescription.mfxEncoderDescription.encoder.ReportedStats",
+        MFX_ENCODESTATS_LEVEL_BLK | MFX_ENCODESTATS_LEVEL_TILE | MFX_ENCODESTATS_LEVEL_FRAME);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // set second CodecId + ReportedStats combination (invalid)
+    mfxConfig cfg2 = MFXCreateConfig(loader);
+    EXPECT_FALSE(cfg2 == nullptr);
+
+    SetConfigFilterProperty<mfxU32>(loader,
+                                    cfg2,
+                                    "mfxImplDescription.mfxEncoderDescription.encoder.CodecID",
+                                    MFX_CODEC_HEVC);
+
+    sts = SetConfigFilterProperty<mfxU16>(
+        loader,
+        cfg2,
+        "mfxImplDescription.mfxEncoderDescription.encoder.ReportedStats",
+        MFX_ENCODESTATS_LEVEL_FRAME | MFX_ENCODESTATS_LEVEL_TILE); // unsupported for HEVC
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // create session with first implementation - expect to fail
+    mfxSession session = nullptr;
+    sts                = MFXCreateSession(loader, 0, &session);
+    EXPECT_EQ(sts, MFX_ERR_NOT_FOUND);
+
+    // free internal resources
+    MFXUnload(loader);
+}
+
 #endif // ONEVPL_EXPERIMENTAL

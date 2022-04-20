@@ -23,9 +23,7 @@
 #include <list>
 #include <string>
 
-#include "vpl/mfxdispatcher.h"
-#include "vpl/mfximplcaps.h"
-#include "vpl/mfxvideo.h"
+#include "vpl/mfx.h"
 
 #include "src/unit_api.h"
 

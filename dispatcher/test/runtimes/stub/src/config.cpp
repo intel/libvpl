@@ -14,8 +14,14 @@
 // the auto-generated capabilities structs
 // only include one time in this library
 #include "src/caps_dec_none.h"
-#include "src/caps_enc_none.h"
 #include "src/caps_vpp_none.h"
+
+#ifdef ENABLE_STUB_1X
+    #include "src/caps_enc_none.h"
+#else
+    // include some actual stub encoder caps
+    #include "src/caps_enc.h"
+#endif
 
 #define DEFAULT_SESSION_HANDLE_1X 0x01
 #define DEFAULT_SESSION_HANDLE_2X 0x02
@@ -258,7 +264,7 @@ static const mfxImplDescription minImplDesc = {
         { decoderDesc.Version.Minor, decoderDesc.Version.Major },
         {},
         decoderDesc.NumCodecs,
-        (DecCodec *)nullptr,
+        (DecCodec *)decoderDesc.Codecs,  // null for 1.x stub, may be valid for 2.x stub
     },
 
     // mfxEncoderDescription Enc
@@ -266,7 +272,7 @@ static const mfxImplDescription minImplDesc = {
         { encoderDesc.Version.Minor, encoderDesc.Version.Major },
         {},
         encoderDesc.NumCodecs,
-        (EncCodec *)nullptr,
+        (EncCodec *)encoderDesc.Codecs,
     },
 
     // mfxVPPDescription VPP
@@ -274,7 +280,7 @@ static const mfxImplDescription minImplDesc = {
         { vppDesc.Version.Minor, vppDesc.Version.Major },
         {},
         vppDesc.NumFilters,
-        (VPPFilter *)nullptr,
+        (VPPFilter *)vppDesc.Filters,
     },
 
     // union { mfxAccelerationModeDescription AccelerationModeDescription }

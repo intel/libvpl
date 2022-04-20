@@ -6,14 +6,11 @@
 
 #include <assert.h>
 #include <stdio.h>
-#include <string.h>
 
 #include <algorithm>
+#include <string>
 
-#include "vpl/mfxdispatcher.h"
-#include "vpl/mfxjpeg.h"
-#include "vpl/mfxstructures.h"
-#include "vpl/mfxvp8.h"
+#include "vpl/mfx.h"
 
 #define DECODE_FOURCC(ch) ch & 0xff, ch >> 8 & 0xff, ch >> 16 & 0xff, ch >> 24 & 0xff
 
@@ -94,6 +91,17 @@ const char *_print_MediaAdapterType(mfxMediaAdapterType type) {
     }
 
     return "<unknown media adapter type>";
+}
+
+const char *_print_EncodeStatsType(mfxU16 type) {
+    switch (type) {
+        STRING_OPTION(MFX_ENCODESTATS_LEVEL_BLK);
+        STRING_OPTION(MFX_ENCODESTATS_LEVEL_SLICE);
+        STRING_OPTION(MFX_ENCODESTATS_LEVEL_TILE);
+        STRING_OPTION(MFX_ENCODESTATS_LEVEL_FRAME);
+    }
+
+    return "<unknown encode stats type>";
 }
 
 const char *_print_ResourceType(mfxResourceType type) {
@@ -234,23 +242,26 @@ int main(int argc, char *argv[]) {
     bool bFullInfo                  = true;
     bool bPrintExtendedDeviceID     = false;
     bool bRequireD3D9               = false;
-    if (argc == 2) {
-        if (!strncmp(argv[1], "-f", 2)) {
+
+    for (int argIdx = 1; argIdx < argc; argIdx++) {
+        std::string nextArg(argv[argIdx]);
+
+        if (nextArg == "-f") {
             bPrintImplementedFunctions = true;
         }
 #ifdef ONEVPL_EXPERIMENTAL
-        else if (!strncmp(argv[1], "-ex", 3)) {
+        else if (nextArg == "-ex") {
             bPrintExtendedDeviceID = true;
         }
 #endif
-        else if (!strncmp(argv[1], "-b", 2)) {
+        else if (nextArg == "-b") {
             bFullInfo = false;
         }
-        else if (!strncmp(argv[1], "-d3d9", 5)) {
+        else if (nextArg == "-d3d9") {
             bRequireD3D9 = true;
         }
         else {
-            printf("Error - unknown option %s\n", argv[1]);
+            printf("Error - unknown option %s\n", nextArg.c_str());
             return -1;
         }
     }
@@ -409,6 +420,29 @@ int main(int argc, char *argv[]) {
                 printf("%4sBiDirectionalPrediction: %hu\n",
                        "",
                        enc->Codecs[codec].BiDirectionalPrediction);
+
+#ifdef ONEVPL_EXPERIMENTAL
+                // Once ReportedStats is moved out of experimental API the struct version of mfxEncoderDescription should
+                //   be updated, and that can be used to know whether this field is valid.
+                // For now, just check implementation API version.
+                mfxVersion reqApiVersionReportedStats = {};
+                reqApiVersionReportedStats.Major      = 2;
+                reqApiVersionReportedStats.Minor      = 7;
+                if (idesc->ApiVersion.Version >= reqApiVersionReportedStats.Version) {
+                    mfxU16 reportedStats = enc->Codecs[codec].ReportedStats;
+                    if (reportedStats) {
+                        for (mfxU16 statMask = 1; statMask != 0; statMask <<= 1) {
+                            if (reportedStats & statMask) {
+                                const char *statStr = _print_EncodeStatsType(statMask);
+                                printf("%4sReportedStats: %s\n", "", statStr);
+                            }
+                        }
+                    }
+                    else {
+                        printf("%4sReportedStats: 0\n", "");
+                    }
+                }
+#endif
                 for (int profile = 0; profile < enc->Codecs[codec].NumProfiles; profile++) {
                     printf("%6sProfile: %s\n",
                            "",
