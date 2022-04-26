@@ -5,6 +5,10 @@
 # ##############################################################################
 cmake_minimum_required(VERSION 3.10.2)
 
+if(WIN32)
+  message(FATAL_ERROR "This sample is not supported in Windows")
+endif()
+
 # This sample must be compiled and executed within the oneAPI product enviroment
 # with the dpcpp compiler to use dpcpp features
 set(DPCPP_COMPILER_NAME "dpcpp")
@@ -18,17 +22,6 @@ if(DPCPP_COMPILER)
   message(STATUS "DPCPP compiler found, sample enabled")
 
   project(dpcpp-blur LANGUAGES CXX)
-
-  # Default install places 64 bit runtimes in the environment, so we want to do
-  # a 64 bit build by default.
-  if(WIN32)
-    if(NOT DEFINED CMAKE_GENERATOR_PLATFORM)
-      set(CMAKE_GENERATOR_PLATFORM
-          x64
-          CACHE STRING "")
-      message(STATUS "Generator Platform set to ${CMAKE_GENERATOR_PLATFORM}")
-    endif()
-  endif()
 
   set(CMAKE_CXX_STANDARD 17)
 
@@ -50,13 +43,6 @@ if(DPCPP_COMPILER)
   endif()
 
   add_executable(${TARGET} ${SOURCES})
-
-  if(MSVC)
-    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-    if(NOT DEFINED ENV{VSCMD_VER})
-      set(CMAKE_MSVCIDE_RUN_PATH $ENV{PATH})
-    endif()
-  endif()
 
   find_package(VPL REQUIRED)
   target_link_libraries(${TARGET} VPL::dispatcher)

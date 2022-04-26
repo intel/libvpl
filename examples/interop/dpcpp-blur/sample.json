@@ -4,24 +4,13 @@
   "categories": ["Toolkit/Intel® oneAPI Base Toolkit/oneVPL"],
   "description": "Shows oneAPI Video Processing Library interop with dpcpp",
   "dependencies": ["vpl"],
-  "os": ["linux", "windows"],
+  "os": ["linux"],
   "languages": [{"cpp":{}}],
   "toolchain": ["dpcpp"],
   "builder": ["ide", "cmake"],
   "targetDevice": ["CPU", "GPU"],
   "ciTests": {
     "linux": [
-      { "id": "builds and runs successfully with CMake",
-        "env": [ ],
-        "steps": [
-          "mkdir build",
-          "cd build",
-          "cmake ..",
-          "cmake --build .",
-          "cmake --build . --target run"
-        ] }
-    ],
-    "windows": [
       { "id": "builds and runs successfully with CMake",
         "env": [ ],
         "steps": [

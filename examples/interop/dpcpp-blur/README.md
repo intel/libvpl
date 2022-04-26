@@ -44,7 +44,6 @@ Code samples are licensed under the MIT license. See
 
 ### Include Files
 The oneVPL include folder is located at these locations on your development system:
- - Windows: %ONEAPI_ROOT%\vpl\latest\include 
  - Linux: $ONEAPI_ROOT/vpl/latest/include
 
 ### On a Linux* System
@@ -78,46 +77,6 @@ Perform the following steps:
    ```
 
 4. Run the program with default arguments using the following command:
-   ```
-   cmake --build . --target run
-   ```
-
-### On a Windows* System Using Visual Studio* Version 2017 or Newer
-
-#### Building the program using CMake
-
-1. These instructions assume you can read and write to the location 
-   the examples are stored. If the examples have been installed in a
-   protected folder such as "Program Files" copy the entire `examples`
-   folder to a location with Read/Write access such as the Desktop
-   (%USERPROFILE%\Desktop) and resume these instruictions from that copy.
-
-2. Install the prerequisite software. To build and run the sample you need to
-   install prerequisite software and set up your environment:
-
-   - Intel® oneAPI Base Toolkit for Windows*
-   - [CMake](https://cmake.org)
-
-3. Set up your environment using the following command.
-   ```
-   <oneapi_install_dir>\setvars.bat
-   ```
-   Here `<oneapi_install_dir>` represents the root folder of your oneAPI
-   installation, which is which is `C:\Program Files (x86)\Intel\oneAPI\`
-   when installed using default options. If you customized the installation
-   folder, the `setvars.bat` is in your custom location.  Note that if a
-   compiler is not part of your oneAPI installation you should run in a Visual
-   Studio 64-bit command prompt.
-
-4. Build the program with default arguments using the following commands:
-   ```
-   mkdir build
-   cd build
-   cmake ..
-   cmake --build .
-   ```
-
-5. Run the program using the following command:
    ```
    cmake --build . --target run
    ```
