@@ -37,8 +37,6 @@ if(UNIX)
   message(STATUS "MFX_MODULES_DIR=${MFX_MODULES_DIR}")
 endif()
 
-add_definitions(-DMFX_DEPRECATED_OFF)
-
 if(BUILD_DISPATCHER_ONEVPL_EXPERIMENTAL)
   add_definitions(-DONEVPL_EXPERIMENTAL)
 endif()
@@ -54,6 +52,11 @@ list(
   vpl/mfx_dispatcher_vpl_msdk.cpp)
 
 add_library(${TARGET} "")
+
+# disable warnings for dispatcher library itself but not subprojects (unit
+# tests)
+set_target_properties(${TARGET} PROPERTIES COMPILE_DEFINITIONS
+                                           "MFX_DEPRECATED_OFF")
 
 if(WIN32)
   # force libxxx style sharedlib name on Windows

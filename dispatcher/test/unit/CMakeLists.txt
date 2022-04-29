@@ -9,7 +9,8 @@ project(${PROJECT_NAME}Tests LANGUAGES CXX)
 
 set(test_sources
     src/session-test.cpp
-    src/legacycpp-session-test.cpp
+    src/legacycpp-session-test-1x.cpp
+    src/legacycpp-session-test-2x.cpp
     src/main.cpp
     src/dispatcher_common.cpp
     src/dispatcher_common_multiprop.cpp

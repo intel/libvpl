@@ -19,7 +19,7 @@
 }
 
 static void Usage(void) {
-    printf("\nCustom parameters for oneVPLTests:\n");
+    printf("\nCustom parameters for vplTests:\n");
     printf("   -disp:stub      ....  run dispatcher tests with stub runtime (default)\n");
     printf("   -disp:sw        ....  run dispatcher tests with CPU runtime\n");
     printf("   -disp:gpu-all   ....  run dispatcher tests with all GPU runtimes\n");
@@ -29,6 +29,12 @@ static void Usage(void) {
     printf("   -device:gpu ID  ....  add implementation of type GPU with ID corresponding to mfxDeviceDescription:DeviceID (ex: 9a49/0)\n");
     printf("   -workDir path   ....  location in which to create working directory (full path or relative to 'oneVPLTests' application)\n");
     printf("                         directory 'path/oneVPLTests-work' will be created if it does not exist\n");
+
+    printf("\nLegacy C++ API (mfxvideo++.h) - requires GPU\n");
+    printf("   -legacycpp accelModes [adapterList]\n");
+    printf("      accelModes   ....  list of accelerator modes to test (separated by spaces): d3d9 d3d11 vaapi\n");
+    printf("      adapterList  ....  optional list of adapters to test (separated by spaces): 0 1 2 3\n");
+
 
     printf("\nNote: standard gtest flags (e.g. --gtest_filter) may be used along with custom parameters\n");
 }
@@ -43,6 +49,17 @@ bool g_bDispInclGPU_MSDK = false;
 bool g_bDispEnumImpl     = false;
 bool g_bDeviceAdded      = false;
 bool g_bWorkDirAvailable = false;
+
+bool g_bLegacyTest = false;
+
+bool g_bLegacyTestAccelD3D9  = false;
+bool g_bLegacyTestAccelD3D11 = false;
+bool g_bLegacyTestAccelVAAPI = false;
+
+bool g_bLegacyTestImplHW  = false;
+bool g_bLegacyTestImplHW2 = false;
+bool g_bLegacyTestImplHW3 = false;
+bool g_bLegacyTestImplHW4 = false;
 
 int main(int argc, char **argv) {
     // InitGoogleTest() removes switches that gtest recognizes
@@ -116,6 +133,77 @@ int main(int argc, char **argv) {
             }
 
             SET_UTEST_PARAMETER(g_bWorkDirAvailable, true);
+        }
+        else if (nextArg == "-legacycpp") {
+            // parse list of accelerator modes
+            int nextIdx = idx + 1;
+            while (nextIdx < argc) {
+                std::string accelMode = argv[nextIdx];
+                if (accelMode == "d3d9") {
+                    SET_UTEST_PARAMETER(g_bLegacyTestAccelD3D9, true);
+                    idx = nextIdx++;
+                    continue;
+                }
+                else if (accelMode == "d3d11") {
+                    SET_UTEST_PARAMETER(g_bLegacyTestAccelD3D11, true);
+                    idx = nextIdx++;
+                    continue;
+                }
+                else if (accelMode == "vaapi") {
+                    SET_UTEST_PARAMETER(g_bLegacyTestAccelVAAPI, true);
+                    idx = nextIdx++;
+                    continue;
+                }
+                break;
+            }
+
+            if (!g_bLegacyTestAccelD3D9 && !g_bLegacyTestAccelD3D11 && !g_bLegacyTestAccelVAAPI) {
+                printf("Error - must select at least one valid accelerator mode\n");
+                return -1;
+            }
+
+            // legacy testing enabled for at least one accelMode
+            SET_UTEST_PARAMETER(g_bLegacyTest, true);
+            bDispCustom = true;
+
+            // parse list of adapter numbers
+            // [0, 1, 2, 3] maps to MFX_IMPL_HARDWARE, MFX_IMPL_HARDWARE2, MFX_IMPL_HARDWARE3, MFX_IMPL_HARDWARE4
+            nextIdx = idx + 1;
+            while (nextIdx < argc) {
+                std::string adapterNum = argv[nextIdx];
+                if (adapterNum == "0") {
+                    SET_UTEST_PARAMETER(g_bLegacyTestImplHW, true);
+                    idx = nextIdx++;
+                    continue;
+                }
+                else if (adapterNum == "1") {
+                    SET_UTEST_PARAMETER(g_bLegacyTestImplHW2, true);
+                    idx = nextIdx++;
+                    continue;
+                }
+                else if (adapterNum == "2") {
+                    SET_UTEST_PARAMETER(g_bLegacyTestImplHW3, true);
+                    idx = nextIdx++;
+                    continue;
+                }
+                else if (adapterNum == "3") {
+                    SET_UTEST_PARAMETER(g_bLegacyTestImplHW4, true);
+                    idx = nextIdx++;
+                    continue;
+                }
+
+                // new switch (starts with -)
+                if (!adapterNum.compare(0, 1, "-"))
+                    break;
+
+                printf("Error - invalid adapter index\n");
+                return -1;
+            }
+
+            // no adapter list provided - default to MFX_IMPL_HARDWARE only
+            if (!g_bLegacyTestImplHW && !g_bLegacyTestImplHW2 && !g_bLegacyTestImplHW3 &&
+                !g_bLegacyTestImplHW4)
+                g_bLegacyTestImplHW = true;
         }
         else {
             Usage();
