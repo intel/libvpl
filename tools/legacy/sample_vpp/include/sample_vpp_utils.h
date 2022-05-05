@@ -50,6 +50,8 @@
     #include "sample_vpp_config.h"
     #include "sample_vpp_roi.h"
 
+    #include "sample_vpl_common.h"
+
     // we introduce new macros without error message (returned status only)
     // it allows to remove final error message due to EOF
     #define IOSTREAM_MSDK_CHECK_NOT_EQUAL(P, X, ERR) \
@@ -257,6 +259,7 @@ struct sInputParams {
 
     mfxU32 fccSource;
     eAPIVersion verSessionInit;
+    bool bReadByFrame;
 
     sInputParams() {
         IOPattern           = 0;
@@ -311,6 +314,7 @@ struct sInputParams {
         frameInfoIn.clear(); //redundant, for the benefit of picky static analyzers
         frameInfoOut.clear();
         verSessionInit = API_2X;
+        bReadByFrame   = false;
     }
 };
 
@@ -318,9 +322,11 @@ struct sFrameProcessor {
     std::unique_ptr<VPLImplementationLoader> pLoader;
     MainVideoSession mfxSession;
     MFXVideoVPP* pmfxVPP;
-
+    MFXMemory* pmfxMemory;
+    mfxLoader loader = NULL;
     sFrameProcessor(void) {
-        pmfxVPP = NULL;
+        pmfxVPP    = NULL;
+        pmfxMemory = NULL;
         return;
     };
 };
@@ -373,8 +379,13 @@ public:
                                 mfxFrameInfo* pInfo,
                                 mfxFrameSurfaceWrap** pSurface,
                                 mfxU16 streamIndex);
-
+    mfxStatus GetNextInputFrame(sFrameProcessor* pProcessor,
+                                mfxFrameInfo* pInfo,
+                                mfxFrameSurfaceWrap** pSurface,
+                                int bytes_to_read,
+                                mfxU8* buf_read);
     mfxStatus LoadNextFrame(mfxFrameData* pData, mfxFrameInfo* pInfo);
+    mfxStatus LoadNextFrame(mfxFrameSurface1* pSurface, int bytes_to_read, mfxU8* buf_read);
 
 private:
     mfxStatus GetPreAllocFrame(mfxFrameSurfaceWrap** pSurface);
@@ -403,6 +414,7 @@ public:
     mfxStatus PutNextFrame(sMemoryAllocator* pAllocator,
                            mfxFrameInfo* pInfo,
                            mfxFrameSurfaceWrap* pSurface);
+    mfxStatus PutNextFrame(mfxFrameInfo* pInfo, mfxFrameSurfaceWrap* pSurface);
 
 private:
     mfxStatus WriteFrame(mfxFrameData* pData, mfxFrameInfo* pInfo);
@@ -428,6 +440,7 @@ public:
     mfxStatus PutNextFrame(sMemoryAllocator* pAllocator,
                            mfxFrameInfo* pInfo,
                            mfxFrameSurfaceWrap* pSurface);
+    mfxStatus PutNextFrame(mfxFrameInfo* pInfo, mfxFrameSurfaceWrap* pSurface);
 
 private:
     std::unique_ptr<CRawVideoWriter> m_ofile[8];

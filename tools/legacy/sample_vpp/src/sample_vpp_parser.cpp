@@ -417,7 +417,8 @@ void vppPrintHelp(const msdk_char* strAppName, const msdk_char* strErrorMessage)
     msdk_printf(MSDK_STRING(
         "   [-reset_end]                  - specifies end of reset related options \n"));
     msdk_printf(MSDK_STRING(
-        "   [-api_ver_init::<1x,2x>]  - select the api version for the session initialization\n\n"));
+        "   [-api_ver_init::<1x,2x>]  - select the api version for the session initialization\n"));
+    msdk_printf(MSDK_STRING("   [-rbf] - read frame-by-frame from the input (sw lib only)\n\n"));
     msdk_printf(MSDK_STRING("\n"));
 
     msdk_printf(
@@ -2034,6 +2035,9 @@ mfxStatus vppParseInputString(msdk_char* strInput[],
             else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-api_ver_init::2x"))) {
                 pParams->verSessionInit = API_2X;
             }
+            else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-rbf"))) {
+                pParams->bReadByFrame = true;
+            }
             else {
                 msdk_printf(MSDK_STRING("Unknown option: %s\n"), strInput[i]);
 
@@ -2085,11 +2089,7 @@ mfxStatus vppParseInputString(msdk_char* strInput[],
 
     if (1 != pParams->strDstFiles.size() &&
         (pParams->resetFrmNums.size() + 1) != pParams->strDstFiles.size()) {
-        vppPrintHelp(
-            strInput[0],
-            MSDK_STRING(
-                "Destination file name should be declared once or for each parameter set (reset case)"));
-        return MFX_ERR_UNSUPPORTED;
+        msdk_printf(MSDK_STRING("File output is disabled as -o option isn't specified\n"));
     };
 
     if (0 == pParams->IOPattern) {
@@ -2175,8 +2175,13 @@ bool CheckInputParams(msdk_char* strInput[], sInputParams* pParams) {
         }
     }
 
-    return true;
+    if ((pParams->ImpLib & MFX_IMPL_HARDWARE) && pParams->bReadByFrame) {
+        vppPrintHelp(strInput[0],
+                     MSDK_STRING("-rbf (Read by frame) is not supported in hw lib.\n"));
+        return false;
+    }
 
+    return true;
 } // bool CheckInputParams(msdk_char* strInput[], sInputVppParams* pParams )
 
 // trim from start

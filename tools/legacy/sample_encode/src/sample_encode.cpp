@@ -335,6 +335,7 @@ void PrintHelp(msdk_char* strAppName, const msdk_char* strErrorMessage, ...) {
     msdk_printf(MSDK_STRING("   [-ivf:<on,off>] - Turn IVF header on/off\n"));
     msdk_printf(MSDK_STRING(
         "   [-api_ver_init::<1x,2x>]  - select the api version for the session initialization\n"));
+    msdk_printf(MSDK_STRING("   [-rbf] - read frame-by-frame from the input (sw lib only)\n"));
 
 #if D3D_SURFACES_SUPPORT
     msdk_printf(MSDK_STRING("   [-d3d] - work with d3d surfaces\n"));
@@ -682,6 +683,9 @@ mfxStatus ParseAdditionalParams(msdk_char* strInput[],
     }
     else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-api_ver_init::2x"))) {
         pParams->verSessionInit = API_2X;
+    }
+    else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-rbf"))) {
+        pParams->bReadByFrame = true;
     }
 #ifdef ONEVPL_EXPERIMENTAL
     else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-pci"))) {
@@ -1812,6 +1816,11 @@ mfxStatus ParseInputString(msdk_char* strInput[], mfxU8 nArgNum, sInputParams* p
         recalculate(pParams->nBitRate, "nBitRate(-b)");
         recalculate(pParams->InitialDelayInKB, "InitialDelayInKB");
         recalculate(pParams->BufferSizeInKB, "BufferSizeInKB");
+    }
+
+    if (pParams->bUseHWLib && pParams->bReadByFrame) {
+        PrintHelp(strInput[0], MSDK_STRING("-rbf (Read by frame) is not supported in hw lib"));
+        return MFX_ERR_UNSUPPORTED;
     }
 
     return MFX_ERR_NONE;

@@ -1272,7 +1272,8 @@ CEncodingPipeline::CEncodingPipeline()
           m_statOverall(),
           m_statFile(),
           m_fpsLimiter(),
-          m_verSessionInit(API_2X) {
+          m_verSessionInit(API_2X),
+          m_bReadByFrame(false) {
 }
 
 CEncodingPipeline::~CEncodingPipeline() {
@@ -1602,6 +1603,7 @@ mfxStatus CEncodingPipeline::Init(sInputParams* pParams) {
     m_bSingleTexture = pParams->bSingleTexture;
 
     m_verSessionInit = pParams->verSessionInit;
+    m_bReadByFrame   = pParams->bReadByFrame;
 
     if (m_verSessionInit == API_1X) {
         initPar.Version.Major = 1;
@@ -2221,6 +2223,16 @@ mfxStatus CEncodingPipeline::Run() {
     }
 #endif
 
+    std::vector<mfxU8> buf_read;
+    mfxU32 frame_size = 0;
+    if (m_bReadByFrame) {
+        frame_size = GetSurfaceSize(m_mfxEncParams.mfx.FrameInfo.FourCC,
+                                    m_mfxEncParams.mfx.FrameInfo.CropW,
+                                    m_mfxEncParams.mfx.FrameInfo.CropH);
+
+        buf_read.resize(frame_size);
+    }
+
     // main loop, preprocessing and encoding
     while (MFX_ERR_NONE <= sts || MFX_ERR_MORE_DATA == sts) {
         if ((m_nFramesToProcess != 0) && (nFramesProcessed == m_nFramesToProcess)) {
@@ -2275,11 +2287,18 @@ mfxStatus CEncodingPipeline::Run() {
                 pSurf->Info.FrameId.ViewId = currViewNum;
 
                 m_statFile.StartTimeMeasurement();
-                sts = LoadNextFrame(pSurf);
+                if (m_bReadByFrame) {
+                    sts = LoadNextFrame(pSurf, frame_size, buf_read.data());
+                }
+                else {
+                    sts = LoadNextFrame(pSurf);
+                }
                 m_statFile.StopTimeMeasurement();
 
-                if ((MFX_ERR_MORE_DATA == sts) && !m_bTimeOutExceed)
-                    continue;
+                if (!m_bReadByFrame) {
+                    if ((MFX_ERR_MORE_DATA == sts) && !m_bTimeOutExceed)
+                        continue;
+                }
 
                 MSDK_BREAK_ON_ERROR(sts);
 
@@ -2545,6 +2564,7 @@ mfxStatus CEncodingPipeline::Run() {
     MSDK_IGNORE_MFX_STS(sts, MFX_ERR_NOT_FOUND);
     // report any errors that occurred in asynchronous part
     MSDK_CHECK_STATUS(sts, "m_TaskPool.SynchronizeFirstTask failed");
+
     m_statOverall.StopTimeMeasurement();
     return sts;
 }
@@ -2622,6 +2642,37 @@ mfxStatus CEncodingPipeline::LoadNextFrame(mfxFrameSurface1* pSurf) {
     m_nFramesRead++;
 
     return sts;
+}
+
+mfxStatus CEncodingPipeline::LoadNextFrame(mfxFrameSurface1* pSurface,
+                                           int bytes_to_read,
+                                           mfxU8* buf_read) {
+    mfxStatus sts = MFX_ERR_NONE;
+    sts           = m_FileReader.LoadNextFrame(pSurface, bytes_to_read, buf_read);
+    m_nFramesRead++;
+    return sts;
+}
+
+mfxU32 CEncodingPipeline::GetSurfaceSize(mfxU32 FourCC, mfxU32 width, mfxU32 height) {
+    mfxU32 nbytes = 0;
+
+    switch (FourCC) {
+        case MFX_FOURCC_NV12:
+        case MFX_FOURCC_I420:
+            nbytes = width * height + (width >> 1) * (height >> 1) + (width >> 1) * (height >> 1);
+            break;
+        case MFX_FOURCC_P010:
+        case MFX_FOURCC_I010:
+            nbytes = width * height + (width >> 1) * (height >> 1) + (width >> 1) * (height >> 1);
+            nbytes *= 2;
+            break;
+        case MFX_FOURCC_RGB4:
+            nbytes = width * height * 4;
+        default:
+            break;
+    }
+
+    return nbytes;
 }
 
 void CEncodingPipeline::LoadNextControl(mfxEncodeCtrl*& pCtrl, mfxU32 encSurfIdx) {

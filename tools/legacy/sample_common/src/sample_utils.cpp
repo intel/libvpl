@@ -454,6 +454,58 @@ mfxStatus CSmplYUVReader::LoadNextFrame(mfxFrameSurface1* pSurface) {
     return MFX_ERR_NONE;
 }
 
+mfxStatus CSmplYUVReader::LoadNextFrame(mfxFrameSurface1* pSurface,
+                                        int bytes_to_read,
+                                        mfxU8* buf_read) {
+    // check if reader is initialized
+    MSDK_CHECK_POINTER(pSurface, MFX_ERR_NULL_PTR);
+
+    mfxU32 vid = pSurface->Info.FrameId.ViewId;
+
+    int nBytesRead = static_cast<int>(fread(buf_read, 1, bytes_to_read, m_files[vid]));
+
+    if (bytes_to_read != nBytesRead) {
+        return MFX_ERR_MORE_DATA;
+    }
+
+    mfxU16 w, h;
+    mfxFrameInfo* pInfo = &pSurface->Info;
+    mfxFrameData* pData = &pSurface->Data;
+
+    w = pInfo->Width;
+    h = pInfo->Height;
+
+    switch (pInfo->FourCC) {
+        case MFX_FOURCC_NV12:
+            pData->Y  = buf_read;
+            pData->UV = pData->Y + w * h;
+            break;
+        case MFX_FOURCC_I420:
+            pData->Y = buf_read;
+            pData->U = pData->Y + w * h;
+            pData->V = pData->U + ((w / 2) * (h / 2));
+            break;
+
+        case MFX_FOURCC_P010:
+            pData->Y  = buf_read;
+            pData->UV = pData->Y + w * 2 * h;
+            break;
+        case MFX_FOURCC_I010:
+            pData->Y = buf_read;
+            pData->U = pData->Y + w * 2 * h;
+            pData->V = pData->U + (w * (h / 2));
+            break;
+
+        case MFX_FOURCC_RGB4:
+            pData->B = buf_read;
+            break;
+        default:
+            break;
+    }
+
+    return MFX_ERR_NONE;
+}
+
 CSmplBitstreamWriter::CSmplBitstreamWriter()
         : m_nProcessedFramesNum(0),
           m_bSkipWriting(false),

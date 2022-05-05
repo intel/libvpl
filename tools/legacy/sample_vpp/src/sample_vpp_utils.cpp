@@ -594,6 +594,9 @@ mfxStatus CreateFrameProcessor(sFrameProcessor* pProcessor,
     // VPP
     pProcessor->pmfxVPP = new MFXVideoVPP(pProcessor->mfxSession);
 
+    // MFXMemory
+    pProcessor->pmfxMemory = new MFXMemory(pProcessor->mfxSession);
+
     return MFX_ERR_NONE;
 }
 
@@ -605,6 +608,7 @@ mfxStatus InitFrameProcessor(sFrameProcessor* pProcessor, mfxVideoParam* pParams
     MSDK_CHECK_POINTER(pProcessor, MFX_ERR_NULL_PTR);
     MSDK_CHECK_POINTER(pParams, MFX_ERR_NULL_PTR);
     MSDK_CHECK_POINTER(pProcessor->pmfxVPP, MFX_ERR_NULL_PTR);
+    MSDK_CHECK_POINTER(pProcessor->pmfxMemory, MFX_ERR_NULL_PTR);
 
     // close VPP in case it was initialized
     sts = pProcessor->pmfxVPP->Close();
@@ -883,6 +887,8 @@ void WipeFrameProcessor(sFrameProcessor* pProcessor) {
     MSDK_CHECK_POINTER_NO_RET(pProcessor);
 
     MSDK_SAFE_DELETE(pProcessor->pmfxVPP);
+
+    MSDK_SAFE_DELETE(pProcessor->pmfxMemory);
 
     pProcessor->mfxSession.Close();
 }
@@ -1428,6 +1434,58 @@ mfxStatus CRawVideoReader::LoadNextFrame(mfxFrameData* pData, mfxFrameInfo* pInf
     return MFX_ERR_NONE;
 }
 
+mfxStatus CRawVideoReader::LoadNextFrame(mfxFrameSurface1* pSurface,
+                                         int bytes_to_read,
+                                         mfxU8* buf_read) {
+    // check if reader is initialized
+    MSDK_CHECK_POINTER(pSurface, MFX_ERR_NULL_PTR);
+
+    int nBytesRead = static_cast<int>(fread(buf_read, 1, bytes_to_read, m_fSrc));
+
+    if (bytes_to_read != nBytesRead) {
+        return MFX_ERR_MORE_DATA;
+    }
+
+    mfxU16 w, h;
+    mfxFrameInfo* pInfo = &pSurface->Info;
+    mfxFrameData* pData = &pSurface->Data;
+
+    w = pInfo->Width;
+    h = pInfo->Height;
+
+    switch (pInfo->FourCC) {
+        case MFX_FOURCC_NV12:
+            pData->Y  = buf_read;
+            pData->UV = pData->Y + w * h;
+            break;
+        case MFX_FOURCC_I420:
+            pData->Y = buf_read;
+            pData->U = pData->Y + w * h;
+            pData->V = pData->U + ((w / 2) * (h / 2));
+            break;
+
+        case MFX_FOURCC_P010:
+            pData->Y  = buf_read;
+            pData->UV = pData->Y + w * 2 * h;
+            break;
+        case MFX_FOURCC_I010:
+            pData->Y = buf_read;
+            pData->U = pData->Y + w * 2 * h;
+            pData->V = pData->U + (w * (h / 2));
+            break;
+
+        case MFX_FOURCC_RGB4:
+            // read luminance plane (Y)
+            //pitch    = pData->Pitch;
+            pData->B = buf_read;
+            break;
+        default:
+            break;
+    }
+
+    return MFX_ERR_NONE;
+}
+
 mfxStatus CRawVideoReader::GetNextInputFrame(sMemoryAllocator* pAllocator,
                                              mfxFrameInfo* pInfo,
                                              mfxFrameSurfaceWrap** pSurface,
@@ -1469,6 +1527,31 @@ mfxStatus CRawVideoReader::GetNextInputFrame(sMemoryAllocator* pAllocator,
     }
 
     return MFX_ERR_NONE;
+}
+
+mfxStatus CRawVideoReader::GetNextInputFrame(sFrameProcessor* pProcessor,
+                                             mfxFrameInfo* pInfo,
+                                             mfxFrameSurfaceWrap** pSurface,
+                                             int bytes_to_read,
+                                             mfxU8* buf_read) {
+    mfxStatus sts;
+    sts = pProcessor->pmfxMemory->GetSurfaceForVPPIn((mfxFrameSurface1**)pSurface);
+    MSDK_CHECK_STATUS(sts, "GetSurfaceForVPPIn failed");
+
+    // Map makes surface writable by CPU for all implementations
+    sts = (*pSurface)->FrameInterface->Map(*pSurface, MFX_MAP_WRITE);
+    MSDK_CHECK_STATUS(sts, "mfxFrameSurfaceInterface->Map failed");
+
+    sts = LoadNextFrame(*pSurface, bytes_to_read, buf_read);
+
+    // Unmap/release returns local device access for all implementations
+    mfxStatus lsts = (*pSurface)->FrameInterface->Unmap(*pSurface);
+    MSDK_CHECK_STATUS(lsts, "mfxFrameSurfaceInterface->Unmap failed");
+
+    lsts = (*pSurface)->FrameInterface->Release(*pSurface);
+    MSDK_CHECK_STATUS(lsts, "mfxFrameSurfaceInterface->Release failed");
+
+    return sts;
 }
 
 mfxStatus CRawVideoReader::GetPreAllocFrame(mfxFrameSurfaceWrap** pSurface) {
@@ -1608,6 +1691,26 @@ mfxStatus CRawVideoWriter::PutNextFrame(sMemoryAllocator* pAllocator,
 
     return MFX_ERR_NONE;
 }
+
+mfxStatus CRawVideoWriter::PutNextFrame(mfxFrameInfo* pInfo, mfxFrameSurfaceWrap* pSurface) {
+    mfxStatus sts;
+    if (m_fDst) {
+        sts = pSurface->FrameInterface->Map(pSurface, MFX_MAP_READ);
+        MSDK_CHECK_NOT_EQUAL(sts, MFX_ERR_NONE, MFX_ERR_ABORTED);
+
+        sts = WriteFrame(&(pSurface->Data), pInfo);
+        MSDK_CHECK_NOT_EQUAL(sts, MFX_ERR_NONE, MFX_ERR_ABORTED);
+
+        sts = pSurface->FrameInterface->Unmap(pSurface);
+        MSDK_CHECK_NOT_EQUAL(sts, MFX_ERR_NONE, MFX_ERR_ABORTED);
+    }
+
+    sts = pSurface->FrameInterface->Release(pSurface);
+    MSDK_CHECK_NOT_EQUAL(sts, MFX_ERR_NONE, MFX_ERR_ABORTED);
+
+    return sts;
+}
+
 mfxStatus CRawVideoWriter::WriteFrame(mfxFrameData* pData, mfxFrameInfo* pInfo) {
     mfxI32 nBytesRead = 0;
 
@@ -2135,6 +2238,15 @@ mfxStatus GeneralWriter::PutNextFrame(sMemoryAllocator* pAllocator,
                              : 0; //aya: for MVC we have 1 out file only
 
     mfxStatus sts = m_ofile[did]->PutNextFrame(pAllocator, pInfo, pSurface);
+
+    return sts;
+};
+
+mfxStatus GeneralWriter::PutNextFrame(mfxFrameInfo* pInfo, mfxFrameSurfaceWrap* pSurface) {
+    mfxU32 did = (m_svcMode) ? pSurface->Info.FrameId.DependencyId
+                             : 0; //aya: for MVC we have 1 out file only
+
+    mfxStatus sts = m_ofile[did]->PutNextFrame(pInfo, pSurface);
 
     return sts;
 };

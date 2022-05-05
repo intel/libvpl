@@ -273,6 +273,7 @@ struct sInputParams {
     mfxI16 DeblockingBetaOffset;
 #endif
     eAPIVersion verSessionInit;
+    bool bReadByFrame;
 };
 
 struct sTask {
@@ -360,6 +361,7 @@ public:
 
     virtual mfxStatus OpenRoundingOffsetFile(sInputParams* pInParams);
     mfxStatus InitEncFrameParams(sTask* pTask);
+    mfxU32 GetSurfaceSize(mfxU32 FourCC, mfxU32 width, mfxU32 height);
 
 #if defined(ENABLE_V4L2_SUPPORT)
     v4l2Device v4l2Pipeline;
@@ -438,6 +440,7 @@ protected:
     FPSLimiter m_fpsLimiter;
 
     eAPIVersion m_verSessionInit;
+    bool m_bReadByFrame;
 
 #if (defined(_WIN64) || defined(_WIN32)) && (MFX_VERSION >= 1031)
     mfxU32 GetPreferredAdapterNum(const mfxAdaptersInfo& adapters, const sInputParams& params);
@@ -479,6 +482,7 @@ protected:
     virtual mfxStatus AllocateSufficientBuffer(mfxBitstreamWrapper& bs);
     virtual mfxStatus FillBuffers();
     virtual mfxStatus LoadNextFrame(mfxFrameSurface1* pSurf);
+    virtual mfxStatus LoadNextFrame(mfxFrameSurface1* pSurf, int bytes_to_read, mfxU8* buf_read);
     virtual void LoadNextControl(mfxEncodeCtrl*& pCtrl, mfxU32 encSurfIdx);
 
     virtual mfxStatus GetFreeTask(sTask** ppTask);

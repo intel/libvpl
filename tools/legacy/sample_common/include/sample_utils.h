@@ -773,6 +773,7 @@ public:
                            bool shouldShiftP010 = false);
     virtual mfxStatus SkipNframesFromBeginning(mfxU16 w, mfxU16 h, mfxU32 viewId, mfxU32 nframes);
     virtual mfxStatus LoadNextFrame(mfxFrameSurface1* pSurface);
+    virtual mfxStatus LoadNextFrame(mfxFrameSurface1* pSurface, int bytes_to_read, mfxU8* buf_read);
     virtual void Reset();
     mfxU32 m_ColorFormat; // color format of input YUV data, YUV420 or NV12
 

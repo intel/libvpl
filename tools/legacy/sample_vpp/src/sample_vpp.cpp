@@ -193,7 +193,12 @@ mfxStatus OutputProcessFrame(sAppResources Resources,
             GeneralWriter* writer = (1 == Resources.dstFileWritersN)
                                         ? &Resources.pDstFileWriters[0]
                                         : &Resources.pDstFileWriters[paramID];
-            sts = writer->PutNextFrame(Resources.pAllocator, pOutFrameInfo, pProcessedSurface);
+            if (Resources.pParams->bReadByFrame) {
+                sts = writer->PutNextFrame(pOutFrameInfo, pProcessedSurface);
+            }
+            else {
+                sts = writer->PutNextFrame(Resources.pAllocator, pOutFrameInfo, pProcessedSurface);
+            }
         }
         DecreaseReference(&pProcessedSurface->Data);
 
@@ -241,6 +246,28 @@ void ownToMfxFrameInfo(sOwnFrameInfo* in, mfxFrameInfo* out, bool copyCropParams
     ConvertFrameRate(in->dFrameRate, &out->FrameRateExtN, &out->FrameRateExtD);
 
     return;
+}
+
+mfxU32 GetSurfaceSize(mfxU32 FourCC, mfxU32 width, mfxU32 height) {
+    mfxU32 nbytes = 0;
+
+    switch (FourCC) {
+        case MFX_FOURCC_NV12:
+        case MFX_FOURCC_I420:
+            nbytes = width * height + (width >> 1) * (height >> 1) + (width >> 1) * (height >> 1);
+            break;
+        case MFX_FOURCC_P010:
+        case MFX_FOURCC_I010:
+            nbytes = width * height + (width >> 1) * (height >> 1) + (width >> 1) * (height >> 1);
+            nbytes *= 2;
+            break;
+        case MFX_FOURCC_RGB4:
+            nbytes = width * height * 4;
+        default:
+            break;
+    }
+
+    return nbytes;
 }
 
 #if defined(_WIN32) || defined(_WIN64)
@@ -583,6 +610,16 @@ int main(int argc, msdk_char* argv[])
     mfxU32 nextResetFrmNum =
         (Params.resetFrmNums.size() > 0) ? Params.resetFrmNums[0] : NOT_INIT_VALUE;
 
+    std::vector<mfxU8> buf_read;
+    mfxU32 frame_size = 0;
+    if (Params.bReadByFrame) {
+        frame_size = GetSurfaceSize(realFrameInfoIn[0].FourCC,
+                                    realFrameInfoIn[0].CropW,
+                                    realFrameInfoIn[0].CropH);
+
+        buf_read.resize(frame_size);
+    }
+
     //---------------------------------------------------------
     do {
         if (bNeedReset) {
@@ -665,11 +702,21 @@ int main(int argc, msdk_char* argv[])
                     break;
                 }
 
-                // if we share allocator with mediasdk we need to call Lock to access surface data and after we're done call Unlock
-                sts = yuvReaders[nInStreamInd].GetNextInputFrame(&allocator,
-                                                                 &realFrameInfoIn[nInStreamInd],
-                                                                 &pInSurf[nInStreamInd],
-                                                                 nInStreamInd);
+                if (Params.bReadByFrame) {
+                    // if we share allocator with mediasdk we need to call Lock to access surface data and after we're done call Unlock
+                    sts = yuvReaders[nInStreamInd].GetNextInputFrame(&frameProcessor,
+                                                                     &realFrameInfoIn[nInStreamInd],
+                                                                     &pInSurf[nInStreamInd],
+                                                                     frame_size,
+                                                                     buf_read.data());
+                }
+                else {
+                    // if we share allocator with mediasdk we need to call Lock to access surface data and after we're done call Unlock
+                    sts = yuvReaders[nInStreamInd].GetNextInputFrame(&allocator,
+                                                                     &realFrameInfoIn[nInStreamInd],
+                                                                     &pInSurf[nInStreamInd],
+                                                                     nInStreamInd);
+                }
                 MSDK_BREAK_ON_ERROR(sts);
 
                 // Set input timestamps according to input framerate
@@ -691,9 +738,14 @@ int main(int argc, msdk_char* argv[])
             // VPP processing
             bDoNotUpdateIn = false;
 
-            sts = GetFreeSurface(allocator.pSurfacesOut,
-                                 allocator.responseOut.NumFrameActual,
-                                 &pOutSurf);
+            if (Params.bReadByFrame) {
+                sts = frameProcessor.pmfxMemory->GetSurfaceForVPPOut((mfxFrameSurface1**)&pOutSurf);
+            }
+            else {
+                sts = GetFreeSurface(allocator.pSurfacesOut,
+                                     allocator.responseOut.NumFrameActual,
+                                     &pOutSurf);
+            }
             MSDK_BREAK_ON_ERROR(sts);
 
             if (bROITest[VPP_IN]) {
@@ -819,10 +871,13 @@ int main(int argc, msdk_char* argv[])
 
         // loop to get buffered frames from VPP
         while (MFX_ERR_NONE <= sts) {
-            sts = GetFreeSurface(allocator.pSurfacesOut,
-                                 allocator.responseOut.NumFrameActual,
-                                 &pOutSurf);
-            MSDK_BREAK_ON_ERROR(sts);
+            if (!Params.bReadByFrame) {
+                sts = GetFreeSurface(allocator.pSurfacesOut,
+                                     allocator.responseOut.NumFrameActual,
+                                     &pOutSurf);
+
+                MSDK_BREAK_ON_ERROR(sts);
+            }
 
             bDoNotUpdateIn = false;
 
