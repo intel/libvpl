@@ -594,9 +594,6 @@ mfxStatus CreateFrameProcessor(sFrameProcessor* pProcessor,
     // VPP
     pProcessor->pmfxVPP = new MFXVideoVPP(pProcessor->mfxSession);
 
-    // MFXMemory
-    pProcessor->pmfxMemory = new MFXMemory(pProcessor->mfxSession);
-
     return MFX_ERR_NONE;
 }
 
@@ -608,7 +605,6 @@ mfxStatus InitFrameProcessor(sFrameProcessor* pProcessor, mfxVideoParam* pParams
     MSDK_CHECK_POINTER(pProcessor, MFX_ERR_NULL_PTR);
     MSDK_CHECK_POINTER(pParams, MFX_ERR_NULL_PTR);
     MSDK_CHECK_POINTER(pProcessor->pmfxVPP, MFX_ERR_NULL_PTR);
-    MSDK_CHECK_POINTER(pProcessor->pmfxMemory, MFX_ERR_NULL_PTR);
 
     // close VPP in case it was initialized
     sts = pProcessor->pmfxVPP->Close();
@@ -887,8 +883,6 @@ void WipeFrameProcessor(sFrameProcessor* pProcessor) {
     MSDK_CHECK_POINTER_NO_RET(pProcessor);
 
     MSDK_SAFE_DELETE(pProcessor->pmfxVPP);
-
-    MSDK_SAFE_DELETE(pProcessor->pmfxMemory);
 
     pProcessor->mfxSession.Close();
 }
@@ -1535,7 +1529,7 @@ mfxStatus CRawVideoReader::GetNextInputFrame(sFrameProcessor* pProcessor,
                                              int bytes_to_read,
                                              mfxU8* buf_read) {
     mfxStatus sts;
-    sts = pProcessor->pmfxMemory->GetSurfaceForVPPIn((mfxFrameSurface1**)pSurface);
+    sts = pProcessor->mfxSession.GetSurfaceForVPP((mfxFrameSurface1**)pSurface);
     MSDK_CHECK_STATUS(sts, "GetSurfaceForVPPIn failed");
 
     // Map makes surface writable by CPU for all implementations

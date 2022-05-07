@@ -50,8 +50,6 @@
     #include "sample_vpp_config.h"
     #include "sample_vpp_roi.h"
 
-    #include "sample_vpl_common.h"
-
     // we introduce new macros without error message (returned status only)
     // it allows to remove final error message due to EOF
     #define IOSTREAM_MSDK_CHECK_NOT_EQUAL(P, X, ERR) \
@@ -322,11 +320,9 @@ struct sFrameProcessor {
     std::unique_ptr<VPLImplementationLoader> pLoader;
     MainVideoSession mfxSession;
     MFXVideoVPP* pmfxVPP;
-    MFXMemory* pmfxMemory;
     mfxLoader loader = NULL;
     sFrameProcessor(void) {
-        pmfxVPP    = NULL;
-        pmfxMemory = NULL;
+        pmfxVPP = NULL;
         return;
     };
 };

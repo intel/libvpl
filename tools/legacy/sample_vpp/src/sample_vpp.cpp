@@ -739,7 +739,7 @@ int main(int argc, msdk_char* argv[])
             bDoNotUpdateIn = false;
 
             if (Params.bReadByFrame) {
-                sts = frameProcessor.pmfxMemory->GetSurfaceForVPPOut((mfxFrameSurface1**)&pOutSurf);
+                sts = frameProcessor.mfxSession.GetSurfaceForVPPOut((mfxFrameSurface1**)&pOutSurf);
             }
             else {
                 sts = GetFreeSurface(allocator.pSurfacesOut,
