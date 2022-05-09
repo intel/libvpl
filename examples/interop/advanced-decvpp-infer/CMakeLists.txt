@@ -9,12 +9,7 @@ project(advanced-decvpp-infer)
 # Default install places 64 bit runtimes in the environment, so we want to do a
 # 64 bit build by default.
 if(WIN32)
-  if(NOT DEFINED CMAKE_GENERATOR_PLATFORM)
-    set(CMAKE_GENERATOR_PLATFORM
-        x64
-        CACHE STRING "")
-    message(STATUS "Generator Platform set to ${CMAKE_GENERATOR_PLATFORM}")
-  endif()
+  message(FATAL_ERROR "Windows not supported by this sample.")
 endif()
 
 set(TARGET advanced-decvpp-infer)
@@ -36,13 +31,6 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 add_executable(${TARGET} ${SOURCES})
-
-if(MSVC)
-  add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-  if(NOT DEFINED ENV{VSCMD_VER})
-    set(CMAKE_MSVCIDE_RUN_PATH $ENV{PATH})
-  endif()
-endif()
 
 find_package(VPL REQUIRED)
 target_link_libraries(${TARGET} VPL::dispatcher)
