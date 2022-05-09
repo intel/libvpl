@@ -56,7 +56,12 @@ Perform the following steps:
    - Intel® oneAPI Base Toolkit for Linux*
    - [CMake](https://cmake.org)
 
-2. Set up your environment using the following command.
+2. Install Intel general purpose GPU (GPGPU) software packages:
+
+   Follow steps in 
+   https://dgpu-docs.intel.com/installation-guides/ubuntu/ubuntu-focal.html
+
+3. Set up your environment using the following command:
    ```
    source <oneapi_install_dir>/setvars.sh
    ```
@@ -68,7 +73,7 @@ Perform the following steps:
    Additional setup steps to enable GPU execution can be found here:
    https://dgpu-docs.intel.com/installation-guides/ubuntu/ubuntu-focal.html
 
-3. Build the program using the following commands:
+4. Build the program using the following commands:
    ```
    mkdir build
    cd build
@@ -76,7 +81,7 @@ Perform the following steps:
    cmake --build .
    ```
 
-4. Run the program with default arguments using the following command:
+5. Run the program with default arguments using the following command:
    ```
    cmake --build . --target run
    ```
