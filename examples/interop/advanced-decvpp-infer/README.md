@@ -68,7 +68,7 @@ Continue with the rest of these steps in your bare metal shell or in the contain
 
 ```
 source /opt/intel/oneapi/setvars.sh
-source /opt/intel/openvino_2021/bin/setupvars.sh
+source /opt/intel/openvino_2022/setupvars.sh
 ```
 
 Note: /opt/intel is the default location.  If you installed oneAPI and/or OpenVINO
@@ -80,17 +80,17 @@ to custom locations use them instead.
 ```
 mkdir build
 cd build
-cmake ..
+cmake -DCMAKE_BUILD_TYPE=Release ..
 cmake --build .
 ```
 
 3. Download the Mobilenet-ssd object detection model from OpenVINO model zoo
 
 ```
-pip3 install -r /opt/intel/openvino_2021/deployment_tools/model_optimizer/requirements.txt
-pip3 install -r /opt/intel/openvino_2021/deployment_tools/open_model_zoo/tools/downloader/requirements.in
-/opt/intel/openvino_2021/deployment_tools/open_model_zoo/tools/downloader/downloader.py --output_dir ../../content --precisions FP32 --name mobilenet-ssd
-/opt/intel/openvino_2021/deployment_tools/open_model_zoo/tools/downloader/converter.py --download_dir ../../content --name mobilenet-ssd
+pip3 install -r /opt/intel/openvino_2022/deployment_tools/model_optimizer/requirements.txt
+pip3 install -r /opt/intel/openvino_2022/deployment_tools/open_model_zoo/tools/downloader/requirements.in
+/opt/intel/openvino_2022/deployment_tools/open_model_zoo/tools/downloader/downloader.py --output_dir ../../content --precisions FP32 --name mobilenet-ssd
+/opt/intel/openvino_2022/deployment_tools/open_model_zoo/tools/downloader/converter.py --download_dir ../../content --name mobilenet-ssd
 ```
 
 4. Run the program with defaults using the following command:

@@ -15,7 +15,7 @@
         "steps": [
           "mkdir build",
           "cd build",
-          "cmake ..",
+          "cmake -DCMAKE_BUILD_TYPE=Release ..",
           "cmake --build .",
           "cmake --build . --target run"
         ] }
@@ -27,8 +27,8 @@
           "mkdir build",
           "cd build",
           "cmake ..",
-          "cmake --build .",
-          "cmake --build . --target run"
+          "cmake --build . --config Release",
+          "cmake --build . --config Release --target run"
         ] }
     ]
   }

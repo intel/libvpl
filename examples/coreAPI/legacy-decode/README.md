@@ -61,7 +61,7 @@ Perform the following steps:
    ```
    mkdir build
    cd build
-   cmake ..
+   cmake -DCMAKE_BUILD_TYPE=Release ..
    cmake --build .
    ```
 
@@ -103,12 +103,12 @@ Perform the following steps:
    mkdir build
    cd build
    cmake ..
-   cmake --build .
+   cmake --build . --config Release
    ```
 
 5. Run the program using the following command:
    ```
-   cmake --build . --target run
+   cmake --build . --config Release --target run
    ```
 
 

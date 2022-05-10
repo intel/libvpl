@@ -44,7 +44,7 @@ This can be set up in a bare metal Ubuntu 20.04 system or with Docker.
 Install the prerequisite software:
 
    - Intel® oneAPI Base Toolkit for Linux*
-   - Intel® OpenVINO 2021.2 for Linux*
+   - Intel® OpenVINO for Linux*
    - [Python](http://python.org)
    - [CMake](https://cmake.org) 
 
@@ -68,7 +68,7 @@ Continue with the rest of these steps in your bare metal shell or in the contain
 
    ```
 source /opt/intel/oneapi/setvars.sh
-source /opt/intel/openvino_2021/bin/setupvars.sh
+source /opt/intel/openvino_2022/setupvars.sh
    ```
 
 Note: /opt/intel is the default location.  If you installed oneAPI and/or OpenVINO
@@ -80,16 +80,16 @@ to custom locations use them instead.
    ```
    mkdir build
    cd build
-   cmake ..
+   cmake -DCMAKE_BUILD_TYPE=Release ..
    cmake --build .
    ```
 
 3. Download the Alexnet classification model from OpenVINO model zoo
 ```
-pip3 install -r /opt/intel/openvino_2021/deployment_tools/model_optimizer/requirements.txt
-pip3 install -r /opt/intel/openvino_2021/deployment_tools/open_model_zoo/tools/downloader/requirements.in
-/opt/intel/openvino_2021/deployment_tools/open_model_zoo/tools/downloader/downloader.py --output_dir ../../content --precisions FP32 --name alexnet
-/opt/intel/openvino_2021/deployment_tools/open_model_zoo/tools/downloader/converter.py --download_dir ../../content --name alexnet
+pip3 install -r /opt/intel/openvino_2022/deployment_tools/model_optimizer/requirements.txt
+pip3 install -r /opt/intel/openvino_2022/deployment_tools/open_model_zoo/tools/downloader/requirements.in
+/opt/intel/openvino_2022/deployment_tools/open_model_zoo/tools/downloader/downloader.py --output_dir ../../content --precisions FP32 --name alexnet
+/opt/intel/openvino_2022/deployment_tools/open_model_zoo/tools/downloader/converter.py --download_dir ../../content --name alexnet
 ```
 
 4. Run the program with defaults using the following command:
@@ -113,20 +113,20 @@ pip3 install -r /opt/intel/openvino_2021/deployment_tools/open_model_zoo/tools/d
    install prerequisite software and set up your environment:
 
    - Intel® oneAPI Base Toolkit for Windows*
-   - Intel® OpenVINO 2021.2 for Windows*
+   - Intel® OpenVINO for Windows*
    - [Python 3.8 or earlier](http://python.org)
    - [CMake](https://cmake.org)
 
 3. Set up your environment using the following command.
    ```
    <oneapi_install_dir>\setvars.bat
-   <openvino_install_dir>\bin\setupvars.bat
+   <openvino_install_dir>\setupvars.bat
    ```
    Here `<oneapi_install_dir>` represents the root folder of your oneAPI
    installation, which is which is `C:\Program Files (x86)\Intel\oneAPI\`
    when installed using default options. `<openvino_install_dir>` represents 
    the root folder of your OpenVINO installation, which is 
-   `C:\Program Files (x86)\Intel\openvino_2021\` when installed using default options. 
+   `C:\Program Files (x86)\Intel\openvino_2022\` when installed using default options. 
    If you customized the installation folders, the `setvars.bat` and `setupvars.bat` 
    are in your custom locations.  Note that if a compiler is not part of your 
    oneAPI installation you should run in a Visual Studio 64-bit command prompt.
@@ -136,7 +136,7 @@ pip3 install -r /opt/intel/openvino_2021/deployment_tools/open_model_zoo/tools/d
    mkdir build
    cd build
    cmake ..
-   cmake --build .
+   cmake --build . --config Release
    ```
 
 5. Download the Alexnet classification model from OpenVINO model zoo
@@ -149,7 +149,7 @@ pip3 install -r /opt/intel/openvino_2021/deployment_tools/open_model_zoo/tools/d
 
 6. Run the program using the following command:
    ```
-   cmake --build . --target run
+   cmake --build . --config Release --target run
    ```
 
 
