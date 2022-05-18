@@ -174,7 +174,7 @@ struct sInputParams {
 
     #ifdef ONEVPL_EXPERIMENTAL
         #if defined(_WIN32)
-    LUID luid;
+    LUID luid = { 0 };
         #else
     mfxU32 DRMRenderNodeNum = 0;
         #endif

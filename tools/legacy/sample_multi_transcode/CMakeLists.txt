@@ -18,10 +18,6 @@ if(CMAKE_SYSTEM_NAME MATCHES Linux)
     )
     return()
   endif()
-
-  if(BUILD_TOOLS_ONEVPL_EXPERIMENTAL)
-    add_definitions(-DONEVPL_EXPERIMENTAL)
-  endif()
 endif()
 
 add_executable(sample_multi_transcode)
@@ -36,6 +32,11 @@ target_link_libraries(sample_multi_transcode PRIVATE sample_common)
 target_include_directories(
   sample_multi_transcode PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include
                                  ${CMAKE_SOURCE_DIR}/api/vpl)
+
+if(BUILD_TOOLS_ONEVPL_EXPERIMENTAL)
+  target_compile_definitions(sample_multi_transcode
+                             PRIVATE -DONEVPL_EXPERIMENTAL)
+endif()
 
 target_compile_definitions(sample_multi_transcode PRIVATE MFX_ONEVPL)
 

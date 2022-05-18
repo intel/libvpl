@@ -34,6 +34,10 @@ endif()
 
 add_executable(${TARGET} ${SOURCES})
 
+if(BUILD_TOOLS_ONEVPL_EXPERIMENTAL)
+  target_compile_definitions(${TARGET} PRIVATE -DONEVPL_EXPERIMENTAL)
+endif()
+
 if(MSVC)
   add_definitions(-D_CRT_SECURE_NO_WARNINGS)
   if(NOT DEFINED ENV{VSCMD_VER})

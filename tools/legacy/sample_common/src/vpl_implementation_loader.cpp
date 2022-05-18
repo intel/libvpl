@@ -201,7 +201,7 @@ mfxStatus VPLImplementationLoader::ConfigureVersion(mfxVersion const version) {
 mfxStatus VPLImplementationLoader::SetupLUID(LUID luid) {
     *((LUID*)&m_LUID) = luid;
 
-    msdk_printf(MSDK_STRING("CONFIGURE LOADER: required LUID %x\n"), luid);
+    msdk_printf(MSDK_STRING("CONFIGURE LOADER: required LUID %llx\n"), *((mfxU64*)&luid));
 
     return MFX_ERR_NONE;
 }
@@ -411,10 +411,12 @@ mfxStatus VPLImplementationLoader::EnumImplementations() {
                                               m_ImplIndex,
                                               MFX_IMPLCAPS_DEVICE_ID_EXTENDED,
                                               (mfxHDL*)&idescDevice);
+    #if !defined(_WIN32)
     if (stsExt == MFX_ERR_NONE && idescDevice) {
         m_DRMRenderNodeNumUsed = idescDevice->DRMRenderNodeNum;
         MFXDispReleaseImplDescription(m_Loader, idescDevice);
     }
+    #endif
 #endif
 
     return sts;

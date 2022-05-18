@@ -18,9 +18,6 @@ if(CMAKE_SYSTEM_NAME MATCHES Linux)
     )
     return()
   endif()
-  if(BUILD_TOOLS_ONEVPL_EXPERIMENTAL)
-    add_definitions(-DONEVPL_EXPERIMENTAL)
-  endif()
 endif()
 
 add_executable(sample_decode)
@@ -32,6 +29,10 @@ target_include_directories(sample_decode
                            PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 target_link_libraries(sample_decode PRIVATE sample_common)
+
+if(BUILD_TOOLS_ONEVPL_EXPERIMENTAL)
+  target_compile_definitions(sample_decode PRIVATE -DONEVPL_EXPERIMENTAL)
+endif()
 
 if(MSVC)
   target_compile_definitions(sample_decode PRIVATE -D_CRT_SECURE_NO_WARNINGS)
