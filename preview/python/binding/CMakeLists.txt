@@ -38,8 +38,11 @@ target_link_libraries(pyvpl PRIVATE VPL::dispatcher)
 set_property(TARGET pyvpl PROPERTY CXX_STANDARD 17)
 
 if(UNIX)
-  find_package(PkgConfig)
-  if(PkgConfig_FOUND)
+  set(LIBVA_SUPPORT
+      ON
+      CACHE BOOL "Enable hardware support.")
+  if(LIBVA_SUPPORT)
+    find_package(PkgConfig REQUIRED)
     # note: pkg-config version for libva is *API* version
     pkg_check_modules(PKG_LIBVA libva>=1.2 libva-drm>=1.2)
     if(PKG_LIBVA_FOUND)
@@ -51,10 +54,13 @@ if(UNIX)
                                               ${PKG_THREAD_LIBRARIES})
       target_include_directories(${TARGET} PUBLIC ${PKG_LIBVA_INCLUDE_DIRS})
     else()
-      message(WARNING "libva not found: building without libVA support")
+      message(
+        SEND_ERROR
+          "libva not found: set LIBVA_SUPPORT=OFF to build ${TARGET} without libva support"
+      )
     endif()
   else()
-    message(WARNING "PkgConfig not found: building without libVA support")
+    message(STATUS "Building ${TARGET} without hardware support")
   endif()
 endif()
 

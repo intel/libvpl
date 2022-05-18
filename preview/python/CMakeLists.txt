@@ -10,5 +10,8 @@ if(Python3_Interpreter_FOUND
     add_subdirectory("examples")
   endif()
 else()
-  message(WARNING "Python binding wil not be built missing prerequisite.")
+  message(
+    SEND_ERROR
+      "python prerequisites not found: set BUILD_PYTHON_BINDING=OFF to skip building python bindings"
+  )
 endif()

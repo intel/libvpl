@@ -48,19 +48,29 @@ find_package(VPL REQUIRED)
 target_link_libraries(${TARGET} VPL::dispatcher)
 
 if(UNIX)
-  find_package(PkgConfig REQUIRED)
-  # note: pkg-config version for libva is *API* version
-  pkg_check_modules(PKG_LIBVA libva>=1.2 libva-drm>=1.2)
-  if(PKG_LIBVA_FOUND)
-    target_compile_definitions(${TARGET} PUBLIC -DLIBVA_SUPPORT)
-    set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
-    set(THREADS_PREFER_PTHREAD_FLAG TRUE)
-    find_package(Threads REQUIRED)
-    target_link_libraries(${TARGET} ${PKG_LIBVA_LIBRARIES}
-                          ${PKG_THREAD_LIBRARIES})
-    target_include_directories(${TARGET} PUBLIC ${PKG_LIBVA_INCLUDE_DIRS})
+  set(LIBVA_SUPPORT
+      ON
+      CACHE BOOL "Enable hardware support.")
+  if(LIBVA_SUPPORT)
+    find_package(PkgConfig REQUIRED)
+    # note: pkg-config version for libva is *API* version
+    pkg_check_modules(PKG_LIBVA libva>=1.2 libva-drm>=1.2)
+    if(PKG_LIBVA_FOUND)
+      target_compile_definitions(${TARGET} PUBLIC -DLIBVA_SUPPORT)
+      set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
+      set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+      find_package(Threads REQUIRED)
+      target_link_libraries(${TARGET} ${PKG_LIBVA_LIBRARIES}
+                            ${PKG_THREAD_LIBRARIES})
+      target_include_directories(${TARGET} PUBLIC ${PKG_LIBVA_INCLUDE_DIRS})
+    else()
+      message(
+        SEND_ERROR
+          "libva not found: set LIBVA_SUPPORT=OFF to build ${TARGET} without libva support"
+      )
+    endif()
   else()
-    message(WARNING "libva not found: building without libVA support")
+    message(STATUS "Building ${TARGET} without hardware support")
   endif()
 endif()
 

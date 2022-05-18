@@ -58,7 +58,8 @@ if(PKGConfig_LIBDRM_FOUND)
                                                      LIBVA_SUPPORT)
 
 else()
-  message(WARNING "libdrm not found: skipping build of metrics monitor")
+  message(
+    SEND_ERROR "libdrm not found: set BUILD_TOOLS=OFF to skip building tools")
 endif()
 
 # test_monitor
@@ -85,8 +86,8 @@ else()
 
   if(NOT PKG_PCIACCESS_FOUND)
     message(
-      STATUS
-        "pciaccess was not found (optional), the following will not be built: test_monitor."
+      SEND_ERROR
+        "pciaccess not found: set BUILD_TESTS=OFF to skip building test_monitor"
     )
   endif()
 

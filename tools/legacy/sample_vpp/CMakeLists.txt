@@ -20,26 +20,6 @@ list(
 
 find_package(VPL REQUIRED)
 
-if(CMAKE_SYSTEM_NAME MATCHES Linux)
-  if(NOT
-     (PKG_LIBDRM_FOUND
-      AND PKG_LIBVA_FOUND
-      AND PKG_LIBVA_DRM_FOUND))
-    if(NOT PKG_LIBDRM_FOUND)
-      message("libdrm not found: skipping build of sample_encode")
-    endif()
-
-    if(NOT PKG_LIBVA_FOUND)
-      message("libva not found: skipping build of sample_encode")
-    endif()
-
-    if(NOT PKG_LIBVA_DRM_FOUND)
-      message("libvadrm not found: skipping build of sample_encode")
-    endif()
-    return()
-  endif()
-endif()
-
 add_executable(${TARGET} ${SOURCES})
 target_include_directories(${TARGET}
                            PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)

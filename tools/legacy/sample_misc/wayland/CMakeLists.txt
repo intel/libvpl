@@ -5,7 +5,9 @@
 # ##############################################################################
 
 if(NOT PKG_WAYLAND_CLIENT_FOUND)
-  return()
+  message(
+    SEND_ERROR
+      "wayland-client not found: set BUILD_TOOLS=OFF to skip building tools")
 endif()
 
 find_package(PkgConfig REQUIRED)
@@ -56,6 +58,10 @@ if(PKGConfig_LIBDRM_FOUND)
       PRIVATE
         ${CMAKE_BINARY_DIR}/tools/legacy/sample_misc/wayland/linux-dmabuf-unstable-v1.c
     )
+  else()
+    message(
+      SEND_ERROR
+        "Wayland modules not found: set BUILD_TOOLS=OFF to skip building tools")
   endif()
 
   target_link_libraries(vpl_wayland PRIVATE sample_common wayland-client va drm
@@ -63,5 +69,6 @@ if(PKGConfig_LIBDRM_FOUND)
 
   install(TARGETS vpl_wayland LIBRARY DESTINATION ${_TOOLS_LIB_PATH})
 else()
-  message(WARNING "libdrm not found: skipping build of vpl_wayland library")
+  message(
+    SEND_ERROR "libdrm not found: set BUILD_TOOLS=OFF to skip building tools")
 endif()

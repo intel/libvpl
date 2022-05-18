@@ -36,25 +36,38 @@ find_package(VPL REQUIRED)
 target_link_libraries(${TARGET} VPL::dispatcher)
 
 if(UNIX)
-  find_package(PkgConfig REQUIRED)
-  # note: pkg-config version for libva is *API* version
+  set(LIBVA_SUPPORT
+      ON
+      CACHE BOOL "Enable hardware support.")
+  if(LIBVA_SUPPORT)
+    find_package(PkgConfig REQUIRED)
+    # note: pkg-config version for libva is *API* version
 
-  pkg_check_modules(PKG_LIBVA libva>=1.2)
-  if(PKG_LIBVA_FOUND)
-    target_compile_definitions(${TARGET} PUBLIC -DLIBVA_SUPPORT)
-    target_link_libraries(${TARGET} ${PKG_LIBVA_LIBRARIES})
-    target_include_directories(${TARGET} PUBLIC ${PKG_LIBVA_INCLUDEDIR})
-  else()
-    message(WARNING "libva not found: building without libVA support")
-  endif()
+    pkg_check_modules(PKG_LIBVA libva>=1.2)
+    if(PKG_LIBVA_FOUND)
+      target_compile_definitions(${TARGET} PUBLIC -DLIBVA_SUPPORT)
+      target_link_libraries(${TARGET} ${PKG_LIBVA_LIBRARIES})
+      target_include_directories(${TARGET} PUBLIC ${PKG_LIBVA_INCLUDEDIR})
+    else()
+      message(
+        SEND_ERROR
+          "libva not found: set LIBVA_SUPPORT=OFF to build ${TARGET} without libva support"
+      )
+    endif()
 
-  pkg_check_modules(PKG_LIBVADRM libva-drm>=1.2)
-  if(PKG_LIBVADRM_FOUND)
-    target_compile_definitions(${TARGET} PUBLIC -DLIBVA_SUPPORT)
-    target_link_libraries(${TARGET} ${PKG_LIBVADRM_LIBRARIES})
-    target_include_directories(${TARGET} PUBLIC ${PKG_LIBVADRM_INCLUDEDIR})
-  else()
-    message(WARNING "libva-drm not found: building without libVA support")
+    pkg_check_modules(PKG_LIBVADRM libva-drm>=1.2)
+    if(PKG_LIBVADRM_FOUND)
+      target_compile_definitions(${TARGET} PUBLIC -DLIBVA_SUPPORT)
+      target_link_libraries(${TARGET} ${PKG_LIBVADRM_LIBRARIES})
+      target_include_directories(${TARGET} PUBLIC ${PKG_LIBVADRM_INCLUDEDIR})
+    else()
+      message(
+        SEND_ERROR
+          "libva-drm not found: set LIBVA_SUPPORT=OFF to build ${TARGET} without libva support"
+      )
+    else()
+      message(STATUS "Building ${TARGET} without hardware support")
+    endif()
   endif()
 
   find_package(InferenceEngine REQUIRED)
@@ -62,7 +75,7 @@ if(UNIX)
     target_link_libraries(${TARGET} ${InferenceEngine_LIBRARIES})
     target_include_directories(${TARGET} PUBLIC ${InferenceEngine_INCLUDE_DIRS})
   else()
-    message(WARNING "InferenceEngine not found")
+    message(SEND_ERROR "InferenceEngine not found")
   endif()
 
   find_package(OpenCL)
@@ -88,7 +101,7 @@ if(UNIX)
     message("using OpenCL library ${OpenCL_LIBRARIES}")
     target_link_libraries(${TARGET} ${OpenCL_LIBRARIES})
   else()
-    message(WARNING "No OpenCL found -- example cannot compile")
+    message(SEND_ERROR "OpenCL not found")
   endif()
 
 endif()

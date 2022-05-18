@@ -111,6 +111,11 @@ if(CMAKE_SYSTEM_NAME MATCHES Linux)
               PATHS ${WAYLAND_PROTOCOLS_PATH}/unstable/linux-dmabuf
               NO_DEFAULT_PATH)
           endif()
+        else()
+          message(
+            SEND_ERROR
+              "wayland-protocols not found: set BUILD_TOOLS=OFF to skip building tools"
+          )
         endif()
 
         if(WAYLAND_LINUX_DMABUF_XML_PATH)
@@ -123,15 +128,14 @@ if(CMAKE_SYSTEM_NAME MATCHES Linux)
 
       else()
         message(
-          WARNING
-            "Wayland modules not found: building sample-common without Wayland support"
+          SEND_ERROR
+            "Wayland modules not found: set BUILD_TOOLS=OFF to skip building tools"
         )
       endif()
     else()
       message(
-        WARNING
-          "libva-drm not found: building sample-common without libVA DRM support"
-      )
+        SEND_ERROR
+          "libdrm not found: set BUILD_TOOLS=OFF to skip building tools")
     endif()
 
     if(PKG_X11_FOUND)
@@ -144,23 +148,22 @@ if(CMAKE_SYSTEM_NAME MATCHES Linux)
           target_link_libraries(sample_common PUBLIC PkgConfig::PKG_XCB)
         else()
           message(
-            WARNING
-              "libdrm not found: building sample-common without DRI3 support")
+            SEND_ERROR
+              "libdrm not found: set BUILD_TOOLS=OFF to skip building tools")
         endif()
       else()
         message(
-          WARNING "xcb not found: building sample-common without DRI3 support")
+          SEND_ERROR "xcb not found: set BUILD_TOOLS=OFF to skip building tools"
+        )
       endif()
     else()
       message(
-        WARNING
-          "x11 modules not found: building sample-common without libVA X11 support"
-      )
+        SEND_ERROR
+          "x11 modules not found: set BUILD_TOOLS=OFF to skip building tools")
     endif()
   else()
     message(
-      WARNING "libva not found: building sample* tools without hardware support"
-    )
+      SEND_ERROR "libva not found: set BUILD_TOOLS=OFF to skip building tools")
   endif()
 
   target_link_libraries(sample_common PUBLIC ${CMAKE_DL_LIBS})
