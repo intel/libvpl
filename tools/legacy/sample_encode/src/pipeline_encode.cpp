@@ -957,8 +957,10 @@ mfxStatus CEncodingPipeline::AllocFrames() {
     MSDK_CHECK_STATUS(sts, "QueryIOSurf (for encoder) failed");
 
     if (!m_pmfxVPP) {
-        EncRequest.NumFrameMin = EncRequest.NumFrameSuggested =
-            std::max(EncRequest.NumFrameSuggested, m_nPerfOpt);
+        if std::max(EncRequest.NumFrameSuggested, m_nPerfOpt) < m_mfxEncParams.AsyncDepth :
+            EncRequest.NumFrameMin = EncRequest.NumFrameSuggested = m_mfxEncParams.AsyncDepth :
+            EncRequest.NumFrameMin = EncRequest.NumFrameSuggested =
+                std::max(EncRequest.NumFrameSuggested, m_nPerfOpt);
     }
 
     if (EncRequest.NumFrameSuggested < m_mfxEncParams.AsyncDepth)
