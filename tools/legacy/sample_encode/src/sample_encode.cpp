@@ -1753,7 +1753,7 @@ mfxStatus ParseInputString(msdk_char* strInput[], mfxU8 nArgNum, sInputParams* p
 
     // Ignoring user-defined Async Depth for LA
     if (pParams->nAsyncDepth == 0 || pParams->nMaxSliceSize) {
-        pParams->nAsyncDepth = 1;
+        pParams->nAsyncDepth = 4;
     }
 
     if (pParams->UseRegionEncode) {
