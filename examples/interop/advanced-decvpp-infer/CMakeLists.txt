@@ -104,8 +104,6 @@ else()
   message(SEND_ERROR "OpenCL not found")
 endif()
 
-endif()
-
 get_directory_property(has_parent PARENT_DIRECTORY)
 if(NOT has_parent)
   # only make run target available for stand-alone build
