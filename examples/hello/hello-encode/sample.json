@@ -1,6 +1,6 @@
 {
   "guid": "6AFD0BE4-A4D2-42C2-A169-174862D91A35",
-  "name": "Hello encode",
+  "name": "hello_encode",
   "categories": ["Toolkit/Intel® oneAPI Base Toolkit/oneVPL"],
   "description": "Shows oneAPI Video Processing Library video encode",
   "dependencies": ["vpl"],
@@ -10,15 +10,24 @@
   "targetDevice": ["CPU", "GPU"],
   "ciTests": {
     "linux": [
-      { "id": "builds and runs successfully with CMake",
-        "env": [ ],
+      { "id": "sw run",
+        "env": [ "RESULTSTR='Encoded 30 frames'","RESULTSTR='Encoded 30 frames'"],
         "steps": [
           "mkdir build",
           "cd build",
           "cmake -DCMAKE_BUILD_TYPE=Release ..",
           "cmake --build .",
-          "cmake --build . --target run"
-        ] }
+          "./hello-encode -sw -i ../../../content/cars_320x240.i420 -w 320 -h 240"
+        ] }, { 
+          "id": "hw run",
+          "env": ["RESULTSTR='Encoded 30 frames'","RESULTSTR='No Implementation'" ],
+          "steps": [
+            "mkdir build",
+            "cd build",
+            "cmake -DCMAKE_BUILD_TYPE=Release ..",
+            "cmake --build .",
+            "./hello-encode -hw -i ../../../content/cars_320x240.nv12 -w 320 -h 240"
+          ] }
     ],
     "windows": [
       { "id": "builds and runs successfully with CMake",

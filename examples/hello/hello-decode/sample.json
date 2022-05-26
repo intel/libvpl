@@ -1,6 +1,6 @@
 {
   "guid": "AFEDEE36-A501-4F47-AF8C-B2E3DE13A0DD",
-  "name": "Hello decode",
+  "name": "hello_decode",
   "categories": ["Toolkit/Intel® oneAPI Base Toolkit/oneVPL"],
   "description": "Shows oneAPI Video Processing Library video decode",
   "dependencies": ["vpl"],
@@ -10,15 +10,24 @@
   "targetDevice": ["CPU", "GPU"],
   "ciTests": {
     "linux": [
-      { "id": "builds and runs successfully with CMake",
-        "env": [ ],
+      { "id": "sw run",
+        "env": ["RESULTSTR='Decoded 30 frames'","RESULTSTR='Decoded 30 frames'"],
         "steps": [
           "mkdir build",
           "cd build",
           "cmake -DCMAKE_BUILD_TYPE=Release ..",
           "cmake --build .",
-          "cmake --build . --target run"
-        ] }
+          "./hello-decode -sw -i ../../../content/cars_320x240.h265"
+        ] }, { 
+          "id": "hw run",
+          "env": ["RESULTSTR='Decoded 30 frames'","RESULTSTR='No implementation'"],
+          "steps": [
+            "mkdir build",
+            "cd build",
+            "cmake -DCMAKE_BUILD_TYPE=Release ..",
+            "cmake --build .",
+            "./hello-decode -hw -i ../../../content/cars_320x240.h265"
+          ] }
     ],
     "windows": [
       { "id": "builds and runs successfully with CMake",

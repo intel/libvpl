@@ -1,6 +1,6 @@
 {
   "guid": "36C96B55-4DE0-4764-8A41-0F67D2300389",
-  "name": "Hello VPP",
+  "name": "hello_vpp",
   "categories": ["Toolkit/Intel® oneAPI Base Toolkit/oneVPL"],
   "description": "Shows oneAPI Video Processing Library video decode",
   "dependencies": ["vpl"],
@@ -10,15 +10,28 @@
   "targetDevice": ["CPU", "GPU"],
   "ciTests": {
     "linux": [
-      { "id": "builds and runs successfully with CMake",
-        "env": [ ],
+      { "id": "sw run",
+        "env": [ 
+          "RESULTSTR='Processed 30 frames'",
+          "RESULTSTR='Processed 30 frames'"],
         "steps": [
           "mkdir build",
           "cd build",
           "cmake -DCMAKE_BUILD_TYPE=Release ..",
           "cmake --build .",
-          "cmake --build . --target run"
-        ] }
+          "./hello-vpp -sw -i ../../../content/cars_320x240.i420 -w 320 -h 240"
+        ] }, { 
+          "id": "hw run",
+          "env": [ 
+            "RESULTSTR='Processed 30 frames'",
+            "RESULTSTR='No implementation'"],
+          "steps": [
+            "mkdir build",
+            "cd build",
+            "cmake -DCMAKE_BUILD_TYPE=Release ..",
+            "cmake --build .",
+            "./hello-vpp -hw -i ../../../content/cars_320x240.nv12 -w 320 -h 240"
+          ] }
     ],
     "windows": [
       { "id": "builds and runs successfully with CMake",

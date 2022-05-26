@@ -1,6 +1,6 @@
 {
   "guid": "30e5f829-b3cc-47b3-9549-fec93e79e823",
-  "name": "Hello transcode",
+  "name": "hello_transcode",
   "categories": ["Toolkit/Intel® oneAPI Base Toolkit/oneVPL"],
   "description": "Shows oneAPI Video Processing Library video transcode",
   "dependencies": ["vpl"],
@@ -11,13 +11,13 @@
   "ciTests": {
     "linux": [
       { "id": "builds and runs successfully with CMake",
-        "env": [ ],
+        "env": ["RESULTSTR='Transcoded 30 frames'","RESULTSTR='Transcoded 30 frames'" ],
         "steps": [
           "mkdir build",
           "cd build",
           "cmake -DCMAKE_BUILD_TYPE=Release ..",
           "cmake --build .",
-          "cmake --build . --target run"
+          "./hello-transcode -sw -i ../../../content/cars_320x240.mjpeg"
         ] }
     ],
     "windows": [
