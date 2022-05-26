@@ -108,9 +108,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE true)
 # Keep executable bits on shared objects when installing regardless of distro
 set(CMAKE_INSTALL_SO_NO_EXE 0)
 
-# Directory for tools specific helper libraries
-set(_TOOLS_LIB_PATH "${CMAKE_INSTALL_FULL_LIBDIR}/${PROJECT_NAME}")
-
 include(cmake/CompileOptions.cmake)
 
 if(BUILD_TESTS)

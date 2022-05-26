@@ -67,7 +67,9 @@ if(PKGConfig_LIBDRM_FOUND)
   target_link_libraries(vpl_wayland PRIVATE sample_common wayland-client va drm
                                             drm_intel)
 
-  install(TARGETS vpl_wayland LIBRARY DESTINATION ${_TOOLS_LIB_PATH})
+  install(TARGETS vpl_wayland
+          LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME}"
+                  COMPONENT dev)
 else()
   message(
     SEND_ERROR "libdrm not found: set BUILD_TOOLS=OFF to skip building tools")
