@@ -65,44 +65,44 @@ if(UNIX)
         SEND_ERROR
           "libva-drm not found: set LIBVA_SUPPORT=OFF to build ${TARGET} without libva support"
       )
-    else()
-      message(STATUS "Building ${TARGET} without hardware support")
     endif()
-  endif()
-
-  find_package(InferenceEngine REQUIRED)
-  if(InferenceEngine_FOUND)
-    target_link_libraries(${TARGET} ${InferenceEngine_LIBRARIES})
-    target_include_directories(${TARGET} PUBLIC ${InferenceEngine_INCLUDE_DIRS})
   else()
-    message(SEND_ERROR "InferenceEngine not found")
+    message(STATUS "Building ${TARGET} without hardware support")
+  endif()
+endif()
+
+find_package(InferenceEngine REQUIRED)
+if(InferenceEngine_FOUND)
+  target_link_libraries(${TARGET} ${InferenceEngine_LIBRARIES})
+  target_include_directories(${TARGET} PUBLIC ${InferenceEngine_INCLUDE_DIRS})
+else()
+  message(SEND_ERROR "InferenceEngine not found")
+endif()
+
+find_package(OpenCL)
+if(OpenCL_FOUND)
+  target_include_directories(${TARGET} PUBLIC ${OpenCL_INCLUDE_DIRS})
+else()
+  message(
+    "OpenCL not found with find_package(OpenCL), using backup approach to find OpenCL library."
+  )
+  find_path(
+    OpenCL_LIBRARY_PATH libOpenCL.so.1
+    PATHS $ENV{ONEAPI_ROOT}/compiler/latest/linux/lib /usr/lib/x86_64-linux-gnu
+    NO_DEFAULT_PATH)
+  if(OpenCL_LIBRARY_PATH)
+    set(OpenCL_LIBRARIES ${OpenCL_LIBRARY_PATH}/libOpenCL.so.1)
+    set(OpenCL_FOUND true)
   endif()
 
-  find_package(OpenCL)
-  if(OpenCL_FOUND)
-    target_include_directories(${TARGET} PUBLIC ${OpenCL_INCLUDE_DIRS})
-  else()
-    message(
-      "OpenCL not found with find_package(OpenCL), using backup approach to find OpenCL library."
-    )
-    find_path(
-      OpenCL_LIBRARY_PATH libOpenCL.so.1
-      PATHS $ENV{ONEAPI_ROOT}/compiler/latest/linux/lib
-            /usr/lib/x86_64-linux-gnu
-      NO_DEFAULT_PATH)
-    if(OpenCL_LIBRARY_PATH)
-      set(OpenCL_LIBRARIES ${OpenCL_LIBRARY_PATH}/libOpenCL.so.1)
-      set(OpenCL_FOUND true)
-    endif()
+endif()
 
-  endif()
-
-  if(OpenCL_FOUND)
-    message("using OpenCL library ${OpenCL_LIBRARIES}")
-    target_link_libraries(${TARGET} ${OpenCL_LIBRARIES})
-  else()
-    message(SEND_ERROR "OpenCL not found")
-  endif()
+if(OpenCL_FOUND)
+  message("using OpenCL library ${OpenCL_LIBRARIES}")
+  target_link_libraries(${TARGET} ${OpenCL_LIBRARIES})
+else()
+  message(SEND_ERROR "OpenCL not found")
+endif()
 
 endif()
 
