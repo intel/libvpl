@@ -89,9 +89,9 @@ def main(args):
     frame_count = 0
     opts = pyvpl.properties()
     opts.api_version = (2, 5)
+    input_fourcc = pyvpl.color_format_fourcc.i420
     if args.impl == 'sw':
         opts.impl = pyvpl.implementation_type.sw
-        input_fourcc = pyvpl.color_format_fourcc.i420
     elif args.impl == 'hw':
         opts.impl = pyvpl.implementation_type.hw
         input_fourcc = pyvpl.color_format_fourcc.nv12
