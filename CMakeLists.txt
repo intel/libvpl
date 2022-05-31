@@ -44,6 +44,12 @@ set(BUILD_DISPATCHER
 set(BUILD_TOOLS
     ON
     CACHE BOOL "Build tools.")
+set(ENABLE_WAYLAND
+    ON
+    CACHE BOOL "Enable VA/Wayland in tools.")
+set(ENABLE_X11
+    ON
+    CACHE BOOL "Enable VA/X11 in tools.")
 set(BUILD_EXAMPLES
     ON
     CACHE BOOL "Build examples when building dev package.")
@@ -219,6 +225,8 @@ message(STATUS "Build:")
 message(STATUS "  BUILD_DEV                            : ${BUILD_DEV}")
 message(STATUS "  BUILD_DISPATCHER                     : ${BUILD_DISPATCHER}")
 message(STATUS "  BUILD_TOOLS                          : ${BUILD_TOOLS}")
+message(STATUS "  ENABLE_WAYLAND                       : ${ENABLE_WAYLAND}")
+message(STATUS "  ENABLE_X11                           : ${ENABLE_X11}")
 message(STATUS "  BUILD_SHARED_LIBS                    : ${BUILD_SHARED_LIBS}")
 message(STATUS "  BUILD_TESTS                          : ${BUILD_TESTS}")
 message(STATUS "  BUILD_EXAMPLES                       : ${BUILD_EXAMPLES}")
