@@ -465,6 +465,10 @@ template <>
 struct mfx_ext_buffer_id<mfxExtAllocationHints> {
     enum { id = MFX_EXTBUFF_ALLOCATION_HINTS };
 };
+template <>
+struct mfx_ext_buffer_id<mfxExtVPP3DLut> {
+    enum { id = MFX_EXTBUFF_VPP_3DLUT };
+};
 
 constexpr uint16_t max_num_ext_buffers =
     63 * 2; // '*2' is for max estimation if all extBuffer were 'paired'

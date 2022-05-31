@@ -30,15 +30,17 @@ public:
     virtual mfxStatus Close()                           = 0;
 
     virtual mfxStatus AllocFrames(mfxFrameAllocRequest* request,
-                                  mfxFrameAllocResponse* response) = 0;
+                                  mfxFrameAllocResponse* response)                   = 0;
     virtual mfxStatus ReallocFrame(mfxMemId midIn,
                                    const mfxFrameInfo* info,
                                    mfxU16 memType,
-                                   mfxMemId* midOut)               = 0;
-    virtual mfxStatus LockFrame(mfxMemId mid, mfxFrameData* ptr)   = 0;
-    virtual mfxStatus UnlockFrame(mfxMemId mid, mfxFrameData* ptr) = 0;
-    virtual mfxStatus GetFrameHDL(mfxMemId mid, mfxHDL* handle)    = 0;
-    virtual mfxStatus FreeFrames(mfxFrameAllocResponse* response)  = 0;
+                                   mfxMemId* midOut)                                 = 0;
+    virtual mfxStatus LockFrame(mfxMemId mid, mfxFrameData* ptr)                     = 0;
+    virtual mfxStatus UnlockFrame(mfxMemId mid, mfxFrameData* ptr)                   = 0;
+    virtual mfxStatus GetFrameHDL(mfxMemId mid, mfxHDL* handle)                      = 0;
+    virtual mfxStatus FreeFrames(mfxFrameAllocResponse* response)                    = 0;
+    virtual mfxStatus Create3DLutMemory(mfxMemId memId, const char* lut3d_file_name) = 0;
+    virtual mfxStatus Release3DLutMemory(mfxMemId memId)                             = 0;
 
 private:
     static mfxStatus MFX_CDECL Alloc_(mfxHDL pthis,
@@ -72,6 +74,13 @@ public:
                                    mfxU16 memType,
                                    mfxMemId* midOut);
     virtual mfxStatus FreeFrames(mfxFrameAllocResponse* response);
+
+    virtual mfxStatus Create3DLutMemory(mfxMemId memId, const char* lut3d_file_name) {
+        return MFX_ERR_NONE;
+    }
+    virtual mfxStatus Release3DLutMemory(mfxMemId memId) {
+        return MFX_ERR_NONE;
+    }
 
 protected:
     std::mutex mtx;

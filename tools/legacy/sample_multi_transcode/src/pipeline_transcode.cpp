@@ -120,8 +120,8 @@ sInputParams::sInputParams()
     numMFEFrames = 0;
     mfeTimeout   = 0;
 
-    forceSyncAllSession = MFX_CODINGOPTION_UNKNOWN;
-
+    forceSyncAllSession  = MFX_CODINGOPTION_UNKNOWN;
+    bEnable3DLut         = false;
     bEmbeddedDenoiser    = false;
     EmbeddedDenoiseMode  = 0;
     EmbeddedDenoiseLevel = -1;
@@ -243,13 +243,19 @@ CTranscodingPipeline::CTranscodingPipeline()
           bPrefferiGfx(false),
           bPrefferdGfx(false),
 #endif
-          m_verSessionInit(API_2X) {
+          m_verSessionInit(API_2X),
+          m_b3DLutEnable(false),
+          m_n3DLutVMemId(0xffffffff),
+          m_n3DLutVWidth(65),
+          m_n3DLutVHeight(65 * 128 * 2),
+          m_p3DLutFile(NULL) {
     inputStatistics.SetDirection(MSDK_STRING("Input"));
     outputStatistics.SetDirection(MSDK_STRING("Output"));
 } //CTranscodingPipeline::CTranscodingPipeline()
 
 CTranscodingPipeline::~CTranscodingPipeline() {
     Close();
+    m_b3DLutEnable = false;
 } //CTranscodingPipeline::CTranscodingPipeline()
 
 mfxStatus CTranscodingPipeline::CheckRequiredAPIVersion(mfxVersion& version,
@@ -392,6 +398,10 @@ mfxStatus CTranscodingPipeline::VPPPreInit(sInputParams* pParams) {
             if (desc.CascadeScaler) {
                 m_bIsVpp = false;
             }
+        }
+
+        if (pParams->bEnable3DLut) {
+            m_bIsVpp = true;
         }
 
         if (m_bIsVpp) {
@@ -3209,6 +3219,31 @@ mfxStatus CTranscodingPipeline::InitVppMfxParams(MfxVideoParamsWrapper& par,
                 : MFX_PICSTRUCT_FIELD_BFF);
     }
 
+    if (pInParams->bEnable3DLut) {
+        auto lut = m_mfxVppParams.AddExtBuffer<mfxExtVPP3DLut>();
+
+        lut->ChannelMapping = MFX_3DLUT_CHANNEL_MAPPING_RGB_RGB;
+        lut->BufferType     = MFX_RESOURCE_VA_SURFACE;
+
+        lut->VideoBuffer.DataType  = MFX_DATA_TYPE_U16;
+        lut->VideoBuffer.MemLayout = MFX_3DLUT_MEMORY_LAYOUT_INTEL_65LUT;
+        lut->VideoBuffer.MemId     = &m_n3DLutVMemId;
+
+        m_b3DLutEnable = true;
+        m_p3DLutFile   = pInParams->str3DLutFile;
+        //configure video signal info for input and output
+        auto inSignalInfo             = m_mfxVppParams.AddExtBuffer<mfxExtVideoSignalInfo>();
+        inSignalInfo->Header.BufferId = MFX_EXTBUFF_VIDEO_SIGNAL_INFO_IN;
+        inSignalInfo->Header.BufferSz = sizeof(mfxExtVideoSignalInfo);
+        inSignalInfo->VideoFullRange  = 0; // Limited range P010
+        inSignalInfo->ColourPrimaries = 9; // BT.2020
+
+        auto outSignalInfo             = m_mfxVppParams.AddExtBuffer<mfxExtVideoSignalInfo>();
+        outSignalInfo->Header.BufferId = MFX_EXTBUFF_VIDEO_SIGNAL_INFO_OUT;
+        outSignalInfo->Header.BufferSz = sizeof(mfxExtVideoSignalInfo);
+        outSignalInfo->VideoFullRange  = 0; // Limited range NV12
+        outSignalInfo->ColourPrimaries = 1; // BT.709
+    }
     if (pInParams->ScalingMode) {
         auto scal         = par.AddExtBuffer<mfxExtVPPScaling>();
         scal->ScalingMode = pInParams->ScalingMode;
@@ -3304,7 +3339,10 @@ mfxStatus CTranscodingPipeline::AllocFrames(mfxFrameAllocRequest* pRequest, bool
 
         std::ignore = surface.release();
     }
-
+    if (m_b3DLutEnable) {
+        sts = m_pMFXAllocator->Create3DLutMemory((void*)&m_n3DLutVMemId, m_p3DLutFile);
+        MSDK_CHECK_STATUS(sts, "m_pMFXAllocator->Create3DLutMemory failed");
+    }
     (isDecAlloc) ? m_DecSurfaceType = pRequest->Type : m_EncSurfaceType = pRequest->Type;
 
     return MFX_ERR_NONE;
@@ -4435,6 +4473,10 @@ void CTranscodingPipeline::Close() {
         m_hwdev4Rendering = NULL;
     }
 #endif
+
+    if (m_b3DLutEnable) {
+        m_pMFXAllocator->Release3DLutMemory((void*)&m_n3DLutVMemId);
+    }
 
     // free allocated surfaces AFTER closing components
     FreeFrames();

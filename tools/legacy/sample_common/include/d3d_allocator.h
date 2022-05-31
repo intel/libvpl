@@ -40,6 +40,13 @@ public:
     virtual mfxStatus UnlockFrame(mfxMemId mid, mfxFrameData* ptr);
     virtual mfxStatus GetFrameHDL(mfxMemId mid, mfxHDL* handle);
 
+    virtual mfxStatus Create3DLutMemory(mfxMemId memId, mfxU8* lut3d, mfxU32 lut3d_size) {
+        return MFX_ERR_NONE;
+    }
+    virtual mfxStatus Release3DLutMemory(mfxMemId memId) {
+        return MFX_ERR_NONE;
+    }
+
 protected:
     virtual mfxStatus CheckRequestType(mfxFrameAllocRequest* request);
     virtual mfxStatus ReleaseResponse(mfxFrameAllocResponse* response);

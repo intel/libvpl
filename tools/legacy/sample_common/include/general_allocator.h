@@ -36,6 +36,8 @@ protected:
                                   const mfxFrameInfo* info,
                                   mfxU16 memType,
                                   mfxMemId* midOut);
+    virtual mfxStatus Create3DLutMemory(mfxMemId memId, const char* lut3d_file_name);
+    virtual mfxStatus Release3DLutMemory(mfxMemId memId);
 
     void StoreFrameMids(bool isD3DFrames, mfxFrameAllocResponse* response);
     bool isD3DMid(mfxHDL mid);

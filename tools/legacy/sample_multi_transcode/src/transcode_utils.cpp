@@ -573,6 +573,9 @@ void TranscodingSample::PrintHelp() {
 #endif
     msdk_printf(
         MSDK_STRING("   -syncop_timeout          - SyncOperation timeout in milliseconds\n"));
+#if defined(LIBVA_SUPPORT)
+    msdk_printf(MSDK_STRING("  -3dlut <file-name>          Enable 3DLUT VPP filter\n"));
+#endif
     msdk_printf(MSDK_STRING("\n"));
     msdk_printf(MSDK_STRING("ParFile format:\n"));
     msdk_printf(MSDK_STRING(
@@ -1942,6 +1945,20 @@ mfxStatus ParseVPPCmdLine(msdk_char* argv[],
             params->fieldProcessingMode = FC_FR2FR;
         else {
             PrintError(NULL, MSDK_STRING("-field_processing \"%s\" is invalid"), argv[index]);
+            return MFX_ERR_UNSUPPORTED;
+        }
+        return MFX_ERR_NONE;
+    }
+    else if (0 == msdk_strcmp(argv[index], MSDK_STRING("-3dlut"))) {
+        VAL_CHECK(index + 1 == argc, index, argv[index]);
+        index++;
+        // 3dlut file
+        if (msdk_strlen(argv[index]) < MSDK_ARRAY_LEN(params->str3DLutFile)) {
+            msdk_opt_read(argv[index], params->str3DLutFile);
+            params->bEnable3DLut = true;
+        }
+        else {
+            params->bEnable3DLut = false;
             return MFX_ERR_UNSUPPORTED;
         }
         return MFX_ERR_NONE;
