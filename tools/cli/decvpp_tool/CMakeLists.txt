@@ -6,6 +6,22 @@
 cmake_minimum_required(VERSION 3.10.2)
 project(decvpp_tool)
 
+if(UNIX)
+  find_package(PkgConfig REQUIRED)
+  # note: pkg-config version for libva is *API* version
+  pkg_check_modules(PKG_LIBVA libva>=1.2 IMPORTED_TARGET GLOBAL)
+  pkg_check_modules(PKG_LIBVA_DRM libva-drm>=1.2 IMPORTED_TARGET GLOBAL)
+  # Set defaults for ENABLE_VA
+  if(PKG_LIBVA_FOUND AND PKG_LIBVA_DRM_FOUND)
+    set(VA_DEFAULT ON)
+  else()
+    set(VA_DEFAULT OFF)
+  endif()
+  set(ENABLE_VA
+      ${VA_DEFAULT}
+      CACHE BOOL "Enable VA support in tools.")
+endif()
+
 # Default install places 64 bit runtimes in the environment, so we want to do a
 # 64 bit build by default.
 if(WIN32)
@@ -49,20 +65,22 @@ find_package(VPL REQUIRED)
 target_link_libraries(${TARGET} VPL::dispatcher)
 
 if(UNIX)
-  find_package(PkgConfig REQUIRED)
-  # note: pkg-config version for libva is *API* version
-  pkg_check_modules(PKG_LIBVA libva>=1.2 libva-drm>=1.2)
-  if(PKG_LIBVA_FOUND)
-    target_compile_definitions(${TARGET} PUBLIC -DLIBVA_SUPPORT)
-    set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
-    set(THREADS_PREFER_PTHREAD_FLAG TRUE)
-    find_package(Threads REQUIRED)
-    target_link_libraries(${TARGET} ${PKG_LIBVA_LIBRARIES}
-                          ${PKG_THREAD_LIBRARIES})
-    target_include_directories(${TARGET} PUBLIC ${PKG_LIBVA_INCLUDE_DIRS})
+  if(NOT ENABLE_VA)
+    message(STATUS "Building ${TARGET} without VA support")
   else()
-    message(
-      SEND_ERROR "libva not found: set BUILD_TOOLS=OFF to skip building tools")
+    if(PKG_LIBVA_FOUND)
+      target_compile_definitions(${TARGET} PUBLIC -DLIBVA_SUPPORT)
+      set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
+      set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+      find_package(Threads REQUIRED)
+      target_link_libraries(${TARGET} ${PKG_LIBVA_LIBRARIES}
+                            ${PKG_LIBVA_DRM_LIBRARIES} ${PKG_THREAD_LIBRARIES})
+      target_include_directories(${TARGET} PUBLIC ${PKG_LIBVA_INCLUDE_DIRS})
+    else()
+      message(
+        SEND_ERROR
+          "libva not found: set ENABLE_VA=OFF to build tools with VA disabled")
+    endif()
   endif()
 elseif(WIN32)
   cmake_policy(SET CMP0079 NEW)

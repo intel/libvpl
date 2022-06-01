@@ -116,11 +116,14 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
     mfxU32 i                     = 0;
     SafetySurfaceBuffer* pBuffer = NULL;
     mfxU32 BufCounter            = 0;
-    mfxHDL hdl                   = NULL;
+#if defined(_WIN32) || defined(_WIN64) || defined(LIBVA_X11_SUPPORT) || \
+    defined(LIBVA_DRM_SUPPORT) || defined(ANDROID)
+    mfxHDL hdl               = NULL;
+    bool bNeedToCreateDevice = true;
+#endif
     std::vector<mfxHDL> hdls;
     sInputParams InputParams;
-    bool bNeedToCreateDevice = true;
-    bool lowLatencyMode      = true;
+    bool lowLatencyMode = true;
 
     //parent transcode pipeline
     CTranscodingPipeline* pParentPipeline = NULL;
@@ -203,8 +206,11 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
     for (i = 0; i < m_InputParamsArray.size(); i++) {
         /* In the case of joined sessions, need to create device only for a zero session
          * In the case of a shared buffer, need to create device only for decode */
+#if defined(_WIN32) || defined(_WIN64) || defined(LIBVA_X11_SUPPORT) || \
+    defined(LIBVA_DRM_SUPPORT) || defined(ANDROID)
         if ((m_InputParamsArray[i].bIsJoin && i != 0) || m_InputParamsArray[i].eMode == Source)
             bNeedToCreateDevice = false;
+#endif
 
         /* By default is used the adapter specified in the first session
          * In the case of multiple adapters in different sessions, need to use it for creating a device */
@@ -353,14 +359,16 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
                                             : MSDKAdapter::GetNumber(m_pLoader.get());
 
                     sts = hwdev->Init(&params.monitorType, 1, adapterNum);
-    #if defined(LIBVA_X11_SUPPORT) || defined(LIBVA_DRM_SUPPORT)
+    #if defined(LIBVA_DRM_SUPPORT)
                     if (params.libvaBackend == MFX_LIBVA_DRM_MODESET) {
                         CVAAPIDeviceDRM* drmdev     = dynamic_cast<CVAAPIDeviceDRM*>(hwdev.get());
                         pVAAPIParams->m_export_mode = vaapiAllocatorParams::CUSTOM_FLINK;
                         pVAAPIParams->m_exporter =
                             dynamic_cast<vaapiAllocatorParams::Exporter*>(drmdev->getRenderer());
                     }
-                    else if (params.libvaBackend == MFX_LIBVA_X11) {
+    #endif
+    #if defined(LIBVA_X11_SUPPORT)
+                    if (params.libvaBackend == MFX_LIBVA_X11) {
                         pVAAPIParams->m_export_mode = vaapiAllocatorParams::PRIME;
                     }
     #endif

@@ -909,7 +909,7 @@ mfxStatus CEncodingPipeline::CreateHWDevice() {
     sts = m_hwdev->Init(NULL, 0, adapterNum);
     MSDK_CHECK_STATUS(sts, "m_hwdev->Init failed");
 #endif
-    return MFX_ERR_NONE;
+    return sts;
 }
 
 mfxStatus CEncodingPipeline::ResetDevice() {

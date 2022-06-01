@@ -1116,7 +1116,8 @@ mfxStatus CDecodingPipeline::CreateHWDevice() {
 
     if (render)
         m_d3dRender.SetHWDevice(m_hwdev);
-#elif LIBVA_SUPPORT
+#elif defined(LIBVA_DRM_SUPPORT) || defined(LIBVA_X11_SUPPORT) || \
+    defined(LIBVA_ANDROID_SUPPORT) || defined(LIBVA_WAYLAND_SUPPORT)
     mfxStatus sts = MFX_ERR_NONE;
 
     m_hwdev = CreateVAAPIDevice(m_strDevicePath, m_libvaBackend);
