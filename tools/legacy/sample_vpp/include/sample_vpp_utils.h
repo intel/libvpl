@@ -308,7 +308,7 @@ struct sInputParams {
         adapterType    = mfxMediaAdapterType::MFX_MEDIA_UNKNOWN;
         dGfxIdx        = -1;
         adapterNum     = -1;
-        dispFullSearch = false;
+        dispFullSearch = DEF_DISP_FULLSEARCH;
         frameInfoIn.clear(); //redundant, for the benefit of picky static analyzers
         frameInfoOut.clear();
         verSessionInit = API_2X;

@@ -17,6 +17,16 @@
     #include <dxgi.h>
 #endif
 
+// default behavior for dispatcher low-latency mode
+// override via cmd-line switches -dispatcher:fullSearch or -dispatcher:lowLatency
+#if defined(_WIN32)
+    // Windows: enable dispatcher low-latency path
+    #define DEF_DISP_FULLSEARCH false
+#else
+    // Linux: enable dispatcher full search
+    #define DEF_DISP_FULLSEARCH true
+#endif
+
 class VPLImplementationLoader {
     std::shared_ptr<_mfxLoader> m_loader;
     std::shared_ptr<mfxImplDescription> m_idesc;

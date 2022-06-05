@@ -234,6 +234,16 @@ int main(int argc, char *argv[]) {
 
     printf("\n");
 
+    mfxVersion actualVersion = {};
+
+    sts = MFXQueryVersion(session, &actualVersion);
+    if (sts == MFX_ERR_NONE) {
+        printf("  Loaded API version = %d.%d\n", actualVersion.Major, actualVersion.Minor);
+    }
+    else {
+        printf("  Warning - MFXQueryVersion returned %d\n", sts);
+    }
+
     // try to create basic encoder
     mfxVideoParam par = {};
     SetDefaultParamsEncode(&par);
@@ -241,6 +251,8 @@ int main(int argc, char *argv[]) {
     sts = MFXVideoENCODE_Init(session, &par);
     if (sts != MFX_ERR_NONE) {
         printf("Error - MFXVideoENCODE_Init returned %d\n", sts);
+        MFXClose(session);
+        MFXUnload(loader);
         return -1;
     }
     printf("\nMFXVideoENCODE_Init succeeded\n");

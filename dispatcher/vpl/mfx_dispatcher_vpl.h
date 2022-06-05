@@ -591,6 +591,7 @@ private:
                                       const std::vector<DXGI1DeviceInfo> &adapterInfo,
                                       LibType libType);
     mfxStatus LoadLibsFromSystemDir(LibType libType);
+    mfxStatus LoadLibsFromMultipleDirs(LibType libType);
 
     LibInfo *AddSingleLibrary(STRING_TYPE libPath, LibType libType);
     mfxStatus QuerySessionLowLatency(LibInfo *libInfo, mfxU32 adapterID, mfxVersion *ver);

@@ -65,6 +65,8 @@ void PrintHelp(msdk_char* strAppName, const msdk_char* strErrorMessage) {
         "   [-AdapterNum]             - specifies adpter number for processing, starts from 0\n"));
     msdk_printf(MSDK_STRING(
         "   [-dispatcher:fullSearch]  - enable search for all available implementations in oneVPL dispatcher\n"));
+    msdk_printf(MSDK_STRING(
+        "   [-dispatcher:lowLatency]  - enable limited implementation search and query in oneVPL dispatcher\n"));
 #if defined(LINUX32) || defined(LINUX64)
     msdk_printf(MSDK_STRING("   [-device /path/to/device] - set graphics device for processing\n"));
     msdk_printf(
@@ -207,7 +209,7 @@ mfxStatus ParseInputString(msdk_char* strInput[], mfxU8 nArgNum, sInputParams* p
     pParams->adapterType        = mfxMediaAdapterType::MFX_MEDIA_UNKNOWN;
     pParams->dGfxIdx            = -1;
     pParams->adapterNum         = -1;
-    pParams->dispFullSearch     = false;
+    pParams->dispFullSearch     = DEF_DISP_FULLSEARCH;
 
 #if defined(LIBVA_SUPPORT)
     pParams->libvaBackend = MFX_LIBVA_DRM;
@@ -582,6 +584,9 @@ mfxStatus ParseInputString(msdk_char* strInput[], mfxU8 nArgNum, sInputParams* p
         }
         else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-dispatcher:fullSearch"))) {
             pParams->dispFullSearch = true;
+        }
+        else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-dispatcher:lowLatency"))) {
+            pParams->dispFullSearch = false;
         }
 #if !defined(_WIN32) && !defined(_WIN64)
         else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-d"))) {

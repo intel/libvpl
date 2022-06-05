@@ -431,19 +431,14 @@ mfxStatus VPLImplementationLoader::ConfigureAndEnumImplementations(
     sts = ConfigureAccelerationMode(accelerationMode, impl);
     MSDK_CHECK_STATUS(sts, "ConfigureAccelerationMode failed");
 
-#if !defined(_WIN32)
-    sts = EnumImplementations();
-    MSDK_CHECK_STATUS(sts, "EnumImplementations failed");
-#else
-
-    if (m_Impl != MFX_IMPL_HARDWARE || m_adapterType != mfxMediaAdapterType::MFX_MEDIA_UNKNOWN ||
-        !lowLatencyMode
-    #ifdef ONEVPL_EXPERIMENTAL
-        #if defined(_WIN32)
+    if (m_Impl != MFX_IMPL_TYPE_HARDWARE ||
+        m_adapterType != mfxMediaAdapterType::MFX_MEDIA_UNKNOWN || !lowLatencyMode
+#ifdef ONEVPL_EXPERIMENTAL
+    #if defined(_WIN32)
         || m_LUID > 0
-        #endif
-        || (m_PCIDeviceSetup)
     #endif
+        || (m_PCIDeviceSetup)
+#endif
     ) {
         sts = EnumImplementations();
         MSDK_CHECK_STATUS(sts, "EnumImplementations failed");
@@ -458,6 +453,11 @@ mfxStatus VPLImplementationLoader::ConfigureAndEnumImplementations(
         sts = CreateConfig(mfxU32(0x8086), "mfxImplDescription.VendorID");
         MSDK_CHECK_STATUS(sts, "Failed to configure mfxImplDescription.VendorID");
 
+#if !defined(_WIN32)
+        // assume adapterNum 0 on Linux...
+        if (m_adapterNum == -1)
+            m_adapterNum = 0;
+#else
         if (m_adapterNum == -1) {
             m_adapterNum = FoundSuitableAdapter();
             MSDK_CHECK_ERROR(m_adapterNum, -1, MFX_ERR_DEVICE_FAILED);
@@ -465,6 +465,7 @@ mfxStatus VPLImplementationLoader::ConfigureAndEnumImplementations(
 
         sts = CreateConfig(mfxU32(m_adapterNum), "DXGIAdapterIndex");
         MSDK_CHECK_STATUS(sts, "Failed to configure DXGIAdapterIndex");
+#endif
 
         //only one impl. is reported
         m_ImplIndex = 0;
@@ -481,7 +482,6 @@ mfxStatus VPLImplementationLoader::ConfigureAndEnumImplementations(
                  0 /* no ID */,
                  m_adapterNum);
     }
-#endif
 
     return sts;
 }

@@ -104,6 +104,12 @@ mfxStatus MFXEnumImplementations(mfxLoader loader,
 
     // load and query all libraries
     if (loaderCtx->m_bNeedFullQuery) {
+        // if a session was already created in low-latency mode, unload all implementations
+        //   before running full load and query
+        if (loaderCtx->m_bLowLatency && !loaderCtx->m_bNeedLowLatencyQuery) {
+            loaderCtx->UnloadAllLibraries();
+        }
+
         sts = loaderCtx->FullLoadAndQuery();
         if (sts)
             return MFX_ERR_NOT_FOUND;

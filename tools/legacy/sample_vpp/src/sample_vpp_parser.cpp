@@ -61,6 +61,8 @@ void vppPrintHelp(const msdk_char* strAppName, const msdk_char* strErrorMessage)
         "   [-AdapterNum]               - specifies adpter number for processing, starts from 0\n"));
     msdk_printf(MSDK_STRING(
         "   [-dispatcher:fullSearch]    - enable search for all available implementations in oneVPL dispatcher\n"));
+    msdk_printf(MSDK_STRING(
+        "   [-dispatcher:lowLatency]    - enable limited implementation search and query in oneVPL dispatcher\n"));
 #if defined(D3D_SURFACES_SUPPORT)
     msdk_printf(MSDK_STRING("   [-d3d]                      - use d3d9 surfaces\n\n"));
 #endif
@@ -1942,6 +1944,9 @@ mfxStatus vppParseInputString(msdk_char* strInput[],
             }
             else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-dispatcher:fullSearch"))) {
                 pParams->dispFullSearch = true;
+            }
+            else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-dispatcher:lowLatency"))) {
+                pParams->dispFullSearch = false;
             }
 #if defined(D3D_SURFACES_SUPPORT)
             else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-d3d"))) {

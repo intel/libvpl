@@ -14,8 +14,8 @@
 #include "src/dispatcher_common.h"
 
 #if defined(_WIN32) || defined(_WIN64)
-
     #include <windows.h>
+#endif
 
 enum ConfigTypesLowLatency {
     LL_SINGLE_CONFIG = 0,
@@ -95,11 +95,11 @@ static mfxStatus EnableLowLatency(mfxLoader loader,
     }
 
     var.Type = MFX_VARIANT_TYPE_U32;
-    #if defined(_WIN32) || defined(_WIN64)
+#if defined(_WIN32) || defined(_WIN64)
     var.Data.U32 = MFX_ACCEL_MODE_VIA_D3D11;
-    #else
+#else
     var.Data.U32 = MFX_ACCEL_MODE_VIA_VAAPI;
-    #endif
+#endif
     sts = MFXSetConfigFilterProperty(config4,
                                      (const mfxU8 *)"mfxImplDescription.AccelerationMode",
                                      var);
@@ -351,7 +351,7 @@ TEST(Dispatcher_LowLatency, Get_ImplDesc_MFXEnumImplementations_AfterSessionCrea
                                  MFX_IMPLCAPS_IMPLDESCSTRUCTURE,
                                  reinterpret_cast<mfxHDL *>(&idesc));
     EXPECT_EQ(sts, MFX_ERR_NONE);
-    EXPECT_NE(idesc, nullptr);
+    ASSERT_NE(idesc, nullptr);
 
     bool bIsImplNameCorrect =
         ((strcmp(idesc->ImplName, "mfxhw64") == 0) || (strcmp(idesc->ImplName, "mfx-gen") == 0))
@@ -365,5 +365,3 @@ TEST(Dispatcher_LowLatency, Get_ImplDesc_MFXEnumImplementations_AfterSessionCrea
     MFXClose(session);
     MFXUnload(loader);
 }
-
-#endif // defined(_WIN32) || defined(_WIN64)

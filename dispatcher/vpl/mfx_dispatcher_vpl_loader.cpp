@@ -765,6 +765,10 @@ mfxStatus LoaderCtxVPL::UnloadAllLibraries() {
         it++;
     }
 
+    m_implInfoList.clear();
+    m_libInfoList.clear();
+    m_implIdxNext = 0;
+
     return MFX_ERR_NONE;
 }
 
@@ -1387,10 +1391,7 @@ mfxStatus LoaderCtxVPL::ReleaseImpl(mfxHDL idesc) {
 mfxStatus LoaderCtxVPL::UpdateLowLatency() {
     m_bLowLatency = false;
 
-#if defined(_WIN32) || defined(_WIN64)
-    // only supported on Windows currently
     m_bLowLatency = ConfigCtxVPL::CheckLowLatencyConfig(m_configCtxList, &m_specialConfig);
-#endif
 
     return MFX_ERR_NONE;
 }

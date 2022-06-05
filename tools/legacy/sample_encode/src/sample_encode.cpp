@@ -93,6 +93,8 @@ void PrintHelp(msdk_char* strAppName, const msdk_char* strErrorMessage, ...) {
         MSDK_STRING("   [-AdapterNum] - specifies adpter number for processing, starts from 0\n"));
     msdk_printf(MSDK_STRING(
         "   [-dispatcher:fullSearch]  - enable search for all available implementations in oneVPL dispatcher\n"));
+    msdk_printf(MSDK_STRING(
+        "   [-dispatcher:lowLatency]  - enable limited implementation search and query in oneVPL dispatcher\n"));
 #ifdef MOD_ENC
     MOD_ENC_PRINT_HELP;
 #endif
@@ -678,6 +680,9 @@ mfxStatus ParseAdditionalParams(msdk_char* strInput[],
     else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-dispatcher:fullSearch"))) {
         pParams->dispFullSearch = true;
     }
+    else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-dispatcher:lowLatency"))) {
+        pParams->dispFullSearch = false;
+    }
     else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-api_ver_init::1x"))) {
         pParams->verSessionInit = API_1X;
     }
@@ -781,7 +786,7 @@ mfxStatus ParseInputString(msdk_char* strInput[], mfxU8 nArgNum, sInputParams* p
     pParams->adapterType        = mfxMediaAdapterType::MFX_MEDIA_UNKNOWN;
     pParams->dGfxIdx            = -1;
     pParams->adapterNum         = -1;
-    pParams->dispFullSearch     = false;
+    pParams->dispFullSearch     = DEF_DISP_FULLSEARCH;
     pParams->RoundingOffsetFile = NULL;
 #if defined(ENABLE_V4L2_SUPPORT)
     pParams->MipiPort   = -1;

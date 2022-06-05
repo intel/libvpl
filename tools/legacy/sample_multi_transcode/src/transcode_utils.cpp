@@ -171,6 +171,8 @@ void TranscodingSample::PrintHelp() {
     msdk_printf(MSDK_STRING(
         "   [-dispatcher:fullSearch]  - enable search for all available implementations in oneVPL dispatcher\n"));
     msdk_printf(MSDK_STRING(
+        "   [-dispatcher:lowLatency]  - enable limited implementation search and query in oneVPL dispatcher\n"));
+    msdk_printf(MSDK_STRING(
         "  -mfe_frames <N> maximum number of frames to be combined in multi-frame encode pipeline"));
     msdk_printf(MSDK_STRING("               0 - default for platform will be used\n"));
     msdk_printf(MSDK_STRING(
@@ -1417,6 +1419,9 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
     }
     else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-dispatcher:fullSearch"))) {
         InputParams.dispFullSearch = true;
+    }
+    else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-dispatcher:lowLatency"))) {
+        InputParams.dispFullSearch = false;
     }
     else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-dec::sys"))) {
         InputParams.DecOutPattern = MFX_IOPATTERN_OUT_SYSTEM_MEMORY;
