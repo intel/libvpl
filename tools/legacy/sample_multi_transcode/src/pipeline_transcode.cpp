@@ -2696,7 +2696,8 @@ mfxStatus CTranscodingPipeline::InitEncMfxParams(sInputParams* pInParams) {
     if (pInParams->bLABRC || pInParams->nMaxSliceSize || pInParams->nBRefType ||
         (pInParams->BitrateLimit && pInParams->EncodeId == MFX_CODEC_AVC) ||
         (pInParams->nExtBRC &&
-         (pInParams->EncodeId == MFX_CODEC_HEVC || pInParams->EncodeId == MFX_CODEC_AVC)) ||
+         (pInParams->EncodeId == MFX_CODEC_HEVC || pInParams->EncodeId == MFX_CODEC_AVC ||
+          pInParams->EncodeId == MFX_CODEC_AV1)) ||
         pInParams->IntRefType || pInParams->IntRefCycleSize || pInParams->IntRefQPDelta ||
         pInParams->nMaxFrameSize || pInParams->AdaptiveI || pInParams->AdaptiveB ||
         pInParams->nMinQPI || pInParams->nMaxQPI || pInParams->nMinQPP || pInParams->nMaxQPP ||
