@@ -9,6 +9,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <condition_variable>
 #include <fstream>
 #include <map>
 #include <mutex>
@@ -39,10 +40,12 @@ public:
     };
     using EventIt = std::vector<Event>::iterator;
 
+    enum class LatencyType { DEFAULT, E2E, ENC };
+
     SMTTracer();
     ~SMTTracer();
 
-    void Init();
+    void Init(const mfxU32 numOfChannels, const LatencyType latency);
     void BeginEvent(const ThreadType thType,
                     const mfxU32 thID,
                     const EventName name,
@@ -57,6 +60,11 @@ public:
                          const mfxU32 thID,
                          const EventName name,
                          const mfxU64 counter);
+    void BeforeDecodeStart();
+    void AfterDecodeStart();
+    void BeforeEncodeStart();
+    void AfterDecodeSync();
+    void AfterEncodeSync();
 
 private:
     //runtime functions
@@ -76,9 +84,11 @@ private:
 
     void ComputeE2ELatency();
     void PrintE2ELatency();
-
     void ComputeEncLatency();
     void PrintEncLatency();
+    void SaveLatency(LatencyType type,
+                     mfxU32 FileID,
+                     std::map<mfxU32, std::vector<mfxU64>>& latency);
 
     EventIt FindBeginningOfDependencyChain(EventIt it);
     EventIt FindBeginningOfDurationEvent(EventIt it);
@@ -111,7 +121,14 @@ private:
     std::map<mfxU32, std::vector<mfxU64>> EncLatency;
     mfxU32 NumOfErrors = 0;
     std::chrono::steady_clock::time_point TimeBase;
-    std::mutex TracerFileMutex;
+    std::mutex TracerMutex;
+    LatencyType Latency     = LatencyType::DEFAULT;
+    int NumOfChannels       = 0; //this is "N" in 1toN
+    int NumOfActiveDecoders = 0;
+    int NumOfActiveEncoders = 0; //number of encoders that are still running
+    std::condition_variable DecSync{}; //wake up decoder
+    std::condition_variable EncSync{}; //wake up encoders
+    constexpr static int MaxFrameLatencyInMilliseconds = 200;
 };
 
 } // namespace TranscodingSample

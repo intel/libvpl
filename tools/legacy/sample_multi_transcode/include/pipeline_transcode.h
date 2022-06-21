@@ -151,9 +151,10 @@ enum MemoryModel {
 enum eAPIVersion { API_2X, API_1X };
 
 struct __sInputParams {
-    mfxU32 TargetID    = 0;
-    bool CascadeScaler = false;
-    bool EnableTracing = false;
+    mfxU32 TargetID                    = 0;
+    bool CascadeScaler                 = false;
+    bool EnableTracing                 = false;
+    SMTTracer::LatencyType LatencyType = SMTTracer::LatencyType::DEFAULT;
 
     // session parameters
     bool bIsJoin;

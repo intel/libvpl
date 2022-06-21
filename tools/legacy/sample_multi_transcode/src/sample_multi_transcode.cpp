@@ -1399,12 +1399,7 @@ CascadeScalerConfig& Launcher::CreateCascadeScalerConfig() {
 
     //process par file
     for (sInputParams& par : m_InputParamsArray) {
-        if (par.eMode == Sink) {
-            if (par.EnableTracing) {
-                cfg.Tracer->Init();
-            }
-        }
-        else if (par.eMode == Source) {
+        if (par.eMode == Source) {
             //this is encoder, import par file params
             CascadeScalerConfig::TargetDescriptor desc;
             desc.TargetID  = par.TargetID;
@@ -1433,6 +1428,14 @@ CascadeScalerConfig& Launcher::CreateCascadeScalerConfig() {
 
     cfg.ParFileImported = true;
     cfg.CreatePoolList();
+
+    //init tracer, should be called when config is fully initialized
+    for (sInputParams& par : m_InputParamsArray) {
+        if (par.eMode == Sink && par.EnableTracing) {
+            cfg.Tracer->Init((mfxU32)cfg.Targets.size(), par.LatencyType);
+            break;
+        }
+    }
 
     return m_CSConfig;
 }

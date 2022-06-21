@@ -1507,6 +1507,14 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
     else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-trace"))) {
         InputParams.EnableTracing = true;
     }
+    else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-trace::E2E"))) {
+        InputParams.EnableTracing = true;
+        InputParams.LatencyType   = SMTTracer::LatencyType::E2E;
+    }
+    else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-trace::ENC"))) {
+        InputParams.EnableTracing = true;
+        InputParams.LatencyType   = SMTTracer::LatencyType::ENC;
+    }
 #if (defined(_WIN64) || defined(_WIN32))
     else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-dual_gfx::on"))) {
         InputParams.isDualMode = true;

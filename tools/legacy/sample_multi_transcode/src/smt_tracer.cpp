@@ -8,7 +8,7 @@
 
 namespace TranscodingSample {
 
-SMTTracer::SMTTracer() : Log(), AddonLog(), E2ELatency(), EncLatency(), TracerFileMutex() {
+SMTTracer::SMTTracer() : Log(), AddonLog(), E2ELatency(), EncLatency(), TracerMutex() {
     TimeBase = std::chrono::steady_clock::now();
 }
 
@@ -18,21 +18,27 @@ SMTTracer::~SMTTracer() {
 
     //these functions are intentionally called from destructor to try to save traces in case of a crash
     AddFlowEvents();
-    SaveTrace(0xffffff & GetCurrentTS());
+    mfxU32 FileID = 0xffffff & GetCurrentTS();
+    SaveTrace(FileID);
 
     ComputeE2ELatency();
     PrintE2ELatency();
+    SaveLatency(LatencyType::E2E, FileID, E2ELatency);
 
     ComputeEncLatency();
     PrintEncLatency();
+    SaveLatency(LatencyType::ENC, FileID, EncLatency);
 }
 
-void SMTTracer::Init() {
+void SMTTracer::Init(const mfxU32 numOfChannels, const LatencyType latency) {
     if (Enabled) {
         return;
     }
     Enabled = true;
     Log.reserve(TraceBufferSizeInMBytes * 1024 * 1024 / sizeof(Event));
+
+    NumOfChannels = numOfChannels;
+    Latency       = latency;
 }
 
 void SMTTracer::BeginEvent(const ThreadType thType,
@@ -62,6 +68,59 @@ void SMTTracer::AddCounterEvent(const ThreadType thType,
     if (!Enabled)
         return;
     AddEvent(EventType::Counter, thType, thID, name, reinterpret_cast<void*>(counter), nullptr);
+}
+
+void SMTTracer::BeforeDecodeStart() {
+    if (Latency == LatencyType::E2E || Latency == LatencyType::ENC) {
+        std::unique_lock<std::mutex> guard(TracerMutex);
+        if (NumOfActiveEncoders <= 0) {
+            return;
+        }
+
+        DecSync.wait_for(guard, std::chrono::milliseconds(MaxFrameLatencyInMilliseconds), [&] {
+            return NumOfActiveEncoders <= 0;
+        });
+    }
+}
+
+void SMTTracer::AfterDecodeStart() {
+    if (Latency == LatencyType::E2E || Latency == LatencyType::ENC) {
+        std::lock_guard<std::mutex> guard(TracerMutex);
+        NumOfActiveEncoders = NumOfChannels;
+        if (Latency == LatencyType::ENC) {
+            NumOfActiveDecoders = 1;
+        }
+    }
+}
+
+void SMTTracer::BeforeEncodeStart() {
+    if (Latency == LatencyType::ENC) {
+        std::unique_lock<std::mutex> guard(TracerMutex);
+        EncSync.wait_for(guard, std::chrono::milliseconds(MaxFrameLatencyInMilliseconds), [&] {
+            return NumOfActiveDecoders <= 0;
+        });
+    }
+}
+
+void SMTTracer::AfterDecodeSync() {
+    if (Latency == LatencyType::ENC) {
+        std::unique_lock<std::mutex> guard(TracerMutex);
+        NumOfActiveDecoders = 0;
+        guard.unlock();
+        EncSync.notify_all();
+    }
+}
+
+void SMTTracer::AfterEncodeSync() {
+    if (Latency == LatencyType::E2E || Latency == LatencyType::ENC) {
+        std::unique_lock<std::mutex> guard(TracerMutex);
+        NumOfActiveEncoders--;
+
+        if (NumOfActiveEncoders <= 0) {
+            guard.unlock();
+            DecSync.notify_one();
+        }
+    }
 }
 
 void SMTTracer::SaveTrace(mfxU32 FileID) {
@@ -108,7 +167,7 @@ void SMTTracer::AddEvent(const EventType evType,
         return;
     }
 
-    std::lock_guard<std::mutex> guard(TracerFileMutex);
+    std::lock_guard<std::mutex> guard(TracerMutex);
     Log.push_back(ev);
 }
 
@@ -209,6 +268,41 @@ void SMTTracer::PrintEncLatency() {
         }
         printf("\n");
     }
+}
+
+void SMTTracer::SaveLatency(LatencyType type,
+                            mfxU32 FileID,
+                            std::map<mfxU32, std::vector<mfxU64>>& latency) {
+    if (latency.empty()) {
+        return;
+    }
+
+    std::string FileName = std::string(type == LatencyType::E2E ? "e2e" : "enc") + "_latency_" +
+                           std::to_string(FileID) + ".csv";
+    std::ofstream trace_file(FileName, std::ios::out);
+    if (!trace_file) {
+        return;
+    }
+
+    int NumOfFrames = (int)(latency.begin()->second.size());
+
+    //output frame number
+    trace_file << "frame_num,";
+    for (int i = 0; i < NumOfFrames; i++) {
+        trace_file << i << ",";
+    }
+    trace_file << std::endl;
+
+    //output frame latency
+    for (const auto& v : latency) {
+        trace_file << "enc" << v.first << ",";
+        for (mfxU64 t : v.second) {
+            trace_file << t / 1000. << ",";
+        }
+        trace_file << std::endl;
+    }
+
+    trace_file.close();
 }
 
 SMTTracer::EventIt SMTTracer::FindBeginningOfDependencyChain(EventIt it) {
@@ -370,7 +464,7 @@ void SMTTracer::WriteEventTID(std::ofstream& trace_file, const Event ev) {
             trace_file << "dec";
             break;
         case ThreadType::VPP:
-            trace_file << "enc" << ev.ThID;
+            trace_file << "enc" << ev.ThID; //it puts VPP events in enc thread
             break;
         case ThreadType::ENC:
             trace_file << "enc" << ev.ThID;

@@ -622,6 +622,7 @@ mfxStatus CTranscodingPipeline::DecodeOneFrame(ExtendedSurface* pExtSurface) {
                         "ERROR: No free surfaces in decoder pool (during long period)\n")));
             }
 
+            m_ScalerConfig.Tracer->BeforeDecodeStart();
             m_ScalerConfig.Tracer->BeginEvent(SMTTracer::ThreadType::DEC,
                                               0,
                                               SMTTracer::EventName::UNDEF,
@@ -636,6 +637,10 @@ mfxStatus CTranscodingPipeline::DecodeOneFrame(ExtendedSurface* pExtSurface) {
                                             SMTTracer::EventName::UNDEF,
                                             nullptr,
                                             pExtSurface->pSurface);
+            if (pExtSurface->Syncp) {
+                m_ScalerConfig.Tracer->AfterDecodeStart();
+            }
+
             if (m_MemoryModel == VISIBLE_INT_ALLOC) {
                 mfxStatus sts_release = pmfxSurface->FrameInterface->Release(pmfxSurface);
                 MSDK_CHECK_STATUS(sts_release, "FrameInterface->Release failed");
@@ -907,6 +912,7 @@ mfxStatus CTranscodingPipeline::EncodeOneFrame(ExtendedSurface* pExtSurface,
         }
 
         // at this point surface for encoder contains either a frame from file or a frame processed by vpp
+        m_ScalerConfig.Tracer->BeforeEncodeStart();
         m_ScalerConfig.Tracer->BeginEvent(SMTTracer::ThreadType::ENC,
                                           TargetID,
                                           SMTTracer::EventName::UNDEF,
@@ -1327,6 +1333,7 @@ mfxStatus CTranscodingPipeline::Decode() {
                                                 frontSurface.pSurface,
                                                 nullptr);
 
+                m_ScalerConfig.Tracer->AfterDecodeSync();
                 HandlePossibleGpuHang(sts);
                 MSDK_CHECK_ERR_NONE_STATUS(sts, MFX_ERR_ABORTED, "SyncOperation failed");
                 frontSurface.Syncp = NULL;
@@ -2108,6 +2115,7 @@ mfxStatus CTranscodingPipeline::PutBS() {
                                         SMTTracer::EventName::SYNC,
                                         pBitstreamEx->Syncp,
                                         nullptr);
+        m_ScalerConfig.Tracer->AfterEncodeSync();
         HandlePossibleGpuHang(sts);
         MSDK_CHECK_ERR_NONE_STATUS(sts, MFX_ERR_ABORTED, "Encode: SyncOperation failed");
         if (m_pSurfaceUtilizationSynchronizer && m_MemoryModel != GENERAL_ALLOC) {
