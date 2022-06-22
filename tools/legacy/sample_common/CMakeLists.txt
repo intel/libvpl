@@ -189,6 +189,8 @@ if(CMAKE_SYSTEM_NAME MATCHES Linux)
       if(ENABLE_WAYLAND)
         if(PKG_WAYLAND_CLIENT_FOUND)
           target_compile_definitions(${TARGET} PUBLIC LIBVA_WAYLAND_SUPPORT)
+          target_include_directories(${TARGET}
+                                     PUBLIC ${PKG_WAYLAND_CLIENT_INCLUDE_DIRS})
           target_include_directories(
             ${TARGET}
             PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../sample_misc/wayland/include)
