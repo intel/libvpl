@@ -27,25 +27,12 @@ public:
 
     enum class EventType { DurationStart, DurationEnd, FlowStart, FlowEnd, Counter };
 
-    class Event {
-    public:
-        EventType EvType; //duration, flow, counter
-        ThreadType ThType; //dec, vpp, enc, csvpp
-        mfxU32 ThID; //channel or pool number in 1toN pipeline
-        EventName Name; //optional, if not specifyed thread name will be used
-        mfxU32 EvID; //unique event ID
-        mfxU64 InID; //unique dependency ID, e.g. surface pointer
-        mfxU64 OutID;
-        mfxU64 TS; //time stamp
-    };
-    using EventIt = std::vector<Event>::iterator;
-
     enum class LatencyType { DEFAULT, E2E, ENC };
 
     SMTTracer();
     ~SMTTracer();
 
-    void Init(const mfxU32 numOfChannels, const LatencyType latency);
+    void Init(const mfxU32 numOfChannels, const LatencyType latency, const mfxU32 TraceBufferSize);
     void BeginEvent(const ThreadType thType,
                     const mfxU32 thID,
                     const EventName name,
@@ -67,6 +54,26 @@ public:
     void AfterEncodeSync();
 
 private:
+    class Event {
+    public:
+        EventType EvType; //duration, flow, counter
+        ThreadType ThType; //dec, vpp, enc, csvpp
+        mfxU32 ThID; //channel or pool number in 1toN pipeline
+        EventName Name; //optional, if not specifyed thread name will be used
+        mfxU32 EvID; //unique event ID
+        mfxU64 InID; //unique dependency ID, e.g. surface pointer
+        mfxU64 OutID;
+        mfxU64 TS; //time stamp
+    };
+    using EventIt = std::vector<Event>::iterator;
+
+    class TimeInterval {
+    public:
+        TimeInterval(mfxU64 ts, mfxU64 duration);
+        mfxU64 TS; //beginning of time interval, wall clock
+        mfxU64 Duration;
+    };
+
     //runtime functions
     void AddEvent(const EventType evType,
                   const ThreadType thType,
@@ -83,12 +90,10 @@ private:
     void AddFlowEvent(const Event a, const Event b);
 
     void ComputeE2ELatency();
-    void PrintE2ELatency();
     void ComputeEncLatency();
-    void PrintEncLatency();
     void SaveLatency(LatencyType type,
                      mfxU32 FileID,
-                     std::map<mfxU32, std::vector<mfxU64>>& latency);
+                     std::map<mfxU32, std::vector<TimeInterval>>& latency);
 
     EventIt FindBeginningOfDependencyChain(EventIt it);
     EventIt FindBeginningOfDurationEvent(EventIt it);
@@ -111,24 +116,26 @@ private:
     void WriteEvID(std::ofstream& trace_file, const Event ev);
     void WriteComma(std::ofstream& trace_file);
 
-    const static mfxU32 TraceBufferSizeInMBytes = 7;
+    mfxU32 TraceBufferSizeInMBytes          = 7;
+    const mfxU32 MaxTraceBufferSizeInMBytes = 128;
 
     bool Enabled = false;
     mfxU32 EvID  = 0;
     std::vector<Event> Log;
     std::vector<Event> AddonLog;
-    std::map<mfxU32, std::vector<mfxU64>> E2ELatency;
-    std::map<mfxU32, std::vector<mfxU64>> EncLatency;
+    std::map<mfxU32, std::vector<TimeInterval>> E2ELatency;
+    std::map<mfxU32, std::vector<TimeInterval>> EncLatency;
     mfxU32 NumOfErrors = 0;
-    std::chrono::steady_clock::time_point TimeBase;
+    mfxU64 TimeBase    = 0; //moment of time when tracer has been created
+
     std::mutex TracerMutex;
-    LatencyType Latency     = LatencyType::DEFAULT;
-    int NumOfChannels       = 0; //this is "N" in 1toN
-    int NumOfActiveDecoders = 0;
-    int NumOfActiveEncoders = 0; //number of encoders that are still running
+    LatencyType TypeOfLatency = LatencyType::DEFAULT;
+    int NumOfChannels         = 0; //this is "N" in 1toN
+    int NumOfActiveDecoders   = 0;
+    int NumOfActiveEncoders   = 0; //number of encoders that are still running
     std::condition_variable DecSync{}; //wake up decoder
     std::condition_variable EncSync{}; //wake up encoders
-    constexpr static int MaxFrameLatencyInMilliseconds = 200;
+    const mfxU32 MaxFrameLatencyInMilliseconds = 200;
 };
 
 } // namespace TranscodingSample

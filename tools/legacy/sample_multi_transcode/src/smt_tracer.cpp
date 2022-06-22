@@ -9,7 +9,7 @@
 namespace TranscodingSample {
 
 SMTTracer::SMTTracer() : Log(), AddonLog(), E2ELatency(), EncLatency(), TracerMutex() {
-    TimeBase = std::chrono::steady_clock::now();
+    TimeBase = GetCurrentTS();
 }
 
 SMTTracer::~SMTTracer() {
@@ -18,27 +18,31 @@ SMTTracer::~SMTTracer() {
 
     //these functions are intentionally called from destructor to try to save traces in case of a crash
     AddFlowEvents();
-    mfxU32 FileID = 0xffffff & GetCurrentTS();
+    mfxU32 FileID = 0xfffffff & GetCurrentTS();
     SaveTrace(FileID);
 
     ComputeE2ELatency();
-    PrintE2ELatency();
     SaveLatency(LatencyType::E2E, FileID, E2ELatency);
 
     ComputeEncLatency();
-    PrintEncLatency();
     SaveLatency(LatencyType::ENC, FileID, EncLatency);
 }
 
-void SMTTracer::Init(const mfxU32 numOfChannels, const LatencyType latency) {
+void SMTTracer::Init(const mfxU32 numOfChannels,
+                     const LatencyType latency,
+                     const mfxU32 TraceBufferSize) {
     if (Enabled) {
         return;
     }
     Enabled = true;
+
+    if (TraceBufferSize > TraceBufferSizeInMBytes && TraceBufferSize < MaxTraceBufferSizeInMBytes) {
+        TraceBufferSizeInMBytes = TraceBufferSize;
+    }
     Log.reserve(TraceBufferSizeInMBytes * 1024 * 1024 / sizeof(Event));
 
     NumOfChannels = numOfChannels;
-    Latency       = latency;
+    TypeOfLatency = latency;
 }
 
 void SMTTracer::BeginEvent(const ThreadType thType,
@@ -71,7 +75,7 @@ void SMTTracer::AddCounterEvent(const ThreadType thType,
 }
 
 void SMTTracer::BeforeDecodeStart() {
-    if (Latency == LatencyType::E2E || Latency == LatencyType::ENC) {
+    if (TypeOfLatency == LatencyType::E2E || TypeOfLatency == LatencyType::ENC) {
         std::unique_lock<std::mutex> guard(TracerMutex);
         if (NumOfActiveEncoders <= 0) {
             return;
@@ -84,17 +88,17 @@ void SMTTracer::BeforeDecodeStart() {
 }
 
 void SMTTracer::AfterDecodeStart() {
-    if (Latency == LatencyType::E2E || Latency == LatencyType::ENC) {
+    if (TypeOfLatency == LatencyType::E2E || TypeOfLatency == LatencyType::ENC) {
         std::lock_guard<std::mutex> guard(TracerMutex);
         NumOfActiveEncoders = NumOfChannels;
-        if (Latency == LatencyType::ENC) {
+        if (TypeOfLatency == LatencyType::ENC) {
             NumOfActiveDecoders = 1;
         }
     }
 }
 
 void SMTTracer::BeforeEncodeStart() {
-    if (Latency == LatencyType::ENC) {
+    if (TypeOfLatency == LatencyType::ENC) {
         std::unique_lock<std::mutex> guard(TracerMutex);
         EncSync.wait_for(guard, std::chrono::milliseconds(MaxFrameLatencyInMilliseconds), [&] {
             return NumOfActiveDecoders <= 0;
@@ -103,7 +107,7 @@ void SMTTracer::BeforeEncodeStart() {
 }
 
 void SMTTracer::AfterDecodeSync() {
-    if (Latency == LatencyType::ENC) {
+    if (TypeOfLatency == LatencyType::ENC) {
         std::unique_lock<std::mutex> guard(TracerMutex);
         NumOfActiveDecoders = 0;
         guard.unlock();
@@ -112,7 +116,7 @@ void SMTTracer::AfterDecodeSync() {
 }
 
 void SMTTracer::AfterEncodeSync() {
-    if (Latency == LatencyType::E2E || Latency == LatencyType::ENC) {
+    if (TypeOfLatency == LatencyType::E2E || TypeOfLatency == LatencyType::ENC) {
         std::unique_lock<std::mutex> guard(TracerMutex);
         NumOfActiveEncoders--;
 
@@ -130,10 +134,7 @@ void SMTTracer::SaveTrace(mfxU32 FileID) {
         return;
     }
 
-    printf("\n### trace buffer usage [%d/%d] %.2f%%\n",
-           (int)Log.size(),
-           (int)Log.capacity(),
-           100. * Log.size() / Log.capacity());
+    printf("\n### trace buffer usage %.2f%%\n", 100. * Log.size() / Log.capacity());
     printf("trace file name %s\n", FileName.c_str());
 
     trace_file << "[" << std::endl;
@@ -146,6 +147,11 @@ void SMTTracer::SaveTrace(mfxU32 FileID) {
     }
 
     trace_file.close();
+}
+
+SMTTracer::TimeInterval::TimeInterval(mfxU64 ts, mfxU64 duration) {
+    TS       = ts;
+    Duration = duration;
 }
 
 void SMTTracer::AddEvent(const EventType evType,
@@ -172,8 +178,11 @@ void SMTTracer::AddEvent(const EventType evType,
 }
 
 mfxU64 SMTTracer::GetCurrentTS() {
-    std::chrono::steady_clock::time_point time = std::chrono::steady_clock::now();
-    return std::chrono::duration_cast<std::chrono::microseconds>(time - TimeBase).count();
+    //Note, that standard specifies that "steady_clock" is monotonic but not system wide,
+    //"system_clock" is system wide but not monotonic. We use "steady_clock", so please
+    //check your implementation before comparing traces from different processes.
+    using namespace std::chrono;
+    return duration_cast<microseconds>(steady_clock::now().time_since_epoch()).count();
 }
 
 void SMTTracer::AddFlowEvents() {
@@ -215,21 +224,7 @@ void SMTTracer::ComputeE2ELatency() {
             continue;
         }
 
-        E2ELatency[it->ThID].push_back(it->TS - bit->TS);
-    }
-}
-
-void SMTTracer::PrintE2ELatency() {
-    printf("\nEnd To End Latency (from decode or YUV read start to encode end)\n");
-    printf("    number of frames with unknown latency: %d\n", NumOfErrors);
-
-    for (const auto& v : E2ELatency) {
-        printf("\n    enc%d number of frame %d\n", v.first, int(v.second.size()));
-        printf("        per frame latency ms : ");
-        for (mfxU64 t : v.second) {
-            printf(" %.2f,", t / 1000.);
-        }
-        printf("\n");
+        E2ELatency[it->ThID].push_back(TimeInterval(bit->TS, it->TS - bit->TS));
     }
 }
 
@@ -252,27 +247,14 @@ void SMTTracer::ComputeEncLatency() {
             continue;
         }
 
-        EncLatency[encBegin->ThID].push_back(syncEnd->TS - encBegin->TS);
-    }
-}
-
-void SMTTracer::PrintEncLatency() {
-    printf("\nEncode Latency (from encode start to encode end)\n");
-    printf("    number of frames with unknown latency: %d\n", NumOfErrors);
-
-    for (const auto& v : EncLatency) {
-        printf("\n    enc%d number of frame %d\n", v.first, int(v.second.size()));
-        printf("        per frame latency ms : ");
-        for (mfxU64 t : v.second) {
-            printf(" %.2f,", t / 1000.);
-        }
-        printf("\n");
+        EncLatency[encBegin->ThID].push_back(
+            TimeInterval(encBegin->TS, syncEnd->TS - encBegin->TS));
     }
 }
 
 void SMTTracer::SaveLatency(LatencyType type,
                             mfxU32 FileID,
-                            std::map<mfxU32, std::vector<mfxU64>>& latency) {
+                            std::map<mfxU32, std::vector<TimeInterval>>& latency) {
     if (latency.empty()) {
         return;
     }
@@ -284,20 +266,46 @@ void SMTTracer::SaveLatency(LatencyType type,
         return;
     }
 
-    int NumOfFrames = (int)(latency.begin()->second.size());
+    printf("latency stat file name %s\n", FileName.c_str());
 
-    //output frame number
-    trace_file << "frame_num,";
-    for (int i = 0; i < NumOfFrames; i++) {
-        trace_file << i << ",";
+    trace_file << "File format, four columns per channel:" << std::endl;
+    trace_file << "    frame number" << std::endl;
+    trace_file << "    start of frame processing, wall clock, e.g. from system reboot, ms"
+               << std::endl;
+    trace_file << "    start of frame processing, from SMT start, ms" << std::endl;
+    trace_file << "    frame processing duration, ms" << std::endl;
+
+    //header
+    for (const auto& v : latency) {
+        for (int i = 0; i < 4; i++) {
+            trace_file << "enc" << v.first << ",";
+        }
     }
     trace_file << std::endl;
 
-    //output frame latency
+    for (size_t i = 0; i < latency.size(); i++) {
+        trace_file << "fr#, ts, ts, latency,";
+    }
+    trace_file << std::endl;
+
+    //data, note, that channels may have different number of frames, for example due to DI
+    size_t NumOfFrames = 0;
     for (const auto& v : latency) {
-        trace_file << "enc" << v.first << ",";
-        for (mfxU64 t : v.second) {
-            trace_file << t / 1000. << ",";
+        NumOfFrames = std::max(NumOfFrames, v.second.size());
+    }
+
+    for (size_t i = 0; i < NumOfFrames; i++) {
+        for (const auto& v : latency) {
+            if (v.second.size() > i) {
+                trace_file << i << ",";
+                TimeInterval ti = v.second[i];
+                trace_file << ti.TS / 1000 << ",";
+                trace_file << (ti.TS - TimeBase) / 1000 << ",";
+                trace_file << ti.Duration / 1000. << ",";
+            }
+            else {
+                trace_file << ",,,,";
+            }
         }
         trace_file << std::endl;
     }

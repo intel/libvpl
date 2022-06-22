@@ -1432,7 +1432,7 @@ CascadeScalerConfig& Launcher::CreateCascadeScalerConfig() {
     //init tracer, should be called when config is fully initialized
     for (sInputParams& par : m_InputParamsArray) {
         if (par.eMode == Sink && par.EnableTracing) {
-            cfg.Tracer->Init((mfxU32)cfg.Targets.size(), par.LatencyType);
+            cfg.Tracer->Init((mfxU32)cfg.Targets.size(), par.LatencyType, par.TraceBufferSize);
             break;
         }
     }

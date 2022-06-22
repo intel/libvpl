@@ -154,6 +154,7 @@ struct __sInputParams {
     mfxU32 TargetID                    = 0;
     bool CascadeScaler                 = false;
     bool EnableTracing                 = false;
+    mfxU32 TraceBufferSize             = 0;
     SMTTracer::LatencyType LatencyType = SMTTracer::LatencyType::DEFAULT;
 
     // session parameters

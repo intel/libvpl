@@ -460,7 +460,8 @@ void TranscodingSample::PrintHelp() {
         MSDK_STRING("  -FRC::DT      Enables FRC filter with Distributed Timestamp algorithm\n"));
     msdk_printf(
         MSDK_STRING("  -FRC::INTERP  Enables FRC filter with Frame Interpolation algorithm\n"));
-    msdk_printf(MSDK_STRING("  -scaling_mode <mode> Specifies scaling mode (lowpower/quality)\n"));
+    msdk_printf(
+        MSDK_STRING("  -scaling_mode <mode> Specifies scaling mode (lowpower/quality/EU)\n"));
     msdk_printf(MSDK_STRING(
         "  -ec::nv12|rgb4|yuy2|nv16|p010|p210|y210|y410|p016|y216   Forces encoder input to use provided chroma mode\n"));
     msdk_printf(MSDK_STRING(
@@ -552,6 +553,11 @@ void TranscodingSample::PrintHelp() {
                             Therefore the file data from <filepath> is used for TCBRC test. This is a test model\n"));
     msdk_printf(MSDK_STRING("   -cs                      - turn on cascade scaling\n"));
     msdk_printf(MSDK_STRING("   -trace                   - turn on tracing \n"));
+    msdk_printf(MSDK_STRING(
+        "   -trace::ENC              - turn on tracing, tune pipeline for ENC latency\n"));
+    msdk_printf(MSDK_STRING(
+        "   -trace::E2E              - turn on tracing, tune pipeline for E2E latency \n"));
+    msdk_printf(MSDK_STRING("   -trace_buffer_size <x>   - trace buffer size in MBytes\n"));
 #if defined(LIBVA_X11_SUPPORT)
     msdk_printf(MSDK_STRING("   -rx11                    - use libva X11 backend \n"));
 #endif
@@ -1517,6 +1523,14 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
     else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-trace"))) {
         InputParams.EnableTracing = true;
     }
+    else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-trace_buffer_size"))) {
+        VAL_CHECK(i + 1 == argc, i, argv[i]);
+        i++;
+        if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.TraceBufferSize)) {
+            PrintError(MSDK_STRING("-trace_buffer_size \"%s\" is invalid"), argv[i]);
+            return MFX_ERR_UNSUPPORTED;
+        }
+    }
     else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-trace::E2E"))) {
         InputParams.EnableTracing = true;
         InputParams.LatencyType   = SMTTracer::LatencyType::E2E;
@@ -1798,6 +1812,8 @@ mfxStatus ParseVPPCmdLine(msdk_char* argv[],
             params->ScalingMode = MFX_SCALING_MODE_LOWPOWER;
         else if (0 == msdk_strcmp(argv[index], MSDK_STRING("quality")))
             params->ScalingMode = MFX_SCALING_MODE_QUALITY;
+        else if (0 == msdk_strcmp(argv[index], MSDK_STRING("eu")))
+            params->ScalingMode = MFX_SCALING_MODE_INTEL_GEN_COMPUTE;
         else {
             PrintError(NULL, MSDK_STRING("-scaling_mode \"%s\" is invalid"), argv[index]);
             return MFX_ERR_UNSUPPORTED;
