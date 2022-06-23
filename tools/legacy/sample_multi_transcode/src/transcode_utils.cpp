@@ -445,6 +445,16 @@ void TranscodingSample::PrintHelp() {
     msdk_printf(MSDK_STRING(
         "  -denoise <level>         Enables denoise filter with provided level (0..100)\n"));
     msdk_printf(
+        MSDK_STRING("  -VppHvsDenoise <mode> <level>      Enables vpp hvsdenoise filter)n"));
+    msdk_printf(MSDK_STRING("           mode - mode of deniose\n"));
+    msdk_printf(MSDK_STRING("               0    - default\n"));
+    msdk_printf(MSDK_STRING("               1001 - auto BD rate\n"));
+    msdk_printf(MSDK_STRING("               1002 - auto subjective\n"));
+    msdk_printf(MSDK_STRING("               1003 - auto adjust\n"));
+    msdk_printf(MSDK_STRING("               1004 - manual mode for pre-processing, need level\n"));
+    msdk_printf(MSDK_STRING("               1005 - manual mode for post-processing, need level\n"));
+    msdk_printf(MSDK_STRING("           level - range of noise level is [0, 100]\n"));
+    msdk_printf(
         MSDK_STRING("  -FRC::PT      Enables FRC filter with Preserve Timestamp algorithm\n"));
     msdk_printf(
         MSDK_STRING("  -FRC::DT      Enables FRC filter with Distributed Timestamp algorithm\n"));
@@ -1538,12 +1548,12 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
     }
     else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-EmbeddedDenoise"))) {
         VAL_CHECK(i + 1 >= argc, i, argv[i]);
-        if (MFX_ERR_NONE != msdk_opt_read(argv[++i], InputParams.DenoiseMode)) {
+        if (MFX_ERR_NONE != msdk_opt_read(argv[++i], InputParams.EmbeddedDenoiseMode)) {
             PrintError(argv[0], MSDK_STRING("DenoiseMode is invalid"));
             return MFX_ERR_UNSUPPORTED;
         }
         VAL_CHECK(i + 1 >= argc, i, argv[i]);
-        if (MFX_ERR_NONE != msdk_opt_read(argv[++i], InputParams.DenoiseLevel)) {
+        if (MFX_ERR_NONE != msdk_opt_read(argv[++i], InputParams.EmbeddedDenoiseLevel)) {
             PrintError(argv[0], MSDK_STRING("DenoiseLevel is invalid"));
             return MFX_ERR_UNSUPPORTED;
         }
@@ -1696,17 +1706,43 @@ mfxStatus ParseVPPCmdLine(msdk_char* argv[],
                           mfxU32& index,
                           TranscodingSample::sInputParams* params,
                           mfxU32& skipped) {
-    if (0 == msdk_strcmp(argv[index], MSDK_STRING("-denoise"))) {
+    if (0 == msdk_strcmp(argv[index], MSDK_STRING("-VppHvsDenoise"))) {
         VAL_CHECK(index + 1 == argc, index, argv[index]);
         index++;
-        if (MFX_ERR_NONE != msdk_opt_read(argv[index], params->DenoiseLevel) ||
-            !(params->DenoiseLevel >= 0 && params->DenoiseLevel <= 100)) {
-            PrintError(NULL, MSDK_STRING("-denoise \"%s\" is invalid"), argv[index]);
+        if (MFX_ERR_NONE != msdk_opt_read(argv[index], params->VppDenoiseMode)) {
+            PrintError(NULL, MSDK_STRING("-vpp denoise mode\"%s\" is invalid"), argv[index]);
+            return MFX_ERR_UNSUPPORTED;
+        }
+        index++;
+        if (MFX_ERR_NONE != msdk_opt_read(argv[index], params->VppDenoiseLevel) ||
+            !(params->VppDenoiseLevel >= 0 && params->VppDenoiseLevel <= 100)) {
+            PrintError(NULL, MSDK_STRING("-vpp denoise level\"%s\" is invalid"), argv[index]);
+            return MFX_ERR_UNSUPPORTED;
+        }
+        if (!((params->VppDenoiseMode == 0) ||
+              (params->VppDenoiseMode > MFX_DENOISE_MODE_VENDOR &&
+               params->VppDenoiseMode < MFX_DENOISE_MODE_INTEL_HVS_POST_MANUAL + 1))) {
+            PrintError(NULL,
+                       MSDK_STRING("-vpp denoise mode\"%s\" is invalid"),
+                       params->VppDenoiseMode);
+            return MFX_ERR_UNSUPPORTED;
+        }
+        params->bVppDenoiser = true;
+        skipped += 2;
+        return MFX_ERR_NONE;
+    }
+    else if (0 == msdk_strcmp(argv[index], MSDK_STRING("-denoise"))) {
+        VAL_CHECK(index + 1 == argc, index, argv[index]);
+        index++;
+        if (MFX_ERR_NONE != msdk_opt_read(argv[index], params->VppDenoiseLevel) ||
+            !(params->VppDenoiseLevel >= 0 && params->VppDenoiseLevel <= 100)) {
+            PrintError(NULL, MSDK_STRING("-vpp denoise level\"%s\" is invalid"), argv[index]);
             return MFX_ERR_UNSUPPORTED;
         }
         skipped += 2;
         return MFX_ERR_NONE;
     }
+
     else if (0 == msdk_strcmp(argv[index], MSDK_STRING("-detail"))) {
         VAL_CHECK(index + 1 == argc, index, argv[index]);
         index++;

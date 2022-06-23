@@ -224,12 +224,17 @@ struct __sInputParams {
     mfxU16 nEncTileRows; // number of rows for encoding tiling
     mfxU16 nEncTileCols; // number of columns for encoding tiling
 
-    bool bEmbeddedDenoiser; // enable or disable embeded HVS Denoiser
-    mfxU16 DenoiseMode;
+    bool
+        bEmbeddedDenoiser; // enable or disable embeded HVS Denoiser (HVS denoiser is integrated into encoder)
+    mfxU16
+        EmbeddedDenoiseMode; // embeded HVS Denoiser Mode (HVS denoiser is integrated into encoder)
+    int EmbeddedDenoiseLevel; // embeded HVS Denoiser Level (HVS denoiser is integrated into encoder)
 
     bool bEnableDeinterlacing;
     mfxU16 DeinterlacingMode;
-    int DenoiseLevel;
+    bool bVppDenoiser;
+    int VppDenoiseLevel;
+    mfxU16 VppDenoiseMode;
     int DetailLevel;
     mfxU16 FRCAlgorithm;
     EFieldCopyMode fieldProcessingMode;

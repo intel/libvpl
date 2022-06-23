@@ -111,7 +111,9 @@ sInputParams::sInputParams()
     MaxFrameNumber   = MFX_INFINITE;
     pVppCompDstRects = NULL;
     m_hwdev          = NULL;
-    DenoiseLevel     = -1;
+    VppDenoiseLevel  = -1;
+    VppDenoiseMode   = 0;
+    bVppDenoiser     = false;
     DetailLevel      = -1;
 
     MFMode       = MFX_MF_DEFAULT;
@@ -120,8 +122,9 @@ sInputParams::sInputParams()
 
     forceSyncAllSession = MFX_CODINGOPTION_UNKNOWN;
 
-    bEmbeddedDenoiser = false;
-    DenoiseMode       = 0;
+    bEmbeddedDenoiser    = false;
+    EmbeddedDenoiseMode  = 0;
+    EmbeddedDenoiseLevel = -1;
 }
 
 CTranscodingPipeline::CTranscodingPipeline()
@@ -363,9 +366,9 @@ mfxStatus CTranscodingPipeline::VPPPreInit(sInputParams* pParams) {
 
         if ((GetFrameInfo(m_mfxDecParams).CropW != pParams->nDstWidth && pParams->nDstWidth) ||
             (GetFrameInfo(m_mfxDecParams).CropH != pParams->nDstHeight && pParams->nDstHeight) ||
-            (pParams->bEnableDeinterlacing) || (pParams->DenoiseLevel != -1) ||
+            (pParams->bEnableDeinterlacing) || (pParams->VppDenoiseLevel != -1) ||
             (pParams->DetailLevel != -1) || (pParams->FRCAlgorithm) || (bVppCompInitRequire) ||
-            (pParams->fieldProcessingMode) ||
+            (pParams->fieldProcessingMode) || (pParams->bVppDenoiser) ||
 #ifdef ENABLE_MCTF
             (VPP_FILTER_DISABLED != pParams->mctfParam.mode) ||
 #endif
@@ -3146,9 +3149,14 @@ mfxStatus CTranscodingPipeline::InitVppMfxParams(MfxVideoParamsWrapper& par,
     }
 #endif //ENABLE_MCTF
 
-    if (pInParams->DenoiseLevel != -1) {
+    if (pInParams->bVppDenoiser) {
+        auto denoise      = par.AddExtBuffer<mfxExtVPPDenoise2>();
+        denoise->Strength = (mfxU16)pInParams->VppDenoiseLevel;
+        denoise->Mode     = (mfxDenoiseMode)pInParams->VppDenoiseMode;
+    }
+    else if (pInParams->VppDenoiseLevel != -1) {
         auto denoise           = par.AddExtBuffer<mfxExtVPPDenoise>();
-        denoise->DenoiseFactor = (mfxU16)pInParams->DenoiseLevel;
+        denoise->DenoiseFactor = (mfxU16)pInParams->VppDenoiseLevel;
     }
 
     if (pInParams->DetailLevel != -1) {
@@ -3202,10 +3210,10 @@ mfxStatus CTranscodingPipeline::InitVppMfxParams(MfxVideoParamsWrapper& par,
     m_MctfRTParams.Restart();
 #endif
 
-    if (pInParams->bEmbeddedDenoiser && pInParams->DenoiseLevel != -1) {
+    if (pInParams->bEmbeddedDenoiser && pInParams->EmbeddedDenoiseLevel != -1) {
         auto hvsParam      = m_mfxEncParams.AddExtBuffer<mfxExtVPPDenoise2>();
-        hvsParam->Mode     = (mfxDenoiseMode)pInParams->DenoiseMode;
-        hvsParam->Strength = pInParams->DenoiseLevel;
+        hvsParam->Mode     = (mfxDenoiseMode)pInParams->EmbeddedDenoiseMode;
+        hvsParam->Strength = pInParams->EmbeddedDenoiseLevel;
     }
 
     return MFX_ERR_NONE;
@@ -4611,7 +4619,7 @@ mfxStatus CTranscodingPipeline::Reset(VPLImplementationLoader* mfxLoader) {
 mfxStatus CTranscodingPipeline::AllocAndInitVppDoNotUse(MfxVideoParamsWrapper& par,
                                                         sInputParams* pInParams) {
     std::vector<mfxU32> filtersDisabled;
-    if (pInParams->DenoiseLevel == -1) {
+    if (pInParams->VppDenoiseLevel == -1) {
         filtersDisabled.push_back(MFX_EXTBUFF_VPP_DENOISE); // turn off denoising (on by default)
     }
     filtersDisabled.push_back(
