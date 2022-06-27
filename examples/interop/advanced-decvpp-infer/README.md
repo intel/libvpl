@@ -96,19 +96,13 @@ pip3 install -r /opt/intel/openvino_2022/deployment_tools/open_model_zoo/tools/d
 4. Run the program with defaults using the following command:
 
 ```
-cmake --build . --target run
+./advanced-decvpp-infer -i ../../../content/cars_320x240.h265 -m ../../../content/public/mobilenet-ssd/FP32/mobilenet-ssd.xml 
 ```
 
 
 
 
 ## Running the Sample
-
-### Application Parameters
-
-The instructions given above run the sample executable with the argument
-`-i ../../../content/cars_320x240.h265 -m ../../../content/public/mobilenet-ssd/FP32/mobilenet-ssd.xml`.
-
 
 ### Example of Output
 

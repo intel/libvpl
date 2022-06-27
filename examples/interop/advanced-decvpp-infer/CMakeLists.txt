@@ -14,9 +14,6 @@ endif()
 
 set(TARGET advanced-decvpp-infer)
 set(SOURCES src/advanced-decvpp-infer.cpp src/util.h)
-set(CONTENTPATH ${CMAKE_CURRENT_SOURCE_DIR}/../../content)
-set(RUNARGS -i ${CONTENTPATH}/cars_320x240.h265 -m
-            ${CONTENTPATH}/public/mobilenet-ssd/FP32/mobilenet-ssd.xml)
 
 # Set default build type to RelWithDebInfo if not specified
 if(NOT CMAKE_BUILD_TYPE)
@@ -102,10 +99,4 @@ if(OpenCL_FOUND)
   target_link_libraries(${TARGET} ${OpenCL_LIBRARIES})
 else()
   message(SEND_ERROR "OpenCL not found")
-endif()
-
-get_directory_property(has_parent PARENT_DIRECTORY)
-if(NOT has_parent)
-  # only make run target available for stand-alone build
-  add_custom_target(run ${TARGET} ${RUNARGS})
 endif()

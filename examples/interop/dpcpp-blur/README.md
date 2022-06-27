@@ -83,19 +83,11 @@ Perform the following steps:
 
 5. Run the program with default arguments using the following command:
    ```
-   cmake --build . --target run
+   ./dpcpp-blur -sw -i ../../../content/cars_320x240.i420 -w 320 -h 240
    ```
 
 
 ## Running the Sample
-
-### Application Parameters
-
-The instructions given above run the sample executable with these arguments
-`-i ${CONTENTPATH}/cars_320x240.i420 -w 320 -h 240`.
-
-In Linux, an additional '-hw' parameter will run on GPU if GPU stack components 
-are found in your environment.
 
 ### Example Output
 

@@ -96,7 +96,7 @@ pip3 install -r /opt/intel/openvino_2022/deployment_tools/open_model_zoo/tools/d
 4. Run the program with defaults using the following command:
 
    ```
-   cmake --build . --target run
+   ./legacy-decode-infer -sw -i ../../../content/cars_320x240.h265 -m ../../../content/public/alexnet/FP32/alexnet.xml
    ```
 
 
@@ -150,16 +150,12 @@ pip3 install -r /opt/intel/openvino_2022/deployment_tools/open_model_zoo/tools/d
 
 6. Run the program using the following command:
    ```
-   cmake --build . --config Release --target run
+   Release\legacy-decode-infer -sw -i ..\..\..\content\cars_320x240.h265 -m ..\..\..\content\public\alexnet\FP32\alexnet.xml
    ```
 
 
 ## Running the Sample
 
-### Application Parameters
-
-The instructions given above run the sample executable with the argument
-`-sw -i ../../../content/cars_320x240.h265 -m ../../..//content/public/alexnet/FP32/alexnet.xml`.
 
 
 ### Example of Output

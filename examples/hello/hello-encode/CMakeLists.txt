@@ -19,15 +19,6 @@ endif()
 
 set(TARGET hello-encode)
 set(SOURCES src/hello-encode.cpp)
-set(CONTENTPATH ${CMAKE_CURRENT_SOURCE_DIR}/../../content)
-set(RUNARGS
-    -sw
-    -i
-    ${CONTENTPATH}/cars_320x240.i420
-    -w
-    320
-    -h
-    240)
 
 # Set default build type to RelWithDebInfo if not specified
 if(NOT CMAKE_BUILD_TYPE)
@@ -80,11 +71,5 @@ if(UNIX)
   endif()
 endif()
 
-get_directory_property(has_parent PARENT_DIRECTORY)
-if(NOT has_parent)
-  # only make run target available for stand-alone build
-  add_custom_target(run ${TARGET} ${RUNARGS})
-else()
-  install(TARGETS ${TARGET} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-                                    COMPONENT dev)
-endif()
+install(TARGETS ${TARGET} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+                                  COMPONENT dev)

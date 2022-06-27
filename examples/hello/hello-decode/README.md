@@ -74,7 +74,7 @@ Perform the following steps:
 
 4. Run the program with default arguments using the following command:
    ```
-   cmake --build . --target run
+   ./hello-decode -sw -i ../../../content/cars_320x240.h265
    ```
 
 ### On a Windows* System Using Visual Studio* Version 2017 or Newer
@@ -114,17 +114,11 @@ Perform the following steps:
 
 5. Run the program using the following command:
    ```
-   cmake --build . --config Release --target run
+   Release\hello-decode -sw -i ..\..\..\content/cars_320x240.h265
    ```
 
 
 ## Running the Sample
-
-### Application Parameters
-
-The instructions given above run the sample executable with the argument
-`-i ${CONTENTPATH}/cars_320x240.h265`.
-
 
 ### Example Output
 

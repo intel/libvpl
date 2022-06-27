@@ -67,7 +67,7 @@ Perform the following steps:
 
 4. Run the program using the following command:
    ```
-   cmake --build . --target run
+   ./legacy-vpp -sw -i ../../../content/cars_320x240.i420 -w 320 -h 240
    ```
 
 
@@ -108,17 +108,11 @@ Perform the following steps:
 
 5. Run the program using the following command:
    ```
-   cmake --build . --config Release --target run
+   Release/legacy-vpp -sw -i ..\..\..\content\cars_320x240.i420 -w 320 -h 240
    ```
 
 
 ## Running the Sample
-
-### Application Parameters
-
-The instructions given above run the sample executable with the argument
-`-i examples/content/cars_320x240.i420 -w 320 -h 240`.
-
 
 ### Example of Output
 

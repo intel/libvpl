@@ -67,7 +67,7 @@ Perform the following steps:
 
 4. Run the program using the following command:
    ```
-   cmake --build . --target run
+   ./legacy-encode -sw -i ../../../content/cars_320x240.i420 -w 320 -h 240
    ```
 
 
@@ -108,16 +108,11 @@ Perform the following steps:
 
 5. Run the program using the following command:
    ```
-   cmake --build . --config Release --target run
+   Release\legacy-encode -sw -i ..\..\..\content\cars_320x240.i420 -w 320 -h 240
    ```
 
 
 ## Running the Sample
-
-### Application Parameters
-
-The instructions given above run the sample executable with the arguments
-`-i <sample_dir>/content/cars_320x240.i420 -w 320 -h 240`.
 
 
 ### Example of Output

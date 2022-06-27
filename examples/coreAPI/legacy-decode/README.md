@@ -67,7 +67,7 @@ Perform the following steps:
 
 4. Run the program using the following command:
    ```
-   cmake --build . --target run
+   ./legacy-decode -sw -i ../../../content/cars_320x240.h265
    ```
 
 
@@ -108,17 +108,11 @@ Perform the following steps:
 
 5. Run the program using the following command:
    ```
-   cmake --build . --config Release --target run
+   Release\legacy-decode -sw -i ..\..\..\content\cars_320x240.h265
    ```
 
 
 ## Running the Sample
-
-### Application Parameters
-
-The instructions given above run the sample executable with the argument
-`-i examples/content/cars_320x240.h265`.
-
 
 ### Example of Output
 

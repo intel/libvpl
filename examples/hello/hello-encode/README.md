@@ -74,7 +74,7 @@ Perform the following steps:
 
 4. Run the program with default arguments using the following command:
    ```
-   cmake --build . --target run
+   ./hello-encode -sw -i ../../../content/cars_320x240.i420 -w 320 -h 240
    ```
 
 ### On a Windows* System Using Visual Studio* Version 2017 or Newer
@@ -114,18 +114,11 @@ Perform the following steps:
 
 5. Run the program using the following command:
    ```
-   cmake --build . --config Release --target run
+   Release\hello-encode -sw -i ..\..\..\content\cars_320x240.i420 -w 320 -h 240
    ```
 
 
 ## Running the Sample
-
-### Application Parameters
-
-The instructions given above run the sample executable with the arguments
-`-i ${CONTENTPATH}/cars_320x240.i420 -w 320 -h 240`.
-
-Use nv12 input format for GPU encode.
 
 ### Example Output
 

@@ -69,7 +69,7 @@ Perform the following steps:
 
 4. Run the program with default arguments using the following command:
    ```
-   cmake --build . --target run
+   ./hello-createsession -sw
    ```
 
 ### On a Windows* System Using Visual Studio* Version 2017 or Newer
@@ -109,18 +109,13 @@ Perform the following steps:
 
 5. Run the program using the following command:
    ```
-   cmake --build . --config Release --target run
+   Release\hello-createsession -sw
    ```
 
 
 ## Running the Sample
 
-### Application Parameters
 
-```
-  -hw        use hardware implementation
-  -sw        use software implementation
-```
 
 ### Example Output
 
