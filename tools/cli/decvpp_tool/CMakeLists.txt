@@ -73,8 +73,8 @@ if(UNIX)
       set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
       set(THREADS_PREFER_PTHREAD_FLAG TRUE)
       find_package(Threads REQUIRED)
-      target_link_libraries(${TARGET} ${PKG_LIBVA_LIBRARIES}
-                            ${PKG_LIBVA_DRM_LIBRARIES} ${PKG_THREAD_LIBRARIES})
+      target_link_libraries(${TARGET} PkgConfig::PKG_LIBVA
+                            PkgConfig::PKG_LIBVA_DRM Threads::Threads)
       target_include_directories(${TARGET} PUBLIC ${PKG_LIBVA_INCLUDE_DIRS})
     else()
       message(

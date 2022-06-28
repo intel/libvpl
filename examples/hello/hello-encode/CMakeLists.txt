@@ -59,14 +59,15 @@ if(UNIX)
   if(LIBVA_SUPPORT)
     find_package(PkgConfig REQUIRED)
     # note: pkg-config version for libva is *API* version
-    pkg_check_modules(PKG_LIBVA libva>=1.2 libva-drm>=1.2)
+    pkg_check_modules(PKG_LIBVA IMPORTED_TARGET libva>=1.2)
+    pkg_check_modules(PKG_LIBVA_DRM IMPORTED_TARGET libva-drm>=1.2)
     if(PKG_LIBVA_FOUND)
       target_compile_definitions(${TARGET} PUBLIC -DLIBVA_SUPPORT)
       set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
       set(THREADS_PREFER_PTHREAD_FLAG TRUE)
       find_package(Threads REQUIRED)
-      target_link_libraries(${TARGET} ${PKG_LIBVA_LIBRARIES}
-                            ${PKG_THREAD_LIBRARIES})
+      target_link_libraries(${TARGET} PkgConfig::PKG_LIBVA
+                            PkgConfig::PKG_LIBVA_DRM Threads::Threads)
       target_include_directories(${TARGET} PUBLIC ${PKG_LIBVA_INCLUDE_DIRS})
     else()
       message(
