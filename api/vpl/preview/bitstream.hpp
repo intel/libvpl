@@ -134,8 +134,8 @@ public:
         return;
     }
 
-    /// @brief Returns pointer to the mfxBitream oneVPL's structure.
-    /// @return Pointer to the mfxBitream oneVPL's structure.
+    /// @brief Returns pointer to the mfxBitstream oneVPL's structure.
+    /// @return Pointer to the mfxBitstream oneVPL's structure.
     mfxBitstream* operator()() {
         return &(this->bits_);
     }
