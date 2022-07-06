@@ -18,6 +18,25 @@ On Windows, you will also need:
 - Visual Studio 2019
 	* C++ ATL for latest 'X' build tools (x86 & x64)
 
+To enable full capabilities of tools on Linux the following packages must be discoverable via pkg-config:
+<pre>
+libva >= 1.2
+libva -drm >= 1.2
+libdrm >= 2.4.91
+pciaccess
+x11
+libca-x11 >= 1.10.0
+wayland-client
+libwayland
+wayland-protocols >= 1.15
+</pre>
+
+Example for Ubuntu 20.04
+<pre>
+apt install libva-dev libdrm-dev wayland-protocols libx11-dev libx11-xcb-dev libxcb-present-dev libxcb-dri3-dev
+</pre>
+Install the equivalent packages for other distributions
+
 ## Basic build and installation of this package
 
 Build the project with the following commands:
