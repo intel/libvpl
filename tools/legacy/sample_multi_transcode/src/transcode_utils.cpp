@@ -403,7 +403,11 @@ void TranscodingSample::PrintHelp() {
     msdk_printf(MSDK_STRING("  -roi_qpmap    Use QP map to emulate ROI for CQP mode\n"));
     msdk_printf(MSDK_STRING("  -extmbqp      Use external MBQP map\n"));
     msdk_printf(MSDK_STRING(
-        "  -AvcTemporalLayers [array:Layer.Scale]    Configures the temporal layers hierarchy\n"));
+        "  -AvcTemporalLayers [array:Layer.Scale]    Configures the AVC temporal layers hierarchy\n"));
+#if defined(_WIN32) || defined(_WIN64)
+    msdk_printf(MSDK_STRING(
+        "  -TemporalLayers [array:Layer.Scale]       Configures the AV1 + future codec temporal layers hierarchy\n"));
+#endif
     msdk_printf(MSDK_STRING(
         "  -BaseLayerPID <pid>                       Sets priority ID for the base layer\n"));
     msdk_printf(MSDK_STRING(
@@ -1337,6 +1341,33 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
         }
         i += 1;
     }
+#if defined(_WIN32) || defined(_WIN64)
+    else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-TemporalLayers"))) {
+        InputParams.nTemp = 1;
+        VAL_CHECK(i + 1 >= argc, i, argv[i]);
+        mfxU16 arr[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+        int j, k;
+        k = msdk_sscanf(argv[i + 1],
+                        MSDK_STRING("%hu %hu %hu %hu %hu %hu %hu %hu"),
+                        &arr[0],
+                        &arr[1],
+                        &arr[2],
+                        &arr[3],
+                        &arr[4],
+                        &arr[5],
+                        &arr[6],
+                        &arr[7]);
+        if (k != 8) {
+            PrintError(argv[0], MSDK_STRING("Invalid number of layers for TemporalLayers"));
+            return MFX_ERR_UNSUPPORTED;
+        }
+
+        for (j = 0; j < 8; j++) {
+            InputParams.nTemporalLayers[j] = arr[j];
+        }
+        i += 1;
+    }
+#endif
     else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-BaseLayerPID"))) {
         VAL_CHECK(i + 1 >= argc, i, argv[i]);
         if (MFX_ERR_NONE != msdk_opt_read(argv[++i], InputParams.nBaseLayerPID)) {

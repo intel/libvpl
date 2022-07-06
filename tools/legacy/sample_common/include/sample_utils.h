@@ -306,6 +306,10 @@ struct mfx_ext_buffer_id<mfxExtAvcTemporalLayers> {
     enum { id = MFX_EXTBUFF_AVC_TEMPORAL_LAYERS };
 };
 template <>
+struct mfx_ext_buffer_id<mfxExtTemporalLayers> {
+    enum { id = MFX_EXTBUFF_UNIVERSAL_TEMPORAL_LAYERS };
+};
+template <>
 struct mfx_ext_buffer_id<mfxExtAVCRefListCtrl> {
     enum { id = MFX_EXTBUFF_AVC_REFLIST_CTRL };
 };
