@@ -10,6 +10,7 @@ if(MSVC)
 endif()
 
 add_subdirectory(decvpp_tool)
+add_subdirectory(system_analyzer)
 
 add_executable(vpl-inspect vpl-inspect.cpp)
 target_link_libraries(vpl-inspect VPL)
