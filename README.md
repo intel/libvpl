@@ -13,7 +13,7 @@ This repository contains the following components of oneVPL:
 
 - Copies of the oneVPL Specification API header files. The version of the oneVPL API is listed in the
 [mfxdefs.h](./api/vpl/mfxdefs.h) file.
-- oneVPL dispatcher
+- oneVPL Dispatcher
 - Examples demonstrating API usage
 - oneVPL command line tools
 
@@ -33,26 +33,27 @@ graph TD;
     VPL[oneVPL Dispatcher]-->Future2;
 ```
 
-As shown in this diagram, the dispatcher dispatches the application to use either the VPL CPU runtime, VPL GPU runtime, or the MediaSDK GPU Runtime. We may support more implementations in the future.
+As shown in this diagram, the oneVPL Dispatcher dispatches the application to use either the VPL CPU runtime, VPL GPU runtime, or the Media SDK GPU Runtime. We may support more implementations in the future.
 
-## oneVPL dispatcher behavior when targeting Intel GPUs
-Runtime loaded by oneVPL dispatcher:
+## oneVPL Dispatcher behavior when targeting Intel GPUs
+Runtime loaded by oneVPL Dispatcher and their Microsoft* DirectX* support:
 
 
-| GPU                                        | Media SDK        | oneVPL           |
-|--------------------------------------------|------------------|------------------|
-| Earlier platforms, back to BDW (Broadwell) |:heavy_check_mark:|                  |
-| ICL (Ice Lake)                             |:heavy_check_mark:|                  |
-| JSL (Jasper Lake)                          |:heavy_check_mark:|                  |
-| EHL (Elkhart Lake)                         |:heavy_check_mark:|                  |
-| SG1                                        |:heavy_check_mark:|                  |
-| TGL (Tiger Lake)                           |                  |:heavy_check_mark:|
-| DG1 (Iris® Xe MAX)                         |                  |:heavy_check_mark:|
-| RKL (Rocket Lake)                          |                  |:heavy_check_mark:|
-| ADL-S (Alder Lake S)                       |                  |:heavy_check_mark:|
-| ADL-P (Alder Lake P)                       |                  |:heavy_check_mark:|
-| Future platforms...                        |                  |:heavy_check_mark:|
+| GPU                                        | Media SDK        | oneVPL           | Microsoft* DirectX* Support |
+|--------------------------------------------|------------------|------------------|-----------------------------|
+| Earlier platforms, back to BDW (Broadwell) |:heavy_check_mark:|                  | DX9/DX11                    |
+| ICL (Ice Lake)                             |:heavy_check_mark:|                  | DX9/DX11                    |
+| JSL (Jasper Lake)                          |:heavy_check_mark:|                  | DX9/DX11                    |
+| EHL (Elkhart Lake)                         |:heavy_check_mark:|                  | DX9/DX11                    |
+| SG1                                        |:heavy_check_mark:|                  | DX9/DX11                    |
+| TGL (Tiger Lake)                           |:heavy_check_mark:|:heavy_check_mark:| DX9/DX11*                   |
+| DG1 (Iris® Xe MAX)                         |:heavy_check_mark:|:heavy_check_mark:| DX11*                       |
+| RKL (Rocket Lake)                          |                  |:heavy_check_mark:| DX11                        |
+| ADL-S (Alder Lake S)                       |                  |:heavy_check_mark:| DX11                        |
+| ADL-P (Alder Lake P)                       |                  |:heavy_check_mark:| DX11                        |
+| Future platforms...                        |                  |:heavy_check_mark:| DX11                        |
 
+For TGL and DG1, if both oneVPL and Intel(R) Media SDK runtime are installed then the oneVPL Dispatcher will prefer oneVPL runtime unless the application requests D3D9 by setting the oneVPL Dispatcher filter property "mfxImplDescription.AccelerationMode" to MFX_ACCEL_MODE_VIA_D3D9.
 
 ## Installation
 
