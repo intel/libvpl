@@ -2510,7 +2510,7 @@ mfxStatus CTranscodingPipeline::InitDecMfxParams(sInputParams* pInParams) {
     }
 
     //--- Force setting fourcc type if required
-    if (pInParams->DecoderFourCC) {
+    if (pInParams->DecoderFourCC && !pInParams->bDecoderPostProcessing) {
         m_mfxDecParams.mfx.FrameInfo.FourCC       = pInParams->DecoderFourCC;
         m_mfxDecParams.mfx.FrameInfo.ChromaFormat = FourCCToChroma(pInParams->DecoderFourCC);
     }
@@ -2533,6 +2533,73 @@ mfxStatus CTranscodingPipeline::InitDecMfxParams(sInputParams* pInParams) {
             pInParams->eModeExt == VppComp ? pInParams->nVppCompDstH : pInParams->nDstHeight;
         decPostProc->Out.Width  = MSDK_ALIGN16(decPostProc->Out.CropW);
         decPostProc->Out.Height = MSDK_ALIGN16(decPostProc->Out.CropH);
+
+        if (pInParams->DecodeId == MFX_CODEC_AVC || pInParams->DecodeId == MFX_CODEC_HEVC) {
+            switch (pInParams->DecoderFourCC) {
+                case MFX_FOURCC_RGB4:
+                    decPostProc->Out.FourCC       = MFX_FOURCC_RGB4;
+                    decPostProc->Out.ChromaFormat = MFX_CHROMAFORMAT_YUV444;
+                    m_encoderFourCC = MFX_FOURCC_RGB4;
+                    break;
+
+                case MFX_FOURCC_NV12:
+                    decPostProc->Out.FourCC       = MFX_FOURCC_NV12;
+                    decPostProc->Out.ChromaFormat = MFX_CHROMAFORMAT_YUV420;
+                    m_encoderFourCC = MFX_FOURCC_NV12;
+                    break;
+
+                case MFX_FOURCC_P010:
+                    decPostProc->Out.FourCC       = MFX_FOURCC_P010;
+                    decPostProc->Out.ChromaFormat = MFX_CHROMAFORMAT_YUV420;
+                    m_encoderFourCC = MFX_FOURCC_P010;
+                    break;
+
+                case MFX_FOURCC_P016:
+                    decPostProc->Out.FourCC       = MFX_FOURCC_P016;
+                    decPostProc->Out.ChromaFormat = MFX_CHROMAFORMAT_YUV420;
+                    m_encoderFourCC = MFX_FOURCC_P016;
+                    break;
+
+                case MFX_FOURCC_YUY2:
+                    decPostProc->Out.FourCC       = MFX_FOURCC_YUY2;
+                    decPostProc->Out.ChromaFormat = MFX_CHROMAFORMAT_YUV422;
+                    m_encoderFourCC = MFX_FOURCC_YUY2;
+                    break;
+
+                case MFX_FOURCC_Y210:
+                    decPostProc->Out.FourCC       = MFX_FOURCC_Y210;
+                    decPostProc->Out.ChromaFormat = MFX_CHROMAFORMAT_YUV422;
+                    m_encoderFourCC = MFX_FOURCC_Y210;
+                    break;
+
+                case MFX_FOURCC_Y216:
+                    decPostProc->Out.FourCC       = MFX_FOURCC_Y216;
+                    decPostProc->Out.ChromaFormat = MFX_CHROMAFORMAT_YUV422;
+                    m_encoderFourCC = MFX_FOURCC_Y216;
+                    break;
+
+                case MFX_FOURCC_AYUV:
+                    decPostProc->Out.FourCC       = MFX_FOURCC_AYUV;
+                    decPostProc->Out.ChromaFormat = MFX_CHROMAFORMAT_YUV444;
+                    m_encoderFourCC = MFX_FOURCC_AYUV;
+                    break;
+
+                case MFX_FOURCC_Y410:
+                    decPostProc->Out.FourCC       = MFX_FOURCC_Y410;
+                    decPostProc->Out.ChromaFormat = MFX_CHROMAFORMAT_YUV444;
+                    m_encoderFourCC = MFX_FOURCC_Y410;
+                    break;
+
+                case MFX_FOURCC_Y416:
+                    decPostProc->Out.FourCC       = MFX_FOURCC_Y416;
+                    decPostProc->Out.ChromaFormat = MFX_CHROMAFORMAT_YUV444;
+                    m_encoderFourCC = MFX_FOURCC_Y416;
+                    break;
+
+                default:
+                    break;
+            }
+        }
     }
 
     return MFX_ERR_NONE;
