@@ -149,7 +149,17 @@ enum MemoryModel {
 // the default api version is the latest one
 // it is located at 0
 enum eAPIVersion { API_2X, API_1X };
-
+#if (MFX_VERSION >= 1025)
+    typedef struct {
+        mfxU16 InsertPayloadToggle;
+        mfxU16 DisplayPrimariesX[3];
+        mfxU16 DisplayPrimariesY[3];
+        mfxU16 WhitePointX;
+        mfxU16 WhitePointY;
+        mfxU32 MaxDisplayMasteringLuminance;
+        mfxU32 MinDisplayMasteringLuminance;
+    } sSEIMetaMasteringDisplay;
+#endif
 struct __sInputParams {
     mfxU32 TargetID                    = 0;
     bool CascadeScaler                 = false;
@@ -371,6 +381,8 @@ struct __sInputParams {
     mfxU16 numMFEFrames;
     mfxU16 MFMode;
     mfxU32 mfeTimeout;
+    sSEIMetaMasteringDisplay SEIMetaMDCV;
+    bool bEnableMDCV;
 
     mfxU16 TargetBitDepthLuma;
     mfxU16 TargetBitDepthChroma;

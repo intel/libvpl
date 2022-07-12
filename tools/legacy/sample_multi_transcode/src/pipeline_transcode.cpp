@@ -2906,7 +2906,26 @@ mfxStatus CTranscodingPipeline::InitEncMfxParams(sInputParams* pInParams) {
             msdk_printf(MSDK_STRING("WARNING: -ivf:on/off, support AV1 only\n"));
         }
     }
-
+#if (MFX_VERSION >= 1025)
+    if (pInParams->bEnableMDCV)
+    {
+        auto mdcv = m_mfxEncParams.AddExtBuffer<mfxExtMasteringDisplayColourVolume>();
+        auto pInMDCV = &(pInParams->SEIMetaMDCV);
+        mdcv->Header.BufferId = MFX_EXTBUFF_MASTERING_DISPLAY_COLOUR_VOLUME;
+        mdcv->Header.BufferSz = sizeof(mfxExtMasteringDisplayColourVolume);
+        mdcv->InsertPayloadToggle = MFX_PAYLOAD_IDR;
+        mdcv->DisplayPrimariesX[0] = pInMDCV->DisplayPrimariesX[0];
+        mdcv->DisplayPrimariesX[1] = pInMDCV->DisplayPrimariesX[1];
+        mdcv->DisplayPrimariesX[2] = pInMDCV->DisplayPrimariesX[2];
+        mdcv->DisplayPrimariesY[0] = pInMDCV->DisplayPrimariesY[0];
+        mdcv->DisplayPrimariesY[1] = pInMDCV->DisplayPrimariesY[1];
+        mdcv->DisplayPrimariesY[2] = pInMDCV->DisplayPrimariesY[2];
+        mdcv->WhitePointX = pInMDCV->WhitePointX;
+        mdcv->WhitePointY = pInMDCV->WhitePointY;
+        mdcv->MaxDisplayMasteringLuminance = pInMDCV->MaxDisplayMasteringLuminance;
+        mdcv->MinDisplayMasteringLuminance = pInMDCV->MinDisplayMasteringLuminance;
+    }
+#endif
     return MFX_ERR_NONE;
 } // mfxStatus CTranscodingPipeline::InitEncMfxParams(sInputParams *pInParams)
 
