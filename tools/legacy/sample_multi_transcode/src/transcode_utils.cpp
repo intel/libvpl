@@ -184,9 +184,11 @@ void TranscodingSample::PrintHelp() {
     msdk_printf(MSDK_STRING("            3, MFE operates as MANUAL mode\n"));
     msdk_printf(MSDK_STRING(
         "  -mfe_timeout <N> multi-frame encode timeout in milliseconds - set per sessions control\n"));
-    msdk_printf(MSDK_STRING("  -mdcv <mdcv array> set mastering display colour volume for HDR SEI metadata.\n"));
-    msdk_printf(MSDK_STRING("            totally 10 values for mdcv parameter to set, separated by comma.\n"));
-    msdk_printf(MSDK_STRING("            for example: -mdcv 13250,7500,34000,34500,3000,16000,15635,16450,12000000,200\n"));
+    msdk_printf(MSDK_STRING(
+        "  -HdrSEI:mdcv <mdcv array> set mastering display colour volume for HDR SEI metadata.\n"));
+    msdk_printf(MSDK_STRING(
+        "            totally 10 values (DPX[0],DPX[1],DPX[2],DPY[0],DPY[1],DPY[2],WPX,WPY,MaxDML,MinDML) for mdcv parameter to set, separated by comma.\n"));
+    msdk_printf(MSDK_STRING("            for example: -HdrSEI:mdcv 13250,7500,34000,34500,3000,16000,15635,16450,12000000,200\n"));
     msdk_printf(MSDK_STRING("  -HdrSEI:clli <clli array> set content light level for HDR SEI metadata.\n"));
     msdk_printf(MSDK_STRING("            totally 2 values (MaxCLL, MaxPALL) to set, separated by comma.\n"));
     msdk_printf(MSDK_STRING("            for example: -HdrSEI:clli 1000,40\n"));
@@ -1493,7 +1495,7 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
         InputParams.DecOutPattern = MFX_IOPATTERN_OUT_SYSTEM_MEMORY;
     }
 #if (MFX_VERSION >= 1025)
-    else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-mdcv")))
+    else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-HdrSEI:mdcv")))
     {
         InputParams.bEnableMDCV = true;
         auto pInMDCV = &(InputParams.SEIMetaMDCV);
