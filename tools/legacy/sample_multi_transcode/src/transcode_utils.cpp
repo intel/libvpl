@@ -188,10 +188,22 @@ void TranscodingSample::PrintHelp() {
         "  -HdrSEI:mdcv <mdcv array> set mastering display colour volume for HDR SEI metadata.\n"));
     msdk_printf(MSDK_STRING(
         "            totally 10 values (DPX[0],DPX[1],DPX[2],DPY[0],DPY[1],DPY[2],WPX,WPY,MaxDML,MinDML) for mdcv parameter to set, separated by comma.\n"));
-    msdk_printf(MSDK_STRING("            for example: -HdrSEI:mdcv 13250,7500,34000,34500,3000,16000,15635,16450,12000000,200\n"));
-    msdk_printf(MSDK_STRING("  -HdrSEI:clli <clli array> set content light level for HDR SEI metadata.\n"));
-    msdk_printf(MSDK_STRING("            totally 2 values (MaxCLL, MaxPALL) to set, separated by comma.\n"));
+    msdk_printf(MSDK_STRING(
+        "            for example: -HdrSEI:mdcv 13250,7500,34000,34500,3000,16000,15635,16450,12000000,200\n"));
+    msdk_printf(
+        MSDK_STRING("  -HdrSEI:clli <clli array> set content light level for HDR SEI metadata.\n"));
+    msdk_printf(MSDK_STRING(
+        "            totally 2 values (MaxCLL, MaxPALL) to set, separated by comma.\n"));
     msdk_printf(MSDK_STRING("            for example: -HdrSEI:clli 1000,40\n"));
+    msdk_printf(MSDK_STRING("  -SignalInfoIn <signal_info array> set input video signal info.\n"));
+    msdk_printf(MSDK_STRING(
+        "            totally 2 values (VideoFullRange, ColourPrimaries) to set, separated by comma.\n"));
+    msdk_printf(MSDK_STRING("            for example: -SignalInfoIn 0,9\n"));
+    msdk_printf(
+        MSDK_STRING("  -SignalInfoOut <signal_info array> set output video signal info.\n"));
+    msdk_printf(MSDK_STRING(
+        "            totally 2 values (VideoFullRange, ColourPrimaries) to set, separated by comma.\n"));
+    msdk_printf(MSDK_STRING("            for example: -SignalInfoOut 0,9\n"));
 #ifdef ENABLE_MCTF
     #if !defined ENABLE_MCTF_EXT
     msdk_printf(MSDK_STRING("  -mctf [Strength]\n"));
@@ -1401,11 +1413,9 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
             return MFX_ERR_UNSUPPORTED;
         }
     }
-    else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-VuiTC")))
-    {
+    else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-VuiTC"))) {
         VAL_CHECK(i + 1 >= argc, i, argv[i]);
-        if (MFX_ERR_NONE != msdk_opt_read(argv[++i], InputParams.nTransferCharacteristics))
-        {
+        if (MFX_ERR_NONE != msdk_opt_read(argv[++i], InputParams.nTransferCharacteristics)) {
             PrintError(NULL, MSDK_STRING("-VuiTC TransferCharacteristics is invalid"));
             return MFX_ERR_UNSUPPORTED;
         }
@@ -1494,50 +1504,76 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
     else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-dec::sys"))) {
         InputParams.DecOutPattern = MFX_IOPATTERN_OUT_SYSTEM_MEMORY;
     }
-#if (MFX_VERSION >= 1025)
-    else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-HdrSEI:mdcv")))
-    {
+
+    else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-HdrSEI:mdcv"))) {
         InputParams.bEnableMDCV = true;
-        auto pInMDCV = &(InputParams.SEIMetaMDCV);
+        auto pInMDCV            = &(InputParams.SEIMetaMDCV);
         VAL_CHECK(i + 1 >= argc, i, argv[i]);
         int k;
-        k = msdk_sscanf(argv[i + 1], MSDK_STRING("%hu,%hu,%hu,%hu,%hu,%hu,%hu,%hu,%u,%u"),\
-                        &(pInMDCV->DisplayPrimariesX[0]),\
-                        &(pInMDCV->DisplayPrimariesX[1]),\
-                        &(pInMDCV->DisplayPrimariesX[2]),\
-                        &(pInMDCV->DisplayPrimariesY[0]),\
-                        &(pInMDCV->DisplayPrimariesY[1]),\
-                        &(pInMDCV->DisplayPrimariesY[2]),\
-                        &(pInMDCV->WhitePointX),\
-                        &(pInMDCV->WhitePointY),\
-                        &(pInMDCV->MaxDisplayMasteringLuminance),\
-                        &(pInMDCV->MinDisplayMasteringLuminance)\
-                        );
-        if (k != 10)
-        {
+        k = msdk_sscanf(argv[i + 1],
+                        MSDK_STRING("%hu,%hu,%hu,%hu,%hu,%hu,%hu,%hu,%u,%u"),
+                        &(pInMDCV->DisplayPrimariesX[0]),
+                        &(pInMDCV->DisplayPrimariesX[1]),
+                        &(pInMDCV->DisplayPrimariesX[2]),
+                        &(pInMDCV->DisplayPrimariesY[0]),
+                        &(pInMDCV->DisplayPrimariesY[1]),
+                        &(pInMDCV->DisplayPrimariesY[2]),
+                        &(pInMDCV->WhitePointX),
+                        &(pInMDCV->WhitePointY),
+                        &(pInMDCV->MaxDisplayMasteringLuminance),
+                        &(pInMDCV->MinDisplayMasteringLuminance));
+        if (k != 10) {
             PrintError(argv[0], MSDK_STRING("Invalid number of layers for MDCV"));
             return MFX_ERR_UNSUPPORTED;
         }
         i += 1;
     }
-    else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-HdrSEI:clli")))
-    {
+    else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-HdrSEI:clli"))) {
         InputParams.bEnableCLLI = true;
-        auto pInCLLI = &(InputParams.SEIMetaCLLI);
+        auto pInCLLI            = &(InputParams.SEIMetaCLLI);
         VAL_CHECK(i + 1 >= argc, i, argv[i]);
-        int j, k;
-        k = msdk_sscanf(argv[i + 1], MSDK_STRING("%hu,%hu"),\
-                        &(pInCLLI->MaxContentLightLevel),\
-                        &(pInCLLI->MaxPicAverageLightLevel)
-                       );
-        if (k != 2)
-        {
+        int k;
+        k = msdk_sscanf(argv[i + 1],
+                        MSDK_STRING("%hu,%hu"),
+                        &(pInCLLI->MaxContentLightLevel),
+                        &(pInCLLI->MaxPicAverageLightLevel));
+        if (k != 2) {
             PrintError(argv[0], MSDK_STRING("Invalid number of layers for CLLI"));
             return MFX_ERR_UNSUPPORTED;
         }
         i += 1;
     }
-#endif
+    else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-SignalInfoIn"))) {
+        auto pSignalInfoIn     = &(InputParams.SignalInfoIn);
+        pSignalInfoIn->Enabled = true;
+        VAL_CHECK(i + 1 >= argc, i, argv[i]);
+        int k;
+        k = msdk_sscanf(argv[i + 1],
+                        MSDK_STRING("%hu,%hu"),
+                        &(pSignalInfoIn->VideoFullRange),
+                        &(pSignalInfoIn->ColourPrimaries));
+        if (k != 2) {
+            PrintError(argv[0], MSDK_STRING("Invalid number of layers for SignalInfoIn"));
+            return MFX_ERR_UNSUPPORTED;
+        }
+        i += 1;
+    }
+    else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-SignalInfoOut"))) {
+        auto pSignalInfoOut     = &(InputParams.SignalInfoOut);
+        pSignalInfoOut->Enabled = true;
+        VAL_CHECK(i + 1 >= argc, i, argv[i]);
+        int k;
+        k = msdk_sscanf(argv[i + 1],
+                        MSDK_STRING("%hu,%hu"),
+                        &(pSignalInfoOut->VideoFullRange),
+                        &(pSignalInfoOut->ColourPrimaries));
+        if (k != 2) {
+            PrintError(argv[0], MSDK_STRING("Invalid number of layers for SignalInfoOut"));
+            return MFX_ERR_UNSUPPORTED;
+        }
+        i += 1;
+    }
+
 #ifdef ENABLE_MCTF
     else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-mctf"))) {
         ParseMCTFParams(argv, argc, i, &InputParams);

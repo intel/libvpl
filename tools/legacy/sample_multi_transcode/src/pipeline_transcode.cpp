@@ -2576,23 +2576,21 @@ mfxStatus CTranscodingPipeline::InitEncMfxParams(sInputParams* pInParams) {
     m_mfxEncParams.mfx.IdrInterval = pInParams->nIdrInterval;
 
     m_mfxEncParams.mfx.FrameInfo.Shift = m_shouldUseShifted10BitEnc;
-    if (pInParams->nTransferCharacteristics)
-    {
+    if (pInParams->nTransferCharacteristics) {
         auto videoSignalInfo = m_mfxEncParams.AddExtBuffer<mfxExtVideoSignalInfo>();
         videoSignalInfo->ColourDescriptionPresent = 1;
-        videoSignalInfo->TransferCharacteristics = pInParams->nTransferCharacteristics;
+        videoSignalInfo->TransferCharacteristics  = pInParams->nTransferCharacteristics;
         // Fill in VUI parameters
-        switch (videoSignalInfo->TransferCharacteristics)
-        {
-        case 18: //HLG (BT.2020)
-            videoSignalInfo->ColourPrimaries = 9;
-            videoSignalInfo->MatrixCoefficients = 9;
-            break;
-        case 1: //BT.709
-        default:
-            videoSignalInfo->ColourPrimaries = 1;
-            videoSignalInfo->MatrixCoefficients = 1;
-            break;
+        switch (videoSignalInfo->TransferCharacteristics) {
+            case 18: //HLG (BT.2020)
+                videoSignalInfo->ColourPrimaries    = 9;
+                videoSignalInfo->MatrixCoefficients = 9;
+                break;
+            case 1: //BT.709
+            default:
+                videoSignalInfo->ColourPrimaries    = 1;
+                videoSignalInfo->MatrixCoefficients = 1;
+                break;
         }
     }
     { m_mfxEncParams.mfx.RateControlMethod = pInParams->nRateControlMethod; }
@@ -2906,37 +2904,35 @@ mfxStatus CTranscodingPipeline::InitEncMfxParams(sInputParams* pInParams) {
             msdk_printf(MSDK_STRING("WARNING: -ivf:on/off, support AV1 only\n"));
         }
     }
-#if (MFX_VERSION >= 1025)
-    if (pInParams->bEnableMDCV)
-    {
-        auto mdcv = m_mfxEncParams.AddExtBuffer<mfxExtMasteringDisplayColourVolume>();
-        auto pInMDCV = &(pInParams->SEIMetaMDCV);
+
+    if (pInParams->bEnableMDCV) {
+        auto mdcv             = m_mfxEncParams.AddExtBuffer<mfxExtMasteringDisplayColourVolume>();
+        auto pInMDCV          = &(pInParams->SEIMetaMDCV);
         mdcv->Header.BufferId = MFX_EXTBUFF_MASTERING_DISPLAY_COLOUR_VOLUME;
         mdcv->Header.BufferSz = sizeof(mfxExtMasteringDisplayColourVolume);
-        mdcv->InsertPayloadToggle = MFX_PAYLOAD_IDR;
-        mdcv->DisplayPrimariesX[0] = pInMDCV->DisplayPrimariesX[0];
-        mdcv->DisplayPrimariesX[1] = pInMDCV->DisplayPrimariesX[1];
-        mdcv->DisplayPrimariesX[2] = pInMDCV->DisplayPrimariesX[2];
-        mdcv->DisplayPrimariesY[0] = pInMDCV->DisplayPrimariesY[0];
-        mdcv->DisplayPrimariesY[1] = pInMDCV->DisplayPrimariesY[1];
-        mdcv->DisplayPrimariesY[2] = pInMDCV->DisplayPrimariesY[2];
-        mdcv->WhitePointX = pInMDCV->WhitePointX;
-        mdcv->WhitePointY = pInMDCV->WhitePointY;
+        mdcv->InsertPayloadToggle          = MFX_PAYLOAD_IDR;
+        mdcv->DisplayPrimariesX[0]         = pInMDCV->DisplayPrimariesX[0];
+        mdcv->DisplayPrimariesX[1]         = pInMDCV->DisplayPrimariesX[1];
+        mdcv->DisplayPrimariesX[2]         = pInMDCV->DisplayPrimariesX[2];
+        mdcv->DisplayPrimariesY[0]         = pInMDCV->DisplayPrimariesY[0];
+        mdcv->DisplayPrimariesY[1]         = pInMDCV->DisplayPrimariesY[1];
+        mdcv->DisplayPrimariesY[2]         = pInMDCV->DisplayPrimariesY[2];
+        mdcv->WhitePointX                  = pInMDCV->WhitePointX;
+        mdcv->WhitePointY                  = pInMDCV->WhitePointY;
         mdcv->MaxDisplayMasteringLuminance = pInMDCV->MaxDisplayMasteringLuminance;
         mdcv->MinDisplayMasteringLuminance = pInMDCV->MinDisplayMasteringLuminance;
     }
 
-    if (pInParams->bEnableCLLI)
-    {
-        auto clli = m_mfxEncParams.AddExtBuffer<mfxExtContentLightLevelInfo>();
-        auto pInCLLI = &(pInParams->SEIMetaCLLI);
-        clli->Header.BufferId = MFX_EXTBUFF_CONTENT_LIGHT_LEVEL_INFO;
-        clli->Header.BufferSz = sizeof(mfxExtContentLightLevelInfo);
-        clli->InsertPayloadToggle = MFX_PAYLOAD_IDR;
-        clli->MaxContentLightLevel = pInCLLI->MaxContentLightLevel;
+    if (pInParams->bEnableCLLI) {
+        auto clli                     = m_mfxEncParams.AddExtBuffer<mfxExtContentLightLevelInfo>();
+        auto pInCLLI                  = &(pInParams->SEIMetaCLLI);
+        clli->Header.BufferId         = MFX_EXTBUFF_CONTENT_LIGHT_LEVEL_INFO;
+        clli->Header.BufferSz         = sizeof(mfxExtContentLightLevelInfo);
+        clli->InsertPayloadToggle     = MFX_PAYLOAD_IDR;
+        clli->MaxContentLightLevel    = pInCLLI->MaxContentLightLevel;
         clli->MaxPicAverageLightLevel = pInCLLI->MaxPicAverageLightLevel;
     }
-#endif
+
     return MFX_ERR_NONE;
 } // mfxStatus CTranscodingPipeline::InitEncMfxParams(sInputParams *pInParams)
 
@@ -3283,14 +3279,26 @@ mfxStatus CTranscodingPipeline::InitVppMfxParams(MfxVideoParamsWrapper& par,
         auto inSignalInfo             = m_mfxVppParams.AddExtBuffer<mfxExtVideoSignalInfo>();
         inSignalInfo->Header.BufferId = MFX_EXTBUFF_VIDEO_SIGNAL_INFO_IN;
         inSignalInfo->Header.BufferSz = sizeof(mfxExtVideoSignalInfo);
-        inSignalInfo->VideoFullRange  = 0; // Limited range P010
-        inSignalInfo->ColourPrimaries = 9; // BT.2020
+        if (pInParams->SignalInfoIn.Enabled) {
+            inSignalInfo->VideoFullRange  = pInParams->SignalInfoIn.VideoFullRange;
+            inSignalInfo->ColourPrimaries = pInParams->SignalInfoIn.ColourPrimaries;
+        }
+        else {
+            inSignalInfo->VideoFullRange  = 0; // Limited range P010
+            inSignalInfo->ColourPrimaries = 9; // BT.2020
+        }
 
         auto outSignalInfo             = m_mfxVppParams.AddExtBuffer<mfxExtVideoSignalInfo>();
         outSignalInfo->Header.BufferId = MFX_EXTBUFF_VIDEO_SIGNAL_INFO_OUT;
         outSignalInfo->Header.BufferSz = sizeof(mfxExtVideoSignalInfo);
-        outSignalInfo->VideoFullRange  = 0; // Limited range NV12
-        outSignalInfo->ColourPrimaries = 1; // BT.709
+        if (pInParams->SignalInfoOut.Enabled) {
+            outSignalInfo->VideoFullRange  = pInParams->SignalInfoOut.VideoFullRange;
+            outSignalInfo->ColourPrimaries = pInParams->SignalInfoOut.ColourPrimaries;
+        }
+        else {
+            outSignalInfo->VideoFullRange  = 0; // Limited range NV12
+            outSignalInfo->ColourPrimaries = 1; // BT.709
+        }
     }
     if (pInParams->ScalingMode) {
         auto scal         = par.AddExtBuffer<mfxExtVPPScaling>();
