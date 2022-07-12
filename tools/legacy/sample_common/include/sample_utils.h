@@ -473,6 +473,9 @@ struct mfx_ext_buffer_id<mfxExtVPP3DLut> {
 template<>struct mfx_ext_buffer_id<mfxExtMasteringDisplayColourVolume> {
     enum {id = MFX_EXTBUFF_MASTERING_DISPLAY_COLOUR_VOLUME};
 };
+template<>struct mfx_ext_buffer_id<mfxExtContentLightLevelInfo> {
+    enum {id = MFX_EXTBUFF_CONTENT_LIGHT_LEVEL_INFO};
+};
 #endif
 constexpr uint16_t max_num_ext_buffers =
     63 * 2; // '*2' is for max estimation if all extBuffer were 'paired'

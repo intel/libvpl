@@ -187,6 +187,9 @@ void TranscodingSample::PrintHelp() {
     msdk_printf(MSDK_STRING("  -mdcv <mdcv array> set mastering display colour volume for HDR SEI metadata.\n"));
     msdk_printf(MSDK_STRING("            totally 10 values for mdcv parameter to set, separated by comma.\n"));
     msdk_printf(MSDK_STRING("            for example: -mdcv 13250,7500,34000,34500,3000,16000,15635,16450,12000000,200\n"));
+    msdk_printf(MSDK_STRING("  -HdrSEI:clli <clli array> set content light level for HDR SEI metadata.\n"));
+    msdk_printf(MSDK_STRING("            totally 2 values (MaxCLL, MaxPALL) to set, separated by comma.\n"));
+    msdk_printf(MSDK_STRING("            for example: -HdrSEI:clli 1000,40\n"));
 #ifdef ENABLE_MCTF
     #if !defined ENABLE_MCTF_EXT
     msdk_printf(MSDK_STRING("  -mctf [Strength]\n"));
@@ -1511,6 +1514,23 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
         if (k != 10)
         {
             PrintError(argv[0], MSDK_STRING("Invalid number of layers for MDCV"));
+            return MFX_ERR_UNSUPPORTED;
+        }
+        i += 1;
+    }
+    else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-HdrSEI:clli")))
+    {
+        InputParams.bEnableCLLI = true;
+        auto pInCLLI = &(InputParams.SEIMetaCLLI);
+        VAL_CHECK(i + 1 >= argc, i, argv[i]);
+        int j, k;
+        k = msdk_sscanf(argv[i + 1], MSDK_STRING("%hu,%hu"),\
+                        &(pInCLLI->MaxContentLightLevel),\
+                        &(pInCLLI->MaxPicAverageLightLevel)
+                       );
+        if (k != 2)
+        {
+            PrintError(argv[0], MSDK_STRING("Invalid number of layers for CLLI"));
             return MFX_ERR_UNSUPPORTED;
         }
         i += 1;
