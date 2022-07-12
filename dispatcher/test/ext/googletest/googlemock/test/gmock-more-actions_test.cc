@@ -1114,7 +1114,7 @@ TEST(ActionMacroTest, WorksForDifferentArgumentNumbers) {
   EXPECT_EQ(4, a1.Perform(std::make_tuple(2)));
 
   Action<double(float, void*)> a2 = PlusTwo();
-  int dummy;
+  int dummy = 0;
   EXPECT_DOUBLE_EQ(6, a2.Perform(std::make_tuple(4.0f, &dummy)));
 }
 
