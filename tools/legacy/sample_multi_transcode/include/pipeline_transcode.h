@@ -324,6 +324,7 @@ struct __sInputParams {
     mfxU16 nPicTimingSEI;
     mfxU16 nNalHrdConformance;
     mfxU16 nVuiNalHrdParameters;
+    mfxU16 nTransferCharacteristics;
 
     bool bOpenCL;
     mfxU16 reserved[4];

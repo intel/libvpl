@@ -2576,7 +2576,25 @@ mfxStatus CTranscodingPipeline::InitEncMfxParams(sInputParams* pInParams) {
     m_mfxEncParams.mfx.IdrInterval = pInParams->nIdrInterval;
 
     m_mfxEncParams.mfx.FrameInfo.Shift = m_shouldUseShifted10BitEnc;
-
+    if (pInParams->nTransferCharacteristics)
+    {
+        auto videoSignalInfo = m_mfxEncParams.AddExtBuffer<mfxExtVideoSignalInfo>();
+        videoSignalInfo->ColourDescriptionPresent = 1;
+        videoSignalInfo->TransferCharacteristics = pInParams->nTransferCharacteristics;
+        // Fill in VUI parameters
+        switch (videoSignalInfo->TransferCharacteristics)
+        {
+        case 18: //HLG (BT.2020)
+            videoSignalInfo->ColourPrimaries = 9;
+            videoSignalInfo->MatrixCoefficients = 9;
+            break;
+        case 1: //BT.709
+        default:
+            videoSignalInfo->ColourPrimaries = 1;
+            videoSignalInfo->MatrixCoefficients = 1;
+            break;
+        }
+    }
     { m_mfxEncParams.mfx.RateControlMethod = pInParams->nRateControlMethod; }
     m_mfxEncParams.mfx.NumSlice = pInParams->nSlices;
 
