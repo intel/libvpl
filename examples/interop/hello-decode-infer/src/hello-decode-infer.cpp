@@ -208,7 +208,13 @@ int main(int argc, char *argv[]) {
     VERIFY(MFX_ERR_NONE == sts, "Error initializing decode\n");
 
     // Setup OpenVINO Inference Engine
-    network = ie.ReadNetwork(cliParams.inmodelName);
+    try {
+        network = ie.ReadNetwork(cliParams.inmodelName);
+    }
+    catch (InferenceEngine::GeneralError) {
+        printf("Could not open model file at %s\n", cliParams.inmodelName);
+        goto end;
+    }
     VERIFY(network.getInputsInfo().size() == 1, "Sample supports topologies with 1 input only");
     VERIFY(network.getOutputsInfo().size() == 1, "Sample supports topologies with 1 output only");
 

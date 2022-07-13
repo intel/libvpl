@@ -101,7 +101,13 @@ int main(int argc, char **argv) {
 
     //--- Setup OpenVINO Inference Engine
     // Read network model
-    network = ie.ReadNetwork(cliParams.inmodelName);
+    try {
+        network = ie.ReadNetwork(cliParams.inmodelName);
+    }
+    catch (InferenceEngine::GeneralError) {
+        printf("Could not open model file at %s\n", cliParams.inmodelName);
+        goto end;
+    }
     VERIFY(network.getInputsInfo().size() == 1, "Sample supports topologies with 1 input only");
     VERIFY(network.getOutputsInfo().size() == 1, "Sample supports topologies with 1 output only");
 
@@ -196,8 +202,16 @@ int main(int argc, char **argv) {
         network,
         sharedVAContext,
         { { InferenceEngine::GPUConfigParams::KEY_GPU_NV12_TWO_INPUTS, PluginConfigParams::YES } });
+
     // Create infer request
-    inferRequest = executableNetwork.CreateInferRequest();
+    try {
+        inferRequest = executableNetwork.CreateInferRequest();
+    }
+    catch (InferenceEngine::GeneralError) {
+        printf(
+            "Error creating infer request for network.  This sample assumes mobilnet-ssd or similar\n");
+        goto end;
+    }
 
     //-- Start processing
     printf("Decoding VPP, and infering %s with %s\n", cliParams.infileName, cliParams.inmodelName);
