@@ -3395,10 +3395,7 @@ mfxStatus CTranscodingPipeline::AllocFrames(mfxFrameAllocRequest* pRequest, bool
 
         std::ignore = surface.release();
     }
-    if (m_b3DLutEnable) {
-        sts = m_pMFXAllocator->Create3DLutMemory((void*)&m_n3DLutVMemId, m_p3DLutFile);
-        MSDK_CHECK_STATUS(sts, "m_pMFXAllocator->Create3DLutMemory failed");
-    }
+
     (isDecAlloc) ? m_DecSurfaceType = pRequest->Type : m_EncSurfaceType = pRequest->Type;
 
     return MFX_ERR_NONE;
@@ -3602,7 +3599,10 @@ mfxStatus CTranscodingPipeline::SetupSurfacePool(mfxU32 preallocateNum) {
             }
         }
     }
-
+    if (m_b3DLutEnable) {
+        sts = m_pMFXAllocator->Create3DLutMemory((void*)&m_n3DLutVMemId, m_p3DLutFile);
+        MSDK_CHECK_STATUS(sts, "m_pMFXAllocator->Create3DLutMemory failed");
+    }
     return MFX_ERR_NONE;
 }
 
