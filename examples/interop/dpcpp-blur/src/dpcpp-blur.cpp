@@ -156,15 +156,19 @@ int main(int argc, char **argv) {
            q.get_device().get_info<sycl::info::device::name>().c_str());
 
 #ifdef HAVE_VIDEO_MEMORY_INTEROP
-    // Get Level-zero context and device from the SYCL backend
-    ze_context_handle_t ze_context = q.get_context().get_native<sycl::backend::level_zero>();
+    ze_context_handle_t ze_context = {};
+    ze_device_handle_t ze_device   = {};
+    if (MFX_IMPL_TYPE_SOFTWARE != cliParams.implValue.Data.U32) {
+        // Get Level-zero context and device from the SYCL backend
+        ze_context = sycl::get_native<sycl::backend::ext_oneapi_level_zero>(q.get_context());
+        ze_device  = sycl::get_native<sycl::backend::ext_oneapi_level_zero>(q.get_device());
 
-    ze_device_handle_t ze_device = q.get_device().get_native<sycl::backend::level_zero>();
-    if (q.get_device().get_info<sycl::info::device::device_type>() ==
-        sycl::info::device_type::gpu) {
-        ze_device_properties_t deviceProperties;
-        zeDeviceGetProperties(ze_device, &deviceProperties);
-        desiredDevice = (mfxU32)deviceProperties.deviceId;
+        if (q.get_device().get_info<sycl::info::device::device_type>() ==
+            sycl::info::device_type::gpu) {
+            ze_device_properties_t deviceProperties;
+            zeDeviceGetProperties(ze_device, &deviceProperties);
+            desiredDevice = (mfxU32)deviceProperties.deviceId;
+        }
     }
 #endif
 
