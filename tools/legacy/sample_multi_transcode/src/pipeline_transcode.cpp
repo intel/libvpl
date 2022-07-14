@@ -2539,61 +2539,61 @@ mfxStatus CTranscodingPipeline::InitDecMfxParams(sInputParams* pInParams) {
                 case MFX_FOURCC_RGB4:
                     decPostProc->Out.FourCC       = MFX_FOURCC_RGB4;
                     decPostProc->Out.ChromaFormat = MFX_CHROMAFORMAT_YUV444;
-                    m_encoderFourCC = MFX_FOURCC_RGB4;
+                    m_encoderFourCC               = MFX_FOURCC_RGB4;
                     break;
 
                 case MFX_FOURCC_NV12:
                     decPostProc->Out.FourCC       = MFX_FOURCC_NV12;
                     decPostProc->Out.ChromaFormat = MFX_CHROMAFORMAT_YUV420;
-                    m_encoderFourCC = MFX_FOURCC_NV12;
+                    m_encoderFourCC               = MFX_FOURCC_NV12;
                     break;
 
                 case MFX_FOURCC_P010:
                     decPostProc->Out.FourCC       = MFX_FOURCC_P010;
                     decPostProc->Out.ChromaFormat = MFX_CHROMAFORMAT_YUV420;
-                    m_encoderFourCC = MFX_FOURCC_P010;
+                    m_encoderFourCC               = MFX_FOURCC_P010;
                     break;
 
                 case MFX_FOURCC_P016:
                     decPostProc->Out.FourCC       = MFX_FOURCC_P016;
                     decPostProc->Out.ChromaFormat = MFX_CHROMAFORMAT_YUV420;
-                    m_encoderFourCC = MFX_FOURCC_P016;
+                    m_encoderFourCC               = MFX_FOURCC_P016;
                     break;
 
                 case MFX_FOURCC_YUY2:
                     decPostProc->Out.FourCC       = MFX_FOURCC_YUY2;
                     decPostProc->Out.ChromaFormat = MFX_CHROMAFORMAT_YUV422;
-                    m_encoderFourCC = MFX_FOURCC_YUY2;
+                    m_encoderFourCC               = MFX_FOURCC_YUY2;
                     break;
 
                 case MFX_FOURCC_Y210:
                     decPostProc->Out.FourCC       = MFX_FOURCC_Y210;
                     decPostProc->Out.ChromaFormat = MFX_CHROMAFORMAT_YUV422;
-                    m_encoderFourCC = MFX_FOURCC_Y210;
+                    m_encoderFourCC               = MFX_FOURCC_Y210;
                     break;
 
                 case MFX_FOURCC_Y216:
                     decPostProc->Out.FourCC       = MFX_FOURCC_Y216;
                     decPostProc->Out.ChromaFormat = MFX_CHROMAFORMAT_YUV422;
-                    m_encoderFourCC = MFX_FOURCC_Y216;
+                    m_encoderFourCC               = MFX_FOURCC_Y216;
                     break;
 
                 case MFX_FOURCC_AYUV:
                     decPostProc->Out.FourCC       = MFX_FOURCC_AYUV;
                     decPostProc->Out.ChromaFormat = MFX_CHROMAFORMAT_YUV444;
-                    m_encoderFourCC = MFX_FOURCC_AYUV;
+                    m_encoderFourCC               = MFX_FOURCC_AYUV;
                     break;
 
                 case MFX_FOURCC_Y410:
                     decPostProc->Out.FourCC       = MFX_FOURCC_Y410;
                     decPostProc->Out.ChromaFormat = MFX_CHROMAFORMAT_YUV444;
-                    m_encoderFourCC = MFX_FOURCC_Y410;
+                    m_encoderFourCC               = MFX_FOURCC_Y410;
                     break;
 
                 case MFX_FOURCC_Y416:
                     decPostProc->Out.FourCC       = MFX_FOURCC_Y416;
                     decPostProc->Out.ChromaFormat = MFX_CHROMAFORMAT_YUV444;
-                    m_encoderFourCC = MFX_FOURCC_Y416;
+                    m_encoderFourCC               = MFX_FOURCC_Y416;
                     break;
 
                 default:
