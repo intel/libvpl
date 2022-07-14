@@ -1312,7 +1312,7 @@ mfxStatus CTranscodingPipeline::Decode() {
         //mfxU32 len = pNextBuffer->GetLength();
         if (pNextBuffer->GetLength() >= m_AsyncDepth) {
             ExtendedSurface frontSurface;
-            pNextBuffer->GetSurface(frontSurface);
+            pNextBuffer->GetSyncSurface(frontSurface);
 
             if (frontSurface.Syncp) {
                 m_ScalerConfig.Tracer->BeginEvent(SMTTracer::ThreadType::DEC,
@@ -4782,6 +4782,36 @@ mfxStatus SafetySurfaceBuffer::GetSurface(ExtendedSurface& Surf) {
     return MFX_ERR_NONE;
 
 } // SafetySurfaceBuffer::GetSurface()
+
+mfxStatus SafetySurfaceBuffer::GetSyncSurface(ExtendedSurface& Surf) {
+    std::lock_guard<std::mutex> guard(m_mutex);
+
+    // no ready surfaces
+    if (0 == m_SList.size()) {
+        MSDK_ZERO_MEMORY(Surf)
+        return MFX_ERR_MORE_SURFACE;
+    }
+
+    auto i = m_SList.begin();
+    for (; i != m_SList.end(); ++i)
+    {
+        SurfaceDescriptor & sDescriptor = (*i);
+        if(sDescriptor.ExtSurface.Syncp != NULL && !sDescriptor.Synced){
+            Surf = sDescriptor.ExtSurface;
+            sDescriptor.Synced = true;
+            break;
+        }
+    }
+
+    // All surface have been synced
+    if (i == m_SList.end())
+    {
+        MSDK_ZERO_MEMORY(Surf)
+        return MFX_ERR_MORE_SURFACE;
+    }
+
+    return MFX_ERR_NONE;
+} // SafetySurfaceBuffer::GetSyncSurface()
 
 mfxStatus SafetySurfaceBuffer::ReleaseSurface(mfxFrameSurface1* pSurf) {
     std::unique_lock<std::mutex> lock(m_mutex);

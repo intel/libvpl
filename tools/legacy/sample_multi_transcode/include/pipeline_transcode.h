@@ -635,9 +635,10 @@ public:
     mfxU32 TargetID = 0;
 
     struct SurfaceDescriptor {
-        SurfaceDescriptor() : ExtSurface(), Locked(false) {}
+        SurfaceDescriptor() : ExtSurface(), Locked(false), Synced(false) {}
         ExtendedSurface ExtSurface;
         mfxU32 Locked;
+        bool Synced;
     };
 
     SafetySurfaceBuffer(SafetySurfaceBuffer* pNext);
@@ -648,6 +649,7 @@ public:
     mfxStatus WaitForSurfaceInsertion(mfxU32 msec);
     void AddSurface(ExtendedSurface Surf);
     mfxStatus GetSurface(ExtendedSurface& Surf);
+    mfxStatus GetSyncSurface(ExtendedSurface& Surf);
     mfxStatus ReleaseSurface(mfxFrameSurface1* pSurf);
     mfxStatus ReleaseSurfaceAll();
     void CancelBuffering();
