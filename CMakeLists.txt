@@ -87,6 +87,13 @@ option(BUILD_PYTHON_BINDING_ONLY "Build only Python binding." OFF)
 if(BUILD_DISPATCHER_ONLY)
   set(BUILD_DEV OFF)
   set(BUILD_PREVIEW OFF)
+  set(BUILD_TOOLS OFF)
+  set(BUILD_SHARED_LIBS OFF)
+  set(BUILD_DISPATCHER_ONEVPL_EXPERIMENTAL OFF)
+  set(BUILD_TOOLS_ONEVPL_EXPERIMENTAL OFF)
+  set(INSTALL_EXAMPLE_CODE OFF)
+
+
 endif()
 if(BUILD_DEV_ONLY)
   set(BUILD_DISPATCHER OFF)
@@ -229,6 +236,7 @@ message(
 message(
   STATUS "  ONEAPI_INSTALL_FULL_PYTHONDIR   : ${ONEAPI_INSTALL_FULL_PYTHONDIR}")
 message(STATUS "Build:")
+message(STATUS "  BUILD_DISPATCHER_ONLY                : ${BUILD_DISPATCHER_ONLY}")
 message(STATUS "  BUILD_DEV                            : ${BUILD_DEV}")
 message(STATUS "  BUILD_DISPATCHER                     : ${BUILD_DISPATCHER}")
 message(STATUS "  BUILD_TOOLS                          : ${BUILD_TOOLS}")
