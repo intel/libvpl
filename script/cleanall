@@ -6,6 +6,11 @@
 ###############################################################################
 # Unified Clean (Depricated, use e2e clean).
 
+if [ -z "$BASH_VERSION" ]
+then
+  echo "This script must be run under bash"
+  exit 1
+fi
 
 if [ "$0" = "$BASH_SOURCE" ]
 then
