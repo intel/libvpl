@@ -19,7 +19,7 @@ Expected input/output formats:
 
 This sample is a command line application that takes a file containing a raw
 format video file as an argument, converts it to BGRA with oneVPL, blurs each frame with DPC++ by using SYCL kernel,
-and writes the processed output to `out.bgra` in BGRA format.
+and writes the processed output to `out.raw` in BGRA format.
 
 GPU optimization is available in Linux, including oneAPI Level Zero optimizations allowing the kernel to run 
 directly on VPL output without copies to/from CPU memory.
@@ -110,5 +110,5 @@ You can display the output with a video player that supports raw streams such as
 FFplay. You can use the following command to display the output with FFplay:
 
 ```
-ffplay -video_size 256x192 -pixel_format bgra -f raw video out.bgra
+ffplay -video_size 256x192 -pixel_format bgra -f rawvideo out.raw
 ```
