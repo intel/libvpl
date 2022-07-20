@@ -337,8 +337,8 @@ struct __sInputParams {
     mfxU16 nBaseLayerPID;
     mfxU16 nAvcTemporalLayers[8];
 #if defined(_WIN32) || defined(_WIN64)
-    mfxU16 nTemp;
-    mfxU16 nTemporalLayers[8];
+    mfxU16 bTemporalLayers;
+    mfxTemporalLayer temporalLayers[8];
 #endif
     mfxU16 nSPSId;
     mfxU16 nPPSId;

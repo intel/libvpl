@@ -1367,7 +1367,7 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
     }
 #if defined(_WIN32) || defined(_WIN64)
     else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-TemporalLayers"))) {
-        InputParams.nTemp = 1;
+        InputParams.bTemporalLayers = true;
         VAL_CHECK(i + 1 >= argc, i, argv[i]);
         mfxU16 arr[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
         int j, k;
@@ -1387,7 +1387,7 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
         }
 
         for (j = 0; j < 8; j++) {
-            InputParams.nTemporalLayers[j] = arr[j];
+            InputParams.temporalLayers[j].FrameRateScale = arr[j];
         }
         i += 1;
     }

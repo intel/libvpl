@@ -2755,19 +2755,12 @@ mfxStatus CTranscodingPipeline::InitEncMfxParams(sInputParams* pInParams) {
         }
     }
 #if defined(_WIN32) || defined(_WIN64)
-    if (pInParams->nTemp) {
+    if (pInParams->bTemporalLayers) {
         if (pInParams->EncodeId == MFX_CODEC_AV1) {
             auto tl          = m_mfxEncParams.AddExtBuffer<mfxExtTemporalLayers>();
             tl->BaseLayerPID = pInParams->nBaseLayerPID;
             tl->NumLayers    = 8;
-            std::vector<mfxTemporalLayer> tmplayers;
-            tmplayers.reserve(8);
-            tl->Layers = &tmplayers[0];
-
-            for (int i = 0; i < 8; i++) {
-                tl->Layers[i]                = {};
-                tl->Layers[i].FrameRateScale = pInParams->nTemporalLayers[i];
-            }
+            tl->Layers       = pInParams->temporalLayers;
         }
     }
 #endif
