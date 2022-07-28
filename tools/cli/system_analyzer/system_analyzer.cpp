@@ -19,8 +19,10 @@
     #include <stdlib.h>
     #include <unistd.h>
     #include "dlfcn.h"
+#ifdef LIBVA_SUPPORT
     #include "va/va.h"
     #include "va/va_drm.h"
+#endif
 #endif
 
 typedef struct gpuinfo {
