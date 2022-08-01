@@ -1138,9 +1138,10 @@ REGISTER_TRIVIAL_EXT_BUFFER(ExtAV1FilmGrainParam,
             if (&other == this)                                                                     \
                 return *this;                                                                       \
                                                                                                     \
-            if (this->buffer_.ptr)                                                                  \
+            if (this->buffer_.ptr) {                                                                \
                 delete[] this->buffer_.ptr;                                                         \
                 this->buffer_.ptr = NULL;                                                           \
+            }                                                                                       \
                                                                                                     \
             if (other.buffer_.numElems) {                                                           \
                 this->buffer_.numElems = other.buffer_.numElems;                                    \
