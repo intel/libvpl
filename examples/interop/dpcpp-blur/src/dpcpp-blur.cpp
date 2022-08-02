@@ -14,12 +14,14 @@
 #include <CL/sycl.hpp>
 #include "util.h"
 
-#define OUTPUT_WIDTH      256
-#define OUTPUT_HEIGHT     192
-#define OUTPUT_FILE       "out.raw"
-#define BLUR_RADIUS       5
-#define BLUR_SIZE         (float)((BLUR_RADIUS << 1) + 1)
-#define MAX_PLANES_NUMBER 4
+#define OUTPUT_WIDTH               256
+#define OUTPUT_HEIGHT              192
+#define OUTPUT_FILE                "out.raw"
+#define BLUR_RADIUS                5
+#define BLUR_SIZE                  (float)((BLUR_RADIUS << 1) + 1)
+#define MAX_PLANES_NUMBER          4
+#define MAJOR_API_VERSION_REQUIRED 2
+#define MINOR_API_VERSION_REQUIRED 2
 
 #ifdef LIBVA_SUPPORT
     #define HAVE_VIDEO_MEMORY_INTEROP
@@ -109,7 +111,8 @@ int main(int argc, char **argv) {
     bool isStillGoing = true;
     FILE *sink        = NULL;
     FILE *source      = NULL;
-    mfxConfig cfg[1];
+    mfxConfig cfg[2];
+    mfxVariant cfgVal[2];
     mfxLoader loader   = NULL;
     mfxSession session = NULL;
     mfxStatus sts      = MFX_ERR_NONE;
@@ -194,6 +197,16 @@ int main(int argc, char **argv) {
     sts =
         MFXSetConfigFilterProperty(cfg[0], (mfxU8 *)"mfxImplDescription.Impl", cliParams.implValue);
     VERIFY(MFX_ERR_NONE == sts, "MFXSetConfigFilterProperty failed for Impl");
+
+    // Implementation used must provide API version 2.2 or newer
+    cfg[1] = MFXCreateConfig(loader);
+    VERIFY(NULL != cfg[1], "MFXCreateConfig failed")
+    cfgVal[1].Type     = MFX_VARIANT_TYPE_U32;
+    cfgVal[1].Data.U32 = VPLVERSION(MAJOR_API_VERSION_REQUIRED, MINOR_API_VERSION_REQUIRED);
+    sts                = MFXSetConfigFilterProperty(cfg[1],
+                                     (mfxU8 *)"mfxImplDescription.ApiVersion.Version",
+                                     cfgVal[1]);
+    VERIFY(MFX_ERR_NONE == sts, "MFXSetConfigFilterProperty failed for API version");
 
     // Match oneVPL implementation with sycl::q device
     while (MFX_ERR_NOT_FOUND != MFXEnumImplementations(loader,
