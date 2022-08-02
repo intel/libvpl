@@ -3,6 +3,9 @@
 This sample shows how to use the oneAPI Video Processing Library (oneVPL) to
 perform simple video processing using using Python APIs.
 
+Please note: the preview Python API and its samples are no longer under development.
+They are not validated and may be removed in the future.
+
 | Optimized for       | Description
 |-------------------- | ----------------------------------------
 | OS                  | Ubuntu* 20.04; Windows* 10

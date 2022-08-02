@@ -3,6 +3,9 @@
 This sample shows how to use the oneAPI Video Processing Library (oneVPL) to
 perform a simple video encode using preview C++ APIs.
 
+Please note: the preview C++ API and its samples are no longer under development.
+They are not validated and may be removed in the future.
+
 | Optimized for    | Description
 |----------------- | ----------------------------------------
 | OS               | Ubuntu* 20.04
