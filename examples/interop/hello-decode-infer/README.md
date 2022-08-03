@@ -34,6 +34,8 @@ This code sample is licensed under MIT license.
 
 ## Building the `hello-decode-infer` Program
 
+- Note: Only the environment specified in this readme is supported and validated
+
 The first step is to set up a build environment with prerequisites installed.  
 This can be set up in a bare metal Ubuntu 20.04 system or with Docker. 
 
@@ -51,13 +53,13 @@ Install the prerequisite software:
 #### In a docker container
 
 ```
-docker build -t openvino_vpl_environment docker
+docker build -t openvino_vpl_environment:hello_decode_infer docker
 ```
 
 Start the container, mounting the examples directory
 ```
 cd ../../..
-docker run -it --rm --privileged -v `pwd`/examples:`pwd`/examples -w `pwd`/examples  openvino_vpl_environment
+docker run -it --rm --privileged -v `pwd`/examples:`pwd`/examples -w `pwd`/examples  openvino_vpl_environment:hello_decode_infer
 ```
 In the container, cd back to interop/hello-decode-infer.  
 

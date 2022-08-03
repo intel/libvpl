@@ -42,6 +42,8 @@ Code samples are licensed under the MIT license. See
 
 ## Building the `dpcpp-blur` Program
 
+- Note: Only the environment specified in this readme is supported and validated
+
 ### Include Files
 The oneVPL include folder is located at these locations on your development system:
  - Linux: $ONEAPI_ROOT/vpl/latest/include
@@ -61,30 +63,51 @@ Perform the following steps:
    Follow steps in 
    https://dgpu-docs.intel.com/installation-guides/ubuntu/ubuntu-focal.html
 
-3. Set up your environment using the following command:
-   ```
-   source <oneapi_install_dir>/setvars.sh
-   ```
-   Here `<oneapi_install_dir>` represents the root folder of your oneAPI
-   installation, which is `/opt/intel/oneapi/` when installed as root, and
-   `~/intel/oneapi/` when installed as a normal user.  If you customized the
-   installation folder, it is in your custom location.
+### In a docker container
 
-   Additional setup steps to enable GPU execution can be found here:
-   https://dgpu-docs.intel.com/installation-guides/ubuntu/ubuntu-focal.html
+```
+docker build -t dpcpp_blur_environment docker
+```
 
-4. Build the program using the following commands:
-   ```
-   mkdir build
-   cd build
-   cmake -DCMAKE_BUILD_TYPE=Release ..
-   cmake --build .
-   ```
+Start the container, mounting the examples directory
+```
+cd ../../../
+docker run -it --rm --privileged -v `pwd`/examples:`pwd`/examples -w `pwd`/examples dpcpp_blur_environment
+```
+In the container, cd back to interop/dpcpp-blur.
 
-5. Run the program with default arguments using the following command:
-   ```
-   ./dpcpp-blur -sw -i ../../../content/cars_320x240.i420 -w 320 -h 240
-   ```
+
+### Common steps
+Continue with the rest of these steps in your bare metal shell or in the container shell.
+
+1. Set up your environment using the following command:
+
+```
+source <oneapi_install_dir>/setvars.sh
+```
+
+Here `<oneapi_install_dir>` represents the root folder of your oneAPI
+installation, which is `/opt/intel/oneapi/` when installed as root, and
+`~/intel/oneapi/` when installed as a normal user.  If you customized the
+installation folder, it is in your custom location.
+
+Additional setup steps to enable GPU execution can be found here:
+https://dgpu-docs.intel.com/installation-guides/ubuntu/ubuntu-focal.html
+
+2. Build the program using the following commands:
+
+```
+mkdir build
+cd build
+cmake -DCMAKE_BUILD_TYPE=Release ..
+cmake --build .
+```
+
+3. Run the program with default arguments using the following command:
+   
+```
+./dpcpp-blur -sw -i ../../../content/cars_320x240.i420 -w 320 -h 240
+```
 
 
 ## Running the Sample
