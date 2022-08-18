@@ -20,7 +20,7 @@
           "./hello-encode -sw -i ../../../content/cars_320x240.i420 -w 320 -h 240"
         ] }, { 
           "id": "hw run",
-          "env": ["RESULTSTR='Encoded 30 frames'","RESULTSTR='No Implementation'" ],
+          "env": ["RESULTSTR='Encoded 30 frames'","RESULTSTR='no implementations'" ],
           "steps": [
             "mkdir build",
             "cd build",

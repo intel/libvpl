@@ -11,7 +11,7 @@
   "ciTests": {
     "linux": [
       { "id": "builds and runs successfully with CMake",
-        "env": ["RESULTSTR='Decoded 30 frames'","RESULTSTR='No implementation'"],
+        "env": ["RESULTSTR='Decoded 30 frames'","RESULTSTR='no implementations'"],
         "steps": [
           ". /opt/intel/openvino_2021/bin/setupvars.sh",
           "mkdir build",

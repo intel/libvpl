@@ -20,7 +20,7 @@
           "./hello-createsession -sw"
         ] }, { 
           "id": "hw run",
-          "env": ["RESULTSTR='Session loaded'","RESULTSTR='No implementation'"],
+          "env": ["RESULTSTR='Session loaded'","RESULTSTR='Session loaded'"],
           "steps": [
             "mkdir build",
             "cd build",

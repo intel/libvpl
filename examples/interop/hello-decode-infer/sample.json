@@ -21,7 +21,7 @@
           "./hello-decode-infer -sw -i ../../../content/cars_320x240.h265 -m ../../../content/public/alexnet/FP32/alexnet.xml"
         ] }, { 
           "id": "hw run",
-          "env": ["RESULTSTR='Decoded 30 frames'","RESULTSTR='No implementation'"],
+          "env": ["RESULTSTR='Decoded 30 frames'","RESULTSTR='no implementations'"],
           "steps": [
             ". /opt/intel/openvino_2021/bin/setupvars.sh",
             "mkdir build",
