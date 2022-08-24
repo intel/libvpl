@@ -768,7 +768,7 @@ public:
         if (MaxLength >= n_bytes)
             return;
 
-        m_data.resize(n_bytes);
+        m_data.reserve(n_bytes);
 
         Data      = m_data.data();
         MaxLength = n_bytes;
