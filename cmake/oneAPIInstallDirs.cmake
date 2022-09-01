@@ -17,6 +17,12 @@ if(WIN32 AND CMAKE_SIZEOF_VOID_P EQUAL 4)
   endif()
 endif()
 
+# See https://cmake.org/cmake/help/latest/module/GNUInstallDirs.html for
+# variables GNUInstallDirs exposes. This project commonly uses:
+# CMAKE_INSTALL_INCLUDEDIR CMAKE_INSTALL_DOCDIR CMAKE_INSTALL_BINDIR
+# CMAKE_INSTALL_LIBDIR
+include(GNUInstallDirs)
+
 if(USE_ONEAPI_INSTALL_LAYOUT)
   set(CMAKE_INSTALL_DOCDIR "documentation")
   if(NOT WIN32)
@@ -28,14 +34,10 @@ if(USE_ONEAPI_INSTALL_LAYOUT)
   set(ONEAPI_INSTALL_LICENSEDIR "licensing/${PROJECT_NAME}")
   set(ONEAPI_INSTALL_PYTHONDIR "python/lib")
 else()
-  set(CMAKE_INSTALL_DOCDIR ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/doc)
+  set(CMAKE_INSTALL_DOCDIR ${CMAKE_INSTALL_DATAROOTDIR}/doc/${PROJECT_NAME})
+  gnuinstalldirs_get_absolute_install_dir(CMAKE_INSTALL_FULL_DOCDIR
+                                          CMAKE_INSTALL_DOCDIR DOCDIR)
 endif()
-
-# See https://cmake.org/cmake/help/latest/module/GNUInstallDirs.html for
-# variables GNUInstallDirs exposes. This project commonly uses:
-# CMAKE_INSTALL_INCLUDEDIR CMAKE_INSTALL_DOCDIR CMAKE_INSTALL_BINDIR
-# CMAKE_INSTALL_LIBDIR
-include(GNUInstallDirs)
 
 if(WIN32 AND CMAKE_SIZEOF_VOID_P EQUAL 4)
   set(CMAKE_INSTALL_BINDIR
