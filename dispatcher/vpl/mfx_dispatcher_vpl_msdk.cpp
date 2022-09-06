@@ -126,6 +126,16 @@ mfxStatus LoaderCtxMSDK::OpenSession(mfxSession *session,
 
     // set acceleration mode - will be mapped to 1.x API
     mfxInitializationParam vplParam = {};
+    mfxExtBuffer *ext_params[1];
+    mfxExtThreadsParam thread_param;
+
+    memset(&thread_param, 0, sizeof(thread_param));
+    thread_param.Header.BufferId = MFX_EXTBUFF_THREADS_PARAM;
+    thread_param.Header.BufferSz = sizeof(thread_param);
+    thread_param.NumThread       = 2;
+    ext_params[0]                = (mfxExtBuffer *)&thread_param;
+    vplParam.ExtParam            = (mfxExtBuffer **)&ext_params;
+    vplParam.NumExtParam         = 1;
     vplParam.AccelerationMode       = accelMode;
 
     return MFXInitEx2(reqVersion,
@@ -210,6 +220,16 @@ mfxStatus LoaderCtxMSDK::QueryAPIVersion(STRING_TYPE libNameFull, mfxVersion *ms
 
         // set acceleration mode - will be mapped to 1.x API
         mfxInitializationParam vplParam = {};
+        mfxExtBuffer *ext_params[1];
+        mfxExtThreadsParam thread_param;
+
+        memset(&thread_param, 0, sizeof(thread_param));
+        thread_param.Header.BufferId = MFX_EXTBUFF_THREADS_PARAM;
+        thread_param.Header.BufferSz = sizeof(thread_param);
+        thread_param.NumThread       = 2;
+        ext_params[0]                = (mfxExtBuffer *)&thread_param;
+        vplParam.ExtParam            = (mfxExtBuffer **)&ext_params;
+        vplParam.NumExtParam         = 1;
         vplParam.AccelerationMode =
             (mfxAccelerationMode)CvtAccelType(MFX_IMPL_HARDWARE, implDefault & 0xFF00);
 
