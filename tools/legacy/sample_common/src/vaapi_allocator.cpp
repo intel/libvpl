@@ -129,7 +129,7 @@ static mfxStatus GetVAFourcc(mfxU32 fourcc, unsigned int& va_fourcc) {
     mfxU32 mfx_fourcc = ConvertVP8FourccToMfxFourcc(fourcc);
     va_fourcc         = ConvertMfxFourccToVAFormat(mfx_fourcc);
     if (!va_fourcc || ((VA_FOURCC_NV12 != va_fourcc) && (VA_FOURCC_YV12 != va_fourcc) &&
-                       (VA_FOURCC_YUY2 != va_fourcc) && (VA_FOURCC_ARGB != va_fourcc) &&
+                       (VA_FOURCC_UYVY != va_fourcc) && (VA_FOURCC_ARGB != va_fourcc) &&
                        (VA_FOURCC_ABGR != va_fourcc) && (VA_FOURCC_P208 != va_fourcc) &&
                        (VA_FOURCC_P010 != va_fourcc) && (VA_FOURCC_YUY2 != va_fourcc) &&
                        (VA_FOURCC_Y210 != va_fourcc) && (VA_FOURCC_Y410 != va_fourcc) &&
