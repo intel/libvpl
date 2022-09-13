@@ -23,15 +23,16 @@
 
 namespace MFX {
 
-#if defined(__x86_64__)
-    #define LIBMFXSW "libmfxsw64.so.1"
+#if INTPTR_MAX == INT32_MAX
+    #define LIBMFXHW "libmfxhw32.so.1"
+    #define ONEVPLSW "libvplswref32.so.1"
+#elif INTPTR_MAX == INT64_MAX
     #define LIBMFXHW "libmfxhw64.so.1"
-
     #define ONEVPLSW "libvplswref64.so.1"
-    #define ONEVPLHW "libmfx-gen.so.1.2"
 #else
     #error Unsupported architecture
 #endif
+#define ONEVPLHW "libmfx-gen.so.1.2"
 
 #undef FUNCTION
 #define FUNCTION(return_value, func_name, formal_param_list, actual_param_list) e##func_name,
