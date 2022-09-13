@@ -42,11 +42,7 @@
     #include <link.h>
     #include <string>
 
-    #if defined(__x86_64__)
-        #define ONEVPL_MASK "libmfx-gen"
-    #else
-        #error Unsupported architecture
-    #endif
+    #define ONEVPL_MASK "libmfx-gen"
 
 #endif // #if defined(_WIN32) || defined(_WIN64)
 
