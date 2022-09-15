@@ -2649,6 +2649,7 @@ mfxStatus CTranscodingPipeline::InitEncMfxParams(sInputParams* pInParams) {
         videoSignalInfo->TransferCharacteristics  = pInParams->nTransferCharacteristics;
         // Fill in VUI parameters
         switch (videoSignalInfo->TransferCharacteristics) {
+            case 16: //SMPTE ST 2084, ITU BT.2100 PQ
             case 18: //HLG (BT.2020)
                 videoSignalInfo->ColourPrimaries    = 9;
                 videoSignalInfo->MatrixCoefficients = 9;
