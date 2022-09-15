@@ -583,6 +583,8 @@ void TranscodingSample::PrintHelp() {
     msdk_printf(MSDK_STRING(
         "   -trace::E2E              - turn on tracing, tune pipeline for E2E latency \n"));
     msdk_printf(MSDK_STRING("   -trace_buffer_size <x>   - trace buffer size in MBytes\n"));
+    msdk_printf(MSDK_STRING(
+        "   -parallel_encoding       - use several encoders to encode single bitstream, see readme for more details\n"));
 #if defined(LIBVA_X11_SUPPORT)
     msdk_printf(MSDK_STRING("   -rx11                    - use libva X11 backend \n"));
 #endif
@@ -1670,6 +1672,9 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
     else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-trace::ENC"))) {
         InputParams.EnableTracing = true;
         InputParams.LatencyType   = SMTTracer::LatencyType::ENC;
+    }
+    else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-parallel_encoding"))) {
+        InputParams.ParallelEncoding = true;
     }
 #if (defined(_WIN64) || defined(_WIN32))
     else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-dual_gfx::on"))) {

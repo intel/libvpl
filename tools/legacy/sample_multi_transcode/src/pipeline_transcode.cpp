@@ -182,6 +182,7 @@ CTranscodingPipeline::CTranscodingPipeline()
           m_nID(0),
           m_AsyncDepth(0),
           m_nProcessedFramesNum(0),
+          m_nTotalFramesNum(0),
           m_bIsJoinSession(false),
           m_bAllocHint(),
           m_nPreallocate(),
@@ -546,25 +547,25 @@ mfxStatus CTranscodingPipeline::DecodeOneFrame(ExtendedSurface* pExtSurface) {
     while (MFX_ERR_MORE_DATA == sts || MFX_ERR_MORE_SURFACE == sts || MFX_ERR_NONE < sts) {
         if (m_rawInput) {
             m_ScalerConfig.Tracer->BeginEvent(SMTTracer::ThreadType::DEC,
-                                              0,
+                                              TargetID,
                                               SMTTracer::EventName::SURF_WAIT,
                                               nullptr,
                                               nullptr);
             pExtSurface->pSurface = GetFreeSurface(false, MSDK_SURFACE_WAIT_INTERVAL);
             m_ScalerConfig.Tracer->EndEvent(SMTTracer::ThreadType::DEC,
-                                            0,
+                                            TargetID,
                                             SMTTracer::EventName::SURF_WAIT,
                                             nullptr,
                                             nullptr);
 
             m_ScalerConfig.Tracer->BeginEvent(SMTTracer::ThreadType::DEC,
-                                              0,
+                                              TargetID,
                                               SMTTracer::EventName::READ_YUV,
                                               nullptr,
                                               nullptr);
             sts = m_pBSProcessor->GetInputFrame(pExtSurface->pSurface);
             m_ScalerConfig.Tracer->EndEvent(SMTTracer::ThreadType::DEC,
-                                            0,
+                                            TargetID,
                                             SMTTracer::EventName::READ_YUV,
                                             nullptr,
                                             pExtSurface->pSurface);
@@ -574,27 +575,27 @@ mfxStatus CTranscodingPipeline::DecodeOneFrame(ExtendedSurface* pExtSurface) {
         }
         else if (MFX_WRN_DEVICE_BUSY == sts) {
             m_ScalerConfig.Tracer->BeginEvent(SMTTracer::ThreadType::DEC,
-                                              0,
+                                              TargetID,
                                               SMTTracer::EventName::BUSY,
                                               nullptr,
                                               nullptr);
             WaitForDeviceToBecomeFree(*m_pmfxSession, m_LastDecSyncPoint, sts);
             m_ScalerConfig.Tracer->EndEvent(SMTTracer::ThreadType::DEC,
-                                            0,
+                                            TargetID,
                                             SMTTracer::EventName::BUSY,
                                             nullptr,
                                             nullptr);
         }
         else if (MFX_ERR_MORE_DATA == sts) {
             m_ScalerConfig.Tracer->BeginEvent(SMTTracer::ThreadType::DEC,
-                                              0,
+                                              TargetID,
                                               SMTTracer::EventName::READ_BS,
                                               nullptr,
                                               nullptr);
             sts =
                 m_pBSProcessor->GetInputBitstream(&m_pmfxBS); // read more data to input bit stream
             m_ScalerConfig.Tracer->EndEvent(SMTTracer::ThreadType::DEC,
-                                            0,
+                                            TargetID,
                                             SMTTracer::EventName::READ_BS,
                                             nullptr,
                                             nullptr);
@@ -605,13 +606,13 @@ mfxStatus CTranscodingPipeline::DecodeOneFrame(ExtendedSurface* pExtSurface) {
             if (m_MemoryModel == GENERAL_ALLOC) {
                 // Find new working surface
                 m_ScalerConfig.Tracer->BeginEvent(SMTTracer::ThreadType::DEC,
-                                                  0,
+                                                  TargetID,
                                                   SMTTracer::EventName::SURF_WAIT,
                                                   nullptr,
                                                   nullptr);
                 pmfxSurface = GetFreeSurface(true, MSDK_SURFACE_WAIT_INTERVAL);
                 m_ScalerConfig.Tracer->EndEvent(SMTTracer::ThreadType::DEC,
-                                                0,
+                                                TargetID,
                                                 SMTTracer::EventName::SURF_WAIT,
                                                 nullptr,
                                                 nullptr);
@@ -637,7 +638,7 @@ mfxStatus CTranscodingPipeline::DecodeOneFrame(ExtendedSurface* pExtSurface) {
 
             m_ScalerConfig.Tracer->BeforeDecodeStart();
             m_ScalerConfig.Tracer->BeginEvent(SMTTracer::ThreadType::DEC,
-                                              0,
+                                              TargetID,
                                               SMTTracer::EventName::UNDEF,
                                               nullptr,
                                               nullptr);
@@ -646,7 +647,7 @@ mfxStatus CTranscodingPipeline::DecodeOneFrame(ExtendedSurface* pExtSurface) {
                                               &pExtSurface->pSurface,
                                               &pExtSurface->Syncp);
             m_ScalerConfig.Tracer->EndEvent(SMTTracer::ThreadType::DEC,
-                                            0,
+                                            TargetID,
                                             SMTTracer::EventName::UNDEF,
                                             nullptr,
                                             pExtSurface->pSurface);
@@ -1335,13 +1336,13 @@ mfxStatus CTranscodingPipeline::Decode() {
 
             if (frontSurface.Syncp) {
                 m_ScalerConfig.Tracer->BeginEvent(SMTTracer::ThreadType::DEC,
-                                                  0,
+                                                  TargetID,
                                                   SMTTracer::EventName::SYNC,
                                                   frontSurface.pSurface,
                                                   nullptr);
                 sts = m_pmfxSession->SyncOperation(frontSurface.Syncp, GetSyncOpTimeout());
                 m_ScalerConfig.Tracer->EndEvent(SMTTracer::ThreadType::DEC,
-                                                0,
+                                                TargetID,
                                                 SMTTracer::EventName::SYNC,
                                                 frontSurface.pSurface,
                                                 nullptr);
@@ -1546,22 +1547,32 @@ mfxStatus CTranscodingPipeline::Encode() {
 
         if ((m_nVPPCompMode != VppCompOnly) || (m_nVPPCompMode == VppCompOnlyEncode)) {
             if (m_mfxEncParams.mfx.CodecId != MFX_CODEC_DUMP) {
-                if (bPollFlag) {
-                    VppExtSurface.pSurface = 0;
+                //we can't use m_nProcessedFramesNum here because it counts only encoded
+                //frames and does not count frames in skipped GOPs
+                m_nTotalFramesNum++;
+                if (VppExtSurface.pSurface &&
+                    m_ScalerConfig.SkipFrame(TargetID, m_nTotalFramesNum)) {
+                    VppExtSurface.Syncp = nullptr;
+                    sts                 = MFX_ERR_MORE_DATA;
                 }
-                sts = EncodeOneFrame(&VppExtSurface, &m_BSPool.back()->Bitstream);
+                else {
+                    if (bPollFlag) {
+                        VppExtSurface.pSurface = 0;
+                    }
+                    sts = EncodeOneFrame(&VppExtSurface, &m_BSPool.back()->Bitstream);
 
-                // Count only real surfaces
-                if (VppExtSurface.pSurface) {
-                    m_nProcessedFramesNum++;
+                    // Count only real surfaces
+                    if (VppExtSurface.pSurface) {
+                        m_nProcessedFramesNum++;
+                    }
+
+                    if (m_nProcessedFramesNum >= m_MaxFramesForTranscode) {
+                        bPollFlag = true;
+                    }
+
+                    if (!sts)
+                        nFramesAlreadyPut++;
                 }
-
-                if (m_nProcessedFramesNum >= m_MaxFramesForTranscode) {
-                    bPollFlag = true;
-                }
-
-                if (!sts)
-                    nFramesAlreadyPut++;
             }
             else {
                 sts = Surface2BS(&VppExtSurface, &m_BSPool.back()->Bitstream, m_encoderFourCC);
@@ -2033,7 +2044,14 @@ mfxStatus CTranscodingPipeline::Transcode() {
             m_nProcessedFramesNum++;
 
         if (m_mfxEncParams.mfx.CodecId != MFX_CODEC_DUMP) {
-            sts = EncodeOneFrame(&VppExtSurface, &m_BSPool.back()->Bitstream);
+            if (VppExtSurface.pSurface &&
+                m_ScalerConfig.SkipFrame(TargetID, m_nProcessedFramesNum)) {
+                VppExtSurface.Syncp = nullptr;
+                sts                 = MFX_ERR_MORE_DATA;
+            }
+            else {
+                sts = EncodeOneFrame(&VppExtSurface, &m_BSPool.back()->Bitstream);
+            }
         }
         else {
             sts = Surface2BS(&VppExtSurface, &m_BSPool.back()->Bitstream, m_encoderFourCC);
@@ -2144,7 +2162,24 @@ mfxStatus CTranscodingPipeline::PutBS() {
         outputStatistics.StartTimeMeasurement();
     }
 
-    sts = m_pBSProcessor->ProcessOutputBitstream(&pBitstreamEx->Bitstream);
+    m_ScalerConfig.Tracer->BeginEvent(SMTTracer::ThreadType::ENC,
+                                      TargetID,
+                                      SMTTracer::EventName::WRITE_BS,
+                                      nullptr,
+                                      nullptr);
+    if (!m_ScalerConfig.ParallelEncodingRequired) {
+        sts = m_pBSProcessor->ProcessOutputBitstream(&pBitstreamEx->Bitstream);
+    }
+    else {
+        sts = m_pBSProcessor->ProcessOutputBitstream(&pBitstreamEx->Bitstream,
+                                                     TargetID,
+                                                     m_nOutputFramesNum);
+    }
+    m_ScalerConfig.Tracer->EndEvent(SMTTracer::ThreadType::ENC,
+                                    TargetID,
+                                    SMTTracer::EventName::WRITE_BS,
+                                    nullptr,
+                                    nullptr);
     MSDK_CHECK_STATUS(sts, "m_pBSProcessor->ProcessOutputBitstream failed");
 
     UnPreEncAuxBuffer(pBitstreamEx->pCtrl);
@@ -5037,8 +5072,8 @@ mfxStatus FileBitstreamProcessor::SetReader(std::unique_ptr<CSmplBitstreamReader
     return MFX_ERR_NONE;
 }
 
-mfxStatus FileBitstreamProcessor::SetWriter(std::unique_ptr<CSmplBitstreamWriter>& writer) {
-    m_pFileWriter = std::move(writer);
+mfxStatus FileBitstreamProcessor::SetWriter(std::shared_ptr<CSmplBitstreamWriter>& writer) {
+    m_pFileWriter = writer;
 
     return MFX_ERR_NONE;
 }
@@ -5066,6 +5101,15 @@ mfxStatus FileBitstreamProcessor::GetInputFrame(mfxFrameSurface1* pSurface) {
 mfxStatus FileBitstreamProcessor::ProcessOutputBitstream(mfxBitstreamWrapper* pBitstream) {
     if (m_pFileWriter.get())
         return m_pFileWriter->WriteNextFrame(pBitstream, false);
+
+    return MFX_ERR_NONE;
+}
+
+mfxStatus FileBitstreamProcessor::ProcessOutputBitstream(mfxBitstreamWrapper* pBitstream,
+                                                         mfxU32 targetID,
+                                                         mfxU32 frameNum) {
+    if (m_pFileWriter.get())
+        return m_pFileWriter->WriteNextFrame(pBitstream, targetID, frameNum);
 
     return MFX_ERR_NONE;
 }

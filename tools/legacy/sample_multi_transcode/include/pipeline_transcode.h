@@ -177,6 +177,7 @@ struct __sInputParams {
     bool EnableTracing                 = false;
     mfxU32 TraceBufferSize             = 0;
     SMTTracer::LatencyType LatencyType = SMTTracer::LatencyType::DEFAULT;
+    bool ParallelEncoding              = false;
 
     // session parameters
     bool bIsJoin;
@@ -495,16 +496,21 @@ public:
     TargetDescriptor GetDesc(mfxU32 id);
     void PropagateCascadeParameters();
     void CreatePoolList();
+    bool SkipFrame(mfxU32 targetID, mfxU32 frameNum);
 
-    bool ParFileImported       = false;
-    bool CascadeScalerRequired = false;
+    bool ParFileImported          = false;
+    bool CascadeScalerRequired    = false;
+    bool ParallelEncodingRequired = false;
+    mfxU32 GopSize                = 0;
 
     std::vector<TargetDescriptor> Targets;
     std::map<mfxU32, PoolDescritpor> Pools; //key is pool ID
     std::map<mfxU32, sInputParams>
         InParams; //key is target ID, copy of par file for cascade VPP initialization
 
-    SMTTracer* Tracer = nullptr;
+    SMTTracer* Tracer            = nullptr;
+    SMTTracer::PipelineType type = SMTTracer::PipelineType::unknown;
+
     CascadeScalerConfig()
             : ParFileImported(false),
               CascadeScalerRequired(false),
@@ -716,10 +722,13 @@ public:
     virtual ~FileBitstreamProcessor();
     virtual mfxStatus SetReader(std::unique_ptr<CSmplBitstreamReader>& reader);
     virtual mfxStatus SetReader(std::unique_ptr<CSmplYUVReader>& reader);
-    virtual mfxStatus SetWriter(std::unique_ptr<CSmplBitstreamWriter>& writer);
+    virtual mfxStatus SetWriter(std::shared_ptr<CSmplBitstreamWriter>& writer);
     virtual mfxStatus GetInputBitstream(mfxBitstreamWrapper** pBitstream);
     virtual mfxStatus GetInputFrame(mfxFrameSurface1* pSurface);
     virtual mfxStatus ProcessOutputBitstream(mfxBitstreamWrapper* pBitstream);
+    virtual mfxStatus ProcessOutputBitstream(mfxBitstreamWrapper* pBitstream,
+                                             mfxU32 targetID,
+                                             mfxU32 frameNum);
     virtual mfxStatus ResetInput();
     virtual mfxStatus ResetOutput();
     virtual bool IsNulOutput();
@@ -728,7 +737,7 @@ protected:
     std::unique_ptr<CSmplBitstreamReader> m_pFileReader;
     std::unique_ptr<CSmplYUVReader> m_pYUVFileReader;
     // for performance options can be zero
-    std::unique_ptr<CSmplBitstreamWriter> m_pFileWriter;
+    std::shared_ptr<CSmplBitstreamWriter> m_pFileWriter;
     mfxBitstreamWrapper m_Bitstream;
 
 private:
@@ -1016,6 +1025,7 @@ protected:
     mfxU32 m_nID;
     mfxU16 m_AsyncDepth;
     mfxU32 m_nProcessedFramesNum;
+    mfxU32 m_nTotalFramesNum;
 
     bool m_bIsJoinSession;
 

@@ -21,9 +21,11 @@
 namespace TranscodingSample {
 class SMTTracer {
 public:
+    enum class PipelineType { unknown, _1x1, _1xN, _NxN };
+
     enum class ThreadType { DEC, CSVPP, VPP, ENC };
 
-    enum class EventName { UNDEF, BUSY, SYNC, READ_YUV, READ_BS, SURF_WAIT };
+    enum class EventName { UNDEF, BUSY, SYNC, READ_YUV, READ_BS, WRITE_BS, SURF_WAIT };
 
     enum class EventType { DurationStart, DurationEnd, FlowStart, FlowEnd, Counter };
 
@@ -32,7 +34,10 @@ public:
     SMTTracer();
     ~SMTTracer();
 
-    void Init(const mfxU32 numOfChannels, const LatencyType latency, const mfxU32 TraceBufferSize);
+    void Init(const PipelineType type,
+              const mfxU32 numOfChannels,
+              const LatencyType latency,
+              const mfxU32 TraceBufferSize);
     void BeginEvent(const ThreadType thType,
                     const mfxU32 thID,
                     const EventName name,
@@ -84,6 +89,7 @@ private:
     mfxU64 GetCurrentTS();
 
     //log generation functions
+    void AdjustOverlappingEvents();
     void SaveTrace(mfxU32 FileID);
 
     void AddFlowEvents();
@@ -98,6 +104,7 @@ private:
     EventIt FindBeginningOfDependencyChain(EventIt it);
     EventIt FindBeginningOfDurationEvent(EventIt it);
     EventIt FindEndOfPreviosDurationEvent(EventIt it);
+    EventIt FindEventInThread(EventIt first, EventType type);
 
     void WriteEvent(std::ofstream& trace_file, const Event ev);
     void WriteDurationEvent(std::ofstream& trace_file, const Event ev);
@@ -119,8 +126,9 @@ private:
     mfxU32 TraceBufferSizeInMBytes          = 7;
     const mfxU32 MaxTraceBufferSizeInMBytes = 128;
 
-    bool Enabled = false;
-    mfxU32 EvID  = 0;
+    bool Enabled                = false;
+    PipelineType TypeOfPipeline = PipelineType::unknown;
+    mfxU32 EvID                 = 0;
     std::vector<Event> Log;
     std::vector<Event> AddonLog;
     std::map<mfxU32, std::vector<TimeInterval>> E2ELatency;

@@ -17,6 +17,7 @@ SMTTracer::~SMTTracer() {
         return;
 
     //these functions are intentionally called from destructor to try to save traces in case of a crash
+    AdjustOverlappingEvents();
     AddFlowEvents();
     mfxU32 FileID = 0xfffffff & GetCurrentTS();
     SaveTrace(FileID);
@@ -28,7 +29,8 @@ SMTTracer::~SMTTracer() {
     SaveLatency(LatencyType::ENC, FileID, EncLatency);
 }
 
-void SMTTracer::Init(const mfxU32 numOfChannels,
+void SMTTracer::Init(const PipelineType type,
+                     const mfxU32 numOfChannels,
                      const LatencyType latency,
                      const mfxU32 TraceBufferSize) {
     if (Enabled) {
@@ -41,8 +43,9 @@ void SMTTracer::Init(const mfxU32 numOfChannels,
     }
     Log.reserve(TraceBufferSizeInMBytes * 1024 * 1024 / sizeof(Event));
 
-    NumOfChannels = numOfChannels;
-    TypeOfLatency = latency;
+    TypeOfPipeline = type;
+    NumOfChannels  = numOfChannels;
+    TypeOfLatency  = latency;
 }
 
 void SMTTracer::BeginEvent(const ThreadType thType,
@@ -127,6 +130,41 @@ void SMTTracer::AfterEncodeSync() {
     }
 }
 
+void SMTTracer::AdjustOverlappingEvents() {
+    //If two duration events in the same thread overlap, then they or related flow event
+    //may be displayed incorrectly. We move event a bit to avoid overlapping.
+    for (EventIt evABegin = Log.begin(); evABegin != Log.end(); evABegin++) {
+        //find beginning of event A
+        if (evABegin->EvType != EventType::DurationStart) {
+            continue;
+        }
+
+        auto evAEnd   = FindEventInThread(evABegin, EventType::DurationEnd);
+        auto evBBegin = FindEventInThread(evAEnd, EventType::DurationStart);
+        auto evBEnd   = FindEventInThread(evBBegin, EventType::DurationEnd);
+        if (evAEnd == Log.end() || evBBegin == Log.end() || evBEnd == Log.end()) {
+            continue;
+        }
+
+        //now we have two events A and B in the same thread, check if they overlap
+        if (evAEnd->TS == evBBegin->TS) {
+            //events overlap, try to shorten event A
+            if (evABegin->TS != evAEnd->TS) {
+                evAEnd->TS--;
+            }
+            else {
+                //event A is too short already, try to shorten event B
+                if (evBBegin->TS != evBEnd->TS) {
+                    evBBegin->TS++;
+                }
+                else {
+                    //both events are too short already, leave them as is
+                }
+            }
+        }
+    }
+}
+
 void SMTTracer::SaveTrace(mfxU32 FileID) {
     std::string FileName = "smt_trace_" + std::to_string(FileID) + ".json";
     std::ofstream trace_file(FileName, std::ios::out);
@@ -197,8 +235,9 @@ void SMTTracer::AddFlowEvents() {
 
         auto itc = std::reverse_iterator<decltype(it)>(it);
 
-        auto itp = find_if(itc, Log.rend(), [&it](Event ev) {
-            return ev.EvType == EventType::DurationEnd && it->InID == ev.OutID;
+        auto itp = find_if(itc, Log.rend(), [&it, this](Event ev) {
+            return ev.EvType == EventType::DurationEnd && it->InID == ev.OutID &&
+                   (TypeOfPipeline == PipelineType::_1xN || it->ThID == ev.ThID);
         });
         if (itp == Log.rend()) {
             continue;
@@ -359,11 +398,18 @@ SMTTracer::EventIt SMTTracer::FindEndOfPreviosDurationEvent(EventIt it) {
     EventIt itc = it;
     for (; itc != Log.begin();) {
         --itc;
-        if (itc->EvType == EventType::DurationEnd && itc->OutID == it->InID) {
+        if (itc->EvType == EventType::DurationEnd && itc->OutID == it->InID &&
+            (TypeOfPipeline == PipelineType::_1xN || itc->ThID == it->ThID)) {
             return itc;
         }
     }
     return Log.end();
+}
+
+SMTTracer::EventIt SMTTracer::FindEventInThread(EventIt first, EventType type) {
+    return std::find_if(first, Log.end(), [&first, &type](Event ev) {
+        return ev.EvType == type && first->ThType == ev.ThType && first->ThID == ev.ThID;
+    });
 }
 
 void SMTTracer::AddFlowEvent(const Event a, const Event b) {
@@ -469,7 +515,7 @@ void SMTTracer::WriteEventTID(std::ofstream& trace_file, const Event ev) {
     trace_file << "\"tid\":\"";
     switch (ev.ThType) {
         case ThreadType::DEC:
-            trace_file << "dec";
+            trace_file << "dec" << ev.ThID;
             break;
         case ThreadType::VPP:
             trace_file << "enc" << ev.ThID; //it puts VPP events in enc thread
@@ -525,7 +571,7 @@ void SMTTracer::WriteEventName(std::ofstream& trace_file, const Event ev) {
     else if (ev.EvType == EventType::Counter) {
         switch (ev.ThType) {
             case ThreadType::DEC:
-                trace_file << "dec_pool";
+                trace_file << "dec_pool" << ev.ThID;
                 break;
             case ThreadType::VPP:
                 trace_file << "enc_pool" << ev.ThID;
@@ -552,6 +598,9 @@ void SMTTracer::WriteEventName(std::ofstream& trace_file, const Event ev) {
             case EventName::READ_YUV:
             case EventName::READ_BS:
                 trace_file << "read";
+                break;
+            case EventName::WRITE_BS:
+                trace_file << "write";
                 break;
             case EventName::SURF_WAIT:
                 trace_file << "wait";

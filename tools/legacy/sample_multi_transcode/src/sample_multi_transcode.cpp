@@ -401,7 +401,7 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
                 }
                 else /* NO RENDERING*/
                 {
-                    hwdev.reset(CreateVAAPIDevice(InputParams.strDevicePath));
+                    hwdev.reset(CreateVAAPIDevice(m_InputParamsArray[i].strDevicePath));
 
                     if (!hwdev.get()) {
                         msdk_printf(MSDK_STRING("error: failed to initialize VAAPI device\n"));
@@ -538,10 +538,25 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
             MSDK_CHECK_STATUS(sts, "m_pExtBSProcArray.back()->SetReader failed");
         }
 
-        if (msdk_strncmp(MSDK_STRING("null"),
-                         m_InputParamsArray[i].strDstFile,
-                         msdk_strlen(MSDK_STRING("null")))) {
-            auto writer = std::make_unique<CSmplBitstreamWriter>();
+        CreateCascadeScalerConfig();
+        if (m_CSConfig.ParallelEncodingRequired) {
+            if (m_InputParamsArray[i].eMode == Native || m_InputParamsArray[i].eMode == Source) {
+                if (!m_GlobalBitstreamWriter) {
+                    auto writer       = std::make_shared<CBitstreamWriterForParallelEncoding>();
+                    writer->m_GopSize = m_CSConfig.GopSize;
+                    writer->m_NumberOfEncoders = mfxU32(m_CSConfig.Targets.size());
+                    writer->m_BaseEncoderID    = m_CSConfig.Targets[0].TargetID;
+                    sts                        = writer->Init(m_InputParamsArray[i].strDstFile);
+                    MSDK_CHECK_STATUS(sts, "could not create destination file");
+                    m_GlobalBitstreamWriter = std::move(writer);
+                }
+                m_pExtBSProcArray.back()->SetWriter(m_GlobalBitstreamWriter);
+            }
+        }
+        else if (msdk_strncmp(MSDK_STRING("null"),
+                              m_InputParamsArray[i].strDstFile,
+                              msdk_strlen(MSDK_STRING("null")))) {
+            auto writer = std::make_shared<CSmplBitstreamWriter>();
             sts         = writer->Init(m_InputParamsArray[i].strDstFile);
 
             sts = m_pExtBSProcArray.back()->SetWriter(writer);
@@ -1397,9 +1412,45 @@ CascadeScalerConfig& Launcher::CreateCascadeScalerConfig() {
         return m_CSConfig;
     }
 
+    //check pipeline type
+    cfg.type = SMTTracer::PipelineType::unknown;
+    if (m_InputParamsArray.size() == 1 && m_InputParamsArray[0].eMode == Native) {
+        cfg.type = SMTTracer::PipelineType::_1x1;
+    }
+    else if (m_InputParamsArray.size() > 1) {
+        if (m_InputParamsArray[0].eMode == Native) {
+            cfg.type = SMTTracer::PipelineType::_NxN;
+            for (size_t i = 1; i < m_InputParamsArray.size(); i++) {
+                if (m_InputParamsArray[i].eMode != Native) {
+                    cfg.type = SMTTracer::PipelineType::unknown;
+                    break;
+                }
+            }
+        }
+        else if (m_InputParamsArray[0].eMode == Sink) {
+            cfg.type = SMTTracer::PipelineType::_1xN;
+            for (size_t i = 1; i < m_InputParamsArray.size(); i++) {
+                if (m_InputParamsArray[i].eMode != Source) {
+                    cfg.type = SMTTracer::PipelineType::unknown;
+                    break;
+                }
+            }
+        }
+    }
+
+    if (cfg.type == SMTTracer::PipelineType::unknown) {
+        cfg.ParFileImported = true;
+        return m_CSConfig;
+    }
+
     //process par file
     for (sInputParams& par : m_InputParamsArray) {
-        if (par.eMode == Source) {
+        if (par.ParallelEncoding && (cfg.type == SMTTracer::PipelineType::_1xN ||
+                                     cfg.type == SMTTracer::PipelineType::_NxN)) {
+            cfg.ParallelEncodingRequired = true;
+        }
+
+        if (par.eMode == Source || par.eMode == Native) {
             //this is encoder, import par file params
             CascadeScalerConfig::TargetDescriptor desc;
             desc.TargetID  = par.TargetID;
@@ -1423,6 +1474,10 @@ CascadeScalerConfig& Launcher::CreateCascadeScalerConfig() {
 
             cfg.Targets.push_back(desc);
             cfg.InParams[desc.TargetID] = par;
+
+            if (par.GopPicSize) {
+                cfg.GopSize = par.GopPicSize;
+            }
         }
     }
 
@@ -1431,8 +1486,11 @@ CascadeScalerConfig& Launcher::CreateCascadeScalerConfig() {
 
     //init tracer, should be called when config is fully initialized
     for (sInputParams& par : m_InputParamsArray) {
-        if (par.eMode == Sink && par.EnableTracing) {
-            cfg.Tracer->Init((mfxU32)cfg.Targets.size(), par.LatencyType, par.TraceBufferSize);
+        if (par.EnableTracing) {
+            cfg.Tracer->Init(cfg.type,
+                             (mfxU32)cfg.Targets.size(),
+                             par.LatencyType,
+                             par.TraceBufferSize);
             break;
         }
     }
@@ -1523,6 +1581,29 @@ void TranscodingSample::CascadeScalerConfig::CreatePoolList() {
         }
         desc.PoolID = pool.ID;
     }
+}
+
+bool TranscodingSample::CascadeScalerConfig::SkipFrame(mfxU32 targetID, mfxU32 frameNum) {
+    if (!ParallelEncodingRequired) {
+        return false;
+    }
+
+    //sanity check
+    if (GopSize < 8 || GopSize > 120) {
+        return false;
+    }
+    if (InParams[targetID].eMode != Native && InParams[targetID].eMode != Source) {
+        return false;
+    }
+
+    //frameNum counts from 1
+    frameNum--;
+
+    mfxU32 EncoderNumber    = targetID - Targets[0].TargetID;
+    mfxU32 NumberOfEncoders = mfxU32(InParams.size());
+    bool encode             = (((frameNum / GopSize) % NumberOfEncoders) == EncoderNumber);
+
+    return !encode;
 }
 
 void Launcher::Close() {

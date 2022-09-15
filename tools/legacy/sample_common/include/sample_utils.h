@@ -811,6 +811,7 @@ public:
     virtual mfxStatus WriteNextFrame(mfxBitstream* pMfxBitstream,
                                      bool isPrint         = true,
                                      bool isCompleteFrame = true);
+    virtual mfxStatus WriteNextFrame(mfxBitstream* pMfxBitstream, mfxU32 targetID, mfxU32 frameNum);
     virtual mfxStatus Reset();
     virtual void Close();
     mfxU32 m_nProcessedFramesNum;
@@ -1535,6 +1536,24 @@ protected:
     mfxStatus WriteStreamHeader();
     mfxStatus WriteFrameHeader();
     void UpdateNumberOfFrames();
+};
+
+class CBitstreamWriterForParallelEncoding : public CSmplBitstreamWriter {
+public:
+    virtual mfxStatus WriteNextFrame(mfxBitstream* pMfxBitstream, mfxU32 targetID, mfxU32 frameNum);
+    virtual mfxStatus Reset();
+
+    mfxU32 m_GopSize          = 0;
+    mfxU32 m_NumberOfEncoders = 0;
+    mfxU32 m_BaseEncoderID    = 0;
+    bool m_WriteBsToStdout    = false;
+
+private:
+    int m_LastWrittenFrameNumber = -1;
+    std::mutex m_Mutex{};
+    std::map<mfxU32, std::vector<mfxU8>> m_Buffer{}; //key is targetID
+    std::map<mfxU32, mfxU32> m_FirstFrameInBuffer{}; //key is target ID
+    std::map<mfxU32, mfxU32> m_LastFrameInBuffer{}; //key is target ID
 };
 
 #endif //__SAMPLE_UTILS_H__

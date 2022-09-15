@@ -588,6 +588,100 @@ mfxStatus CSmplBitstreamWriter::WriteNextFrame(mfxBitstream* pMfxBitstream,
     return MFX_ERR_NONE;
 }
 
+mfxStatus CSmplBitstreamWriter::WriteNextFrame(mfxBitstream*, mfxU32, mfxU32) {
+    return MFX_ERR_NOT_IMPLEMENTED;
+}
+
+mfxStatus CBitstreamWriterForParallelEncoding::WriteNextFrame(mfxBitstream* pMfxBitstream,
+                                                              mfxU32 targetID,
+                                                              mfxU32 frameNum) {
+    std::unique_lock<std::mutex> guard(m_Mutex);
+
+    mfxU32 EncoderNumber = targetID - m_BaseEncoderID;
+
+    //sanity check
+    if (m_GopSize == 0 || m_NumberOfEncoders == 0 || EncoderNumber > 64) {
+        return MFX_ERR_UNDEFINED_BEHAVIOR;
+    }
+
+    mfxU32 GlobalFrameNum = m_NumberOfEncoders * m_GopSize * ((frameNum - 1) / m_GopSize) +
+                            m_GopSize * EncoderNumber + (frameNum - 1) % m_GopSize;
+
+    if (GlobalFrameNum == (mfxU32)(m_LastWrittenFrameNumber + 1)) {
+        //write bitstream directly to file
+        m_LastWrittenFrameNumber = GlobalFrameNum;
+
+        if (pMfxBitstream->DataLength) {
+            mfxU32 nBytesWritten = 0;
+            nBytesWritten        = (mfxU32)fwrite(pMfxBitstream->Data + pMfxBitstream->DataOffset,
+                                           1,
+                                           pMfxBitstream->DataLength,
+                                           m_fSource);
+            MSDK_CHECK_NOT_EQUAL(nBytesWritten,
+                                 pMfxBitstream->DataLength,
+                                 MFX_ERR_UNDEFINED_BEHAVIOR);
+            pMfxBitstream->DataLength = 0;
+            pMfxBitstream->DataOffset = 0;
+            m_nProcessedFramesNum++;
+        }
+
+        //if it has been last frame in GOP, check can we output buffered frames from other encoders
+        for (bool bufferWritten = true; bufferWritten;) {
+            bufferWritten = false;
+            for (auto& buf : m_Buffer) {
+                if (buf.second.empty()) {
+                    continue;
+                }
+
+                if (m_FirstFrameInBuffer[buf.first] == (mfxU32)(m_LastWrittenFrameNumber + 1)) {
+                    bufferWritten        = true;
+                    mfxU32 nBytesWritten = 0;
+
+                    nBytesWritten =
+                        (mfxU32)fwrite(buf.second.data(), 1, buf.second.size(), m_fSource);
+                    if (nBytesWritten != mfxU32(buf.second.size())) {
+                        return MFX_ERR_UNDEFINED_BEHAVIOR;
+                    }
+                    buf.second.clear();
+                    m_LastWrittenFrameNumber = m_LastFrameInBuffer[buf.first];
+                }
+            }
+        }
+        return MFX_ERR_NONE;
+    }
+
+    //write bitstream to buffer
+    static const int timeToSleepInMilliseconds = 10;
+    for (int i = 0; i < MSDK_ENC_WAIT_INTERVAL / timeToSleepInMilliseconds; i++) {
+        //check if buffer holds complete GOP
+        if (m_Buffer[targetID].empty() || GlobalFrameNum == m_LastFrameInBuffer[targetID] + 1) {
+            if (m_Buffer[targetID].empty()) {
+                m_FirstFrameInBuffer[targetID] = GlobalFrameNum;
+            }
+            m_LastFrameInBuffer[targetID] = GlobalFrameNum;
+
+            m_Buffer[targetID].insert(
+                m_Buffer[targetID].end(),
+                pMfxBitstream->Data + pMfxBitstream->DataOffset,
+                pMfxBitstream->Data + pMfxBitstream->DataOffset + pMfxBitstream->DataLength);
+            return MFX_ERR_NONE;
+        }
+
+        //we have complete GOP in buffer, this channel is ahead of others, wait till buffer will be written to file
+        guard.unlock();
+        MSDK_SLEEP(timeToSleepInMilliseconds);
+        guard.lock();
+    }
+
+    //we've failed to write frame to buffer, this happens when one of the other channels has failed or hung
+    return MFX_ERR_UNDEFINED_BEHAVIOR;
+}
+
+mfxStatus CBitstreamWriterForParallelEncoding::Reset() {
+    //we don't support reset for parallel encoding
+    return MFX_ERR_NOT_IMPLEMENTED;
+}
+
 CSmplBitstreamDuplicateWriter::CSmplBitstreamDuplicateWriter() : CSmplBitstreamWriter() {
     m_fSourceDuplicate = NULL;
     m_bJoined          = false;

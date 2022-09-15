@@ -88,6 +88,7 @@ protected:
 
     CascadeScalerConfig m_CSConfig;
     SMTTracer m_Tracer;
+    std::shared_ptr<CSmplBitstreamWriter> m_GlobalBitstreamWriter{};
 
 private:
     DISALLOW_COPY_AND_ASSIGN(Launcher);
