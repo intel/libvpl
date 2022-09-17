@@ -61,7 +61,7 @@ You can install oneVPL:
 
 - from [oneVPL home page](https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/onevpl.html) as a part of Intel&reg; oneAPI Base Toolkit.
 - from source code.  See [Installation from Sources](INSTALL.md) for details.
-- from openSUSE distribution. Goto the [openSUSE Linux Community Repository](https://software.opensuse.org//download.html?project=openSUSE%3AFactory&package=libvpl).
+- from openSUSE distributiono the use the command: zypper install libvpl-devel
 
 For more details on installation options and procedures, see the [Intel® oneAPI Video Processing Library Installation Guide](https://software.intel.com/content/www/us/en/develop/articles/onevpl-installation-guide.html).
 
