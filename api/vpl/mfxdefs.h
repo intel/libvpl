@@ -68,7 +68,7 @@ extern "C"
     #define MFX_PACK_BEGIN_STRUCT_W_PTR()    MFX_PACK_BEGIN_X(4)
     #define MFX_PACK_BEGIN_STRUCT_W_L_TYPE() MFX_PACK_BEGIN_X(8)
 /* 32-bit ILP32 data model Linux* */
-#elif defined(__ILP32__)
+#elif defined(__ILP32__) || defined(__arm__)
     #define MFX_PACK_BEGIN_STRUCT_W_PTR()    MFX_PACK_BEGIN_X(4)
     #define MFX_PACK_BEGIN_STRUCT_W_L_TYPE() MFX_PACK_BEGIN_X(4)
 #else
