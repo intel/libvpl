@@ -9,13 +9,15 @@ The oneVPL project welcomes community contributions. You can:
 
 Before submitting your pull requests, please do the following:
 
-- Make sure your changes are consistent with the 
+- Make sure your changes are consistent with the
   [philosophy for contribution](#philosophy-for-contribution).
 
 - Make sure the correct license is included at the top of new files.
 
 - Make sure your commits follow the correct
   [commit message style](#commit-message-style).
+
+- Make sure to perform [automated style checking](#automated-style-checking).
 
 - Make sure to [sign your work](#sign-your-work).
 
@@ -104,19 +106,12 @@ commit automatically with `git commit -s`.
 
 ## Automated Style Checking
 
-Install the Python modules required by the script\lint format checking script:
+Run `lint` in the `script` directory before pushing commits to assist with style
+conformance checking.
+
+Before running the checker script for the first time install the Python modules
+it requires:
 
 ```
 pip3 install -r requirements-dev.txt
 ```
-
-Install version 11.0.0 of `clang-format` using one of the links listed below.
-The file is named after the sha1 hash, rename it to clang-format.exe. Add it's
-path to the PATH environment variable.
-
-- [Windows binary](https://commondatastorage.googleapis.com/chromium-clang-format/d4afd4eba27022f5f6d518133aebde57281677c9)
-(sha1: d4afd4eba27022f5f6d518133aebde57281677c9)
-
-- [Linux binary](https://commondatastorage.googleapis.com/chromium-clang-format/1baf0089e895c989a311b6a38ed94d0e8be4c0a7)
-(sha1: 1baf0089e895c989a311b6a38ed94d0e8be4c0a7)
-

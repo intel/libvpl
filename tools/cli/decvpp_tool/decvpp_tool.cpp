@@ -145,8 +145,8 @@ int main(int argc, char *argv[]) {
 
     mfxDecParams.mfx.CodecId = cliParams.inCodec;
     mfxDecParams.IOPattern   = (cliParams.bUseVideoMemory) ? MFX_IOPATTERN_OUT_VIDEO_MEMORY
-                                                         : MFX_IOPATTERN_OUT_SYSTEM_MEMORY;
-    sts = MFXVideoDECODE_DecodeHeader(session, &bitstream, &mfxDecParams);
+                                                           : MFX_IOPATTERN_OUT_SYSTEM_MEMORY;
+    sts                      = MFXVideoDECODE_DecodeHeader(session, &bitstream, &mfxDecParams);
     VERIFY(MFX_ERR_NONE == sts, "ERROR - Decoding header\n");
 
     switch (mfxDecParams.mfx.FrameInfo.FourCC) {

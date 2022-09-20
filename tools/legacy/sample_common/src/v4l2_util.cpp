@@ -105,13 +105,13 @@ void v4l2Device::Init(const char* devname,
                       enum V4L2PixelFormat v4l2Format,
                       enum AtomISPMode MipiMode,
                       int MipiPort) {
-    (devname != NULL) ? m_devname                  = devname : m_devname;
-    (m_width != width) ? m_width                   = width : m_width;
-    (m_height != height) ? m_height                = height : m_height;
+    (devname != NULL) ? m_devname = devname : m_devname;
+    (m_width != width) ? m_width = width : m_width;
+    (m_height != height) ? m_height = height : m_height;
     (m_num_buffers != num_buffers) ? m_num_buffers = num_buffers : m_num_buffers;
-    (m_v4l2Format != v4l2Format) ? m_v4l2Format    = v4l2Format : m_v4l2Format;
-    (m_MipiMode != MipiMode) ? m_MipiMode          = MipiMode : m_MipiMode;
-    (m_MipiPort != MipiPort) ? m_MipiPort          = MipiPort : m_MipiPort;
+    (m_v4l2Format != v4l2Format) ? m_v4l2Format = v4l2Format : m_v4l2Format;
+    (m_MipiMode != MipiMode) ? m_MipiMode = MipiMode : m_MipiMode;
+    (m_MipiPort != MipiPort) ? m_MipiPort = MipiPort : m_MipiPort;
 
     memset(&m_format, 0, sizeof m_format);
     m_format.width       = m_width;

@@ -700,9 +700,10 @@ mfxStatus ExtBRC::Update(mfxBRCFrameParam* frame_par,
     // Check other condions for recoding (update qp is it is needed)
     {
         mfxF64 targetFrameSize = std::max<mfxF64>((mfxF64)m_par.inputBitsPerFrame, fAbLong);
-        mfxF64 maxFrameSize =
-            (m_ctx.encOrder == 0 ? 6.0 : (bSHStart || picType == MFX_FRAMETYPE_I) ? 8.0 : 4.0) *
-            targetFrameSize * (m_par.bPyr ? 1.5 : 1.0);
+        mfxF64 maxFrameSize    = (m_ctx.encOrder == 0                        ? 6.0
+                                  : (bSHStart || picType == MFX_FRAMETYPE_I) ? 8.0
+                                                                             : 4.0) *
+                              targetFrameSize * (m_par.bPyr ? 1.5 : 1.0);
         mfxI32 quantMax = m_ctx.QuantMax;
         mfxI32 quantMin = m_ctx.QuantMin;
         mfxI32 quant    = qpY;
@@ -1053,8 +1054,9 @@ mfxStatus ExtBRC::Reset(mfxVideoParam* par) {
             sts = m_par.Init(par, isFieldMode(par));
             MFX_CHECK_STS(sts);
 
-            m_ctx.Quant = (mfxI32)(
-                1. / m_ctx.dQuantAb * pow(m_ctx.fAbLong / m_par.inputBitsPerFrame, 0.32) + 0.5);
+            m_ctx.Quant =
+                (mfxI32)(1. / m_ctx.dQuantAb * pow(m_ctx.fAbLong / m_par.inputBitsPerFrame, 0.32) +
+                         0.5);
             m_ctx.Quant = mfx::clamp(m_ctx.Quant, m_par.quantMinI, m_par.quantMaxI);
 
             UpdateQPParams(m_ctx.Quant,
@@ -1244,12 +1246,10 @@ mfxU32 H264_HRD::GetInitCpbRemovalDelay(mfxU32 /* eo */) const {
     double delay                  = std::max(0.0, m_trn_cur - m_taf_prv);
     mfxU32 initialCpbRemovalDelay = mfxU32(90000 * delay + 0.5);
 
-    return (mfxU32)(initialCpbRemovalDelay == 0
-                        ? 1 // should not be equal to 0
-                        : initialCpbRemovalDelay > m_hrdInput.m_cpbSize90k &&
-                                  (!m_hrdInput.m_cbrFlag)
-                              ? m_hrdInput.m_cpbSize90k // should not exceed hrd buffer
-                              : initialCpbRemovalDelay);
+    return (mfxU32)(initialCpbRemovalDelay == 0 ? 1 // should not be equal to 0
+                    : initialCpbRemovalDelay > m_hrdInput.m_cpbSize90k && (!m_hrdInput.m_cbrFlag)
+                        ? m_hrdInput.m_cpbSize90k // should not exceed hrd buffer
+                        : initialCpbRemovalDelay);
 }
 mfxF64 H264_HRD::GetBufferDeviation(mfxU32 eo) const {
     mfxU32 delay       = GetInitCpbRemovalDelay(eo);

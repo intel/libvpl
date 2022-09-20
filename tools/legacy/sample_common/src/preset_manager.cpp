@@ -233,8 +233,8 @@ CDependentPresetParameters CPresetManager::GetDependentPresetParameters(EPresetM
                                                                         mfxU16 targetUsage) {
     CDependentPresetParameters retVal = {};
     retVal.TargetKbps                 = codecFourCC != MFX_CODEC_JPEG
-                            ? CalculateDefaultBitrate(codecFourCC, targetUsage, width, height, fps)
-                            : 0;
+                                            ? CalculateDefaultBitrate(codecFourCC, targetUsage, width, height, fps)
+                                            : 0;
 
     if (codecFourCC == MFX_CODEC_AVC || codecFourCC == MFX_CODEC_HEVC) {
         // Calculating dependent preset values

@@ -1129,8 +1129,8 @@ mfxStatus Launcher::VerifyCrossSessionsOptions() {
                     m_InputParamsArray[j].numMFEFrames = usedMFEMaxFrames;
                     isAllMFEFramesEqual                = false;
                     m_InputParamsArray[j].MFMode       = m_InputParamsArray[j].MFMode < MFX_MF_AUTO
-                                                       ? MFX_MF_AUTO
-                                                       : m_InputParamsArray[j].MFMode;
+                                                             ? MFX_MF_AUTO
+                                                             : m_InputParamsArray[j].MFMode;
                 }
                 if (m_InputParamsArray[j].bIsJoin == false) {
                     isAllMFESessionsJoined        = false;

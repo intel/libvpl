@@ -1795,9 +1795,9 @@ mfxStatus ParseInputString(msdk_char* strInput[], mfxU8 nArgNum, sInputParams* p
     if (pParams->MaxKbps > mfxU16Limit || pParams->nBitRate > mfxU16Limit ||
         pParams->InitialDelayInKB > mfxU16Limit || pParams->BufferSizeInKB > mfxU16Limit) {
         mfxU32 maxVal               = std::max<mfxU32>({ pParams->MaxKbps,
-                                           pParams->nBitRate,
-                                           pParams->InitialDelayInKB,
-                                           pParams->BufferSizeInKB });
+                                                         pParams->nBitRate,
+                                                         pParams->InitialDelayInKB,
+                                                         pParams->BufferSizeInKB });
         pParams->nBitRateMultiplier = (mfxU16)std::ceil(static_cast<double>(maxVal) / mfxU16Limit);
         msdk_printf(MSDK_STRING("WARNING: BitRateMultiplier(-bm) was updated, new value - %d. \n"),
                     pParams->nBitRateMultiplier);

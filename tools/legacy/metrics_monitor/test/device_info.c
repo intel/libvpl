@@ -40,23 +40,23 @@ static const struct intel_device_info intel_i865_info = { .gen           = BIT(1
                                                           .codename      = "spingdale" };
 
 static const struct intel_device_info intel_i915_info  = { .gen           = BIT(2),
-                                                          .is_grantsdale = true,
-                                                          .codename      = "grantsdale" };
+                                                           .is_grantsdale = true,
+                                                           .codename      = "grantsdale" };
 static const struct intel_device_info intel_i915m_info = { .gen       = BIT(2),
                                                            .is_mobile = true,
                                                            .is_alviso = true,
                                                            .codename  = "alviso" };
 static const struct intel_device_info intel_i945_info  = { .gen         = BIT(2),
-                                                          .is_lakeport = true,
-                                                          .codename    = "lakeport" };
+                                                           .is_lakeport = true,
+                                                           .codename    = "lakeport" };
 static const struct intel_device_info intel_i945m_info = { .gen          = BIT(2),
                                                            .is_mobile    = true,
                                                            .is_calistoga = true,
                                                            .codename     = "calistoga" };
 
 static const struct intel_device_info intel_g33_info      = { .gen         = BIT(2),
-                                                         .is_bearlake = true,
-                                                         .codename    = "bearlake" };
+                                                              .is_bearlake = true,
+                                                              .codename    = "bearlake" };
 static const struct intel_device_info intel_pineview_info = { .gen         = BIT(2),
                                                               .is_mobile   = true,
                                                               .is_pineview = true,
@@ -72,8 +72,8 @@ static const struct intel_device_info intel_i965m_info = { .gen          = BIT(3
                                                            .codename     = "crestline" };
 
 static const struct intel_device_info intel_g45_info  = { .gen          = BIT(3),
-                                                         .is_eaglelake = true,
-                                                         .codename     = "eaglelake" };
+                                                          .is_eaglelake = true,
+                                                          .codename     = "eaglelake" };
 static const struct intel_device_info intel_gm45_info = { .gen        = BIT(3),
                                                           .is_mobile  = true,
                                                           .is_cantiga = true,
@@ -90,16 +90,16 @@ static const struct intel_device_info intel_ironlake_m_info = { .gen          = 
                                                                 .codename     = "arrandale" };
 
 static const struct intel_device_info intel_sandybridge_info   = { .gen            = BIT(5),
-                                                                 .is_sandybridge = true,
-                                                                 .codename       = "sandybridge" };
+                                                                   .is_sandybridge = true,
+                                                                   .codename       = "sandybridge" };
 static const struct intel_device_info intel_sandybridge_m_info = { .gen            = BIT(5),
                                                                    .is_mobile      = true,
                                                                    .is_sandybridge = true,
                                                                    .codename = "sandybridge" };
 
 static const struct intel_device_info intel_ivybridge_info   = { .gen          = BIT(6),
-                                                               .is_ivybridge = true,
-                                                               .codename     = "ivybridge" };
+                                                                 .is_ivybridge = true,
+                                                                 .codename     = "ivybridge" };
 static const struct intel_device_info intel_ivybridge_m_info = { .gen          = BIT(6),
                                                                  .is_mobile    = true,
                                                                  .is_ivybridge = true,

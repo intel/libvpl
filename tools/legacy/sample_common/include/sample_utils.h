@@ -548,7 +548,7 @@ public:
 
     ExtBufHolder& operator=(const ExtBufHolder& ref) {
         const T* src_base = &ref;
-        return operator   =(*src_base);
+        return operator=(*src_base);
     }
 
     ExtBufHolder(const T& ref) {
@@ -586,7 +586,7 @@ public:
         return *this;
     }
 
-    ExtBufHolder(ExtBufHolder&&) = default;
+    ExtBufHolder(ExtBufHolder&&)            = default;
     ExtBufHolder& operator=(ExtBufHolder&&) = default;
 
     // Always returns a valid pointer or throws an exception
@@ -760,7 +760,7 @@ public:
         return *this;
     }
 
-    mfxBitstreamWrapper(mfxBitstreamWrapper&& bs_wrapper) = default;
+    mfxBitstreamWrapper(mfxBitstreamWrapper&& bs_wrapper)            = default;
     mfxBitstreamWrapper& operator=(mfxBitstreamWrapper&& bs_wrapper) = default;
     ~mfxBitstreamWrapper()                                           = default;
 

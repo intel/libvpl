@@ -245,8 +245,8 @@ mfxStatus CSmplYUVReader::LoadNextFrame(mfxFrameSurface1* pSurface) {
             case MFX_FOURCC_UYVY:
                 pitch = pData.Pitch;
                 ptr   = m_ColorFormat == MFX_FOURCC_YUY2
-                          ? pData.Y + pInfo.CropX * 2 + pInfo.CropY * pData.Pitch
-                          : pData.U + pInfo.CropX + pInfo.CropY * pData.Pitch;
+                            ? pData.Y + pInfo.CropX * 2 + pInfo.CropY * pData.Pitch
+                            : pData.U + pInfo.CropX + pInfo.CropY * pData.Pitch;
 
                 for (i = 0; i < h; i++) {
                     nBytesRead = (mfxU32)fread(ptr + i * pitch, 2, w, m_files[vid]);
@@ -261,8 +261,8 @@ mfxStatus CSmplYUVReader::LoadNextFrame(mfxFrameSurface1* pSurface) {
             case MFX_FOURCC_Y216:
                 pitch = pData.Pitch;
                 ptr   = ((pInfo.FourCC == MFX_FOURCC_Y210 || pInfo.FourCC == MFX_FOURCC_Y216)
-                           ? pData.Y
-                           : (mfxU8*)pData.Y410) +
+                             ? pData.Y
+                             : (mfxU8*)pData.Y410) +
                       pInfo.CropX * 4 + pInfo.CropY * pData.Pitch;
 
                 for (i = 0; i < h; i++) {

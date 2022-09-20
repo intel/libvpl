@@ -1775,7 +1775,7 @@ void CTranscodingPipeline::FillMBQPBuffer(mfxExtMBQP& qpMap, mfxU16 pictStruct) 
         }
     }
     else if (pictStruct == MFX_PICSTRUCT_FIELD_TFF || pictStruct == MFX_PICSTRUCT_FIELD_BFF) {
-        mfxU32 fQP[2]  = { (m_nSubmittedFramesNum % m_GOPSize) ? m_QPforP : m_QPforI,
+        mfxU32 fQP[2] = { (m_nSubmittedFramesNum % m_GOPSize) ? m_QPforP : m_QPforI,
                           (m_GOPSize > 1) ? m_QPforP : m_QPforI };
         mfxU32 fIdx[2] = { 2 * m_nSubmittedFramesNum, 2 * m_nSubmittedFramesNum + 1 };
         mfxU32 fOff[2] = { 0, 0 };
@@ -3348,15 +3348,15 @@ mfxStatus CTranscodingPipeline::InitVppMfxParams(MfxVideoParamsWrapper& par,
         fieldProc->Mode = (mfxU16)(pInParams->fieldProcessingMode == FC_FR2FR ? MFX_VPP_COPY_FRAME
                                                                               : MFX_VPP_COPY_FIELD);
 
-        fieldProc->InField = (mfxU16)(
-            (pInParams->fieldProcessingMode == FC_T2T || pInParams->fieldProcessingMode == FC_T2B)
-                ? MFX_PICSTRUCT_FIELD_TFF
-                : MFX_PICSTRUCT_FIELD_BFF);
+        fieldProc->InField = (mfxU16)((pInParams->fieldProcessingMode == FC_T2T ||
+                                       pInParams->fieldProcessingMode == FC_T2B)
+                                          ? MFX_PICSTRUCT_FIELD_TFF
+                                          : MFX_PICSTRUCT_FIELD_BFF);
 
-        fieldProc->OutField = (mfxU16)(
-            (pInParams->fieldProcessingMode == FC_T2T || pInParams->fieldProcessingMode == FC_B2T)
-                ? MFX_PICSTRUCT_FIELD_TFF
-                : MFX_PICSTRUCT_FIELD_BFF);
+        fieldProc->OutField = (mfxU16)((pInParams->fieldProcessingMode == FC_T2T ||
+                                        pInParams->fieldProcessingMode == FC_B2T)
+                                           ? MFX_PICSTRUCT_FIELD_TFF
+                                           : MFX_PICSTRUCT_FIELD_BFF);
     }
 
     if (pInParams->bEnable3DLut) {
@@ -3845,9 +3845,9 @@ void CTranscodingPipeline::CorrectNumberOfAllocatedFrames(mfxFrameAllocRequest* 
             m_Request.Info = pNewReq->Info;
         }
         else {
-            m_Request.Info.Width = m_Request.Info.Width < pNewReq->Info.Width
-                                       ? pNewReq->Info.Width
-                                       : m_Request.Info.Width;
+            m_Request.Info.Width  = m_Request.Info.Width < pNewReq->Info.Width
+                                        ? pNewReq->Info.Width
+                                        : m_Request.Info.Width;
             m_Request.Info.Height = m_Request.Info.Height < pNewReq->Info.Height
                                         ? pNewReq->Info.Height
                                         : m_Request.Info.Height;

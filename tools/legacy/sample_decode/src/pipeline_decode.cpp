@@ -2131,9 +2131,8 @@ void CDecodingPipeline::PrintInfo() {
 
     const msdk_char* sImpl = (MFX_IMPL_VIA_D3D11 == MFX_IMPL_VIA_MASK(m_impl))
                                  ? MSDK_STRING("hw_d3d11")
-                                 : (MFX_IMPL_SOFTWARE == MFX_IMPL_BASETYPE(m_impl))
-                                       ? MSDK_STRING("sw")
-                                       : MSDK_STRING("hw");
+                             : (MFX_IMPL_SOFTWARE == MFX_IMPL_BASETYPE(m_impl)) ? MSDK_STRING("sw")
+                                                                                : MSDK_STRING("hw");
     msdk_printf(MSDK_STRING("MediaSDK impl\t\t%s\n"), sImpl);
 
     mfxVersion ver;

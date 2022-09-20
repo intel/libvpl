@@ -279,10 +279,10 @@ void PrintInfo(sInputParams* pParams, mfxVideoParam* pMfxParams, MFXVideoSession
 
 #ifndef LIBVA_SUPPORT
     if (isHWlib || (pParams->vaType & (ALLOC_IMPL_VIA_D3D9 | ALLOC_IMPL_VIA_D3D11))) {
-        bool isD3D11 = ((ALLOC_IMPL_VIA_D3D11 == pParams->vaType) ||
+        bool isD3D11            = ((ALLOC_IMPL_VIA_D3D11 == pParams->vaType) ||
                         (pParams->ImpLib == (MFX_IMPL_HARDWARE | MFX_IMPL_VIA_D3D11)))
-                           ? true
-                           : false;
+                                      ? true
+                                      : false;
         const msdk_char* sIface = (isD3D11) ? MSDK_STRING("VIA_D3D11") : MSDK_STRING("VIA_D3D9");
         msdk_printf(MSDK_STRING(" | %s"), sIface);
     }

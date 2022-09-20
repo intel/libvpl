@@ -139,7 +139,7 @@ void FRCChecker::DefinePeriods() {
 void FRCChecker::DefineEdges() {
     m_BottomEdge = (m_FramePeriod_In > m_FramePeriod_Out) ? m_FramePeriod_In / m_FramePeriod_Out
                                                           : m_FramePeriod_Out / m_FramePeriod_In;
-    m_UpperEdge = m_BottomEdge + 1;
+    m_UpperEdge  = m_BottomEdge + 1;
 }
 
 mfxU32 FRCChecker::CalculateGCD(mfxU32 val1, mfxU32 val2) {

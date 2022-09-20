@@ -640,8 +640,9 @@ mfxStatus CEncodingPipeline::InitMfxEncParams(sInputParams* pInParams) {
 
         if (pInParams->nExtBRC != EXTBRC_DEFAULT &&
             (pInParams->CodecId == MFX_CODEC_HEVC || pInParams->CodecId == MFX_CODEC_AVC)) {
-            codingOption2->ExtBRC = (mfxU16)(
-                pInParams->nExtBRC == EXTBRC_OFF ? MFX_CODINGOPTION_OFF : MFX_CODINGOPTION_ON);
+            codingOption2->ExtBRC =
+                (mfxU16)(pInParams->nExtBRC == EXTBRC_OFF ? MFX_CODINGOPTION_OFF
+                                                          : MFX_CODINGOPTION_ON);
         }
         else {
             codingOption2->ExtBRC = 0;
@@ -1485,9 +1486,9 @@ mfxStatus CEncodingPipeline::GetImpl(const sInputParams& params, mfxIMPL& impl) 
                     ((params.memType != SYSTEM_MEMORY &&
                       AreGuidsEqual(params.pluginParams.pluginGuid, MFX_PLUGINID_HEVCE_HW)) ||
                      params.CodecId == MFX_CODEC_VP9));
-    mfxU16 Height = (MFX_PICSTRUCT_PROGRESSIVE == params.nPicStruct)
-                        ? MSDK_ALIGN16(params.nDstHeight)
-                        : MSDK_ALIGN32(params.nDstHeight);
+    mfxU16 Height   = (MFX_PICSTRUCT_PROGRESSIVE == params.nPicStruct)
+                          ? MSDK_ALIGN16(params.nDstHeight)
+                          : MSDK_ALIGN32(params.nDstHeight);
     mfxU16 LowPower = mfxU16(params.enableQSVFF ? MFX_CODINGOPTION_ON : MFX_CODINGOPTION_UNKNOWN);
     mfxU16 BitDepth = FourCcBitDepth(params.EncodeFourCC);
 
@@ -2746,15 +2747,11 @@ void CEncodingPipeline::PrintInfo() {
 
     const msdk_char* sImpl = (MFX_IMPL_VIA_D3D11 == MFX_IMPL_VIA_MASK(impl))
                                  ? MSDK_STRING("hw_d3d11")
-                                 : (MFX_IMPL_HARDWARE == MFX_IMPL_BASETYPE(impl))
-                                       ? MSDK_STRING("hw")
-                                       : (MFX_IMPL_HARDWARE2 == MFX_IMPL_BASETYPE(impl))
-                                             ? MSDK_STRING("hw2")
-                                             : (MFX_IMPL_HARDWARE3 == MFX_IMPL_BASETYPE(impl))
-                                                   ? MSDK_STRING("hw3")
-                                                   : (MFX_IMPL_HARDWARE4 == MFX_IMPL_BASETYPE(impl))
-                                                         ? MSDK_STRING("hw4")
-                                                         : MSDK_STRING("sw");
+                             : (MFX_IMPL_HARDWARE == MFX_IMPL_BASETYPE(impl))  ? MSDK_STRING("hw")
+                             : (MFX_IMPL_HARDWARE2 == MFX_IMPL_BASETYPE(impl)) ? MSDK_STRING("hw2")
+                             : (MFX_IMPL_HARDWARE3 == MFX_IMPL_BASETYPE(impl)) ? MSDK_STRING("hw3")
+                             : (MFX_IMPL_HARDWARE4 == MFX_IMPL_BASETYPE(impl)) ? MSDK_STRING("hw4")
+                                                                               : MSDK_STRING("sw");
     msdk_printf(MSDK_STRING("Media SDK impl\t\t%s\n"), sImpl);
 
     mfxVersion ver;

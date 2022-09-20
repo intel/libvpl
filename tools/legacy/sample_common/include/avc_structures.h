@@ -63,8 +63,10 @@ enum {
 // implementation restricts the minimum value to 32.
 
 enum // Valid QP range
-{ AVC_QP_MAX = 51,
-  AVC_QP_MIN = 0 };
+{
+    AVC_QP_MAX = 51,
+    AVC_QP_MIN = 0
+};
 
 enum {
     FLD_STRUCTURE        = 0,
