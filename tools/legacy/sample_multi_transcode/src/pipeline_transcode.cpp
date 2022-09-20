@@ -5082,7 +5082,22 @@ mfxStatus FileBitstreamProcessor::GetInputBitstream(mfxBitstreamWrapper** pBitst
     if (!m_pFileReader.get()) {
         return MFX_ERR_UNSUPPORTED;
     }
-    mfxStatus sts = m_pFileReader->ReadNextFrame(&m_Bitstream);
+
+    mfxStatus sts;
+    for (int i = 0; i < 8; i++) { //limit buffer grow to x256
+        sts = m_pFileReader->ReadNextFrame(&m_Bitstream);
+        if (sts != MFX_ERR_NOT_ENOUGH_BUFFER) {
+            break;
+        }
+
+        //check that bitstream buffer is empty before extending its size
+        if (m_Bitstream.DataLength != 0 || m_Bitstream.DataOffset != 0) {
+            return MFX_ERR_NOT_ENOUGH_BUFFER;
+        }
+
+        m_Bitstream.Extend(2 * m_Bitstream.MaxLength);
+    }
+
     if (MFX_ERR_NONE == sts) {
         *pBitstream = &m_Bitstream;
         return sts;

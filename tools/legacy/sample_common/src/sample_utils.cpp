@@ -910,13 +910,15 @@ mfxStatus CIVFFrameReader::ReadNextFrame(mfxBitstream* pBS) {
     READ_BYTES(&nBytesInFrame, sizeof(nBytesInFrame));
     CHECK_SET_EOS(pBS);
 
+    //check if bitstream has enough space to hold the frame
+    if (nBytesInFrame > pBS->MaxLength - pBS->DataLength - pBS->DataOffset) {
+        fseek(m_fSource, -long(sizeof(nBytesInFrame)), SEEK_CUR);
+        return MFX_ERR_NOT_ENOUGH_BUFFER;
+    }
+
     // read time stamp
     READ_BYTES(&nTimeStamp, sizeof(nTimeStamp));
     CHECK_SET_EOS(pBS);
-
-    //check if bitstream has enough space to hold the frame
-    if (nBytesInFrame > pBS->MaxLength - pBS->DataLength - pBS->DataOffset)
-        return MFX_ERR_NOT_ENOUGH_BUFFER;
 
     // read frame data
     READ_BYTES(pBS->Data + pBS->DataOffset + pBS->DataLength, nBytesInFrame);
