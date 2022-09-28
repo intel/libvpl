@@ -105,6 +105,7 @@ int main(int argc, char *argv[]) {
     //Variables used for legacy and 2.x
     bool isDraining                 = false;
     bool isStillGoing               = true;
+    bool isFailed                   = false;
     FILE *source                    = NULL;
     int accel_fd                    = 0;
     mfxBitstream bitstream          = {};
@@ -202,6 +203,7 @@ int main(int argc, char *argv[]) {
     }
     catch (InferenceEngine::GeneralError) {
         printf("Could not open model file at %s\n", cliParams.inmodelName);
+        isFailed = true;
         goto end;
     }
     VERIFY(network.getInputsInfo().size() == 1, "Sample supports topologies with 1 input only");
@@ -321,5 +323,10 @@ end:
     if (loader)
         MFXUnload(loader);
 
-    return 0;
+    if (isFailed) {
+        return -1;
+    }
+    else {
+        return 0;
+    }
 }

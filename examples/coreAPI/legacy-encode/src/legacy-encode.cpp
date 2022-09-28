@@ -50,6 +50,7 @@ int main(int argc, char *argv[]) {
     mfxU32 framenum                 = 0;
     bool isDraining                 = false;
     bool isStillGoing               = true;
+    bool isFailed                   = false;
     int nIndex                      = -1;
     mfxStatus sts                   = MFX_ERR_NONE;
     Params cliParams                = {};
@@ -226,5 +227,10 @@ end:
     if (loader)
         MFXUnload(loader);
 
-    return 0;
+    if (isFailed) {
+        return -1;
+    }
+    else {
+        return 0;
+    }
 }

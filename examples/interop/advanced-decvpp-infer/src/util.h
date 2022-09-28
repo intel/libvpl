@@ -49,6 +49,7 @@ enum {
 #define VERIFY(x, y)       \
     if (!(x)) {            \
         printf("%s\n", y); \
+        isFailed = true;   \
         goto end;          \
     }
 

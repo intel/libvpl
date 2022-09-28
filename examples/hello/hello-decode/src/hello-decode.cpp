@@ -37,6 +37,7 @@ int main(int argc, char *argv[]) {
     // Variables used for legacy and 2.x
     bool isDraining                 = false;
     bool isStillGoing               = true;
+    bool isFailed                   = false;
     FILE *sink                      = NULL;
     FILE *source                    = NULL;
     mfxBitstream bitstream          = {};
@@ -140,6 +141,7 @@ int main(int argc, char *argv[]) {
             break;
         default:
             printf("Unsupported color format\n");
+            isFailed = true;
             goto end;
             break;
     }
@@ -238,5 +240,10 @@ end:
     if (loader)
         MFXUnload(loader);
 
-    return 0;
+    if (isFailed) {
+        return -1;
+    }
+    else {
+        return 0;
+    }
 }

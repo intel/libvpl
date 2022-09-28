@@ -30,6 +30,7 @@ int main(int argc, char *argv[]) {
     void *accelHandle  = NULL;
     int accel_fd       = 0;
     Params cliParams;
+    bool isFailed = false;
 
 #ifdef USE_MEDIASDK1
     //Variables used only in legacy version
@@ -83,5 +84,10 @@ end:
         MFXUnload(loader);
 #endif
 
-    return 0;
+    if (isFailed) {
+        return -1;
+    }
+    else {
+        return 0;
+    }
 }

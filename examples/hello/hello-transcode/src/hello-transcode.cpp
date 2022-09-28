@@ -37,6 +37,7 @@ int main(int argc, char *argv[]) {
     bool isDrainingDec                = false;
     bool isDrainingEnc                = false;
     bool isStillgoing                 = true;
+    bool isFailed                     = false;
     FILE *sink                        = NULL;
     FILE *source                      = NULL;
     mfxBitstream bs_dec_in            = {};
@@ -286,5 +287,10 @@ end:
     if (loader)
         MFXUnload(loader);
 
-    return 0;
+    if (isFailed) {
+        return -1;
+    }
+    else {
+        return 0;
+    }
 }

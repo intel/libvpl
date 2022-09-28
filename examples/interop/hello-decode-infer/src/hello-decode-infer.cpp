@@ -119,6 +119,7 @@ int main(int argc, char *argv[]) {
     mfxU32 frameNum                 = 0;
     bool isDraining                 = false;
     bool isStillGoing               = true;
+    bool isFailed                   = false;
     mfxStatus sts                   = MFX_ERR_NONE;
     Params cliParams                = {};
 
@@ -213,6 +214,7 @@ int main(int argc, char *argv[]) {
     }
     catch (InferenceEngine::GeneralError) {
         printf("Could not open model file at %s\n", cliParams.inmodelName);
+        isFailed = true;
         goto end;
     }
     VERIFY(network.getInputsInfo().size() == 1, "Sample supports topologies with 1 input only");
@@ -355,5 +357,10 @@ end:
     accelHandle = NULL;
     accel_fd    = 0;
 
-    return 0;
+    if (isFailed) {
+        return -1;
+    }
+    else {
+        return 0;
+    }
 }

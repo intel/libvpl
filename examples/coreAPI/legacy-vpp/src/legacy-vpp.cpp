@@ -41,6 +41,7 @@ void Usage(void) {
 int main(int argc, char *argv[]) {
     bool isDraining      = false;
     bool isStillGoing    = true;
+    bool isFailed        = false;
     FILE *sink           = NULL;
     FILE *source         = NULL;
     int accel_fd         = 0;
@@ -178,7 +179,8 @@ int main(int argc, char *argv[]) {
                 sts = WriteRawFrame(pmfxOutSurface, sink);
                 if (sts != MFX_ERR_NONE) {
                     printf("Error in WriteRawFrame\n");
-                    result = sts;
+                    result   = sts;
+                    isFailed = true;
                     goto end;
                 }
 
@@ -245,5 +247,10 @@ end:
     if (loader)
         MFXUnload(loader);
 
-    return result;
+    if (isFailed || result != 0) {
+        return -1;
+    }
+    else {
+        return 0;
+    }
 }

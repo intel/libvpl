@@ -19,6 +19,7 @@
 #define VERIFY(x, y)       \
     if (!(x)) {            \
         printf("%s\n", y); \
+        isFailed = true;   \
         goto end;          \
     }
 
@@ -64,6 +65,7 @@ int main(int argc, char **argv) {
     bool isStillGoing                    = true;
     bool isDrainingDec                   = false;
     bool isDrainingVPP                   = false;
+    bool isFailed                        = false;
     mfxStatus sts                        = MFX_ERR_NONE;
     Params cliParams                     = {};
 
@@ -106,6 +108,7 @@ int main(int argc, char **argv) {
     }
     catch (InferenceEngine::GeneralError) {
         printf("Could not open model file at %s\n", cliParams.inmodelName);
+        isFailed = true;
         goto end;
     }
     VERIFY(network.getInputsInfo().size() == 1, "Sample supports topologies with 1 input only");
@@ -210,6 +213,7 @@ int main(int argc, char **argv) {
     catch (InferenceEngine::GeneralError) {
         printf(
             "Error creating infer request for network.  This sample assumes mobilnet-ssd or similar\n");
+        isFailed = true;
         goto end;
     }
 
@@ -304,7 +308,12 @@ end:
     if (loader)
         MFXUnload(loader);
 
-    return 0;
+    if (isFailed) {
+        return -1;
+    }
+    else {
+        return 0;
+    }
 }
 
 void PrintTopResults(const Blob::Ptr &output, mfxU16 width, mfxU16 height) {

@@ -109,6 +109,7 @@ void Usage(char *app) {
 int main(int argc, char **argv) {
     bool isDraining   = false;
     bool isStillGoing = true;
+    bool isFailed     = false;
     FILE *sink        = NULL;
     FILE *source      = NULL;
     mfxConfig cfg[2];
@@ -491,5 +492,10 @@ end:
     }
 #endif
 
-    return 0;
+    if (isFailed) {
+        return -1;
+    }
+    else {
+        return 0;
+    }
 }
