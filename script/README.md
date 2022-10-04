@@ -44,12 +44,6 @@ use files found under that folder to find cross dependencies.
 
 ## Dispatcher Specific
 
-- `VPL_DISP_PY_VENV` - A folder where bootstrap will place the python virtual 
-environment. (Defaults to `<script-dir>/../_build-venv/`)
-
-- `VPL_DISP_PY_VENV_VER` - Fhe version of python bootstrap should create a
-virtual environment from. (Defaults to `3`)
-
 - `VPL_DISP_BUILD_DIR` - The folder to be used by CMake for building. 
 (Defaults to `<script-dir>/../_build/`)
 

@@ -62,15 +62,10 @@ set(BUILD_EXAMPLES
     CACHE BOOL "Build examples when building dev package.")
 set(BUILD_PREVIEW
     ON
-    CACHE BOOL "Build preview cpp api samples, python binding and its samples.")
+    CACHE BOOL "Build preview features.")
 set(INSTALL_EXAMPLE_CODE
     ON
     CACHE BOOL "Install examples when installing dev package.")
-
-# Off by default while this is a preview
-set(BUILD_PYTHON_BINDING
-    OFF
-    CACHE BOOL "Build Python binding.")
 
 set(BUILD_DISPATCHER_ONEVPL_EXPERIMENTAL
     ON
@@ -82,7 +77,6 @@ set(BUILD_TOOLS_ONEVPL_EXPERIMENTAL
 
 option(BUILD_DISPATCHER_ONLY "Build dispatcher only." OFF)
 option(BUILD_DEV_ONLY "Build only developer package." OFF)
-option(BUILD_PYTHON_BINDING_ONLY "Build only Python binding." OFF)
 
 if(BUILD_DISPATCHER_ONLY)
   set(BUILD_DEV OFF)
@@ -96,12 +90,6 @@ endif()
 if(BUILD_DEV_ONLY)
   set(BUILD_DISPATCHER OFF)
   set(BUILD_TOOLS OFF)
-  set(BUILD_PYTHON_BINDING OFF)
-endif()
-if(BUILD_PYTHON_BINDING_ONLY)
-  set(BUILD_DEV OFF)
-  set(BUILD_DISPATCHER OFF)
-  set(BUILD_PYTHON_BINDING ON)
 endif()
 
 option(USE_MSVC_STATIC_RUNTIME
@@ -142,9 +130,6 @@ if(BUILD_DEV)
   add_subdirectory(env)
   add_subdirectory(modulefiles)
   add_subdirectory(examples)
-endif()
-if(BUILD_PREVIEW)
-  add_subdirectory(preview)
 endif()
 
 install(
@@ -250,8 +235,6 @@ message(STATUS "  BUILD_SHARED_LIBS                    : ${BUILD_SHARED_LIBS}")
 message(STATUS "  BUILD_TESTS                          : ${BUILD_TESTS}")
 message(STATUS "  BUILD_EXAMPLES                       : ${BUILD_EXAMPLES}")
 message(STATUS "  BUILD_PREVIEW                        : ${BUILD_PREVIEW}")
-message(
-  STATUS "  BUILD_PYTHON_BINDING                 : ${BUILD_PYTHON_BINDING}")
 message(
   STATUS
     "  BUILD_DISPATCHER_ONEVPL_EXPERIMENTAL : ${BUILD_DISPATCHER_ONEVPL_EXPERIMENTAL}"
