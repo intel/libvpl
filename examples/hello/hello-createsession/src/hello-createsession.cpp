@@ -27,8 +27,6 @@ int main(int argc, char *argv[]) {
     //Variables used for legacy and 2.x
     mfxSession session = NULL;
     mfxStatus sts      = MFX_ERR_NONE;
-    void *accelHandle  = NULL;
-    int accel_fd       = 0;
     Params cliParams;
     bool isFailed = false;
 
@@ -68,16 +66,9 @@ int main(int argc, char *argv[]) {
     // Print info about implementation loaded
     ShowImplInfo(session);
 
-    // Convenience function to initialize available accelerator(s)
-    accelHandle = InitAcceleratorHandle(session, &accel_fd);
-
 end:
 
     MFXClose(session);
-
-    FreeAcceleratorHandle(accelHandle, accel_fd);
-    accelHandle = NULL;
-    accel_fd    = 0;
 
 #ifndef USE_MEDIASDK1
     if (loader)

@@ -47,7 +47,6 @@ int main(int argc, char *argv[]) {
     mfxU32 framenum                 = 0;
     mfxStatus sts                   = MFX_ERR_NONE;
     Params cliParams                = {};
-    void *accelHandle               = NULL;
     mfxVideoParam decodeParams      = {};
 
     // variables used only in 2.x version
@@ -106,9 +105,6 @@ int main(int argc, char *argv[]) {
 
     // Print info about implementation loaded
     ShowImplementationInfo(loader, 0);
-
-    // Convenience function to initialize available accelerator(s)
-    accelHandle = InitAcceleratorHandle(session);
 
     // Prepare input bitstream and start decoding
     bitstream.MaxLength = BITSTREAM_BUFFER_SIZE;
@@ -233,9 +229,6 @@ end:
 
     if (bitstream.Data)
         free(bitstream.Data);
-
-    if (accelHandle)
-        FreeAcceleratorHandle(accelHandle);
 
     if (loader)
         MFXUnload(loader);

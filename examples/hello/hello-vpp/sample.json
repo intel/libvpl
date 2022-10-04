@@ -24,7 +24,7 @@
           "id": "hw run",
           "env": [ 
             "RESULTSTR='Processed 30 frames'",
-            "RESULTSTR='no implementations'"],
+            "RESULTSTR='no implementation'"],
           "steps": [
             "mkdir build",
             "cd build",

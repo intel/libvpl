@@ -53,7 +53,6 @@ int main(int argc, char *argv[]) {
     FILE *sinkVPP1                        = NULL; // for decoded output -> 640x480 i420 vpp frames
     FILE *sinkVPP2                        = NULL; // for decoded output -> 128x96 bgra vpp frames
     FILE *source                          = NULL;
-    int accel_fd                          = 0;
     mfxBitstream bitstream                = {};
     mfxSession session                    = NULL;
     mfxStatus sts                         = MFX_ERR_NONE;
@@ -63,7 +62,6 @@ int main(int argc, char *argv[]) {
     mfxU32 numVPPCh                       = 0;
     mfxVideoChannelParam **mfxVPPChParams = nullptr;
     Params cliParams                      = {};
-    void *accelHandle                     = NULL;
     mfxVideoParam mfxDecParams            = {};
 
     //variables used only in 2.x version
@@ -128,9 +126,6 @@ int main(int argc, char *argv[]) {
 
     // Print info about implementation loaded
     ShowImplementationInfo(loader, 0);
-
-    // Convenience function to initialize available accelerator(s)
-    accelHandle = InitAcceleratorHandle(session, &accel_fd);
 
     // Prepare input bitstream and start decoding
     bitstream.MaxLength = BITSTREAM_BUFFER_SIZE;
@@ -334,10 +329,6 @@ end:
 
     if (bitstream.Data)
         free(bitstream.Data);
-
-    FreeAcceleratorHandle(accelHandle, accel_fd);
-    accelHandle = NULL;
-    accel_fd    = 0;
 
     if (loader)
         MFXUnload(loader);

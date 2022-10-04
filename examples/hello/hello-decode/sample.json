@@ -20,7 +20,7 @@
           "./hello-decode -sw -i ../../../content/cars_320x240.h265"
         ] }, { 
           "id": "hw run",
-          "env": ["RESULTSTR='Decoded 30 frames'","RESULTSTR='no implementations'"],
+          "env": ["RESULTSTR='Decoded 30 frames'","RESULTSTR='no implementation'"],
           "steps": [
             "mkdir build",
             "cd build",

@@ -56,7 +56,6 @@ int main(int argc, char *argv[]) {
     mfxStatus sts                   = MFX_ERR_NONE;
     mfxStatus sts_r                 = MFX_ERR_NONE;
     Params cliParams                = {};
-    void *accelHandle               = NULL;
     mfxVideoParam VPPParams         = {};
 
     // variables used only in 2.x version
@@ -115,9 +114,6 @@ int main(int argc, char *argv[]) {
 
     // Print info about implementation loaded
     ShowImplementationInfo(loader, 0);
-
-    // Convenience function to initialize available accelerator(s)
-    accelHandle = InitAcceleratorHandle(session);
 
     // Initialize VPP parameters
     if (MFX_IMPL_SOFTWARE == cliParams.impl) {
@@ -222,9 +218,6 @@ end:
 
     MFXVideoVPP_Close(session);
     MFXClose(session);
-
-    if (accelHandle)
-        FreeAcceleratorHandle(accelHandle);
 
     if (loader)
         MFXUnload(loader);
