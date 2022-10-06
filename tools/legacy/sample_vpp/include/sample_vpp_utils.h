@@ -174,15 +174,15 @@ struct sInputParams {
 
     #ifdef ONEVPL_EXPERIMENTAL
         #if defined(_WIN32)
-    LUID luid = { 0 };
+    LUID luid;
         #else
-    mfxU32 DRMRenderNodeNum = 0;
+    mfxU32 DRMRenderNodeNum;
         #endif
-    mfxU32 PCIDomain    = 0;
-    mfxU32 PCIBus       = 0;
-    mfxU32 PCIDevice    = 0;
-    mfxU32 PCIFunction  = 0;
-    bool PCIDeviceSetup = false;
+    mfxU32 PCIDomain;
+    mfxU32 PCIBus;
+    mfxU32 PCIDevice;
+    mfxU32 PCIFunction;
+    bool PCIDeviceSetup;
     #endif
 
     mfxU16 adapterType;
@@ -259,60 +259,91 @@ struct sInputParams {
     eAPIVersion verSessionInit;
     bool bReadByFrame;
 
-    sInputParams() {
-        IOPattern           = 0;
-        ImpLib              = 0;
-        accelerationMode    = MFX_ACCEL_MODE_NA;
-        asyncNum            = 0;
-        vaType              = 0;
-        bScaling            = false;
-        scalingMode         = 0;
-        interpolationMethod = 0;
-        GPUCopyValue        = 0;
-        bPartialAccel       = 0;
-        numFrames           = 0;
-        numRepeat           = 0;
-        isOutput            = false;
-        ptsCheck            = false;
-        ptsJump             = false;
-        ptsAdvanced         = false;
-        ptsFR               = 0;
-        forcedOutputFourcc  = 0;
-        numStreams          = 0;
-
-        MSDK_ZERO_MEMORY(strSrcFile);
-        MSDK_ZERO_MEMORY(strPerfFile);
-        MSDK_ZERO_MEMORY(inFrameInfo);
-        MSDK_ZERO_MEMORY(compositionParam);
-        MSDK_ZERO_MEMORY(roiCheckParam);
-
-        bPerf = false;
-        MSDK_ZERO_MEMORY(strSrcFile);
-        MSDK_ZERO_MEMORY(strPerfFile);
-        strDstFiles.clear();
-        uChromaSiting = 0;
-        bChromaSiting = false;
-        fccSource     = 0;
-
-    #ifdef ENABLE_VPP_RUNTIME_HSBC
-        rtHue        = {};
-        rtSaturation = {};
-        rtBrightness = {};
-        rtContrast   = {};
+    sInputParams()
+            : frameInfoIn(),
+              frameInfoOut(),
+              deinterlaceParam(),
+              denoiseParam(),
+    #ifdef ENABLE_MCTF
+              mctfParam(),
     #endif
-
+              detailParam(),
+              procampParam(),
+              frcParam(),
+              videoSignalInfoParam(),
+              mirroringParam(),
+              gamutParam(),
+              multiViewParam(),
+              tccParam(),
+              aceParam(),
+              steParam(),
+              istabParam(),
+              colorfillParam(),
+              IOPattern(0),
+              ImpLib(0),
+              accelerationMode(MFX_ACCEL_MODE_NA),
+    #if defined(LINUX32) || defined(LINUX64)
+              strDevicePath(),
+    #endif
+    #ifdef ONEVPL_EXPERIMENTAL
+        #if defined(_WIN32)
+              luid({ 0 }),
+        #else
+              DRMRenderNodeNum(0),
+        #endif
+              PCIDomain(0),
+              PCIBus(0),
+              PCIDevice(0),
+              PCIFunction(0),
+              PCIDeviceSetup(false),
+    #endif
+              adapterType(mfxMediaAdapterType::MFX_MEDIA_UNKNOWN),
+              dGfxIdx(-1),
+              adapterNum(-1),
+              dispFullSearch(DEF_DISP_FULLSEARCH),
     #if (defined(_WIN64) || defined(_WIN32)) && (MFX_VERSION >= 1031)
-        bPrefferdGfx = false;
-        bPrefferiGfx = false;
+              bPrefferdGfx(false),
+              bPrefferiGfx(false),
     #endif
-        adapterType    = mfxMediaAdapterType::MFX_MEDIA_UNKNOWN;
-        dGfxIdx        = -1;
-        adapterNum     = -1;
-        dispFullSearch = DEF_DISP_FULLSEARCH;
-        frameInfoIn.clear(); //redundant, for the benefit of picky static analyzers
-        frameInfoOut.clear();
-        verSessionInit = API_2X;
-        bReadByFrame   = false;
+              asyncNum(0),
+              vaType(0),
+              rotate(),
+              bScaling(false),
+              scalingMode(0),
+              interpolationMethod(0),
+              bChromaSiting(false),
+              uChromaSiting(0),
+              GPUCopyValue(0),
+              bPartialAccel(false),
+              bPerf(false),
+              numFrames(0),
+              numRepeat(0),
+              isOutput(false),
+              ptsCheck(false),
+              ptsJump(false),
+              ptsAdvanced(false),
+              ptsFR(0.0),
+              roiCheckParam(),
+    #ifdef ENABLE_VPP_RUNTIME_HSBC
+              rtHue({ 0 }),
+              rtSaturation({ 0 }),
+              rtBrightness({ 0 }),
+              rtContrast({ 0 }),
+    #endif
+              // strSrcFile
+              strDstFiles(),
+              // strPerfFile
+              forcedOutputFourcc(0),
+              resetFrmNums(),
+              // inFrameInfo
+              numStreams(0),
+              compositionParam({ 0 }),
+              fccSource(0),
+              verSessionInit(API_2X),
+              bReadByFrame(false) {
+        MSDK_ZERO_MEMORY(strSrcFile);
+        MSDK_ZERO_MEMORY(strPerfFile);
+        MSDK_ZERO_MEMORY(inFrameInfo)
     }
 };
 

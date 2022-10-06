@@ -17,12 +17,18 @@ typedef enum {
 
 } eROIMode;
 
-typedef struct {
+typedef struct sROICheckParam {
     eROIMode mode;
 
     int srcSeed;
 
     int dstSeed;
+
+    sROICheckParam() {
+        mode    = eROIMode(0);
+        srcSeed = 0;
+        dstSeed = 0;
+    }
 
 } sROICheckParam;
 

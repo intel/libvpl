@@ -84,6 +84,11 @@ public:
 
 protected:
     std::mutex mtx;
+    /* Disabling copy and move semantics to enforce thread syncronization */
+    BaseFrameAllocator(const BaseFrameAllocator&)            = delete;
+    BaseFrameAllocator(BaseFrameAllocator&&)                 = delete;
+    BaseFrameAllocator& operator=(const BaseFrameAllocator&) = delete;
+    BaseFrameAllocator& operator=(BaseFrameAllocator&&)      = delete;
     typedef std::list<mfxFrameAllocResponse>::iterator Iter;
     static const mfxU32 MEMTYPE_FROM_MASK = MFX_MEMTYPE_FROM_ENCODE | MFX_MEMTYPE_FROM_DECODE |
                                             MFX_MEMTYPE_FROM_VPPIN | MFX_MEMTYPE_FROM_VPPOUT |
