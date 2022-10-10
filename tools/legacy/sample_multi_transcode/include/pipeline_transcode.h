@@ -205,8 +205,8 @@ struct __sInputParams {
 #endif
 #if (defined(_WIN32) || defined(_WIN64))
     //Adapter type
-    bool bPrefferiGfx;
-    bool bPrefferdGfx;
+    bool bPreferiGfx;
+    bool bPreferdGfx;
 #endif
 
     mfxU16 nIdrInterval;
@@ -812,7 +812,7 @@ public:
     void SetAdapterType(mfxU16 adapterType) {
         m_adapterType = adapterType;
     };
-    void SetPrefferdGfx(mfxI32 dGfxIdx = 0) {
+    void SetPreferdGfx(mfxI32 dGfxIdx = 0) {
         m_dGfxIdx = dGfxIdx;
     };
     void SetAdapterNum(mfxU32 adapterNum = 0) {
@@ -837,17 +837,17 @@ public:
 
 #if (defined(_WIN32) || defined(_WIN64))
     //Adapter type
-    void SetPrefferiGfx(bool prefferiGfx) {
-        bPrefferiGfx = prefferiGfx;
+    void SetPreferiGfx(bool preferiGfx) {
+        bPreferiGfx = preferiGfx;
     };
-    void SetPrefferdGfx(bool prefferdGfx) {
-        bPrefferdGfx = prefferdGfx;
+    void SetPreferdGfx(bool preferdGfx) {
+        bPreferdGfx = preferdGfx;
     };
-    bool IsPrefferiGfx() {
-        return bPrefferiGfx;
+    bool IsPreferiGfx() {
+        return bPreferiGfx;
     };
-    bool IsPrefferdGfx() {
-        return bPrefferdGfx;
+    bool IsPreferdGfx() {
+        return bPreferdGfx;
     };
 #endif
 protected:
@@ -1124,8 +1124,8 @@ protected:
 
 #if (defined(_WIN32) || defined(_WIN64))
         //Adapter type
-    bool bPrefferiGfx;
-    bool bPrefferdGfx;
+    bool bPreferiGfx;
+    bool bPreferdGfx;
 #endif
 
     eAPIVersion m_verSessionInit;

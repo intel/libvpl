@@ -296,11 +296,11 @@ void PrintInfo(sInputParams* pParams, mfxVideoParam* pMfxParams, MFXVideoSession
         msdk_printf(MSDK_STRING("HW accelaration is disabled\n"));
 
 #if (defined(_WIN64) || defined(_WIN32)) && (MFX_VERSION >= 1031)
-    if (pParams->bPrefferdGfx)
-        msdk_printf(MSDK_STRING("dGfx adapter is preffered\n"));
+    if (pParams->bPreferdGfx)
+        msdk_printf(MSDK_STRING("dGfx adapter is preferred\n"));
 
-    if (pParams->bPrefferiGfx)
-        msdk_printf(MSDK_STRING("iGfx adapter is preffered\n"));
+    if (pParams->bPreferiGfx)
+        msdk_printf(MSDK_STRING("iGfx adapter is preferred\n"));
 #endif
 
     mfxVersion ver;
@@ -430,7 +430,7 @@ mfxU32 GetPreferredAdapterNum(const mfxAdaptersInfo& adapters, const sInputParam
     if (adapters.NumActual == 0 || !adapters.Adapters)
         return 0;
 
-    if (params.bPrefferdGfx) {
+    if (params.bPreferdGfx) {
         // Find dGfx adapter in list and return it's index
 
         auto idx = std::find_if(adapters.Adapters,
@@ -450,7 +450,7 @@ mfxU32 GetPreferredAdapterNum(const mfxAdaptersInfo& adapters, const sInputParam
         return static_cast<mfxU32>(std::distance(adapters.Adapters, idx));
     }
 
-    if (params.bPrefferiGfx) {
+    if (params.bPreferiGfx) {
         // Find iGfx adapter in list and return it's index
 
         auto idx = std::find_if(adapters.Adapters,

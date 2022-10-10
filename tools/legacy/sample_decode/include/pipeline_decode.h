@@ -108,8 +108,8 @@ struct sInputParams {
     std::string strDevicePath;
 #endif
 #if (defined(_WIN64) || defined(_WIN32)) && (MFX_VERSION >= 1031)
-    bool bPrefferdGfx;
-    bool bPrefferiGfx;
+    bool bPreferdGfx;
+    bool bPreferiGfx;
 #endif
 // Extended device ID info, available in 2.6 and newer APIs
 #if (defined(_WIN64) || defined(_WIN32))

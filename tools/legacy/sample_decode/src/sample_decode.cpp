@@ -58,11 +58,11 @@ void PrintHelp(msdk_char* strAppName, const msdk_char* strErrorMessage) {
         "   [-scaling_mode value]     - specify scaling mode (lowpower/quality) for VPP\n"));
     msdk_printf(MSDK_STRING("   [-d]                      - enable decode error report\n"));
     msdk_printf(MSDK_STRING(
-        "   [-dGfx]                   - preffer processing on dGfx (by default system decides), also can be set with index, for example: '-dGfx 1'\n"));
+        "   [-dGfx]                   - prefer processing on dGfx (by default system decides), also can be set with index, for example: '-dGfx 1'\n"));
     msdk_printf(MSDK_STRING(
-        "   [-iGfx]                   - preffer processing on iGfx (by default system decides)\n"));
+        "   [-iGfx]                   - prefer processing on iGfx (by default system decides)\n"));
     msdk_printf(MSDK_STRING(
-        "   [-AdapterNum]             - specifies adpter number for processing, starts from 0\n"));
+        "   [-AdapterNum]             - specifies adapter number for processing, starts from 0\n"));
     msdk_printf(MSDK_STRING(
         "   [-dispatcher:fullSearch]  - enable search for all available implementations in oneVPL dispatcher\n"));
     msdk_printf(MSDK_STRING(
@@ -563,13 +563,13 @@ mfxStatus ParseInputString(msdk_char* strInput[], mfxU8 nArgNum, sInputParams* p
                 }
             }
 #if (defined(_WIN64) || defined(_WIN32)) && (MFX_VERSION >= 1031)
-            pParams->bPrefferdGfx = true;
+            pParams->bPreferdGfx = true;
 #endif
         }
         else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-iGfx"))) {
             pParams->adapterType = mfxMediaAdapterType::MFX_MEDIA_INTEGRATED;
 #if (defined(_WIN64) || defined(_WIN32)) && (MFX_VERSION >= 1031)
-            pParams->bPrefferiGfx = true;
+            pParams->bPreferiGfx = true;
 #endif
         }
         else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-AdapterNum"))) {
@@ -815,9 +815,9 @@ mfxStatus ParseInputString(msdk_char* strInput[], mfxU8 nArgNum, sInputParams* p
     }
 
 #if (defined(_WIN64) || defined(_WIN32)) && (MFX_VERSION >= 1031)
-    if (pParams->bPrefferdGfx && pParams->bPrefferiGfx) {
-        msdk_printf(MSDK_STRING("Warning: both dGfx and iGfx flags set. iGfx will be preffered"));
-        pParams->bPrefferdGfx = false;
+    if (pParams->bPreferdGfx && pParams->bPreferiGfx) {
+        msdk_printf(MSDK_STRING("Warning: both dGfx and iGfx flags set. iGfx will be preferred"));
+        pParams->bPreferdGfx = false;
     }
 #endif
 

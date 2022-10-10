@@ -54,11 +54,11 @@ void vppPrintHelp(const msdk_char* strAppName, const msdk_char* strErrorMessage)
     msdk_printf(MSDK_STRING("                                 For example: \"0:3:0.0\"  \n"));
 #endif
     msdk_printf(MSDK_STRING(
-        "   [-dGfx]                     - preffer processing on dGfx (by default system decides)\n"));
+        "   [-dGfx]                     - prefer processing on dGfx (by default system decides)\n"));
     msdk_printf(MSDK_STRING(
-        "   [-iGfx]                     - preffer processing on iGfx (by default system decides)\n"));
+        "   [-iGfx]                     - prefer processing on iGfx (by default system decides)\n"));
     msdk_printf(MSDK_STRING(
-        "   [-AdapterNum]               - specifies adpter number for processing, starts from 0\n"));
+        "   [-AdapterNum]               - specifies adapter number for processing, starts from 0\n"));
     msdk_printf(MSDK_STRING(
         "   [-dispatcher:fullSearch]    - enable search for all available implementations in oneVPL dispatcher\n"));
     msdk_printf(MSDK_STRING(
@@ -1926,13 +1926,13 @@ mfxStatus vppParseInputString(msdk_char* strInput[],
                     }
                 }
 #if (defined(_WIN64) || defined(_WIN32)) && (MFX_VERSION >= 1031)
-                pParams->bPrefferdGfx = true;
+                pParams->bPreferdGfx = true;
 #endif
             }
             else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-iGfx"))) {
                 pParams->adapterType = mfxMediaAdapterType::MFX_MEDIA_INTEGRATED;
 #if (defined(_WIN64) || defined(_WIN32)) && (MFX_VERSION >= 1031)
-                pParams->bPrefferiGfx = true;
+                pParams->bPreferiGfx = true;
 #endif
             }
             else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-AdapterNum"))) {
@@ -2110,9 +2110,9 @@ mfxStatus vppParseInputString(msdk_char* strInput[],
     }
 
 #if (defined(_WIN64) || defined(_WIN32)) && (MFX_VERSION >= 1031)
-    if (pParams->bPrefferdGfx && pParams->bPrefferiGfx) {
-        msdk_printf(MSDK_STRING("Warning: both dGfx and iGfx flags set. iGfx will be preffered"));
-        pParams->bPrefferdGfx = false;
+    if (pParams->bPreferdGfx && pParams->bPreferiGfx) {
+        msdk_printf(MSDK_STRING("Warning: both dGfx and iGfx flags set. iGfx will be preferred"));
+        pParams->bPreferdGfx = false;
     }
 #endif
 

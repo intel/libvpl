@@ -163,11 +163,11 @@ void TranscodingSample::PrintHelp() {
     msdk_printf(MSDK_STRING("                                 For example: \"0:3:0.0\"  \n"));
 #endif
     msdk_printf(MSDK_STRING(
-        "   [-dGfx] - preffer processing on dGfx (by default system decides), also can be set with index, for example: '-dGfx 1'\n"));
+        "   [-dGfx] - prefer processing on dGfx (by default system decides), also can be set with index, for example: '-dGfx 1'\n"));
     msdk_printf(
-        MSDK_STRING("   [-iGfx] - preffer processing on iGfx (by default system decides)\n"));
+        MSDK_STRING("   [-iGfx] - prefer processing on iGfx (by default system decides)\n"));
     msdk_printf(
-        MSDK_STRING("   [-AdapterNum] - specifies adpter number for processing, starts from 0\n"));
+        MSDK_STRING("   [-AdapterNum] - specifies adapter number for processing, starts from 0\n"));
     msdk_printf(MSDK_STRING(
         "   [-dispatcher:fullSearch]  - enable search for all available implementations in oneVPL dispatcher\n"));
     msdk_printf(MSDK_STRING(
@@ -502,12 +502,12 @@ void TranscodingSample::PrintHelp() {
     msdk_printf(MSDK_STRING(
         "  -h            Destination picture height, invokes VPP resize or decoder fixed function resize engine (if -dec_postproc specified)\n"));
     msdk_printf(MSDK_STRING("  -field_processing t2t|t2b|b2t|b2b|fr2fr - Field Copy feature\n"));
+    msdk_printf(
+        MSDK_STRING("  -WeightedPred::default|implicit       Enables weighted prediction usage\n"));
     msdk_printf(MSDK_STRING(
-        "  -WeightedPred::default|implicit       Enambles weighted prediction usage\n"));
+        "  -WeightedBiPred::default|implicit     Enables weighted bi-prediction usage\n"));
     msdk_printf(MSDK_STRING(
-        "  -WeightedBiPred::default|implicit     Enambles weighted bi-prediction usage\n"));
-    msdk_printf(MSDK_STRING(
-        "  -ir_type               - Intra refresh type. 0 - no refresh, 1 - vertical refresh, 2 - horisontal refresh, 3 - slice refresh\n"));
+        "  -ir_type               - Intra refresh type. 0 - no refresh, 1 - vertical refresh, 2 - horizontal refresh, 3 - slice refresh\n"));
     msdk_printf(MSDK_STRING(
         "  -ir_cycle_size         - Number of pictures within refresh cycle starting from 2\n"));
     msdk_printf(MSDK_STRING(
@@ -1467,7 +1467,7 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
     else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-iGfx"))) {
         InputParams.adapterType = mfxMediaAdapterType::MFX_MEDIA_INTEGRATED;
 #if (defined(_WIN32) || defined(_WIN64))
-        InputParams.bPrefferiGfx = true;
+        InputParams.bPreferiGfx = true;
 #endif
     }
     else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-dGfx"))) {
@@ -1479,7 +1479,7 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
             }
         }
 #if (defined(_WIN32) || defined(_WIN64))
-        InputParams.bPrefferdGfx = true;
+        InputParams.bPreferdGfx = true;
 #endif
     }
     else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-AdapterNum"))) {
@@ -3240,9 +3240,9 @@ mfxStatus CmdProcessor::VerifyAndCorrectInputParams(TranscodingSample::sInputPar
     }
 
 #if (defined(_WIN32) || defined(_WIN64))
-    if (InputParams.bPrefferiGfx && InputParams.bPrefferdGfx) {
-        msdk_printf(MSDK_STRING("WARNING: both dGfx and iGfx flags set. iGfx will be preffered\n"));
-        InputParams.bPrefferdGfx = false;
+    if (InputParams.bPreferiGfx && InputParams.bPreferdGfx) {
+        msdk_printf(MSDK_STRING("WARNING: both dGfx and iGfx flags set. iGfx will be preferred\n"));
+        InputParams.bPreferdGfx = false;
     }
 #endif
 

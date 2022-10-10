@@ -99,8 +99,8 @@ sInputParams::sInputParams()
 
 #if (defined(_WIN32) || defined(_WIN64))
     //Adapter type
-    bPrefferiGfx = false;
-    bPrefferdGfx = false;
+    bPreferiGfx = false;
+    bPreferdGfx = false;
 #endif
 
     //Adapter type
@@ -241,8 +241,8 @@ CTranscodingPipeline::CTranscodingPipeline()
           TargetID(0),
           m_ScalerConfig(),
 #if (defined(_WIN32) || defined(_WIN64))
-          bPrefferiGfx(false),
-          bPrefferdGfx(false),
+          bPreferiGfx(false),
+          bPreferdGfx(false),
 #endif
           m_verSessionInit(API_2X),
           m_b3DLutEnable(false),

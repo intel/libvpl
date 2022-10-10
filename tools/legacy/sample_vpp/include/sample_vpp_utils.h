@@ -191,8 +191,8 @@ struct sInputParams {
     bool dispFullSearch;
 
     #if (defined(_WIN64) || defined(_WIN32)) && (MFX_VERSION >= 1031)
-    bool bPrefferdGfx;
-    bool bPrefferiGfx;
+    bool bPreferdGfx;
+    bool bPreferiGfx;
     #endif
 
     mfxU16 asyncNum;
@@ -302,8 +302,8 @@ struct sInputParams {
               adapterNum(-1),
               dispFullSearch(DEF_DISP_FULLSEARCH),
     #if (defined(_WIN64) || defined(_WIN32)) && (MFX_VERSION >= 1031)
-              bPrefferdGfx(false),
-              bPrefferiGfx(false),
+              bPreferdGfx(false),
+              bPreferiGfx(false),
     #endif
               asyncNum(0),
               vaType(0),
