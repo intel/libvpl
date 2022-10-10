@@ -10,6 +10,13 @@
 
     #include "vm/time_defs.h"
 
+    #if !defined(__i386__) && !defined(__x86_64__)
+        #include <chrono>
+    #else
+        #define MSDK_USE_INTRINSIC
+        #include <x86intrin.h>
+    #endif
+
 msdk_tick msdk_time_get_tick(void) {
     LARGE_INTEGER t1;
 
@@ -25,7 +32,13 @@ msdk_tick msdk_time_get_frequency(void) {
 }
 
 mfxU64 rdtsc() {
+    #if defined(MSDK_USE_INTRINSIC)
     return __rdtsc();
+    #else
+    return std::chrono::duration_cast<std::chrono::nanoseconds>(
+               std::chrono::high_resolution_clock::now().time_since_epoch())
+        .count();
+    #endif
 }
 
 #endif // #if defined(_WIN32) || defined(_WIN64)
