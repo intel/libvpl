@@ -96,6 +96,20 @@ static const mfxImplementedFunctions msdkImplFuncs = {
     (mfxChar**)msdkImplFuncsNames
 };
 
+// optional extBuf to limit threads created in MSDK session creation
+// to enable, set vplParam.NumExtParam and vplParam.ExtParam before calling MFXInitEx2()
+static const mfxExtThreadsParam extThreadParam = {
+    {MFX_EXTBUFF_THREADS_PARAM, sizeof(mfxExtThreadsParam)},
+    2,
+    0,
+    0,
+    {},
+};
+
+static const mfxExtBuffer* extParams[1] = { 
+    (mfxExtBuffer *)&extThreadParam,
+};
+
 // end table formatting
 // clang-format on
 
@@ -126,17 +140,15 @@ mfxStatus LoaderCtxMSDK::OpenSession(mfxSession *session,
 
     // set acceleration mode - will be mapped to 1.x API
     mfxInitializationParam vplParam = {};
-    mfxExtBuffer *ext_params[1];
-    mfxExtThreadsParam thread_param;
-
-    memset(&thread_param, 0, sizeof(thread_param));
-    thread_param.Header.BufferId = MFX_EXTBUFF_THREADS_PARAM;
-    thread_param.Header.BufferSz = sizeof(thread_param);
-    thread_param.NumThread       = 2;
-    ext_params[0]                = (mfxExtBuffer *)&thread_param;
-    vplParam.ExtParam            = (mfxExtBuffer **)&ext_params;
-    vplParam.NumExtParam         = 1;
     vplParam.AccelerationMode       = accelMode;
+
+#ifdef __linux__
+    vplParam.ExtParam    = (mfxExtBuffer **)&extParams;
+    vplParam.NumExtParam = 1;
+#else
+    vplParam.ExtParam    = nullptr;
+    vplParam.NumExtParam = 0;
+#endif
 
     return MFXInitEx2(reqVersion,
                       vplParam,
@@ -220,18 +232,16 @@ mfxStatus LoaderCtxMSDK::QueryAPIVersion(STRING_TYPE libNameFull, mfxVersion *ms
 
         // set acceleration mode - will be mapped to 1.x API
         mfxInitializationParam vplParam = {};
-        mfxExtBuffer *ext_params[1];
-        mfxExtThreadsParam thread_param;
-
-        memset(&thread_param, 0, sizeof(thread_param));
-        thread_param.Header.BufferId = MFX_EXTBUFF_THREADS_PARAM;
-        thread_param.Header.BufferSz = sizeof(thread_param);
-        thread_param.NumThread       = 2;
-        ext_params[0]                = (mfxExtBuffer *)&thread_param;
-        vplParam.ExtParam            = (mfxExtBuffer **)&ext_params;
-        vplParam.NumExtParam         = 1;
         vplParam.AccelerationMode =
             (mfxAccelerationMode)CvtAccelType(MFX_IMPL_HARDWARE, implDefault & 0xFF00);
+
+#ifdef __linux__
+        vplParam.ExtParam    = (mfxExtBuffer **)&extParams;
+        vplParam.NumExtParam = 1;
+#else
+        vplParam.ExtParam    = nullptr;
+        vplParam.NumExtParam = 0;
+#endif
 
         mfxU16 deviceID;
         sts = MFXInitEx2(reqVersion,
@@ -441,6 +451,10 @@ mfxStatus LoaderCtxMSDK::CheckD3D9Support(mfxU64 luid, STRING_TYPE libNameFull, 
         // matching LUID - try creating a D3D9 session
         mfxInitializationParam vplParam = {};
         vplParam.AccelerationMode       = MFX_ACCEL_MODE_VIA_D3D9;
+
+        // thread limit not enabled on Windows
+        vplParam.ExtParam    = nullptr;
+        vplParam.NumExtParam = 0;
 
         mfxU16 deviceID;
         sts = MFXInitEx2(reqVersion,
