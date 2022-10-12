@@ -24,7 +24,7 @@ if(CMAKE_SYSTEM_NAME MATCHES Linux)
   pkg_check_modules(PKG_WAYLAND_CLIENT wayland-client IMPORTED_TARGET GLOBAL)
   pkg_check_modules(PKG_LIBWAYLAND libwayland IMPORTED_TARGET GLOBAL)
   find_program(WAYLAND_SCANNER_BIN "wayland-scanner")
-  pkg_check_modules(PKG_WAYLAND_PROTCOLS "wayland-protocols>=1.15")
+  pkg_check_modules(PKG_WAYLAND_PROTOCOLS "wayland-protocols>=1.15")
 
   # Set defaults for ENABLE_VA
   if(PKG_LIBVA_FOUND AND PKG_LIBVA_DRM_FOUND)
@@ -51,7 +51,7 @@ if(CMAKE_SYSTEM_NAME MATCHES Linux)
      AND DRM_DEFAULT
      AND PKG_WAYLAND_CLIENT_FOUND
      AND WAYLAND_SCANNER_BIN
-     AND PKG_WAYLAND_PROTCOLS_FOUND)
+     AND PKG_WAYLAND_PROTOCOLS_FOUND)
     set(WAYLAND_DEFAULT ON)
   else()
     set(WAYLAND_DEFAULT OFF)
@@ -194,7 +194,7 @@ if(CMAKE_SYSTEM_NAME MATCHES Linux)
           target_include_directories(
             ${TARGET}
             PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../sample_misc/wayland/include)
-          if(WAYLAND_SCANNER_BIN AND PKG_WAYLAND_PROTCOLS_FOUND)
+          if(WAYLAND_SCANNER_BIN AND PKG_WAYLAND_PROTOCOLS_FOUND)
             pkg_get_variable(WAYLAND_PROTOCOLS_PATH wayland-protocols
                              pkgdatadir)
             if(WAYLAND_PROTOCOLS_PATH)
@@ -202,6 +202,9 @@ if(CMAKE_SYSTEM_NAME MATCHES Linux)
                 WAYLAND_LINUX_DMABUF_XML_PATH linux-dmabuf-unstable-v1.xml
                 PATHS ${WAYLAND_PROTOCOLS_PATH}/unstable/linux-dmabuf
                 NO_DEFAULT_PATH)
+              find_file(WAYLAND_LINUX_XDG_SHELL_XML_PATH xdg-shell.xml
+                        PATHS ${WAYLAND_PROTOCOLS_PATH}/stable/xdg-shell
+                              NO_DEFAULT_PATH)
             endif()
           else()
             message(
@@ -216,6 +219,16 @@ if(CMAKE_SYSTEM_NAME MATCHES Linux)
             target_include_directories(
               ${TARGET}
               PUBLIC ${CMAKE_BINARY_DIR}/tools/legacy/sample_misc/wayland)
+          endif()
+
+          if(WAYLAND_LINUX_XDG_SHELL_XML_PATH)
+            target_compile_definitions(${TARGET}
+                                       PUBLIC WAYLAND_LINUX_XDG_SHELL_SUPPORT)
+            target_include_directories(
+              ${TARGET}
+              PUBLIC ${CMAKE_BINARY_DIR}/tools/legacy/sample_misc/wayland)
+          else()
+            message(SEND_ERROR "xdg-shell.xml could not be found")
           endif()
 
         else()
