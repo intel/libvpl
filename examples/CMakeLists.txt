@@ -31,8 +31,7 @@ if(INSTALL_EXAMPLE_CODE)
     COMPONENT dev)
 
   install(
-    DIRECTORY interop/hello-decode-infer interop/legacy-decode-infer
-              interop/advanced-decvpp-infer interop/dpcpp-blur
+    DIRECTORY interop/vpl-infer interop/dpcpp-blur
     DESTINATION ${ONEAPI_INSTALL_EXAMPLEDIR}/interop
     COMPONENT dev)
 
