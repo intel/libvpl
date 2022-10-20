@@ -551,8 +551,8 @@ mfxStatus WriteRawFrame(mfxFrameSurface1 *surface, FILE *f) {
     mfxFrameInfo *info = &surface->Info;
     mfxFrameData *data = &surface->Data;
 
-    w = info->Width;
-    h = info->Height;
+    w = info->CropW;
+    h = info->CropH;
 
     // write the output to disk
     switch (info->FourCC) {
