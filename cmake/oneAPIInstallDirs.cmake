@@ -8,7 +8,9 @@
 # Set installation directories
 #
 
-if(WIN32 AND CMAKE_SIZEOF_VOID_P EQUAL 4)
+if(WIN32
+   AND NOT CMAKE_CROSSCOMPILING
+   AND CMAKE_SIZEOF_VOID_P EQUAL 4)
   if(NOT CMAKE_INSTALL_BINDIR)
     set(BINARCH x86)
   endif()
