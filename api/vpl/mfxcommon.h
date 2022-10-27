@@ -34,7 +34,7 @@ MFX_PACK_END()
 #define MFX_REFINTERFACE_VERSION MFX_STRUCT_VERSION(1, 0)
 
 MFX_PACK_BEGIN_STRUCT_W_PTR()
-/*! The structure respresents reference counted interface structure.
+/*! The structure represents reference counted interface structure.
     The memory is allocated and released by the implementation.
 */
 typedef struct mfxRefInterface {
@@ -191,7 +191,10 @@ enum {
     MFX_GPUCOPY_DEFAULT = 0, /*!< Use default mode for the legacy Intel(r) Media SDK implementation. */
     MFX_GPUCOPY_ON      = 1, /*!< The hint to enable GPU accelerated copying when it is supported by the library. 
                                   If the library doesn't support GPU accelerated copy the operation will be made by CPU. */
-    MFX_GPUCOPY_OFF     = 2  /*!< Disable GPU accelerated copying. */
+    MFX_GPUCOPY_OFF     = 2,  /*!< Disable GPU accelerated copying. */
+#ifdef ONEVPL_EXPERIMENTAL
+    MFX_GPUCOPY_SAFE    = 3  /*!< The hint to disable buffer caching for GPU accelerated copying. Actual when GPU accelerated copying is supported by the library. */
+#endif
 };
 
 MFX_PACK_BEGIN_STRUCT_W_PTR()
@@ -534,13 +537,13 @@ MFX_PACK_END()
 #define MFX_EXTENDEDDEVICEID_VERSION MFX_STRUCT_VERSION(1, 0)
 
 MFX_PACK_BEGIN_USUAL_STRUCT()
-/*! Specifies variouse physical device properties for device matching and identification outside of oneVPL. */
+/*! Specifies various physical device properties for device matching and identification outside of oneVPL. */
 typedef struct {
     mfxStructVersion Version;                       /*!< Version of the structure. */
     mfxU16           VendorID;                      /*!< PCI vendor ID. */
     mfxU16           DeviceID;                      /*!< PCI device ID. */
     mfxU32           PCIDomain;                     /*!< PCI bus domain. Equals to '0' if OS doesn't support it or
-                                                         has sequential numbering of buses accross domains. */
+                                                         has sequential numbering of buses across domains. */
     mfxU32           PCIBus;                        /*!< The number of the bus that the physical device is located on. */
     mfxU32           PCIDevice;                     /*!< The index of the physical device on the bus. */
     mfxU32           PCIFunction;                   /*!< The function number of the device on the physical device. */
@@ -550,10 +553,10 @@ typedef struct {
     mfxU32           LUIDValid;                     /*!< Boolean value that will be 1 if DeviceLUID contains a valid LUID
                                                          and LUIDDeviceNodeMask contains a valid node mask,
                                                          and 0 if they do not. */
-    mfxU32           DRMRenderNodeNum;              /*!< Number of the DRM render node from the path /dev/dri/RenderD<num>.
+    mfxU32           DRMRenderNodeNum;              /*!< Number of the DRM render node from the path /dev/dri/RenderD\<num\>.
                                                          Value equals to 0 means that this field doesn't contain valid DRM Render
                                                          Node number.*/
-    mfxU32           DRMPrimaryNodeNum;             /*!< Number of the DRM primary node from the path /dev/dri/card<num>.
+    mfxU32           DRMPrimaryNodeNum;             /*!< Number of the DRM primary node from the path /dev/dri/card\<num\>.
                                                          Value equals to 0x7FFFFFFF means that this field doesn't contain valid DRM Primary
                                                          Node number.*/
     mfxU8            reserved1[20];                 /*!< Reserved for future use. */
