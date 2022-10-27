@@ -343,6 +343,7 @@ mfxU32 GetSurfaceSize(mfxU32 FourCC, mfxU32 width, mfxU32 height) {
             nbytes *= 2;
             break;
         case MFX_FOURCC_RGB4:
+        case MFX_FOURCC_BGR4:
             nbytes = width * height * 4;
             break;
         default:
@@ -386,6 +387,20 @@ mfxStatus AllocateExternalSystemMemorySurfacePool(mfxU8 **buf,
             surfpool[i].Data.G     = surfpool[i].Data.B + 1;
             surfpool[i].Data.R     = surfpool[i].Data.B + 2;
             surfpool[i].Data.A     = surfpool[i].Data.B + 3;
+            surfpool[i].Data.Pitch = surfW;
+        }
+    }
+    else if (frame_info.FourCC == MFX_FOURCC_BGR4) {
+        surfW = frame_info.Width * 4;
+
+        for (mfxU32 i = 0; i < surfnum; i++) {
+            surfpool[i]            = { 0 };
+            surfpool[i].Info       = frame_info;
+            size_t buf_offset      = static_cast<size_t>(i) * surfaceSize;
+            surfpool[i].Data.R     = *buf + buf_offset;
+            surfpool[i].Data.G     = surfpool[i].Data.R + 1;
+            surfpool[i].Data.B     = surfpool[i].Data.R + 2;
+            surfpool[i].Data.A     = surfpool[i].Data.R + 3;
             surfpool[i].Data.Pitch = surfW;
         }
     }
@@ -454,8 +469,8 @@ mfxStatus ReadRawFrame(mfxFrameSurface1 *surface, FILE *f) {
     mfxFrameInfo *info = &surface->Info;
     mfxFrameData *data = &surface->Data;
 
-    w = info->Width;
-    h = info->Height;
+    w = info->CropW;
+    h = info->CropH;
 
     switch (info->FourCC) {
         case MFX_FOURCC_I420:
@@ -595,6 +610,13 @@ mfxStatus WriteRawFrame(mfxFrameSurface1 *surface, FILE *f) {
             pitch = data->Pitch;
             for (i = 0; i < h; i++) {
                 fwrite(data->B + i * pitch, 1, pitch, f);
+            }
+            break;
+        case MFX_FOURCC_BGR4:
+            // Y
+            pitch = data->Pitch;
+            for (i = 0; i < h; i++) {
+                fwrite(data->R + i * pitch, 1, pitch, f);
             }
             break;
         default:
