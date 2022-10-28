@@ -17,6 +17,9 @@
         #include "hw_device.h"
 
         #include <dxgi1_2.h>
+        #include <dxgi1_4.h>
+        #include <dxgi1_5.h>
+        #include <dxgi1_6.h>
 
 class CD3D11Device : public CHWDevice {
 public:
@@ -33,6 +36,9 @@ public:
         m_bIsA2rgb10 = (isA2rgb10) ? TRUE : FALSE;
     }
     virtual void SetMondelloInput(bool /*isMondelloInputEnabled*/) {}
+    virtual void SetDxgiFullScreen() {
+        m_bDxgiFs = TRUE;
+    }
 
 protected:
     virtual mfxStatus FillSCD(mfxHDL hWindow, DXGI_SWAP_CHAIN_DESC& scd);
@@ -47,10 +53,13 @@ protected:
 
     CComQIPtr<IDXGIDevice1> m_pDXGIDev;
     CComQIPtr<IDXGIAdapter> m_pAdapter;
+    CComQIPtr<IDXGIAdapter1> m_pAdapter1;
 
     CComPtr<IDXGIFactory2> m_pDXGIFactory;
 
     CComPtr<IDXGISwapChain1> m_pSwapChain;
+    CComPtr<IDXGISwapChain4> m_pSwapChain4;
+    CComPtr<IDXGISwapChain3> m_pSwapChain3;
     CComPtr<ID3D11VideoProcessor> m_pVideoProcessor;
 
 private:
@@ -62,10 +71,18 @@ private:
     CComPtr<ID3D11Texture2D> m_pTempTexture;
     CComPtr<IDXGIDisplayControl> m_pDisplayControl;
     CComPtr<IDXGIOutput> m_pDXGIOutput;
+    CComPtr<IDXGIOutput6> m_pDXGIOutput6;
     mfxU16 m_nViews;
+    mfxU32 m_nPrimaryWidth;
+    mfxU32 m_nPrimaryHeight;
     BOOL m_bDefaultStereoEnabled;
+    BOOL m_bHdrSupport;
     BOOL m_bIsA2rgb10;
     HWND m_HandleWindow;
+    BOOL m_bDxgiFs;
+
+    DXGI_COLOR_SPACE_TYPE m_pColorSpaceDataTemp;
+    DXGI_HDR_METADATA_HDR10 m_pHDRMetaDataTemp;
 };
 
     #endif //#if defined( _WIN32 ) || defined ( _WIN64 )

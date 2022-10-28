@@ -80,6 +80,7 @@ CDecodingPipeline::CDecodingPipeline()
           m_fourcc(0),
           m_bPrintLatency(false),
           m_bOutI420(false),
+          m_bDxgiFs(false),
           m_vppOutWidth(0),
           m_vppOutHeight(0),
           m_nTimeout(0),
@@ -93,6 +94,9 @@ CDecodingPipeline::CDecodingPipeline()
           m_fpsLimiter(),
           m_VppVideoSignalInfo({}),
           m_VppSurfaceExtParams(),
+          m_ContentLight({}),
+          m_DisplayColor({}),
+          m_OutSurfaceExtParams(),
 #if defined(LINUX32) || defined(LINUX64)
           m_strDevicePath(),
 #endif
@@ -383,6 +387,9 @@ mfxStatus CDecodingPipeline::Init(sInputParams* pParams) {
     }
     if (pParams->bUseFullColorRange) {
         m_bVppFullColorRange = pParams->bUseFullColorRange;
+    }
+    if (pParams->bDxgiFs) {
+        m_bDxgiFs = pParams->bDxgiFs;
     }
 
     bool bResolutionSpecified =
@@ -1113,6 +1120,11 @@ mfxStatus CDecodingPipeline::CreateHWDevice() {
 
     sts = m_hwdev->Init(window, render ? (m_bIsMVC ? 2 : 1) : 0, adapterNum);
     MSDK_CHECK_STATUS(sts, "m_hwdev->Init failed");
+
+    if (m_bDxgiFs) {
+        m_hwdev->SetDxgiFullScreen();
+        m_d3dRender.SetDxgiFullScreen();
+    }
 
     if (render)
         m_d3dRender.SetHWDevice(m_hwdev);
@@ -1847,6 +1859,20 @@ mfxStatus CDecodingPipeline::RunDecoding() {
                                                                pBitstream->NumExtParam,
                                                                MFX_EXTBUFF_DECODE_ERROR_REPORT);
                 }
+
+                //Obtain HDR metadata only P010(10-bit) and w/o VPP.
+                if (m_mfxVideoParams.mfx.FrameInfo.FourCC == MFX_FOURCC_P010 && !m_bVppIsUsed) {
+                    m_OutSurfaceExtParams.clear();
+                    m_DisplayColor.Header.BufferId = MFX_EXTBUFF_MASTERING_DISPLAY_COLOUR_VOLUME;
+                    m_ContentLight.Header.BufferId = MFX_EXTBUFF_CONTENT_LIGHT_LEVEL_INFO;
+                    m_OutSurfaceExtParams.push_back((mfxExtBuffer*)&m_DisplayColor);
+                    m_OutSurfaceExtParams.push_back((mfxExtBuffer*)&m_ContentLight);
+                    m_pCurrentFreeSurface->frame.Data.ExtParam =
+                        reinterpret_cast<mfxExtBuffer**>(&m_OutSurfaceExtParams[0]);
+                    m_pCurrentFreeSurface->frame.Data.NumExtParam =
+                        static_cast<mfxU16>(m_OutSurfaceExtParams.size());
+                }
+
                 sts = m_pmfxDEC->DecodeFrameAsync(pBitstream,
                                                   &(m_pCurrentFreeSurface->frame),
                                                   &pOutSurface,

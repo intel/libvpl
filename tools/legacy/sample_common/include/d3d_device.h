@@ -37,6 +37,7 @@ public:
         m_bIsA2rgb10 = (isA2rgb10) ? TRUE : FALSE;
     }
     virtual void SetMondelloInput(bool /*isMondelloInputEnabled*/) {}
+    virtual void SetDxgiFullScreen() {}
 
 protected:
     mfxStatus CreateVideoProcessors();

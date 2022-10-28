@@ -46,7 +46,8 @@ CDecodeD3DRender::CDecodeD3DRender()
           m_style(0),
           m_bDwmEnabled(false),
           m_nMonitorCurrent(0),
-          m_RectWindow({ 0 }) {}
+          m_RectWindow({ 0 }),
+          m_bDxgiFs(false) {}
 
 BOOL CALLBACK CDecodeD3DRender::MonitorEnumProc(HMONITOR /*hMonitor*/,
                                                 HDC /*hdcMonitor*/,
@@ -235,9 +236,9 @@ VOID CDecodeD3DRender::OnKey(HWND hwnd, UINT vk, BOOL fDown, int cRepeat, UINT f
     if (TRUE == fDown)
         return;
 
-    if ('1' == vk && false == m_sWindowParams.bFullScreen)
+    if ('1' == vk && false == m_sWindowParams.bFullScreen && !m_bDxgiFs)
         ChangeWindowSize(true);
-    else if (true == m_sWindowParams.bFullScreen)
+    else if (true == m_sWindowParams.bFullScreen && !m_bDxgiFs)
         ChangeWindowSize(false);
 }
 

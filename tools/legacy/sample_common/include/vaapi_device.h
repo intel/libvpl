@@ -44,6 +44,7 @@ public:
     virtual mfxStatus RenderFrame(mfxFrameSurface1* pSurface, mfxFrameAllocator* pmfxAlloc);
     virtual void UpdateTitle(double fps) {}
     virtual void SetMondelloInput(bool isMondelloInputEnabled) {}
+    virtual void SetDxgiFullScreen() {}
 
     inline drmRenderer* getRenderer() {
         return m_rndr;
@@ -91,6 +92,7 @@ public:
     virtual mfxStatus RenderFrame(mfxFrameSurface1* pSurface, mfxFrameAllocator* pmfxAlloc);
     virtual void UpdateTitle(double fps) {}
     virtual void SetMondelloInput(bool isMondelloInputEnabled) {}
+    virtual void SetDxgiFullScreen() {}
 
 protected:
     mfxHDL m_window;
@@ -153,6 +155,8 @@ public:
     virtual void SetMondelloInput(bool isMondelloInputEnabled) {
         m_isMondelloInputEnabled = isMondelloInputEnabled;
     }
+
+    virtual void SetDxgiFullScreen() {}
 
     Wayland* GetWaylandHandle() {
         return m_Wayland;
@@ -218,6 +222,7 @@ public:
     }
     virtual void UpdateTitle(double fps) {}
     virtual void SetMondelloInput(bool isMondelloInputEnabled) {}
+    virtual void SetDxgiFullScreen() {}
 
 protected:
     AndroidLibVA* m_pAndroidLibVA;

@@ -52,6 +52,9 @@ public:
     virtual mfxStatus Init(sWindowParams pWParams);
     virtual mfxStatus RenderFrame(mfxFrameSurface1* pSurface, mfxFrameAllocator* pmfxAlloc);
     virtual VOID UpdateTitle(double fps);
+    virtual VOID SetDxgiFullScreen() {
+        m_bDxgiFs = true;
+    }
     void Close();
 
     HWND GetWindowHandle();
@@ -87,6 +90,8 @@ protected:
     bool m_bDwmEnabled;
     int m_nMonitorCurrent;
     ::RECT m_RectWindow;
+
+    bool m_bDxgiFs;
 };
 #endif // #if defined(_WIN32) || defined(_WIN64)
 

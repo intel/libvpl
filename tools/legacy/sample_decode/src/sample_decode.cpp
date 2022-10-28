@@ -57,6 +57,10 @@ void PrintHelp(msdk_char* strAppName, const msdk_char* strErrorMessage) {
     msdk_printf(MSDK_STRING(
         "   [-scaling_mode value]     - specify scaling mode (lowpower/quality) for VPP\n"));
     msdk_printf(MSDK_STRING("   [-d]                      - enable decode error report\n"));
+#if defined(_WIN32) || defined(_WIN64)
+    msdk_printf(MSDK_STRING(
+        "   [-dxgiFs]                 - enable fullscreen via IDXGISwapChain::SetFullScreenState method\n"));
+#endif
     msdk_printf(MSDK_STRING(
         "   [-dGfx]                   - prefer processing on dGfx (by default system decides), also can be set with index, for example: '-dGfx 1'\n"));
     msdk_printf(MSDK_STRING(
@@ -587,6 +591,11 @@ mfxStatus ParseInputString(msdk_char* strInput[], mfxU8 nArgNum, sInputParams* p
         }
         else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-dispatcher:lowLatency"))) {
             pParams->dispFullSearch = false;
+        }
+        else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-dxgiFs"))) {
+#if defined(_WIN32) || defined(_WIN64)
+            pParams->bDxgiFs = true;
+#endif
         }
 #if !defined(_WIN32) && !defined(_WIN64)
         else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-d"))) {
