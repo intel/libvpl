@@ -354,11 +354,11 @@ mfxStatus CD3D11Device::RenderFrame(mfxFrameSurface1* pSrf, mfxFrameAllocator* p
                                                            MFX_EXTBUFF_CONTENT_LIGHT_LEVEL_INFO);
 
             if (m_bHdrSupport && (displayColor && contentLight)) {
-                colorSpace = DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020;
-
-                // TODO: panel support HDR. check if bitstream support HDR, otherwise fallback to BT709.
-                // TODO: use displayColor->InsertPayloadToggle and contentLight->InsertPayloadToggle
-                // to determine validity of HDR content once the API has merged to VPL.
+                // panel support HDR. check if bitstream support HDR.
+                if (displayColor->InsertPayloadToggle == MFX_PAYLOAD_IDR ||
+                    contentLight->InsertPayloadToggle == MFX_PAYLOAD_IDR) {
+                    colorSpace = DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020;
+                }
             }
         #endif
             if (memcmp(&m_pColorSpaceDataTemp, &colorSpace, sizeof(DXGI_COLOR_SPACE_TYPE))) {
@@ -381,23 +381,24 @@ mfxStatus CD3D11Device::RenderFrame(mfxFrameSurface1* pSrf, mfxFrameAllocator* p
             (mfxExtContentLightLevelInfo*)GetExtBuffer(pSrf->Data.ExtParam,
                                                        pSrf->Data.NumExtParam,
                                                        MFX_EXTBUFF_CONTENT_LIGHT_LEVEL_INFO);
-
-        // TODO: use displayColor->InsertPayloadToggle and contentLight->InsertPayloadToggle
-        // to determine validity of HDR content once the API has merged to VPL.
         if (displayColor && contentLight) {
-            DXGI_HDR_METADATA_HDR10 pHDRMetaData   = {};
-            pHDRMetaData.MaxMasteringLuminance     = displayColor->MaxDisplayMasteringLuminance;
-            pHDRMetaData.MinMasteringLuminance     = displayColor->MinDisplayMasteringLuminance;
-            pHDRMetaData.MaxContentLightLevel      = contentLight->MaxContentLightLevel;
-            pHDRMetaData.MaxFrameAverageLightLevel = contentLight->MaxPicAverageLightLevel;
-            pHDRMetaData.RedPrimary[0]             = displayColor->DisplayPrimariesX[2];
-            pHDRMetaData.RedPrimary[1]             = displayColor->DisplayPrimariesY[2];
-            pHDRMetaData.GreenPrimary[0]           = displayColor->DisplayPrimariesX[0];
-            pHDRMetaData.GreenPrimary[1]           = displayColor->DisplayPrimariesY[0];
-            pHDRMetaData.BluePrimary[0]            = displayColor->DisplayPrimariesX[1];
-            pHDRMetaData.BluePrimary[1]            = displayColor->DisplayPrimariesY[1];
-            pHDRMetaData.WhitePoint[0]             = displayColor->WhitePointX;
-            pHDRMetaData.WhitePoint[1]             = displayColor->WhitePointY;
+            DXGI_HDR_METADATA_HDR10 pHDRMetaData = {};
+            if (displayColor->InsertPayloadToggle == MFX_PAYLOAD_IDR) {
+                pHDRMetaData.MaxMasteringLuminance = displayColor->MaxDisplayMasteringLuminance;
+                pHDRMetaData.MinMasteringLuminance = displayColor->MinDisplayMasteringLuminance;
+                pHDRMetaData.RedPrimary[0]         = displayColor->DisplayPrimariesX[2];
+                pHDRMetaData.RedPrimary[1]         = displayColor->DisplayPrimariesY[2];
+                pHDRMetaData.GreenPrimary[0]       = displayColor->DisplayPrimariesX[0];
+                pHDRMetaData.GreenPrimary[1]       = displayColor->DisplayPrimariesY[0];
+                pHDRMetaData.BluePrimary[0]        = displayColor->DisplayPrimariesX[1];
+                pHDRMetaData.BluePrimary[1]        = displayColor->DisplayPrimariesY[1];
+                pHDRMetaData.WhitePoint[0]         = displayColor->WhitePointX;
+                pHDRMetaData.WhitePoint[1]         = displayColor->WhitePointY;
+            }
+            if (contentLight->InsertPayloadToggle == MFX_PAYLOAD_IDR) {
+                pHDRMetaData.MaxContentLightLevel      = contentLight->MaxContentLightLevel;
+                pHDRMetaData.MaxFrameAverageLightLevel = contentLight->MaxPicAverageLightLevel;
+            }
             if (memcmp(&m_pHDRMetaDataTemp, &pHDRMetaData, sizeof(pHDRMetaData))) {
                 memcpy(&m_pHDRMetaDataTemp, &pHDRMetaData, sizeof(pHDRMetaData));
 
