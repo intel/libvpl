@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- oneVPL API 2.8 support
 - New infer sample
 - xdg_shell for weston10
 
