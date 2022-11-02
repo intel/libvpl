@@ -1,13 +1,13 @@
 # `vpl-infer` Sample
 
 This sample shows how to use the oneAPI Video Processing Library (oneVPL) to
-perform a simple video decode and resize and inference using OpenVINO to show the device surface sharing (zero copy)
+perform a simple video decode and resize, and how to use OpenVINO for inferencing 
 
 | Optimized for    | Description
 |----------------- | ----------------------------------------
-| OS               | Ubuntu* 20.04
-| Hardware         | Compatible with Intel® oneAPI Video Processing Library(oneVPL) GPU implementation, which can be found at https://github.com/oneapi-src/oneVPL-intel-gpu 
-| Software         | oneAPI Video Processing Library (oneVPL), Intel® OpenVINO
+| OS               | Ubuntu* 20.04; Windows* 10
+| Hardware runtime | Compatible with Intel® oneAPI Video Processing Library(oneVPL) GPU implementation, which can be found at https://github.com/oneapi-src/oneVPL-intel-gpu 
+|                  | and Intel® Media SDK GPU implementation, which can be found at https://github.com/Intel-Media-SDK/MediaSDK
 | What You Will Learn | How to use oneVPL to decode an H.265 encoded video file and resize and perform per-frame object detection inference
 | Time to Complete | 5 minutes
 
@@ -19,13 +19,17 @@ video elementary stream and network model as an argument, decodes and resize it 
 object detection on each frame using OpenVINO.
 
 
-## Key Implementation details
+## Command line options
+| Option   | Description | Note
+| -------  | -------------------------------| -----------------
+| -hw      | oneVPL hardware implementation | Default
+| -i       | H.265 video elementary stream  |
+| -m       | Object detection network model |
+| -legacy  | Run sample in legacy gen (ex: gen 9.x - SKL, KBL, etc) |
+| -zerocopy| process data without copying between oneVPL and OpenVINO in hardware implemenation mode | Linux only
+|          | | with `-hw` only
+|          | | not with `-legacy`
 
-| Configuration       | Default setting
-| ------------------  | ----------------------------------
-| Target device       | GPU
-| Input format        | H.265 video elementary stream
-| Input network model | object detection network model
 
 ## License
 
@@ -108,7 +112,7 @@ cmake .. && cmake --build . --config release
 6. Run the program with defaults using the following command:
 
 ```
-./vpl-infer -i cars_320x240.h265 -m mobilenet-ssd.xml -hw
+./vpl-infer -hw -i cars_320x240.h265 -m mobilenet-ssd.xml
 ```
 
 
@@ -151,6 +155,8 @@ This `"groups: cannot find name for group ID 109"` message is expected.
 In the container
 
 ```
+source /opt/intel/oneapi/setvars.sh
+
 cd /oneVPL/examples/interop/vpl-infer
 mkdir build && cd build
 cmake .. && cmake --build . --config release
@@ -204,20 +210,27 @@ libva info: Found init function __vaDriverInit_1_15
 libva info: va_openDriver() returns 0
 Decoding VPP, and inferring /oneVPL/examples/content/cars_320x240.h265 with /oneVPL/nm/mobilenet-ssd/FP32/mobilenet-ssd.xml
 Result:
-  bbox 92, 112, 201, 217, confidence = 0.998823
-  bbox 207, 50, 296, 144, confidence = 0.997168
-  bbox 35, 43, 120, 134, confidence = 0.994219
-  bbox 73, 82, 168, 171, confidence = 0.936172
-  bbox 168, 199, 274, 238, confidence = 0.577672
+    Label Id (7),  BBox (  92,  112,  201,  217),  Confidence (0.999)
+    Label Id (7),  BBox ( 207,   50,  296,  144),  Confidence (0.997)
+    Label Id (7),  BBox (  35,   43,  120,  134),  Confidence (0.995)
+    Label Id (7),  BBox (  73,   82,  167,  171),  Confidence (0.938)
+    Label Id (7),  BBox ( 168,  199,  274,  238),  Confidence (0.600)
 
   ...
 
 Result:
-  bbox 64, 68, 161, 178, confidence = 0.997325
-  bbox 116, 133, 224, 238, confidence = 0.934097
-  bbox 266, 81, 319, 190, confidence = 0.838117
-  bbox 17, 44, 71, 93, confidence = 0.753288
+    Label Id (7),  BBox (  64,   68,  161,  178),  Confidence (0.997)
+    Label Id (7),  BBox ( 116,  133,  224,  238),  Confidence (0.944)
+    Label Id (7),  BBox ( 266,   80,  319,  190),  Confidence (0.846)
+    Label Id (7),  BBox (  17,   45,   71,   93),  Confidence (0.803)
 
 Decoded 30 frames and detected objects
 
 ```
+This execution is the object detection use case with `mobilenet-ssd` network model.
+
+Label Id is predicted class ID (1..20 - PASCAL VOC defined class ids).
+
+Mapping to class names provided by `<omz_dir>/data/dataset_classes/voc_20cl_bkgr.txt` file, which is downloaded when you install OpenVINO development version.
+
+`7` is `car` from the list.

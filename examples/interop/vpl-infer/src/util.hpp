@@ -44,12 +44,26 @@ enum {
     #include "va/va_drm.h"
 #endif
 
-#define MAX_PATH        260
-#define IS_ARG_EQ(a, b) (!strcmp((a), (b)))
+#define WAIT_100_MILLISECONDS 100
+#define MAX_PATH              260
+#define MAX_WIDTH             3840
+#define MAX_HEIGHT            2160
+#define IS_ARG_EQ(a, b)       (!strcmp((a), (b)))
 
 #define ALIGN16(value)           (((value + 15) >> 4) << 4)
 #define ALIGN32(X)               (((mfxU32)((X) + 31)) & (~(mfxU32)31))
 #define VPLVERSION(major, minor) (major << 16 | minor)
+
+#define VERIFY(x, y)               \
+    if (!(x)) {                    \
+        throw std::logic_error(y); \
+    }
+
+#define VERIFY2(x, y)      \
+    if (!(x)) {            \
+        printf("%s\n", y); \
+        return NULL;       \
+    }
 
 enum ExampleParams { PARAM_IMPL = 0, PARAM_INFILE, PARAM_INRES, PARAM_COUNT };
 enum ParamGroup {
@@ -63,10 +77,18 @@ enum ParamGroup {
 
 typedef struct _Params {
     mfxIMPL impl;
+#if (MFX_VERSION >= 2000)
     mfxVariant implValue;
+#endif
 
     char *infileName;
     char *inmodelName;
+
+    mfxU16 srcWidth;
+    mfxU16 srcHeight;
+
+    bool bZeroCopy;
+    bool bLegacyGen;
 } Params;
 
 char *ValidateFileName(char *in) {
@@ -78,6 +100,17 @@ char *ValidateFileName(char *in) {
     return in;
 }
 
+bool ValidateSize(char *in, mfxU16 *vsize, mfxU32 vmax) {
+    if (in) {
+        *vsize = static_cast<mfxU16>(strtol(in, NULL, 10));
+        if (*vsize <= vmax)
+            return true;
+    }
+
+    *vsize = 0;
+    return false;
+}
+
 bool ParseArgsAndValidate(int argc, char *argv[], Params *params, ParamGroup group) {
     int idx;
     char *s;
@@ -85,9 +118,11 @@ bool ParseArgsAndValidate(int argc, char *argv[], Params *params, ParamGroup gro
     // init all params to 0
     *params = {};
 
-    params->impl               = MFX_IMPL_HARDWARE;
+    params->impl = MFX_IMPL_HARDWARE;
+#if (MFX_VERSION >= 2000)
     params->implValue.Type     = MFX_VARIANT_TYPE_U32;
     params->implValue.Data.U32 = MFX_IMPL_TYPE_HARDWARE;
+#endif
 
     for (idx = 1; idx < argc;) {
         // all switches must start with '-'
@@ -114,9 +149,28 @@ bool ParseArgsAndValidate(int argc, char *argv[], Params *params, ParamGroup gro
             }
         }
         else if (IS_ARG_EQ(s, "hw")) {
-            params->impl               = MFX_IMPL_HARDWARE;
+            params->impl = MFX_IMPL_HARDWARE;
+#if (MFX_VERSION >= 2000)
             params->implValue.Data.U32 = MFX_IMPL_TYPE_HARDWARE;
+#endif
         }
+        else if (IS_ARG_EQ(s, "legacy")) {
+            params->bLegacyGen = true;
+        }
+#if defined(__linux__) && defined(ZEROCOPY)
+        else if (IS_ARG_EQ(s, "zerocopy")) {
+            params->bZeroCopy = true;
+        }
+#endif
+        else {
+            printf("\nERROR: '-%s' is not supported\n", s);
+            return false;
+        }
+    }
+
+    if (params->bLegacyGen == true && params->bZeroCopy == true) {
+        printf("\nERROR: -zerocopy is not supported in legacy gen (-legacy)\n");
+        return false;
     }
 
     if (!params->inmodelName) {
@@ -130,6 +184,48 @@ bool ParseArgsAndValidate(int argc, char *argv[], Params *params, ParamGroup gro
     }
 
     return true;
+}
+
+void *InitAcceleratorHandle(mfxSession session, int *fd) {
+    mfxIMPL impl;
+    mfxStatus sts = MFXQueryIMPL(session, &impl);
+    if (sts != MFX_ERR_NONE)
+        return NULL;
+
+#ifdef LIBVA_SUPPORT
+    if ((impl & MFX_IMPL_VIA_VAAPI) == MFX_IMPL_VIA_VAAPI) {
+        if (!fd)
+            return NULL;
+        VADisplay va_dpy = NULL;
+        // initialize VAAPI context and set session handle (req in Linux)
+        *fd = open("/dev/dri/renderD128", O_RDWR);
+        if (*fd >= 0) {
+            va_dpy = vaGetDisplayDRM(*fd);
+            if (va_dpy) {
+                int major_version = 0, minor_version = 0;
+                if (VA_STATUS_SUCCESS == vaInitialize(va_dpy, &major_version, &minor_version)) {
+                    MFXVideoCORE_SetHandle(session,
+                                           static_cast<mfxHandleType>(MFX_HANDLE_VA_DISPLAY),
+                                           va_dpy);
+                }
+            }
+        }
+        return va_dpy;
+    }
+#endif
+
+    return NULL;
+}
+
+void FreeAcceleratorHandle(void *accelHandle, int fd) {
+#ifdef LIBVA_SUPPORT
+    if (accelHandle) {
+        vaTerminate((VADisplay)accelHandle);
+    }
+    if (fd) {
+        close(fd);
+    }
+#endif
 }
 
 // Shows implementation info with oneVPL
@@ -191,6 +287,91 @@ void ShowImplementationInfo(mfxLoader loader, mfxU32 implnum) {
     printf("    Path: %s\n\n", reinterpret_cast<mfxChar *>(implPath));
     MFXDispReleaseImplDescription(loader, implPath);
 #endif
+}
+
+mfxU32 GetSurfaceSize(mfxU32 FourCC, mfxU32 width, mfxU32 height) {
+    mfxU32 nbytes = 0;
+
+    switch (FourCC) {
+        case MFX_FOURCC_I420:
+        case MFX_FOURCC_NV12:
+            nbytes = width * height + (width >> 1) * (height >> 1) + (width >> 1) * (height >> 1);
+            break;
+        case MFX_FOURCC_I010:
+        case MFX_FOURCC_P010:
+            nbytes = width * height + (width >> 1) * (height >> 1) + (width >> 1) * (height >> 1);
+            nbytes *= 2;
+            break;
+        case MFX_FOURCC_RGB4:
+            nbytes = width * height * 4;
+            break;
+        default:
+            break;
+    }
+
+    return nbytes;
+}
+
+int GetFreeSurfaceIndex(mfxFrameSurface1 *SurfacesPool, mfxU16 nPoolSize) {
+    for (mfxU16 i = 0; i < nPoolSize; i++) {
+        if (0 == SurfacesPool[i].Data.Locked)
+            return i;
+    }
+    return MFX_ERR_NOT_FOUND;
+}
+
+mfxStatus AllocateExternalSystemMemorySurfacePool(mfxU8 **buf,
+                                                  mfxFrameSurface1 *surfpool,
+                                                  mfxFrameInfo frame_info,
+                                                  mfxU16 surfnum) {
+    // initialize surface pool (I420, RGB4 format)
+    mfxU32 surfaceSize = GetSurfaceSize(frame_info.FourCC, frame_info.Width, frame_info.Height);
+    if (!surfaceSize)
+        return MFX_ERR_MEMORY_ALLOC;
+
+    size_t framePoolBufSize = static_cast<size_t>(surfaceSize) * surfnum;
+    *buf                    = reinterpret_cast<mfxU8 *>(calloc(framePoolBufSize, 1));
+
+    mfxU16 surfW;
+    mfxU16 surfH = frame_info.Height;
+
+    if (frame_info.FourCC == MFX_FOURCC_RGB4) {
+        surfW = frame_info.Width * 4;
+
+        for (mfxU32 i = 0; i < surfnum; i++) {
+            surfpool[i]            = { 0 };
+            surfpool[i].Info       = frame_info;
+            size_t buf_offset      = static_cast<size_t>(i) * surfaceSize;
+            surfpool[i].Data.B     = *buf + buf_offset;
+            surfpool[i].Data.G     = surfpool[i].Data.B + 1;
+            surfpool[i].Data.R     = surfpool[i].Data.B + 2;
+            surfpool[i].Data.A     = surfpool[i].Data.B + 3;
+            surfpool[i].Data.Pitch = surfW;
+        }
+    }
+    else {
+        surfW = (frame_info.FourCC == MFX_FOURCC_P010) ? frame_info.Width * 2 : frame_info.Width;
+
+        for (mfxU32 i = 0; i < surfnum; i++) {
+            surfpool[i]            = { 0 };
+            surfpool[i].Info       = frame_info;
+            size_t buf_offset      = static_cast<size_t>(i) * surfaceSize;
+            surfpool[i].Data.Y     = *buf + buf_offset;
+            surfpool[i].Data.U     = *buf + buf_offset + (surfW * surfH);
+            surfpool[i].Data.V     = surfpool[i].Data.U + ((surfW / 2) * (surfH / 2));
+            surfpool[i].Data.Pitch = surfW;
+        }
+    }
+
+    return MFX_ERR_NONE;
+}
+
+void FreeExternalSystemMemorySurfacePool(mfxU8 *dec_buf, mfxFrameSurface1 *surfpool) {
+    if (dec_buf)
+        free(dec_buf);
+
+    if (surfpool)
+        free(surfpool);
 }
 
 // Read encoded stream from file

@@ -11,7 +11,7 @@
   "ciTests": {
     "linux": [
       { "id": "builds and runs successfully with CMake",
-        "env": ["RESULTSTR='Decoded 30 frames and detected objects'","RESULTSTR='No implementation'"],
+        "env": ["RESULTSTR='Decoded 30 frames and detected objects'","RESULTSTR='ERROR: cannot create session -- no implementations meet selection criteria'"],
         "steps": [
           "source /opt/intel/openvino_2022/setupvars.sh",
           "mkdir build",
