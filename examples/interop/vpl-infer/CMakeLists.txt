@@ -105,9 +105,10 @@ if(UNIX)
     message("Using OpenCL library ${OpenCL_LIBRARIES}")
     target_link_libraries(${TARGET} ${OpenCL_LIBRARIES})
 
-    # check opencl cpp headers existence for openvino cldnn using dpkg-query it
-    # comes with opencl-clhpp-headers, which is one of dependencies of opencl-
-    # headers package dpkg-query result is 0 if opencl-headers package exists
+    # check opencl cpp headers existence for openvino Compute Library for Deep
+    # Neural Networks (CLDNN) using dpkg-query it comes with opencl-clhpp-
+    # headers, which is one of dependencies of opencl- headers package dpkg-
+    # query result is 0 if opencl-headers package exists
     execute_process(
       COMMAND dpkg-query -s opencl-headers
       WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
