@@ -149,6 +149,32 @@ public:
                                      uint32_t pitch,
                                      uint32_t bo_handle,
                                      uint32_t* buf_id);
+    typedef int (*drmSetClientCap_type)(int fd, uint64_t capability, uint64_t value);
+    typedef drmModeObjectPropertiesPtr (*drmModeObjectGetProperties_type)(int fd,
+                                                                          uint32_t objectId,
+                                                                          uint32_t objectType);
+    typedef void (*drmModeFreeObjectProperties_type)(drmModeObjectPropertiesPtr ptr);
+    typedef drmModeAtomicReqPtr (*drmModeAtomicAlloc_type)();
+    typedef int (*drmModeAtomicAddProperty_type)(drmModeAtomicReqPtr req,
+                                                 uint32_t objectId,
+                                                 uint32_t propertyId,
+                                                 uint64_t value);
+    typedef int (*drmModeAtomicCommit_type)(int fd,
+                                            drmModeAtomicReqPtr req,
+                                            uint32_t flags,
+                                            void* user_data);
+    typedef void (*drmModeAtomicFree_type)(drmModeAtomicReqPtr req);
+    typedef int (*drmModeCreatePropertyBlob_type)(int fd, const void* data, int size, uint32_t* id);
+    typedef int (*drmModeObjectSetProperty_type)(int fd,
+                                                 uint32_t object_id,
+                                                 uint32_t object_type,
+                                                 uint32_t property_id,
+                                                 uint64_t value);
+    typedef int (*drmModeDestroyPropertyBlob_type)(int fd, uint32_t id);
+    typedef drmModePropertyPtr (*drmModeGetProperty_type)(int fd, uint32_t propertyId);
+    typedef void (*drmModeFreeProperty_type)(drmModePropertyPtr ptr);
+    typedef drmModePropertyBlobPtr (*drmModeGetPropertyBlob_type)(int fd, uint32_t blob_id);
+    typedef void (*drmModeFreePropertyBlob_type)(drmModePropertyBlobPtr ptr);
     typedef int (*drmModeAddFB2WithModifiers_type)(int fd,
                                                    uint32_t width,
                                                    uint32_t height,
@@ -203,6 +229,20 @@ public:
     __DECLARE(drmIoctl);
     __DECLARE(drmModeAddFB);
     __DECLARE(drmModeAddFB2WithModifiers);
+    __DECLARE(drmSetClientCap);
+    __DECLARE(drmModeObjectGetProperties);
+    __DECLARE(drmModeFreeObjectProperties);
+    __DECLARE(drmModeAtomicAlloc);
+    __DECLARE(drmModeAtomicAddProperty);
+    __DECLARE(drmModeAtomicCommit);
+    __DECLARE(drmModeAtomicFree);
+    __DECLARE(drmModeCreatePropertyBlob);
+    __DECLARE(drmModeObjectSetProperty);
+    __DECLARE(drmModeDestroyPropertyBlob);
+    __DECLARE(drmModeGetProperty);
+    __DECLARE(drmModeFreeProperty);
+    __DECLARE(drmModeGetPropertyBlob);
+    __DECLARE(drmModeFreePropertyBlob);
     __DECLARE(drmModeFreeConnector);
     __DECLARE(drmModeFreeCrtc);
     __DECLARE(drmModeFreeEncoder);

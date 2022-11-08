@@ -268,6 +268,9 @@ mfxStatus vaapiFrameAllocator::AllocImpl(mfxFrameAllocRequest* request,
             else if (va_fourcc == VA_FOURCC_NV12) {
                 format = VA_RT_FORMAT_YUV420;
             }
+            else if (va_fourcc == VA_FOURCC_P010) {
+                format = VA_RT_FORMAT_YUV420_10;
+            }
             else if ((va_fourcc == VA_FOURCC_UYVY) || (va_fourcc == VA_FOURCC_YUY2)) {
                 format = VA_RT_FORMAT_YUV422;
             }

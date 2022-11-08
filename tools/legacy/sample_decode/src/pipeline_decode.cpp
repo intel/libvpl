@@ -388,6 +388,7 @@ mfxStatus CDecodingPipeline::Init(sInputParams* pParams) {
     if (pParams->bUseFullColorRange) {
         m_bVppFullColorRange = pParams->bUseFullColorRange;
     }
+
     if (pParams->bDxgiFs) {
         m_bDxgiFs = pParams->bDxgiFs;
     }

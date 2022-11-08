@@ -170,8 +170,17 @@ drmRenderer::drmRenderer(int fd, mfxI32 monitorType)
         : m_fd(fd),
           m_bufmgr(NULL),
           m_overlay_wrn(true),
+          m_bSentHDR(false),
+          m_bHdrSupport(false),
+    #if defined(DRM_LINUX_HDR_SUPPORT)
+          m_hdrMetaData({}),
+    #endif
           m_pCurrentRenderTargetSurface(NULL) {
-    bool res               = false;
+    bool res = false;
+
+    if (m_drmlib.drmSetClientCap(m_fd, DRM_CLIENT_CAP_ATOMIC, 1) != 0)
+        throw std::invalid_argument("Failed to set atomic");
+
     uint32_t connectorType = getConnectorType(monitorType);
 
     if (monitorType == MFX_MONITOR_AUTO) {
@@ -195,14 +204,56 @@ drmRenderer::drmRenderer(int fd, mfxI32 monitorType)
                 m_mode.hdisplay,
                 m_mode.vdisplay,
                 m_mode.vrefresh);
+
+    drmSetColorSpace(false);
+    drmSendHdrMetaData(NULL, NULL, false);
 }
 
 drmRenderer::~drmRenderer() {
     m_drmlib.drmModeFreeCrtc(m_crtc);
+    m_drmlib.drmModeFreeObjectProperties(m_connectorProperties);
+    m_drmlib.drmModeFreeObjectProperties(m_crtcProperties);
+
     if (m_bufmgr) {
         m_drmintellib.drm_intel_bufmgr_destroy(m_bufmgr);
         m_bufmgr = NULL;
     }
+}
+
+drmModeObjectPropertiesPtr drmRenderer::getProperties(int fd, int objectId, int32_t objectTypeId) {
+    return m_drmlib.drmModeObjectGetProperties(fd, objectId, objectTypeId);
+}
+
+bool drmRenderer::getCRTCProperties(int fd, int crtcId) {
+    if (m_crtcProperties == NULL)
+        m_crtcProperties = getProperties(fd, crtcId, DRM_MODE_OBJECT_CRTC);
+    return m_crtcProperties != NULL;
+}
+
+uint32_t drmRenderer::getCRTCPropertyId(const char* propNameToFind) {
+    if (!getCRTCProperties(m_fd, m_crtcID)) {
+        return 0;
+    }
+
+    drmModePropertyPtr property;
+    uint32_t i, id = 0;
+    for (i = 0; i < m_crtcProperties->count_props; i++) {
+        property = m_drmlib.drmModeGetProperty(m_fd, m_crtcProperties->props[i]);
+        if (!strcmp(property->name, propNameToFind))
+            id = property->prop_id;
+
+        m_drmlib.drmModeFreeProperty(property);
+
+        if (id)
+            break;
+    }
+    return id;
+}
+
+bool drmRenderer::getConnectorProperties(int fd, int connectorId) {
+    if (m_connectorProperties == NULL)
+        m_connectorProperties = getProperties(fd, connectorId, DRM_MODE_OBJECT_CONNECTOR);
+    return m_connectorProperties != NULL;
 }
 
 bool drmRenderer::getConnector(drmModeRes* resource, uint32_t connector_type) {
@@ -219,7 +270,9 @@ bool drmRenderer::getConnector(drmModeRes* resource, uint32_t connector_type) {
                                 getConnectorName(connector->connector_type));
                     m_connector_type = connector->connector_type;
                     m_connectorID    = connector->connector_id;
-                    found            = setupConnection(resource, connector);
+                    m_connectorProperties =
+                        getProperties(m_fd, m_connectorID, DRM_MODE_OBJECT_CONNECTOR);
+                    found = setupConnection(resource, connector);
                     if (found)
                         msdk_printf(MSDK_STRING("drmrender: succeeded...\n"));
                     else
@@ -235,26 +288,132 @@ bool drmRenderer::getConnector(drmModeRes* resource, uint32_t connector_type) {
         }
     }
     msdk_printf(MSDK_STRING("drmrender: error: requested monitor not available\n"));
+    return found;
+}
+
+bool drmRenderer::drmDisplayHasHdr(const uint8_t* edid) {
+    uint8_t dataLen = 0;
+    const uint8_t* hdrDb;
+
+    if (!edid) {
+        msdk_printf(MSDK_STRING("drmrender: invalid EDID\n"));
+        return false;
+    }
+
+    hdrDb = edidFindExtendedDataBlock(edid, &dataLen, EDID_CEA_EXT_TAG_STATIC_METADATA);
+    if (hdrDb && dataLen >= 2) {
+        return true;
+    }
+
     return false;
+}
+
+const uint8_t* drmRenderer::edidFindExtendedDataBlock(const uint8_t* edid,
+                                                      uint8_t* dataLen,
+                                                      uint32_t blockTag) {
+    uint8_t d;
+    uint8_t tag;
+    uint8_t extendedTag;
+    uint8_t dbLen;
+    const uint8_t* dbPtr;
+    const uint8_t* ceaDbStart;
+    const uint8_t* ceaDbEnd;
+    const uint8_t* ceaExtBlk;
+
+    if (!edid) {
+        msdk_printf(MSDK_STRING("drmrender: no EDID in blob\n"));
+        return NULL;
+    }
+
+    ceaExtBlk = edidFindCeaExtensionBlock(edid);
+    if (!ceaExtBlk) {
+        msdk_printf(MSDK_STRING("drmrender: no CEA extension block available\n"));
+        return NULL;
+    }
+
+    /* CEA DB starts at blk[4] and ends at blk[d] */
+    d          = ceaExtBlk[2];
+    ceaDbStart = ceaExtBlk + 4;
+    ceaDbEnd   = ceaExtBlk + d - 1;
+
+    for (dbPtr = ceaDbStart; dbPtr < ceaDbEnd; dbPtr += (dbLen + 1)) {
+        /* First data byte contains db length and tag */
+        dbLen = dbPtr[0] & 0x1F;
+        tag   = dbPtr[0] >> 5;
+
+        /* Metadata bock is extended tag block */
+        if (tag != EDID_CEA_TAG_EXTENDED)
+            continue;
+
+        /* Extended block uses one extra byte for extended tag */
+        extendedTag = dbPtr[1];
+        if (extendedTag != blockTag)
+            continue;
+
+        *dataLen = dbLen - 1;
+        return dbPtr + 2;
+    }
+
+    return NULL;
+}
+
+const uint8_t* drmRenderer::edidFindCeaExtensionBlock(const uint8_t* edid) {
+    uint8_t ext_blks;
+    int blk;
+    const uint8_t* ext = NULL;
+
+    if (!edid) {
+        msdk_printf(MSDK_STRING("drmrender: no EDID\n"));
+        return NULL;
+    }
+
+    ext_blks = edid[126];
+    if (!ext_blks) {
+        msdk_printf(MSDK_STRING("drmrender: EDID doesn't have any extension block\n"));
+        return NULL;
+    }
+
+    for (blk = 0; blk < ext_blks; blk++) {
+        ext = edid + EDID_BLOCK_LENGTH * (blk + 1);
+        if (ext[0] == EDID_CEA_EXT_ID)
+            break;
+    }
+
+    if (blk == ext_blks)
+        return NULL;
+
+    return ext;
 }
 
 bool drmRenderer::setupConnection(drmModeRes* resource, drmModeConnector* connector) {
     bool ret = false;
     drmModeEncoderPtr encoder;
+    uint64_t edidBlobId;
+    drmModePropertyBlobRes* edidBlob;
 
     if (!connector->count_modes) {
         msdk_printf(MSDK_STRING("drmrender: error: no valid modes for %s connector\n"),
                     getConnectorName(connector->connector_type));
         return false;
     }
+
     // we will use the first available mode - that's always mode with the highest resolution
     m_mode = connector->modes[0];
+
+    edidBlobId = getConnectorPropertyValue("EDID");
+    edidBlob   = m_drmlib.drmModeGetPropertyBlob(m_fd, edidBlobId);
+
+    if (drmDisplayHasHdr(static_cast<uint8_t const*>(edidBlob->data)))
+        m_bHdrSupport = true;
+
+    m_drmlib.drmModeFreePropertyBlob(edidBlob);
 
     // trying encoder+crtc which are currently attached to connector
     m_encoderID = connector->encoder_id;
     encoder     = m_drmlib.drmModeGetEncoder(m_fd, m_encoderID);
     if (encoder) {
-        m_crtcID = encoder->crtc_id;
+        m_crtcID         = encoder->crtc_id;
+        m_crtcProperties = getProperties(m_fd, m_crtcID, DRM_MODE_OBJECT_CRTC);
         for (int j = 0; j < resource->count_crtcs; ++j) {
             if (m_crtcID == resource->crtcs[j]) {
                 m_crtcIndex = j;
@@ -313,6 +472,9 @@ bool drmRenderer::getPlane() {
             if (plane->possible_crtcs & (1 << m_crtcIndex)) {
                 for (uint32_t j = 0; j < plane->count_formats; ++j) {
                     if ((plane->formats[j] == DRM_FORMAT_XRGB8888) ||
+    #if defined(DRM_LINUX_P010_SUPPORT)
+                        (plane->formats[j] == DRM_FORMAT_P010) ||
+    #endif
                         (plane->formats[j] == DRM_FORMAT_NV12)) {
                         m_planeID = plane->plane_id;
                         m_drmlib.drmModeFreePlane(plane);
@@ -363,6 +525,154 @@ bool drmRenderer::restore() {
     }
     dropMaster();
     return true;
+}
+
+uint32_t drmRenderer::getConnectorPropertyId(const char* propNameToFind) {
+    uint32_t id = 0;
+
+    if (!getConnectorProperties(m_fd, m_connectorID)) {
+        return id;
+    }
+
+    drmModePropertyPtr property;
+    uint32_t i;
+
+    for (i = 0; i < m_connectorProperties->count_props; i++) {
+        property = m_drmlib.drmModeGetProperty(m_fd, m_connectorProperties->props[i]);
+        if (!property)
+            continue;
+        if (!strcmp(property->name, propNameToFind))
+            id = property->prop_id;
+
+        m_drmlib.drmModeFreeProperty(property);
+        property = NULL;
+
+        if (id)
+            break;
+    }
+
+    return id;
+}
+
+uint32_t drmRenderer::getConnectorPropertyValue(const char* propNameToFind) {
+    uint32_t value = 0;
+
+    if (!getConnectorProperties(m_fd, m_connectorID)) {
+        return value;
+    }
+
+    drmModePropertyPtr property;
+    uint32_t i;
+
+    for (i = 0; i < m_connectorProperties->count_props; i++) {
+        property = m_drmlib.drmModeGetProperty(m_fd, m_connectorProperties->props[i]);
+        if (!property)
+            continue;
+        if (!strcmp(property->name, propNameToFind))
+            value = m_connectorProperties->prop_values[i];
+
+        m_drmlib.drmModeFreeProperty(property);
+        property = NULL;
+
+        if (value)
+            break;
+    }
+
+    return value;
+}
+
+int drmRenderer::drmSetColorSpace(bool enableBT2020) {
+    uint32_t property_colorspace_id = getConnectorPropertyId("Colorspace");
+
+    if (!property_colorspace_id)
+        return -1;
+
+    int ret = m_drmlib.drmModeObjectSetProperty(
+        m_fd,
+        m_connectorID,
+        DRM_MODE_OBJECT_CONNECTOR,
+        property_colorspace_id,
+        (enableBT2020) ? DRM_MODE_COLORIMETRY_BT2020_RGB : DRM_MODE_COLORIMETRY_DEFAULT);
+
+    return ret;
+}
+
+int drmRenderer::drmSendHdrMetaData(mfxExtMasteringDisplayColourVolume* displayColor,
+                                    mfxExtContentLightLevelInfo* contentLight,
+                                    bool enableHDR) {
+    #if defined(DRM_LINUX_HDR_SUPPORT)
+    int ret;
+    uint32_t propertyHdrId = getConnectorPropertyId("HDR_OUTPUT_METADATA");
+    memset(&m_hdrMetaData.data.hdmi_metadata_type1,
+           0,
+           sizeof(m_hdrMetaData.data.hdmi_metadata_type1));
+
+    if (!propertyHdrId)
+        return -1;
+
+    if (m_hdrMetaData.hdrBlobId) {
+        m_drmlib.drmModeDestroyPropertyBlob(m_fd, m_hdrMetaData.hdrBlobId);
+        m_hdrMetaData.hdrBlobId = 0;
+    }
+
+    drmModeAtomicReqPtr request = m_drmlib.drmModeAtomicAlloc();
+    if (!request) {
+        return -1;
+    }
+
+    if (enableHDR) {
+        m_hdrMetaData.data.metadata_type            = DRM_STATIC_METADATA_TYPE1;
+        m_hdrMetaData.data.hdmi_metadata_type1.eotf = DRM_METADATA_EOTF_SMPTE_2084;
+        if (m_hdrMetaData.data.hdmi_metadata_type1.eotf) {
+            if (displayColor->InsertPayloadToggle == MFX_PAYLOAD_IDR) {
+                m_hdrMetaData.data.hdmi_metadata_type1.display_primaries[0].x =
+                    displayColor->DisplayPrimariesX[0];
+                m_hdrMetaData.data.hdmi_metadata_type1.display_primaries[0].y =
+                    displayColor->DisplayPrimariesY[0];
+                m_hdrMetaData.data.hdmi_metadata_type1.display_primaries[1].x =
+                    displayColor->DisplayPrimariesX[1];
+                m_hdrMetaData.data.hdmi_metadata_type1.display_primaries[1].y =
+                    displayColor->DisplayPrimariesY[1];
+                m_hdrMetaData.data.hdmi_metadata_type1.display_primaries[2].x =
+                    displayColor->DisplayPrimariesX[2];
+                m_hdrMetaData.data.hdmi_metadata_type1.display_primaries[2].y =
+                    displayColor->DisplayPrimariesY[2];
+                m_hdrMetaData.data.hdmi_metadata_type1.white_point.x = displayColor->WhitePointX;
+                m_hdrMetaData.data.hdmi_metadata_type1.white_point.y = displayColor->WhitePointY;
+            }
+            if (contentLight->InsertPayloadToggle == MFX_PAYLOAD_IDR) {
+                m_hdrMetaData.data.hdmi_metadata_type1.min_display_mastering_luminance =
+                    displayColor->MinDisplayMasteringLuminance;
+                m_hdrMetaData.data.hdmi_metadata_type1.max_display_mastering_luminance =
+                    displayColor->MaxDisplayMasteringLuminance;
+                m_hdrMetaData.data.hdmi_metadata_type1.max_cll = contentLight->MaxContentLightLevel;
+                m_hdrMetaData.data.hdmi_metadata_type1.max_fall =
+                    contentLight->MaxPicAverageLightLevel;
+            }
+        }
+    }
+
+    ret = m_drmlib.drmModeCreatePropertyBlob(m_fd,
+                                             &m_hdrMetaData.data,
+                                             sizeof(hdr_output_metadata),
+                                             &m_hdrMetaData.hdrBlobId);
+    if (ret)
+        return -1;
+
+    ret = m_drmlib.drmModeAtomicAddProperty(request,
+                                            m_connectorID,
+                                            propertyHdrId,
+                                            m_hdrMetaData.hdrBlobId);
+    if (ret < 0)
+        return -1;
+
+    ret = m_drmlib.drmModeAtomicCommit(m_fd, request, DRM_MODE_ATOMIC_ALLOW_MODESET, NULL);
+    if (ret)
+        return -1;
+
+    m_drmlib.drmModeAtomicFree(request);
+    #endif
+    return 0;
 }
 
 void* drmRenderer::acquire(mfxMemId mid) {
@@ -418,10 +728,19 @@ void* drmRenderer::acquire(mfxMemId mid) {
         pitches[0] = vmid->m_image.pitches[0];
         offsets[0] = vmid->m_image.offsets[0];
 
-        if (VA_FOURCC_NV12 == vmid->m_fourcc) {
+        if (VA_FOURCC_NV12 == vmid->m_fourcc
+    #if defined(DRM_LINUX_P010_SUPPORT)
+            || VA_FOURCC_P010 == vmid->m_fourcc
+    #endif
+        ) {
             struct drm_i915_gem_set_tiling set_tiling;
 
             pixel_format = DRM_FORMAT_NV12;
+    #if defined(DRM_LINUX_P010_SUPPORT)
+            if (VA_FOURCC_P010 == vmid->m_fourcc)
+                pixel_format = DRM_FORMAT_P010;
+    #endif
+
             memset(&set_tiling, 0, sizeof(set_tiling));
             set_tiling.handle      = flink_open.handle;
             set_tiling.tiling_mode = I915_TILING_Y;
@@ -515,6 +834,29 @@ mfxStatus drmRenderer::render(mfxFrameSurface1* pSurface) {
             m_overlay_wrn = false;
             msdk_printf(MSDK_STRING("drmrender: warning: rendering via OVERLAY plane\n"));
         }
+    // to support direct panel tonemap for 8K@60 HDR playback via CH7218 connected
+    // to 8K HDR panel.
+    #if (MFX_VERSION >= 2006)
+        mfxExtMasteringDisplayColourVolume* displayColor =
+            (mfxExtMasteringDisplayColourVolume*)GetExtBuffer(
+                pSurface->Data.ExtParam,
+                pSurface->Data.NumExtParam,
+                MFX_EXTBUFF_MASTERING_DISPLAY_COLOUR_VOLUME);
+        mfxExtContentLightLevelInfo* contentLight =
+            (mfxExtContentLightLevelInfo*)GetExtBuffer(pSurface->Data.ExtParam,
+                                                       pSurface->Data.NumExtParam,
+                                                       MFX_EXTBUFF_CONTENT_LIGHT_LEVEL_INFO);
+
+        if (!m_bSentHDR && m_bHdrSupport && (displayColor && contentLight)) {
+            if (displayColor->InsertPayloadToggle == MFX_PAYLOAD_IDR ||
+                contentLight->InsertPayloadToggle == MFX_PAYLOAD_IDR) {
+                // both panel and bitstream have HDR support
+                if (drmSetColorSpace(true) || drmSendHdrMetaData(displayColor, contentLight, true))
+                    return MFX_ERR_UNKNOWN;
+            }
+            m_bSentHDR = true;
+        }
+    #endif
         // surface in the framebuffer exactly does NOT match crtc scanout port,
         // and we can only use overlay technique with possible resize (depending on the driver))
         ret = m_drmlib.drmModeSetPlane(m_fd,

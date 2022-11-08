@@ -176,6 +176,25 @@ if(CMAKE_SYSTEM_NAME MATCHES Linux)
           target_compile_definitions(${TARGET} PUBLIC LIBVA_DRM_SUPPORT)
           target_include_directories(${TARGET}
                                      PUBLIC ${PKG_LIBDRM_INCLUDE_DIRS})
+
+          if("${PKG_LIBDRM_VERSION}" VERSION_GREATER 2.4.104)
+            target_compile_definitions(${TARGET} PUBLIC DRM_LINUX_HDR_SUPPORT)
+          else()
+            message(
+              STATUS
+                "libdrm version ${PKG_LIBDRM_VERSION} does not support hdr_output_metadata header"
+            )
+          endif()
+
+          if("${PKG_LIBDRM_VERSION}" VERSION_GREATER 2.4.97)
+            target_compile_definitions(${TARGET} PUBLIC DRM_LINUX_P010_SUPPORT)
+          else()
+            message(
+              STATUS
+                "libdrm version ${PKG_LIBDRM_VERSION} does not support DRM_FORMAT_P010"
+            )
+          endif()
+
         else()
           message(
             SEND_ERROR
