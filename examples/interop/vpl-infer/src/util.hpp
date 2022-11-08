@@ -237,7 +237,7 @@ void ShowImplementationInfo(mfxLoader loader, mfxU32 implnum) {
     if (!idesc || (sts != MFX_ERR_NONE))
         return;
 
-    printf("\nOneVPL Implementation details:\n");
+    printf("\noneVPL Implementation details:\n");
     printf("    ApiVersion:           %hu.%hu  \n",
            idesc->ApiVersion.Major,
            idesc->ApiVersion.Minor);

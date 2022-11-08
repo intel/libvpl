@@ -23,7 +23,7 @@ To use oneVPL for video processing you need to install at least one implementati
 - [oneVPL-intel-gpu](https://github.com/oneapi-src/oneVPL-intel-gpu) for use on Intel Xe graphics and newer
 - [Media SDK](https://github.com/Intel-Media-SDK/MediaSDK) for use on legacy Intel graphics
 
-## OneVPL Architecture
+## oneVPL Architecture
 ```mermaid
 graph TD;
     VPL[oneVPL Dispatcher]-->oneVPL-cpu;
@@ -47,7 +47,7 @@ Runtime loaded by oneVPL Dispatcher and their Microsoft* DirectX* support:
 | EHL (Elkhart Lake)                         |:heavy_check_mark:|                  | DX9/DX11                    |
 | SG1                                        |:heavy_check_mark:|                  | DX9/DX11                    |
 | TGL (Tiger Lake)                           |:heavy_check_mark:|:heavy_check_mark:| DX9/DX11*                   |
-| DG1 (Iris® Xe MAX)                         |:heavy_check_mark:|:heavy_check_mark:| DX11*                       |
+| DG1 (IrisÂ® Xe MAX)                         |:heavy_check_mark:|:heavy_check_mark:| DX11*                       |
 | RKL (Rocket Lake)                          |                  |:heavy_check_mark:| DX11                        |
 | ADL-S (Alder Lake S)                       |                  |:heavy_check_mark:| DX11                        |
 | ADL-P (Alder Lake P)                       |                  |:heavy_check_mark:| DX11                        |
@@ -62,7 +62,7 @@ You can install oneVPL:
 - from [oneVPL home page](https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/onevpl.html) as a part of Intel&reg; oneAPI Base Toolkit.
 - from source code.  See [Installation from Sources](INSTALL.md) for details.
 
-For more details on installation options and procedures, see the [Intel® oneAPI Video Processing Library Installation Guide](https://software.intel.com/content/www/us/en/develop/articles/onevpl-installation-guide.html).
+For more details on installation options and procedures, see the [IntelÂ® oneAPI Video Processing Library Installation Guide](https://software.intel.com/content/www/us/en/develop/articles/onevpl-installation-guide.html).
 
 ## Developer Usage
 

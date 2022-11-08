@@ -198,7 +198,7 @@ libva info: Trying to open /usr/lib/x86_64-linux-gnu/dri/iHD_drv_video.so
 libva info: Found init function __vaDriverInit_1_15
 libva info: va_openDriver() returns 0
 
-OneVPL Implementation details:
+oneVPL Implementation details:
     ApiVersion:           2.7
     Implementation type:  HW
     AccelerationMode via: VAAPI
