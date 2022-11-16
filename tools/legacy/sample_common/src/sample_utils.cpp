@@ -25,6 +25,7 @@
 #define LIBMFXSW_MASK "libmfxsw"
 #define LIBMFXHW_MASK "libmfxhw"
 #define ONEVPLSW_MASK "libvplswref"
+#define ONEVPLHW_MASK "libmfx-gen"
 
 #if defined(_WIN32) || defined(_WIN64)
 
@@ -41,12 +42,6 @@
 
     #include <link.h>
     #include <string>
-
-    #if defined(__x86_64__)
-        #define ONEVPL_MASK "libmfx-gen"
-    #else
-        #error Unsupported architecture
-    #endif
 
 #endif // #if defined(_WIN32) || defined(_WIN64)
 
@@ -2897,7 +2892,7 @@ int PrintLibMFXPath(struct dl_phdr_info* info, size_t size, void* data) {
     if (libPath.find(LIBMFXSW_MASK) != std::string::npos ||
         libPath.find(LIBMFXHW_MASK) != std::string::npos ||
         libPath.find(ONEVPLSW_MASK) != std::string::npos ||
-        libPath.find(ONEVPL_MASK) != std::string::npos) {
+        libPath.find(ONEVPLHW_MASK) != std::string::npos) {
         if (data) {
             msdk_printf(MSDK_STRING("   %d: %s \n"), *((int*)data), info->dlpi_name);
             *(int*)data += 1;

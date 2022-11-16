@@ -24,6 +24,11 @@ set(ENABLE_VA
     ${VA_DEFAULT}
     CACHE BOOL "Enable VA support in tools.")
 
+if(NOT ENABLE_VA)
+  message(STATUS "VA support disabled. Skipping metrics_monitor.")
+  return()
+endif()
+
 # Set default for ENABLE_DRM
 if(VA_DEFAULT AND PKG_LIBDRM_FOUND)
   set(DRM_DEFAULT ON)

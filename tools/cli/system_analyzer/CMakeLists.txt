@@ -26,6 +26,11 @@ else()
   return()
 endif()
 
+if(NOT ENABLE_VA)
+  message(STATUS "VA support disabled. Skipping system_analyzer.")
+  return()
+endif()
+
 set(TARGET system_analyzer)
 set(SOURCES system_analyzer.cpp)
 

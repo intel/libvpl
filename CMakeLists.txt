@@ -44,6 +44,13 @@ if(MSVC)
   endif()
 endif()
 
+# WA for missing definition in 32-bit arm-linux compiler
+string(FIND ${CMAKE_CXX_COMPILER} "arm-linux" IS_ARM_32BIT)
+if(${IS_ARM_32BIT} GREATER_EQUAL 0)
+  message(STATUS "Setting __ILP32__")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D__ILP32__")
+endif()
+
 # Project options
 option(BUILD_SHARED_LIBS "Build shared instead of static libraries." ON)
 option(BUILD_TESTS "Build tests." OFF)
