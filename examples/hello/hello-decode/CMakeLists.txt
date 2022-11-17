@@ -74,3 +74,10 @@ endif()
 
 install(TARGETS ${TARGET} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
                                   COMPONENT dev)
+
+include(CTest)
+set(VPL_CONTENT_DIR
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../content
+    CACHE PATH "Path to content.")
+add_test(NAME ${TARGET}-test COMMAND ${TARGET} ${IMPL_ARG} -i
+                                     "${VPL_CONTENT_DIR}/cars_320x240.h265")

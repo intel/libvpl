@@ -89,3 +89,16 @@ else()
   install(TARGETS ${TARGET} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
                                     COMPONENT dev)
 endif()
+
+include(CTest)
+set(VPL_CONTENT_DIR
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../content
+    CACHE PATH "Path to content.")
+if(IMPL_ARG EQUAL -hw)
+  set(content_file cars_320x240.nv12)
+else()
+  set(content_file cars_320x240.i420)
+endif()
+add_test(NAME ${TARGET}-test
+         COMMAND ${TARGET} ${IMPL_ARG} -i "${VPL_CONTENT_DIR}/${content_file}"
+                 -w 320 -h 240)

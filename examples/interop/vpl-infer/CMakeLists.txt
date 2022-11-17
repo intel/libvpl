@@ -129,3 +129,12 @@ if(UNIX)
     message(FATAL_ERROR "OpenCL not found")
   endif()
 endif()
+
+include(CTest)
+set(VPL_CONTENT_DIR
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../content
+    CACHE PATH "Path to content.")
+add_test(
+  NAME ${TARGET}-test
+  COMMAND ${TARGET} -i "${VPL_CONTENT_DIR}/cars_320x240.h265" -m
+          "${VPL_CONTENT_DIR}/public/mobilenet-ssd/FP32/mobilenet-ssd.xml")

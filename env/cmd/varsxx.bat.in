@@ -38,4 +38,5 @@ IF DEFINED PKG_CONFIG_PATH (
 ) ELSE (
   set "PKG_CONFIG_PATH=%VPL_PREFIX%\@_install_pkgconfigdir@"
 )
+set "VPL_EXAMPLES_PATH=%VPL_PREFIX%\@_install_exampledir@"
 set VPL_PREFIX=

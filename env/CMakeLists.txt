@@ -15,6 +15,7 @@ file(TO_NATIVE_PATH "${env_rel_prefix}" env_rel_prefix)
 file(TO_NATIVE_PATH "${CMAKE_INSTALL_INCLUDEDIR}" _install_includedir)
 file(TO_NATIVE_PATH "${CMAKE_INSTALL_LIBDIR}" _install_libdir)
 file(TO_NATIVE_PATH "${CMAKE_INSTALL_BINDIR}" _install_bindir)
+file(TO_NATIVE_PATH "${ONEAPI_INSTALL_EXAMPLEDIR}" _install_exampledir)
 
 if(WIN32)
   install(

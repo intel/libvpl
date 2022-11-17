@@ -71,3 +71,6 @@ if(UNIX)
     message(STATUS "Building ${TARGET} without hardware support")
   endif()
 endif()
+
+include(CTest)
+add_test(NAME ${TARGET}-test COMMAND ${TARGET})
