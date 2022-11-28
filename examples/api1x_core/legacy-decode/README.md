@@ -1,7 +1,7 @@
-# `legacy-vpp` Sample
+# `legacy-decode` Sample
 
-This sample shows how to use the oneAPI Video Processing Library (oneVPL) to
-perform a simple video processing using 1.x common APIs.
+This sample shows how to use the oneAPI Video Processing Library (oneVPL) 1.35 common API to
+perform a simple video decode.
 
 | Optimized for    | Description
 |----------------- | ----------------------------------------
@@ -9,26 +9,26 @@ perform a simple video processing using 1.x common APIs.
 | Hardware         | Compatible with Intel® oneAPI Video Processing Library(oneVPL) GPU implementation, which can be found at https://github.com/oneapi-src/oneVPL-intel-gpu 
 |                  | and Intel® Media SDK GPU implementation, which can be found at https://github.com/Intel-Media-SDK/MediaSDK
 | Software         | Intel® oneAPI Video Processing Library(oneVPL) CPU implementation
-| What You Will Learn | How to use oneVPL to resize an I420 raw video file
+| What You Will Learn | How to use oneVPL to decode an H.265 encoded video file
 | Time to Complete | 5 minutes
 
 
 ## Purpose
 
-This sample is a command line application that takes a file containing a raw
-native format video elementary stream as an argument, processes it with oneVPL
-writes the resized output to `out.raw` in BGRA raw video format.
+This sample is a command line application that takes a file containing an H.265
+video elementary stream as an argument, decodes it with oneVPL and writes the
+decoded output to a the file `out.raw` in raw native format.
 
-Native raw input frame format: CPU=I420, GPU=NV12.
+Native raw frame format: CPU=I420, GPU=NV12.
 
 ## Key Implementation details
 
 | Configuration     | Default setting
 | ----------------- | ----------------------------------
 | Target device     | CPU
-| Input format      | I420
-| Output format     | BGRA
-| Output resolution | 640 x 480
+| Input format      | H.265 video elementary stream
+| Output format     | I420
+| Output resolution | same as input
 
 
 ## License
@@ -36,7 +36,7 @@ Native raw input frame format: CPU=I420, GPU=NV12.
 This code sample is licensed under MIT license.
 
 
-## Building the `legacy-vpp` Program
+## Building the `legacy-decode` Program
 
 ### On a Linux* System
 
@@ -67,7 +67,7 @@ Perform the following steps:
 
 4. Run the program using the following command:
    ```
-   ./legacy-vpp -sw -i ../../../content/cars_320x240.i420 -w 320 -h 240
+   ./legacy-decode -sw -i ../../../content/cars_320x240.h265
    ```
 
 
@@ -108,7 +108,7 @@ Perform the following steps:
 
 5. Run the program using the following command:
    ```
-   Release/legacy-vpp -sw -i ..\..\..\content\cars_320x240.i420 -w 320 -h 240
+   Release\legacy-decode -sw -i ..\..\..\content\cars_320x240.h265
    ```
 
 
@@ -117,21 +117,18 @@ Perform the following steps:
 ### Example of Output
 
 ```
-Implementation details:
-  ApiVersion:           2.4  
-  Implementation type:  SW
-  AccelerationMode via: NA 
-  Path: /opt/intel/oneapi/vpl/2021.4.0/lib/libvplswref64.so.1
-
-Processing ../../../content/cars_320x240.nv12 -> out.raw
-Processed 30 frames
+Implementation info
+      version = 2.2
+      impl = Software
+Decoding legacy-decode/../content/cars_320x240.h265 -> out.raw
+Decoded 30 frames
 ```
 
-You can find the output file `out.raw` in the build directory and its size is `640x480`.
+You can find the output file `out.raw` in the build directory.
 
 You can display the output with a video player that supports raw streams such as
 FFplay. You can use the following command to display the output with FFplay:
 
 ```
-ffplay -video_size 640x480 -pixel_format bgra -f rawvideo out.raw
+ffplay -video_size 320x240 -pixel_format yuv420p -f rawvideo out.raw
 ```

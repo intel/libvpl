@@ -1,29 +1,34 @@
-# `hello-createsession` Sample
+# `hello-encode` Sample
 
-This sample shows how to use the oneAPI Video Processing Library (oneVPL) to
-initialize a session.
+This sample shows how to use the oneAPI Video Processing Library (oneVPL) 2.X API to
+perform simple video encode.
 
 | Optimized for    | Description
 |----------------- | ----------------------------------------
 | OS               | Ubuntu* 20.04; Windows* 10
 | Hardware         | Compatible with Intel® oneAPI Video Processing Library(oneVPL) GPU implementation, which can be found at https://github.com/oneapi-src/oneVPL-intel-gpu 
 |                  | and Intel® Media SDK GPU implementation, which can be found at https://github.com/Intel-Media-SDK/MediaSDK
-| Software         | Intel® oneAPI Video Processing Library(oneVPL) 
-| What You Will Learn | How to use oneVPL sessions
+| Software         | Intel® oneAPI Video Processing Library(oneVPL)
+| What You Will Learn | How to use oneVPL to encode a raw video file to H.265
 | Time to Complete | 5 minutes
 
 
 ## Purpose
 
-This sample is a command line application that initializes a session.  This is a
-hello world case to showcase oneVPL architecture.
+This sample is a command line application that takes a file containing a raw
+format video elementary stream as an argument.  Using oneVPL, the application encodes and
+writes the encoded output to `a out.h265` in H.265 format.
 
+Native raw frame input format: CPU=I420, GPU=NV12.
 
 ## Key Implementation details
 
 | Configuration     | Default setting
 | ----------------- | ----------------------------------
-| Target device     | CPU 
+| Target device     | CPU
+| Input format      | I420
+| Output format     | H.265 video elementary stream
+| Output resolution | same as the input
 
 
 ## License
@@ -32,7 +37,7 @@ Code samples are licensed under the MIT license. See
 [License.txt](https://github.com/oneapi-src/oneAPI-samples/blob/master/License.txt) for details.
 
 
-## Building the `hello-createsession` Program
+## Building the `hello-encode` Program
 
 ### Include Files
 The oneVPL include folder is located at these locations on your development system:
@@ -69,7 +74,7 @@ Perform the following steps:
 
 4. Run the program with default arguments using the following command:
    ```
-   ./hello-createsession -sw
+   ./hello-encode -sw -i ../../../content/cars_320x240.i420 -w 320 -h 240
    ```
 
 ### On a Windows* System Using Visual Studio* Version 2017 or Newer
@@ -109,17 +114,31 @@ Perform the following steps:
 
 5. Run the program using the following command:
    ```
-   Release\hello-createsession -sw
+   Release\hello-encode -sw -i ..\..\..\content\cars_320x240.i420 -w 320 -h 240
    ```
 
 
 ## Running the Sample
 
-
-
 ### Example Output
 
 ```
-Session loaded: ApiVersion = 2.5 	impl= Software
+Implementation details:
+  ApiVersion:           2.5  
+  Implementation type:  SW
+  AccelerationMode via: NA 
+  Path: /opt/intel/oneapi/vpl/2021.6.0/lib/libvplswref64.so.1
+
+Encoding /home/test/intel_innersource/frameworks.media.onevpl.dispatcher/examples/hello/hello-encode/content/cars_320x240.i420 -> out.h265
+Input colorspace: I420 (aka yuv420p)
+Encoded 30 frames
 ```
 
+You can find the output file `out.h265` in the build directory.
+
+You can display the output with a video player that supports raw streams such as
+FFplay. You can use the following command to display the output with FFplay:
+
+```
+ffplay out.h265
+```

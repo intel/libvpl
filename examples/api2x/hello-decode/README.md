@@ -1,30 +1,34 @@
-# `hello-transcode` Sample
+# `hello-decode` Sample
 
-This sample shows how to use the oneAPI Video Processing Library (oneVPL) to
-perform simple video transcode.
+This sample shows how to use the oneAPI Video Processing Library (oneVPL) 2.X API to
+perform a simple video decode.
 
 | Optimized for    | Description
 |----------------- | ----------------------------------------
 | OS               | Ubuntu* 20.04; Windows* 10
-| Software         | Intel® oneAPI Video Processing Library(oneVPL) CPU implementation
-| What You Will Learn | How to use oneVPL to transcode a MJPEG encoded video file to H.265 encoded video file
+| Hardware         | Compatible with Intel® oneAPI Video Processing Library(oneVPL) GPU implementation, which can be found at https://github.com/oneapi-src/oneVPL-intel-gpu 
+|                  | and Intel® Media SDK GPU implementation, which can be found at https://github.com/Intel-Media-SDK/MediaSDK
+| Software         | Intel® oneAPI Video Processing Library(oneVPL)
+| What You Will Learn | How to use oneVPL to decode an H.265 encoded video file
 | Time to Complete | 5 minutes
 
-The hello-transcode sample currently only supports Software mode.  
 
 ## Purpose
 
-This sample is a command line application that takes a file containing a JPEG video elementary stream as an argument, decodes it, and encodes the output with oneVPL and writes the encoded output to the file `out.h265` in H.265 format.
+This sample is a command line application that takes a file containing an H.265
+video elementary stream as an argument. Using oneVPL, the application decodes 
+and writes the decoded output to a file `out.raw` in raw format.
 
+Native raw frame output format: CPU=I420, GPU=NV12.
 
 ## Key Implementation details
 
 | Configuration     | Default setting
 | ----------------- | ----------------------------------
 | Target device     | CPU
-| Input format      | MJPEG video elementary stream
-| Output format     | H.265 video elementary stream
-| Output resolution | same as input
+| Input format      | H.265 video elementary stream
+| Output format     | I420
+| Output resolution | same as the input
 
 
 ## License
@@ -33,7 +37,7 @@ Code samples are licensed under the MIT license. See
 [License.txt](https://github.com/oneapi-src/oneAPI-samples/blob/master/License.txt) for details.
 
 
-## Building the `hello-transcode` Program
+## Building the `hello-decode` Program
 
 ### Include Files
 The oneVPL include folder is located at these locations on your development system:
@@ -70,7 +74,7 @@ Perform the following steps:
 
 4. Run the program with default arguments using the following command:
    ```
-   ./hello-transcode -sw -i ../../../content/cars_320x240.mjpeg
+   ./hello-decode -sw -i ../../../content/cars_320x240.h265
    ```
 
 ### On a Windows* System Using Visual Studio* Version 2017 or Newer
@@ -110,13 +114,13 @@ Perform the following steps:
 
 5. Run the program using the following command:
    ```
-   Release\hello-transcode -sw -i ..\..\..\content\cars_320x240.mjpeg
+   Release\hello-decode -sw -i ..\..\..\content/cars_320x240.h265
    ```
 
 
 ## Running the Sample
 
-### Example of Output
+### Example Output
 
 ```
 Implementation details:
@@ -125,15 +129,18 @@ Implementation details:
   AccelerationMode via: NA 
   Path: /opt/intel/oneapi/vpl/2021.6.0/lib/libvplswref64.so.1
 
-Transcoding /home/test/intel_innersource/frameworks.media.onevpl.dispatcher/examples/hello/hello-transcode/../../content/cars_320x240.mjpeg -> out.h265
-Transcoded 30 frames
+Decoding /home/test/intel_innersource/frameworks.media.onevpl.dispatcher/examples/hello/hello-decode/content/cars_320x240.h265 -> out.raw
+Output colorspace: I420 (aka yuv420p)
+Decoded 30 frames
 ```
 
-You can find the output file `out.h265` in the build directory.
+You can find the output file `out.raw` in the build directory.
 
 You can display the output with a video player that supports raw streams such as
 FFplay. You can use the following command to display the output with FFplay:
 
 ```
-ffplay out.h265
+ffplay -video_size 320x240 -pixel_format yuv420p -f rawvideo out.raw
 ```
+
+Use nv12 for pixel_format for GPU output.

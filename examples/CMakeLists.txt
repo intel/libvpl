@@ -8,15 +8,15 @@
 cmake_minimum_required(VERSION 3.10.2)
 
 if(BUILD_EXAMPLES)
-  add_subdirectory(coreAPI/legacy-decode)
-  add_subdirectory(coreAPI/legacy-vpp)
-  add_subdirectory(coreAPI/legacy-encode)
-  add_subdirectory(hello/hello-createsession)
-  add_subdirectory(hello/hello-decode)
-  add_subdirectory(hello/hello-decvpp)
-  add_subdirectory(hello/hello-encode)
-  add_subdirectory(hello/hello-transcode)
-  add_subdirectory(hello/hello-vpp)
+  add_subdirectory(api1x_core/legacy-decode)
+  add_subdirectory(api1x_core/legacy-vpp)
+  add_subdirectory(api1x_core/legacy-encode)
+  add_subdirectory(api2x/hello-createsession)
+  add_subdirectory(api2x/hello-decode)
+  add_subdirectory(api2x/hello-decvpp)
+  add_subdirectory(api2x/hello-encode)
+  add_subdirectory(api2x/hello-transcode)
+  add_subdirectory(api2x/hello-vpp)
 endif()
 
 if(INSTALL_EXAMPLE_CODE)
@@ -26,8 +26,9 @@ if(INSTALL_EXAMPLE_CODE)
     COMPONENT dev)
 
   install(
-    DIRECTORY coreAPI/legacy-decode coreAPI/legacy-vpp coreAPI/legacy-encode
-    DESTINATION ${ONEAPI_INSTALL_EXAMPLEDIR}/coreAPI
+    DIRECTORY api1x_core/legacy-decode api1x_core/legacy-vpp
+              api1x_core/legacy-encode
+    DESTINATION ${ONEAPI_INSTALL_EXAMPLEDIR}/api1x_core
     COMPONENT dev)
 
   install(
@@ -36,8 +37,8 @@ if(INSTALL_EXAMPLE_CODE)
     COMPONENT dev)
 
   install(
-    DIRECTORY hello/hello-createsession hello/hello-decode hello/hello-decvpp
-              hello/hello-encode hello/hello-transcode hello/hello-vpp
-    DESTINATION ${ONEAPI_INSTALL_EXAMPLEDIR}/hello
+    DIRECTORY api2x/hello-createsession api2x/hello-decode api2x/hello-decvpp
+              api2x/hello-encode api2x/hello-transcode api2x/hello-vpp
+    DESTINATION ${ONEAPI_INSTALL_EXAMPLEDIR}/api2x
     COMPONENT dev)
 endif()
