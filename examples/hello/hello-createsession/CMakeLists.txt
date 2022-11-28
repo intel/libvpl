@@ -73,4 +73,4 @@ if(UNIX)
 endif()
 
 include(CTest)
-add_test(NAME ${TARGET}-test COMMAND ${TARGET})
+add_test(NAME ${TARGET}-test COMMAND ${TARGET} ${IMPL_ARG})
