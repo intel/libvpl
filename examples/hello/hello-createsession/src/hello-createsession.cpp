@@ -14,6 +14,9 @@
 
 #include "util.h"
 
+#define MAJOR_API_VERSION_REQUIRED 2
+#define MINOR_API_VERSION_REQUIRED 2
+
 void Usage(void) {
     printf("\n");
     printf("   Usage  :  hello-createsession\n");
@@ -30,12 +33,9 @@ int main(int argc, char *argv[]) {
     Params cliParams;
     bool isFailed = false;
 
-#ifdef USE_MEDIASDK1
-    //Variables used only in legacy version
-    mfxVersion version = { 0, 1 };
-#endif
     //variables used only in 2.x version
-    mfxConfig cfg    = NULL;
+    mfxConfig cfg[3];
+    mfxVariant cfgVal[3];
     mfxLoader loader = NULL;
 
     //Parse command line args to cliParams
@@ -45,35 +45,37 @@ int main(int argc, char *argv[]) {
     }
 
     // Initialize VPL session
-#ifdef USE_MEDIASDK1
-    sts = MFXInit(cliParams.impl, &version, &session);
-    VERIFY(MFX_ERR_NONE == sts, "Not able to create session with MFXInit");
-#else
-
     loader = MFXLoad();
     VERIFY(NULL != loader, "MFXLoad failed -- is implementation in path?");
 
-    cfg = MFXCreateConfig(loader);
-    VERIFY(NULL != cfg, "MFXCreateConfig failed")
+    // Implementation used must be the type requested from command line
+    cfg[0] = MFXCreateConfig(loader);
+    VERIFY(NULL != cfg[0], "MFXCreateConfig failed")
 
-    sts = MFXSetConfigFilterProperty(cfg, (mfxU8 *)"mfxImplDescription.Impl", cliParams.implValue);
+    sts =
+        MFXSetConfigFilterProperty(cfg[0], (mfxU8 *)"mfxImplDescription.Impl", cliParams.implValue);
     VERIFY(MFX_ERR_NONE == sts, "MFXSetConfigFilterProperty failed");
 
+    // Implementation used must provide API version 2.2 or newer
+    cfg[2] = MFXCreateConfig(loader);
+    VERIFY(NULL != cfg[2], "MFXCreateConfig failed")
+    cfgVal[2].Type     = MFX_VARIANT_TYPE_U32;
+    cfgVal[2].Data.U32 = VPLVERSION(MAJOR_API_VERSION_REQUIRED, MINOR_API_VERSION_REQUIRED);
+    sts                = MFXSetConfigFilterProperty(cfg[2],
+                                     (mfxU8 *)"mfxImplDescription.ApiVersion.Version",
+                                     cfgVal[2]);
+    VERIFY(MFX_ERR_NONE == sts, "MFXSetConfigFilterProperty failed for API version");
+
     sts = MFXCreateSession(loader, 0, &session);
-    VERIFY(MFX_ERR_NONE == sts, "Not able to create VPL session");
-#endif
+    VERIFY(MFX_ERR_NONE == sts,
+           "Cannot create session -- no implementations meet selection criteria");
 
     // Print info about implementation loaded
-    ShowImplInfo(session);
+    ShowImplementationInfo(loader, 0);
 
 end:
 
     MFXClose(session);
-
-#ifndef USE_MEDIASDK1
-    if (loader)
-        MFXUnload(loader);
-#endif
 
     if (isFailed) {
         return -1;

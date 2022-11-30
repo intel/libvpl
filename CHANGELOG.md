@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Session creation example to request a minimum API version
+
 ## [2023.1.0] - 2022-11-10
 
 ### Added
