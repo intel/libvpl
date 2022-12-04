@@ -32,8 +32,16 @@ typedef struct gpuinfo {
 
 gpuinfo get_gpuinfo(unsigned int deviceid) {
     gpuinfo result;
-    gpuinfo gpunames[] = { { 0x5694, "Intel® Arc(TM) A370M Graphics", "Xe HPG", "DG2" },
-                           { 0x5693, "Intel® Arc(TM) A350M Graphics", "Xe HPG", "DG2" },
+    gpuinfo gpunames[] = { { 0x56C0, "Intel® Data Center GPU Flex 170", "Xe HPG", "ATS-M150" },
+                           { 0x56C1, "Intel® Data Center GPU Flex 140", "Xe HPG", "ATS-M75" },
+                           { 0x5694, "Intel® Arc(TM) A350M Graphics", "Xe HPG", "DG2" },
+                           { 0x5693, "Intel® Arc(TM) A370M Graphics", "Xe HPG", "DG2" },
+                           { 0x5692, "Intel® Arc(TM) A550M Graphics", "Xe HPG", "DG2" },
+                           { 0x5691, "Intel® Arc(TM) A730M Graphics", "Xe HPG", "DG2" },
+                           { 0x56A1, "Intel® Arc(TM) A750 Graphics", "Xe HPG", "DG2" },
+                           { 0x56A0, "Intel® Arc(TM) A770 Graphics", "Xe HPG", "DG2" },
+                           { 0x56A5, "Intel® Arc(TM) A380 Graphics", "Xe HPG", "DG2" },
+                           { 0x56A6, "Intel® Arc(TM) A310 Graphics", "Xe HPG", "DG2" },
                            { 0x4905, "Intel® Iris® Xe MAX Graphics", "Xe MAX", "DG1" },
                            { 0x9A60, "Intel® UHD Graphics GT1", "Xe", "Tiger Lake" },
                            { 0x9A68, "Intel® UHD Graphics GT1", "Xe", "Tiger Lake" },
