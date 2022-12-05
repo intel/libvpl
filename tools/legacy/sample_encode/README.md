@@ -2,9 +2,10 @@ sample_encode is a oneVPL application that performs preprocessing and encoding o
 Command Line format:    
 ```sample_encode h264|h265|mpeg2|mvc|jpeg -i InputYUVFile -o OutputEncodedFile -w width -h height -angle 180 -opencl```  
 Sample Command Line:  
-```sample_encode h265 -hw -i ../../../content/cars_320x240.nv12 -w 320 -h 240 -o output.h265``` 
+```sample_encode h265 -hw -i ../../../content/cars_320x240.nv12 -w 320 -h 240 -o output.h265```   
 Sample Output:  
-```Loaded Library configuration:  
+```
+Loaded Library configuration:  
     Version: 2.7  
     ImplName: mfx-gen  
     Adapter number : 0  
@@ -37,5 +38,6 @@ Media SDK version       2.7
 Processing started  
 Frame number: 30  
 Encoding fps: 994  
-Processing finished```  
+Processing finished
+```  
 
