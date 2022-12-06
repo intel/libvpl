@@ -442,6 +442,10 @@ struct __sInputParams {
     mfxU32 nSyncOpTimeout = MSDK_WAIT_INTERVAL; // SyncOperation timeout in msec
 
     bool TCBRCFileMode;
+
+#ifdef ONEVPL_EXPERIMENTAL
+    bool PercEncPrefilter = false;
+#endif
 };
 
 struct sInputParams : public __sInputParams {

@@ -599,6 +599,10 @@ void TranscodingSample::PrintHelp() {
 #if defined(LIBVA_SUPPORT)
     msdk_printf(MSDK_STRING("  -3dlut <file-name>          Enable 3DLUT VPP filter\n"));
 #endif
+#ifdef ONEVPL_EXPERIMENTAL
+    msdk_printf(
+        MSDK_STRING("  -perc_enc_filter            Enable perceptual encoding prefilter in VPP\n"));
+#endif
     msdk_printf(MSDK_STRING("\n"));
     msdk_printf(MSDK_STRING("ParFile format:\n"));
     msdk_printf(MSDK_STRING(
@@ -1845,6 +1849,11 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
     else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-api_ver_init::2x"))) {
         InputParams.verSessionInit = API_2X;
     }
+#ifdef ONEVPL_EXPERIMENTAL
+    else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-perc_enc_filter"))) {
+        InputParams.PercEncPrefilter = true;
+    }
+#endif
     else {
         // no matching argument was found
         return MFX_ERR_NOT_FOUND;

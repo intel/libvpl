@@ -479,6 +479,13 @@ struct mfx_ext_buffer_id<mfxExtContentLightLevelInfo> {
     enum { id = MFX_EXTBUFF_CONTENT_LIGHT_LEVEL_INFO };
 };
 
+#ifdef ONEVPL_EXPERIMENTAL
+template <>
+struct mfx_ext_buffer_id<mfxExtVPPPercEncPrefilter> {
+    enum { id = MFX_EXTBUFF_VPP_PERC_ENC_PREFILTER };
+};
+#endif
+
 constexpr uint16_t max_num_ext_buffers =
     63 * 2; // '*2' is for max estimation if all extBuffer were 'paired'
 

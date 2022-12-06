@@ -405,6 +405,12 @@ mfxStatus CTranscodingPipeline::VPPPreInit(sInputParams* pParams) {
             m_bIsVpp = true;
         }
 
+#ifdef ONEVPL_EXPERIMENTAL
+        if (m_bEncodeEnable && pParams->PercEncPrefilter) {
+            m_bIsVpp = true;
+        }
+#endif
+
         if (m_bIsVpp) {
             sts = InitVppMfxParams(m_mfxVppParams, pParams);
             MSDK_CHECK_STATUS(sts, "InitVppMfxParams failed");
@@ -3481,6 +3487,12 @@ mfxStatus CTranscodingPipeline::InitVppMfxParams(MfxVideoParamsWrapper& par,
         hvsParam->Mode     = (mfxDenoiseMode)pInParams->EmbeddedDenoiseMode;
         hvsParam->Strength = pInParams->EmbeddedDenoiseLevel;
     }
+
+#ifdef ONEVPL_EXPERIMENTAL
+    if (pInParams->PercEncPrefilter) {
+        par.AddExtBuffer<mfxExtVPPPercEncPrefilter>();
+    }
+#endif
 
     return MFX_ERR_NONE;
 
