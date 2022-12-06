@@ -231,6 +231,19 @@ const char *_print_ProfileType(mfxU32 fourcc, mfxU32 type) {
     return "<unknown codec format>";
 }
 
+// clang-format off
+static void Usage(void) {
+    printf("\nUsage: vpl-inspect [options]\n");
+    printf("\nIf no options are specified, print default capabilities report (MFX_IMPLCAPS_IMPLDESCSTRUCTURE)\n");
+    printf("\nOptions:\n");
+    printf("   -?, -help ...... print help message\n");
+    printf("   -b ............. print brief output (do not print decoder, encoder, and VPP capabilities)\n");
+    printf("   -ex ............ print extended device ID info (MFX_IMPLCAPS_DEVICE_ID_EXTENDED)\n");
+    printf("   -f ............. print list of implemented functions (MFX_IMPLCAPS_IMPLEMENTEDFUNCTIONS)\n");
+    printf("   -d3d9 .......... only enumerate implementations supporting D3D9\n");
+}
+// clang-format on
+
 int main(int argc, char *argv[]) {
     mfxLoader loader = MFXLoad();
     if (loader == NULL) {
@@ -260,8 +273,13 @@ int main(int argc, char *argv[]) {
         else if (nextArg == "-d3d9") {
             bRequireD3D9 = true;
         }
+        else if (nextArg == "-?" || nextArg == "-help") {
+            Usage();
+            return -1;
+        }
         else {
             printf("Error - unknown option %s\n", nextArg.c_str());
+            Usage();
             return -1;
         }
     }
