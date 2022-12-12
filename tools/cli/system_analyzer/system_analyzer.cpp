@@ -155,6 +155,7 @@ bool show_MFXLoad_info() {
             printf("    SubDeviceID: %s\n", dev->SubDevices[subdevice].SubDeviceID);
         }
 
+#ifdef ONEVPL_EXPERIMENTAL
         mfxExtendedDeviceId *idescDevice;
 
         mfxStatus sts = MFXEnumImplementations(loader,
@@ -194,6 +195,7 @@ bool show_MFXLoad_info() {
             printf("DeviceName: %s\n", idescDevice->DeviceName);
             MFXDispReleaseImplDescription(loader, idescDevice);
         }
+#endif
 
         i++;
     }

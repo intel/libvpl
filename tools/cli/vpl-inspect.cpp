@@ -93,6 +93,7 @@ const char *_print_MediaAdapterType(mfxMediaAdapterType type) {
     return "<unknown media adapter type>";
 }
 
+#ifdef ONEVPL_EXPERIMENTAL
 const char *_print_EncodeStatsType(mfxU16 type) {
     switch (type) {
         STRING_OPTION(MFX_ENCODESTATS_LEVEL_BLK);
@@ -103,6 +104,7 @@ const char *_print_EncodeStatsType(mfxU16 type) {
 
     return "<unknown encode stats type>";
 }
+#endif
 
 const char *_print_ResourceType(mfxResourceType type) {
     switch (type) {
@@ -238,7 +240,9 @@ static void Usage(void) {
     printf("\nOptions:\n");
     printf("   -?, -help ...... print help message\n");
     printf("   -b ............. print brief output (do not print decoder, encoder, and VPP capabilities)\n");
+#ifdef ONEVPL_EXPERIMENTAL
     printf("   -ex ............ print extended device ID info (MFX_IMPLCAPS_DEVICE_ID_EXTENDED)\n");
+#endif
     printf("   -f ............. print list of implemented functions (MFX_IMPLCAPS_IMPLEMENTEDFUNCTIONS)\n");
     printf("   -d3d9 .......... only enumerate implementations supporting D3D9\n");
 }

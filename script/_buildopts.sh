@@ -19,6 +19,7 @@ PROJ_DIR="$( dirname "${SCRIPT_DIR}" )"
 unset HELP_OPT
 unset GPL_OPT
 unset WARNING_AS_ERROR_OPT
+unset ONEVPL_EXPERIMENTAL_DISABLED
 COFIG_OPT=Release
 unset ARCH_OPT
 unset BOOTSTRAP_OPT
@@ -62,6 +63,9 @@ while [ $# -gt 0 ]; do
         "--warning_as_error" )
             WARNING_AS_ERROR_OPT=yes
             ;;
+        "--disable_experimental" )
+            ONEVPL_EXPERIMENTAL_DISABLED=yes
+            ;;
         "--config" )
             COFIG_OPT="$2"
             shift
@@ -99,12 +103,13 @@ done
 if [ -n "${HELP_OPT}" ]
 then
   echo "Usage: ${ORIG_SCRIPT_NAME} [options]"
-  echo "  --gpl                Include componentes using GPL licensing"
-  echo "  --warning_as_error   Treat compiler warnings as errors"
-  echo "  --config CONFIG      Build configuration"
-  echo "  -A ARCH              Target architecture"
-  echo "  --bootstrap          Include bootstrap steps"
-  echo "  --help, -h           Show this help message"
+  echo "  --gpl                    Include componentes using GPL licensing"
+  echo "  --warning_as_error       Treat compiler warnings as errors"
+  echo "  --disable_experimental   Build with ONEVPL_EXPERIMENTAL disabled"
+  echo "  --config CONFIG          Build configuration"
+  echo "  -A ARCH                  Target architecture"
+  echo "  --bootstrap              Include bootstrap steps"
+  echo "  --help, -h               Show this help message"
   echo ""
   echo "Depricated options"
   echo "  debug                same as \"--config Debug\""
@@ -126,6 +131,10 @@ fi
 if [ -n "${WARNING_AS_ERROR_OPT}" ]
 then
   FORWARD_OPTS="${FORWARD_OPTS} --warning_as_error"
+fi
+if [ -n "${ONEVPL_EXPERIMENTAL_DISABLED}" ]
+then
+  FORWARD_OPTS="${FORWARD_OPTS} --disable_experimental"
 fi
 if [ -n "${COFIG_OPT}" ]
 then

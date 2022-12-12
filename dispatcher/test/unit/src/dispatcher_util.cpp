@@ -340,7 +340,9 @@ mfxStatus SetSingleProperty(mfxLoader loader,
         case MFX_VARIANT_TYPE_F32:
         case MFX_VARIANT_TYPE_F64:
         case MFX_VARIANT_TYPE_PTR:
+#ifdef ONEVPL_EXPERIMENTAL
         case MFX_VARIANT_TYPE_FP16:
+#endif
         case MFX_VARIANT_TYPE_UNSET:
             return MFX_ERR_UNSUPPORTED;
     }
@@ -374,7 +376,9 @@ mfxStatus SetSingleProperty(mfxLoader loader,
         case MFX_VARIANT_TYPE_I16:
         case MFX_VARIANT_TYPE_I32:
         case MFX_VARIANT_TYPE_I64:
+#ifdef ONEVPL_EXPERIMENTAL
         case MFX_VARIANT_TYPE_FP16:
+#endif
         case MFX_VARIANT_TYPE_UNSET:
             return MFX_ERR_UNSUPPORTED;
     }
@@ -410,7 +414,9 @@ mfxStatus SetSingleProperty(mfxLoader loader,
         case MFX_VARIANT_TYPE_F32:
         case MFX_VARIANT_TYPE_F64:
         case MFX_VARIANT_TYPE_PTR:
+#ifdef ONEVPL_EXPERIMENTAL
         case MFX_VARIANT_TYPE_FP16:
+#endif
         case MFX_VARIANT_TYPE_UNSET:
             return MFX_ERR_UNSUPPORTED;
     }
@@ -445,7 +451,9 @@ mfxStatus SetSingleProperty(mfxLoader loader,
         case MFX_VARIANT_TYPE_I16:
         case MFX_VARIANT_TYPE_I32:
         case MFX_VARIANT_TYPE_I64:
+#ifdef ONEVPL_EXPERIMENTAL
         case MFX_VARIANT_TYPE_FP16:
+#endif
         case MFX_VARIANT_TYPE_UNSET:
             return MFX_ERR_UNSUPPORTED;
     }

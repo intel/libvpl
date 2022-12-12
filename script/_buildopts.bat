@@ -19,6 +19,7 @@ FOR /D %%i IN ("%~dp0") DO (
 SET "HELP_OPT="
 SET "GPL_OPT="
 SET "WARNING_AS_ERROR_OPT="
+SET "ONEVPL_EXPERIMENTAL_DISABLED="
 SET COFIG_OPT=Release
 SET ARCH_OPT=x86_64
 SET "BOOTSTRAP_OPT="
@@ -56,6 +57,8 @@ SET "BOOTSTRAP_OPT="
     SET GPL_OPT=yes
   ) ELSE IF "%~1"=="--warning_as_error" (
     SET WARNING_AS_ERROR_OPT=yes
+  ) ELSE IF "%~1"=="--disable_experimental" (
+    SET ONEVPL_EXPERIMENTAL_DISABLED=yes
   ) ELSE IF "%~1"=="--config" (
     SET COFIG_OPT=%~2
     SHIFT
@@ -82,12 +85,13 @@ SET "BOOTSTRAP_OPT="
 @REM Print usage message
 IF DEFINED HELP_OPT (
   ECHO Usage: %ORIG_SCRIPT_NAME% [options]
-  ECHO   --gpl                Include componentes using GPL licensing
-  ECHO   --warning_as_error   Treat compiler warnings as errors
-  ECHO   --config CONFIG      Build configuration
-  ECHO   -A ARCH              Target architecture
-  ECHO   --bootstrap          Include bootstrap steps
-  ECHO   --help, -h           Show this help message
+  ECHO   --gpl                    Include componentes using GPL licensing
+  ECHO   --warning_as_error       Treat compiler warnings as errors
+  ECHO   --disable_experimental   Build with ONEVPL_EXPERIMENTAL disabled
+  ECHO   --config CONFIG          Build configuration
+  ECHO   -A ARCH                  Target architecture
+  ECHO   --bootstrap              Include bootstrap steps
+  ECHO   --help, -h               Show this help message
   ECHO.
   ECHO Depricated options
   ECHO   debug                same as "--config Debug"
@@ -107,6 +111,9 @@ IF DEFINED GPL_OPT (
 )
 IF DEFINED WARNING_AS_ERROR_OPT (
   SET FORWARD_OPTS=%FORWARD_OPTS% --warning_as_error
+)
+IF DEFINED ONEVPL_EXPERIMENTAL_DISABLED (
+  SET FORWARD_OPTS=%FORWARD_OPTS% --disable_experimental
 )
 IF DEFINED COFIG_OPT (
   SET FORWARD_OPTS=%FORWARD_OPTS% --config %COFIG_OPT%

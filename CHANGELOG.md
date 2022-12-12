@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Help screen listing valid options for vpl-inspect
+- Build option --disable_experimental to build with ONEVPL_EXPERIMENTAL disabled
 
 ### Changed
 - Session creation example to request a minimum API version
