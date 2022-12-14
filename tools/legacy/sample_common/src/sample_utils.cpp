@@ -114,7 +114,8 @@ mfxStatus CSmplYUVReader::Init(std::list<msdk_string> inputs,
         MFX_FOURCC_P210 != ColorFormat && MFX_FOURCC_AYUV != ColorFormat &&
         MFX_FOURCC_A2RGB10 != ColorFormat && MFX_FOURCC_Y210 != ColorFormat &&
         MFX_FOURCC_Y410 != ColorFormat && MFX_FOURCC_P016 != ColorFormat &&
-        MFX_FOURCC_Y216 != ColorFormat && MFX_FOURCC_I010 != ColorFormat) {
+        MFX_FOURCC_Y216 != ColorFormat && MFX_FOURCC_I010 != ColorFormat &&
+        MFX_FOURCC_YUV400 != ColorFormat) {
         return MFX_ERR_UNSUPPORTED;
     }
 
@@ -440,6 +441,9 @@ mfxStatus CSmplYUVReader::LoadNextFrame(mfxFrameSurface1* pSurface) {
                     }
                 }
 
+                break;
+            case MFX_FOURCC_YUV400:
+                // no chroma to read
                 break;
             default:
                 return MFX_ERR_UNSUPPORTED;
@@ -2041,6 +2045,8 @@ const msdk_char* ColorFormatToStr(mfxU32 format) {
             return MSDK_STRING("P016");
         case MFX_FOURCC_Y216:
             return MSDK_STRING("Y216");
+        case MFX_FOURCC_YUV400:
+            return MSDK_STRING("YUV400");
         default:
             return MSDK_STRING("unsupported");
     }

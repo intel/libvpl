@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Help screen listing valid options for vpl-inspect
+- YUV400 option for JPEG encoding with sample_encode
 - Build option --disable_experimental to build with ONEVPL_EXPERIMENTAL disabled
 
 ### Changed

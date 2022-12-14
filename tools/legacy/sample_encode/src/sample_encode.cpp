@@ -100,6 +100,10 @@ void PrintHelp(msdk_char* strAppName, const msdk_char* strErrorMessage, ...) {
 #endif
     msdk_printf(MSDK_STRING(
         "   [-nv12|nv16|yuy2|uyvy|ayuv|rgb4|p010|y210|y410|a2rgb10|p016|p210|y216|i010|i420] - input color format (by default YUV420 is expected).\n"));
+#if (defined(_WIN64) || defined(_WIN32))
+    msdk_printf(MSDK_STRING(
+        "   [-yuv400] -  input color format is YUV400 (grayscale) and will be converted to NV12 for encoding (JPEG only).\n"));
+#endif
     msdk_printf(MSDK_STRING(
         "   [-msb10] - 10-bit color format is expected to have data in Most Significant Bits of words.\n                 (LSB data placement is expected by default).\n                 This option also disables data shifting during file reading.\n"));
     msdk_printf(MSDK_STRING(
@@ -925,9 +929,11 @@ mfxStatus ParseInputString(msdk_char* strInput[], mfxU8 nArgNum, sInputParams* p
         else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-y410"))) {
             pParams->FileInputFourCC = MFX_FOURCC_Y410;
         }
-        else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-a2rgb10"))) {
-            pParams->FileInputFourCC = MFX_FOURCC_A2RGB10;
+#if (defined(_WIN64) || defined(_WIN32))
+        else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-yuv400"))) {
+            pParams->FileInputFourCC = MFX_FOURCC_YUV400;
         }
+#endif
         else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-ec::p010"))) {
             pParams->EncodeFourCC = MFX_FOURCC_P010;
         }

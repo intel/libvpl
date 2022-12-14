@@ -504,6 +504,10 @@ mfxStatus CEncodingPipeline::InitMfxEncParams(sInputParams* pInParams) {
     m_mfxEncParams.mfx.FrameInfo.PicStruct      = pInParams->nPicStruct;
     m_mfxEncParams.mfx.FrameInfo.Shift          = pInParams->shouldUseShifted10BitEnc;
 
+    // YUV400 is converted into NV12 by file reader, but need to set ChromaFormat here
+    if (pInParams->FileInputFourCC == MFX_FOURCC_YUV400)
+        m_mfxEncParams.mfx.FrameInfo.ChromaFormat = MFX_CHROMAFORMAT_YUV400;
+
     if (pInParams->bUseHWLib) {
         // width must be a multiple of 16
         // height must be a multiple of 16 in case of frame picture and a multiple of 32 in case of field picture
@@ -788,8 +792,8 @@ mfxStatus CEncodingPipeline::InitMfxEncParams(sInputParams* pInParams) {
 }
 
 mfxU32 CEncodingPipeline::FileFourCC2EncFourCC(mfxU32 fcc) {
-    // File reader automatically converts I420 and YV12 to NV12
-    if (fcc == MFX_FOURCC_I420 || fcc == MFX_FOURCC_YV12)
+    // File reader automatically converts I420, YV12, and YUV400 to NV12
+    if (fcc == MFX_FOURCC_I420 || fcc == MFX_FOURCC_YV12 || fcc == MFX_FOURCC_YUV400)
         return MFX_FOURCC_NV12;
     else
         return fcc;
@@ -855,6 +859,12 @@ mfxStatus CEncodingPipeline::InitMfxVppParams(sInputParams* pInParams) {
         m_mfxVppParams.vpp.Out.ChromaFormat = FourCCToChroma(m_mfxVppParams.vpp.Out.FourCC);
     }
 #endif
+
+    // YUV400 is converted into NV12 by file reader, but need to set ChromaFormat here
+    if (pInParams->FileInputFourCC == MFX_FOURCC_YUV400) {
+        m_mfxVppParams.vpp.In.ChromaFormat  = MFX_CHROMAFORMAT_YUV400;
+        m_mfxVppParams.vpp.Out.ChromaFormat = MFX_CHROMAFORMAT_YUV400;
+    }
 
     if (pInParams->bUseHWLib) {
         // only resizing is supported
@@ -1507,6 +1517,10 @@ mfxStatus CEncodingPipeline::GetImpl(const sInputParams& params, mfxIMPL& impl) 
     interface_request.Requirements.mfx.FrameInfo.PicStruct      = params.nPicStruct;
     interface_request.Requirements.mfx.FrameInfo.ChromaFormat = FourCCToChroma(params.EncodeFourCC);
 
+    // YUV400 is converted into NV12 by file reader, but need to set ChromaFormat here
+    if (params.FileInputFourCC == MFX_FOURCC_YUV400)
+        interface_request.Requirements.mfx.FrameInfo.ChromaFormat = MFX_CHROMAFORMAT_YUV400;
+
     /* Note! IOPattern is mandatory according to MSDK manual! */
     if (D3D9_MEMORY == params.memType || D3D11_MEMORY == params.memType) {
         interface_request.Requirements.IOPattern = MFX_IOPATTERN_IN_VIDEO_MEMORY;
@@ -1581,11 +1595,15 @@ mfxStatus CEncodingPipeline::Init(sInputParams* pParams) {
 
     // FileReader can convert yv12->nv12 without vpp, when hw impl
     if (pParams->bUseHWLib) {
-        m_InputFourCC = (pParams->FileInputFourCC == MFX_FOURCC_I420) ? MFX_FOURCC_NV12
-                                                                      : pParams->FileInputFourCC;
+        m_InputFourCC = ((pParams->FileInputFourCC == MFX_FOURCC_I420) ||
+                         (pParams->FileInputFourCC == MFX_FOURCC_YUV400))
+                            ? MFX_FOURCC_NV12
+                            : pParams->FileInputFourCC;
 
-        pParams->EncodeFourCC =
-            (pParams->EncodeFourCC == MFX_FOURCC_I420) ? MFX_FOURCC_NV12 : pParams->EncodeFourCC;
+        pParams->EncodeFourCC = ((pParams->EncodeFourCC == MFX_FOURCC_I420) ||
+                                 (pParams->EncodeFourCC == MFX_FOURCC_YUV400))
+                                    ? MFX_FOURCC_NV12
+                                    : pParams->EncodeFourCC;
     }
     else {
         m_InputFourCC = pParams->FileInputFourCC;
