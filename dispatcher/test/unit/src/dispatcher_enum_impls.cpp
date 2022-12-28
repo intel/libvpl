@@ -42,7 +42,8 @@ static int ExecuteShellTestCmd(ShellTestCmd cmd) {
 #if defined(_WIN32) || defined(_WIN64)
     switch (cmd) {
         case TEST_CMD_VPLINSPECT:
-            cmdString = "call vpl-inspect.exe";
+            cmdString = "call vpl-inspect.exe > ";
+            cmdString += CAPTURE_LOG_DEF_FILENAME;
             break;
         case TEST_CMD_VPLTIMING:
             return -1;
@@ -61,7 +62,8 @@ static int ExecuteShellTestCmd(ShellTestCmd cmd) {
 #else
     switch (cmd) {
         case TEST_CMD_VPLINSPECT:
-            cmdString = "./vpl-inspect";
+            cmdString = "./vpl-inspect > ";
+            cmdString += CAPTURE_LOG_DEF_FILENAME;
             break;
         case TEST_CMD_VPLTIMING:
             return -1;
@@ -90,15 +92,14 @@ TEST(Dispatcher_EnumImpls, VPLInspectFindsStub) {
     SKIP_IF_DISP_ENUM_IMPL_DISABLED();
 
     // capture output of vpl-inspect
-    CaptureOutputLog();
+    CaptureOutputLog(CAPTURE_LOG_FILE);
 
     int err = ExecuteShellTestCmd(TEST_CMD_VPLINSPECT);
     EXPECT_EQ(err, 0);
 
     // check that the stub implementation was found
-    std::string outputLog;
-    GetOutputLog(outputLog);
-    CheckOutputLog(outputLog, "ImplName: Stub Implementation");
+    CheckOutputLog("ImplName: Stub Implementation");
+    CleanupOutputLog();
 }
 
 TEST(Dispatcher_EnumImpls, VPLInspectFindsStub1x) {
@@ -106,15 +107,14 @@ TEST(Dispatcher_EnumImpls, VPLInspectFindsStub1x) {
     SKIP_IF_DISP_ENUM_IMPL_DISABLED();
 
     // capture output of vpl-inspect
-    CaptureOutputLog();
+    CaptureOutputLog(CAPTURE_LOG_FILE);
 
     int err = ExecuteShellTestCmd(TEST_CMD_VPLINSPECT);
     EXPECT_EQ(err, 0);
 
     // check that the stub implementation was found
-    std::string outputLog;
-    GetOutputLog(outputLog);
-    CheckOutputLog(outputLog, "ImplName: Stub Implementation 1X");
+    CheckOutputLog("ImplName: Stub Implementation 1X");
+    CleanupOutputLog();
 }
 
 TEST(Dispatcher_EnumImpls, VPLInspectFindsInputDeviceIDs) {
@@ -130,20 +130,17 @@ TEST(Dispatcher_EnumImpls, VPLInspectFindsInputDeviceIDs) {
     }
 
     // capture output of vpl-inspect
-    CaptureOutputLog();
+    CaptureOutputLog(CAPTURE_LOG_FILE);
 
     int err = ExecuteShellTestCmd(TEST_CMD_VPLINSPECT);
     EXPECT_EQ(err, 0);
 
-    // check that the stub implementation was found
-    std::string outputLog;
-    GetOutputLog(outputLog);
-
     // check that vpl-inspect returned all of the expected DeviceID's
     for (std::string &t : deviceIDList) {
         std::string expectedID = "  DeviceID: " + t;
-        CheckOutputLog(outputLog, expectedID.c_str());
+        CheckOutputLog(expectedID.c_str());
     }
+    CleanupOutputLog();
 }
 
 TEST(Dispatcher_EnumImpls, VPLInspectFindsRTFromPriorityPath) {
@@ -159,26 +156,32 @@ TEST(Dispatcher_EnumImpls, VPLInspectFindsRTFromPriorityPath) {
     std::string workDirPath;
     GetWorkingDirectoryPath(workDirPath);
 
+    int err = ExecuteShellTestCmd(TEST_CMD_COPY_STUB_TO_WORKDIR);
+    EXPECT_EQ(err, 0);
+
+    // capture output of vpl-inspect
+    CaptureOutputLog(CAPTURE_LOG_FILE);
+
 #if defined(_WIN32) || defined(_WIN64)
     SetEnvironmentVariable("ONEVPL_PRIORITY_PATH", workDirPath.c_str());
 #else
     setenv("ONEVPL_PRIORITY_PATH", workDirPath.c_str(), 1);
 #endif
 
-    int err = ExecuteShellTestCmd(TEST_CMD_COPY_STUB_TO_WORKDIR);
-    EXPECT_EQ(err, 0);
-
-    // capture output of vpl-inspect
-    CaptureOutputLog();
-
     err = ExecuteShellTestCmd(TEST_CMD_VPLINSPECT);
+
+#if defined(_WIN32) || defined(_WIN64)
+    SetEnvironmentVariable("ONEVPL_PRIORITY_PATH", NULL);
+#else
+    unsetenv("ONEVPL_PRIORITY_PATH");
+#endif
+
     EXPECT_EQ(err, 0);
 
     std::string priorityLibPath = workDirPath + PATH_SEPARATOR;
     priorityLibPath += STUB_RT;
 
     // check that the stub implementation was found
-    std::string outputLog;
-    GetOutputLog(outputLog);
-    CheckOutputLog(outputLog, priorityLibPath.c_str());
+    CheckOutputLog(priorityLibPath.c_str());
+    CleanupOutputLog();
 }

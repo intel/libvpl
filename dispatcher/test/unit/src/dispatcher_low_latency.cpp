@@ -106,6 +106,7 @@ static mfxStatus EnableLowLatency(mfxLoader loader,
     EXPECT_EQ(sts, MFX_ERR_NONE);
 
     // don't test session creation, just set the config props
+    // in this case, caller needs to call MFXUnload()
     if (testType == LL_CONFIG_ONLY)
         return sts;
 
@@ -117,14 +118,15 @@ static mfxStatus EnableLowLatency(mfxLoader loader,
     if (sts == MFX_ERR_NONE && session != nullptr)
         MFXClose(session);
 
-    // check for dispatcher log string which indicates that low latency mode was enabled
-    std::string outputLog;
-    GetOutputLog(outputLog);
+    // call unload here so that dispatcher log file is closed and contents may then be checked
+    MFXUnload(loader);
 
     if (testType == LL_VALID)
-        CheckOutputLog(outputLog, "message:  low latency mode enabled");
+        CheckOutputLog("message:  low latency mode enabled");
     else
-        CheckOutputLog(outputLog, "message:  low latency mode disabled");
+        CheckOutputLog("message:  low latency mode disabled");
+
+    CleanupOutputLog();
 
     return MFX_ERR_NONE;
 }
@@ -132,7 +134,7 @@ static mfxStatus EnableLowLatency(mfxLoader loader,
 // tests for low-latency mode configuration - single mfxConfig object
 TEST(Dispatcher_LowLatency, Valid_SingleConfig) {
     // capture dispatcher log
-    CaptureOutputLog(true);
+    CaptureOutputLog(CAPTURE_LOG_DISPATCHER);
 
     mfxLoader loader = MFXLoad();
 
@@ -140,13 +142,11 @@ TEST(Dispatcher_LowLatency, Valid_SingleConfig) {
 
     mfxStatus sts = EnableLowLatency(loader, LL_SINGLE_CONFIG, LL_VALID);
     EXPECT_EQ(sts, MFX_ERR_NONE);
-
-    MFXUnload(loader);
 }
 
 TEST(Dispatcher_LowLatency, Invalid_SingleConfig_MissingProp) {
     // capture dispatcher log
-    CaptureOutputLog(true);
+    CaptureOutputLog(CAPTURE_LOG_DISPATCHER);
 
     mfxLoader loader = MFXLoad();
 
@@ -154,13 +154,11 @@ TEST(Dispatcher_LowLatency, Invalid_SingleConfig_MissingProp) {
 
     mfxStatus sts = EnableLowLatency(loader, LL_SINGLE_CONFIG, LL_ERR_MISSING_PROP);
     EXPECT_EQ(sts, MFX_ERR_NONE);
-
-    MFXUnload(loader);
 }
 
 TEST(Dispatcher_LowLatency, Invalid_SingleConfig_OverwriteProp) {
     // capture dispatcher log
-    CaptureOutputLog(true);
+    CaptureOutputLog(CAPTURE_LOG_DISPATCHER);
 
     mfxLoader loader = MFXLoad();
 
@@ -168,13 +166,11 @@ TEST(Dispatcher_LowLatency, Invalid_SingleConfig_OverwriteProp) {
 
     mfxStatus sts = EnableLowLatency(loader, LL_SINGLE_CONFIG, LL_ERR_OVERWRITE_PROP);
     EXPECT_EQ(sts, MFX_ERR_NONE);
-
-    MFXUnload(loader);
 }
 
 TEST(Dispatcher_LowLatency, Invalid_SingleConfig_WrongValue) {
     // capture dispatcher log
-    CaptureOutputLog(true);
+    CaptureOutputLog(CAPTURE_LOG_DISPATCHER);
 
     mfxLoader loader = MFXLoad();
 
@@ -182,14 +178,12 @@ TEST(Dispatcher_LowLatency, Invalid_SingleConfig_WrongValue) {
 
     mfxStatus sts = EnableLowLatency(loader, LL_SINGLE_CONFIG, LL_ERR_WRONG_VALUE);
     EXPECT_EQ(sts, MFX_ERR_NONE);
-
-    MFXUnload(loader);
 }
 
 // tests for low-latency mode configuration - multiple mfxConfig objects
 TEST(Dispatcher_LowLatency, ValidPropsEnable_MultiConfig) {
     // capture dispatcher log
-    CaptureOutputLog(true);
+    CaptureOutputLog(CAPTURE_LOG_DISPATCHER);
 
     mfxLoader loader = MFXLoad();
 
@@ -197,13 +191,11 @@ TEST(Dispatcher_LowLatency, ValidPropsEnable_MultiConfig) {
 
     mfxStatus sts = EnableLowLatency(loader, LL_MULTI_CONFIG, LL_VALID);
     EXPECT_EQ(sts, MFX_ERR_NONE);
-
-    MFXUnload(loader);
 }
 
 TEST(Dispatcher_LowLatency, Invalid_MultiConfig_MissingProp) {
     // capture dispatcher log
-    CaptureOutputLog(true);
+    CaptureOutputLog(CAPTURE_LOG_DISPATCHER);
 
     mfxLoader loader = MFXLoad();
 
@@ -211,13 +203,11 @@ TEST(Dispatcher_LowLatency, Invalid_MultiConfig_MissingProp) {
 
     mfxStatus sts = EnableLowLatency(loader, LL_MULTI_CONFIG, LL_ERR_MISSING_PROP);
     EXPECT_EQ(sts, MFX_ERR_NONE);
-
-    MFXUnload(loader);
 }
 
 TEST(Dispatcher_LowLatency, Invalid_MultiConfig_OverwriteProp) {
     // capture dispatcher log
-    CaptureOutputLog(true);
+    CaptureOutputLog(CAPTURE_LOG_DISPATCHER);
 
     mfxLoader loader = MFXLoad();
 
@@ -225,13 +215,11 @@ TEST(Dispatcher_LowLatency, Invalid_MultiConfig_OverwriteProp) {
 
     mfxStatus sts = EnableLowLatency(loader, LL_MULTI_CONFIG, LL_ERR_OVERWRITE_PROP);
     EXPECT_EQ(sts, MFX_ERR_NONE);
-
-    MFXUnload(loader);
 }
 
 TEST(Dispatcher_LowLatency, Invalid_MultiConfig_WrongValue) {
     // capture dispatcher log
-    CaptureOutputLog(true);
+    CaptureOutputLog(CAPTURE_LOG_DISPATCHER);
 
     mfxLoader loader = MFXLoad();
 
@@ -239,8 +227,6 @@ TEST(Dispatcher_LowLatency, Invalid_MultiConfig_WrongValue) {
 
     mfxStatus sts = EnableLowLatency(loader, LL_MULTI_CONFIG, LL_ERR_WRONG_VALUE);
     EXPECT_EQ(sts, MFX_ERR_NONE);
-
-    MFXUnload(loader);
 }
 
 // below tests should only be run on systems with GPU RT installed

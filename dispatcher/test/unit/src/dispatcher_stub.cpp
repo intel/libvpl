@@ -141,7 +141,7 @@ TEST(Dispatcher_Stub_CreateSession, ExtDeviceID_DeviceName_Invalid) {
 // test using NumThread filter property during initialization
 static void Dispatcher_CreateSession_RuntimeParsesExtBuf(mfxImplType implType) {
     // stub RT logs results from parsing extBuf
-    CaptureOutputLog();
+    CaptureOutputLog(CAPTURE_LOG_COUT);
 
     mfxLoader loader = MFXLoad();
     EXPECT_FALSE(loader == nullptr);
@@ -157,22 +157,20 @@ static void Dispatcher_CreateSession_RuntimeParsesExtBuf(mfxImplType implType) {
     sts                = MFXCreateSession(loader, 0, &session);
     EXPECT_EQ(sts, MFX_ERR_NONE);
 
-    // check for RT log string which indicates that extBuf was parsed properly
-    std::string outputLog;
-    GetOutputLog(outputLog);
-    if (implType == MFX_IMPL_TYPE_STUB_1X) {
-        CheckOutputLog(outputLog,
-                       "[STUB RT]: message -- MFXInitEx -- extBuf enabled -- NumThread (4)");
-    }
-    else {
-        CheckOutputLog(outputLog,
-                       "[STUB RT]: message -- MFXInitialize -- extBuf enabled -- NumThread (4)");
-    }
-
     // free internal resources
     sts = MFXClose(session);
     EXPECT_EQ(sts, MFX_ERR_NONE);
     MFXUnload(loader);
+
+    // check for RT log string which indicates that extBuf was parsed properly
+    if (implType == MFX_IMPL_TYPE_STUB_1X) {
+        CheckOutputLog("[STUB RT]: message -- MFXInitEx -- extBuf enabled -- NumThread (4)");
+    }
+    else {
+        CheckOutputLog("[STUB RT]: message -- MFXInitialize -- extBuf enabled -- NumThread (4)");
+    }
+
+    CleanupOutputLog();
 }
 
 TEST(Dispatcher_Stub_CreateSession, RuntimeParsesExtBuf) {
@@ -188,7 +186,7 @@ TEST(Dispatcher_Stub_CreateSession, LegacyRuntimeParsesExtBuf) {
 // test using ExtBuffer filter property during initialization to pass one extBuffer
 static void Dispatcher_CreateSession_RuntimeParsesSingleExtBufViaMFXConfig(mfxImplType implType) {
     // stub RT logs results from parsing extBuf
-    CaptureOutputLog();
+    CaptureOutputLog(CAPTURE_LOG_COUT);
 
     mfxLoader loader = MFXLoad();
     EXPECT_FALSE(loader == nullptr);
@@ -209,22 +207,20 @@ static void Dispatcher_CreateSession_RuntimeParsesSingleExtBufViaMFXConfig(mfxIm
     sts                = MFXCreateSession(loader, 0, &session);
     EXPECT_EQ(sts, MFX_ERR_NONE);
 
-    // check for RT log string which indicates that extBuf was parsed properly
-    std::string outputLog;
-    GetOutputLog(outputLog);
-    if (implType == MFX_IMPL_TYPE_STUB_1X) {
-        CheckOutputLog(outputLog,
-                       "[STUB RT]: message -- MFXInitEx -- extBuf enabled -- NumThread (8)");
-    }
-    else {
-        CheckOutputLog(outputLog,
-                       "[STUB RT]: message -- MFXInitialize -- extBuf enabled -- NumThread (8)");
-    }
-
     // free internal resources
     sts = MFXClose(session);
     EXPECT_EQ(sts, MFX_ERR_NONE);
     MFXUnload(loader);
+
+    // check for RT log string which indicates that extBuf was parsed properly
+    if (implType == MFX_IMPL_TYPE_STUB_1X) {
+        CheckOutputLog("[STUB RT]: message -- MFXInitEx -- extBuf enabled -- NumThread (8)");
+    }
+    else {
+        CheckOutputLog("[STUB RT]: message -- MFXInitialize -- extBuf enabled -- NumThread (8)");
+    }
+
+    CleanupOutputLog();
 }
 
 TEST(Dispatcher_Stub_CreateSession, RuntimeParsesSingleExtBufViaMFXConfig) {
@@ -242,7 +238,7 @@ TEST(Dispatcher_Stub_CreateSession, LegacyRuntimeParsesSingleExtBufViaMFXConfig)
 static void Dispatcher_CreateSession_RuntimeParsesMultipleExtBufsViaMFXConfig(
     mfxImplType implType) {
     // stub RT logs results from parsing extBuf
-    CaptureOutputLog();
+    CaptureOutputLog(CAPTURE_LOG_COUT);
 
     mfxLoader loader = MFXLoad();
     EXPECT_FALSE(loader == nullptr);
@@ -275,30 +271,26 @@ static void Dispatcher_CreateSession_RuntimeParsesMultipleExtBufsViaMFXConfig(
     sts                = MFXCreateSession(loader, 0, &session);
     EXPECT_EQ(sts, MFX_ERR_NONE);
 
-    // check for RT log strings which indicate that extBufs were parsed properly
-    std::string outputLog;
-    GetOutputLog(outputLog);
-    if (implType == MFX_IMPL_TYPE_STUB_1X) {
-        CheckOutputLog(outputLog,
-                       "[STUB RT]: message -- MFXInitEx -- extBuf enabled -- NumThread (6)");
-
-        CheckOutputLog(
-            outputLog,
-            "[STUB RT]: message -- MFXInitEx -- extBuf enabled -- ProcAmp (31.7 16.14 54.2 -15.63)");
-    }
-    else {
-        CheckOutputLog(outputLog,
-                       "[STUB RT]: message -- MFXInitialize -- extBuf enabled -- NumThread (6)");
-
-        CheckOutputLog(
-            outputLog,
-            "[STUB RT]: message -- MFXInitialize -- extBuf enabled -- ProcAmp (31.7 16.14 54.2 -15.63)");
-    }
-
     // free internal resources
     sts = MFXClose(session);
     EXPECT_EQ(sts, MFX_ERR_NONE);
     MFXUnload(loader);
+
+    // check for RT log strings which indicate that extBufs were parsed properly
+    if (implType == MFX_IMPL_TYPE_STUB_1X) {
+        CheckOutputLog("[STUB RT]: message -- MFXInitEx -- extBuf enabled -- NumThread (6)");
+
+        CheckOutputLog(
+            "[STUB RT]: message -- MFXInitEx -- extBuf enabled -- ProcAmp (31.7 16.14 54.2 -15.63)");
+    }
+    else {
+        CheckOutputLog("[STUB RT]: message -- MFXInitialize -- extBuf enabled -- NumThread (6)");
+
+        CheckOutputLog(
+            "[STUB RT]: message -- MFXInitialize -- extBuf enabled -- ProcAmp (31.7 16.14 54.2 -15.63)");
+    }
+
+    CleanupOutputLog();
 }
 
 TEST(Dispatcher_Stub_CreateSession, RuntimeParsesMultipleExtBufsViaMFXConfig) {
@@ -316,7 +308,7 @@ TEST(Dispatcher_Stub_CreateSession, LegacyRuntimeParsesMultipleExtBufsViaMFXConf
 static void Dispatcher_CreateSession_RuntimeParsesSingleExtBufOverwriteViaMFXConfig(
     mfxImplType implType) {
     // stub RT logs results from parsing extBuf
-    CaptureOutputLog();
+    CaptureOutputLog(CAPTURE_LOG_COUT);
 
     mfxLoader loader = MFXLoad();
     EXPECT_FALSE(loader == nullptr);
@@ -350,33 +342,28 @@ static void Dispatcher_CreateSession_RuntimeParsesSingleExtBufOverwriteViaMFXCon
     sts                = MFXCreateSession(loader, 0, &session);
     EXPECT_EQ(sts, MFX_ERR_NONE);
 
-    // check for RT log strings which indicate that extBufs were parsed properly
-    // expect that NumThread is NOT present, since the buffer should have been overwritten
-    std::string outputLog;
-    GetOutputLog(outputLog);
-    if (implType == MFX_IMPL_TYPE_STUB_1X) {
-        CheckOutputLog(outputLog,
-                       "[STUB RT]: message -- MFXInitEx -- extBuf enabled -- NumThread (6)",
-                       false);
-
-        CheckOutputLog(
-            outputLog,
-            "[STUB RT]: message -- MFXInitEx -- extBuf enabled -- ProcAmp (31.7 16.14 54.2 -15.63)");
-    }
-    else {
-        CheckOutputLog(outputLog,
-                       "[STUB RT]: message -- MFXInitialize -- extBuf enabled -- NumThread (6)",
-                       false);
-
-        CheckOutputLog(
-            outputLog,
-            "[STUB RT]: message -- MFXInitialize -- extBuf enabled -- ProcAmp (31.7 16.14 54.2 -15.63)");
-    }
-
     // free internal resources
     sts = MFXClose(session);
     EXPECT_EQ(sts, MFX_ERR_NONE);
     MFXUnload(loader);
+
+    // check for RT log strings which indicate that extBufs were parsed properly
+    // expect that NumThread is NOT present, since the buffer should have been overwritten
+    if (implType == MFX_IMPL_TYPE_STUB_1X) {
+        CheckOutputLog("[STUB RT]: message -- MFXInitEx -- extBuf enabled -- NumThread (6)", false);
+
+        CheckOutputLog(
+            "[STUB RT]: message -- MFXInitEx -- extBuf enabled -- ProcAmp (31.7 16.14 54.2 -15.63)");
+    }
+    else {
+        CheckOutputLog("[STUB RT]: message -- MFXInitialize -- extBuf enabled -- NumThread (6)",
+                       false);
+
+        CheckOutputLog(
+            "[STUB RT]: message -- MFXInitialize -- extBuf enabled -- ProcAmp (31.7 16.14 54.2 -15.63)");
+    }
+
+    CleanupOutputLog();
 }
 
 TEST(Dispatcher_Stub_CreateSession, RuntimeParsesSingleExtBufOverwriteViaMFXConfig) {
@@ -394,7 +381,7 @@ TEST(Dispatcher_Stub_CreateSession, LegacyRuntimeParsesSingleExtBufOverwriteViaM
 static void Dispatcher_CreateSession_RuntimeParsesMultipleExtBufsOverwriteViaMFXConfig(
     mfxImplType implType) {
     // stub RT logs results from parsing extBuf
-    CaptureOutputLog();
+    CaptureOutputLog(CAPTURE_LOG_COUT);
 
     mfxLoader loader = MFXLoad();
     EXPECT_FALSE(loader == nullptr);
@@ -435,30 +422,26 @@ static void Dispatcher_CreateSession_RuntimeParsesMultipleExtBufsOverwriteViaMFX
     sts                = MFXCreateSession(loader, 0, &session);
     EXPECT_EQ(sts, MFX_ERR_NONE);
 
-    // check for RT log strings which indicate that extBufs were parsed properly
-    std::string outputLog;
-    GetOutputLog(outputLog);
-    if (implType == MFX_IMPL_TYPE_STUB_1X) {
-        CheckOutputLog(outputLog,
-                       "[STUB RT]: message -- MFXInitEx -- extBuf enabled -- NumThread (9)");
-
-        CheckOutputLog(
-            outputLog,
-            "[STUB RT]: message -- MFXInitEx -- extBuf enabled -- ProcAmp (31.7 16.14 54.2 -15.63)");
-    }
-    else {
-        CheckOutputLog(outputLog,
-                       "[STUB RT]: message -- MFXInitialize -- extBuf enabled -- NumThread (9)");
-
-        CheckOutputLog(
-            outputLog,
-            "[STUB RT]: message -- MFXInitialize -- extBuf enabled -- ProcAmp (31.7 16.14 54.2 -15.63)");
-    }
-
     // free internal resources
     sts = MFXClose(session);
     EXPECT_EQ(sts, MFX_ERR_NONE);
     MFXUnload(loader);
+
+    // check for RT log strings which indicate that extBufs were parsed properly
+    if (implType == MFX_IMPL_TYPE_STUB_1X) {
+        CheckOutputLog("[STUB RT]: message -- MFXInitEx -- extBuf enabled -- NumThread (9)");
+
+        CheckOutputLog(
+            "[STUB RT]: message -- MFXInitEx -- extBuf enabled -- ProcAmp (31.7 16.14 54.2 -15.63)");
+    }
+    else {
+        CheckOutputLog("[STUB RT]: message -- MFXInitialize -- extBuf enabled -- NumThread (9)");
+
+        CheckOutputLog(
+            "[STUB RT]: message -- MFXInitialize -- extBuf enabled -- ProcAmp (31.7 16.14 54.2 -15.63)");
+    }
+
+    CleanupOutputLog();
 }
 
 TEST(Dispatcher_Stub_CreateSession, RuntimeParsesMultipleExtBufsOverwriteViaMFXConfig) {
@@ -475,7 +458,7 @@ TEST(Dispatcher_Stub_CreateSession, LegacyRuntimeParsesMultipleExtBufsOverwriteV
 static void Dispatcher_CreateSession_RuntimeParsesExtBufsAndNumThreadViaMFXConfig(
     mfxImplType implType) {
     // stub RT logs results from parsing extBuf
-    CaptureOutputLog();
+    CaptureOutputLog(CAPTURE_LOG_COUT);
 
     mfxLoader loader = MFXLoad();
     EXPECT_FALSE(loader == nullptr);
@@ -499,31 +482,27 @@ static void Dispatcher_CreateSession_RuntimeParsesExtBufsAndNumThreadViaMFXConfi
     sts                = MFXCreateSession(loader, 0, &session);
     EXPECT_EQ(sts, MFX_ERR_NONE);
 
-    // check for RT log strings which indicate that extBufs were parsed properly
-    // effectively we are passing two of the same type of extBuf - it is up to the RT
-    //   how to handle this situation
-    // with the stubs, we just expect to print a valid log message for both
-    std::string outputLog;
-    GetOutputLog(outputLog);
-    if (implType == MFX_IMPL_TYPE_STUB_1X) {
-        CheckOutputLog(outputLog,
-                       "[STUB RT]: message -- MFXInitEx -- extBuf enabled -- NumThread (12)");
-
-        CheckOutputLog(outputLog,
-                       "[STUB RT]: message -- MFXInitEx -- extBuf enabled -- NumThread (24)");
-    }
-    else {
-        CheckOutputLog(outputLog,
-                       "[STUB RT]: message -- MFXInitialize -- extBuf enabled -- NumThread (12)");
-
-        CheckOutputLog(outputLog,
-                       "[STUB RT]: message -- MFXInitialize -- extBuf enabled -- NumThread (24)");
-    }
-
     // free internal resources
     sts = MFXClose(session);
     EXPECT_EQ(sts, MFX_ERR_NONE);
     MFXUnload(loader);
+
+    // check for RT log strings which indicate that extBufs were parsed properly
+    // effectively we are passing two of the same type of extBuf - it is up to the RT
+    //   how to handle this situation
+    // with the stubs, we just expect to print a valid log message for both
+    if (implType == MFX_IMPL_TYPE_STUB_1X) {
+        CheckOutputLog("[STUB RT]: message -- MFXInitEx -- extBuf enabled -- NumThread (12)");
+
+        CheckOutputLog("[STUB RT]: message -- MFXInitEx -- extBuf enabled -- NumThread (24)");
+    }
+    else {
+        CheckOutputLog("[STUB RT]: message -- MFXInitialize -- extBuf enabled -- NumThread (12)");
+
+        CheckOutputLog("[STUB RT]: message -- MFXInitialize -- extBuf enabled -- NumThread (24)");
+    }
+
+    CleanupOutputLog();
 }
 
 TEST(Dispatcher_Stub_CreateSession, RuntimeParsesExtBufsAndNumThreadViaMFXConfig) {
@@ -667,13 +646,45 @@ TEST(Dispatcher_Stub_CloneSession, Basic_Clone_Succeeds) {
     MFXUnload(loader);
 }
 
+TEST(Dispatcher_Stub_CloneSession, Basic_Clone_Succeeds1x) {
+    SKIP_IF_DISP_STUB_DISABLED();
+
+    mfxLoader loader = MFXLoad();
+    EXPECT_FALSE(loader == nullptr);
+
+    mfxStatus sts = SetConfigImpl(loader, MFX_IMPL_TYPE_STUB_1X);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // create session with first implementation
+    mfxSession session = nullptr;
+    sts                = MFXCreateSession(loader, 0, &session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    mfxSession cloneSession = nullptr;
+    sts                     = MFXCloneSession(session, &cloneSession);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // disjoin the child (cloned) session
+    sts = MFXDisjoinSession(cloneSession);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // free internal resources
+    sts = MFXClose(session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    sts = MFXClose(cloneSession);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    MFXUnload(loader);
+}
+
 #ifdef ONEVPL_EXPERIMENTAL
 
 TEST(Dispatcher_Stub_CreateSession, DeviceCopySetOn) {
     SKIP_IF_DISP_STUB_DISABLED();
 
     // stub RT logs results from MFXInitialize
-    CaptureOutputLog();
+    CaptureOutputLog(CAPTURE_LOG_COUT);
 
     mfxLoader loader = MFXLoad();
     EXPECT_FALSE(loader == nullptr);
@@ -689,22 +700,21 @@ TEST(Dispatcher_Stub_CreateSession, DeviceCopySetOn) {
     sts                = MFXCreateSession(loader, 0, &session);
     EXPECT_EQ(sts, MFX_ERR_NONE);
 
-    // check for RT log string which indicates that DeviceCopy was set properly
-    std::string outputLog;
-    GetOutputLog(outputLog);
-    CheckOutputLog(outputLog, "[STUB RT]: message -- MFXInitialize -- DeviceCopy set (1)");
-
     // free internal resources
     sts = MFXClose(session);
     EXPECT_EQ(sts, MFX_ERR_NONE);
     MFXUnload(loader);
+
+    // check for RT log string which indicates that DeviceCopy was set properly
+    CheckOutputLog("[STUB RT]: message -- MFXInitialize -- DeviceCopy set (1)");
+    CleanupOutputLog();
 }
 
 TEST(Dispatcher_Stub_CreateSession, DeviceCopySetOff) {
     SKIP_IF_DISP_STUB_DISABLED();
 
     // stub RT logs results from MFXInitialize
-    CaptureOutputLog();
+    CaptureOutputLog(CAPTURE_LOG_COUT);
 
     mfxLoader loader = MFXLoad();
     EXPECT_FALSE(loader == nullptr);
@@ -721,9 +731,8 @@ TEST(Dispatcher_Stub_CreateSession, DeviceCopySetOff) {
     EXPECT_EQ(sts, MFX_ERR_NONE);
 
     // check for RT log string which indicates that DeviceCopy was set properly
-    std::string outputLog;
-    GetOutputLog(outputLog);
-    CheckOutputLog(outputLog, "[STUB RT]: message -- MFXInitialize -- DeviceCopy set (2)");
+    CheckOutputLog("[STUB RT]: message -- MFXInitialize -- DeviceCopy set (2)");
+    CleanupOutputLog();
 
     // free internal resources
     sts = MFXClose(session);
@@ -735,7 +744,7 @@ TEST(Dispatcher_Stub_CreateSession, DeviceCopySetInvalid) {
     SKIP_IF_DISP_STUB_DISABLED();
 
     // stub RT logs results from MFXInitialize
-    CaptureOutputLog();
+    CaptureOutputLog(CAPTURE_LOG_COUT);
 
     mfxLoader loader = MFXLoad();
     EXPECT_FALSE(loader == nullptr);
@@ -751,21 +760,19 @@ TEST(Dispatcher_Stub_CreateSession, DeviceCopySetInvalid) {
     sts                = MFXCreateSession(loader, 0, &session);
     EXPECT_EQ(sts, MFX_ERR_UNSUPPORTED);
 
-    // check for RT log string which indicates that DeviceCopy was set to invalid value
-    std::string outputLog;
-    GetOutputLog(outputLog);
-    CheckOutputLog(outputLog,
-                   "[STUB RT]: message -- MFXInitialize -- DeviceCopy set to invalid value (999)");
-
     // free internal resources
     MFXUnload(loader);
+
+    // check for RT log string which indicates that DeviceCopy was set to invalid value
+    CheckOutputLog("[STUB RT]: message -- MFXInitialize -- DeviceCopy set to invalid value (999)");
+    CleanupOutputLog();
 }
 
 TEST(Dispatcher_Stub_CreateSession, DeviceCopySetOn1x) {
     SKIP_IF_DISP_STUB_DISABLED();
 
     // stub RT logs results from MFXInitialize
-    CaptureOutputLog();
+    CaptureOutputLog(CAPTURE_LOG_COUT);
 
     mfxLoader loader = MFXLoad();
     EXPECT_FALSE(loader == nullptr);
@@ -781,22 +788,21 @@ TEST(Dispatcher_Stub_CreateSession, DeviceCopySetOn1x) {
     sts                = MFXCreateSession(loader, 0, &session);
     EXPECT_EQ(sts, MFX_ERR_NONE);
 
-    // check for RT log string which indicates that DeviceCopy was set properly
-    std::string outputLog;
-    GetOutputLog(outputLog);
-    CheckOutputLog(outputLog, "[STUB RT]: message -- MFXInitEx -- GPUCopy set (1)");
-
     // free internal resources
     sts = MFXClose(session);
     EXPECT_EQ(sts, MFX_ERR_NONE);
     MFXUnload(loader);
+
+    // check for RT log string which indicates that DeviceCopy was set properly
+    CheckOutputLog("[STUB RT]: message -- MFXInitEx -- GPUCopy set (1)");
+    CleanupOutputLog();
 }
 
 TEST(Dispatcher_Stub_CreateSession, DeviceCopySetOff1x) {
     SKIP_IF_DISP_STUB_DISABLED();
 
     // stub RT logs results from MFXInitialize
-    CaptureOutputLog();
+    CaptureOutputLog(CAPTURE_LOG_COUT);
 
     mfxLoader loader = MFXLoad();
     EXPECT_FALSE(loader == nullptr);
@@ -813,22 +819,21 @@ TEST(Dispatcher_Stub_CreateSession, DeviceCopySetOff1x) {
     sts                = MFXCreateSession(loader, 0, &session);
     EXPECT_EQ(sts, MFX_ERR_NONE);
 
-    // check for RT log string which indicates that DeviceCopy was set properly
-    std::string outputLog;
-    GetOutputLog(outputLog);
-    CheckOutputLog(outputLog, "[STUB RT]: message -- MFXInitEx -- GPUCopy set (2)");
-
     // free internal resources
     sts = MFXClose(session);
     EXPECT_EQ(sts, MFX_ERR_NONE);
     MFXUnload(loader);
+
+    // check for RT log string which indicates that DeviceCopy was set properly
+    CheckOutputLog("[STUB RT]: message -- MFXInitEx -- GPUCopy set (2)");
+    CleanupOutputLog();
 }
 
 TEST(Dispatcher_Stub_CreateSession, DeviceCopySetInvalid1x) {
     SKIP_IF_DISP_STUB_DISABLED();
 
     // stub RT logs results from MFXInitialize
-    CaptureOutputLog();
+    CaptureOutputLog(CAPTURE_LOG_COUT);
 
     mfxLoader loader = MFXLoad();
     EXPECT_FALSE(loader == nullptr);
@@ -845,14 +850,12 @@ TEST(Dispatcher_Stub_CreateSession, DeviceCopySetInvalid1x) {
     sts                = MFXCreateSession(loader, 0, &session);
     EXPECT_EQ(sts, MFX_ERR_UNSUPPORTED);
 
-    // check for RT log string which indicates that DeviceCopy was set to invalid value
-    std::string outputLog;
-    GetOutputLog(outputLog);
-    CheckOutputLog(outputLog,
-                   "[STUB RT]: message -- MFXInitEx -- GPUCopy set to invalid value (999)");
-
     // free internal resources
     MFXUnload(loader);
+
+    // check for RT log string which indicates that DeviceCopy was set to invalid value
+    CheckOutputLog("[STUB RT]: message -- MFXInitEx -- GPUCopy set to invalid value (999)");
+    CleanupOutputLog();
 }
 
 // clang-format off

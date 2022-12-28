@@ -9,6 +9,13 @@
 #include "src/unit_api.h"
 
 #if LEGACY_TEST_VER == 2
+    // disambiguate classes if utest app includes both original and preview implementations
+    #define MFXVideoSession    MFXVideoSession_Preview
+    #define MFXVideoDECODE     MFXVideoDECODE_Preview
+    #define MFXVideoENCODE     MFXVideoENCODE_Preview
+    #define MFXVideoVPP        MFXVideoVPP_Preview
+    #define MFXVideoDECODE_VPP MFXVideoDECODE_VPP_Preview
+
     #include "vpl/preview/legacy/mfxvideo++.h"
 #else
     #include "vpl/mfxvideo++.h"

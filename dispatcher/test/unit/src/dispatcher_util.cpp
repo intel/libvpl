@@ -8,40 +8,105 @@
 
 #include "src/dispatcher_common.h"
 
-void CaptureOutputLog(bool bEnableDispatcherLog) {
-    if (bEnableDispatcherLog) {
+// globals - only one unit test logger may be active at the same time
+static CaptureLogType g_captureLogType = CAPTURE_LOG_DISABLED;
+static std::streambuf *g_coutSB;
+static std::ostringstream g_logSS;
+
+void CaptureOutputLog(CaptureLogType type) {
+    if (g_captureLogType != CAPTURE_LOG_DISABLED)
+        return; // error - someone has already started capture
+
+    if (type == CAPTURE_LOG_DISPATCHER) {
+        // delete any existing log file and set env vars for dispatcher log
+        // dispatcher will open and write to the new log file
+        std::remove(CAPTURE_LOG_DEF_FILENAME);
+
 #if defined(_WIN32) || defined(_WIN64)
         SetEnvironmentVariable("ONEVPL_DISPATCHER_LOG", "ON");
+        SetEnvironmentVariable("ONEVPL_DISPATCHER_LOG_FILE", CAPTURE_LOG_DEF_FILENAME);
 #else
         setenv("ONEVPL_DISPATCHER_LOG", "ON", 1);
+        setenv("ONEVPL_DISPATCHER_LOG_FILE", CAPTURE_LOG_DEF_FILENAME, 1);
 #endif
     }
+    else if (type == CAPTURE_LOG_FILE) {
+        // delete any existing log file
+        // executable and/or runtime lib will open and write to the new log file
+        std::remove(CAPTURE_LOG_DEF_FILENAME);
+    }
+    else if (type == CAPTURE_LOG_COUT) {
+        // redirect cout to a local stringstream
+        g_coutSB = std::cout.rdbuf();
+        std::cout.rdbuf(g_logSS.rdbuf());
+    }
+    else {
+        fprintf(stderr, "Error: invalid CaptureLogType %d\n", type);
+        FAIL();
+    }
 
-    // start capturing log output
-    testing::internal::CaptureStdout();
+    g_captureLogType = type;
 }
 
-void GetOutputLog(std::string &outputLog) {
-#if defined(_WIN32) || defined(_WIN64)
-    SetEnvironmentVariable("ONEVPL_DISPATCHER_LOG", NULL);
-#else
-    unsetenv("ONEVPL_DISPATCHER_LOG");
-#endif
+// check for expectedString anywhere in outputLog (e.g. look for string in part of a long log file)
+// generally this should be called AFTER MFXUnload(), so that log file handle (if any) is closed
+void CheckOutputLog(const char *expectedString, bool expectMatch) {
+    std::string outputLog;
 
-    outputLog = testing::internal::GetCapturedStdout();
-}
+    if (g_captureLogType == CAPTURE_LOG_DISPATCHER || g_captureLogType == CAPTURE_LOG_FILE) {
+        std::ifstream logFile(CAPTURE_LOG_DEF_FILENAME);
+        if (!logFile) {
+            fprintf(stderr, "Error: failed to open log file %s\n", CAPTURE_LOG_DEF_FILENAME);
+            FAIL();
+        }
 
-void CheckOutputLog(std::string outputLog, const char *expectedString, bool expectMatch) {
+        // read log file into string
+        std::stringstream ss;
+        ss << logFile.rdbuf();
+        logFile.close();
+        outputLog = ss.str();
+    }
+    else if (g_captureLogType == CAPTURE_LOG_COUT) {
+        // copy captured output into string
+        outputLog = g_logSS.str();
+    }
+
     size_t logPos = outputLog.find(expectedString);
 
-    printf("Info: CheckOutputLog(%s) -- string %s\n",
-           (expectMatch ? "true" : "false"),
-           expectedString);
+    fprintf(stderr,
+            "Info: CheckOutputLog(%s) -- string %s\n",
+            (expectMatch ? "true" : "false"),
+            expectedString);
 
     if (expectMatch)
         EXPECT_NE(logPos, std::string::npos);
     else
         EXPECT_EQ(logPos, std::string::npos);
+}
+
+// call after MFXUnload() to ensure that log file (if any) has been closed
+void CleanupOutputLog(void) {
+    if (g_captureLogType == CAPTURE_LOG_DISPATCHER) {
+#if defined(_WIN32) || defined(_WIN64)
+        SetEnvironmentVariable("ONEVPL_DISPATCHER_LOG", NULL);
+        SetEnvironmentVariable("ONEVPL_DISPATCHER_LOG_FILE", NULL);
+#else
+        unsetenv("ONEVPL_DISPATCHER_LOG");
+        unsetenv("ONEVPL_DISPATCHER_LOG_FILE");
+#endif
+        std::remove(CAPTURE_LOG_DEF_FILENAME);
+    }
+    else if (g_captureLogType == CAPTURE_LOG_FILE) {
+        std::remove(CAPTURE_LOG_DEF_FILENAME);
+    }
+    else if (g_captureLogType == CAPTURE_LOG_COUT) {
+        // reset cout
+        std::cout.rdbuf(g_coutSB);
+        g_coutSB = nullptr;
+        g_logSS.str("");
+    }
+
+    g_captureLogType = CAPTURE_LOG_DISABLED;
 }
 
 // helper functions to get/set global string to working dir

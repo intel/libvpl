@@ -30,7 +30,7 @@ void Dispatcher_CreateSession_SimpleConfigCanCreateSession(mfxImplType implType)
 
 void Dispatcher_CreateSession_SetValidNumThreadCreatesSession(mfxImplType implType) {
     // dispatcher logs extBufs that are passed to MFXInitialize
-    CaptureOutputLog(true);
+    CaptureOutputLog(CAPTURE_LOG_DISPATCHER);
 
     mfxLoader loader = MFXLoad();
     EXPECT_FALSE(loader == nullptr);
@@ -46,15 +46,14 @@ void Dispatcher_CreateSession_SetValidNumThreadCreatesSession(mfxImplType implTy
     sts                = MFXCreateSession(loader, 0, &session);
     EXPECT_EQ(sts, MFX_ERR_NONE);
 
-    // check for dispatcher log string which indicates that extBuf was set properly
-    std::string outputLog;
-    GetOutputLog(outputLog);
-    CheckOutputLog(outputLog, "message:  extBuf enabled -- NumThread (2)");
-
     // free internal resources
     sts = MFXClose(session);
     EXPECT_EQ(sts, MFX_ERR_NONE);
     MFXUnload(loader);
+
+    // check for dispatcher log string which indicates that extBuf was set properly
+    CheckOutputLog("message:  extBuf enabled -- NumThread (2)");
+    CleanupOutputLog();
 }
 
 void Dispatcher_CreateSession_SetInvalidNumThreadTypeReturnsErrUnsupported(mfxImplType implType) {
@@ -2000,7 +1999,7 @@ TEST(Dispatcher_Common_SetConfigFilterProperty, OutOfRangeValueReturnsErrNone) {
 // dispatcher logging
 TEST(Dispatcher_Common_Logger, LogEnabledReturnsMessages) {
     // capture dispatcher log
-    CaptureOutputLog(true);
+    CaptureOutputLog(CAPTURE_LOG_DISPATCHER);
 
     mfxLoader loader = MFXLoad();
     EXPECT_FALSE(loader == nullptr);
@@ -2021,25 +2020,21 @@ TEST(Dispatcher_Common_Logger, LogEnabledReturnsMessages) {
     MFXUnload(loader);
 
     // check for some expected dispatcher log strings
-    std::string outputLog;
-    GetOutputLog(outputLog);
-
 #if defined(_WIN32) || defined(_WIN64)
-    CheckOutputLog(outputLog, "function: MFXCreateSession (enter)", true);
-    CheckOutputLog(outputLog, "function: MFXCreateSession (return)", true);
+    CheckOutputLog("function: MFXCreateSession (enter)", true);
+    CheckOutputLog("function: MFXCreateSession (return)", true);
 #else
-    CheckOutputLog(outputLog,
-                   "function: mfxStatus MFXCreateSession(mfxLoader, mfxU32, _mfxSession**) (enter)",
+    CheckOutputLog("function: mfxStatus MFXCreateSession(mfxLoader, mfxU32, _mfxSession**) (enter)",
                    true);
-    CheckOutputLog(outputLog,
-                   "function: mfxStatus MFXCreateSession(mfxLoader, mfxU32, _mfxSession**) (enter)",
+    CheckOutputLog("function: mfxStatus MFXCreateSession(mfxLoader, mfxU32, _mfxSession**) (enter)",
                    true);
 #endif
+    CleanupOutputLog();
 }
 
 TEST(Dispatcher_Common_Logger, LogDisabledReturnsNoMessages) {
     // capture all output, but do not enable dispatcher log
-    CaptureOutputLog(false);
+    CaptureOutputLog(CAPTURE_LOG_COUT);
 
     mfxLoader loader = MFXLoad();
     EXPECT_FALSE(loader == nullptr);
@@ -2060,18 +2055,14 @@ TEST(Dispatcher_Common_Logger, LogDisabledReturnsNoMessages) {
     MFXUnload(loader);
 
     // check for some expected dispatcher log strings
-    std::string outputLog;
-    GetOutputLog(outputLog);
-
 #if defined(_WIN32) || defined(_WIN64)
-    CheckOutputLog(outputLog, "function: MFXCreateSession (enter)", false);
-    CheckOutputLog(outputLog, "function: MFXCreateSession (return)", false);
+    CheckOutputLog("function: MFXCreateSession (enter)", false);
+    CheckOutputLog("function: MFXCreateSession (return)", false);
 #else
-    CheckOutputLog(outputLog,
-                   "function: mfxStatus MFXCreateSession(mfxLoader, mfxU32, _mfxSession**) (enter)",
+    CheckOutputLog("function: mfxStatus MFXCreateSession(mfxLoader, mfxU32, _mfxSession**) (enter)",
                    false);
-    CheckOutputLog(outputLog,
-                   "function: mfxStatus MFXCreateSession(mfxLoader, mfxU32, _mfxSession**) (enter)",
+    CheckOutputLog("function: mfxStatus MFXCreateSession(mfxLoader, mfxU32, _mfxSession**) (enter)",
                    false);
 #endif
+    CleanupOutputLog();
 }

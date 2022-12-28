@@ -4,12 +4,11 @@
   # SPDX-License-Identifier: MIT
   ############################################################################*/
 
-#include <stdarg.h>
-#include <stdio.h>
-
-#include "vpl/mfx.h"
+#include <iostream>
+#include <ostream>
 
 #include "src/caps.h"
+#include "src/config.h"
 
 // the auto-generated capabilities structs
 // only include one time in this library
@@ -30,20 +29,27 @@
 
 // print messages to be parsed in unit tests to stdout, and other errors to stderr
 static void StubRTLogMessage(const char *msg, ...) {
-    fprintf(stdout, "[STUB RT]: message -- ");
+    std::cout << "[STUB RT]: message -- ";
 
+    char s[1024] = "";
     va_list args;
     va_start(args, msg);
-    vfprintf(stdout, msg, args);
+    vsprintf_s(s, sizeof(s) - 1, msg, args);
     va_end(args);
+
+    std::cout << s << std::endl;
 }
 
 static void StubRTLogError(const char *msg, ...) {
-    fprintf(stderr, "[STUB RT]: ERROR -- ");
+    std::cout << "[STUB RT]: ERROR -- ";
+
+    char s[1024] = "";
     va_list args;
     va_start(args, msg);
-    vfprintf(stderr, msg, args);
+    vsprintf_s(s, sizeof(s) - 1, msg, args);
     va_end(args);
+
+    std::cerr << s << std::endl;
 }
 
 static mfxStatus ValidateExtBuf(const char *strInitFunc, mfxExtBuffer *extBuf) {
@@ -129,7 +135,13 @@ mfxStatus MFXInitialize(mfxInitializationParam par, mfxSession *session) {
     }
 #endif
 
-    *session = (mfxSession)DEFAULT_SESSION_HANDLE_2X;
+    _mfxSession *stubSession = new _mfxSession;
+    if (!stubSession)
+        return MFX_ERR_MEMORY_ALLOC;
+
+    stubSession->handleType = DEFAULT_SESSION_HANDLE_2X;
+
+    *session = (mfxSession)stubSession;
 
     return MFX_ERR_NONE;
 }
@@ -166,7 +178,13 @@ mfxStatus MFXInitEx(mfxInitParam par, mfxSession *session) {
     }
 #endif
 
-    *session = (mfxSession)DEFAULT_SESSION_HANDLE_1X;
+    _mfxSession *stubSession = new _mfxSession;
+    if (!stubSession)
+        return MFX_ERR_MEMORY_ALLOC;
+
+    stubSession->handleType = DEFAULT_SESSION_HANDLE_1X;
+
+    *session = (mfxSession)stubSession;
 
     return MFX_ERR_NONE;
 }
@@ -175,11 +193,19 @@ mfxStatus MFXCloneSession(mfxSession session, mfxSession *clone) {
     if (!session)
         return MFX_ERR_INVALID_HANDLE;
 
-    mfxU64 s = (mfxU64)session;
-    if (s != DEFAULT_SESSION_HANDLE_1X && s != DEFAULT_SESSION_HANDLE_2X)
+    _mfxSession *stubSession = (_mfxSession *)session;
+    if (stubSession->handleType != DEFAULT_SESSION_HANDLE_1X &&
+        stubSession->handleType != DEFAULT_SESSION_HANDLE_2X)
         return MFX_ERR_INVALID_HANDLE;
 
-    *clone = (mfxSession)DEFAULT_CLONE_SESSION_HANDLE;
+    // create a clone session
+    _mfxSession *cloneSession = new _mfxSession;
+    if (!cloneSession)
+        return MFX_ERR_MEMORY_ALLOC;
+
+    cloneSession->handleType = DEFAULT_CLONE_SESSION_HANDLE;
+
+    *clone = (mfxSession)cloneSession;
 
     return MFX_ERR_NONE;
 }
@@ -188,9 +214,9 @@ mfxStatus MFXDisjoinSession(mfxSession session) {
     if (!session)
         return MFX_ERR_INVALID_HANDLE;
 
-    mfxU64 s = (mfxU64)session;
-    if (s != DEFAULT_CLONE_SESSION_HANDLE)
-        return MFX_ERR_UNDEFINED_BEHAVIOR;
+    _mfxSession *stubSession = (_mfxSession *)session;
+    if (stubSession->handleType != DEFAULT_CLONE_SESSION_HANDLE)
+        return MFX_ERR_INVALID_HANDLE;
 
     return MFX_ERR_NONE;
 }
@@ -199,10 +225,13 @@ mfxStatus MFXClose(mfxSession session) {
     if (!session)
         return MFX_ERR_INVALID_HANDLE;
 
-    mfxU64 s = (mfxU64)session;
-    if (s != DEFAULT_SESSION_HANDLE_1X && s != DEFAULT_SESSION_HANDLE_2X &&
-        s != DEFAULT_CLONE_SESSION_HANDLE)
+    _mfxSession *stubSession = (_mfxSession *)session;
+    if (stubSession->handleType != DEFAULT_SESSION_HANDLE_1X &&
+        stubSession->handleType != DEFAULT_SESSION_HANDLE_2X &&
+        stubSession->handleType != DEFAULT_CLONE_SESSION_HANDLE)
         return MFX_ERR_INVALID_HANDLE;
+
+    delete stubSession;
 
     return MFX_ERR_NONE;
 }

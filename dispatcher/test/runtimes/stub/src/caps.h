@@ -7,10 +7,7 @@
 #ifndef DISPATCHER_TEST_RUNTIMES_STUB_SRC_CAPS_H_
 #define DISPATCHER_TEST_RUNTIMES_STUB_SRC_CAPS_H_
 
-#include <string.h>
-
-#include "vpl/mfxjpeg.h"
-#include "vpl/mfxvideo.h"
+#include "vpl/mfx.h"
 
 // random values to return in MFXQueryImpl() instead of real impl type
 // unit tests can check which mock DLL was actually inited from MFXCreateSession()
@@ -26,13 +23,6 @@ struct ImplDescriptionArray {
     mfxU32 currImpl; // index of this handle in the array
     mfxU32 numImpl; // total number of implementations
 };
-
-#if defined(_WIN32) || defined(_WIN64)
-#else
-    // Linux
-    #define strcpy_s(dst, size, src)       strcpy((dst), (src)) // NOLINT
-    #define strncpy_s(dst, size, src, cnt) strcpy((dst), (src)) // NOLINT
-#endif
 
 #define DEF_STRUCT_VERSION_MAJOR 1
 #define DEF_STRUCT_VERSION_MINOR 0

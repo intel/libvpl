@@ -15,11 +15,14 @@
     #define PATH_SEPARATOR "\\"
 #else
     #include <dirent.h>
+    #include <limits.h>
     #include <sys/stat.h>
 
     #define PATH_SEPARATOR "/"
 #endif
 
+#include <fstream>
+#include <iostream>
 #include <list>
 #include <string>
 
@@ -31,19 +34,28 @@
 #define MFX_IMPL_TYPE_STUB    ((mfxImplType)0xFFFF)
 #define MFX_IMPL_TYPE_STUB_1X ((mfxImplType)0xAAAA)
 
+#define CAPTURE_LOG_DEF_FILENAME "utestLogFile_vpl.txt"
+
+typedef enum {
+    CAPTURE_LOG_DISABLED = 0,
+
+    CAPTURE_LOG_DISPATCHER = 1, // capture the dispatcher log output (enables ONEVPL_DISPATCHER_LOG)
+    CAPTURE_LOG_FILE       = 2, // capture log output which is sent to a file
+    CAPTURE_LOG_COUT       = 3, // capture log output which is sent to std::cout
+} CaptureLogType;
+
 // helper functions for dispatcher tests
 mfxStatus SetConfigImpl(mfxLoader loader, mfxU32 implType, bool bRequire2xGPU = false);
 
-// enable gtest to capture output sent to stdout for parsing
-// set bEnableDispatcherLog to true to enable dispatcher log output as well
-void CaptureOutputLog(bool bEnableDispatcherLog = false);
+// start capturing log output, behavior determined by CaptureLogType
+void CaptureOutputLog(CaptureLogType type);
 
-// stop capturing output log and save it to a string
-void GetOutputLog(std::string &dispLog);
+// check whether expectedString is found in the captured log
+// set expectMatch to false to check that expectedString is NOT in the log
+void CheckOutputLog(const char *expectedString, bool expectMatch = true);
 
-// check whether expectedString is found in dispLog (gtest fails if not)
-// set expectMatch to false to check that expectedString is NOT in dispLog
-void CheckOutputLog(std::string dispLog, const char *expectedString, bool expectMatch = true);
+// delete log files, reset log type, reset cout
+void CleanupOutputLog(void);
 
 int CreateWorkingDirectory(const char *dirPath);
 
