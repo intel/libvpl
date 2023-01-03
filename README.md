@@ -51,6 +51,8 @@ Runtime loaded by oneVPL Dispatcher and their Microsoft* DirectX* support:
 | RKL (Rocket Lake)                          |                  |:heavy_check_mark:| DX11                        |
 | ADL-S (Alder Lake S)                       |                  |:heavy_check_mark:| DX11                        |
 | ADL-P (Alder Lake P)                       |                  |:heavy_check_mark:| DX11                        |
+| DG2 (Intel® Arc™ A-Series Graphics)        |                  |:heavy_check_mark:| DX11                        |
+| ATSM (Intel® Data Center GPU Flex Series)  |                  |:heavy_check_mark:| DX11                        |
 | Future platforms...                        |                  |:heavy_check_mark:| DX11                        |
 
 For TGL and DG1, if both oneVPL and Intel(R) Media SDK runtime are installed then the oneVPL Dispatcher will prefer oneVPL runtime unless the application requests D3D9 by setting the oneVPL Dispatcher filter property "mfxImplDescription.AccelerationMode" to MFX_ACCEL_MODE_VIA_D3D9.
