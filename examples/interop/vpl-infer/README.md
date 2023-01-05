@@ -130,15 +130,25 @@ If you don't see `render` from `groups` command, then you should add user1 to `r
 usermod -a -G render user1
 newgrp render
 ```
+This sample is using Intel® DL Streamer docker image as base. (https://hub.docker.com/r/intel/dlstreamer)
 
+Set the target base image by platform.
+
+#### For Intel Gen12/DG1 GPUs (ex: TGL)
+```
+DLS_IMAGE=intel/dlstreamer:2022.2.0-ubuntu20-gpu815-devel
+```
+#### For Intel Data Center GPU Flex Series (ex: DG2)
+```
+DLS_IMAGE=intel/dlstreamer:2022.2.0-ubuntu20-gpu419.40-devel
+```
 Go to vpl-infer/docker and build docker image
-
 ```
-docker build -t onevpl_openvino .
+docker build -t onevpl_openvino --build-arg BASE_IMAGE=$DLS_IMAGE .
 ```
-If there’re proxy servers, then you might need to pass that information with using “—build-arg”,
+If there’re proxy servers, then you might need to pass that information with using “--build-arg”,
 ```
-docker build -t onevpl_openvino $(env | grep -E '(_proxy=|_PROXY)' | sed 's/^/--build-arg /') .
+docker build -t onevpl_openvino $(env | grep -E '(_proxy=|_PROXY)' | sed 's/^/--build-arg /') --build-arg BASE_IMAGE=$DLS_IMAGE .
 ```
 Start the container, mounting the examples directory\
 Read render group id (it might be different by system configuration)

@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Instructions on how to use vpl-infer with official Intel(R) DL Streamer docker images by platform
+
+### Fixed
+- vpl-infer Dockerfile failing to work in iGPU (Gen12) and to work by recent OpenVINO repo label change
+
 ### Changed
 - Example directory names to clarify API level used
 
