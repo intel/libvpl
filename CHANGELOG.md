@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Example directory names to clarify API level used
+- vpl-infer to support OpenVINO 2022.3.0
 
 ## [2023.1.1] - 2022-12-23
 

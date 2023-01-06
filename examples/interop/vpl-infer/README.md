@@ -65,8 +65,8 @@ This can be set up in a bare metal Ubuntu 20.04 system or with Docker.
 apt install python3 python3.8-venv
 python3 -m venv openvino_env
 source openvino_env/bin/activate
-python3 -m pip install --upgrade pip
-pip install openvino-dev[caffe]==2022.2.0
+python -m pip install --upgrade pip
+pip install openvino-dev[caffe]==2022.3.0
 ```
 * Download mobilenet-ssd from virtual environment
 ```
@@ -116,7 +116,7 @@ cmake .. && cmake --build . --config release
 ```
 
 
-### Using a docker container
+### Using a docker container (Linux)
 
 Check groups of current user
 Let's say your username is `user1`
@@ -177,28 +177,20 @@ cmake .. && cmake --build . --config release
 
 ```
 OpenVINO Runtime
-    Version : 2022.2.0
-    Build   : 2022.2.0-7713-af16ea1d79a-releases/2022/2
+    Version : 2022.3.0
+    Build   : 2022.3.0-9052-9752fafe8eb-releases/2022/3
 
 Loading network model files: /oneVPL/nm/mobilenet-ssd/FP32/mobilenet-ssd.xml
     Model name: MobileNet-SSD
     Inputs
         Input name: data
         Input type: f32
-        Input shape: {1, 3, 300, 300}
+        Input shape: [1,3,300,300]
     Outputs
         Output name: detection_out
         Output type: f32
-        Output shape: {1, 1, 100, 7}
+        Output shape: [1,1,100,7]
 
-libva info: VA-API version 1.15.0
-libva info: Trying to open /usr/lib/x86_64-linux-gnu/dri/iHD_drv_video.so
-libva info: Found init function __vaDriverInit_1_15
-libva info: va_openDriver() returns 0
-libva info: VA-API version 1.15.0
-libva info: Trying to open /usr/lib/x86_64-linux-gnu/dri/iHD_drv_video.so
-libva info: Found init function __vaDriverInit_1_15
-libva info: va_openDriver() returns 0
 libva info: VA-API version 1.15.0
 libva info: Trying to open /usr/lib/x86_64-linux-gnu/dri/iHD_drv_video.so
 libva info: Found init function __vaDriverInit_1_15
@@ -223,16 +215,16 @@ Result:
     Label Id (7),  BBox (  92,  112,  201,  217),  Confidence (0.999)
     Label Id (7),  BBox ( 207,   50,  296,  144),  Confidence (0.997)
     Label Id (7),  BBox (  35,   43,  120,  134),  Confidence (0.995)
-    Label Id (7),  BBox (  73,   82,  167,  171),  Confidence (0.938)
-    Label Id (7),  BBox ( 168,  199,  274,  238),  Confidence (0.600)
+    Label Id (7),  BBox (  74,   81,  167,  171),  Confidence (0.933)
+    Label Id (7),  BBox ( 168,  200,  274,  238),  Confidence (0.609)
 
   ...
 
 Result:
-    Label Id (7),  BBox (  64,   68,  161,  178),  Confidence (0.997)
-    Label Id (7),  BBox ( 116,  133,  224,  238),  Confidence (0.944)
-    Label Id (7),  BBox ( 266,   80,  319,  190),  Confidence (0.846)
-    Label Id (7),  BBox (  17,   45,   71,   93),  Confidence (0.803)
+    Label Id (7),  BBox (  64,   68,  161,  178),  Confidence (0.998)
+    Label Id (7),  BBox ( 115,  131,  229,  239),  Confidence (0.919)
+    Label Id (7),  BBox ( 266,   81,  319,  190),  Confidence (0.843)
+    Label Id (7),  BBox (  17,   44,   71,   94),  Confidence (0.749)
 
 Decoded 30 frames and detected objects
 
