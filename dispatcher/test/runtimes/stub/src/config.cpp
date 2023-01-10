@@ -256,14 +256,14 @@ static const mfxPoolAllocationPolicy PoolPolicies[NUM_POOL_POLICIES_CPU] = {
 // clang-format off
 
 static const mfxImplDescription minImplDesc = {
-    { 2, 1 },                                       // struct Version
+    {{ 2, 1 }},                                     // struct Version
     MFX_IMPL_TYPE_SOFTWARE,                         // Impl
     MFX_ACCEL_MODE_NA,                              // AccelerationMode
 #ifdef ENABLE_STUB_1X
-    { 99, 1},                                       // ApiVersion
+    {{ 99, 1}},                                     // ApiVersion
     "Stub Implementation 1X",                       // ImplName
 #else
-    { MFX_VERSION_MINOR, MFX_VERSION_MAJOR },       // ApiVersion
+    {{ MFX_VERSION_MINOR, MFX_VERSION_MAJOR }},     // ApiVersion
     "Stub Implementation",                          // ImplName
 #endif
 
@@ -280,7 +280,7 @@ static const mfxImplDescription minImplDesc = {
 
     // mfxDeviceDescription Dev
     {
-        { 1, 1 },          // struct Version
+        {{ 1, 1 }},        // struct Version
         {},                // reserved
         MFX_MEDIA_UNKNOWN, // MediaAdapterType
         "0000",            // DeviceID
@@ -290,7 +290,7 @@ static const mfxImplDescription minImplDesc = {
 
     // mfxDecoderDescription Dec
     {
-        { decoderDesc.Version.Minor, decoderDesc.Version.Major },
+        {{ decoderDesc.Version.Minor, decoderDesc.Version.Major }},
         {},
         decoderDesc.NumCodecs,
         (DecCodec *)decoderDesc.Codecs,  // null for 1.x stub, may be valid for 2.x stub
@@ -298,7 +298,7 @@ static const mfxImplDescription minImplDesc = {
 
     // mfxEncoderDescription Enc
     {
-        { encoderDesc.Version.Minor, encoderDesc.Version.Major },
+        {{ encoderDesc.Version.Minor, encoderDesc.Version.Major }},
         {},
         encoderDesc.NumCodecs,
         (EncCodec *)encoderDesc.Codecs,
@@ -306,7 +306,7 @@ static const mfxImplDescription minImplDesc = {
 
     // mfxVPPDescription VPP
     {
-        { vppDesc.Version.Minor, vppDesc.Version.Major },
+        {{ vppDesc.Version.Minor, vppDesc.Version.Major }},
         {},
         vppDesc.NumFilters,
         (VPPFilter *)vppDesc.Filters,
@@ -314,14 +314,14 @@ static const mfxImplDescription minImplDesc = {
 
     // union { mfxAccelerationModeDescription AccelerationModeDescription }
     { {
-        { 0, 1 },
+        {{ 0, 1 }},
         {},
         NUM_ACCELERATION_MODES_CPU,
         (mfxAccelerationMode *)AccelerationMode,
     } },
 
     {
-        { 0, 1 },
+        {{ 0, 1 }},
         {},
         NUM_POOL_POLICIES_CPU,
         (mfxPoolAllocationPolicy *)PoolPolicies,
@@ -407,7 +407,7 @@ static const mfxImplementedFunctions *minImplFuncsArray[NUM_CPU_IMPLS] = {
 #ifndef ENABLE_STUB_1X
 #ifdef ONEVPL_EXPERIMENTAL
 static const mfxExtendedDeviceId minExtDeviceID = {
-    {0, 1},         // Version
+    {{0, 1}},       // Version
 
     0x8086,         // VendorID
     0x1595,         // DeviceID

@@ -81,8 +81,10 @@ mfxStatus MFX_CDECL MFXVideoENC_Reset(mfxSession session, mfxVideoParam* par);
 mfxStatus MFX_CDECL MFXVideoENC_Close(mfxSession session);
 
 typedef struct _mfxENCInput {
+    char dummy;
 } mfxENCInput;
 typedef struct _mfxENCOutput {
+    char dummy;
 } mfxENCOutput;
 mfxStatus MFX_CDECL MFXVideoENC_ProcessFrameAsync(mfxSession session,
                                                   mfxENCInput* in,
@@ -93,11 +95,13 @@ mfxStatus MFX_CDECL MFXVideoENC_GetVideoParam(mfxSession session, mfxVideoParam*
 
 MFX_PACK_BEGIN_STRUCT_W_PTR()
 typedef struct {
+    char dummy;
 } mfxPAKInput;
 MFX_PACK_END()
 
 MFX_PACK_BEGIN_STRUCT_W_PTR()
 typedef struct {
+    char dummy;
 } mfxPAKOutput;
 MFX_PACK_END()
 

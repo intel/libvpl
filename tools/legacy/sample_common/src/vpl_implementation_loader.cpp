@@ -79,7 +79,7 @@ VPLImplementationLoader::VPLImplementationLoader() {
 
     m_ImplIndex   = 0;
     m_Impl        = MFX_IMPL_TYPE_HARDWARE;
-    m_MinVersion  = mfxVersion{ 0 /*minor*/, 1 /*major*/ };
+    m_MinVersion  = mfxVersion{ { 0 /*minor*/, 1 /*major*/ } };
     m_adapterType = mfxMediaAdapterType::MFX_MEDIA_UNKNOWN;
     m_dGfxIdx     = -1;
     m_adapterNum  = -1;

@@ -39,7 +39,7 @@ const mfxIMPL msdkImplTab[MAX_NUM_IMPL_MSDK] = {
 #define NUM_POOL_POLICIES_MSDK 0
 
 static const mfxPoolPolicyDescription PoolPolicies = {
-    { 0, 1 },                   // struct Version
+    {{ 0, 1 }},                   // struct Version
     {},                         // reserved
     NUM_POOL_POLICIES_MSDK,     // NumPoolPolicies
     nullptr,

@@ -253,7 +253,7 @@ void PrintInfo(sInputParams* pParams, mfxVideoParam* pMfxParams, MFXVideoSession
     msdk_printf(MSDK_STRING("IOpattern type               \t%s\n"),
                 IOpattern2Str(pParams->IOPattern));
     msdk_printf(MSDK_STRING("Number of asynchronious tasks\t%hu\n"),
-                (unsigned int)pParams->asyncNum);
+                (unsigned short)pParams->asyncNum);
     msdk_printf(MSDK_STRING("Time stamps checking         \t%s\n"),
                 pParams->ptsCheck ? MSDK_STRING("ON") : MSDK_STRING("OFF"));
 

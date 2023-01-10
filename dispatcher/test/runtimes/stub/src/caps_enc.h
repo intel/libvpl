@@ -160,7 +160,7 @@ const EncCodec encCodec[] = {
 };
 
 const mfxEncoderDescription encoderDesc = {
-    { 0, 1 },
+    { { 0, 1 } },
     {},
     3,
     (EncCodec *)encCodec,

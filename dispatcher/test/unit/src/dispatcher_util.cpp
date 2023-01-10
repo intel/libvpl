@@ -525,17 +525,3 @@ mfxStatus SetSingleProperty(mfxLoader loader,
 
     return MFX_ERR_UNSUPPORTED;
 }
-
-template mfxStatus SetSingleProperty<mfxU64>(mfxLoader, const char *, mfxVariantType, mfxU64);
-template mfxStatus SetSingleProperty<mfxHDL>(mfxLoader, const char *, mfxVariantType, mfxHDL);
-
-template mfxStatus SetSingleProperty<mfxU64>(mfxLoader,
-                                             mfxConfig,
-                                             const char *,
-                                             mfxVariantType,
-                                             mfxU64);
-template mfxStatus SetSingleProperty<mfxHDL>(mfxLoader,
-                                             mfxConfig,
-                                             const char *,
-                                             mfxVariantType,
-                                             mfxHDL);

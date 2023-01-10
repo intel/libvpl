@@ -72,7 +72,9 @@ typedef char CHAR_TYPE;
 
 #define TAB_SIZE(type, tab) (sizeof(tab) / sizeof(type))
 #define MAKE_MFX_VERSION(major, minor) \
-    { (minor), (major) }
+    {                                  \
+        { (minor), (major) }           \
+    }
 
 // internal function to load dll by full path, fail if unsuccessful
 mfxStatus MFXInitEx2(mfxVersion version,

@@ -337,7 +337,7 @@ struct sInputParams {
               resetFrmNums(),
               // inFrameInfo
               numStreams(0),
-              compositionParam({ 0 }),
+              compositionParam({}),
               fccSource(0),
               verSessionInit(API_2X),
               bReadByFrame(false) {

@@ -949,6 +949,9 @@ public:
 protected:
     FILE* m_fSourceDuplicate;
     bool m_bJoined;
+
+private:
+    using CSmplBitstreamWriter::WriteNextFrame;
 };
 
 //timeinterval calculation helper
@@ -1536,6 +1539,10 @@ protected:
     mfxStatus WriteStreamHeader();
     mfxStatus WriteFrameHeader();
     void UpdateNumberOfFrames();
+
+private:
+    using CSmplBitstreamWriter::Init;
+    using CSmplBitstreamWriter::WriteNextFrame;
 };
 
 class CBitstreamWriterForParallelEncoding : public CSmplBitstreamWriter {

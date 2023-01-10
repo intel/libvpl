@@ -9,7 +9,7 @@
 #include "src/caps.h"
 
 const mfxEncoderDescription encoderDesc = {
-    { 0, 1 },
+    { { 0, 1 } },
     {},
     0,
     (EncCodec *)nullptr,

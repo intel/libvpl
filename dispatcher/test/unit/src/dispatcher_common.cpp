@@ -2023,11 +2023,17 @@ TEST(Dispatcher_Common_Logger, LogEnabledReturnsMessages) {
 #if defined(_WIN32) || defined(_WIN64)
     CheckOutputLog("function: MFXCreateSession (enter)", true);
     CheckOutputLog("function: MFXCreateSession (return)", true);
+#elif defined(__clang__)
+    CheckOutputLog("function: mfxStatus MFXCreateSession(mfxLoader, mfxU32, mfxSession *) (enter)",
+                   true);
+    CheckOutputLog("function: mfxStatus MFXCreateSession(mfxLoader, mfxU32, mfxSession *) (return)",
+                   true);
 #else
     CheckOutputLog("function: mfxStatus MFXCreateSession(mfxLoader, mfxU32, _mfxSession**) (enter)",
                    true);
-    CheckOutputLog("function: mfxStatus MFXCreateSession(mfxLoader, mfxU32, _mfxSession**) (enter)",
-                   true);
+    CheckOutputLog(
+        "function: mfxStatus MFXCreateSession(mfxLoader, mfxU32, _mfxSession**) (return)",
+        true);
 #endif
     CleanupOutputLog();
 }

@@ -129,7 +129,7 @@ sInputParams::sInputParams()
 
 CTranscodingPipeline::CTranscodingPipeline()
         : m_pmfxBS(NULL),
-          m_Version({ 0 }),
+          m_Version({}),
           m_mfxLoader(),
           m_pmfxCSSession(),
           m_pmfxCSVPP(),
@@ -149,8 +149,8 @@ CTranscodingPipeline::CTranscodingPipeline()
           m_hwdev4Rendering(NULL),
           m_pSurfaceDecPool(),
           m_pSurfaceEncPool(),
-          m_DecOutAllocReques({ 0 }),
-          m_VPPOutAllocReques({ 0 }),
+          m_DecOutAllocReques({}),
+          m_VPPOutAllocReques({}),
           m_CSSurfacePools(),
           m_EncSurfaceType(0),
           m_DecSurfaceType(0),
@@ -194,7 +194,7 @@ CTranscodingPipeline::CTranscodingPipeline()
           m_LastDecSyncPoint(0),
           m_pBuffer(NULL),
           m_pParentPipeline(NULL),
-          m_Request({ 0 }),
+          m_Request({}),
           m_bIsInit(false),
           m_NumFramesForReset(0),
           m_mReset(),

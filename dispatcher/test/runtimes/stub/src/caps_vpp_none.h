@@ -9,7 +9,7 @@
 #include "src/caps.h"
 
 const mfxVPPDescription vppDesc = {
-    { 0, 1 },
+    { { 0, 1 } },
     {},
     0,
     (VPPFilter *)nullptr,
