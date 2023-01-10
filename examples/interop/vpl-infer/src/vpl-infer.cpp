@@ -580,14 +580,14 @@ mfxStatus InferFrame(ov::intel_gpu::ocl::VAContext context,
 
     auto outputTensor = inferRequest.get_tensor(outputName);
 
-    // Display label id, bounding box rect info, and confidence % of detected object
+    // Display class id, bounding box rect info, and confidence score of detected object
     size_t lastDim = outputTensor.get_shape().back();
 
     if (lastDim == 7) {
         float *data = (float *)outputTensor.data();
         for (size_t i = 0; i < outputTensor.get_size() / lastDim; i++) {
             int imageId      = static_cast<int>(data[i * lastDim + 0]);
-            int labelId      = static_cast<int>(data[i * lastDim + 1]);
+            int classId      = static_cast<int>(data[i * lastDim + 1]);
             float confidence = data[i * lastDim + 2];
             auto x_min       = static_cast<int>(data[i * lastDim + 3] * oriWidth);
             auto y_min       = static_cast<int>(data[i * lastDim + 4] * oriHeight);
@@ -599,8 +599,8 @@ mfxStatus InferFrame(ov::intel_gpu::ocl::VAContext context,
                 continue;
             }
 
-            printf("    Label Id (%d),  BBox (%4d, %4d, %4d, %4d),  Confidence (%5.3f)\n",
-                   labelId,
+            printf("    Class ID (%d),  BBox (%4d, %4d, %4d, %4d),  Confidence (%5.3f)\n",
+                   classId,
                    x_min,
                    y_min,
                    x_max,
@@ -678,14 +678,14 @@ void InferFrame(mfxFrameSurface1 *surface,
 
     auto outputTensor = inferRequest.get_tensor(outputName);
 
-    // Display label id, bounding box rect info, and confidence % of detected object
+    // Display class id, bounding box rect info, and confidence % of detected object
     size_t lastDim = outputTensor.get_shape().back();
 
     if (lastDim == 7) {
         float *data = (float *)outputTensor.data();
         for (size_t i = 0; i < outputTensor.get_size() / lastDim; i++) {
             int imageId      = static_cast<int>(data[i * lastDim + 0]);
-            int labelId      = static_cast<int>(data[i * lastDim + 1]);
+            int classId      = static_cast<int>(data[i * lastDim + 1]);
             float confidence = data[i * lastDim + 2];
             auto x_min       = static_cast<int>(data[i * lastDim + 3] * oriWidth);
             auto y_min       = static_cast<int>(data[i * lastDim + 4] * oriHeight);
@@ -697,8 +697,8 @@ void InferFrame(mfxFrameSurface1 *surface,
                 continue;
             }
 
-            printf("    Label Id (%d),  BBox (%4d, %4d, %4d, %4d),  Confidence (%5.3f)\n",
-                   labelId,
+            printf("    Class Id (%d),  BBox (%4d, %4d, %4d, %4d),  Confidence (%5.3f)\n",
+                   classId,
                    x_min,
                    y_min,
                    x_max,
