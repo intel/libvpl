@@ -19,8 +19,8 @@ perform a simple video decode and resize, and how to use OpenVINO for inferencin
 | Optimized for    | Description
 |----------------- | ----------------------------------------
 | OS               | Ubuntu* 20.04; Windows* 10
-| Hardware runtime | Compatible with Intel® oneAPI Video Processing Library(oneVPL) GPU implementation, which can be found at https://github.com/oneapi-src/oneVPL-intel-gpu 
-|                  | and Intel® Media SDK GPU implementation, which can be found at https://github.com/Intel-Media-SDK/MediaSDK
+| Hardware runtime | Compatible with Intel® oneAPI Video Processing Library(oneVPL) GPU implementation, which can be found at [Intel® oneVPL GPU Implementation Open Source](https://github.com/oneapi-src/oneVPL-intel-gpu)
+|                  | and Intel® Media SDK GPU implementation, which can be found at [Intel® Media SDK Open Source](https://github.com/Intel-Media-SDK/MediaSDK)
 | What You Will Learn | How to use oneVPL to decode an H.265 encoded video file and resize and perform per-frame object detection inference
 | Time to Complete | 5 minutes
 
@@ -50,8 +50,7 @@ object detection on each frame using OpenVINO.
 | -i       | H.265 video elementary stream  |
 | -m       | Object detection network model |
 | -legacy  | Run sample in legacy gen (ex: gen 9.x - SKL, KBL, etc) |
-| -zerocopy| process data without copying between oneVPL and OpenVINO in hardware implemenation mode | Linux only
-|          | | with `-hw` only
+| -zerocopy| Process data without copying between oneVPL and OpenVINO in hardware implemenation mode | with `-hw` only
 |          | | not with `-legacy`
 
 
@@ -79,8 +78,7 @@ This can be set up in a bare metal Ubuntu 20.04 system or with Docker for Linux,
 
 2. Install Intel general purpose GPU (GPGPU) software packages:
 
-   Follow steps in 
-   https://dgpu-docs.intel.com/installation-guides/index.html#
+    Follow steps in [DGPU Installation Guide](https://dgpu-docs.intel.com/installation-guides/index.html#)
 
 
 3. Download the Mobilenet-ssd object detection model from OpenVINO model Zoo and covert it to IR model:
@@ -109,25 +107,20 @@ This can be set up in a bare metal Ubuntu 20.04 system or with Docker for Linux,
 
 4. Set up oneAPI and OpenVINO environment:
 
-   If the installation directories are `"/opt/intel/oneapi"`, and `"/opt/intel/openvino_2022"`
+    If the installation directories are `"/opt/intel/oneapi"`, and `"/opt/intel/openvino_2022"`
     ```
     source /opt/intel/oneapi/setvars.sh
     source /opt/intel/openvino_2022/setupvars.sh
     ```
  
 
-5. Build the program:
+5. Build and run the program:
 
     ```
     mkdir build && cd build
     cmake .. && cmake --build . --config release
     ```
-
-
-6. Run the program:
-
-   Please set the proper path for the content and OpenVINO IR model you prepared
-
+    Please set the proper path for the content and OpenVINO IR model you prepared
     ```
     ./vpl-infer -hw -i cars_320x240.h265 -m mobilenet-ssd.xml
     ```
@@ -147,7 +140,7 @@ This can be set up in a bare metal Ubuntu 20.04 system or with Docker for Linux,
     usermod -a -G render user1
     newgrp render
     ```
-    This sample is using Intel® DL Streamer docker image as base. (https://hub.docker.com/r/intel/dlstreamer)
+    This sample is using Intel® DL Streamer docker image as base from [DLStreamer docker hub](https://hub.docker.com/r/intel/dlstreamer)
 
 
 2. Set the target base image by platform:
@@ -176,7 +169,6 @@ This can be set up in a bare metal Ubuntu 20.04 system or with Docker for Linux,
 4. Start the container, mounting the examples directory:
 
     Read render group id (it might be different by system configuration)
-
     ```
     stat -c "%g" /dev/dri/render*
     109
@@ -225,7 +217,6 @@ This can be set up in a bare metal Ubuntu 20.04 system or with Docker for Linux,
     omz_converter --name mobilenet-ssd --precision FP32 --download_dir . --output_dir .
     deactivate
     ```
-
     mobilenet-ssd IR model will be generated in `.\public\mobilenet-ssd\FP32` 
     ```
     mobilenet-ssd.bin  mobilenet-ssd.xml  mobilenet-ssd.mapping
@@ -234,28 +225,80 @@ This can be set up in a bare metal Ubuntu 20.04 system or with Docker for Linux,
 
 3. Set up oneAPI and OpenVINO environment:
 
-   If the installation directories are `"c:\Program Files (x86)\intel\oneAPI"`, and `"c:\Program Files (x86)\intel\OpenVINO"`
-
+    If the installation directories are `"c:\Program Files (x86)\intel\oneAPI"`, and `"c:\Program Files (x86)\intel\OpenVINO"`
     ```
     "c:\Program Files (x86)\intel\oneAPI\setvars.bat"
     "c:\Program Files (x86)\intel\OpenVINO\setupvars.bat"
     ```
 
 
-4. Build the program:
+4. Build `OpenCL ICD loader` to enable `-zerocopy` option:
+
+    If OpenCL ICD loader is not ready, `-zerocopy` option is not activated. But vpl-infer will still work with other options
+
+    You can check the repos and commit ids for the build from [OpenCL versions for OpenVINO 2022.3.0](https://github.com/openvinotoolkit/openvino/tree/2022.3.0/thirdparty/ocl)
+
+    For `OpenVINO 2022.3.0`:
+    ```
+    cl_headers @ 1d3dc4e
+    clhpp_headers @ 89d843b
+    icd_loader @ 9b5e384
+    ```
+    Following steps are simplified from [OpenCL ICD loader build instruction](https://github.com/KhronosGroup/OpenCL-ICD-Loader/tree/9b5e3849b49a1448996c8b96ba086cd774d987db#build-instructions)
+
+    Assume all the commands are executed from a work directory
+
+    Check out repos and corresponding commit ids:
+    ```
+    git clone https://github.com/KhronosGroup/OpenCL-Headers.git
+    cd OpenCL-Headers
+    git checkout 1d3dc4e7562ac56ee8ab00607af7bd55fb091f22
+    cd ..
+
+    git clone https://github.com/KhronosGroup/OpenCL-CLHPP.git
+    cd OpenCL-CLHPP
+    git checkout 89d843beba559f65e4a77833fcf8604e874a3371
+    cd ..
+
+    git clone https://github.com/KhronosGroup/OpenCL-ICD-Loader.git
+    cd OpenCL-ICD-Loader
+    git checkout 9b5e3849b49a1448996c8b96ba086cd774d987db
+    cd ..
+    ```
+
+    Copy headers to `OpenCL-ICD-Loader` include directory:
+    ```
+    mkdir OpenCL-ICD-Loader\inc\CL
+    copy OpenCL-Headers\CL\* OpenCL-ICD-Loader\inc\CL
+    copy OpenCL-CLHPP\include\CL\* OpenCL-ICD-Loader\inc\CL
+    ```
+
+    Build OpenCL ICD loader from `OpenCL-ICD-Loader`:
+    ```
+    cd OpenCL-ICD-Loader
+    mkdir build && cd build
+    cmake .. && cmake --build . --config release -j8
+    ```
+
+    Set OpenCL ICD Loader library path, where `OpenCL.lib` and `OpenCL.dll` are existed:
+    ```
+    set OpenCL_LIBRARY_PATH=<your work dir>\OpenCL-ICD-Loader\build\Release
+    ```
+
+    Set OpenCL Headers path:
+    ```
+    set OpenCL_INCLUDE_DIRS=<your work dir>\OpenCL-ICD-Loader\inc
+    ```
+
+5. Build and run the program:
 
     Go to `examples\interop\vpl-infer`
     ```
     mkdir build && cd build
-    cmake .. && cmake --build . --config release
+    cmake .. && cmake --build . --config release && cd release
     ```
-
-
-5. Run the program with defaults:
-
     Please set the proper path for the content and OpenVINO IR model you prepared
     ```
-    cd release
     vpl-infer -hw -i cars_320x240.h265 -m mobilenet-ssd.xml
     ```
 

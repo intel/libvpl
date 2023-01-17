@@ -19,8 +19,12 @@
 
 #include <openvino/openvino.hpp>
 
-#if defined(__linux__) && defined(ZEROCOPY)
-    #include <openvino/runtime/intel_gpu/ocl/va.hpp>
+#ifdef ZEROCOPY
+    #if defined(_WIN32) || defined(_WIN64)
+        #include <openvino/runtime/intel_gpu/ocl/dx.hpp>
+    #else
+        #include <openvino/runtime/intel_gpu/ocl/va.hpp>
+    #endif
     #include <openvino/runtime/intel_gpu/properties.hpp>
 #endif
 
@@ -39,7 +43,7 @@ void Usage(void) {
     printf("     -hw         use hardware implementation (default)\n");
     printf("     -i          input file name (HEVC elementary stream)\n");
     printf("     -m          input model name (object detection)\n");
-#if defined(__linux__) && defined(ZEROCOPY)
+#ifdef ZEROCOPY
     printf(
         "     -zerocopy   process without copying data between oneVPL and OpenVINO in hardware implemenation mode\n");
 #endif
@@ -50,8 +54,12 @@ void Usage(void) {
 
 mfxSession CreateVPLSession(mfxLoader *loader, Params *cli);
 
-#if defined(__linux__) && defined(ZEROCOPY)
+#ifdef ZEROCOPY
+    #if defined(_WIN32) || defined(_WIN64)
+mfxStatus InferFrame(ov::intel_gpu::ocl::D3DContext context,
+    #else
 mfxStatus InferFrame(ov::intel_gpu::ocl::VAContext context,
+    #endif
                      mfxFrameSurface1 *surface,
                      ov::InferRequest inferRequest,
                      std::string inputName,
@@ -105,8 +113,13 @@ int main(int argc, char **argv) {
     mfxConfig cfg[4]     = {};
     mfxVariant cfgVal[4] = {};
 
-#if defined(__linux__) && defined(ZEROCOPY)
+#ifdef ZEROCOPY
+    #if defined(_WIN32) || defined(_WIN64)
+    ID3D11Device *pD3D11Device;
+    #else
     VADisplay lvaDisplay;
+    #endif
+    bool bIsSharedContextReady = false;
 #endif
 
     mfxU16 oriImgWidth, oriImgHeight;
@@ -167,7 +180,7 @@ int main(int argc, char **argv) {
         InputInfo &inputInfo = ppp.input(inputTensorName);
 
         // Set the input tensor
-#if defined(__linux__) && defined(ZEROCOPY)
+#ifdef ZEROCOPY
         if (cliParams.bZeroCopy) {
             inputInfo.tensor()
                 .set_element_type(ov::element::u8)
@@ -300,25 +313,8 @@ int main(int argc, char **argv) {
         sts = MFXVideoVPP_Init(session, &mfxVPPParams);
         VERIFY(MFX_ERR_NONE == sts, "ERROR: initializing VPP");
 
-#if defined(__linux__) && defined(ZEROCOPY)
-        if (cliParams.bZeroCopy) {
-            // Get the vaapi device handle
-            sts = MFXVideoCORE_GetHandle(session, MFX_HANDLE_VA_DISPLAY, &lvaDisplay);
-            VERIFY(MFX_ERR_NONE == sts, "ERROR: MFXVideoCore_GetHandle error");
-
-            //-- [OpenVINO] Create inference request from shared context object
-            auto sharedVAContext = ov::intel_gpu::ocl::VAContext(core, lvaDisplay);
-
-            // Compile network within a shared context
-            compiledModel = core.compile_model(model, sharedVAContext);
-        }
-        else
-#endif
-        {
-            // Compile network
-            compiledModel = core.compile_model(model, "GPU");
-        }
-
+        // Compile network
+        compiledModel = core.compile_model(model, "GPU");
         // Create inference request
         inferRequest = compiledModel.create_infer_request();
 
@@ -405,7 +401,7 @@ int main(int argc, char **argv) {
                             frameNum++;
                         }
                         else {
-#if defined(__linux__) && defined(ZEROCOPY)
+#ifdef ZEROCOPY
                             if (cliParams.bZeroCopy) {
                                 sts = pmfxVPPOutSurface->FrameInterface->Synchronize(
                                     pmfxVPPOutSurface,
@@ -413,11 +409,54 @@ int main(int argc, char **argv) {
                                 VERIFY(MFX_ERR_NONE == sts,
                                        "ERROR: MFXVideoCORE_SyncOperation failed");
 
+                                if (bIsSharedContextReady == false) {
+                                    mfxHandleType device_type;
+    #if defined(_WIN32) || defined(_WIN64)
+                                    // Get the d3d device handle
+                                    pmfxVPPOutSurface->FrameInterface->GetDeviceHandle(
+                                        pmfxVPPOutSurface,
+                                        (mfxHDL *)&pD3D11Device,
+                                        &device_type);
+                                    VERIFY(MFX_ERR_NONE == sts,
+                                           "ERROR: mfxFrameInterface.GetDeviceHandle error");
+
+                                    //-- [OpenVINO] Create inference request from shared context object
+                                    auto sharedD3D11Context =
+                                        ov::intel_gpu::ocl::D3DContext(core, pD3D11Device);
+
+                                    // Compile network within a shared context
+                                    compiledModel = core.compile_model(model, sharedD3D11Context);
+    #else
+                                    // Get the vaapi device handle
+                                    pmfxVPPOutSurface->FrameInterface->GetDeviceHandle(
+                                        pmfxVPPOutSurface,
+                                        &lvaDisplay,
+                                        &device_type);
+                                    VERIFY(MFX_ERR_NONE == sts,
+                                           "ERROR: mfxFrameInterface.GetDeviceHandle error");
+
+                                    //-- [OpenVINO] Create inference request from shared context object
+                                    auto sharedVAContext =
+                                        ov::intel_gpu::ocl::VAContext(core, lvaDisplay);
+
+                                    // Compile network within a shared context
+                                    compiledModel = core.compile_model(model, sharedVAContext);
+    #endif
+                                    inferRequest = compiledModel.create_infer_request();
+
+                                    bIsSharedContextReady = true;
+                                }
+
                                 //-- [OpenVINO] Infer from shared context and va surface
                                 auto context = compiledModel.get_context();
-                                auto &vaContext =
+    #if defined(_WIN32) || defined(_WIN64)
+                                auto &sharedContext =
+                                    static_cast<ov::intel_gpu::ocl::D3DContext &>(context);
+    #else
+                                auto &sharedContext =
                                     static_cast<ov::intel_gpu::ocl::VAContext &>(context);
-                                InferFrame(vaContext,
+    #endif
+                                InferFrame(sharedContext,
                                            pmfxVPPOutSurface,
                                            inferRequest,
                                            inputTensorName,
@@ -546,8 +585,12 @@ int main(int argc, char **argv) {
     return 0;
 }
 
-#if defined(__linux__) && defined(ZEROCOPY)
+#ifdef ZEROCOPY
+    #if defined(_WIN32) || defined(_WIN64)
+mfxStatus InferFrame(ov::intel_gpu::ocl::D3DContext context,
+    #else
 mfxStatus InferFrame(ov::intel_gpu::ocl::VAContext context,
+    #endif
                      mfxFrameSurface1 *surface,
                      ov::InferRequest inferRequest,
                      std::string inputName,
@@ -555,7 +598,11 @@ mfxStatus InferFrame(ov::intel_gpu::ocl::VAContext context,
                      mfxU16 oriWidth,
                      mfxU16 oriHeight) {
     mfxStatus sts = MFX_ERR_NONE;
+    #if defined(_WIN32) || defined(_WIN64)
+    ID3D11Texture2D *pD3D11Texture;
+    #else
     VASurfaceID lvaSurfaceID;
+    #endif
     mfxHDL lresource;
     mfxResourceType lresourceType;
 
@@ -566,11 +613,17 @@ mfxStatus InferFrame(ov::intel_gpu::ocl::VAContext context,
 
     std::cout << "Result: " << std::endl;
 
+    #if defined(_WIN32) || defined(_WIN64)
+    pD3D11Texture = (ID3D11Texture2D *)lresource;
+    // Wrap VPP output into remoteblobs and set it as inference input tensor
+    auto nv12Tensor =
+        context.create_tensor_nv12(surface->Info.CropH, surface->Info.CropW, pD3D11Texture);
+    #else
     lvaSurfaceID = *(VASurfaceID *)lresource;
-
     // Wrap VPP output into remoteblobs and set it as inference input tensor
     auto nv12Tensor =
         context.create_tensor_nv12(surface->Info.CropH, surface->Info.CropW, lvaSurfaceID);
+    #endif
 
     inferRequest.set_input_tensor(0, nv12Tensor.first);
     inferRequest.set_input_tensor(1, nv12Tensor.second);

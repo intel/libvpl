@@ -157,7 +157,7 @@ bool ParseArgsAndValidate(int argc, char *argv[], Params *params, ParamGroup gro
         else if (IS_ARG_EQ(s, "legacy")) {
             params->bLegacyGen = true;
         }
-#if defined(__linux__) && defined(ZEROCOPY)
+#ifdef ZEROCOPY
         else if (IS_ARG_EQ(s, "zerocopy")) {
             params->bZeroCopy = true;
         }
