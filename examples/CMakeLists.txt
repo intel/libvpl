@@ -17,6 +17,7 @@ if(BUILD_EXAMPLES)
   add_subdirectory(api2x/hello-encode)
   add_subdirectory(api2x/hello-transcode)
   add_subdirectory(api2x/hello-vpp)
+  add_subdirectory(tutorials/01_transition/VPL)
 endif()
 
 if(INSTALL_EXAMPLE_CODE)
@@ -40,5 +41,10 @@ if(INSTALL_EXAMPLE_CODE)
     DIRECTORY api2x/hello-createsession api2x/hello-decode api2x/hello-decvpp
               api2x/hello-encode api2x/hello-transcode api2x/hello-vpp
     DESTINATION ${ONEAPI_INSTALL_EXAMPLEDIR}/api2x
+    COMPONENT dev)
+
+  install(
+    DIRECTORY tutorials/01_transition
+    DESTINATION ${ONEAPI_INSTALL_EXAMPLEDIR}/tutorials
     COMPONENT dev)
 endif()
