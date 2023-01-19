@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - vpl-infer Dockerfile failing to work in iGPU (Gen12) and to work by recent OpenVINO repo label change
 - Warnings reported by Clang
+- Hardening flags being incorrectly set on Linux executables
 
 ### Changed
 - Example directory names to clarify API level used
