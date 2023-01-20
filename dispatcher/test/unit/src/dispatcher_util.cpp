@@ -210,12 +210,12 @@ int CreateWorkingDirectory(const char *dirPath) {
         closedir(workDir);
     }
 
-    // convert to canonical, absolute path (limited to PATH_MAX bytes per manual)
-    char fullPath[PATH_MAX] = {};
-    char *t = realpath(workDirPath.c_str(), fullPath);
-    if (!t || t != fullPath)
+    // convert to canonical, absolute path
+    char *fullPath = realpath(workDirPath.c_str(), NULL);
+    if (!fullPath)
         return -1;
-    workDirPath = fullPath;
+    workDirPath = fullPath; // copy to std::string
+    free(fullPath);
 #endif
 
     // success - store working directory in global path
