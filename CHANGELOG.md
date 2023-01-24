@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Example directory names to clarify API level used
 - vpl-infer to support OpenVINO 2022.3.0
 - Version of GoogleTest to 1.12.1
+- Compilation flags to enable Control Flow Guard on Windows
 
 ## [2023.1.1] - 2022-12-23
 
