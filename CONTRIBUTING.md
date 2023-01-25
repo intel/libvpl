@@ -1,6 +1,7 @@
 # Contributing
 
-The oneVPL project welcomes community contributions. You can:
+The oneAPI Video Processing Library (oneVPL) project welcomes community
+contributions. You can:
 
 - Submit your changes directly as a [pull request](https://github.com/oneapi-src/oneVPL/pulls)
 - Log a bug or feature request with an [issue](https://github.com/oneapi-src/oneVPL/issues)

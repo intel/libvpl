@@ -14,7 +14,7 @@
 ## Intro
 
 This sample shows how to use the oneAPI Video Processing Library (oneVPL) to
-perform a simple video decode and resize, and how to use OpenVINO for inferencing 
+perform a simple video decode and resize, and how to use the OpenVINO™ toolkit for inferencing 
 
 | Optimized for    | Description
 |----------------- | ----------------------------------------
@@ -29,7 +29,7 @@ perform a simple video decode and resize, and how to use OpenVINO for inferencin
 
 This sample is a command line application that takes a file containing an H.265
 video elementary stream and network model as an argument, decodes and resize it with oneVPL and perform 
-object detection on each frame using OpenVINO.
+object detection on each frame using the OpenVINO™ toolkit.
 
 
 ## Key Implementation Details
@@ -50,7 +50,7 @@ object detection on each frame using OpenVINO.
 | -i       | H.265 video elementary stream  |
 | -m       | Object detection network model |
 | -legacy  | Run sample in legacy gen (ex: gen 9.x - SKL, KBL, etc) |
-| -zerocopy| Process data without copying between oneVPL and OpenVINO in hardware implemenation mode | with `-hw` only
+| -zerocopy| Process data without copying between oneVPL and the OpenVINO™ toolkit in hardware implemenation mode | with `-hw` only
 |          | | not with `-legacy`
 
 
@@ -70,7 +70,7 @@ This can be set up in a bare metal Ubuntu 20.04 system or with Docker for Linux,
 1. Install the prerequisite software:
 
    - Intel® oneAPI Base Toolkit for Linux*
-   - Intel® OpenVINO for Linux*
+   - Intel® OpenVINO™ toolkit for Linux*
    - [Python](http://python.org)
    - [CMake](https://cmake.org)
    - OpenCL headers: 'sudo apt-get install -y opencl-headers' 
@@ -81,7 +81,8 @@ This can be set up in a bare metal Ubuntu 20.04 system or with Docker for Linux,
     Follow steps in [DGPU Installation Guide](https://dgpu-docs.intel.com/installation-guides/index.html#)
 
 
-3. Download the Mobilenet-ssd object detection model from OpenVINO model Zoo and covert it to IR model:
+3. Download the Mobilenet-ssd object detection model from the Open Model Zoo for
+   OpenVINO™ toolkit and covert it to an IR model:
 
     Start Python virtual environments from Command Prompt
     ```
@@ -105,7 +106,7 @@ This can be set up in a bare metal Ubuntu 20.04 system or with Docker for Linux,
     ```
 
 
-4. Set up oneAPI and OpenVINO environment:
+4. Set up oneAPI and OpenVINO™ toolkit environment:
 
     If the installation directories are `"/opt/intel/oneapi"`, and `"/opt/intel/openvino_2022"`
     ```
@@ -120,7 +121,7 @@ This can be set up in a bare metal Ubuntu 20.04 system or with Docker for Linux,
     mkdir build && cd build
     cmake .. && cmake --build . --config release
     ```
-    Please set the proper path for the content and OpenVINO IR model you prepared
+    Please set the proper path for the content and IR model you prepared
     ```
     ./vpl-infer -hw -i cars_320x240.h265 -m mobilenet-ssd.xml
     ```
@@ -196,12 +197,13 @@ This can be set up in a bare metal Ubuntu 20.04 system or with Docker for Linux,
 1. Install the prerequisite software:
 
    - Intel® oneAPI Base Toolkit for Windows*
-   - Intel® OpenVINO for Windows*
+   - Intel® OpenVINO™ toolkit for Windows*
    - [Python](http://python.org)
    - [CMake](https://cmake.org)
 
 
-2. Download the Mobilenet-ssd object detection model from OpenVINO model Zoo and covert it to IR model:
+2. Download the Mobilenet-ssd object detection model from the Open Model Zoo for
+   OpenVINO™ toolkit and covert it to an IR model:
 
     Start Python virtual environments from Command Prompt
     ```
@@ -223,7 +225,7 @@ This can be set up in a bare metal Ubuntu 20.04 system or with Docker for Linux,
     ```
 
 
-3. Set up oneAPI and OpenVINO environment:
+3. Set up oneAPI and OpenVINO™ toolkit environment:
 
     If the installation directories are `"c:\Program Files (x86)\intel\oneAPI"`, and `"c:\Program Files (x86)\intel\OpenVINO"`
     ```
@@ -236,9 +238,9 @@ This can be set up in a bare metal Ubuntu 20.04 system or with Docker for Linux,
 
     If OpenCL ICD loader is not ready, `-zerocopy` option is not activated. But vpl-infer will still work with other options
 
-    You can check the repos and commit ids for the build from [OpenCL versions for OpenVINO 2022.3.0](https://github.com/openvinotoolkit/openvino/tree/2022.3.0/thirdparty/ocl)
+    You can check the repos and commit ids for the build from [OpenCL versions for OpenVINO™ toolkit 2022.3.0](https://github.com/openvinotoolkit/openvino/tree/2022.3.0/thirdparty/ocl)
 
-    For `OpenVINO 2022.3.0`:
+    For `OpenVINO™ toolkit 2022.3.0`:
     ```
     cl_headers @ 1d3dc4e
     clhpp_headers @ 89d843b
@@ -297,7 +299,7 @@ This can be set up in a bare metal Ubuntu 20.04 system or with Docker for Linux,
     mkdir build && cd build
     cmake .. && cmake --build . --config release && cd release
     ```
-    Please set the proper path for the content and OpenVINO IR model you prepared
+    Please set the proper path for the content and the IR model you prepared
     ```
     vpl-infer -hw -i cars_320x240.h265 -m mobilenet-ssd.xml
     ```
@@ -308,7 +310,7 @@ This can be set up in a bare metal Ubuntu 20.04 system or with Docker for Linux,
 This is the output from Linux, but the test result will be similar to Windows:
 
 ```
-OpenVINO Runtime
+OpenVINO™ Runtime
     Version : 2022.3.0
     Build   : 2022.3.0-9052-9752fafe8eb-releases/2022/3
 
@@ -365,6 +367,6 @@ This execution is the object detection use case with `mobilenet-ssd` network mod
 
 `Class ID` is predicted class ID (1..20 - PASCAL VOC defined class ids).
 
-Mapping to class names provided by `<omz_dir>/data/dataset_classes/voc_20cl_bkgr.txt` file, which is downloaded when you install OpenVINO development version.
+Mapping to class names provided by `<omz_dir>/data/dataset_classes/voc_20cl_bkgr.txt` file, which is downloaded when you install the development version of the OpenVINO™ toolkit.
 
 `7` is `car` from the list.

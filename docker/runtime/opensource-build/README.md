@@ -35,8 +35,11 @@ $ docker container run --rm -it onevpl-runtime:1.0 bash
 
 ## Accessing Hardware Resources
 
-Docker requires elevated access to access the GPU device(es). (A more detailed discussion can be found in the OpenVINO documentation https://github.com/openvinotoolkit/docker_ci/blob/master/configure_gpu_ubuntu20.md). This is only needed
-for hardware access. Using the CPU implementation does not require this step.
+Docker requires elevated access to access the GPU device(es). (A more detailed
+discussion can be found in the OpenVINO™ toolkit documentation
+https://github.com/openvinotoolkit/docker_ci/blob/master/configure_gpu_ubuntu20.md). This
+is only needed for hardware access. Using the CPU implementation does not
+require this step.
 
 * Add your user to the `render` group 
 * start the docker container using the `--device /dev/dri` option to give access to the driver.

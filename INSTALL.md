@@ -1,4 +1,4 @@
-# Build/Install oneAPI Video Processing Library from Source
+# Build/Install oneAPI Video Processing Library (oneVPL) from Source
 
 This document describes how to build from the source code in this repo.
 Please note: this repo contains only headers, dispatcher, examples, and tools.

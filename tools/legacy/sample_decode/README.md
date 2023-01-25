@@ -1,4 +1,8 @@
-sample_decode is an oneVPL decode application that takes a file containing an encoded video elementary stream as an argument, performs decoding of various video compression formats, and writes the decoded output to the file in raw native format (NV12 for GPU).  
+sample_decode is a oneAPI Video Processing Library (oneVPL) decode application
+that takes a file containing an encoded video elementary stream as an argument,
+performs decoding of various video compression formats, and writes the decoded
+output to the file in raw native format (NV12 for GPU).
+
 Command Line format:  
 ```sample_decode h264|h265|mpeg2|mvc|jpeg -i in.bit -o out.yuv```  
 Sample Command Line:  

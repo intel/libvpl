@@ -45,7 +45,7 @@ void Usage(void) {
     printf("     -m          input model name (object detection)\n");
 #ifdef ZEROCOPY
     printf(
-        "     -zerocopy   process without copying data between oneVPL and OpenVINO in hardware implemenation mode\n");
+        "     -zerocopy   process without copying data between oneVPL and OpenVINO(TM) toolkit in hardware implemenation mode\n");
 #endif
     printf("     -legacy     run sample in legacy gen (ex: gen 9.x - SKL, KBL, CFL, etc)\n\n");
     printf("   Example  :    vpl-infer -hw -i in.h265 -m mobilenet-ssd.xml\n\n");

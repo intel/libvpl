@@ -1,4 +1,9 @@
-sample_multi_transcode performs the transcoding (decoding and encoding) of a video stream of one compressed video format to another, with optional video processing (resizing) of uncompressed video prior to encoding. The application supports multiple input and output streams meaning it can execute multiple transcoding sessions concurrently.  
+sample_multi_transcode performs the transcoding (decoding and encoding) of a
+video stream of one compressed video format to another, with optional video
+processing (resizing) of uncompressed video prior to encoding. The application
+supports multiple input and output streams meaning it can execute multiple
+transcoding sessions concurrently.
+
 Command Line Format:  
 ```
 Format-1: sample_multi_transcode [options] [--] pipeline-description  

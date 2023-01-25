@@ -1,4 +1,8 @@
-sample_encode is a oneVPL application that performs preprocessing and encoding of an uncompressed video stream of raw native format (NV12 for GPU) according to a specific video compression standard and can write the encoded video stream to a specified file.  
+sample_encode is a oneAPI Video Processing Library (oneVPL) application that
+performs preprocessing and encoding of an uncompressed video stream of raw
+native format (NV12 for GPU) according to a specific video compression standard
+and can write the encoded video stream to a specified file.
+
 Command Line format:    
 ```
 sample_encode h264|h265|mpeg2|mvc|jpeg -i InputYUVFile -o OutputEncodedFile -w width -h height -angle 180 -opencl

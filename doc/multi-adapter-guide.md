@@ -1,4 +1,4 @@
-# **Intel® oneVPL Multi-Adapter Guide**
+# ** oneAPI Video Processing Library (oneVPL) Multi-Adapter Guide**
 
 - [Overview](#overview)
 - [Developer guide](#developer-guide)
@@ -10,7 +10,7 @@
 
 # Overview
 
-Intel(R) oneVPL can access multiple adapters in Linux and Windows with features added in API 2.6.
+oneVPL can access multiple adapters in Linux and Windows with features added in API 2.6.
 
 # Developer guide
 

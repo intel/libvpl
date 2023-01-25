@@ -4,20 +4,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+This project is part of the oneAPI Video Processing Library (oneVPL), a
+programming interface for video decoding, encoding, and processing to build
+portable media pipelines on CPUs, GPUs, and other accelerators.
+
 ## [Unreleased]
 
 ### Added
-- Instructions on how to use vpl-infer with official Intel(R) DL Streamer docker images by platform
+- Instructions on how to use vpl-infer with official Intel® Deep Learning
+  Streamer (Intel® DL Streamer) docker images by platform
 - Support for zero-copy to vpl-infer example on Windows
 
 ### Fixed
-- vpl-infer Dockerfile failing to work in iGPU (Gen12) and to work by recent OpenVINO repo label change
+- vpl-infer Dockerfile failing to work in iGPU (Gen12) and to work with recent
+  OpenVINO™ toolkit repository label change
 - Warnings reported by Clang
 - Hardening flags being incorrectly set on Linux executables
 
 ### Changed
 - Example directory names to clarify API level used
-- vpl-infer to support OpenVINO 2022.3.0
+- vpl-infer to support OpenVINO™ toolkit 2022.3.0
 - Version of GoogleTest to 1.12.1
 - Compilation flags to enable Control Flow Guard on Windows
 
@@ -92,7 +98,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   call this callback
 - Pass through extension buffer to mfxInitializationParam via config filter property
 - Interface to get statistics after encode to Experimental API
-- Support for Alder Lake N and Intel(R) Data Center GPU Flex Series (formerly Arctic Sound-M)
+- Support for Alder Lake N and Intel® Data Center GPU Flex Series (formerly Arctic Sound-M)
 - Linux system_analyzer tool for improved runtime environment visibility
 
 ### Changed
@@ -111,7 +117,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Build fails against libva installed at custom location
 - Unclear error when advanced-decvpp-infer runs on unsupported platform
 - Incomplete Linux instructions for dpcpp-blur sample
-- Outdated OpenVINO path in interop Samples README
+- Outdated OpenVINO™ toolkit path in interop Samples README
 - dpcpp-blur sample not returning clear error when build attempted on
   unsupported operating systems
 - `MFXEnumImplementation` not returning `MFX_ERR_NOT_FOUND` on non-Intel systems
@@ -137,17 +143,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - oneVPL API 2.6 support
 - `ONEVPL_PRIORITY_PATH` environment variable for runtime loading
 - Multi-adapter support for most combinations of GPU hardware that works with
-  Intel(R) Media SDK and oneVPL
+  Intel® Media SDK and oneVPL
 - Documentation on working with multiple adapters using 2.x API
 - Support for extended device ID on legacy GPUs
-- Support for Intel(R) Ar(TM) A Series Graphics
+- Support for Intel® Arc™ A Series Graphics
 - Rocky Linux* support
 - Windows* 11 support
 - Windows* Server 2022 support
 - Microsoft Visual Studio* 2022 support
 
 ### Changed
-- Runtime loading to use Intel(R) Media SDK when DX9 is requested
+- Runtime loading to use Intel® Media SDK when DX9 is requested
 
 ### Deprecated
 - Support for Microsoft Visual Studio* 2017
@@ -178,7 +184,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - mfxvideo++.h to remove deprecation warnings
 - Sample* tools to select oneVPL 2.x APIs by default
 - Python previews to target Python 3.7
-- Documentation and build for OpenVINO interop sample
+- Documentation and build for OpenVINO™ toolkit interop sample
 
 ### Removed
 - Previously depreciated libmfx.dll and libmfx.so.2021.1.11 libraries
@@ -206,7 +212,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - oneVPL API 2.4 support
-- Advanced OpenVINO interop sample w/ remoteBlob support (Linux only)
+- Advanced OpenVINO™ toolkit interop sample w/ remoteBlob support (Linux only)
 - C++ API and Samples (Preview)
 - Python API and Samples (Preview)
 - Dispatcher logging capability
@@ -218,12 +224,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - oneVPL API 2.2 support
-- Legacy Intel(R) Media SDK test tools (with CPU and GPU support)
-- Intel(R) Media SDK to oneVPL migration guide
+- Legacy Intel® Media SDK test tools (with CPU and GPU support)
+- Intel® Media SDK to oneVPL migration guide
 - pkg-config support
 - 32-bit Windows* support
 - Legacy mfxvideo++ header
-- New Preview Sample: oneVPL-OpenVINO Interop Sample
+- New Preview Sample: oneVPL OpenVINO™ toolkit Interop Sample
 - Ubuntu 20.10 support
 
 ## [2021.1] - 2020-12-08
