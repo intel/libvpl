@@ -10,6 +10,8 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 
 ## [Unreleased]
 
+## [2023.1.2] - 2023-01-27
+
 ### Added
 - Instructions on how to use vpl-infer with official Intel® Deep Learning
   Streamer (Intel® DL Streamer) docker images by platform
@@ -245,6 +247,8 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 
 
 [Unreleased]: https://github.com/oneapi-src/oneVPL/compare/v2023.1.0...HEAD
+[2023.1.2]: https://github.com/oneapi-src/oneVPL/compare/v2023.1.1...v2023.1.2
+[2023.1.1]: https://github.com/oneapi-src/oneVPL/compare/v2023.1.0...v2023.1.1
 [2023.1.0]: https://github.com/oneapi-src/oneVPL/compare/v2023.0.0...v2023.1.0
 [2023.0.0]: https://github.com/oneapi-src/oneVPL/compare/v2022.2.4...v2023.0.0
 [2022.2.4]: https://github.com/oneapi-src/oneVPL/compare/v2022.2.3...v2022.2.4
