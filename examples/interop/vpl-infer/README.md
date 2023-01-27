@@ -71,7 +71,7 @@ This can be set up in a bare metal Ubuntu 20.04 system or with Docker for Linux,
 
    - Intel® oneAPI Base Toolkit for Linux*
    - Intel® OpenVINO™ toolkit for Linux*
-   - [Python](http://python.org)
+   - [Python](http://python.org) (ver 3.7 - 3.10)
    - [CMake](https://cmake.org)
    - OpenCL headers: 'sudo apt-get install -y opencl-headers' 
 
@@ -198,7 +198,7 @@ This can be set up in a bare metal Ubuntu 20.04 system or with Docker for Linux,
 
    - Intel® oneAPI Base Toolkit for Windows*
    - Intel® OpenVINO™ toolkit for Windows*
-   - [Python](http://python.org)
+   - [Python](http://python.org) (ver 3.7 - 3.10)
    - [CMake](https://cmake.org)
 
 
