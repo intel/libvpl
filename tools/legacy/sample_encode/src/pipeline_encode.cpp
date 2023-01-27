@@ -2701,7 +2701,14 @@ void CEncodingPipeline::LoadNextControl(mfxEncodeCtrl*& pCtrl, mfxU32 encSurfIdx
     m_QPFileReader.NextFrame();
 }
 
-void CEncodingPipeline::PrintInfo() {
+void CEncodingPipeline::PrintLibInfo() {
+    mfxStatus sts = m_mfxSession.PrintLibInfo(m_pLoader.get());
+    if (sts != MFX_ERR_NONE)
+        msdk_printf(MSDK_STRING("m_mfxSession.PrintLibInfo failed\n"));
+    return;
+}
+
+void CEncodingPipeline::PrintStreamInfo() {
     msdk_printf(MSDK_STRING("Encoding Sample Version %s\n"), GetMSDKSampleVersion().c_str());
     msdk_printf(MSDK_STRING("\nInput file format\t%s\n"),
                 ColorFormatToStr(m_FileReader.m_ColorFormat));

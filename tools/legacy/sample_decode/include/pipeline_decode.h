@@ -176,7 +176,8 @@ public:
     virtual mfxStatus ResetDevice();
 
     void SetMultiView();
-    virtual void PrintInfo();
+    virtual void PrintLibInfo();
+    virtual void PrintStreamInfo();
     mfxU64 GetTotalBytesProcessed() {
         return totalBytesProcessed + m_mfxBS.DataOffset;
     }

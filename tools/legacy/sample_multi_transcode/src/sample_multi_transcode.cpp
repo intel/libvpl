@@ -657,7 +657,10 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
         sts            = m_pThreadContextArray[i]->pPipeline->QueryMFXVersion(&ver);
         MSDK_CHECK_STATUS(sts, "m_pThreadContextArray[i]->pPipeline->QueryMFXVersion failed");
 
-        PrintInfo(i, &m_InputParamsArray[i], &ver);
+        if (m_InputParamsArray[i].verSessionInit != API_1X)
+            m_pThreadContextArray[i]->pPipeline->PrintLibInfo(m_pLoader.get());
+
+        PrintStreamInfo(i, &m_InputParamsArray[i], &ver);
     }
 
     for (i = 0; i < m_InputParamsArray.size(); i++) {

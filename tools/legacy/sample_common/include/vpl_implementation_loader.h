@@ -71,6 +71,7 @@ public:
     mfxLoader GetLoader() const;
     mfxU32 GetImplIndex() const;
     std::string GetImplName() const;
+    mfxU16 GetImplType() const;
     mfxVersion GetVersion() const;
     std::pair<mfxI16, mfxI32> GetDeviceIDAndAdapter() const;
     mfxU16 GetAdapterType() const;
@@ -89,6 +90,7 @@ public:
 class MainVideoSession : public MFXVideoSession {
 public:
     mfxStatus CreateSession(VPLImplementationLoader* Loader);
+    mfxStatus PrintLibInfo(VPLImplementationLoader* Loader);
 };
 
 #endif //__VPL_IMPLEMENTATION_LOADER_H__

@@ -5213,3 +5213,10 @@ void CTranscodingPipeline::ModifyParamsUsingPresets(sInputParams& params,
         msdk_printf(MSDK_STRING("\n"));
     }
 }
+
+void CTranscodingPipeline::PrintLibInfo(VPLImplementationLoader* Loader) {
+    mfxStatus sts = m_pmfxSession->PrintLibInfo(Loader);
+    if (sts != MFX_ERR_NONE)
+        msdk_printf(MSDK_STRING("mfxSession.PrintLibInfo() failed\n"));
+    return;
+}

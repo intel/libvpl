@@ -2107,7 +2107,14 @@ mfxStatus CDecodingPipeline::RunDecoding() {
     return sts; // ERR_NONE or ERR_INCOMPATIBLE_VIDEO_PARAM
 }
 
-void CDecodingPipeline::PrintInfo() {
+void CDecodingPipeline::PrintLibInfo() {
+    mfxStatus sts = m_mfxSession.PrintLibInfo(m_pLoader.get());
+    if (sts != MFX_ERR_NONE)
+        msdk_printf(MSDK_STRING("m_mfxSession.PrintLibInfo failed\n"));
+    return;
+}
+
+void CDecodingPipeline::PrintStreamInfo() {
     msdk_printf(MSDK_STRING("Decoding Sample Version %s\n\n"), GetMSDKSampleVersion().c_str());
     msdk_printf(MSDK_STRING("\nInput video\t%s\n"),
                 CodecIdToStr(m_mfxVideoParams.mfx.CodecId).c_str());

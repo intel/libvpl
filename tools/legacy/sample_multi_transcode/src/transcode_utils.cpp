@@ -612,7 +612,9 @@ void TranscodingSample::PrintHelp() {
         MSDK_STRING("  sample_multi_transcode -i::mvc in.mvc -o::mvc out.mvc -w 320 -h 240\n"));
 }
 
-void TranscodingSample::PrintInfo(mfxU32 session_number, sInputParams* pParams, mfxVersion* pVer) {
+void TranscodingSample::PrintStreamInfo(mfxU32 session_number,
+                                        sInputParams* pParams,
+                                        mfxVersion* pVer) {
     msdk_char buf[2048];
     MSDK_CHECK_POINTER_NO_RET(pVer);
 

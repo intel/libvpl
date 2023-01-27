@@ -45,7 +45,7 @@ mfxF64 GetTime(msdk_tick start);
 
 void PrintHelp();
 void PrintError(const msdk_char* strErrorMessage, ...);
-void PrintInfo(mfxU32 session_number, sInputParams* pParams, mfxVersion* pVer);
+void PrintStreamInfo(mfxU32 session_number, sInputParams* pParams, mfxVersion* pVer);
 
 bool PrintDllInfo(msdk_char* buf, mfxU32 buf_size, sInputParams* pParams);
 

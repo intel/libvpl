@@ -351,7 +351,9 @@ public:
     void SetNumView(mfxU32 numViews) {
         m_nNumView = numViews;
     }
-    virtual void PrintInfo();
+
+    virtual void PrintLibInfo();
+    virtual void PrintStreamInfo();
 
     void InitV4L2Pipeline(sInputParams* pParams);
     mfxStatus CaptureStartV4L2Pipeline();

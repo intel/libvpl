@@ -850,6 +850,9 @@ public:
         return bPreferdGfx;
     };
 #endif
+
+    void PrintLibInfo(VPLImplementationLoader* Loader);
+
 protected:
     virtual mfxStatus CheckRequiredAPIVersion(mfxVersion& version, sInputParams* pParams);
 

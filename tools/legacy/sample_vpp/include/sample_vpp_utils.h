@@ -519,8 +519,11 @@ struct sAppResources {
 /* ******************************************************************* */
 /*                        service functions                            */
 /* ******************************************************************* */
+void PrintLibInfo(sFrameProcessor* pProcessor);
 
-void PrintInfo(sInputParams* pParams, mfxVideoParam* pMfxParams, MFXVideoSession* pMfxSession);
+void PrintStreamInfo(sInputParams* pParams,
+                     mfxVideoParam* pMfxParams,
+                     MFXVideoSession* pMfxSession);
 
 void PrintDllInfo();
 

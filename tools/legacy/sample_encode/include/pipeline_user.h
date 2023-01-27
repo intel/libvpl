@@ -25,7 +25,7 @@ public:
     virtual mfxStatus Run();
     virtual void Close();
     virtual mfxStatus ResetMFXComponents(sInputParams* pParams);
-    virtual void PrintInfo();
+    virtual void PrintStreamInfo();
     virtual mfxStatus FillBuffers();
 
 protected:

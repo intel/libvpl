@@ -153,9 +153,18 @@ const msdk_char* PicStruct2Str(mfxU16 PicStruct) {
     }
 }
 
+void PrintLibInfo(sFrameProcessor* pProcessor) {
+    mfxStatus sts = pProcessor->mfxSession.PrintLibInfo(pProcessor->pLoader.get());
+    if (sts != MFX_ERR_NONE)
+        msdk_printf(MSDK_STRING("mfxSession.PrintLibInfo() failed\n"));
+    return;
+}
+
 /* ******************************************************************* */
 
-void PrintInfo(sInputParams* pParams, mfxVideoParam* pMfxParams, MFXVideoSession* pMfxSession) {
+void PrintStreamInfo(sInputParams* pParams,
+                     mfxVideoParam* pMfxParams,
+                     MFXVideoSession* pMfxSession) {
     mfxFrameInfo Info;
 
     MSDK_CHECK_POINTER_NO_RET(pParams);

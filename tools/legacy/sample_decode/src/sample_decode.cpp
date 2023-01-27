@@ -862,8 +862,13 @@ int main(int argc, char* argv[])
     sts = Pipeline.Init(&Params);
     MSDK_CHECK_STATUS(sts, "Pipeline.Init failed");
 
+    // print library info
+    if (Params.verSessionInit != API_1X) {
+        Pipeline.PrintLibInfo();
+    }
+
     // print stream info
-    Pipeline.PrintInfo();
+    Pipeline.PrintStreamInfo();
 
     msdk_printf(MSDK_STRING("Decoding started\n"));
 

@@ -567,9 +567,13 @@ int main(int argc, msdk_char* argv[])
         bFrameNumLimit = true;
     }
 
+    // print loaded lib info
+    if (Params.verSessionInit != API_1X) {
+        PrintLibInfo(Resources.pProcessor);
+    }
+
     // print parameters to console
-    PrintInfo(&Params, &mfxParamsVideo, &Resources.pProcessor->mfxSession);
-    PrintDllInfo();
+    PrintStreamInfo(&Params, &mfxParamsVideo, &Resources.pProcessor->mfxSession);
 
     sts     = MFX_ERR_NONE;
     nFrames = 0;

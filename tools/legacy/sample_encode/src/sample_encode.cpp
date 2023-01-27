@@ -1940,7 +1940,11 @@ int main(int argc, char* argv[])
     sts = pPipeline->Init(&Params);
     MSDK_CHECK_STATUS(sts, "pPipeline->Init failed");
 
-    pPipeline->PrintInfo();
+    if (Params.verSessionInit != API_1X) {
+        pPipeline->PrintLibInfo();
+    }
+
+    pPipeline->PrintStreamInfo();
 
     msdk_printf(MSDK_STRING("Processing started\n"));
 

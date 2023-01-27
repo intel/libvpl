@@ -507,6 +507,10 @@ std::string VPLImplementationLoader::GetImplName() const {
     }
 }
 
+mfxU16 VPLImplementationLoader::GetImplType() const {
+    return m_Impl;
+}
+
 std::pair<mfxI16, mfxI32> VPLImplementationLoader::GetDeviceIDAndAdapter() const {
     auto result = std::make_pair(-1, -1);
     if (!m_idesc)
@@ -539,26 +543,48 @@ void VPLImplementationLoader::SetMinVersion(mfxVersion const& version) {
 }
 
 mfxStatus MainVideoSession::CreateSession(VPLImplementationLoader* Loader) {
-    mfxStatus sts      = MFXCreateSession(Loader->GetLoader(), Loader->GetImplIndex(), &m_session);
-    mfxVersion version = Loader->GetVersion();
+    return MFXCreateSession(Loader->GetLoader(), Loader->GetImplIndex(), &m_session);
+}
+
+mfxStatus MainVideoSession::PrintLibInfo(VPLImplementationLoader* Loader) {
     msdk_printf(MSDK_STRING("Loaded Library configuration: \n"));
+    // Version
+    mfxVersion version = {};
+    mfxStatus sts      = MFXQueryVersion(m_session, &version);
+    MSDK_CHECK_STATUS(sts, "Failed to query version");
     msdk_printf(MSDK_STRING("    Version: %d.%d \n"), version.Major, version.Minor);
+
+    // Impl Name
     std::string implName = Loader->GetImplName();
     msdk_tstring strImplName;
     std::copy(std::begin(implName), std::end(implName), back_inserter(strImplName));
     msdk_printf(MSDK_STRING("    ImplName: %s \n"), strImplName.c_str());
 
+    // Adapter Number
     msdk_printf(MSDK_STRING("    Adapter number : %d \n"), Loader->GetDeviceIDAndAdapter().second);
-    if (Loader->GetAdapterType() != mfxMediaAdapterType::MFX_MEDIA_UNKNOWN) {
+
+    // Media Adapter Type
+    if (Loader->GetImplType() == MFX_IMPL_TYPE_SOFTWARE) {
         msdk_stringstream ss;
-        ss << MSDK_STRING("    Adapter type: ")
-           << (Loader->GetAdapterType() == mfxMediaAdapterType::MFX_MEDIA_INTEGRATED
-                   ? MSDK_STRING("integrated")
-                   : MSDK_STRING("discrete"));
-        ss << std::endl;
+        ss << MSDK_STRING("    Adapter type: cpu") << std::endl;
         msdk_printf(MSDK_STRING("%s"), ss.str().c_str());
     }
+    else {
+        mfxPlatform platform = {};
+        sts                  = MFXVideoCORE_QueryPlatform(m_session, &platform);
+        MSDK_CHECK_STATUS(sts, "Failed to query platform");
+        if (platform.MediaAdapterType != mfxMediaAdapterType::MFX_MEDIA_UNKNOWN) {
+            msdk_stringstream ss;
+            ss << MSDK_STRING("    Adapter type: ")
+               << (platform.MediaAdapterType == mfxMediaAdapterType::MFX_MEDIA_INTEGRATED
+                       ? MSDK_STRING("integrated")
+                       : MSDK_STRING("discrete"));
+            ss << std::endl;
+            msdk_printf(MSDK_STRING("%s"), ss.str().c_str());
+        }
+    }
 
+    // Module Name
 #if (defined(LINUX32) || defined(LINUX64))
     #ifdef ONEVPL_EXPERIMENTAL
     msdk_printf(MSDK_STRING("    DRMRenderNodeNum: %d \n"), Loader->GetDRMRenderNodeNumUsed());
