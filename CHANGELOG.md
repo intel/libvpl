@@ -10,6 +10,9 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 
 ## [Unreleased]
 
+### Added
+ - new tutorial on transitioning from Media SDK to VPL replaces hello-createsession
+
 ### Fixed
 - vpl-infer README.md to specify python version which OpenVINO supports
 - Printing incorrect library information of sample tools

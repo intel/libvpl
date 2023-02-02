@@ -11,7 +11,6 @@ if(BUILD_EXAMPLES)
   add_subdirectory(api1x_core/legacy-decode)
   add_subdirectory(api1x_core/legacy-vpp)
   add_subdirectory(api1x_core/legacy-encode)
-  add_subdirectory(api2x/hello-createsession)
   add_subdirectory(api2x/hello-decode)
   add_subdirectory(api2x/hello-decvpp)
   add_subdirectory(api2x/hello-encode)
@@ -38,8 +37,8 @@ if(INSTALL_EXAMPLE_CODE)
     COMPONENT dev)
 
   install(
-    DIRECTORY api2x/hello-createsession api2x/hello-decode api2x/hello-decvpp
-              api2x/hello-encode api2x/hello-transcode api2x/hello-vpp
+    DIRECTORY api2x/hello-decode api2x/hello-decvpp api2x/hello-encode
+              api2x/hello-transcode api2x/hello-vpp
     DESTINATION ${ONEAPI_INSTALL_EXAMPLEDIR}/api2x
     COMPONENT dev)
 
