@@ -1,0 +1,37 @@
+#!/bin/bash
+###############################################################################
+# Copyright (C) Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+###############################################################################
+## start of boilerplate to switch to project root ------------------------------
+script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+cd ${proj_dir}
+
+if [ "$0" = "$BASH_SOURCE" ]
+then
+  set -o errexit
+else
+  echo "Warning: This script should not be sourced. Skipping exit on error."
+fi
+
+
+HOST_OS='linux'
+UNAME=$( command -v uname)
+
+case $( "${UNAME}" | tr '[:upper:]' '[:lower:]') in
+  msys*|cygwin*|mingw*)
+    # MinGW/MSys type Bash on windows
+    HOST_OS='windows'
+    ;;
+esac
+
+## read options ----------------------------------------------------------------
+if [ "${HOST_OS}" == "windows" ]; then
+    PYTHON3="py -3"
+else
+    PYTHON3=python3
+fi
+
+set -e
+${PYTHON3} ${script_dir}/coverity.py "$@"
