@@ -11,7 +11,8 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 ## [Unreleased]
 
 ### Added
- - new tutorial on transitioning from Media SDK to VPL replaces hello-createsession
+ - New tutorial on transitioning from Media SDK to VPL replaces hello-createsession
+ - More logs in sample tools to inform correct parameters for hyper encode mode
 
 ### Fixed
 - vpl-infer README.md to specify python version which OpenVINO supports

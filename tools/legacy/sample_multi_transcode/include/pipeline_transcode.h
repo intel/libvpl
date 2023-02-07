@@ -1139,6 +1139,10 @@ protected:
     mfxU32 m_n3DLutVHeight;
     msdk_char* m_p3DLutFile;
 
+#if (defined(_WIN32) || defined(_WIN64))
+    mfxStatus CheckHyperEncodeParams(mfxHyperMode hyperMode);
+#endif
+
 private:
     DISALLOW_COPY_AND_ASSIGN(CTranscodingPipeline);
 };

@@ -785,11 +785,62 @@ mfxStatus CEncodingPipeline::InitMfxEncParams(sInputParams* pInParams) {
     if (pInParams->isDualMode) {
         auto hyperEncodeParam  = m_mfxEncParams.AddExtBuffer<mfxExtHyperModeParam>();
         hyperEncodeParam->Mode = pInParams->hyperMode;
+        mfxStatus sts          = CheckHyperEncodeParams(hyperEncodeParam->Mode);
+        if (sts != MFX_ERR_NONE)
+            msdk_printf(MSDK_STRING(
+                "         more information in HyperEncode_FeatureDeveloperGuide.md in oneVPL-intel-gpu repo\n"));
+
+        MSDK_CHECK_STATUS(sts, "CheckHyperEncodeParams failed\n");
     }
 #endif
 
     return MFX_ERR_NONE;
 }
+
+#if (defined(_WIN64) || defined(_WIN32))
+mfxStatus CEncodingPipeline::CheckHyperEncodeParams(mfxHyperMode hyperMode) {
+    msdk_printf(MSDK_STRING("HYPER ENCODE MODE: %s\n"),
+                (hyperMode == MFX_HYPERMODE_OFF)
+                    ? "OFF"
+                    : ((hyperMode == MFX_HYPERMODE_ON) ? "ON" : "ADAPTIVE"));
+    if (hyperMode == MFX_HYPERMODE_ON) {
+        // check supported encoders
+        if (m_mfxEncParams.mfx.CodecId != MFX_CODEC_AVC &&
+            m_mfxEncParams.mfx.CodecId != MFX_CODEC_HEVC &&
+            m_mfxEncParams.mfx.CodecId != MFX_CODEC_AV1) {
+            msdk_printf(MSDK_STRING("[ERROR], does not support %s encoder\n"),
+                        CodecIdToStr(m_mfxEncParams.mfx.CodecId).c_str());
+            return MFX_ERR_UNSUPPORTED;
+        }
+        // check gop size
+        if (m_mfxEncParams.mfx.GopPicSize == 0) {
+            msdk_printf(MSDK_STRING("[ERROR], gop size must be > 0\n"));
+            msdk_printf(MSDK_STRING("         set gop size using '-g' option\n"));
+            return MFX_ERR_INVALID_VIDEO_PARAM;
+        }
+        // check lowpower
+        if (m_mfxEncParams.mfx.LowPower != MFX_CODINGOPTION_ON) {
+            msdk_printf(MSDK_STRING("[ERROR], lowpower mode must be on\n"));
+            msdk_printf(MSDK_STRING("         turn lowpower mode on ('-lowpower:on')\n"));
+            return MFX_ERR_INVALID_VIDEO_PARAM;
+        }
+        // check idr interval
+        if (m_mfxEncParams.mfx.CodecId == MFX_CODEC_AVC && m_mfxEncParams.mfx.IdrInterval != 0) {
+            msdk_printf(MSDK_STRING("[ERROR], idr interval must be 0 for AVC\n"));
+            msdk_printf(MSDK_STRING("         set idr interval to 0 ('-idr_interval 0')\n"));
+            return MFX_ERR_INVALID_VIDEO_PARAM;
+        }
+        else if (m_mfxEncParams.mfx.CodecId == MFX_CODEC_HEVC &&
+                 m_mfxEncParams.mfx.IdrInterval != 1) {
+            msdk_printf(MSDK_STRING("[ERROR], idr interval must be 1 for HEVC\n"));
+            msdk_printf(MSDK_STRING("         set idr interval to 1 ('-idr_interval 1')\n"));
+            return MFX_ERR_INVALID_VIDEO_PARAM;
+        }
+    }
+
+    return MFX_ERR_NONE;
+}
+#endif
 
 mfxU32 CEncodingPipeline::FileFourCC2EncFourCC(mfxU32 fcc) {
     // File reader automatically converts I420, YV12, and YUV400 to NV12

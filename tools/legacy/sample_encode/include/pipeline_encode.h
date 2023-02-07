@@ -499,6 +499,10 @@ protected:
 
     void InitExtMVCBuffers(mfxExtMVCSeqDesc* mvcBuffer) const;
     mfxStatus ConfigTCBRCTest(mfxFrameSurface1* pSurf);
+
+#if (defined(_WIN32) || defined(_WIN64))
+    mfxStatus CheckHyperEncodeParams(mfxHyperMode hyperMode);
+#endif
 };
 
 #endif // __PIPELINE_ENCODE_H__
