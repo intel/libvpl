@@ -9,8 +9,8 @@
 ///
 /// @file
 
-#ifndef EXAMPLES_UTIL_H_
-#define EXAMPLES_UTIL_H_
+#ifndef EXAMPLES_UTIL_HPP_
+#define EXAMPLES_UTIL_HPP_
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -297,6 +297,7 @@ void ShowImplementationInfo(mfxLoader loader, mfxU32 implnum) {
             printf("unknown\n");
             break;
     }
+    printf("  DeviceID:             %s \n", idesc->Dev.DeviceID);
     MFXDispReleaseImplDescription(loader, idesc);
 
 #if (MFX_VERSION >= 2004)
@@ -422,8 +423,9 @@ mfxStatus AllocateExternalSystemMemorySurfacePool(mfxU8 **buf,
 }
 
 void FreeExternalSystemMemorySurfacePool(mfxU8 *dec_buf, mfxFrameSurface1 *surfpool) {
-    if (dec_buf)
+    if (dec_buf) {
         free(dec_buf);
+    }
 
     if (surfpool)
         free(surfpool);
@@ -654,4 +656,4 @@ mfxStatus WriteRawFrame_InternalMem(mfxFrameSurface1 *surface, FILE *f) {
 }
 #endif
 
-#endif //EXAMPLES_UTIL_H_
+#endif //EXAMPLES_UTIL_HPP_

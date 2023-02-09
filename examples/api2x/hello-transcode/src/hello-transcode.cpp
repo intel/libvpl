@@ -12,7 +12,7 @@
 ///
 /// @file
 
-#include "util.h"
+#include "util.hpp"
 
 #define TARGETKBPS                 4000
 #define FRAMERATE                  30
@@ -21,6 +21,15 @@
 #define MAJOR_API_VERSION_REQUIRED 2
 #define MINOR_API_VERSION_REQUIRED 5
 #define MAX_TIMEOUT_COUNT          10
+
+#define WAIT_5_MILLISECONDS 5
+#if defined(_WIN32) || defined(_WIN64)
+    #include <windows.h>
+    #define sleep(msec) Sleep(msec)
+#else
+    #include <unistd.h>
+    #define sleep(msec) usleep(1000 * msec)
+#endif
 
 void Usage(void) {
     printf("\n");

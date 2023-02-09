@@ -9,8 +9,8 @@
 ///
 /// @file
 
-#ifndef EXAMPLES_UTIL_H_
-#define EXAMPLES_UTIL_H_
+#ifndef EXAMPLES_UTIL_HPP_
+#define EXAMPLES_UTIL_HPP_
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,6 +32,7 @@ enum {
 
 #ifdef __linux__
     #include <fcntl.h>
+    #include <unistd.h>
 #endif
 
 #ifdef LIBVA_SUPPORT
@@ -39,7 +40,6 @@ enum {
     #include "va/va_drm.h"
 #endif
 
-#define WAIT_5_MILLISECONDS   5
 #define WAIT_100_MILLISECONDS 100
 #define MAX_PATH              260
 #define MAX_WIDTH             3840
@@ -56,14 +56,6 @@ enum {
 #define ALIGN16(value)           (((value + 15) >> 4) << 4)
 #define ALIGN32(X)               (((mfxU32)((X) + 31)) & (~(mfxU32)31))
 #define VPLVERSION(major, minor) (major << 16 | minor)
-
-#if defined(_WIN32) || defined(_WIN64)
-    #include <windows.h>
-    #define sleep(msec) Sleep(msec)
-#else
-    #include <unistd.h>
-    #define sleep(msec) usleep(1000 * msec)
-#endif
 
 enum ExampleParams { PARAM_IMPL = 0, PARAM_INFILE, PARAM_INRES, PARAM_COUNT };
 enum ParamGroup {
@@ -305,6 +297,7 @@ void ShowImplementationInfo(mfxLoader loader, mfxU32 implnum) {
             printf("unknown\n");
             break;
     }
+    printf("  DeviceID:             %s \n", idesc->Dev.DeviceID);
     MFXDispReleaseImplDescription(loader, idesc);
 
 #if (MFX_VERSION >= 2004)
@@ -430,8 +423,9 @@ mfxStatus AllocateExternalSystemMemorySurfacePool(mfxU8 **buf,
 }
 
 void FreeExternalSystemMemorySurfacePool(mfxU8 *dec_buf, mfxFrameSurface1 *surfpool) {
-    if (dec_buf)
+    if (dec_buf) {
         free(dec_buf);
+    }
 
     if (surfpool)
         free(surfpool);
@@ -662,4 +656,4 @@ mfxStatus WriteRawFrame_InternalMem(mfxFrameSurface1 *surface, FILE *f) {
 }
 #endif
 
-#endif //EXAMPLES_UTIL_H_
+#endif //EXAMPLES_UTIL_HPP_

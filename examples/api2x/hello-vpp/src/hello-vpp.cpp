@@ -10,7 +10,7 @@
 ///
 /// @file
 
-#include "util.h"
+#include "util.hpp"
 
 #define OUTPUT_WIDTH               640
 #define OUTPUT_HEIGHT              480

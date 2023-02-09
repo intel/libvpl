@@ -12,7 +12,7 @@
 ///
 /// @file
 
-#include "util.h"
+#include "util.hpp"
 
 #define DEC_OUTPUT_FILE            "dec_out.raw"
 #define VPP1_OUTPUT_FILE           "vpp_640x480_out.raw"

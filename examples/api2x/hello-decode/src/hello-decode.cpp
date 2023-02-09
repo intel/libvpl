@@ -11,7 +11,7 @@
 /// https://oneapi-src.github.io/oneAPI-spec/elements/oneVPL/source/
 /// @file
 
-#include "util.h"
+#include "util.hpp"
 
 #define OUTPUT_FILE                "out.raw"
 #define BITSTREAM_BUFFER_SIZE      2000000

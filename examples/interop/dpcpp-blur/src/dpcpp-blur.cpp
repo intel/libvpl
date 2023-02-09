@@ -12,7 +12,7 @@
 ///
 /// @file
 #include <CL/sycl.hpp>
-#include "util.h"
+#include "util.hpp"
 
 #define OUTPUT_WIDTH               256
 #define OUTPUT_HEIGHT              192

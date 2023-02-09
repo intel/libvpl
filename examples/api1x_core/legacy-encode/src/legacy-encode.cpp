@@ -11,7 +11,7 @@
 /// https://oneapi-src.github.io/oneAPI-spec/elements/oneVPL/source/index.html
 /// @file
 
-#include "util.h"
+#include "util.hpp"
 
 #define TARGETKBPS            4000
 #define FRAMERATE             30

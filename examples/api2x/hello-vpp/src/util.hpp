@@ -9,8 +9,8 @@
 ///
 /// @file
 
-#ifndef EXAMPLES_UTIL_H_
-#define EXAMPLES_UTIL_H_
+#ifndef EXAMPLES_UTIL_HPP_
+#define EXAMPLES_UTIL_HPP_
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -174,7 +174,7 @@ bool ParseArgsAndValidate(int argc, char *argv[], Params *params, ParamGroup gro
     return true;
 }
 
-void *InitAcceleratorHandle(mfxSession session) {
+void *InitAcceleratorHandle(mfxSession session, int *fd) {
     mfxIMPL impl;
     mfxStatus sts = MFXQueryIMPL(session, &impl);
     if (sts != MFX_ERR_NONE)
@@ -182,12 +182,13 @@ void *InitAcceleratorHandle(mfxSession session) {
 
 #ifdef LIBVA_SUPPORT
     if ((impl & MFX_IMPL_VIA_VAAPI) == MFX_IMPL_VIA_VAAPI) {
+        if (!fd)
+            return NULL;
         VADisplay va_dpy = NULL;
-        int fd;
         // initialize VAAPI context and set session handle (req in Linux)
-        fd = open("/dev/dri/renderD128", O_RDWR);
-        if (fd >= 0) {
-            va_dpy = vaGetDisplayDRM(fd);
+        *fd = open("/dev/dri/renderD128", O_RDWR);
+        if (*fd >= 0) {
+            va_dpy = vaGetDisplayDRM(*fd);
             if (va_dpy) {
                 int major_version = 0, minor_version = 0;
                 if (VA_STATUS_SUCCESS == vaInitialize(va_dpy, &major_version, &minor_version)) {
@@ -204,13 +205,18 @@ void *InitAcceleratorHandle(mfxSession session) {
     return NULL;
 }
 
-void FreeAcceleratorHandle(void *accelHandle) {
+void FreeAcceleratorHandle(void *accelHandle, int fd) {
 #ifdef LIBVA_SUPPORT
-    vaTerminate((VADisplay)accelHandle);
+    if (accelHandle) {
+        vaTerminate((VADisplay)accelHandle);
+    }
+    if (fd) {
+        close(fd);
+    }
 #endif
 }
 
-// Shows implementation info for Media SDK or oneVPL
+//Shows implementation info for Media SDK or oneVPL
 mfxVersion ShowImplInfo(mfxSession session) {
     mfxIMPL impl;
     mfxVersion version = { 0, 1 };
@@ -250,7 +256,7 @@ mfxVersion ShowImplInfo(mfxSession session) {
 void ShowImplementationInfo(mfxLoader loader, mfxU32 implnum) {
     mfxImplDescription *idesc = nullptr;
     mfxStatus sts;
-    // Loads info about implementation at specified list location
+    //Loads info about implementation at specified list location
     sts = MFXEnumImplementations(loader, implnum, MFX_IMPLCAPS_IMPLDESCSTRUCTURE, (mfxHDL *)&idesc);
     if (!idesc || (sts != MFX_ERR_NONE))
         return;
@@ -291,10 +297,11 @@ void ShowImplementationInfo(mfxLoader loader, mfxU32 implnum) {
             printf("unknown\n");
             break;
     }
+    printf("  DeviceID:             %s \n", idesc->Dev.DeviceID);
     MFXDispReleaseImplDescription(loader, idesc);
 
 #if (MFX_VERSION >= 2004)
-    // Show implementation path, added in 2.4 API
+    //Show implementation path, added in 2.4 API
     mfxHDL implPath = nullptr;
     sts             = MFXEnumImplementations(loader, implnum, MFX_IMPLCAPS_IMPLPATH, &implPath);
     if (!implPath || (sts != MFX_ERR_NONE))
@@ -317,8 +324,7 @@ void PrepareFrameInfo(mfxFrameInfo *fi, mfxU32 format, mfxU16 w, mfxU16 h) {
     fi->FrameRateExtN = 30;
     fi->FrameRateExtD = 1;
     // width must be a multiple of 16
-    // height must be a multiple of 16 in case of frame picture and a multiple of
-    // 32 in case of field picture
+    // height must be a multiple of 16 in case of frame picture and a multiple of 32 in case of field picture
     fi->Width = ALIGN16(fi->CropW);
     fi->Height =
         (MFX_PICSTRUCT_PROGRESSIVE == fi->PicStruct) ? ALIGN16(fi->CropH) : ALIGN32(fi->CropH);
@@ -417,8 +423,9 @@ mfxStatus AllocateExternalSystemMemorySurfacePool(mfxU8 **buf,
 }
 
 void FreeExternalSystemMemorySurfacePool(mfxU8 *dec_buf, mfxFrameSurface1 *surfpool) {
-    if (dec_buf)
+    if (dec_buf) {
         free(dec_buf);
+    }
 
     if (surfpool)
         free(surfpool);
@@ -649,4 +656,4 @@ mfxStatus WriteRawFrame_InternalMem(mfxFrameSurface1 *surface, FILE *f) {
 }
 #endif
 
-#endif // EXAMPLES_UTIL_H_
+#endif //EXAMPLES_UTIL_HPP_
