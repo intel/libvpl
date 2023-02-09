@@ -18,6 +18,9 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 - vpl-infer README.md to specify python version which OpenVINO supports
 - Printing incorrect library information of sample tools
 
+### Changed
+- README.md and INSTALL.md to clarify setup steps
+
 ## [2023.1.2] - 2023-01-27
 
 ### Added
