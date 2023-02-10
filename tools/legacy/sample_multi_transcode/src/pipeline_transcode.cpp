@@ -4993,8 +4993,12 @@ void DecreaseReference(mfxFrameSurface1& surf) {
 }
 
 SafetySurfaceBuffer::SafetySurfaceBuffer(SafetySurfaceBuffer* pNext)
-        : m_pNext(pNext),
+        : TargetID(0),
+          m_pNext(pNext),
+          m_mutex(),
+          m_SList(),
           m_IsBufferingAllowed(true),
+          pRelEvent(nullptr),
           pInsEvent(nullptr) {
     mfxStatus sts = MFX_ERR_NONE;
     pRelEvent     = new MSDKEvent(sts, false, false);
@@ -5105,7 +5109,11 @@ void SafetySurfaceBuffer::CancelBuffering() {
     m_IsBufferingAllowed = false;
 }
 
-FileBitstreamProcessor::FileBitstreamProcessor() {
+FileBitstreamProcessor::FileBitstreamProcessor()
+        : m_pFileReader(),
+          m_pYUVFileReader(),
+          m_pFileWriter(),
+          m_Bitstream() {
     m_Bitstream.TimeStamp = (mfxU64)-1;
 }
 

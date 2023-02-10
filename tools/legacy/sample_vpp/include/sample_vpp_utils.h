@@ -352,10 +352,7 @@ struct sFrameProcessor {
     MainVideoSession mfxSession;
     MFXVideoVPP* pmfxVPP;
     mfxLoader loader = NULL;
-    sFrameProcessor(void) {
-        pmfxVPP = NULL;
-        return;
-    };
+    sFrameProcessor(void) : pLoader(), mfxSession(), pmfxVPP(nullptr), loader(nullptr){};
 };
 
 struct sMemoryAllocator {
@@ -485,7 +482,7 @@ public:
         mfxFrameSurfaceWrap* pSurface;
         mfxExtVppAuxData* pExtVpp;
     };
-    SurfaceVPPStore(){};
+    SurfaceVPPStore() : m_SyncPoints(){};
 
     typedef std::pair<mfxSyncPoint, SurfVPPExt> SyncPair;
     std::list<SyncPair> m_SyncPoints;

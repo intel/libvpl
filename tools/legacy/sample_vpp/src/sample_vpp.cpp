@@ -671,7 +671,7 @@ int main(int argc, msdk_char* argv[])
                 }
             }
 
-            msdk_printf(MSDK_STRING("VPP reseted at frame number %d\n"), numGetFrames);
+            msdk_printf(MSDK_STRING("VPP reseted at frame number %d\n"), (int)numGetFrames);
         }
 
         while (MFX_ERR_NONE <= sts || MFX_ERR_MORE_DATA == sts || bDoNotUpdateIn) {
@@ -944,7 +944,7 @@ int main(int argc, msdk_char* argv[])
 
             //VPP progress
             if (!Params.bPerf)
-                msdk_printf(MSDK_STRING("Frame number: %d\r"), nFrames);
+                msdk_printf(MSDK_STRING("Frame number: %d\r"), (int)nFrames);
             else {
                 if (!(nFrames % 100))
                     msdk_printf(MSDK_STRING("."));
@@ -965,9 +965,10 @@ int main(int argc, msdk_char* argv[])
     msdk_printf(MSDK_STRING("\nVPP finished\n"));
     msdk_printf(MSDK_STRING("\n"));
 
-    msdk_printf(MSDK_STRING("Total frames %d \n"), nFrames);
-    msdk_printf(MSDK_STRING("Total time %.2f sec \n"), statTimer.GetTotalTime());
-    msdk_printf(MSDK_STRING("Frames per second %.3f fps \n"), nFrames / statTimer.GetTotalTime());
+    msdk_printf(MSDK_STRING("Total frames %d \n"), (int)nFrames);
+    msdk_printf(MSDK_STRING("Total time %.2f sec \n"), (double)statTimer.GetTotalTime());
+    msdk_printf(MSDK_STRING("Frames per second %.3f fps \n"),
+                (double)(nFrames / statTimer.GetTotalTime()));
 
     PutPerformanceToFile(Params, nFrames / statTimer.GetTotalTime());
 
