@@ -2218,7 +2218,7 @@ mfxStatus GeneralWriter::Init(const msdk_char* strFileName,
                 if (pFound) {
                     *pFound = 0;
                 }
-                msdk_sprintf(out_buf, MSDK_STRING("%s_layer%i.yuv"), fname, did);
+                msdk_sprintf(out_buf, MSDK_STRING("%s_layer%i.yuv"), fname, (int)did);
             }
 #endif
 

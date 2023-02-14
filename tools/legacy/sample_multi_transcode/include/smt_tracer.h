@@ -69,6 +69,15 @@ private:
         mfxU64 InID; //unique dependency ID, e.g. surface pointer
         mfxU64 OutID;
         mfxU64 TS; //time stamp
+        Event()
+                : EvType(EventType::DurationStart),
+                  ThType(ThreadType::DEC),
+                  ThID(0),
+                  Name(EventName::UNDEF),
+                  EvID(0),
+                  InID(0),
+                  OutID(0),
+                  TS(0) {}
     };
     using EventIt = std::vector<Event>::iterator;
 

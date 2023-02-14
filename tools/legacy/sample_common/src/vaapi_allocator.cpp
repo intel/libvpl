@@ -761,11 +761,11 @@ mfxStatus vaapiFrameAllocator::Create3DLutMemory(mfxMemId memId, const char* lut
                 memcpy(surface_p, newImageBuffer, read_size);
                 printf(
                     "upload_data_to_3dlut: 3DLUT surface width %d, height %d, pitch %d, frame size %d, 3dlut file size: %d\n",
-                    surface_image.width,
-                    surface_image.height,
-                    surface_image.pitches[0],
-                    frame_size,
-                    read_size);
+                    (int)surface_image.width,
+                    (int)surface_image.height,
+                    (int)surface_image.pitches[0],
+                    (int)frame_size,
+                    (int)read_size);
                 fclose(f3dlut);
                 f3dlut = NULL;
             }
@@ -778,7 +778,7 @@ mfxStatus vaapiFrameAllocator::Create3DLutMemory(mfxMemId memId, const char* lut
 
     *((VASurfaceID*)memId) = surface_id;
 
-    printf("create 3dlut surface ID %d!\n", surface_id);
+    printf("create 3dlut surface ID %d!\n", (int)surface_id);
     return MFX_ERR_NONE;
 }
 

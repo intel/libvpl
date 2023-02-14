@@ -561,9 +561,9 @@ void CParametersDumper::SerializeExtensionBuffer(msdk_ostream& sstr,
             SERIALIZE_INFO_ARRAY(reserved1);
             SERIALIZE_INFO(NumInputStream);
             for (int i = 0; i < info.NumInputStream; i++) {
-                msdk_char streamName[32];
-                msdk_sprintf(streamName, MSDK_STRING("InputStream[%d]."), i);
-                SerializeVPPCompInputStream(sstr, prefix + streamName, info.InputStream[i]);
+                msdk_stringstream sstr;
+                sstr << prefix << MSDK_STRING("InputStream[") << i << MSDK_STRING("].");
+                SerializeVPPCompInputStream(sstr, sstr.str(), info.InputStream[i]);
             }
         } break;
         case MFX_EXTBUFF_VIDEO_SIGNAL_INFO: {

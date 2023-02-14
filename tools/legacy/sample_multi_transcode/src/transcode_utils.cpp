@@ -622,9 +622,9 @@ void TranscodingSample::PrintStreamInfo(mfxU32 session_number,
         msdk_printf(MSDK_STRING("MFX %s Session %d API ver %d.%d parameters: \n"),
                     (MFX_IMPL_SOFTWARE == pParams->libType) ? MSDK_STRING("SOFTWARE")
                                                             : MSDK_STRING("HARDWARE"),
-                    session_number,
-                    pVer->Major,
-                    pVer->Minor);
+                    (int)session_number,
+                    (int)pVer->Major,
+                    (int)pVer->Minor);
     }
 
     if (0 == pParams->DecodeId)
@@ -680,22 +680,21 @@ bool TranscodingSample::PrintDllInfo(msdk_char* buf, mfxU32 buf_size, sInputPara
 #endif
 }
 
-CmdProcessor::CmdProcessor() {
-    m_SessionParamId = 0;
-    m_SessionArray.clear();
-    m_decoderPlugins.clear();
-    m_encoderPlugins.clear();
-    m_PerfFILE           = NULL;
-    m_parName            = NULL;
-    m_nTimeout           = 0;
-    statisticsWindowSize = 0;
-    statisticsLogFile    = NULL;
-    DumpLogFileName.clear();
-    shouldUseGreedyFormula = false;
-    bRobustFlag            = false;
-    bSoftRobustFlag        = false;
-
-} //CmdProcessor::CmdProcessor()
+CmdProcessor::CmdProcessor()
+        : m_SessionParamId(0),
+          m_SessionArray(),
+          m_decoderPlugins(),
+          m_encoderPlugins(),
+          m_PerfFILE(nullptr),
+          m_parName(nullptr),
+          statisticsWindowSize(0),
+          statisticsLogFile(nullptr),
+          DumpLogFileName(),
+          m_nTimeout(0),
+          bRobustFlag(false),
+          bSoftRobustFlag(false),
+          shouldUseGreedyFormula(false),
+          m_lines() {} //CmdProcessor::CmdProcessor()
 
 CmdProcessor::~CmdProcessor() {
     m_SessionArray.clear();
@@ -3258,20 +3257,20 @@ mfxStatus CmdProcessor::VerifyAndCorrectInputParams(TranscodingSample::sInputPar
         InputParams.nBitRateMultiplier =
             (mfxU16)std::ceil(static_cast<double>(maxVal) / mfxU16Limit);
         msdk_printf(MSDK_STRING("WARNING: BitRateMultiplier(-bm) was updated, new value: %d. \n"),
-                    InputParams.nBitRateMultiplier);
+                    (int)InputParams.nBitRateMultiplier);
 
         auto recalculate = [mfxU16Limit, InputParams](mfxU32& param, std::string paramName) {
             if (param) {
                 if (param > mfxU16Limit) {
                     msdk_printf(MSDK_STRING("WARNING: %s (%d) > allow limit (%d). \n"),
                                 paramName.c_str(),
-                                param,
-                                mfxU16Limit);
+                                (int)param,
+                                (int)mfxU16Limit);
                 }
                 param = param / InputParams.nBitRateMultiplier;
                 msdk_printf(MSDK_STRING("WARNING: %s was updated, new value: %d. \n"),
                             paramName.c_str(),
-                            param);
+                            (int)param);
             }
         };
 

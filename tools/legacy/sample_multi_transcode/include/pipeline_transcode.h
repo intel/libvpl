@@ -13,6 +13,8 @@
 #include <condition_variable>
 #include <ctime>
 #include <future>
+#include <iomanip>
+#include <iostream>
 #include <list>
 #include <map>
 #include <memory>
@@ -585,7 +587,7 @@ public:
             ofile,
             MSDK_STRING(
                 "stat[%u.%llu]: %s=%d;Framerate=%.3f;Total=%.3lf;Samples=%lld;StdDev=%.3lf;Min=%.3lf;Max=%.3lf;Avg=%.3lf\n"),
-            msdk_get_current_pid(),
+            (unsigned int)msdk_get_current_pid(),
             (unsigned long long int)rdtsc(),
             bufDir,
             (int)numPipelineid,
@@ -599,27 +601,26 @@ public:
         fflush(ofile);
 
         if (!DumpLogFileName.empty()) {
-            msdk_char buf[MSDK_MAX_FILENAME_LEN];
-            msdk_sprintf(buf, MSDK_STRING("%s_ID_%d.log"), DumpLogFileName.c_str(), numPipelineid);
-            DumpDeltas(buf);
+            msdk_stringstream sstr;
+            sstr << DumpLogFileName << MSDK_STRING("_ID_") << numPipelineid << MSDK_STRING(".log");
+            DumpDeltas(sstr.str());
         }
     }
 
-    inline void DumpDeltas(msdk_char* file_name) {
+    inline void DumpDeltas(const msdk_string& file_name) {
         if (m_time_deltas.empty())
             return;
 
-        FILE* dump_file = NULL;
-        MSDK_FOPEN(dump_file, file_name, MSDK_STRING("a"));
-        if (dump_file) {
+        try {
+            std::ofstream dump_file(file_name, std::ofstream::app);
+            dump_file << std::fixed << std::setprecision(3);
             for (std::vector<mfxF64>::const_iterator it = m_time_deltas.begin();
                  it != m_time_deltas.end();
                  ++it) {
-                fprintf(dump_file, "%.3f, ", (*it));
+                dump_file << (*it) << ", ";
             }
-            fclose(dump_file);
         }
-        else {
+        catch (std::ios::failure&) {
             perror("DumpDeltas: file cannot be open");
         }
     }

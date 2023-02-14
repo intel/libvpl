@@ -22,17 +22,23 @@ typedef std::basic_istream<msdk_char, std::char_traits<msdk_char>> msdk_istream;
 typedef std::basic_fstream<msdk_char, std::char_traits<msdk_char>> msdk_fstream;
 
 #if defined(_UNICODE)
-    #define MSDK_MAKE_BYTE_STRING(src, dest)                                      \
+    #define MSDK_MAKE_BYTE_STRING(dest, src, count)                               \
         {                                                                         \
             std::wstring wstr(src);                                               \
             std::string str(wstr.length(), 0);                                    \
             std::transform(wstr.begin(), wstr.end(), str.begin(), [](wchar_t c) { \
                 return (char)c;                                                   \
             });                                                                   \
-            strcpy_s(dest, str.c_str());                                          \
+            strncpy(dest, str.c_str(), count);                                    \
+            dest[count - 1] = '\0';                                               \
         }
 #else
-    #define MSDK_MAKE_BYTE_STRING(src, dest) msdk_strcopy(dest, src);
+    #define MSDK_MAKE_BYTE_STRING(dest, src, count) \
+        {                                           \
+            strncpy(dest, src, count);              \
+            dest[count - 1] = '\0';                 \
+        }
+
 #endif
 
 #endif //__SAMPLE_TYPES_H__

@@ -168,6 +168,16 @@ const msdk_char* drmRenderer::getConnectorName(uint32_t connector_type) {
 
 drmRenderer::drmRenderer(int fd, mfxI32 monitorType)
         : m_fd(fd),
+          m_connector_type(),
+          m_connectorID(),
+          m_encoderID(),
+          m_crtcID(),
+          m_crtcIndex(),
+          m_planeID(),
+          m_mode(),
+          m_crtc(),
+          m_connectorProperties(),
+          m_crtcProperties(),
           m_bufmgr(NULL),
           m_overlay_wrn(true),
           m_bSentHDR(false),

@@ -411,6 +411,10 @@ public:
     mfxStatus LoadNextFrame(mfxFrameData* pData, mfxFrameInfo* pInfo);
     mfxStatus LoadNextFrame(mfxFrameSurface1* pSurface, int bytes_to_read, mfxU8* buf_read);
 
+protected:
+    CRawVideoReader(CRawVideoReader const&)                  = delete;
+    const CRawVideoReader& operator=(CRawVideoReader const&) = delete;
+
 private:
     mfxStatus GetPreAllocFrame(mfxFrameSurfaceWrap** pSurface);
 
@@ -439,6 +443,10 @@ public:
                            mfxFrameInfo* pInfo,
                            mfxFrameSurfaceWrap* pSurface);
     mfxStatus PutNextFrame(mfxFrameInfo* pInfo, mfxFrameSurfaceWrap* pSurface);
+
+protected:
+    CRawVideoWriter(CRawVideoWriter const&)                  = delete;
+    const CRawVideoWriter& operator=(CRawVideoWriter const&) = delete;
 
 private:
     mfxStatus WriteFrame(mfxFrameData* pData, mfxFrameInfo* pInfo);

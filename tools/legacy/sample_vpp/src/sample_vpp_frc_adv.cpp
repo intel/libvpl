@@ -42,21 +42,17 @@ bool FRCAdvancedChecker::IsTimeStampsNear(mfxU64 timeStampRef, mfxU64 timeStampT
 
 } // bool IsTimeStampsNear( mfxU64 timeStampTst, mfxU64 timeStampRef,  mfxU64 eps)
 
-FRCAdvancedChecker::FRCAdvancedChecker() {
-    m_minDeltaTime = 0;
-
-    m_bIsSetTimeOffset = false;
-
-    m_timeOffset        = 0;
-    m_expectedTimeStamp = 0;
-    m_timeStampJump     = 0;
-    m_numOutputFrames   = 0;
-
-    m_bReadyOutput           = false;
-    m_defferedInputTimeStamp = 0;
-
-    memset(&m_videoParam, 0, sizeof(m_videoParam));
-} // FRCAdvancedChecker::FRCAdvancedChecker()
+FRCAdvancedChecker::FRCAdvancedChecker()
+        : m_minDeltaTime(0),
+          m_bIsSetTimeOffset(false),
+          m_timeOffset(0),
+          m_expectedTimeStamp(0),
+          m_timeStampJump(0),
+          m_numOutputFrames(0),
+          m_bReadyOutput(false),
+          m_defferedInputTimeStamp(0),
+          m_videoParam({ 0 }),
+          m_ptsList() {} // FRCAdvancedChecker::FRCAdvancedChecker()
 
 mfxStatus FRCAdvancedChecker::Init(mfxVideoParam* par, mfxU32 /*asyncDeep*/) {
     m_videoParam = *par;

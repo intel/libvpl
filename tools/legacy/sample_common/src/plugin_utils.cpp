@@ -156,7 +156,7 @@ sPluginParams ParsePluginPath(msdk_char* strPluginGuid) {
     msdk_char tmpVal[MSDK_MAX_FILENAME_LEN];
     msdk_opt_read(strPluginGuid, tmpVal);
 
-    MSDK_MAKE_BYTE_STRING(tmpVal, pluginParams.strPluginPath);
+    MSDK_MAKE_BYTE_STRING(pluginParams.strPluginPath, tmpVal, sizeof(pluginParams.strPluginPath));
     pluginParams.type = MFX_PLUGINLOAD_TYPE_FILE;
 
     return pluginParams;

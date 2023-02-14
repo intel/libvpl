@@ -15,7 +15,7 @@ namespace ProtectedLibrary {
 template <typename T>
 class HeaderSet {
 public:
-    HeaderSet() : m_currentID(-1) {}
+    HeaderSet() : m_header(), m_currentID(-1) {}
 
     ~HeaderSet() {
         Reset();

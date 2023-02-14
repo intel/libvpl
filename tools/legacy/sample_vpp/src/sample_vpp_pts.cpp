@@ -30,7 +30,8 @@ PTSMaker::PTSMaker()
           m_NumFrame_In(0),
           m_NumFrame_Out(0),
           m_IsJump(false),
-          m_bIsAdvancedMode(false) {}
+          m_bIsAdvancedMode(false),
+          m_ptsList() {}
 
 mfxStatus PTSMaker::Init(mfxVideoParam* par,
                          mfxU32 asyncDeep,

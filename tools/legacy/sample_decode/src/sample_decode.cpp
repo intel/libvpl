@@ -788,7 +788,7 @@ mfxStatus ParseInputString(msdk_char* strInput[], mfxU8 nArgNum, sInputParams* p
                     PrintHelp(strInput[0], NULL);
                     return MFX_ERR_UNSUPPORTED;
                 default: {
-                    std::basic_stringstream<msdk_char> stream;
+                    msdk_stringstream stream;
                     stream << MSDK_STRING("Unknown option: ") << strInput[i];
                     PrintHelp(strInput[0], stream.str().c_str());
                     return MFX_ERR_UNSUPPORTED;

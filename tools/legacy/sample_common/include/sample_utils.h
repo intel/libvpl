@@ -548,7 +548,8 @@ public:
 
     ExtBufHolder& operator=(const ExtBufHolder& ref) {
         const T* src_base = &ref;
-        return operator=(*src_base);
+        this->operator=(*src_base);
+        return *this;
     }
 
     ExtBufHolder(const T& ref) {
@@ -818,6 +819,9 @@ public:
     bool m_bSkipWriting;
 
 protected:
+    CSmplBitstreamWriter(CSmplBitstreamWriter const&)                  = delete;
+    const CSmplBitstreamWriter& operator=(CSmplBitstreamWriter const&) = delete;
+
     FILE* m_fSource;
     bool m_bInited;
     msdk_string m_sFile;
@@ -839,6 +843,9 @@ public:
     }
 
 protected:
+    CSmplYUVWriter(CSmplYUVWriter const&)                  = delete;
+    const CSmplYUVWriter& operator=(CSmplYUVWriter const&) = delete;
+
     FILE *m_fDest, **m_fDestMVC;
     bool m_bInited, m_bIsMultiView;
     mfxU32 m_numCreatedFiles;
@@ -858,6 +865,9 @@ public:
     virtual mfxStatus ReadNextFrame(mfxBitstream* pBS);
 
 protected:
+    CSmplBitstreamReader(CSmplBitstreamReader const&)                  = delete;
+    const CSmplBitstreamReader& operator=(CSmplBitstreamReader const&) = delete;
+
     FILE* m_fSource;
     bool m_bInited;
 };
@@ -1170,7 +1180,7 @@ mfxU16 CalculateDefaultBitrate(mfxU32 nCodecId,
                                mfxF64 dFrameRate);
 
 //serialization fnc set
-std::basic_string<msdk_char> CodecIdToStr(mfxU32 nFourCC);
+msdk_string CodecIdToStr(mfxU32 nFourCC);
 mfxU16 StrToTargetUsage(msdk_string strInput);
 const msdk_char* TargetUsageToStr(mfxU16 tu);
 const msdk_char* ColorFormatToStr(mfxU32 format);
@@ -1180,7 +1190,7 @@ const msdk_char* MfxStatusToStr(mfxStatus sts);
 mfxStatus MJPEG_AVI_ParsePicStruct(mfxBitstream* bitstream);
 
 // For MVC encoding/decoding purposes
-std::basic_string<msdk_char> FormMVCFileName(const msdk_char* strFileName, const mfxU32 numView);
+msdk_string FormMVCFileName(const msdk_char* strFileName, const mfxU32 numView);
 
 //piecewise linear function for bitrate approximation
 class PartiallyLinearFNC {

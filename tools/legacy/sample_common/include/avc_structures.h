@@ -819,7 +819,7 @@ struct AVCSEIPayLoadBase {
 struct AVCSEIPayLoad : public HeapObject, public AVCSEIPayLoadBase {
     std::vector<mfxU8> user_data; // for UserDataRegistered or UserDataUnRegistered
 
-    AVCSEIPayLoad() : AVCSEIPayLoadBase() {}
+    AVCSEIPayLoad() : AVCSEIPayLoadBase(), user_data() {}
 
     virtual void Reset() {
         AVCSEIPayLoadBase::Reset();

@@ -67,7 +67,7 @@ mfxStatus MFXFrameAllocator::GetHDL_(mfxHDL pthis, mfxMemId mid, mfxHDL* handle)
     return self.GetFrameHDL(mid, handle);
 }
 
-BaseFrameAllocator::BaseFrameAllocator() {}
+BaseFrameAllocator::BaseFrameAllocator() : mtx(), m_responses(), m_ExtResponses() {}
 
 BaseFrameAllocator::~BaseFrameAllocator() {}
 

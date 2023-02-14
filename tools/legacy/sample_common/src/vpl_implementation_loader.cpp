@@ -73,28 +73,30 @@ const std::map<mfxAccelerationMode, const msdk_tstring> mfxAccelerationModeNames
     { MFX_ACCEL_MODE_VIA_HDDLUNITE, MSDK_STRING("MFX_ACCEL_MODE_VIA_HDDLUNITE") }
 };
 
-VPLImplementationLoader::VPLImplementationLoader() {
+VPLImplementationLoader::VPLImplementationLoader()
+        : m_loader(),
+          m_idesc(),
+          m_Loader(),
+          m_ImplIndex(0),
+          m_Impl(MFX_IMPL_TYPE_HARDWARE),
+          m_adapterType(mfxMediaAdapterType::MFX_MEDIA_UNKNOWN),
+          m_dGfxIdx(-1),
+          m_adapterNum(-1),
+          m_MinVersion(mfxVersion{ { 0 /*minor*/, 1 /*major*/ } }),
+          m_PCIDomain(0),
+          m_PCIBus(0),
+          m_PCIDevice(0),
+          m_PCIFunction(0),
+          m_PCIDeviceSetup(false),
+#if defined(_WIN32)
+          m_LUID(0)
+#else
+          m_DRMRenderNodeNum(0),
+          m_DRMRenderNodeNumUsed(0)
+#endif
+{
     m_loader.reset(MFXLoad(), MFXUnload);
     m_Loader = m_loader.get();
-
-    m_ImplIndex   = 0;
-    m_Impl        = MFX_IMPL_TYPE_HARDWARE;
-    m_MinVersion  = mfxVersion{ { 0 /*minor*/, 1 /*major*/ } };
-    m_adapterType = mfxMediaAdapterType::MFX_MEDIA_UNKNOWN;
-    m_dGfxIdx     = -1;
-    m_adapterNum  = -1;
-    // Extended device ID info, available in 2.6 and newer APIs
-    m_PCIDomain      = 0;
-    m_PCIBus         = 0;
-    m_PCIDevice      = 0;
-    m_PCIFunction    = 0;
-    m_PCIDeviceSetup = false;
-#if defined(_WIN32)
-    m_LUID = 0;
-#else
-    m_DRMRenderNodeNum     = 0;
-    m_DRMRenderNodeNumUsed = 0;
-#endif
 }
 
 VPLImplementationLoader::~VPLImplementationLoader() {}

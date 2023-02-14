@@ -12,7 +12,7 @@
 
 #ifdef __linux__
     #include <pthread.h>
-    #define strncpy_s(dst, size, src, cnt) strcpy((dst), (src)) // NOLINT
+    #define strncpy_s(dst, size, src, cnt) strncpy((dst), (src), (cnt)) // NOLINT
 #endif
 
 // leave table formatting alone
@@ -365,8 +365,11 @@ mfxStatus LoaderCtxMSDK::QueryMSDKCaps(STRING_TYPE libNameFull,
 
     // fill in strings
     strncpy_s(m_id.ImplName, sizeof(m_id.ImplName), strImplName, sizeof(strImplName));
+    m_id.ImplName[sizeof(m_id.ImplName) - 1] = 0;
     strncpy_s(m_id.License, sizeof(m_id.License), strLicense, sizeof(strLicense));
+    m_id.License[sizeof(m_id.License) - 1] = 0;
     strncpy_s(m_id.Keywords, sizeof(m_id.Keywords), strKeywords, sizeof(strKeywords));
+    m_id.Keywords[sizeof(m_id.Keywords) - 1] = 0;
 
     m_id.VendorID    = 0x8086;
     m_id.NumExtParam = 0;

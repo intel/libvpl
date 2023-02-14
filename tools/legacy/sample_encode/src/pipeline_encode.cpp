@@ -1290,6 +1290,7 @@ CEncodingPipeline::CEncodingPipeline()
           m_FileReader(),
           m_TaskPool(),
           m_QPFileReader(),
+          m_TCBRCFileReader(),
           m_pLoader(),
           m_mfxSession(),
           m_pmfxENC(NULL),

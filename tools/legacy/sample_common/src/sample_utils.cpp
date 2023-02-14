@@ -1824,8 +1824,8 @@ mfxU16 GetFreeSurface(mfxFrameSurface1* pSurfacesPool, mfxU16 nPoolSize) {
     return idx;
 }
 
-std::basic_string<msdk_char> CodecIdToStr(mfxU32 nFourCC) {
-    std::basic_string<msdk_char> fcc;
+msdk_string CodecIdToStr(mfxU32 nFourCC) {
+    msdk_string fcc;
     for (size_t i = 0; i < 4; i++) {
         fcc.push_back((msdk_char) * (i + (char*)&nFourCC));
     }
@@ -2081,25 +2081,16 @@ mfxU32 GCD(mfxU32 a, mfxU32 b) {
     return b1;
 }
 
-std::basic_string<msdk_char> FormMVCFileName(const msdk_char* strFileNamePattern,
-                                             const mfxU32 numView) {
+msdk_string FormMVCFileName(const msdk_char* strFileNamePattern, const mfxU32 numView) {
     if (NULL == strFileNamePattern)
         return MSDK_STRING("");
 
-    std::basic_string<msdk_char> mvcFileName, fileExt;
-    msdk_char fileName[MSDK_MAX_FILENAME_LEN];
-#if defined(_WIN32) || defined(_WIN64)
-    msdk_sprintf(fileName,
-                 MSDK_MAX_FILENAME_LEN,
-                 MSDK_STRING("%s_%d.yuv"),
-                 strFileNamePattern,
-                 numView);
-#else
-    msdk_sprintf(fileName, MSDK_STRING("%s_%d.yuv"), strFileNamePattern, numView);
-#endif
-    mvcFileName = fileName;
+    msdk_string mvcFileName, fileExt;
+    msdk_stringstream sstr;
+    sstr << strFileNamePattern << MSDK_STRING("_") << numView << MSDK_STRING(".yuv");
+    mvcFileName = sstr.str();
 
-    return std::basic_string<msdk_char>(mvcFileName);
+    return msdk_string(mvcFileName);
 }
 
 // function for getting a pointer to a specific external buffer from the array

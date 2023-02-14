@@ -282,7 +282,7 @@ void BytesSwapper::SwapMemory(mfxU8* pDestination,
     SwapMemoryAndRemovePreventingBytes(pDestination, nDstSize, pSource, nSrcSize);
 }
 
-NALUnitSplitter::NALUnitSplitter() {
+NALUnitSplitter::NALUnitSplitter() : m_pStartCodeIter(), m_bitstream() {
     memset(&m_bitstream, 0, sizeof(m_bitstream));
 }
 

@@ -323,6 +323,9 @@ public:
     msdk_tick lastOut_start;
 
 protected:
+    CEncTaskPool(CEncTaskPool const&)                  = delete;
+    const CEncTaskPool& operator=(CEncTaskPool const&) = delete;
+
     sTask* m_pTasks;
     mfxU32 m_nPoolSize;
     mfxU32 m_nTaskBufferStart;
@@ -371,6 +374,9 @@ public:
 #endif
 
 protected:
+    CEncodingPipeline(CEncodingPipeline const&)                  = delete;
+    const CEncodingPipeline& operator=(CEncodingPipeline const&) = delete;
+
     std::pair<CSmplBitstreamWriter*, CSmplBitstreamWriter*> m_FileWriters;
     CSmplYUVReader m_FileReader;
     CEncTaskPool m_TaskPool;

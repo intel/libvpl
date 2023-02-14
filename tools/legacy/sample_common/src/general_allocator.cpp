@@ -23,7 +23,7 @@
 
 // Wrapper on standard allocator for concurrent allocation of
 // D3D and system surfaces
-GeneralAllocator::GeneralAllocator(){};
+GeneralAllocator::GeneralAllocator() : m_Mids(), m_D3DAllocator(), m_SYSAllocator(){};
 GeneralAllocator::~GeneralAllocator(){};
 mfxStatus GeneralAllocator::Init(mfxAllocatorParams* pParams) {
     mfxStatus sts = MFX_ERR_NONE;
