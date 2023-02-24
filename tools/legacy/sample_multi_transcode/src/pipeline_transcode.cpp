@@ -1120,7 +1120,7 @@ mfxStatus CTranscodingPipeline::Decode() {
                     inputStatistics.ResetStatistics();
                 }
             }
-            if (sts == MFX_ERR_MORE_DATA && (m_pmfxVPP.get())) {
+            if (sts == MFX_ERR_MORE_DATA && (m_pmfxVPP.get()) && !m_rawInput) {
                 DecExtSurface.pSurface = NULL; // to get buffered VPP or ENC frames
                 sts                    = MFX_ERR_NONE;
             }

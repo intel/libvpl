@@ -10,6 +10,9 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 
 ## [Unreleased]
 
+### Fixed
+- VPP processing for YUV input
+
 ## [2023.1.3] - 2023-03-03
 
 ### Added

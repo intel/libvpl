@@ -431,10 +431,6 @@ void SMTTracer::AddFlowEvent(const Event a, const Event b) {
     ev.EvID   = EvID;
     ev.TS     = b.TS;
 
-    if (a.TS == b.TS) {
-        ev.TS++;
-    }
-
     AddonLog.push_back(ev);
 }
 
