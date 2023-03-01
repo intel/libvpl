@@ -10,6 +10,8 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 
 ## [Unreleased]
 
+## [2023.1.3] - 2023-03-03
+
 ### Added
  - New tutorial on transitioning from Media SDK to VPL replaces hello-createsession
  - More logs in sample tools to inform correct parameters for hyper encode mode
@@ -17,6 +19,7 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 ### Fixed
 - vpl-infer README.md to specify python version supported by OpenVINO™ toolkit
 - Printing incorrect library information of sample tools
+- Issues discovered from static analysis
 
 ### Changed
 - README.md and INSTALL.md to clarify setup steps
@@ -257,7 +260,8 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 - hello-transcode sample
 
 
-[Unreleased]: https://github.com/oneapi-src/oneVPL/compare/v2023.1.0...HEAD
+[Unreleased]: https://github.com/oneapi-src/oneVPL/compare/v2023.1.3...HEAD
+[2023.1.3]: https://github.com/oneapi-src/oneVPL/compare/v2023.1.2...v2023.1.3
 [2023.1.2]: https://github.com/oneapi-src/oneVPL/compare/v2023.1.1...v2023.1.2
 [2023.1.1]: https://github.com/oneapi-src/oneVPL/compare/v2023.1.0...v2023.1.1
 [2023.1.0]: https://github.com/oneapi-src/oneVPL/compare/v2023.0.0...v2023.1.0
