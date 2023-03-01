@@ -15,7 +15,7 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
  - More logs in sample tools to inform correct parameters for hyper encode mode
 
 ### Fixed
-- vpl-infer README.md to specify python version which OpenVINO supports
+- vpl-infer README.md to specify python version supported by OpenVINO™ toolkit
 - Printing incorrect library information of sample tools
 
 ### Changed
