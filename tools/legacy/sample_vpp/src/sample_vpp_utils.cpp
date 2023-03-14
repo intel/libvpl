@@ -872,6 +872,12 @@ mfxStatus InitResources(sAppResources* pResources,
         WipeParams(pInParams);
     });
 
+    sts = Config3dlut(pInParams, pResources);
+    MSDK_CHECK_STATUS_SAFE(sts, "InitMemoryAllocator failed", {
+        WipeResources(pResources);
+        WipeParams(pInParams);
+    });
+
     sts = InitFrameProcessor(pResources->pProcessor, pParams);
 
     if (MFX_WRN_PARTIAL_ACCELERATION == sts || MFX_WRN_FILTER_SKIPPED == sts)
@@ -944,6 +950,12 @@ void WipeConfigParam(sAppResources* pResources) {
 
 void WipeResources(sAppResources* pResources) {
     MSDK_CHECK_POINTER_NO_RET(pResources);
+
+    if (pResources->pAllocator && pResources->pAllocator->pMfxAllocator &&
+        pResources->p3dlutResponse) {
+        pResources->pAllocator->pMfxAllocator->FreeFrames(pResources->p3dlutResponse);
+        MSDK_SAFE_DELETE(pResources->p3dlutResponse);
+    }
 
     WipeFrameProcessor(pResources->pProcessor);
 

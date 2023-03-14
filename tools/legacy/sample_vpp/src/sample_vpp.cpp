@@ -149,6 +149,8 @@ static void vppDefaultInitParams(sInputParams* pParams, sFiltersParam* pDefaultF
 
     pParams->GPUCopyValue = MFX_GPUCOPY_DEFAULT;
 
+    pParams->b3dLut = false;
+
     return;
 
 } // void vppDefaultInitParams( sInputParams* pParams )

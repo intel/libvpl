@@ -229,4 +229,115 @@ mfxStatus ConfigVideoEnhancementFilters(sInputParams* pParams,
     return MFX_ERR_NONE;
 
 } // mfxStatus ConfigVideoEnhancementFilters( sAppResources* pResources, mfxVideoParam* pParams )
+
+mfxStatus Config3dlut(sInputParams* pParams, sAppResources* pResources) {
+    mfxStatus sts = MFX_ERR_NONE;
+#if defined(_WIN32) || defined(_WIN64)
+    MfxVideoParamsWrapper* pVppParam = pResources->pVppParams;
+    mfxU32 seg_size                  = pParams->lutSize;
+    mfxU32 mul_size                  = seg_size * 2 - 2;
+    mfxU32 n3DLutVWidth              = seg_size * 8;
+    mfxU32 n3DLutVHeight             = seg_size * mul_size;
+    // 17x17x32 33x33x64 65x65x128
+    mfxU32 dim[3] = { seg_size, seg_size, mul_size };
+
+    if (pParams->b3dLut) {
+        FILE* file;
+        MSDK_FOPEN(file, pParams->lutTableFile, MSDK_STRING("rb"));
+        if (!file)
+            return MFX_ERR_NULL_PTR;
+        fseek(file, 0, SEEK_END);
+        mfxU32 lutTblSize = ftell(file);
+        rewind(file);
+
+        pParams->lutTbl.resize(lutTblSize);
+        fread(pParams->lutTbl.data(), 1, lutTblSize, file);
+        fclose(file);
+        file = NULL;
+
+        if (lutTblSize != n3DLutVHeight * n3DLutVWidth)
+            return MFX_ERR_INVALID_VIDEO_PARAM;
+
+        auto lutConfig            = pVppParam->AddExtBuffer<mfxExtVPP3DLut>();
+        lutConfig->ChannelMapping = MFX_3DLUT_CHANNEL_MAPPING_RGB_RGB;
+
+        if (pParams->bIs3dLutVideoMem) {
+    #if defined(_WIN32) || defined(_WIN64)
+            auto pAllocator = pResources->pAllocator->pMfxAllocator;
+
+            mfxFrameAllocRequest request3dlut = {};
+
+            request3dlut.Info.FourCC       = MFX_FOURCC_P8;
+            request3dlut.Info.Width        = n3DLutVWidth;
+            request3dlut.Info.Height       = n3DLutVHeight;
+            request3dlut.NumFrameSuggested = 1;
+            request3dlut.NumFrameMin       = 1;
+            request3dlut.Type = MFX_MEMTYPE_FROM_VPPIN | MFX_MEMTYPE_VIDEO_MEMORY_PROCESSOR_TARGET;
+
+            pResources->p3dlutResponse = new mfxFrameAllocResponse;
+            auto pResponseOut          = pResources->p3dlutResponse;
+
+            sts = pAllocator->Alloc(pAllocator->pthis, &request3dlut, pResponseOut);
+            MSDK_CHECK_STATUS(sts, "Alloc failed!");
+            mfxU16 nFrames = pResponseOut->NumFrameActual;
+            if (nFrames != 1)
+                return MFX_ERR_MEMORY_ALLOC;
+
+            mfxFrameSurface1 pSurfacesOut = {};
+            sts = pAllocator->Lock(pAllocator->pthis, pResponseOut->mids[0], &(pSurfacesOut.Data));
+            MSDK_CHECK_STATUS(sts, "Lock failed!");
+
+            memcpy(pSurfacesOut.Data.Y, pParams->lutTbl.data(), lutTblSize);
+
+            sts = pAllocator->Unlock(pAllocator->pthis, pResponseOut->mids[0], NULL);
+            MSDK_CHECK_STATUS(sts, "Unlock failed!");
+
+            mfxHDLPair pair;
+            mfxHDL* hdl = &(pair.first);
+            sts         = pAllocator->GetHDL(pAllocator->pthis, pResponseOut->mids[0], hdl);
+            MSDK_CHECK_STATUS(sts, "GetHDL failed!");
+            ID3D11Texture2D* texture = (ID3D11Texture2D*)((mfxHDLPair*)(hdl))->first;
+
+            lutConfig->BufferType            = MFX_RESOURCE_DX11_TEXTURE;
+            lutConfig->VideoBuffer.DataType  = MFX_DATA_TYPE_U16;
+            lutConfig->VideoBuffer.MemLayout = MFX_3DLUT_MEMORY_LAYOUT_INTEL_65LUT;
+            lutConfig->VideoBuffer.MemId     = (ID3D11Texture2D*)texture;
+    #else
+    #endif
+        }
+        else {
+            mfxU32 size  = dim[0] * dim[1] * dim[2];
+            mfxU16* data = (mfxU16*)pParams->lutTbl.data();
+            mfxU32 index = 0;
+            pParams->RGB[0].reset(new mfxU16[size]);
+            pParams->RGB[1].reset(new mfxU16[size]);
+            pParams->RGB[2].reset(new mfxU16[size]);
+            for (mfxU32 i = 0; i < dim[0]; i++) {
+                for (mfxU32 j = 0; j < dim[1]; j++) {
+                    for (mfxU32 k = 0; k < dim[2]; k++) {
+                        mfxU32 pos             = (i * dim[1] * dim[2] + j * dim[2] + k) * 4;
+                        pParams->RGB[0][index] = data[pos++];
+                        pParams->RGB[1][index] = data[pos++];
+                        pParams->RGB[2][index] = data[pos++];
+                        index++;
+                    }
+                }
+            }
+
+            lutConfig->BufferType                       = MFX_RESOURCE_SYSTEM_SURFACE;
+            lutConfig->SystemBuffer.Channel[0].Data16   = pParams->RGB[0].get();
+            lutConfig->SystemBuffer.Channel[0].Size     = dim[0];
+            lutConfig->SystemBuffer.Channel[0].DataType = MFX_DATA_TYPE_U16;
+            lutConfig->SystemBuffer.Channel[1].Data16   = pParams->RGB[1].get();
+            lutConfig->SystemBuffer.Channel[1].Size     = dim[1];
+            lutConfig->SystemBuffer.Channel[0].DataType = MFX_DATA_TYPE_U16;
+            lutConfig->SystemBuffer.Channel[2].Data16   = pParams->RGB[2].get();
+            lutConfig->SystemBuffer.Channel[2].Size     = dim[2];
+            lutConfig->SystemBuffer.Channel[0].DataType = MFX_DATA_TYPE_U16;
+        }
+    }
+#endif
+    return sts;
+}
+
 /* EOF */

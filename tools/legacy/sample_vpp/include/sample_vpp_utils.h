@@ -259,6 +259,13 @@ struct sInputParams {
     eAPIVersion verSessionInit;
     bool bReadByFrame;
 
+    bool b3dLut;
+    msdk_char lutTableFile[MSDK_MAX_FILENAME_LEN];
+    mfxU16 lutSize;
+    std::vector<mfxU8> lutTbl;
+    std::unique_ptr<mfxU16[]> RGB[3];
+    bool bIs3dLutVideoMem;
+
     sInputParams()
             : frameInfoIn(),
               frameInfoOut(),
@@ -340,10 +347,15 @@ struct sInputParams {
               compositionParam({}),
               fccSource(0),
               verSessionInit(API_2X),
-              bReadByFrame(false) {
+              bReadByFrame(false),
+              b3dLut(false),
+              lutSize(0),
+              lutTbl(),
+              bIs3dLutVideoMem(false) {
         MSDK_ZERO_MEMORY(strSrcFile);
         MSDK_ZERO_MEMORY(strPerfFile);
-        MSDK_ZERO_MEMORY(inFrameInfo)
+        MSDK_ZERO_MEMORY(inFrameInfo);
+        MSDK_ZERO_MEMORY(lutTableFile);
     }
 };
 
@@ -519,6 +531,8 @@ struct sAppResources {
     ////MSDK API 1.5
     //mfxExtVPPSkinTone              steConfig;
     //mfxExtVPPColorSaturationLevel  tccConfig;
+
+    mfxFrameAllocResponse* p3dlutResponse;
 };
 
 /* ******************************************************************* */
@@ -560,6 +574,8 @@ void vppPrintHelp(const msdk_char* strAppName, const msdk_char* strErrorMessage)
 mfxStatus ConfigVideoEnhancementFilters(sInputParams* pParams,
                                         sAppResources* pResources,
                                         mfxU32 paramID);
+
+mfxStatus Config3dlut(sInputParams* pParams, sAppResources* pResources);
 
 const msdk_char* PicStruct2Str(mfxU16 PicStruct);
 

@@ -399,6 +399,13 @@ void vppPrintHelp(const msdk_char* strAppName, const msdk_char* strErrorMessage)
     msdk_printf(MSDK_STRING(
         "   [-api_ver_init::<1x,2x>]  - select the api version for the session initialization\n"));
     msdk_printf(MSDK_STRING("   [-rbf] - read frame-by-frame from the input (sw lib only)\n\n"));
+
+    msdk_printf(MSDK_STRING("   [-3dlut] path to 3dlut table file\n"));
+    msdk_printf(MSDK_STRING(
+        "   [-3dlutMemType] specify 3dLut memory type, 0: video, 1: sys. Default value is 0\n"));
+    msdk_printf(MSDK_STRING(
+        "   [-3dlutMemType] specify 3dlut mode for HDR 3Dlut, allowwed values:17|33|65\n"));
+
     msdk_printf(MSDK_STRING("\n"));
 
     msdk_printf(
@@ -1717,6 +1724,37 @@ mfxStatus vppParseInputString(msdk_char* strInput[],
                     pParams->ImpLib = MFX_IMPL_HARDWARE;
                 }
             }
+
+#if defined(_WIN32) || defined(_WIN64)
+            else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-3dlut"))) {
+                VAL_CHECK(1 + i == nArgNum);
+                i++;
+                msdk_strncopy_s(pParams->lutTableFile,
+                                MSDK_MAX_FILENAME_LEN,
+                                strInput[i],
+                                MSDK_MAX_FILENAME_LEN - 1);
+                pParams->lutTableFile[MSDK_MAX_FILENAME_LEN - 1] = 0;
+                pParams->b3dLut                                  = true;
+            }
+            else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-3dlutMode"))) {
+                VAL_CHECK(1 + i == nArgNum);
+                i++;
+                msdk_sscanf(strInput[i], MSDK_STRING("%hu"), &pParams->lutSize);
+            }
+
+            else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-3dlutMemType"))) {
+                VAL_CHECK(1 + i == nArgNum);
+                i++;
+                mfxU16 memType;
+                msdk_sscanf(strInput[i], MSDK_STRING("%hu"), &memType);
+                if (memType == 0) {
+                    pParams->bIs3dLutVideoMem = true;
+                }
+                else {
+                    pParams->bIs3dLutVideoMem = false;
+                }
+            }
+#endif
 #if (defined(LINUX32) || defined(LINUX64))
             else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-device"))) {
                 if (!pParams->strDevicePath.empty()) {
