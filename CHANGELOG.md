@@ -13,6 +13,9 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 ### Fixed
 - VPP processing for YUV input
 
+### Added
+- New prerequisites installation command in the vpl-infer README.md to fix build failure
+
 ## [2023.1.3] - 2023-03-03
 
 ### Added

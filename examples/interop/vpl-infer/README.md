@@ -73,7 +73,6 @@ This can be set up in a bare metal Ubuntu 20.04 system or with Docker for Linux,
    - Intel® OpenVINO™ toolkit for Linux*
    - [Python](http://python.org) (ver 3.7 - 3.10)
    - [CMake](https://cmake.org)
-   - OpenCL headers: 'sudo apt-get install -y opencl-headers' 
 
 
 2. Install Intel general purpose GPU (GPGPU) software packages:
@@ -86,7 +85,7 @@ This can be set up in a bare metal Ubuntu 20.04 system or with Docker for Linux,
 
     Start Python virtual environments from Command Prompt
     ```
-    apt-get install python3 python3.8-venv
+    sudo apt-get install python3 python3.8-venv
     python3 -m venv openvino_env
     source openvino_env/bin/activate
     ```
@@ -117,7 +116,10 @@ This can be set up in a bare metal Ubuntu 20.04 system or with Docker for Linux,
 
 5. Build and run the program:
 
+    Install prerequisites and build
     ```
+    sudo apt-get install -y opencl-header libpugixml-dev libtbb-dev
+
     mkdir build && cd build
     cmake .. && cmake --build . --config release
     ```
@@ -138,7 +140,7 @@ This can be set up in a bare metal Ubuntu 20.04 system or with Docker for Linux,
     User1 should be in `render` group.
     If you don't see `render` from `groups` command, then you should add user1 to `render` group:
     ```
-    usermod -a -G render user1
+    sudo usermod -a -G render user1
     newgrp render
     ```
     This sample is using Intel® DL Streamer docker image as base from [DLStreamer docker hub](https://hub.docker.com/r/intel/dlstreamer)
