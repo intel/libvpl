@@ -315,11 +315,13 @@ private:
 
 public:
     typedef Wayland* (*WaylandCreate_type)(void);
+    typedef void (*WaylandDestroy_type)(Wayland*);
 
     VA_WaylandClientProxy();
     ~VA_WaylandClientProxy();
 
     const WaylandCreate_type WaylandCreate;
+    const WaylandDestroy_type WaylandDestroy;
 };
 
     #endif // LIBVA_WAYLAND_SUPPORT

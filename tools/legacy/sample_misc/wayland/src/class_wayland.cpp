@@ -149,10 +149,14 @@ void Wayland::FreeSurface() {
     if (NULL != m_surface)
         wl_surface_destroy(m_surface);
 #if defined(WAYLAND_LINUX_XDG_SHELL_SUPPORT)
-    if (nullptr != m_xdg_toplevel)
+    if (NULL != m_xdg_toplevel)
         xdg_toplevel_destroy(m_xdg_toplevel);
-    if (nullptr != m_xdg_surface)
+    if (NULL != m_xdg_surface)
         xdg_surface_destroy(m_xdg_surface);
+#endif
+#if defined(WAYLAND_LINUX_DMABUF_SUPPORT)
+    if (NULL != m_dmabuf)
+        zwp_linux_dmabuf_v1_destroy(m_dmabuf);
 #endif
 }
 
@@ -379,10 +383,16 @@ struct wl_buffer* Wayland::CreatePrimeBuffer(uint32_t name,
 }
 
 Wayland::~Wayland() {
+#if defined(WAYLAND_LINUX_XDG_SHELL_SUPPORT)
+    if (NULL != m_xdg_wm_base)
+        xdg_wm_base_destroy(m_xdg_wm_base);
+#endif
     if (NULL != m_shell)
         wl_shell_destroy(m_shell);
     if (NULL != m_shm)
         wl_shm_destroy(m_shm);
+    if (NULL != m_drm)
+        wl_drm_destroy(m_drm);
     if (NULL != m_bufmgr) {
         drm_intel_bufmgr_destroy(m_bufmgr);
     }
@@ -492,6 +502,9 @@ void Wayland::DestroyBufferList() {
             msdkFrameSurface* surface = FindUsedSurface(m_buffer->pInSurface);
             msdk_atomic_dec16(&(surface->render_lock));
         }
+        wl_buffer_destroy(m_buffer->buffer);
+        m_buffer->buffer     = NULL;
+        m_buffer->pInSurface = NULL;
         m_buffers_list.pop_front();
         delete m_buffer;
     }

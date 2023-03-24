@@ -349,6 +349,7 @@ mfxStatus CVAAPIDeviceX11::RenderFrame(mfxFrameSurface1* pSurface,
 
 CVAAPIDeviceWayland::~CVAAPIDeviceWayland(void) {
     Close();
+    m_WaylandClient.WaylandDestroy((MfxLoader::Wayland*)m_Wayland);
 }
 
 mfxStatus CVAAPIDeviceWayland::Init(mfxHDL hWindow, mfxU16 nViews, mfxU32 nAdapterNum) {

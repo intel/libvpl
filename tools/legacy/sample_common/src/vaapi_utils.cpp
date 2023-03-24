@@ -182,7 +182,8 @@ Xcbpresent_Proxy::~Xcbpresent_Proxy() {}
 
 VA_WaylandClientProxy::VA_WaylandClientProxy()
         : lib(WAYLAND_LIB),
-          SIMPLE_LOADER_FUNCTION(WaylandCreate) {}
+          SIMPLE_LOADER_FUNCTION(WaylandCreate),
+          SIMPLE_LOADER_FUNCTION(WaylandDestroy) {}
 
 VA_WaylandClientProxy::~VA_WaylandClientProxy() {}
 
