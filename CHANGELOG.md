@@ -12,6 +12,7 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 
 ### Fixed
 - VPP processing for YUV input
+- Fix sample_multi_transcode segfault on wayland
 
 ### Added
 - New prerequisites installation command in the vpl-infer README.md to fix build failure

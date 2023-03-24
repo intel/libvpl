@@ -144,19 +144,36 @@ bool Wayland::CreateSurface() {
 }
 
 void Wayland::FreeSurface() {
-    if (NULL != m_shell_surface)
+    if (NULL != m_shell_surface) {
         wl_shell_surface_destroy(m_shell_surface);
-    if (NULL != m_surface)
+        m_shell_surface = NULL;
+    }
+    if (NULL != m_surface) {
+        while (!m_buffers_list.empty()) {
+            wl_surface_attach(m_surface, NULL, 0, 0);
+            wl_surface_commit(m_surface);
+            if (wl_display_dispatch_queue(m_display, m_event_queue) < 1)
+                break;
+        }
+
         wl_surface_destroy(m_surface);
+        m_surface = NULL;
+    }
 #if defined(WAYLAND_LINUX_XDG_SHELL_SUPPORT)
-    if (NULL != m_xdg_toplevel)
+    if (NULL != m_xdg_toplevel) {
         xdg_toplevel_destroy(m_xdg_toplevel);
-    if (NULL != m_xdg_surface)
+        m_xdg_toplevel = NULL;
+    }
+    if (NULL != m_xdg_surface) {
         xdg_surface_destroy(m_xdg_surface);
+        m_xdg_surface = NULL;
+    }
 #endif
 #if defined(WAYLAND_LINUX_DMABUF_SUPPORT)
-    if (NULL != m_dmabuf)
+    if (NULL != m_dmabuf) {
         zwp_linux_dmabuf_v1_destroy(m_dmabuf);
+        m_dmabuf = NULL;
+    }
 #endif
 }
 

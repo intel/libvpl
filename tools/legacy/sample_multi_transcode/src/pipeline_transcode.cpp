@@ -4675,11 +4675,15 @@ void CTranscodingPipeline::Close() {
         m_bIsJoinSession = false;
     }
 
-    //Destroy renderer
 #if defined(_WIN32) || defined(_WIN64)
+    //Destroy renderer
     if (m_hwdev4Rendering) {
         delete m_hwdev4Rendering;
         m_hwdev4Rendering = NULL;
+    }
+#else
+    if (m_hwdev4Rendering) {
+        m_hwdev4Rendering->Close();
     }
 #endif
 
