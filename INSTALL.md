@@ -1,82 +1,53 @@
 # Build/Install oneAPI Video Processing Library (oneVPL) from Source
 
-This document describes how to build from the source code in this repo.
-Please note: this repo contains only headers, dispatcher, examples, and tools.
-In most cases an implementation must also be installed.
+This document describes how to build from the source code in this repo.  Please
+note: this repo contains only headers, dispatcher, examples, and tools.  In most
+cases an implementation must also be installed.
 
-## Prerequisites
+## Quick Start
 
-To build this project you will need:
-
-- A compiler with C++11 support
-- CMake 3.10 or newer
-
-On Windows, you will also need:
-
-- Visual Studio Build Tools 2019
-	* Visual C++ ATL for x86 and x64
-- Visual Studio 2019
-	* C++ ATL for latest 'X' build tools (x86 & x64)
-
-To enable full capabilities of tools on Linux the following packages must be discoverable via pkg-config:
-<pre>
-libva >= 1.2
-libva -drm >= 1.2
-libdrm >= 2.4.91
-pciaccess
-x11
-libca-x11 >= 1.10.0
-wayland-client
-libwayland
-wayland-protocols >= 1.15
-</pre>
-
-Example for Ubuntu 20.04
-<pre>
-apt install libva-dev libdrm-dev wayland-protocols libx11-dev libx11-xcb-dev libxcb-present-dev libxcb-dri3-dev
-</pre>
-Install the equivalent packages for other distributions
-
-## Basic build and installation of this package
-
-Build the project with the following commands:
+This repository includes convenience scripts to get prerequisites, build, and
+install the software.
 
 Linux:
+
 ```
 cd <vpl-repo-clone-location>
-export VPL_INSTALL_DIR=`pwd`/../_vplinstall
-mkdir _build
-mkdir $VPL_INSTALL_DIR
-cd _build
-cmake .. -DCMAKE_INSTALL_PREFIX=$VPL_INSTALL_DIR
-cmake --build . --config Release
-cmake --build . --config Release --target install
+sudo script/bootstrap
+script/build
+sudo script/install
 ```
+
 
 Windows DOS cmd prompt:
 ```
 cd <vpl-repo-clone-location>
-set VPL_INSTALL_DIR=%cd%\..\_vplinstall
-mkdir _build
-mkdir %VPL_INSTALL_DIR%
-cd _build
-cmake .. -DCMAKE_INSTALL_PREFIX=%VPL_INSTALL_DIR%
-cmake --build . --config Release
-cmake --build . --config Release --target install
+script\bootstrap.bat
+script\build.bat
+script\install.bat
 ```
+> **Note:** bootstrap.bat requires [WinGet](https://github.com/microsoft/winget-cli)
 
-You can find the build output in the location chosen for CMAKE_INSTALL_PREFIX, VPL_INSTALL_DIR.
+Additional helper scripts are available in the script folder. For more details
+see [script/README.md](script/README.md)
+
 
 ## Getting an Implementation
 
-The base package is limited to the dispatcher and samples. To use oneVPL for video processing you need to install at least one implementation. Current implementations:
+The base package is limited to the dispatcher and samples. To use oneVPL for
+video processing you need to install at least one implementation. Current
+implementations:
 
-- [oneVPL-intel-gpu](https://github.com/oneapi-src/oneVPL-intel-gpu) for use on Intel Xe graphics and newer
-- [Media SDK](https://github.com/Intel-Media-SDK/MediaSDK) for use on legacy Intel graphics
+- [oneVPL-intel-gpu](https://github.com/oneapi-src/oneVPL-intel-gpu) for use on
+  Intel Xe graphics and newer
+- [Media SDK](https://github.com/Intel-Media-SDK/MediaSDK) for use on legacy
+  Intel graphics
 
-Follow the instructions on the respective repos to install the desired implementation
+Follow the instructions on the respective repos to install the desired
+implementation
 
-Remember, applications link to dispatcher and dispatcher forwards function calls to the selected implementation.
+Remember, applications link to dispatcher and dispatcher forwards function calls
+to the selected implementation.
 
 ```mermaid
 graph TD;
@@ -126,36 +97,47 @@ using pkg-config.
 gcc program.cpp `pkg-config --cflags --libs vpl`
 ```
 
-## Additional helper scripts and options
+## Additional build options
 
-Additionally, helper scripts are available in the `script` folder to run these cmake commands.
-For more details see script/README.md
+You can also build the project directly with CMake for more control over the
+build.
 
-You can build the project using the helper scripts with the following commands.
+### Prerequisites
 
-First, set VPL_INSTALL_DIR if you wish to override the defaults and supply your own build/install location.
-```
-cd <vpl-repo-clone-location>
-script/bootstrap
-script/build
-script/install
-```
-The build script can take an additional argument for 32-bit builds in Windows:
-```
-script/build -A x86_32
-```
+To build this project you will need:
 
-Note that on Linux the default oneVPL install location is /usr/local and may require sudo for write access
+- A compiler with C++11 support
+- CMake 3.18 or newer
 
-Note that on Windows there may be an error with the following message:
-```
-Cannot open include file: 'atlbase.h': No such file or directory
-```
-Ensure that the ATL build tools are installed through Visual Studio and that the path to the file is on the include path that the Visual Studio compiler uses
+On Windows, you will also need:
 
-### Debug build target
+- Visual Studio Build Tools 2019
+	* Visual C++ ATL for x86 and x64
+- Visual Studio 2019
+	* C++ ATL for latest 'X' build tools (x86 & x64)
 
-Build the project with the following commands: 
+To enable full capabilities of tools on Linux the following packages must be discoverable via pkg-config:
+<pre>
+libva >= 1.2
+libva -drm >= 1.2
+libdrm >= 2.4.91
+pciaccess
+x11
+libca-x11 >= 1.10.0
+wayland-client
+libwayland
+wayland-protocols >= 1.15
+</pre>
+
+Example for Ubuntu 20.04
+<pre>
+apt install libva-dev libdrm-dev wayland-protocols libx11-dev libx11-xcb-dev libxcb-present-dev libxcb-dri3-dev
+</pre>
+Install the equivalent packages for other distributions
+
+### Basic build and install with CMake
+
+Build the project with the following commands:
 
 Linux:
 ```
@@ -164,7 +146,37 @@ export VPL_INSTALL_DIR=`pwd`/../_vplinstall
 mkdir _build
 mkdir $VPL_INSTALL_DIR
 cd _build
-cmake .. -DCMAKE_INSTALL_PREFIX=$VPL_INSTALL_DIR -DCMAKE_BUILD_TYPE=Debug 
+cmake .. -DCMAKE_INSTALL_PREFIX=$VPL_INSTALL_DIR
+cmake --build . --config Release
+cmake --build . --config Release --target install
+```
+
+Windows DOS cmd prompt:
+```
+cd <vpl-repo-clone-location>
+set VPL_INSTALL_DIR=%cd%\..\_vplinstall
+mkdir _build
+mkdir %VPL_INSTALL_DIR%
+cd _build
+cmake .. -DCMAKE_INSTALL_PREFIX=%VPL_INSTALL_DIR%
+cmake --build . --config Release
+cmake --build . --config Release --target install
+```
+
+You can find the build output in the location chosen for CMAKE_INSTALL_PREFIX, VPL_INSTALL_DIR.
+
+### Debug build target
+
+Build the project with the following commands:
+
+Linux:
+```
+cd <vpl-repo-clone-location>
+export VPL_INSTALL_DIR=`pwd`/../_vplinstall
+mkdir _build
+mkdir $VPL_INSTALL_DIR
+cd _build
+cmake .. -DCMAKE_INSTALL_PREFIX=$VPL_INSTALL_DIR -DCMAKE_BUILD_TYPE=Debug
 cmake --build . --config Debug
 cmake --build . --config Debug --target install
 ```

@@ -1,69 +1,33 @@
-@REM ------------------------------------------------------------------------------
-@REM Copyright (C) Intel Corporation
-@REM
-@REM SPDX-License-Identifier: MIT
-@REM ------------------------------------------------------------------------------
-@REM Build base.
+@rem ------------------------------------------------------------------------------
+@rem Copyright (C) Intel Corporation
+@rem 
+@rem SPDX-License-Identifier: MIT
+@rem ------------------------------------------------------------------------------
+@rem Build in typical fashion.
 
-@ECHO off
-SETLOCAL ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
+@echo off
+setlocal ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION 
 
-@REM Read command line options
-CALL %~dp0%\_buildopts.bat ^
-    --name "%~n0%" ^
-    --desc "Build base." ^
-    -- %*
-IF DEFINED HELP_OPT ( EXIT /b 0 )
+for %%Q in ("%~dp0\.") DO set "script_dir=%%~fQ"
+pushd %script_dir%\..
+  set "source_dir=%cd%"
+popd
+set "build_dir=%source_dir%\_build"
+set "staging_dir=%source_dir%\_install"
 
-@REM ------------------------------------------------------------------------------
-@REM Globals
-IF NOT DEFINED VPL_DISP_BUILD_DIR (
-    set "VPL_DISP_BUILD_DIR=%PROJ_DIR%\_build"
-)
-@REM ------------------------------------------------------------------------------
+cmake -B "%build_dir%" -S "%source_dir%" ^
+      -DBUILD_TESTS=ON ^
+      -DENABLE_WARNING_AS_ERROR=ON
+if %errorlevel% neq 0 exit /b %errorlevel%
 
-IF DEFINED BOOTSTRAP_OPT (
-    ECHO Building dependencies...
-    call %SCRIPT_DIR%/bootstrap.bat %FORWARD_OPTS%
-  )
-)
+cmake --build "%build_dir%" --verbose --config Release
+if %errorlevel% neq 0 exit /b %errorlevel%
 
-IF "%ARCH_OPT%"=="x86_64" (
-  SET ARCH_CM_OPT=-A x64
-) ELSE IF "%ARCH_OPT%"=="x86_32" (
-  SET ARCH_CM_OPT=-A Win32
-)
+:: cmake cpack conflicts with choco cpack, at least until next choco release
+cmake --build "%build_dir%" --config Release --target package
+if %errorlevel% neq 0 exit /b %errorlevel%
 
-IF DEFINED VPL_INSTALL_DIR (
-  MD %VPL_INSTALL_DIR%
-  SET INSTALL_PREFIX_CM_OPT=-DCMAKE_INSTALL_PREFIX=%VPL_INSTALL_DIR%
-)
+cmake --install "%build_dir%" --prefix "%staging_dir%" --config Release --strip
+if %errorlevel% neq 0 exit /b %errorlevel%
 
-SET COFIG_CM_OPT=-DCMAKE_BUILD_TYPE=%COFIG_OPT%
-
-IF DEFINED WARNING_AS_ERROR_OPT (
-  SET WARN_CM_OPTS=-DENABLE_WARNING_AS_ERROR=ON
-)
-
-IF DEFINED ONEVPL_EXPERIMENTAL_DISABLED (
-  SET ONEVPL_EXPERIMENTAL_CM_OPTS=-DBUILD_DISPATCHER_ONEVPL_EXPERIMENTAL=OFF -DBUILD_TOOLS_ONEVPL_EXPERIMENTAL=OFF
-)
-
-SET BUILD_DIR=%VPL_DISP_BUILD_DIR%
-MKDIR %BUILD_DIR%
-PUSHD %BUILD_DIR%
-  cmake %ARCH_CM_OPT% %INSTALL_PREFIX_CM_OPT% %COFIG_CM_OPT% %WARN_CM_OPTS% %ONEVPL_EXPERIMENTAL_CM_OPTS% ^
-        -DBUILD_TESTS=ON -DBUILD_EXAMPLES=ON %PROJ_DIR% ^
-        || EXIT /b 1
-  IF DEFINED NUMBER_OF_PROCESSORS (
-    SET PARALLEL_OPT=-j %NUMBER_OF_PROCESSORS%
-  )
-  cmake --build . --config %COFIG_OPT% %PARALLEL_OPT% || EXIT /b 1
-  cmake --build . --config %COFIG_OPT% --target package || EXIT /b 1
-
-  @REM Signal to CI system
-  IF DEFINED TEAMCITY_VERSION (
-    ECHO ##teamcity[publishArtifacts '%BUILD_DIR%/*-all.zip=^>']
-  )
-POPD
-ENDLOCAL
+endlocal

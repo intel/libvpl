@@ -1,24 +1,115 @@
 #!/bin/bash
+# shellcheck disable=SC1091
 ###############################################################################
 # Copyright (C) Intel Corporation
 #
 # SPDX-License-Identifier: MIT
 ###############################################################################
-# Build base dependencies.
+# Install dependencies.
+#
+# This script should not call other scripts in the repository so that it can
+# potentialy be an argument to the COPY command in a Dockerfile
 
-# Do not set Exit on Error in scripts that will be sourced
-# set -o errexit
+set -o errexit
 
-if [ -z "$BASH_VERSION" ]
-then
-  echo "This script must be run under bash"
+if [ -f "/etc/os-release" ]; then
+  . /etc/os-release
+fi
+if [ "$ID_LIKE" == "debian" ]; then
+  apt-get update
+  # basic build tools
+  apt-get install -y --no-install-recommends \
+    build-essential \
+    cmake \
+    pkg-config
+  # tool build dependencies
+  apt-get install -y --no-install-recommends \
+    libdrm-dev \
+    libva-dev \
+    libx11-dev \
+    libx11-xcb-dev \
+    libxcb-present-dev \
+    libxcb-dri3-dev \
+    libwayland-dev \
+    wayland-protocols
+
+  # lint prerequisites
+  apt-get install -y --no-install-recommends \
+    git \
+    python3-pip
+
+elif [ "$ID_LIKE" == "rhel fedora" ]; then
+  # basic build tools
+  yum install -y centos-release-scl
+  yum-config-manager --enable rhel-server-rhscl-7-rpms
+  yum install -y devtoolset-9
+
+  # cmake
+  yum install -y openssl-devel
+  cd /tmp
+  rm -rf cmake-3.*
+  curl -O -L --retry 5 \
+    https://github.com/Kitware/CMake/releases/download/v3.18.4/cmake-3.18.4.tar.gz
+  tar zxvf cmake-3.*
+  cd cmake-3.*
+  source /opt/rh/devtoolset-9/enable
+  ./bootstrap --prefix=/usr/local --parallel="$(nproc)"
+  make -j"$(nproc)"
+  make install
+
+
+  # xcb and wayland
+  yum -y update
+  yum -y install wayland-devel libX11-devel libXext-devel libXfixes-devel libpciaccess-devel
+  cd /tmp
+  rm -rf wayland-protocols-1.15
+  curl -O -L --retry 5 \
+    https://wayland.freedesktop.org/releases/wayland-protocols-1.15.tar.xz
+  tar -xJf wayland-protocols-1.15.tar.xz
+  cd wayland-protocols-1.15
+  ./configure --prefix="/usr" --bindir="/usr/bin" --libdir="/usr/lib64"
+  make install
+
+  # libva
+  yum install -y \
+    bzip2 \
+    libdrm-devel \
+  cd /tmp
+  rm -rf libva-2.10.0
+  curl -O -L --retry 5 \
+    https://github.com/intel/libva/releases/download/2.10.0/libva-2.10.0.tar.bz2
+  tar xjf libva-2.10.0.tar.bz2
+  source /opt/rh/devtoolset-9/enable
+  cd libva-2.10.0
+  ./configure --prefix="/usr" --enable-wayland --enable-x11 --bindir="/usr/bin" --libdir="/usr/lib64"
+  make
+  make install
+
+  # lint prerequisites
+  yum install -y git
+  yum install -y \
+      openssl-devel \
+      bzip2-devel \
+      libffi-devel \
+      sqlite-devel
+  cd /tmp
+  rm -rf Python-3.*
+  curl -O -L --retry 5 \
+       https://www.python.org/ftp/python/3.8.9/Python-3.8.9.tgz
+  tar xvf Python-3.8.9.tgz
+  source /opt/rh/devtoolset-9/enable
+  cd Python-3.*/
+  ./configure --enable-optimizations --enable-loadable-sqlite-extensions
+  make install
+
+else
+  if [ -z ${ID_LIKE+x} ]; then
+    echo "Error: unknown OS distribution"
+  else
+    echo "Error: unknown OS distribution '$ID_LIKE'"
+  fi
   exit 1
 fi
 
-SCRIPT_DIR="$( cd "$(dirname "${BASH_SOURCE[0]:-$0}")" >/dev/null 2>&1 ; pwd -P )"
-
-# Read command line options
-. "${SCRIPT_DIR}/_buildopts.sh" \
-    --name bootstrap \
-    --desc "Build base dependencies." \
-    -- "$@"
+# lint dependencies
+pip3 install pre-commit

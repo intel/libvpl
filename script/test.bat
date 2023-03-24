@@ -1,33 +1,44 @@
-@REM ------------------------------------------------------------------------------
-@REM Copyright (C) Intel Corporation
-@REM
-@REM SPDX-License-Identifier: MIT
-@REM ------------------------------------------------------------------------------
-@REM Run basic tests on base.
+@rem ------------------------------------------------------------------------------
+@rem Copyright (C) Intel Corporation
+@rem
+@rem SPDX-License-Identifier: MIT
+@rem ------------------------------------------------------------------------------
+@rem Run the test suite.
+@rem
+@rem  Scope can be limited by providing subset of tests as argumene from among:
+@rem  lint, unit
 
-@ECHO off
-SETLOCAL ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
+@echo off
+setlocal ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
 
-@REM Read command line options
-CALL %~dp0%\_buildopts.bat ^
-    --name "%~n0%" ^
-    --desc "Run basic tests on base." ^
-    -- %*
-IF DEFINED HELP_OPT ( EXIT /b 0 )
+for %%Q in ("%~dp0\.") DO set "script_dir=%%~fQ"
+pushd %script_dir%\..
+  set "source_dir=%cd%"
+popd
+set "build_dir=%source_dir%\_build"
+set "staging_dir=%source_dir%\_install"
 
-@REM ------------------------------------------------------------------------------
-@REM Globals
-IF NOT DEFINED VPL_DISP_BUILD_DIR (
-    set "VPL_DISP_BUILD_DIR=%PROJ_DIR%\_build"
+
+if "%~1"=="" (
+ set "do_lint=1" & set "do_unit=1" & goto done
+ )
+:loop
+if "%1"=="lint" (set "do_lint=1") else ^
+if "%1"=="unit" (set "do_unit=1") else ^
+echo invalid option: '%1' && exit /b 1
+shift
+if not "%~1"=="" goto loop
+:done
+
+
+if "%do_lint%" == "1" (
+  call %source_dir%\script\lint.bat
+  if !errorlevel! neq 0 exit /b !errorlevel!
 )
-@REM ------------------------------------------------------------------------------
 
-set /A result_all=0
+if "%do_unit%" == "1" (
+  ctest --test-dir "%build_dir%" -C Release --output-on-failure -T test
+  if !errorlevel! neq 0 exit /b !errorlevel!
+)
 
-SET BUILD_DIR=%VPL_DISP_BUILD_DIR%
-PUSHD %BUILD_DIR%
-  ctest --output-on-failure -C %COFIG_OPT% -T test
-  SET result_all=%errorlevel%
-POPD
-
-ENDLOCAL && EXIT /B %result_all%
+endlocal

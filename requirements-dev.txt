@@ -1,3 +1,0 @@
-cpplint
-gitlint
-pre-commit

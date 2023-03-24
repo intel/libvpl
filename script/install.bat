@@ -1,32 +1,36 @@
-@REM ------------------------------------------------------------------------------
-@REM Copyright (C) Intel Corporation
-@REM 
-@REM SPDX-License-Identifier: MIT
-@REM ------------------------------------------------------------------------------
-@REM Install base.
+@rem ------------------------------------------------------------------------------
+@rem Copyright (C) Intel Corporation
+@rem
+@rem SPDX-License-Identifier: MIT
+@rem ------------------------------------------------------------------------------
+@rem Install the product.
+@rem
+@rem If argument is provided then it will be interpreted as the install prefix. If
+@rem called without arguments then installation will be to `VPL_INSTALL_DIR` if
+@rem defined or system default location otherwise.
 
-@ECHO off
-SETLOCAL ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION 
 
-@REM Read command line options
-CALL %~dp0%\_buildopts.bat ^
-    --name "%~n0%" ^
-    --desc "Install base." ^
-    -- %*
-IF DEFINED HELP_OPT ( EXIT /b 0 )
+@echo off
+setlocal ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
 
-@REM ------------------------------------------------------------------------------
-@REM Globals
-IF NOT DEFINED VPL_DISP_BUILD_DIR (
-    set "VPL_DISP_BUILD_DIR=%PROJ_DIR%\_build"
+for %%Q in ("%~dp0\.") DO set "script_dir=%%~fQ"
+pushd %script_dir%\..
+  set "source_dir=%cd%"
+popd
+set "build_dir=%source_dir%\_build"
+
+if [%1]==[] goto no_args
+  ::  use first argument as install prefix
+  cmake --install "%build_dir%" --config Release --strip --prefix "%1"
+  goto done
+:no_args
+if DEFINED VPL_INSTALL_DIR (
+  :: no argument but env variable was provided, install to VPL_INSTALL_DIR
+  cmake --install "%build_dir%" --config Release --strip --prefix "%VPL_INSTALL_DIR%"
+) else (
+  :: no argument or env variable defined, use system default install location
+  cmake --install "%build_dir%" --config Release --strip
 )
-@REM ------------------------------------------------------------------------------
+:done
 
-PUSHD %PROJ_DIR%
-    SET BUILD_DIR=%VPL_DISP_BUILD_DIR%
-    PUSHD %BUILD_DIR%
-        cmake --build . --config %COFIG_OPT% --target install
-    POPD
-POPD
-
-ENDLOCAL
+endlocal

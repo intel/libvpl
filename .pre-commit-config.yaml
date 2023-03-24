@@ -40,9 +40,10 @@ repos:
       - id: cpplint
         files: \.(h|hh|hpp|hxx|h|c|cc|cpp|cxx|c)$
   - repo: https://github.com/jorisroovers/gitlint
-    rev: v0.15.1
+    rev: v0.19.1
     hooks:
       - id: gitlint
+      - id: gitlint-ci # hook for CI environments
   - repo: https://github.com/PyCQA/bandit
     rev: 1.7.0
     hooks:

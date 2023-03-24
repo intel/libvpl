@@ -18,7 +18,7 @@ Before submitting your pull requests, please do the following:
 - Make sure your commits follow the correct
   [commit message style](#commit-message-style).
 
-- Make sure to perform [automated style checking](#automated-style-checking).
+- Make sure to test your code. At a minimum run `script/test`.
 
 - Make sure to [sign your work](#sign-your-work).
 
@@ -104,15 +104,3 @@ Use your real name (sorry, no pseudonyms or anonymous contributions.)
 
 If you set your `user.name` and `user.email` git configs, you can sign your
 commit automatically with `git commit -s`.
-
-## Automated Style Checking
-
-Run `lint` in the `script` directory before pushing commits to assist with style
-conformance checking.
-
-Before running the checker script for the first time install the Python modules
-it requires:
-
-```
-pip3 install -r requirements-dev.txt
-```

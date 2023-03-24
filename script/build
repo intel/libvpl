@@ -4,70 +4,35 @@
 #
 # SPDX-License-Identifier: MIT
 ###############################################################################
-# Build base.
+# Build in typical fashion.
+set -o errexit ; set -o nounset
 
-if [ -z "$BASH_VERSION" ]
-then
+if [ -z "$BASH_VERSION" ]; then
   echo "This script must be run under bash"
   exit 1
 fi
 
-if [ "$0" = "$BASH_SOURCE" ]
-then
-  set -o errexit
-else
-  echo "Warning: This script should not be sourced. Skipping exit on error."
-fi
+script_dir="$( cd "$(dirname "${BASH_SOURCE[0]:-$0}")" >/dev/null 2>&1 ; pwd -P )"
 
+source_dir="$(dirname "$script_dir")"
+build_dir="$source_dir/_build"
+staging_dir="$source_dir/_install"
 
-SCRIPT_DIR="$( cd "$(dirname "${BASH_SOURCE[0]:-$0}")" >/dev/null 2>&1 ; pwd -P )"
+cmake -B "$build_dir" -S "$source_dir" \
+      -DBUILD_TESTS=ON \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DCMAKE_INSTALL_LIBDIR=lib \
+      -DENABLE_DRI3=ON \
+      -DENABLE_DRM=ON \
+      -DENABLE_VA=ON \
+      -DENABLE_WAYLAND=ON \
+      -DENABLE_X11=ON \
+      -DENABLE_WARNING_AS_ERROR=ON
 
-# Read command line options
-. "${SCRIPT_DIR}/_buildopts.sh" \
-    --name build \
-    --desc "Build base." \
-    -- "$@"
+cmake --build "$build_dir" --verbose
 
-###############################################################################
-# Globals
-if [ -z "${VPL_DISP_BUILD_DIR}" ]
-then
-  VPL_DISP_BUILD_DIR="${PROJ_DIR}/_build"
-fi
-###############################################################################
-
-if [ -n "${BOOTSTRAP_OPT}" ]
-then
-  echo "Building dependencies..."
-  . "${SCRIPT_DIR}/bootstrap" ${FORWARD_OPTS}
-fi
-
-if [ -n "${VPL_INSTALL_DIR}" ]
-then
-  mkdir -p "${VPL_INSTALL_DIR}"
-  INSTALL_PREFIX_CM_OPT="-DCMAKE_INSTALL_PREFIX=${VPL_INSTALL_DIR}"
-fi
-
-COFIG_CM_OPT="-DCMAKE_BUILD_TYPE=${COFIG_OPT}"
-
-BUILD_DIR="${VPL_DISP_BUILD_DIR}"
-if [ "${WARNING_AS_ERROR_OPT}" == "yes" ]; then
-  CMAKE_WARN_OPTS=-DENABLE_WARNING_AS_ERROR=ON
-fi
-if [ "${ONEVPL_EXPERIMENTAL_DISABLED}" == "yes" ]; then
-  ONEVPL_EXPERIMENTAL_CM_OPTS="-DBUILD_DISPATCHER_ONEVPL_EXPERIMENTAL=OFF -DBUILD_TOOLS_ONEVPL_EXPERIMENTAL=OFF"
-fi
-mkdir -p "${BUILD_DIR}"
-pushd "${BUILD_DIR}"
-cmake "${INSTALL_PREFIX_CM_OPT}" ${CMAKE_WARN_OPTS} "${COFIG_CM_OPT}" ${ONEVPL_EXPERIMENTAL_CM_OPTS}\
-      -DBUILD_TESTS=ON -DBUILD_EXAMPLES=ON \
-      -DENABLE_VA=ON -DENABLE_DRM=ON -DENABLE_WAYLAND=ON -DENABLE_X11=ON \
-      -DENABLE_DRI3=ON "${PROJ_DIR}"
-  make -j "$(nproc)" VERBOSE=1
-  cmake --build . --config "${COFIG_OPT}" --target package
+pushd "$build_dir"
+  cpack .
 popd
 
-# Signal to CI system
-if [ -n "${TEAMCITY_VERSION}" ]; then
-  echo "##teamcity[publishArtifacts '${BUILD_DIR}/*-all.zip=>']"
-fi
+cmake --install "$build_dir" --prefix "$staging_dir" --config Release --strip

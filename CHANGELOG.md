@@ -23,6 +23,9 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 - X11 rendering corruption issue
 - Intel® Distribution of OpenVINO™ Toolkit installation steps in vpl-infer README
 
+### Changed
+- quick-start scripts to be more simple and easy to use
+
 ## [2023.2.1] - 2023-04-14
 
 ### Added

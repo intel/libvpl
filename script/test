@@ -4,42 +4,49 @@
 #
 # SPDX-License-Identifier: MIT
 ###############################################################################
-# Run basic tests on base.
+# Run the test suite.
+#
+# Scope can be limited by providing subset of tests as argumene from among:
+# lint, unit
+set -o errexit ; set -o nounset
 
-if [ -z "$BASH_VERSION" ]
-then
+if [ -z "$BASH_VERSION" ]; then
   echo "This script must be run under bash"
   exit 1
 fi
 
-if [ "$0" = "$BASH_SOURCE" ]
-then
-  set -o errexit
+script_dir="$( cd "$(dirname "${BASH_SOURCE[0]:-$0}")" >/dev/null 2>&1 ; pwd -P )"
+
+source_dir="$(dirname "$script_dir")"
+build_dir="$source_dir/_build"
+
+if [ $# -eq 0 ]; then
+  # if no arguments provided enable all testing
+  do_lint=true
+  do_unit=true
 else
-  echo "Warning: This script should not be sourced. Skipping exit on error."
+  do_lint=false
+  do_unit=false
 fi
 
+while test $# -gt 0
+do
+  case "$1" in
+    lint) do_lint=true
+      ;;
+    unit) do_unit=true
+      ;;
+    *) echo "invalid option: '$1'";
+      exit 1
+      ;;
+  esac
+  shift
+done
 
-SCRIPT_DIR="$( cd "$(dirname "${BASH_SOURCE[0]:-$0}")" >/dev/null 2>&1 ; pwd -P )"
-
-# Read command line options
-. "${SCRIPT_DIR}/_buildopts.sh" \
-    --name test \
-    --desc "Run basic tests on base." \
-    -- "$@"
-
-###############################################################################
-# Globals
-if [ -z "${VPL_DISP_BUILD_DIR}" ]
-then
-  VPL_DISP_BUILD_DIR="${PROJ_DIR}/_build"
+if [ "$do_lint" = true ] ; then
+  "$source_dir/script/lint"
 fi
-###############################################################################
 
-BUILD_DIR="${VPL_DISP_BUILD_DIR}"
-pushd "${BUILD_DIR}"
-  ctest --output-on-failure -C "${COFIG_OPT}" -T test
-  result_all=$?
-popd
-
-exit $result_all
+if [ "$do_unit" = true ] ; then
+  ctest --test-dir "$build_dir" --C Release --output-on-failure -T test
+fi

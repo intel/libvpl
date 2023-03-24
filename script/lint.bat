@@ -20,7 +20,7 @@ FOR /D %%i IN ("%~dp0") DO (
 
 PUSHD %PROJ_DIR%
     echo Check commit-msg
-    gitlint || EXIT /b 1
+    pre-commit run --hook-stage manual gitlint-ci || EXIT /b 1
 
     echo Check commit
 	pre-commit run --all-files || EXIT /b 1
