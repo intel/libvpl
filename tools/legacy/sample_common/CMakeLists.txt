@@ -22,7 +22,6 @@ if(CMAKE_SYSTEM_NAME MATCHES Linux)
     IMPORTED_TARGET
     GLOBAL)
   pkg_check_modules(PKG_WAYLAND_CLIENT wayland-client IMPORTED_TARGET GLOBAL)
-  pkg_check_modules(PKG_LIBWAYLAND libwayland IMPORTED_TARGET GLOBAL)
   find_program(WAYLAND_SCANNER_BIN "wayland-scanner")
   pkg_check_modules(PKG_WAYLAND_PROTOCOLS "wayland-protocols>=1.15")
 
