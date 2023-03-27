@@ -8,7 +8,7 @@
 #define __MFXDEFS_H__
 
 #define MFX_VERSION_MAJOR 2
-#define MFX_VERSION_MINOR 8
+#define MFX_VERSION_MINOR 9
 
 // MFX_VERSION - version of API that 'assumed' by build may be provided externally
 // if it omitted then latest stable API derived from Major.Minor is assumed
@@ -68,7 +68,7 @@ extern "C"
     #define MFX_PACK_BEGIN_STRUCT_W_PTR()    MFX_PACK_BEGIN_X(4)
     #define MFX_PACK_BEGIN_STRUCT_W_L_TYPE() MFX_PACK_BEGIN_X(8)
 /* 32-bit ILP32 data model Linux* */
-#elif defined(__ILP32__)
+#elif defined(__ILP32__) || defined(__arm__)
     #define MFX_PACK_BEGIN_STRUCT_W_PTR()    MFX_PACK_BEGIN_X(4)
     #define MFX_PACK_BEGIN_STRUCT_W_L_TYPE() MFX_PACK_BEGIN_X(4)
 #else

@@ -1374,8 +1374,10 @@ typedef struct {
        This parameter is valid only during initialization. Flag works with MFX_CODEC_AVC only, it is ignored with other codecs.
        See the CodingOptionValue
        enumerator for values of this option.
+
+       @deprecated Deprecated in API version 2.9
     */
-    mfxU16      BitrateLimit;
+    MFX_DEPRECATED mfxU16      BitrateLimit; /* Deprecated */
     /*!
        Setting this flag enables macroblock level bitrate control that generally improves subjective visual quality. Enabling this flag may
        have negative impact on performance and objective visual quality metric. See the CodingOptionValue enumerator for values of this option.
@@ -1732,9 +1734,9 @@ typedef struct {
 
     union {
         MFX_DEPRECATED mfxU16      ExtBrcAdaptiveLTR; /* Deprecated */
-        
+
         /*!
-            If this flag is set to ON, encoder will mark, modify, or remove LTR frames based on encoding parameters and content          
+            If this flag is set to ON, encoder will mark, modify, or remove LTR frames based on encoding parameters and content
             properties. Turn OFF to prevent Adaptive marking of Long Term Reference Frames. 
         */
         mfxU16      AdaptiveLTR;
@@ -2195,6 +2197,22 @@ enum {
        See the mfxExtAllocationHints structure for more details.
     */
     MFX_EXTBUFF_ALLOCATION_HINTS = MFX_MAKEFOURCC('A','L','C','H'),
+    
+#ifdef ONEVPL_EXPERIMENTAL    
+    /*!
+       See the mfxExtSyncSubmission structure for more details.
+    */
+    MFX_EXTBUFF_SYNCSUBMISSION = MFX_MAKEFOURCC('S','Y','N','C'),
+
+    /*!
+       See the mfxExtVPPPercEncPrefilter structure for details.
+    */
+    MFX_EXTBUFF_VPP_PERC_ENC_PREFILTER        = MFX_MAKEFOURCC('V','P','E','F'),
+    /*!
+       See the mfxExtTuneEncodeQuality structure for details.
+    */
+    MFX_EXTBUFF_TUNE_ENCODE_QUALITY           = MFX_MAKEFOURCC('T','U','N','E'),
+#endif
 };
 
 /* VPP Conf: Do not use certain algorithms  */
@@ -2888,28 +2906,28 @@ MFX_PACK_BEGIN_USUAL_STRUCT()
    the decoder will parse the HDR SEI message if the bitstream include HDR SEI message per frame.
    The parsed HDR SEI will be attached to the ExtendBuffer of surface_out parameter of MFXVideoDECODE_DecodeFrameAsync()
    with flag `InsertPayloadToggle` to indicate if there is valid HDR SEI message in the clip.
-   `InsertPayloadToggle` will be set to `MFX_PAYLOAD_IDR` if OneVPL get valid HDR SEI, otherwise it will be set to `MFX_PAYLOAD_OFF`.
+   `InsertPayloadToggle` will be set to `MFX_PAYLOAD_IDR` if oneVPL gets valid HDR SEI, otherwise it will be set to `MFX_PAYLOAD_OFF`.
    This function is support for HEVC only now.
 
-   Field semantics are defined in ITU-T* H.265 Annex D.
+   Encoding or Decoding, Field semantics are defined in ITU-T* H.265 Annex D, AV1 6.7.4 Metadata OBU semantics.
+
+   Video processing, `DisplayPrimariesX[3]` and `WhitePointX` are in increments of 0.00002, in the range of [5, 37000]. `DisplayPrimariesY[3]`
+   and `WhitePointY` are in increments of 0.00002, in the range of [5, 42000]. `MaxDisplayMasteringLuminance` is in units of 1 candela per square meter.
+   `MinDisplayMasteringLuminance` is in units of 0.0001 candela per square meter.
 */
 typedef struct {
     mfxExtBuffer    Header; /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_MASTERING_DISPLAY_COLOUR_VOLUME. */
     mfxU16      reserved[15];
 
     mfxU16 InsertPayloadToggle;  /*!< InsertHDRPayload enumerator value. */
-    mfxU16 DisplayPrimariesX[3]; /*!< Color primaries for a video source in increments of 0.00002. Consist of RGB x coordinates and
-                                       define how to convert colors from RGB color space to CIE XYZ color space. Fields range is
-                                       0 to 50000. */
-    mfxU16 DisplayPrimariesY[3]; /*!< Color primaries for a video source in increments of 0.00002. Consists of RGB y coordinates and
-                                       defines how to convert colors from RGB color space to CIE XYZ color space. Field range is
-                                       0 to 50000. */
+    mfxU16 DisplayPrimariesX[3]; /*!< Color primaries for a video source. Consist of RGB x coordinates and
+                                       define how to convert colors from RGB color space to CIE XYZ color space. */
+    mfxU16 DisplayPrimariesY[3]; /*!< Color primaries for a video source. Consists of RGB y coordinates and
+                                       defines how to convert colors from RGB color space to CIE XYZ color space.*/
     mfxU16 WhitePointX;          /*!< White point X coordinate. */
     mfxU16 WhitePointY;          /*!< White point Y coordinate. */
-    mfxU32 MaxDisplayMasteringLuminance; /*!< Specify maximum luminance of the display on which the content was authored in units of 0.00001
-                                              candelas per square meter. Field range is 1 to 65535. */
-    mfxU32 MinDisplayMasteringLuminance; /*!< Specify minimum luminance of the display on which the content was authored in units of 0.00001
-                                              candelas per square meter. Field range is 1 to 65535. */
+    mfxU32 MaxDisplayMasteringLuminance; /*!< Specify maximum luminance of the display on which the content was authored.*/
+    mfxU32 MinDisplayMasteringLuminance; /*!< Specify minimum luminance of the display on which the content was authored. */
 } mfxExtMasteringDisplayColourVolume;
 MFX_PACK_END()
 
@@ -2929,10 +2947,10 @@ MFX_PACK_BEGIN_USUAL_STRUCT()
    the decoder will parse the HDR SEI message if the bitstream include HDR SEI message per frame.
    The parsed HDR SEI will be attached to the ExtendBuffer of surface_out parameter of MFXVideoDECODE_DecodeFrameAsync()
    with flag `InsertPayloadToggle` to indicate if there is valid HDR SEI message in the clip.
-   `InsertPayloadToggle` will be set to `MFX_PAYLOAD_IDR` if OneVPL get valid HDR SEI, otherwise it will be set to `MFX_PAYLOAD_OFF`.
+   `InsertPayloadToggle` will be set to `MFX_PAYLOAD_IDR` if oneVPL gets valid HDR SEI, otherwise it will be set to `MFX_PAYLOAD_OFF`.
    This function is support for HEVC only now.
 
-   Field semantics are defined in ITU-T* H.265 Annex D.
+   Field semantics are defined in ITU-T* H.265 Annex D, AV1 6.7.3 Metadata high dynamic range content light level semantics.
 */
 typedef struct {
     mfxExtBuffer    Header; /*!< Extension buffer header. Header.BufferId must be equal to EXTBUFF_CONTENT_LIGHT_LEVEL_INFO. */
@@ -3483,6 +3501,8 @@ MFX_PACK_BEGIN_USUAL_STRUCT()
    Members of this structure define the location of chroma samples information.
 
    See Annex E of the ISO*\/IEC* 14496-10 specification for the definition of these parameters.
+
+   @note Not all implementations of the encoder support this structure. The application must use the Query API function to determine if it is supported.
 */
 typedef struct {
     mfxExtBuffer Header; /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_CHROMA_LOC_INFO. */
@@ -3789,6 +3809,8 @@ enum {
 MFX_PACK_BEGIN_USUAL_STRUCT()
 /*!
    Attached to the mfxVideoParam structure during HEVC encoder initialization. Specifies the region to encode.
+
+   @note Not all implementations of the encoder support this structure. The application must use the Query API function to determine if it is supported.
 */
 typedef struct {
     mfxExtBuffer Header; /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_HEVC_REGION. */
@@ -4815,6 +4837,71 @@ typedef struct {
     mfxU16 reserved1[8]; /*!< Reserved for future use. */
 } mfxExtTemporalLayers;
 MFX_PACK_END()
+
+#ifdef ONEVPL_EXPERIMENTAL
+MFX_PACK_BEGIN_STRUCT_W_PTR()
+/*! The structure is used to get a synchronization object which signalizes about submission of a task to GPU.  */
+typedef struct {
+    mfxExtBuffer     Header;     /*! Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_SYNCSUBMISSION. */
+    mfxSyncPoint     *SubmissionSyncPoint; /*!< SyncPoint object to get a moment of a submission task to GPU.  */
+    mfxU32 reserved1[8]; /*!< Reserved for future use. */
+} mfxExtSyncSubmission;
+MFX_PACK_END()
+#endif
+
+#ifdef ONEVPL_EXPERIMENTAL
+MFX_PACK_BEGIN_USUAL_STRUCT()
+/*! The structure is used to configure perceptual encoding prefilter in VPP. */
+typedef struct {
+    mfxExtBuffer Header;         /*! Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_VPP_PERC_ENC_PREFILTER. */
+    mfxU16       reserved[252];
+} mfxExtVPPPercEncPrefilter;
+MFX_PACK_END()
+#endif
+
+#ifdef ONEVPL_EXPERIMENTAL
+/*! The TuneQuality enumerator specifies tuning option for encode. Multiple tuning options can be combined using bit mask. */
+enum {
+    MFX_ENCODE_TUNE_DEFAULT = 0,   /*!< The balanced option to keep quality balanced across all metrics.  */
+    MFX_ENCODE_TUNE_PSNR    = 0x1, /*!< The encoder optimizes quality according to Peak Signal-to-Noise Ratio (PSNR) metric. */
+    MFX_ENCODE_TUNE_SSIM    = 0x2, /*!< The encoder optimizes quality according to Structural Similarity Index Measure (SSIM) metric. */
+    MFX_ENCODE_TUNE_MS_SSIM = 0x4, /*!< The encoder optimizes quality according to Multi-Scale Structural Similarity Index Measure (MS-SSIM) metric. */
+    MFX_ENCODE_TUNE_VMAF    = 0x8, /*!< The encoder optimizes quality according to Video Multi-Method Assessment Fusion (VMAF) metric. */
+    MFX_ENCODE_TUNE_PERCEPTUAL    = 0x10, /*!< The encoder makes perceptual quality optimization. */
+};
+
+MFX_PACK_BEGIN_STRUCT_W_PTR()
+/*! The structure specifies type of quality optimization used by the encoder. The buffer can also be attached for VPP functions to make correspondent pre-filtering. */
+typedef struct {
+    mfxExtBuffer   Header;         /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_TUNE_ENCODE_QUALITY. */
+    mfxU32         TuneQuality;    /*!< The control to specify type of encode quality metric(s) to optimize; See correspondent enum. */
+    mfxExtBuffer** ExtParam;       /*!< Points to an array of pointers to the extra configuration structures; see the ExtendedBufferID enumerator for a list of extended configurations. */
+    mfxU16         NumExtParam;    /*!< The number of extra configuration structures attached to the structure. */
+    mfxU16         reserved[11];
+} mfxExtTuneEncodeQuality;
+MFX_PACK_END()
+#endif
+
+#ifdef ONEVPL_EXPERIMENTAL
+/* The mfxAutoSelectImplType enumerator specifies the method for automatically selecting an implementation. */
+typedef enum {
+    MFX_AUTO_SELECT_IMPL_TYPE_UNKNOWN = 0,         /*!< Unspecified automatic implementation selection. */
+    MFX_AUTO_SELECT_IMPL_TYPE_DEVICE_HANDLE = 1,   /*!< Select implementation corresponding to device handle. */
+} mfxAutoSelectImplType;
+
+MFX_PACK_BEGIN_STRUCT_W_PTR()
+/*! Specifies that an implementation should be selected which matches the device handle provided by the application. */
+typedef struct {
+    mfxAutoSelectImplType AutoSelectImplType;      /*!< Must be set to MFX_AUTO_SELECT_IMPL_TYPE_DEVICE_HANDLE. */
+
+    mfxAccelerationMode   AccelMode;               /*!< Hardware acceleration mode of provided device handle. */
+    mfxHandleType         DeviceHandleType;        /*!< Type of provided device handle. */
+    mfxHDL                DeviceHandle;            /*!< System handle to hardware device. */
+
+    mfxU16                reserved[8];             /*!< Reserved for future use. */
+} mfxAutoSelectImplDeviceHandle;
+MFX_PACK_END()
+#endif
 
 #ifdef __cplusplus
 } // extern "C"
