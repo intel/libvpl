@@ -2755,10 +2755,16 @@ mfxStatus CTranscodingPipeline::InitEncMfxParams(sInputParams* pInParams) {
     m_mfxEncParams.mfx.FrameInfo.CropX = 0;
     m_mfxEncParams.mfx.FrameInfo.CropY = 0;
 
-    mfxU16 InPatternFromParent =
-        (mfxU16)((MFX_IOPATTERN_OUT_VIDEO_MEMORY == m_mfxDecParams.IOPattern)
-                     ? MFX_IOPATTERN_IN_VIDEO_MEMORY
-                     : MFX_IOPATTERN_IN_SYSTEM_MEMORY);
+    mfxU16 InPatternFromParent = 0;
+    if (m_bIsVpp) {
+        InPatternFromParent = m_mfxVppParams.IOPattern;
+    }
+    else {
+        InPatternFromParent = m_mfxDecParams.IOPattern;
+    }
+    InPatternFromParent = (mfxU16)((InPatternFromParent & MFX_IOPATTERN_OUT_VIDEO_MEMORY)
+                                       ? MFX_IOPATTERN_IN_VIDEO_MEMORY
+                                       : MFX_IOPATTERN_IN_SYSTEM_MEMORY);
 
     // set memory pattern
     m_mfxEncParams.IOPattern = InPatternFromParent;
