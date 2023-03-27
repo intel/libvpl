@@ -30,6 +30,7 @@ def pretty_print_xml(root):
     return parsed_xml.toprettyxml()
 
 
+# pylint: disable=too-many-branches
 def summarize_report(report):
     """summarize a report"""
     suite = []
@@ -45,9 +46,11 @@ def summarize_report(report):
                 if "triage" in state_on_server:
                     triage = state_on_server["triage"]
                     test_info["status"] = triage["action"].lower()
+                test_info["external_ref"] = triage["externalReference"]
             else:
                 test_info["cid"] = ""
                 test_info["stream"] = ""
+                test_info["external_ref"] = ""
             if "checkerProperties" in issue and issue["checkerProperties"]:
                 checker_properties = issue["checkerProperties"]
                 test_info["desc"] = checker_properties[
@@ -64,17 +67,26 @@ def summarize_report(report):
             test_info["name"] = ":".join(
                 [test_info["file"], test_info["line"], test_info["col"]])
             test_info["mergeKey"] = issue["mergeKey"]
-            test_info["summary"] = f"""{test_info["desc"]}
-
-{test_info["effect"]}
-
-Merge Key: {test_info["mergeKey"]}
-CID: {test_info["cid"]}
-"""
+            summary = []
+            if test_info.get("desc"):
+                summary.append(test_info["desc"])
+            if test_info.get("desc"):
+                summary.append(test_info["effect"])
+            if test_info.get("mergeKey"):
+                summary.append(f"Merge Key: {test_info['mergeKey']}")
+            if test_info.get("cid"):
+                summary.append(f"CID: {test_info['cid']}")
+            if test_info.get("external_ref"):
+                summary.append(f"see: {test_info['external_ref']}")
+            test_info["summary"] = '\n\n'.join(summary)
+            if test_info.get("external_ref"):
+                test_info["message"] = test_info.get("external_ref")
+            else:
+                test_info["message"] = f"CID: {test_info['cid']}"
     return suite
 
 
-def xunit_from_report(report, xunit):
+def xunit_from_report(report, xunit, include_actions):
     """write an xunit report for the results"""
     suite = summarize_report(report)
     testsuites = ET.Element('testsuites')
@@ -82,19 +94,22 @@ def xunit_from_report(report, xunit):
     testsuite.attrib["name"] = "coverity"
     suite_fail = 0
     for test in suite:
+        ignore = test["status"] not in include_actions
         testcase = ET.SubElement(testsuite, "testcase")
         testcase.attrib["classname"] = test['type']
         testcase.attrib["name"] = test["name"]
-        if test["status"] == "ignore":
+        if ignore:
             testcase.attrib["status"] = "Skip"
             skipped = ET.SubElement(testcase, "skipped")
             skipped.text = test["summary"]
+            skipped.attrib["message"] = test["message"]
         else:
             suite_fail += 1
             testcase.attrib["status"] = "Fail"
             failure = ET.SubElement(testcase, "failure")
             failure.attrib["type"] = test['type']
             failure.text = test["summary"]
+            failure.attrib["message"] = test["message"]
     testsuite.attrib["tests"] = str(len(suite))
     testsuite.attrib["failures"] = str(suite_fail)
     testsuites.attrib["tests"] = str(len(suite))
@@ -579,7 +594,8 @@ disa-stig:
 
     with open(json_report_path, "r") as json_file:
         report = json.load(json_file)
-        xunit_from_report(report, os.path.join(args.report_dir, "xunit.xml"))
+        xunit_from_report(report, os.path.join(args.report_dir, "xunit.xml"),
+                          ['undecided'])
 
     return 0
 
