@@ -4,7 +4,7 @@ Please note: these tools are provided so that end users can explore capabilities
 
 # sample_multi_transcode (SMT)
 
-This is the main functionality showcase for oneVPL, demonstrating a wide variety of features and pipelines.
+This is the main functionality showcase, demonstrating a wide variety of features and pipelines.
 
 # sample_encode, sample_decode, sample_vpp
 
