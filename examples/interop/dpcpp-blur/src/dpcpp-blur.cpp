@@ -23,7 +23,7 @@
 #define MAJOR_API_VERSION_REQUIRED 2
 #define MINOR_API_VERSION_REQUIRED 2
 
-#ifdef LIBVA_SUPPORT
+#if defined(LIBVA_SUPPORT) && defined(SYCL_EXT_ONEAPI_BACKEND_LEVEL_ZERO)
     #define HAVE_VIDEO_MEMORY_INTEROP
 #endif
 
@@ -34,7 +34,6 @@
     #include <va/va_drmcommon.h>
 
     #include <level_zero/ze_api.h>
-    #include <CL/sycl/backend/level_zero.hpp>
 #endif
 
 // DPC++ kernel for image blurring

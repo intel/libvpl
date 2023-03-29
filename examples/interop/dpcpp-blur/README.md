@@ -99,7 +99,7 @@ https://dgpu-docs.intel.com/installation-guides/ubuntu/ubuntu-focal.html
 ```
 mkdir build
 cd build
-cmake -DCMAKE_BUILD_TYPE=Release ..
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=icpx ..
 cmake --build .
 ```
 
