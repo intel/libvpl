@@ -43,7 +43,7 @@ Perform the following steps:
 
 1. Install prerequisites. To build and run the sample you need to install prerequisite software and set up your environment:
 
-   - Follow the steps in [install.md](https://github.com/intel-innersource/frameworks.media.onevpl.dispatcher/blob/main/INSTALL.md) or install libvpl-dev.
+   - Follow the steps in [install.md](https://github.com/oneapi-src/oneVPL/blob/master/INSTALL.md) or install libvpl-dev.
    - Follow the steps in [dgpu-docs](https://dgpu-docs.intel.com/) according to your GPU.
    - Install the packages using following commands:
    ```
@@ -79,7 +79,7 @@ Perform the following steps:
 1. Install prerequisites. To build and run the sample you need to
    install prerequisite software and set up your environment:
 
-   - Follow the steps in [install.md](https://github.com/intel-innersource/frameworks.media.onevpl.dispatcher/blob/main/INSTALL.md) to install oneVPL package.
+   - Follow the steps in [install.md](https://github.com/oneapi-src/oneVPL/blob/master/INSTALL.md) to install oneVPL package.
    - Visual Studio 2022 
    - [CMake](https://cmake.org)
 

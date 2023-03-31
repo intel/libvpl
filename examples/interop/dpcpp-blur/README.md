@@ -123,7 +123,7 @@ Implementation details:
   DeviceID:             0000 
   Path: /opt/intel/oneapi/vpl/2021.6.0/lib/libvplswref64.so.1
 
-Processing /home/test/intel_innersource/frameworks.media.onevpl.dispatcher/examples/interop/dpcpp-blur/content/cars_320x240.i420 -> out.raw
+Processing ../../../content/cars_320x240.i420 -> out.raw
 Processed 30 frames
 ```
 

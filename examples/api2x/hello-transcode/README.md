@@ -125,7 +125,7 @@ Implementation details:
   AccelerationMode via: NA 
   Path: /opt/intel/oneapi/vpl/2021.6.0/lib/libvplswref64.so.1
 
-Transcoding /home/test/intel_innersource/frameworks.media.onevpl.dispatcher/examples/hello/hello-transcode/../../content/cars_320x240.mjpeg -> out.h265
+Transcoding ../../../content/cars_320x240.mjpeg -> out.h265
 Transcoded 30 frames
 ```
 
