@@ -634,6 +634,8 @@ int main(int argc, char *argv[]) {
                 printf("%6sDRMRenderNodeNum: %d\n", "", idescDevice->DRMRenderNodeNum);
                 printf("%6sDRMPrimaryNodeNum: 0x%04X\n", "", idescDevice->DRMPrimaryNodeNum);
 
+                printf("%6sRevisionID: 0x%04X\n", "", idescDevice->RevisionID);
+
                 printf("%6sDeviceName: %s\n", "", idescDevice->DeviceName);
                 MFXDispReleaseImplDescription(loader, idescDevice);
             }

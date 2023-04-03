@@ -183,6 +183,8 @@ bool show_MFXLoad_info() {
                    idescDevice->PCIDevice,
                    idescDevice->PCIFunction);
 
+            printf("  PCI RevisionID: 0x%04X\n", idescDevice->RevisionID);
+
             if (idescDevice->LUIDValid) {
                 printf("  DeviceLUID: ");
                 for (mfxU32 idx = 0; idx < 8; idx++) {

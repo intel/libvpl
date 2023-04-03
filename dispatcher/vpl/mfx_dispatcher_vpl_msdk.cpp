@@ -562,6 +562,9 @@ mfxStatus LoaderCtxMSDK::QueryExtDeviceID(mfxExtendedDeviceId *extDeviceID,
     extDeviceID->DRMRenderNodeNum  = 0;
     extDeviceID->DRMPrimaryNodeNum = 0x7FFFFFFF;
 
+    // default - no PCI RevisionID
+    extDeviceID->RevisionID        = 0xFFFF;
+
     snprintf(extDeviceID->DeviceName, sizeof(extDeviceID->DeviceName), "%s", strImplName);
 
 #if defined(_WIN32) || defined(_WIN64)

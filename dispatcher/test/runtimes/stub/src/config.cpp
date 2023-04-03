@@ -424,6 +424,7 @@ static const mfxExtendedDeviceId minExtDeviceID = {
 
     130,            // DRMRenderNodeNum
     2,              // DRMPrimaryNodeNum
+    0x1034,         // RevisionID
 
     {},             // reserved1
 

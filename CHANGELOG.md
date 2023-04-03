@@ -16,6 +16,7 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 
 ### Added
 - New prerequisites installation command in the vpl-infer README.md to fix build failure
+- Updated API to version 2.9
 
 ## [2023.1.3] - 2023-03-03
 
