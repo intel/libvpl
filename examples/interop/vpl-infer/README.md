@@ -1,34 +1,30 @@
 # `vpl-infer` Sample
-## Table of Contents
-- [Intro](#intro)
-- [Purpose](#purpose)
-- [Key Implementation Details](#key-implementation-details)
-- [Command Line Options](#command-line-options)
-- [License](#license)
-- [Building and Executing the vpl-infer Program](#building-and-executing-the-vpl-infer-Program)
-  - [On a Linux* System](#on-a-linux-system)
-  - [On a Windows* System](#on-a-windows-system)
-  - [Example of Output](#example-of-output)
 
 
 ## Intro
 
-This sample shows how to use the oneAPI Video Processing Library (oneVPL) to
-perform a simple video decode and resize, and how to use the OpenVINO™ toolkit for inferencing 
+This sample shows how to use the oneAPI Video Processing Library (oneVPL) 
+and Intel Distribution of OpenVINO™ Toolkit together to perform a simple inference pipeline 
+
+```mermaid
+graph LR;
+    decode-->resize-->infer;
+```
+ 
 
 | Optimized for    | Description
 |----------------- | ----------------------------------------
 | OS               | Ubuntu* 20.04; Windows* 10
 | Hardware runtime | Compatible with Intel® oneAPI Video Processing Library(oneVPL) GPU implementation, which can be found at [Intel® oneVPL GPU Implementation Open Source](https://github.com/oneapi-src/oneVPL-intel-gpu)
 |                  | and Intel® Media SDK GPU implementation, which can be found at [Intel® Media SDK Open Source](https://github.com/Intel-Media-SDK/MediaSDK)
-| What You Will Learn | How to use oneVPL to decode an H.265 encoded video file and resize and perform per-frame object detection inference
+| What You Will Learn | How to combine oneAPI Video Processing Library (oneVPL) and Intel Distribution of OpenVINO™ Toolkit
 | Time to Complete | 5 minutes
 
 
 ## Purpose
 
 This sample is a command line application that takes a file containing an H.265
-video elementary stream and network model as an argument, decodes and resize it with oneVPL and perform 
+video elementary stream and network model as an argument, decodes and resize it with oneVPL and performs 
 object detection on each frame using the OpenVINO™ toolkit.
 
 
@@ -49,7 +45,7 @@ object detection on each frame using the OpenVINO™ toolkit.
 | -hw      | oneVPL hardware implementation | Default
 | -i       | H.265 video elementary stream  |
 | -m       | Object detection network model |
-| -legacy  | Run sample in legacy gen (ex: gen 9.x - SKL, KBL, etc) |
+| -legacy  | Run sample using core 1.x API for portability |
 | -zerocopy| Process data without copying between oneVPL and the OpenVINO™ toolkit in hardware implemenation mode | with `-hw` only
 |          | | not with `-legacy`
 
@@ -67,30 +63,40 @@ This can be set up in a bare metal Ubuntu 20.04 system or with Docker for Linux,
 
 ### On a Linux* System
 
-1. Install the prerequisite software:
+1. Install media and compute stack prerequisites. 
 
-   - Intel® oneAPI Base Toolkit for Linux*
-   - Intel® OpenVINO™ toolkit for Linux*
-   - [Python](http://python.org) (ver 3.7 - 3.10)
-   - [CMake](https://cmake.org)
+   - Follow the steps in [dgpu-docs](https://dgpu-docs.intel.com/) according to your GPU.
+   - Follow the steps in [install.md](https://github.com/oneapi-src/oneVPL/blob/master/INSTALL.md) or install libvpl-dev. 
+   - Install these additional packages:
 
+    ```
+    apt update
+    apt install -y cmake build-essential pkg-config libva-dev libva-drm2 vainfo
+    ```
 
-2. Install Intel general purpose GPU (GPGPU) software packages:
+2. Install Intel Distribution of OpenVINO™ Toolkit 2022.3.0 from archive
 
-    Follow steps in [DGPU Installation Guide](https://dgpu-docs.intel.com/installation-guides/index.html#)
+    ``` 
+    curl -L https://storage.openvinotoolkit.org/repositories/openvino/packages/2022.3/linux/l_openvino_toolkit_ubuntu20_2022.3.0.9052.9752fafe8eb_x86_64.tgz -o l_openvino_toolkit_ubuntu20_2022.3.0.tgz 
+    tar -xf l_openvino_toolkit_ubuntu20_2022.3.0.tgz 
+    mv l_openvino_toolkit_ubuntu20_2022.3.0.9052.9752fafe8eb_x86_64 openvino_2022.3.0 
+    ln -s /opt/intel/openvino_2022.3.0 /opt/intel/openvino_2022
+    ```
 
 
 3. Download the Mobilenet-ssd object detection model from the Open Model Zoo for
    OpenVINO™ toolkit and covert it to an IR model:
 
     Start Python virtual environments from Command Prompt
+
     ```
-    sudo apt-get install python3 python3.8-venv
+    apt install python3 python3.8-venv
     python3 -m venv openvino_env
     source openvino_env/bin/activate
     ```
     
     From the Python virtual environment `(openvino_env) .. $` 
+
     ```
     python -m pip install --upgrade pip
     pip install openvino-dev[caffe]==2022.3.0
@@ -99,17 +105,12 @@ This can be set up in a bare metal Ubuntu 20.04 system or with Docker for Linux,
     deactivate
     ```
 
-    mobilenet-ssd IR model will be generated in `./public/mobilenet-ssd/FP32` 
-    ```
-    mobilenet-ssd.bin  mobilenet-ssd.xml  mobilenet-ssd.mapping
-    ```
 
+4. Set up OpenVINO™ toolkit environment:
 
-4. Set up oneAPI and OpenVINO™ toolkit environment:
+    If the installation directory is `"/opt/intel/openvino_2022"`
 
-    If the installation directories are `"/opt/intel/oneapi"`, and `"/opt/intel/openvino_2022"`
     ```
-    source /opt/intel/oneapi/setvars.sh
     source /opt/intel/openvino_2022/setupvars.sh
     ```
  
@@ -117,103 +118,107 @@ This can be set up in a bare metal Ubuntu 20.04 system or with Docker for Linux,
 5. Build and run the program:
 
     Install prerequisites and build
+
     ```
-    sudo apt-get install -y opencl-header libpugixml-dev libtbb-dev
+    apt install -y opencl-headers libpugixml-dev libtbb-dev libtbb2
 
     mkdir build && cd build
     cmake .. && cmake --build . --config release
     ```
-    Please set the proper path for the content and IR model you prepared
+    
+    Provide path to video file and IR model in command line parameters
+
+    To run with 2.x API zero copy on GPU 
+
     ```
-    ./vpl-infer -hw -i cars_320x240.h265 -m mobilenet-ssd.xml
+    ./vpl-infer -i cars_320x240.h265 -m mobilenet-ssd.xml -zerocopy
+    ```
+
+    To run with 1.x API (and extra copy) on GPU 
+
+    ```
+    ./vpl-infer -i cars_320x240.h265 -m mobilenet-ssd.xml -legacy
     ```
 
 
 ### Using a Docker Container (Linux)
 
-1. Check groups of current user (Let's say your username is `user1`):
-
-    ```
-    groups
-    user1 adm sudo render docker
-    ```
-    User1 should be in `render` group.
-    If you don't see `render` from `groups` command, then you should add user1 to `render` group:
-    ```
-    sudo usermod -a -G render user1
-    newgrp render
-    ```
-    This sample is using Intel® DL Streamer docker image as base from [DLStreamer docker hub](https://hub.docker.com/r/intel/dlstreamer)
+These instructions assume that Docker is already set up on your system.
 
 
-2. Set the target base image by platform:
 
-    #### For Intel Gen12/DG1 GPUs (ex: TGL)
+1. Build docker image:
+
+    These steps start from the directory with the vpl-infer CMakeLists.txt file.
+
+
     ```
-    DLS_IMAGE=intel/dlstreamer:2022.2.0-ubuntu20-gpu815-devel
+    docker build -t onevpl_openvino docker
     ```
-    #### For Intel Data Center GPU Flex Series (ex: DG2)
+    
+    If needed, pass proxy information with “--build-arg”:
+
     ```
-    DLS_IMAGE=intel/dlstreamer:2022.2.0-ubuntu20-gpu419.40-devel
+    docker build -t onevpl_openvino $(env | grep -E '(_proxy=|_PROXY)' | sed 's/^/--build-arg /') docker
     ```
 
 
-3. Go to vpl-infer/docker and build docker image:
+2. Start the container
+
+    These steps start from the oneVPL dispatcher examples directory to provide access to the input video file.
+    (To reach the examples directory type `cd ../..` from the directory with vpl-infer CMakeLists.txt.)
 
     ```
-    docker build -t onevpl_openvino --build-arg BASE_IMAGE=$DLS_IMAGE .
+    docker run -it --rm --privileged -v `pwd`:`pwd` -w `pwd` onevpl_openvino:latest
     ```
-    If there’re proxy servers, then you might need to pass that information with using “--build-arg”:
-    ```
-    docker build -t onevpl_openvino $(env | grep -E '(_proxy=|_PROXY)' | sed 's/^/--build-arg /') --build-arg BASE_IMAGE=$DLS_IMAGE .
-    ```
+    
+
+3. Build and run the program in the container:
 
 
-4. Start the container, mounting the examples directory:
-
-    Read render group id (it might be different by system configuration)
-    ```
-    stat -c "%g" /dev/dri/render*
-    109
-    ```
-    ```
-    docker run -u 0 -it -v `pwd`/../../../../examples:/oneVPL/examples --device /dev/dri --group-add 109 onevpl_openvino
-    ```
-    `"groups: cannot find name for group ID 109"` message is expected.
+    Build steps: if not installed to system directories, source VPL vars.sh then 
 
 
-5. Build and run the program in the container:
-
     ```
-    source /opt/intel/oneapi/setvars.sh
+    source /opt/intel/openvino_2022/setupvars.sh
 
-    cd /oneVPL/examples/interop/vpl-infer
     mkdir build && cd build
     cmake .. && cmake --build . --config release
-    ./vpl-infer -hw -i /oneVPL/examples/content/cars_320x240.h265 -m /oneVPL/nm/mobilenet-ssd/FP32/mobilenet-ssd.xml
     ```
 
+    To run with 2.x API zero copy on GPU 
+
+    ```
+    ./vpl-infer -i cars_320x240.h265 -m mobilenet-ssd.xml -zerocopy
+    ```
+
+    To run with 1.x API (and extra copy) on GPU 
+
+    ```
+    ./vpl-infer -i cars_320x240.h265 -m mobilenet-ssd.xml -legacy
+    ```
 
 ### On a Windows* System
 
 1. Install the prerequisite software:
 
-   - Intel® oneAPI Base Toolkit for Windows*
    - Intel® OpenVINO™ toolkit for Windows*
    - [Python](http://python.org) (ver 3.7 - 3.10)
    - [CMake](https://cmake.org)
-
+   - Follow INSTALL.md steps
 
 2. Download the Mobilenet-ssd object detection model from the Open Model Zoo for
    OpenVINO™ toolkit and covert it to an IR model:
 
     Start Python virtual environments from Command Prompt
+
     ```
     python -m venv openvino_env
     openvino_env\Scripts\activate
     ```
     
     From the Python virtual environment `(openvino_env) .. >`
+
     ```
     python -m pip install --upgrade pip
     pip install openvino-dev[caffe]==2022.3.0
@@ -222,16 +227,17 @@ This can be set up in a bare metal Ubuntu 20.04 system or with Docker for Linux,
     deactivate
     ```
     mobilenet-ssd IR model will be generated in `.\public\mobilenet-ssd\FP32` 
+
     ```
     mobilenet-ssd.bin  mobilenet-ssd.xml  mobilenet-ssd.mapping
     ```
 
 
-3. Set up oneAPI and OpenVINO™ toolkit environment:
+3. Set up OpenVINO™ toolkit environment:
 
-    If the installation directories are `"c:\Program Files (x86)\intel\oneAPI"`, and `"c:\Program Files (x86)\intel\OpenVINO"`
+    If the installation directory is `"c:\Program Files (x86)\intel\OpenVINO"`
+
     ```
-    "c:\Program Files (x86)\intel\oneAPI\setvars.bat"
     "c:\Program Files (x86)\intel\OpenVINO\setupvars.bat"
     ```
 
@@ -243,6 +249,7 @@ This can be set up in a bare metal Ubuntu 20.04 system or with Docker for Linux,
     You can check the repos and commit ids for the build from [OpenCL versions for OpenVINO™ toolkit 2022.3.0](https://github.com/openvinotoolkit/openvino/tree/2022.3.0/thirdparty/ocl)
 
     For `OpenVINO™ toolkit 2022.3.0`:
+
     ```
     cl_headers @ 1d3dc4e
     clhpp_headers @ 89d843b
@@ -271,6 +278,7 @@ This can be set up in a bare metal Ubuntu 20.04 system or with Docker for Linux,
     ```
 
     Copy headers to `OpenCL-ICD-Loader` include directory:
+
     ```
     mkdir OpenCL-ICD-Loader\inc\CL
     copy OpenCL-Headers\CL\* OpenCL-ICD-Loader\inc\CL
@@ -278,6 +286,7 @@ This can be set up in a bare metal Ubuntu 20.04 system or with Docker for Linux,
     ```
 
     Build OpenCL ICD loader from `OpenCL-ICD-Loader`:
+
     ```
     cd OpenCL-ICD-Loader
     mkdir build && cd build
@@ -285,11 +294,13 @@ This can be set up in a bare metal Ubuntu 20.04 system or with Docker for Linux,
     ```
 
     Set OpenCL ICD Loader library path, where `OpenCL.lib` and `OpenCL.dll` are existed:
+
     ```
     set OpenCL_LIBRARY_PATH=<your work dir>\OpenCL-ICD-Loader\build\Release
     ```
 
     Set OpenCL Headers path:
+
     ```
     set OpenCL_INCLUDE_DIRS=<your work dir>\OpenCL-ICD-Loader\inc
     ```
@@ -297,15 +308,24 @@ This can be set up in a bare metal Ubuntu 20.04 system or with Docker for Linux,
 5. Build and run the program:
 
     Go to `examples\interop\vpl-infer`
+    (Make sure that your shell is configured with vars.bat)
+
     ```
     mkdir build && cd build
     cmake .. && cmake --build . --config release && cd release
     ```
-    Please set the proper path for the content and the IR model you prepared
+  
+    To run with 2.x API zero copy on GPU 
+
     ```
-    vpl-infer -hw -i cars_320x240.h265 -m mobilenet-ssd.xml
+    ./vpl-infer -i cars_320x240.h265 -m mobilenet-ssd.xml -zerocopy
     ```
 
+    To run with 1.x API (and extra copy) on GPU 
+
+    ```
+    ./vpl-infer -i cars_320x240.h265 -m mobilenet-ssd.xml -legacy
+    ```
 
 ### Example of Output
 

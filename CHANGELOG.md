@@ -18,6 +18,9 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 - New prerequisites installation command in the vpl-infer README.md to fix build failure
 - Updated API to version 2.9
 
+### Changed
+- vpl-infer Dockerfile and Linux setup steps to better align with https://dgpu-docs.intel.com/
+
 ## [2023.1.3] - 2023-03-03
 
 ### Added
