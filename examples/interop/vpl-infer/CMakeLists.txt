@@ -140,7 +140,16 @@ include(CTest)
 set(VPL_CONTENT_DIR
     ${CMAKE_CURRENT_SOURCE_DIR}/../../content
     CACHE PATH "Path to content.")
-add_test(
-  NAME ${TARGET}-test
-  COMMAND ${TARGET} -i "${VPL_CONTENT_DIR}/cars_320x240.h265" -m
-          "${VPL_CONTENT_DIR}/public/mobilenet-ssd/FP32/mobilenet-ssd.xml")
+if("${TEST_ZERO_COPY}")
+  add_test(
+    NAME ${TARGET}-zerocopy-test
+    COMMAND
+      ${TARGET} ${IMPL_ARG} -i "${VPL_CONTENT_DIR}/cars_320x240.h265" -zerocopy
+      -m "/OpenVINO/public/mobilenet-ssd/FP32/mobilenet-ssd.xml")
+endif()
+if("${TEST_LEGACY_API}")
+  add_test(
+    NAME ${TARGET}-legacyapi-test
+    COMMAND ${TARGET} ${IMPL_ARG} -i "${VPL_CONTENT_DIR}/cars_320x240.h265"
+            -legacy -m "/OpenVINO/public/mobilenet-ssd/FP32/mobilenet-ssd.xml")
+endif()
