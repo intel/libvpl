@@ -32,7 +32,7 @@ if(INSTALL_EXAMPLE_CODE)
     COMPONENT dev)
 
   install(
-    DIRECTORY interop/vpl-infer interop/dpcpp-blur
+    DIRECTORY interop/vpl-infer
     DESTINATION ${ONEAPI_INSTALL_EXAMPLEDIR}/interop
     COMPONENT dev)
 

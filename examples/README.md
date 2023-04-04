@@ -18,4 +18,4 @@ Please note: the [Intel® Media SDK runtime](https://github.com/Intel-Media-SDK/
 compatible with these examples.
 
 # interop:
-The examples in this group showcase pipelines combining Intel® VPL media capabilities with other APIs such as dpcpp and the OpenVINO™ Toolkit Interface.
+The examples in this group showcase pipelines combining Intel® VPL media capabilities with other APIs such as the OpenVINO™ Toolkit Interface.

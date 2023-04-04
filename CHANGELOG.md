@@ -21,6 +21,9 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 ### Changed
 - vpl-infer Dockerfile and Linux setup steps to better align with https://dgpu-docs.intel.com/
 
+### Removed
+- dpcpp-blur example
+
 ## [2023.1.3] - 2023-03-03
 
 ### Added
