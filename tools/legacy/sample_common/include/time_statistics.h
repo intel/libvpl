@@ -78,8 +78,7 @@ public:
 
     inline void PrintStatistics(const msdk_char* prefix) {
         msdk_printf(
-            MSDK_STRING(
-                "%s Total:%.3lfms(%llu smpls),Avg %.3lfms,StdDev:%.3lfms,Min:%.3lfms,Max:%.3lfms\n"),
+            "%s Total:%.3lfms(%llu smpls),Avg %.3lfms,StdDev:%.3lfms,Min:%.3lfms,Max:%.3lfms\n",
             prefix,
             (double)totalTime,
             (unsigned long long int)numMeasurements,

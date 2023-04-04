@@ -15,8 +15,8 @@ int main(int argc, char* argv[])
     mfxStatus sts;
     TranscodingSample::Launcher transcode;
     if (argc < 2) {
-        msdk_printf(MSDK_STRING(
-            "[ERROR] Command line is empty. Use -? for getting help on available options.\n"));
+        msdk_printf(
+            "[ERROR] Command line is empty. Use -? for getting help on available options.\n");
         return 0;
     }
 

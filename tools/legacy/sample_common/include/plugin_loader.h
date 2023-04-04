@@ -57,32 +57,32 @@ protected:
     mfxPluginUID m_uid;
 
 private:
-    const msdk_char* msdkGetPluginName(const mfxPluginUID& guid) {
+    const char* msdkGetPluginName(const mfxPluginUID& guid) {
         if (AreGuidsEqual(guid, MFX_PLUGINID_HEVCD_SW))
-            return MSDK_STRING("Intel (R) Media SDK plugin for HEVC DECODE");
+            return "Intel (R) Media SDK plugin for HEVC DECODE";
         else if (AreGuidsEqual(guid, MFX_PLUGINID_HEVCD_HW))
-            return MSDK_STRING("Intel (R) Media SDK HW plugin for HEVC DECODE");
+            return "Intel (R) Media SDK HW plugin for HEVC DECODE";
         else if (AreGuidsEqual(guid, MFX_PLUGINID_HEVCE_SW))
-            return MSDK_STRING("Intel (R) Media SDK plugin for HEVC ENCODE");
+            return "Intel (R) Media SDK plugin for HEVC ENCODE";
         else if (AreGuidsEqual(guid, MFX_PLUGINID_HEVCE_HW))
-            return MSDK_STRING("Intel (R) Media SDK HW plugin for HEVC ENCODE");
+            return "Intel (R) Media SDK HW plugin for HEVC ENCODE";
         else if (AreGuidsEqual(guid, MFX_PLUGINID_H264LA_HW))
-            return MSDK_STRING("Intel (R) Media SDK plugin for LA ENC");
+            return "Intel (R) Media SDK plugin for LA ENC";
         else if (AreGuidsEqual(guid, MFX_PLUGINID_ITELECINE_HW))
-            return MSDK_STRING("Intel (R) Media SDK PTIR plugin (HW)");
+            return "Intel (R) Media SDK PTIR plugin (HW)";
         else if (AreGuidsEqual(guid, MFX_PLUGINID_HEVCE_GACC))
-            return MSDK_STRING("Intel (R) Media SDK GPU-Accelerated plugin for HEVC ENCODE");
+            return "Intel (R) Media SDK GPU-Accelerated plugin for HEVC ENCODE";
         else if (AreGuidsEqual(guid, MFX_PLUGINID_VP9D_HW))
-            return MSDK_STRING("Intel (R) Media SDK HW plugin for VP9 DECODE");
+            return "Intel (R) Media SDK HW plugin for VP9 DECODE";
         else if (AreGuidsEqual(guid, MFX_PLUGINID_VP9E_HW))
-            return MSDK_STRING("Intel (R) Media SDK HW plugin for VP9 ENCODE");
+            return "Intel (R) Media SDK HW plugin for VP9 ENCODE";
         else
     #if !defined(_WIN32) && !defined(_WIN64)
             if (AreGuidsEqual(guid, MFX_PLUGINID_HEVC_FEI_ENCODE))
-            return MSDK_STRING("Intel (R) Media SDK HW plugin for HEVC FEI ENCODE");
+            return "Intel (R) Media SDK HW plugin for HEVC FEI ENCODE";
         else
     #endif
-            return MSDK_STRING("Unknown plugin");
+            return "Unknown plugin";
     }
 
 public:
@@ -100,10 +100,10 @@ public:
 
         MSDK_MEMCPY(&m_uid, &uid, sizeof(mfxPluginUID));
         for (size_t i = 0; i != sizeof(mfxPluginUID); i++) {
-            strStream << MSDK_STRING("0x") << std::setfill(MSDK_CHAR('0')) << std::setw(2)
-                      << std::hex << (int)m_uid.Data[i];
+            strStream << "0x" << std::setfill(MSDK_CHAR('0')) << std::setw(2) << std::hex
+                      << (int)m_uid.Data[i];
             if (i != (sizeof(mfxPluginUID) - 1))
-                strStream << MSDK_STRING(", ");
+                strStream << ", ";
         }
 
         if ((ePluginType == MFX_PLUGINTYPE_AUDIO_DECODE) ||
@@ -116,13 +116,12 @@ public:
         }
 
         if (MFX_ERR_NONE != sts) {
-            MSDK_TRACE_ERROR(MSDK_STRING("Failed to load plugin from GUID, sts=")
-                             << sts << MSDK_STRING(": { ") << strStream.str().c_str()
-                             << MSDK_STRING(" } (") << msdkGetPluginName(m_uid)
-                             << MSDK_STRING(")"));
+            MSDK_TRACE_ERROR("Failed to load plugin from GUID, sts="
+                             << sts << ": { " << strStream.str() << " } ("
+                             << msdkGetPluginName(m_uid) << ")");
         }
         else {
-            MSDK_TRACE_INFO(MSDK_STRING("Plugin was loaded from GUID"));
+            MSDK_TRACE_INFO("Plugin was loaded from GUID");
             m_session = session;
         }
     }
@@ -136,10 +135,10 @@ public:
 
         MSDK_MEMCPY(&m_uid, &uid, sizeof(mfxPluginUID));
         for (size_t i = 0; i != sizeof(mfxPluginUID); i++) {
-            strStream << MSDK_STRING("0x") << std::setfill(MSDK_CHAR('0')) << std::setw(2)
-                      << std::hex << (int)m_uid.Data[i];
+            strStream << "0x" << std::setfill(MSDK_CHAR('0')) << std::setw(2) << std::hex
+                      << (int)m_uid.Data[i];
             if (i != (sizeof(mfxPluginUID) - 1))
-                strStream << MSDK_STRING(", ");
+                strStream << ", ";
         }
 
         if ((ePluginType == MFX_PLUGINTYPE_AUDIO_DECODE) ||
@@ -151,15 +150,14 @@ public:
         }
 
         if (MFX_ERR_NONE != sts) {
-            MSDK_TRACE_ERROR(MSDK_STRING("Failed to load plugin from GUID, sts=")
-                             << sts << MSDK_STRING(": { ") << strStream.str().c_str()
-                             << MSDK_STRING(" } (") << msdkGetPluginName(m_uid)
-                             << MSDK_STRING(")"));
+            MSDK_TRACE_ERROR("Failed to load plugin from GUID, sts="
+                             << sts << ": { " << strStream.str() << " } ("
+                             << msdkGetPluginName(m_uid) << ")");
         }
         else {
-            MSDK_TRACE_INFO(MSDK_STRING("Plugin was loaded from GUID")
-                            << MSDK_STRING(": { ") << strStream.str().c_str() << MSDK_STRING(" } (")
-                            << msdkGetPluginName(m_uid) << MSDK_STRING(")"));
+            MSDK_TRACE_INFO("Plugin was loaded from GUID"
+                            << ": { " << strStream.str() << " } (" << msdkGetPluginName(m_uid)
+                            << ")");
             m_session = session;
         }
     }
@@ -176,11 +174,10 @@ public:
             }
 
             if (sts != MFX_ERR_NONE) {
-                MSDK_TRACE_ERROR(MSDK_STRING("Failed to unload plugin from GUID, sts=") << sts);
+                MSDK_TRACE_ERROR("Failed to unload plugin from GUID, sts=" << sts);
             }
             else {
-                MSDK_TRACE_INFO(MSDK_STRING("MFXBaseUSER_UnLoad(session=0x")
-                                << m_session << MSDK_STRING("), sts=") << sts);
+                MSDK_TRACE_INFO("MFXBaseUSER_UnLoad(session=0x" << m_session << "), sts=" << sts);
             }
         }
     }

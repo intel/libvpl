@@ -1189,9 +1189,8 @@ mfxU16 CalculateDefaultBitrate(mfxU32 nCodecId,
 //serialization fnc set
 msdk_string CodecIdToStr(mfxU32 nFourCC);
 mfxU16 StrToTargetUsage(msdk_string strInput);
-const msdk_char* TargetUsageToStr(mfxU16 tu);
-const msdk_char* ColorFormatToStr(mfxU32 format);
-const msdk_char* MfxStatusToStr(mfxStatus sts);
+const char* TargetUsageToStr(mfxU16 tu);
+const char* ColorFormatToStr(mfxU32 format);
 
 // sets bitstream->PicStruct parsing first APP0 marker in bitstream
 mfxStatus MJPEG_AVI_ParsePicStruct(mfxBitstream* bitstream);
@@ -1382,7 +1381,7 @@ inline mfxStatus msdk_opt_read(const msdk_string& string, T& value) {
 }
 
 mfxStatus StrFormatToCodecFormatFourCC(msdk_char* strInput, mfxU32& codecFormat);
-msdk_string StatusToString(mfxStatus sts);
+const char* StatusToString(mfxStatus sts);
 mfxI32 getMonitorType(msdk_char* str);
 
 void WaitForDeviceToBecomeFree(MFXVideoSession& session,

@@ -23,32 +23,25 @@ mfxStatus ConvertStringToGuid(const msdk_string& strGuid, mfxPluginUID& mfxGuid)
     mfxStatus sts = MFX_ERR_NONE;
 
     // Check if symbolic GUID value
-    std::map<msdk_string, mfxPluginUID> uid;
-    uid[MSDK_STRING("hevcd_sw")] = MFX_PLUGINID_HEVCD_SW;
-    uid[MSDK_STRING("hevcd_hw")] = MFX_PLUGINID_HEVCD_HW;
-
-    uid[MSDK_STRING("hevce_sw")]   = MFX_PLUGINID_HEVCE_SW;
-    uid[MSDK_STRING("hevce_gacc")] = MFX_PLUGINID_HEVCE_GACC;
-    uid[MSDK_STRING("hevce_hw")]   = MFX_PLUGINID_HEVCE_HW;
-
-    uid[MSDK_STRING("vp8d_hw")] = MFX_PLUGINID_VP8D_HW;
-    uid[MSDK_STRING("vp8e_hw")] = MFX_PLUGINID_VP8E_HW;
-
-    uid[MSDK_STRING("vp9d_hw")] = MFX_PLUGINID_VP9D_HW;
-    uid[MSDK_STRING("vp9e_hw")] = MFX_PLUGINID_VP9E_HW;
-
-    uid[MSDK_STRING("camera_hw")] = MFX_PLUGINID_CAMERA_HW;
-
-    uid[MSDK_STRING("capture_hw")] = MFX_PLUGINID_CAPTURE_HW;
-
-    uid[MSDK_STRING("ptir_hw")]    = MFX_PLUGINID_ITELECINE_HW;
-    uid[MSDK_STRING("h264_la_hw")] = MFX_PLUGINID_H264LA_HW;
-    uid[MSDK_STRING("aacd")]       = MFX_PLUGINID_AACD;
-    uid[MSDK_STRING("aace")]       = MFX_PLUGINID_AACE;
-
-    uid[MSDK_STRING("hevce_fei_hw")] = MFX_PLUGINID_HEVCE_FEI_HW;
-
-    if (uid.find(strGuid) == uid.end()) {
+    std::map<msdk_string, mfxPluginUID> uid{ { MSDK_STRING("hevcd_sw"), MFX_PLUGINID_HEVCD_SW },
+                                             { MSDK_STRING("hevcd_hw"), MFX_PLUGINID_HEVCD_HW },
+                                             { MSDK_STRING("hevce_sw"), MFX_PLUGINID_HEVCE_SW },
+                                             { MSDK_STRING("hevce_gacc"), MFX_PLUGINID_HEVCE_GACC },
+                                             { MSDK_STRING("hevce_hw"), MFX_PLUGINID_HEVCE_HW },
+                                             { MSDK_STRING("vp8d_hw"), MFX_PLUGINID_VP8D_HW },
+                                             { MSDK_STRING("vp8e_hw"), MFX_PLUGINID_VP8E_HW },
+                                             { MSDK_STRING("vp9d_hw"), MFX_PLUGINID_VP9D_HW },
+                                             { MSDK_STRING("vp9e_hw"), MFX_PLUGINID_VP9E_HW },
+                                             { MSDK_STRING("camera_hw"), MFX_PLUGINID_CAMERA_HW },
+                                             { MSDK_STRING("capture_hw"), MFX_PLUGINID_CAPTURE_HW },
+                                             { MSDK_STRING("ptir_hw"), MFX_PLUGINID_ITELECINE_HW },
+                                             { MSDK_STRING("h264_la_hw"), MFX_PLUGINID_H264LA_HW },
+                                             { MSDK_STRING("aacd"), MFX_PLUGINID_AACD },
+                                             { MSDK_STRING("aace"), MFX_PLUGINID_AACE },
+                                             { MSDK_STRING("hevce_fei_hw"),
+                                               MFX_PLUGINID_HEVCE_FEI_HW } };
+    auto item = uid.find(strGuid);
+    if (item == uid.end()) {
         mfxGuid = MSDK_PLUGINGUID_NULL;
         sts     = MFX_ERR_UNKNOWN;
     }

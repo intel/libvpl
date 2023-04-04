@@ -156,7 +156,7 @@ const msdk_char* PicStruct2Str(mfxU16 PicStruct) {
 void PrintLibInfo(sFrameProcessor* pProcessor) {
     mfxStatus sts = pProcessor->mfxSession.PrintLibInfo(pProcessor->pLoader.get());
     if (sts != MFX_ERR_NONE)
-        msdk_printf(MSDK_STRING("mfxSession.PrintLibInfo() failed\n"));
+        msdk_printf("mfxSession.PrintLibInfo() failed\n");
     return;
 }
 
@@ -171,112 +171,100 @@ void PrintStreamInfo(sInputParams* pParams,
     MSDK_CHECK_POINTER_NO_RET(pMfxParams);
 
     Info = pMfxParams->vpp.In;
-    msdk_printf(MSDK_STRING("Input format\t%s\n"), FourCC2Str(Info.FourCC));
-    msdk_printf(MSDK_STRING("Resolution\t%dx%d\n"), Info.Width, Info.Height);
-    msdk_printf(MSDK_STRING("Crop X,Y,W,H\t%d,%d,%d,%d\n"),
-                Info.CropX,
-                Info.CropY,
-                Info.CropW,
-                Info.CropH);
-    msdk_printf(MSDK_STRING("Frame rate\t%.2f\n"),
-                (double)((mfxF64)Info.FrameRateExtN / Info.FrameRateExtD));
-    msdk_printf(MSDK_STRING("PicStruct\t%s\n"), PicStruct2Str(Info.PicStruct));
+    msdk_printf("Input format\t%s\n", FourCC2Str(Info.FourCC));
+    msdk_printf("Resolution\t%dx%d\n", Info.Width, Info.Height);
+    msdk_printf("Crop X,Y,W,H\t%d,%d,%d,%d\n", Info.CropX, Info.CropY, Info.CropW, Info.CropH);
+    msdk_printf("Frame rate\t%.2f\n", (double)((mfxF64)Info.FrameRateExtN / Info.FrameRateExtD));
+    msdk_printf("PicStruct\t%s\n", PicStruct2Str(Info.PicStruct));
 
     Info = pMfxParams->vpp.Out;
-    msdk_printf(MSDK_STRING("Output format\t%s\n"), FourCC2Str(Info.FourCC));
-    msdk_printf(MSDK_STRING("Resolution\t%dx%d\n"), Info.Width, Info.Height);
-    msdk_printf(MSDK_STRING("Crop X,Y,W,H\t%d,%d,%d,%d\n"),
-                Info.CropX,
-                Info.CropY,
-                Info.CropW,
-                Info.CropH);
-    msdk_printf(MSDK_STRING("Frame rate\t%.2f\n"),
-                (double)((mfxF64)Info.FrameRateExtN / Info.FrameRateExtD));
-    msdk_printf(MSDK_STRING("PicStruct\t%s\n"), PicStruct2Str(Info.PicStruct));
+    msdk_printf("Output format\t%s\n", FourCC2Str(Info.FourCC));
+    msdk_printf("Resolution\t%dx%d\n", Info.Width, Info.Height);
+    msdk_printf("Crop X,Y,W,H\t%d,%d,%d,%d\n", Info.CropX, Info.CropY, Info.CropW, Info.CropH);
+    msdk_printf("Frame rate\t%.2f\n", (double)((mfxF64)Info.FrameRateExtN / Info.FrameRateExtD));
+    msdk_printf("PicStruct\t%s\n", PicStruct2Str(Info.PicStruct));
 
-    msdk_printf(MSDK_STRING("\n"));
-    msdk_printf(MSDK_STRING("Video Enhancement Algorithms\n"));
-    msdk_printf(MSDK_STRING("Deinterlace\t%s\n"),
+    msdk_printf("\n");
+    msdk_printf("Video Enhancement Algorithms\n");
+    msdk_printf("Deinterlace\t%s\n",
                 (pParams->frameInfoIn[0].PicStruct != pParams->frameInfoOut[0].PicStruct)
                     ? MSDK_STRING("ON")
                     : MSDK_STRING("OFF"));
-    msdk_printf(MSDK_STRING("Signal info\t%s\n"),
+    msdk_printf("Signal info\t%s\n",
                 (VPP_FILTER_DISABLED != pParams->videoSignalInfoParam[0].mode)
                     ? MSDK_STRING("ON")
                     : MSDK_STRING("OFF"));
     msdk_printf(
-        MSDK_STRING("Scaling\t\t%s\n"),
+        "Scaling\t\t%s\n",
         (VPP_FILTER_DISABLED != pParams->bScaling) ? MSDK_STRING("ON") : MSDK_STRING("OFF"));
     msdk_printf(
-        MSDK_STRING("CromaSiting\t\t%s\n"),
+        "CromaSiting\t\t%s\n",
         (VPP_FILTER_DISABLED != pParams->bChromaSiting) ? MSDK_STRING("ON") : MSDK_STRING("OFF"));
-    msdk_printf(MSDK_STRING("Denoise\t\t%s\n"),
+    msdk_printf("Denoise\t\t%s\n",
                 (VPP_FILTER_DISABLED != pParams->denoiseParam[0].mode) ? MSDK_STRING("ON")
                                                                        : MSDK_STRING("OFF"));
 #ifdef ENABLE_MCTF
-    msdk_printf(MSDK_STRING("MCTF\t\t%s\n"),
+    msdk_printf("MCTF\t\t%s\n",
                 (VPP_FILTER_DISABLED != pParams->mctfParam[0].mode) ? MSDK_STRING("ON")
                                                                     : MSDK_STRING("OFF"));
 #endif
 
-    msdk_printf(MSDK_STRING("ProcAmp\t\t%s\n"),
+    msdk_printf("ProcAmp\t\t%s\n",
                 (VPP_FILTER_DISABLED != pParams->procampParam[0].mode) ? MSDK_STRING("ON")
                                                                        : MSDK_STRING("OFF"));
-    msdk_printf(MSDK_STRING("DetailEnh\t%s\n"),
+    msdk_printf("DetailEnh\t%s\n",
                 (VPP_FILTER_DISABLED != pParams->detailParam[0].mode) ? MSDK_STRING("ON")
                                                                       : MSDK_STRING("OFF"));
     if (VPP_FILTER_DISABLED != pParams->frcParam[0].mode) {
         if (MFX_FRCALGM_FRAME_INTERPOLATION == pParams->frcParam[0].algorithm) {
-            msdk_printf(MSDK_STRING("FRC:Interp\tON\n"));
+            msdk_printf("FRC:Interp\tON\n");
         }
         else if (MFX_FRCALGM_DISTRIBUTED_TIMESTAMP == pParams->frcParam[0].algorithm) {
-            msdk_printf(MSDK_STRING("FRC:AdvancedPTS\tON\n"));
+            msdk_printf("FRC:AdvancedPTS\tON\n");
         }
         else {
-            msdk_printf(MSDK_STRING("FRC:\t\tON\n"));
+            msdk_printf("FRC:\t\tON\n");
         }
     }
-    //msdk_printf(MSDK_STRING("FRC:Advanced\t%s\n"),   (VPP_FILTER_DISABLED != pParams->frcParam.mode)  ? MSDK_STRING("ON"): MSDK_STRING("OFF"));
+    //msdk_printf("FRC:Advanced\t%s\n",   (VPP_FILTER_DISABLED != pParams->frcParam.mode)  ? MSDK_STRING("ON"): MSDK_STRING("OFF"));
     // MSDK 3.0
-    msdk_printf(MSDK_STRING("GamutMapping \t%s\n"),
+    msdk_printf("GamutMapping \t%s\n",
                 (VPP_FILTER_DISABLED != pParams->gamutParam[0].mode) ? MSDK_STRING("ON")
                                                                      : MSDK_STRING("OFF"));
-    msdk_printf(MSDK_STRING("ColorSaturation\t%s\n"),
+    msdk_printf("ColorSaturation\t%s\n",
                 (VPP_FILTER_DISABLED != pParams->tccParam[0].mode) ? MSDK_STRING("ON")
                                                                    : MSDK_STRING("OFF"));
-    msdk_printf(MSDK_STRING("ContrastEnh  \t%s\n"),
+    msdk_printf("ContrastEnh  \t%s\n",
                 (VPP_FILTER_DISABLED != pParams->aceParam[0].mode) ? MSDK_STRING("ON")
                                                                    : MSDK_STRING("OFF"));
-    msdk_printf(MSDK_STRING("SkinToneEnh  \t%s\n"),
+    msdk_printf("SkinToneEnh  \t%s\n",
                 (VPP_FILTER_DISABLED != pParams->steParam[0].mode) ? MSDK_STRING("ON")
                                                                    : MSDK_STRING("OFF"));
-    msdk_printf(MSDK_STRING("MVC mode    \t%s\n"),
+    msdk_printf("MVC mode    \t%s\n",
                 (VPP_FILTER_DISABLED != pParams->multiViewParam[0].mode) ? MSDK_STRING("ON")
                                                                          : MSDK_STRING("OFF"));
     // MSDK 6.0
-    msdk_printf(MSDK_STRING("ImgStab    \t%s\n"),
+    msdk_printf("ImgStab    \t%s\n",
                 (VPP_FILTER_DISABLED != pParams->istabParam[0].mode) ? MSDK_STRING("ON")
                                                                      : MSDK_STRING("OFF"));
-    msdk_printf(MSDK_STRING("\n"));
+    msdk_printf("\n");
 
-    msdk_printf(MSDK_STRING("IOpattern type               \t%s\n"),
-                IOpattern2Str(pParams->IOPattern));
-    msdk_printf(MSDK_STRING("Number of asynchronious tasks\t%hu\n"),
-                (unsigned short)pParams->asyncNum);
-    msdk_printf(MSDK_STRING("Time stamps checking         \t%s\n"),
+    msdk_printf("IOpattern type               \t%s\n", IOpattern2Str(pParams->IOPattern));
+    msdk_printf("Number of asynchronious tasks\t%hu\n", (unsigned short)pParams->asyncNum);
+    msdk_printf("Time stamps checking         \t%s\n",
                 pParams->ptsCheck ? MSDK_STRING("ON") : MSDK_STRING("OFF"));
 
     // info about ROI testing
     if (ROI_FIX_TO_FIX == pParams->roiCheckParam.mode) {
-        msdk_printf(MSDK_STRING("ROI checking                 \tOFF\n"));
+        msdk_printf("ROI checking                 \tOFF\n");
     }
     else {
-        msdk_printf(MSDK_STRING("ROI checking                 \tON (seed1 = %i, seed2 = %i)\n"),
+        msdk_printf("ROI checking                 \tON (seed1 = %i, seed2 = %i)\n",
                     pParams->roiCheckParam.srcSeed,
                     pParams->roiCheckParam.dstSeed);
     }
 
-    msdk_printf(MSDK_STRING("\n"));
+    msdk_printf("\n");
 
     //-------------------------------------------------------
     mfxIMPL impl;
@@ -284,7 +272,7 @@ void PrintStreamInfo(sInputParams* pParams,
     bool isHWlib = MFX_IMPL_SOFTWARE != impl;
 
     const msdk_char* sImpl = (isHWlib) ? MSDK_STRING("hw") : MSDK_STRING("sw");
-    msdk_printf(MSDK_STRING("MediaSDK impl\t%s"), sImpl);
+    msdk_printf("MediaSDK impl\t%s", sImpl);
 
 #ifndef LIBVA_SUPPORT
     if (isHWlib || (pParams->vaType & (ALLOC_IMPL_VIA_D3D9 | ALLOC_IMPL_VIA_D3D11))) {
@@ -293,28 +281,28 @@ void PrintStreamInfo(sInputParams* pParams,
                                       ? true
                                       : false;
         const msdk_char* sIface = (isD3D11) ? MSDK_STRING("VIA_D3D11") : MSDK_STRING("VIA_D3D9");
-        msdk_printf(MSDK_STRING(" | %s"), sIface);
+        msdk_printf(" | %s", sIface);
     }
 #endif
-    msdk_printf(MSDK_STRING("\n"));
+    msdk_printf("\n");
     //-------------------------------------------------------
 
     if (isHWlib && !pParams->bPartialAccel)
-        msdk_printf(MSDK_STRING("HW accelaration is enabled\n"));
+        msdk_printf("HW accelaration is enabled\n");
     else
-        msdk_printf(MSDK_STRING("HW accelaration is disabled\n"));
+        msdk_printf("HW accelaration is disabled\n");
 
 #if (defined(_WIN64) || defined(_WIN32)) && (MFX_VERSION >= 1031)
     if (pParams->bPreferdGfx)
-        msdk_printf(MSDK_STRING("dGfx adapter is preferred\n"));
+        msdk_printf("dGfx adapter is preferred\n");
 
     if (pParams->bPreferiGfx)
-        msdk_printf(MSDK_STRING("iGfx adapter is preferred\n"));
+        msdk_printf("iGfx adapter is preferred\n");
 #endif
 
     mfxVersion ver;
     pMfxSession->QueryVersion(&ver);
-    msdk_printf(MSDK_STRING("MediaSDK ver\t%d.%d\n"), ver.Major, ver.Minor);
+    msdk_printf("MediaSDK ver\t%d.%d\n", ver.Major, ver.Minor);
 
     return;
 }
@@ -451,8 +439,7 @@ mfxU32 GetPreferredAdapterNum(const mfxAdaptersInfo& adapters, const sInputParam
 
         // No dGfx in list
         if (idx == adapters.Adapters + adapters.NumActual) {
-            msdk_printf(
-                MSDK_STRING("Warning: No dGfx detected on machine. Will pick another adapter\n"));
+            msdk_printf("Warning: No dGfx detected on machine. Will pick another adapter\n");
             return 0;
         }
 
@@ -471,8 +458,7 @@ mfxU32 GetPreferredAdapterNum(const mfxAdaptersInfo& adapters, const sInputParam
 
         // No iGfx in list
         if (idx == adapters.Adapters + adapters.NumActual) {
-            msdk_printf(
-                MSDK_STRING("Warning: No iGfx detected on machine. Will pick another adapter\n"));
+            msdk_printf("Warning: No iGfx detected on machine. Will pick another adapter\n");
             return 0;
         }
 
@@ -502,7 +488,7 @@ mfxStatus GetImpl(const mfxVideoParam& params, mfxIMPL& impl, const sInputParams
 
     sts = MFXQueryAdapters(&interface_request, &adapters);
     if (sts == MFX_ERR_NOT_FOUND) {
-        msdk_printf(MSDK_STRING("ERROR: No suitable adapters found for this workload\n"));
+        msdk_printf("ERROR: No suitable adapters found for this workload\n");
     }
     MSDK_CHECK_STATUS(sts, "MFXQueryAdapters failed");
 
@@ -2334,7 +2320,7 @@ void PrintDllInfo() {
         msdk_char buf[2048];
         GetModuleFileName(pModules[i], buf, ARRAYSIZE(buf));
         if (_tcsstr(buf, MSDK_STRING("libmfx"))) {
-            msdk_printf(MSDK_STRING("MFX dll         %s\n"), buf);
+            msdk_printf("MFX dll         %s\n", buf);
         }
     }
     delete[] pModules;

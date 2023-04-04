@@ -24,396 +24,340 @@
 #endif
 
 void vppPrintHelp(const msdk_char* strAppName, const msdk_char* strErrorMessage) {
-    msdk_printf(MSDK_STRING("Intel(R) Media SDK VPP Sample version %s\n"),
-                GetMSDKSampleVersion().c_str());
+    msdk_printf("Intel(R) Media SDK VPP Sample version %s\n", GetMSDKSampleVersion().c_str());
     if (strErrorMessage) {
-        msdk_printf(MSDK_STRING("Error: %s\n"), strErrorMessage);
+        msdk_printf("Error: %s\n", strErrorMessage);
     }
 
-    msdk_printf(MSDK_STRING("Usage: %s [Options] -i InputFile -o OutputFile\n"), strAppName);
+    msdk_printf("Usage: %s [Options] -i InputFile -o OutputFile\n", strAppName);
 
-    msdk_printf(MSDK_STRING("Options: \n"));
-    msdk_printf(
-        MSDK_STRING("   [-lib  type]                - type of used library. sw, hw (def: sw)\n\n"));
+    msdk_printf("Options: \n");
+    msdk_printf("   [-lib  type]                - type of used library. sw, hw (def: sw)\n\n");
 #if defined(LINUX32) || defined(LINUX64)
+    msdk_printf("   [-device /path/to/device]   - set graphics device for processing\n");
+    msdk_printf("                                  For example: '-device /dev/dri/card0'\n");
+    msdk_printf("                                               '-device /dev/dri/renderD128'\n");
     msdk_printf(
-        MSDK_STRING("   [-device /path/to/device]   - set graphics device for processing\n"));
-    msdk_printf(
-        MSDK_STRING("                                  For example: '-device /dev/dri/card0'\n"));
-    msdk_printf(MSDK_STRING(
-        "                                               '-device /dev/dri/renderD128'\n"));
-    msdk_printf(MSDK_STRING(
-        "                                  If not specified, defaults to the first Intel device found on the system\n\n"));
+        "                                  If not specified, defaults to the first Intel device found on the system\n\n");
 #endif
 #ifdef ONEVPL_EXPERIMENTAL
     #if (defined(_WIN64) || defined(_WIN32))
-    msdk_printf(MSDK_STRING("   [-luid HighPart:LowPart] - setup adapter by LUID  \n"));
-    msdk_printf(MSDK_STRING("                                 For example: \"0x0:0x8a46\"  \n"));
+    msdk_printf("   [-luid HighPart:LowPart] - setup adapter by LUID  \n");
+    msdk_printf("                                 For example: \"0x0:0x8a46\"  \n");
     #endif
-    msdk_printf(MSDK_STRING("   [-pci domain:bus:device.function] - setup device with PCI \n"));
-    msdk_printf(MSDK_STRING("                                 For example: \"0:3:0.0\"  \n"));
+    msdk_printf("   [-pci domain:bus:device.function] - setup device with PCI \n");
+    msdk_printf("                                 For example: \"0:3:0.0\"  \n");
 #endif
-    msdk_printf(MSDK_STRING(
-        "   [-dGfx]                     - prefer processing on dGfx (by default system decides)\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-iGfx]                     - prefer processing on iGfx (by default system decides)\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-AdapterNum]               - specifies adapter number for processing, starts from 0\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-dispatcher:fullSearch]    - enable search for all available implementations in oneVPL dispatcher\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-dispatcher:lowLatency]    - enable limited implementation search and query in oneVPL dispatcher\n"));
+    msdk_printf(
+        "   [-dGfx]                     - prefer processing on dGfx (by default system decides)\n");
+    msdk_printf(
+        "   [-iGfx]                     - prefer processing on iGfx (by default system decides)\n");
+    msdk_printf(
+        "   [-AdapterNum]               - specifies adapter number for processing, starts from 0\n");
+    msdk_printf(
+        "   [-dispatcher:fullSearch]    - enable search for all available implementations in oneVPL dispatcher\n");
+    msdk_printf(
+        "   [-dispatcher:lowLatency]    - enable limited implementation search and query in oneVPL dispatcher\n");
 #if defined(D3D_SURFACES_SUPPORT)
-    msdk_printf(MSDK_STRING("   [-d3d]                      - use d3d9 surfaces\n\n"));
+    msdk_printf("   [-d3d]                      - use d3d9 surfaces\n\n");
 #endif
 #if MFX_D3D11_SUPPORT
-    msdk_printf(MSDK_STRING("   [-d3d11]                    - use d3d11 surfaces\n\n"));
+    msdk_printf("   [-d3d11]                    - use d3d11 surfaces\n\n");
 #endif
 #ifdef LIBVA_SUPPORT
-    msdk_printf(MSDK_STRING("   [-vaapi]                    - work with vaapi surfaces\n\n"));
+    msdk_printf("   [-vaapi]                    - work with vaapi surfaces\n\n");
 #endif
 
-    msdk_printf(MSDK_STRING("   [-sw   width]               - width  of src video (def: 352)\n"));
-    msdk_printf(MSDK_STRING("   [-sh   height]              - height of src video (def: 288)\n"));
-    msdk_printf(MSDK_STRING("   [-scrX  x]                  - cropX  of src video (def: 0)\n"));
-    msdk_printf(MSDK_STRING("   [-scrY  y]                  - cropY  of src video (def: 0)\n"));
-    msdk_printf(MSDK_STRING("   [-scrW  w]                  - cropW  of src video (def: width)\n"));
+    msdk_printf("   [-sw   width]               - width  of src video (def: 352)\n");
+    msdk_printf("   [-sh   height]              - height of src video (def: 288)\n");
+    msdk_printf("   [-scrX  x]                  - cropX  of src video (def: 0)\n");
+    msdk_printf("   [-scrY  y]                  - cropY  of src video (def: 0)\n");
+    msdk_printf("   [-scrW  w]                  - cropW  of src video (def: width)\n");
+    msdk_printf("   [-scrH  h]                  - cropH  of src video (def: height)\n");
+    msdk_printf("   [-sf   frameRate]           - frame rate of src video (def: 30.0)\n");
     msdk_printf(
-        MSDK_STRING("   [-scrH  h]                  - cropH  of src video (def: height)\n"));
+        "   [-scc  format]              - format (FourCC) of src video (def: nv12. support i420|nv12|yv12|yuy2|rgb565|rgb3|rgb4|imc3|yuv400|yuv411|yuv422h|yuv422v|yuv444|uyvy|ayuv|i010|p010|y210|y410|p016|y216|y416)\n");
     msdk_printf(
-        MSDK_STRING("   [-sf   frameRate]           - frame rate of src video (def: 30.0)\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-scc  format]              - format (FourCC) of src video (def: nv12. support i420|nv12|yv12|yuy2|rgb565|rgb3|rgb4|imc3|yuv400|yuv411|yuv422h|yuv422v|yuv444|uyvy|ayuv|i010|p010|y210|y410|p016|y216|y416)\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-sbitshift 0|1]            - shift data to right or keep it the same way as in Microsoft's P010\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-sbitdepthluma value]      - shift luma channel to right to \"16 - value\" bytes\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-sbitdepthchroma value]    - shift chroma channel to right to \"16 - value\" bytes\n"));
+        "   [-sbitshift 0|1]            - shift data to right or keep it the same way as in Microsoft's P010\n");
+    msdk_printf(
+        "   [-sbitdepthluma value]      - shift luma channel to right to \"16 - value\" bytes\n");
+    msdk_printf(
+        "   [-sbitdepthchroma value]    - shift chroma channel to right to \"16 - value\" bytes\n");
 
-    msdk_printf(MSDK_STRING("   [-spic value]               - picture structure of src video\n"));
-    msdk_printf(
-        MSDK_STRING("                                 0 - interlaced top    field first\n"));
-    msdk_printf(
-        MSDK_STRING("                                 2 - interlaced bottom field first\n"));
-    msdk_printf(MSDK_STRING("                                 3 - single field\n"));
-    msdk_printf(MSDK_STRING("                                 1 - progressive (default)\n"));
-    msdk_printf(MSDK_STRING("                                -1 - unknown\n\n"));
+    msdk_printf("   [-spic value]               - picture structure of src video\n");
+    msdk_printf("                                 0 - interlaced top    field first\n");
+    msdk_printf("                                 2 - interlaced bottom field first\n");
+    msdk_printf("                                 3 - single field\n");
+    msdk_printf("                                 1 - progressive (default)\n");
+    msdk_printf("                                -1 - unknown\n\n");
 
-    msdk_printf(MSDK_STRING("   [-dw  width]                - width  of dst video (def: 352)\n"));
-    msdk_printf(MSDK_STRING("   [-dh  height]               - height of dst video (def: 288)\n"));
-    msdk_printf(MSDK_STRING("   [-dcrX  x]                  - cropX  of dst video (def: 0)\n"));
-    msdk_printf(MSDK_STRING("   [-dcrY  y]                  - cropY  of dst video (def: 0)\n"));
-    msdk_printf(MSDK_STRING("   [-dcrW  w]                  - cropW  of dst video (def: width)\n"));
+    msdk_printf("   [-dw  width]                - width  of dst video (def: 352)\n");
+    msdk_printf("   [-dh  height]               - height of dst video (def: 288)\n");
+    msdk_printf("   [-dcrX  x]                  - cropX  of dst video (def: 0)\n");
+    msdk_printf("   [-dcrY  y]                  - cropY  of dst video (def: 0)\n");
+    msdk_printf("   [-dcrW  w]                  - cropW  of dst video (def: width)\n");
+    msdk_printf("   [-dcrH  h]                  - cropH  of dst video (def: height)\n");
+    msdk_printf("   [-df  frameRate]            - frame rate of dst video (def: 30.0)\n");
     msdk_printf(
-        MSDK_STRING("   [-dcrH  h]                  - cropH  of dst video (def: height)\n"));
+        "   [-dcc format]               - format (FourCC) of dst video (def: nv12. support i420|nv12|yuy2|rgb4|rgbp|yv12|ayuv|a2rgb10|y210|y410|p016|y216|y416)\n");
     msdk_printf(
-        MSDK_STRING("   [-df  frameRate]            - frame rate of dst video (def: 30.0)\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-dcc format]               - format (FourCC) of dst video (def: nv12. support i420|nv12|yuy2|rgb4|rgbp|yv12|ayuv|a2rgb10|y210|y410|p016|y216|y416)\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-dbitshift 0|1]            - shift data to right or keep it the same way as in Microsoft's P010\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-dbitdepthluma value]      - shift luma channel to left to \"16 - value\" bytes\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-dbitdepthchroma value]    - shift chroma channel to left to \"16 - value\" bytes\n"));
+        "   [-dbitshift 0|1]            - shift data to right or keep it the same way as in Microsoft's P010\n");
+    msdk_printf(
+        "   [-dbitdepthluma value]      - shift luma channel to left to \"16 - value\" bytes\n");
+    msdk_printf(
+        "   [-dbitdepthchroma value]    - shift chroma channel to left to \"16 - value\" bytes\n");
 
-    msdk_printf(MSDK_STRING("   [-dpic value]               - picture structure of dst video\n"));
-    msdk_printf(
-        MSDK_STRING("                                 0 - interlaced top    field first\n"));
-    msdk_printf(
-        MSDK_STRING("                                 2 - interlaced bottom field first\n"));
-    msdk_printf(MSDK_STRING("                                 3 - single field\n"));
-    msdk_printf(MSDK_STRING("                                 1 - progressive (default)\n"));
-    msdk_printf(MSDK_STRING("                                -1 - unknown\n\n"));
+    msdk_printf("   [-dpic value]               - picture structure of dst video\n");
+    msdk_printf("                                 0 - interlaced top    field first\n");
+    msdk_printf("                                 2 - interlaced bottom field first\n");
+    msdk_printf("                                 3 - single field\n");
+    msdk_printf("                                 1 - progressive (default)\n");
+    msdk_printf("                                -1 - unknown\n\n");
 
-    msdk_printf(MSDK_STRING("   Video Composition\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-composite parameters_file] - composite several input files in one output. The syntax of the parameters file is:\n"));
-    msdk_printf(MSDK_STRING("                                  stream=<video file name>\n"));
-    msdk_printf(MSDK_STRING("                                  width=<input video width>\n"));
-    msdk_printf(MSDK_STRING("                                  height=<input video height>\n"));
-    msdk_printf(MSDK_STRING("                                  cropx=<input cropX (def: 0)>\n"));
-    msdk_printf(MSDK_STRING("                                  cropy=<input cropY (def: 0)>\n"));
+    msdk_printf("   Video Composition\n");
     msdk_printf(
-        MSDK_STRING("                                  cropw=<input cropW (def: width)>\n"));
+        "   [-composite parameters_file] - composite several input files in one output. The syntax of the parameters file is:\n");
+    msdk_printf("                                  stream=<video file name>\n");
+    msdk_printf("                                  width=<input video width>\n");
+    msdk_printf("                                  height=<input video height>\n");
+    msdk_printf("                                  cropx=<input cropX (def: 0)>\n");
+    msdk_printf("                                  cropy=<input cropY (def: 0)>\n");
+    msdk_printf("                                  cropw=<input cropW (def: width)>\n");
+    msdk_printf("                                  croph=<input cropH (def: height)>\n");
+    msdk_printf("                                  framerate=<input frame rate (def: 30.0)>\n");
     msdk_printf(
-        MSDK_STRING("                                  croph=<input cropH (def: height)>\n"));
-    msdk_printf(MSDK_STRING(
-        "                                  framerate=<input frame rate (def: 30.0)>\n"));
-    msdk_printf(MSDK_STRING(
-        "                                  fourcc=<format (FourCC) of input video (def: nv12. support nv12|rgb4)>\n"));
-    msdk_printf(MSDK_STRING(
-        "                                  picstruct=<picture structure of input video,\n"));
-    msdk_printf(MSDK_STRING(
-        "                                             0 = interlaced top    field first\n"));
-    msdk_printf(MSDK_STRING(
-        "                                             2 = interlaced bottom field first\n"));
-    msdk_printf(MSDK_STRING("                                             3 = single field\n"));
+        "                                  fourcc=<format (FourCC) of input video (def: nv12. support nv12|rgb4)>\n");
+    msdk_printf("                                  picstruct=<picture structure of input video,\n");
+    msdk_printf("                                             0 = interlaced top    field first\n");
+    msdk_printf("                                             2 = interlaced bottom field first\n");
+    msdk_printf("                                             3 = single field\n");
+    msdk_printf("                                             1 = progressive (default)>\n");
     msdk_printf(
-        MSDK_STRING("                                             1 = progressive (default)>\n"));
-    msdk_printf(MSDK_STRING(
-        "                                  dstx=<X coordinate of input video located in the output (def: 0)>\n"));
-    msdk_printf(MSDK_STRING(
-        "                                  dsty=<Y coordinate of input video located in the output (def: 0)>\n"));
-    msdk_printf(MSDK_STRING(
-        "                                  dstw=<width of input video located in the output (def: width)>\n"));
-    msdk_printf(MSDK_STRING(
-        "                                  dsth=<height of input video located in the output (def: height)>\n\n"));
-    msdk_printf(MSDK_STRING("                                  stream=<video file name>\n"));
-    msdk_printf(MSDK_STRING("                                  width=<input video width>\n"));
-    msdk_printf(MSDK_STRING("                                  GlobalAlphaEnable=1\n"));
-    msdk_printf(MSDK_STRING("                                  GlobalAlpha=<Alpha value>\n"));
-    msdk_printf(MSDK_STRING("                                  LumaKeyEnable=1\n"));
-    msdk_printf(MSDK_STRING("                                  LumaKeyMin=<Luma key min value>\n"));
-    msdk_printf(MSDK_STRING("                                  LumaKeyMax=<Luma key max value>\n"));
-    msdk_printf(MSDK_STRING("                                  ...\n"));
-    msdk_printf(MSDK_STRING(
-        "                                  The parameters file may contain up to 64 streams.\n\n"));
-    msdk_printf(MSDK_STRING("                                  For example:\n"));
-    msdk_printf(MSDK_STRING("                                  stream=input_720x480.yuv\n"));
-    msdk_printf(MSDK_STRING("                                  width=720\n"));
-    msdk_printf(MSDK_STRING("                                  height=480\n"));
-    msdk_printf(MSDK_STRING("                                  cropx=0\n"));
-    msdk_printf(MSDK_STRING("                                  cropy=0\n"));
-    msdk_printf(MSDK_STRING("                                  cropw=720\n"));
-    msdk_printf(MSDK_STRING("                                  croph=480\n"));
-    msdk_printf(MSDK_STRING("                                  dstx=0\n"));
-    msdk_printf(MSDK_STRING("                                  dsty=0\n"));
-    msdk_printf(MSDK_STRING("                                  dstw=720\n"));
-    msdk_printf(MSDK_STRING("                                  dsth=480\n\n"));
-    msdk_printf(MSDK_STRING("                                  stream=input_480x320.yuv\n"));
-    msdk_printf(MSDK_STRING("                                  width=480\n"));
-    msdk_printf(MSDK_STRING("                                  height=320\n"));
-    msdk_printf(MSDK_STRING("                                  cropx=0\n"));
-    msdk_printf(MSDK_STRING("                                  cropy=0\n"));
-    msdk_printf(MSDK_STRING("                                  cropw=480\n"));
-    msdk_printf(MSDK_STRING("                                  croph=320\n"));
-    msdk_printf(MSDK_STRING("                                  dstx=100\n"));
-    msdk_printf(MSDK_STRING("                                  dsty=100\n"));
-    msdk_printf(MSDK_STRING("                                  dstw=320\n"));
-    msdk_printf(MSDK_STRING("                                  dsth=240\n"));
-    msdk_printf(MSDK_STRING("                                  GlobalAlphaEnable=1\n"));
-    msdk_printf(MSDK_STRING("                                  GlobalAlpha=128\n"));
-    msdk_printf(MSDK_STRING("                                  LumaKeyEnable=1\n"));
-    msdk_printf(MSDK_STRING("                                  LumaKeyMin=250\n"));
-    msdk_printf(MSDK_STRING("                                  LumaKeyMax=255\n"));
-    msdk_printf(MSDK_STRING("   [-cf_disable]                  disable colorfill\n"));
-
-    msdk_printf(MSDK_STRING("   Video Enhancement Algorithms\n"));
-
-    msdk_printf(MSDK_STRING("   [-di_mode (mode)] - set type of deinterlace algorithm\n"));
+        "                                  dstx=<X coordinate of input video located in the output (def: 0)>\n");
     msdk_printf(
-        MSDK_STRING("                        12 - advanced with Scene Change Detection (SCD) \n"));
-    msdk_printf(MSDK_STRING(
-        "                        8 - reverse telecine for a selected telecine pattern (use -tc_pattern). For PTIR plug-in\n"));
-    msdk_printf(MSDK_STRING("                        2 - advanced or motion adaptive (default)\n"));
-    msdk_printf(MSDK_STRING("                        1 - simple or BOB\n\n"));
+        "                                  dsty=<Y coordinate of input video located in the output (def: 0)>\n");
+    msdk_printf(
+        "                                  dstw=<width of input video located in the output (def: width)>\n");
+    msdk_printf(
+        "                                  dsth=<height of input video located in the output (def: height)>\n\n");
+    msdk_printf("                                  stream=<video file name>\n");
+    msdk_printf("                                  width=<input video width>\n");
+    msdk_printf("                                  GlobalAlphaEnable=1\n");
+    msdk_printf("                                  GlobalAlpha=<Alpha value>\n");
+    msdk_printf("                                  LumaKeyEnable=1\n");
+    msdk_printf("                                  LumaKeyMin=<Luma key min value>\n");
+    msdk_printf("                                  LumaKeyMax=<Luma key max value>\n");
+    msdk_printf("                                  ...\n");
+    msdk_printf(
+        "                                  The parameters file may contain up to 64 streams.\n\n");
+    msdk_printf("                                  For example:\n");
+    msdk_printf("                                  stream=input_720x480.yuv\n");
+    msdk_printf("                                  width=720\n");
+    msdk_printf("                                  height=480\n");
+    msdk_printf("                                  cropx=0\n");
+    msdk_printf("                                  cropy=0\n");
+    msdk_printf("                                  cropw=720\n");
+    msdk_printf("                                  croph=480\n");
+    msdk_printf("                                  dstx=0\n");
+    msdk_printf("                                  dsty=0\n");
+    msdk_printf("                                  dstw=720\n");
+    msdk_printf("                                  dsth=480\n\n");
+    msdk_printf("                                  stream=input_480x320.yuv\n");
+    msdk_printf("                                  width=480\n");
+    msdk_printf("                                  height=320\n");
+    msdk_printf("                                  cropx=0\n");
+    msdk_printf("                                  cropy=0\n");
+    msdk_printf("                                  cropw=480\n");
+    msdk_printf("                                  croph=320\n");
+    msdk_printf("                                  dstx=100\n");
+    msdk_printf("                                  dsty=100\n");
+    msdk_printf("                                  dstw=320\n");
+    msdk_printf("                                  dsth=240\n");
+    msdk_printf("                                  GlobalAlphaEnable=1\n");
+    msdk_printf("                                  GlobalAlpha=128\n");
+    msdk_printf("                                  LumaKeyEnable=1\n");
+    msdk_printf("                                  LumaKeyMin=250\n");
+    msdk_printf("                                  LumaKeyMax=255\n");
+    msdk_printf("   [-cf_disable]                  disable colorfill\n");
 
-    msdk_printf(MSDK_STRING(
-        "   [-deinterlace (type)] - enable deinterlace algorithm (alternative way: -spic 0 -dpic 1) \n"));
-    msdk_printf(MSDK_STRING("                         type is tff (default) or bff \n"));
+    msdk_printf("   Video Enhancement Algorithms\n");
 
-    msdk_printf(MSDK_STRING(
-        "   [-rotate (angle)]   - enable rotation. Supported angles: 0, 90, 180, 270.\n"));
+    msdk_printf("   [-di_mode (mode)] - set type of deinterlace algorithm\n");
+    msdk_printf("                        12 - advanced with Scene Change Detection (SCD) \n");
+    msdk_printf(
+        "                        8 - reverse telecine for a selected telecine pattern (use -tc_pattern). For PTIR plug-in\n");
+    msdk_printf("                        2 - advanced or motion adaptive (default)\n");
+    msdk_printf("                        1 - simple or BOB\n\n");
 
     msdk_printf(
-        MSDK_STRING("   [-scaling_mode (mode)] - specify type of scaling to be used for resize\n"));
-    msdk_printf(MSDK_STRING("                            0 - default\n"));
-    msdk_printf(MSDK_STRING("                            1 - low power mode\n"));
-    msdk_printf(MSDK_STRING("                            2 - quality mode\n\n"));
+        "   [-deinterlace (type)] - enable deinterlace algorithm (alternative way: -spic 0 -dpic 1) \n");
+    msdk_printf("                         type is tff (default) or bff \n");
 
-    msdk_printf(MSDK_STRING(
-        "   [-interpolation_method (method)] - specify interpolation method to be used for resize\n"));
-    msdk_printf(MSDK_STRING("                                      0 - default\n"));
-    msdk_printf(MSDK_STRING("                                      1 - nearest neighbor\n"));
-    msdk_printf(MSDK_STRING("                                      2 - bilinear\n"));
-    msdk_printf(MSDK_STRING("                                      3 - advanced\n\n"));
+    msdk_printf("   [-rotate (angle)]   - enable rotation. Supported angles: 0, 90, 180, 270.\n");
 
-    msdk_printf(MSDK_STRING("   [-denoise (level) (mode)]  - enable denoise.\n"));
-    msdk_printf(MSDK_STRING("           mode  - denoise mode\n"));
-    msdk_printf(MSDK_STRING("               0    - default\n"));
-    msdk_printf(MSDK_STRING("               1001 - auto BD rate\n"));
-    msdk_printf(MSDK_STRING("               1002 - auto subjective\n"));
-    msdk_printf(MSDK_STRING("               1003 - auto adjust\n"));
-    msdk_printf(MSDK_STRING("               1004 - manual mode for pre-processing, need level\n"));
-    msdk_printf(MSDK_STRING("               1005 - manual mode for post-processing, need level\n"));
-    msdk_printf(MSDK_STRING("           level - range of noise level is [0, 100]\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-chroma_siting (vmode hmode)] - specify chroma siting mode for VPP color conversion, allowed values: vtop|vcen|vbot hleft|hcen\n"));
+    msdk_printf("   [-scaling_mode (mode)] - specify type of scaling to be used for resize\n");
+    msdk_printf("                            0 - default\n");
+    msdk_printf("                            1 - low power mode\n");
+    msdk_printf("                            2 - quality mode\n\n");
+
+    msdk_printf(
+        "   [-interpolation_method (method)] - specify interpolation method to be used for resize\n");
+    msdk_printf("                                      0 - default\n");
+    msdk_printf("                                      1 - nearest neighbor\n");
+    msdk_printf("                                      2 - bilinear\n");
+    msdk_printf("                                      3 - advanced\n\n");
+
+    msdk_printf("   [-denoise (level) (mode)]  - enable denoise.\n");
+    msdk_printf("           mode  - denoise mode\n");
+    msdk_printf("               0    - default\n");
+    msdk_printf("               1001 - auto BD rate\n");
+    msdk_printf("               1002 - auto subjective\n");
+    msdk_printf("               1003 - auto adjust\n");
+    msdk_printf("               1004 - manual mode for pre-processing, need level\n");
+    msdk_printf("               1005 - manual mode for post-processing, need level\n");
+    msdk_printf("           level - range of noise level is [0, 100]\n");
+    msdk_printf(
+        "   [-chroma_siting (vmode hmode)] - specify chroma siting mode for VPP color conversion, allowed values: vtop|vcen|vbot hleft|hcen\n");
 #ifdef ENABLE_MCTF
-    msdk_printf(MSDK_STRING("  -mctf [Strength]\n"));
-    msdk_printf(MSDK_STRING("        Strength is an optional value;  it is in range [0...20]\n"));
-    msdk_printf(MSDK_STRING("        value 0 makes MCTF operates in auto mode;\n"));
-    msdk_printf(
-        MSDK_STRING("        values [1...20] makes MCTF operates with fixed-strength mode;\n"));
-    msdk_printf(MSDK_STRING(
-        "        In fixed-strength mode, MCTF strength can be adjusted at framelevel;\n"));
-    msdk_printf(MSDK_STRING("        If no Strength is given, MCTF operates in auto mode.\n"));
+    msdk_printf("  -mctf [Strength]\n");
+    msdk_printf("        Strength is an optional value;  it is in range [0...20]\n");
+    msdk_printf("        value 0 makes MCTF operates in auto mode;\n");
+    msdk_printf("        values [1...20] makes MCTF operates with fixed-strength mode;\n");
+    msdk_printf("        In fixed-strength mode, MCTF strength can be adjusted at framelevel;\n");
+    msdk_printf("        If no Strength is given, MCTF operates in auto mode.\n");
 #endif //ENABLE_MCTF
-    msdk_printf(MSDK_STRING(
-        "   [-detail  (level)]  - enable detail enhancement algorithm. Level is optional \n"));
-    msdk_printf(MSDK_STRING("                         range of detail level is [0, 100]\n\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-pa_hue  hue]        - procamp hue property.         range [-180.0, 180.0] (def: 0.0)\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-pa_sat  saturation] - procamp satursation property. range [   0.0,  10.0] (def: 1.0)\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-pa_con  contrast]   - procamp contrast property.    range [   0.0,  10.0] (def: 1.0)\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-pa_bri  brightness] - procamp brightness property.  range [-100.0, 100.0] (def: 0.0)\n\n"));
+    msdk_printf(
+        "   [-detail  (level)]  - enable detail enhancement algorithm. Level is optional \n");
+    msdk_printf("                         range of detail level is [0, 100]\n\n");
+    msdk_printf(
+        "   [-pa_hue  hue]        - procamp hue property.         range [-180.0, 180.0] (def: 0.0)\n");
+    msdk_printf(
+        "   [-pa_sat  saturation] - procamp satursation property. range [   0.0,  10.0] (def: 1.0)\n");
+    msdk_printf(
+        "   [-pa_con  contrast]   - procamp contrast property.    range [   0.0,  10.0] (def: 1.0)\n");
+    msdk_printf(
+        "   [-pa_bri  brightness] - procamp brightness property.  range [-100.0, 100.0] (def: 0.0)\n\n");
 #ifdef ENABLE_VPP_RUNTIME_HSBC
-    msdk_printf(MSDK_STRING(
-        "   [-rt_hue  num_frames hue1 hue2] - enable per-frame hue adjustment in run-time without the whole video processing pipeline reinitialization.\n"));
-    msdk_printf(MSDK_STRING(
-        "             num_frames - a number of frames after which hue is changed either from hue1 to hue2 or from hue2 to hue1. \n"));
-    msdk_printf(MSDK_STRING(
-        "                          The first num_frames frames are initialized to hue1.\n"));
-    msdk_printf(MSDK_STRING(
-        "             hue1 - the first hue value in range [-180.0, 180.0] (def: 0.0)\n"));
-    msdk_printf(MSDK_STRING(
-        "             hue2 - the second hue value in range [-180.0, 180.0] (def: 0.0)\n\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-rt_sat  num_frames sat1 sat2] - enable per-frame saturation adjustment in run-time without the whole video processing pipeline reinitialization.\n"));
-    msdk_printf(MSDK_STRING(
-        "             num_frames - a number of frames after which saturation is changed either from sat1 to sat2 or from sat2 to sat1. \n"));
-    msdk_printf(MSDK_STRING(
-        "                          The first num_frames frames are initialized to sat1.\n"));
-    msdk_printf(MSDK_STRING(
-        "             sat1 - the first saturation value in range [0.0, 10.0] (def: 1.0)\n"));
-    msdk_printf(MSDK_STRING(
-        "             sat2 - the second saturation value in range [0.0, 10.0] (def: 1.0)\n\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-rt_con  num_frames con1 con2] - enable per-frame contrast adjustment in run-time without the whole video processing pipeline reinitialization.\n"));
-    msdk_printf(MSDK_STRING(
-        "             num_frames - a number of frames after which contrast is changed either from con1 to con2 or from con2 to con1. \n"));
-    msdk_printf(MSDK_STRING(
-        "                          The first num_frames frames are initialized to con1.\n"));
-    msdk_printf(MSDK_STRING(
-        "             con1 - the first contrast value in range [0.0, 10.0] (def: 1.0)\n"));
-    msdk_printf(MSDK_STRING(
-        "             con2 - the second contrast value in range [0.0, 10.0] (def: 1.0)\n\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-rt_bri  num_frames bri1 bri2] - enable per-frame brightness adjustment in run-time without the whole video processing pipeline reinitialization.\n"));
-    msdk_printf(MSDK_STRING(
-        "             num_frames - a number of frames after which brightness is changed either from bri1 to bri2 or from bri2 to bri1. \n"));
-    msdk_printf(MSDK_STRING(
-        "                          The first num_frames frames are initialized to bri1.\n"));
-    msdk_printf(MSDK_STRING(
-        "             bri1 - the first brightness value in range [-100.0, 100.0] (def: 0.0)\n"));
-    msdk_printf(MSDK_STRING(
-        "             bri2 - the second brightness value in range [-100.0, 100.0] (def: 0.0)\n\n"));
+    msdk_printf(
+        "   [-rt_hue  num_frames hue1 hue2] - enable per-frame hue adjustment in run-time without the whole video processing pipeline reinitialization.\n");
+    msdk_printf(
+        "             num_frames - a number of frames after which hue is changed either from hue1 to hue2 or from hue2 to hue1. \n");
+    msdk_printf("                          The first num_frames frames are initialized to hue1.\n");
+    msdk_printf("             hue1 - the first hue value in range [-180.0, 180.0] (def: 0.0)\n");
+    msdk_printf("             hue2 - the second hue value in range [-180.0, 180.0] (def: 0.0)\n\n");
+    msdk_printf(
+        "   [-rt_sat  num_frames sat1 sat2] - enable per-frame saturation adjustment in run-time without the whole video processing pipeline reinitialization.\n");
+    msdk_printf(
+        "             num_frames - a number of frames after which saturation is changed either from sat1 to sat2 or from sat2 to sat1. \n");
+    msdk_printf("                          The first num_frames frames are initialized to sat1.\n");
+    msdk_printf("             sat1 - the first saturation value in range [0.0, 10.0] (def: 1.0)\n");
+    msdk_printf(
+        "             sat2 - the second saturation value in range [0.0, 10.0] (def: 1.0)\n\n");
+    msdk_printf(
+        "   [-rt_con  num_frames con1 con2] - enable per-frame contrast adjustment in run-time without the whole video processing pipeline reinitialization.\n");
+    msdk_printf(
+        "             num_frames - a number of frames after which contrast is changed either from con1 to con2 or from con2 to con1. \n");
+    msdk_printf("                          The first num_frames frames are initialized to con1.\n");
+    msdk_printf("             con1 - the first contrast value in range [0.0, 10.0] (def: 1.0)\n");
+    msdk_printf(
+        "             con2 - the second contrast value in range [0.0, 10.0] (def: 1.0)\n\n");
+    msdk_printf(
+        "   [-rt_bri  num_frames bri1 bri2] - enable per-frame brightness adjustment in run-time without the whole video processing pipeline reinitialization.\n");
+    msdk_printf(
+        "             num_frames - a number of frames after which brightness is changed either from bri1 to bri2 or from bri2 to bri1. \n");
+    msdk_printf("                          The first num_frames frames are initialized to bri1.\n");
+    msdk_printf(
+        "             bri1 - the first brightness value in range [-100.0, 100.0] (def: 0.0)\n");
+    msdk_printf(
+        "             bri2 - the second brightness value in range [-100.0, 100.0] (def: 0.0)\n\n");
 #endif
-    msdk_printf(MSDK_STRING(
-        "   [-gamut:compression]  - enable gamut compression algorithm (xvYCC->sRGB) \n"));
-    msdk_printf(MSDK_STRING(
-        "   [-gamut:bt709]        - enable BT.709 matrix transform (RGB->YUV conversion)(def: BT.601)\n\n"));
+    msdk_printf("   [-gamut:compression]  - enable gamut compression algorithm (xvYCC->sRGB) \n");
     msdk_printf(
-        MSDK_STRING("   [-frc:advanced]       - enable advanced FRC algorithm (based on PTS) \n"));
-    msdk_printf(MSDK_STRING(
-        "   [-frc:interp]         - enable FRC based on frame interpolation algorithm\n\n"));
+        "   [-gamut:bt709]        - enable BT.709 matrix transform (RGB->YUV conversion)(def: BT.601)\n\n");
+    msdk_printf("   [-frc:advanced]       - enable advanced FRC algorithm (based on PTS) \n");
+    msdk_printf("   [-frc:interp]         - enable FRC based on frame interpolation algorithm\n\n");
 
-    msdk_printf(MSDK_STRING(
-        "   [-tcc:red]            - enable color saturation algorithm (R component) \n"));
-    msdk_printf(MSDK_STRING(
-        "   [-tcc:green]          - enable color saturation algorithm (G component)\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-tcc:blue]           - enable color saturation algorithm (B component)\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-tcc:cyan]           - enable color saturation algorithm (C component)\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-tcc:magenta]        - enable color saturation algorithm (M component)\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-tcc:yellow]         - enable color saturation algorithm (Y component)\n\n"));
+    msdk_printf("   [-tcc:red]            - enable color saturation algorithm (R component) \n");
+    msdk_printf("   [-tcc:green]          - enable color saturation algorithm (G component)\n");
+    msdk_printf("   [-tcc:blue]           - enable color saturation algorithm (B component)\n");
+    msdk_printf("   [-tcc:cyan]           - enable color saturation algorithm (C component)\n");
+    msdk_printf("   [-tcc:magenta]        - enable color saturation algorithm (M component)\n");
+    msdk_printf("   [-tcc:yellow]         - enable color saturation algorithm (Y component)\n\n");
 
+    msdk_printf("   [-ace]                - enable auto contrast enhancement algorithm \n\n");
     msdk_printf(
-        MSDK_STRING("   [-ace]                - enable auto contrast enhancement algorithm \n\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-ste (level)]        - enable Skin Tone Enhancement algorithm.  Level is optional \n"));
+        "   [-ste (level)]        - enable Skin Tone Enhancement algorithm.  Level is optional \n");
+    msdk_printf("                           range of ste level is [0, 9] (def: 4)\n\n");
     msdk_printf(
-        MSDK_STRING("                           range of ste level is [0, 9] (def: 4)\n\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-istab (mode)]       - enable Image Stabilization algorithm.  Mode is optional \n"));
-    msdk_printf(MSDK_STRING("                           mode of istab can be [1, 2] (def: 2)\n"));
-    msdk_printf(MSDK_STRING(
-        "                           where: 1 means upscale mode, 2 means croppping mode\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-view:count value]   - enable Multi View preprocessing. range of views [1, 1024] (def: 1)\n\n"));
-    msdk_printf(MSDK_STRING("                           id-layerId, width/height-resolution \n\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-ssitm (id)]         - specify YUV<->RGB transfer matrix for input surface.\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-dsitm (id)]         - specify YUV<->RGB transfer matrix for output surface.\n"));
+        "   [-istab (mode)]       - enable Image Stabilization algorithm.  Mode is optional \n");
+    msdk_printf("                           mode of istab can be [1, 2] (def: 2)\n");
+    msdk_printf("                           where: 1 means upscale mode, 2 means croppping mode\n");
     msdk_printf(
-        MSDK_STRING("   [-ssinr (id)]         - specify YUV nominal range for input surface.\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-dsinr (id)]         - specify YUV nominal range for output surface.\n\n"));
-    msdk_printf(MSDK_STRING("   [-mirror (mode)]      - mirror image using specified mode.\n"));
-
-    msdk_printf(MSDK_STRING("   [-n frames] - number of frames to VPP process\n\n"));
-
-    msdk_printf(MSDK_STRING(
-        "   [-iopattern IN/OUT surface type] -  IN/OUT surface type: sys_to_sys, sys_to_d3d, d3d_to_sys, d3d_to_d3d    (def: sys_to_sys)\n"));
+        "   [-view:count value]   - enable Multi View preprocessing. range of views [1, 1024] (def: 1)\n\n");
+    msdk_printf("                           id-layerId, width/height-resolution \n\n");
     msdk_printf(
-        MSDK_STRING("   [-async n] - maximum number of asynchronious tasks. def: -async 1 \n"));
-    msdk_printf(MSDK_STRING(
-        "   [-perf_opt n m] - n: number of prefetech frames. m : number of passes. In performance mode app preallocates bufer and load first n frames,  def: no performace 1 \n"));
-    msdk_printf(MSDK_STRING("   [-pts_check] - checking of time stampls. Default is OFF \n"));
-    msdk_printf(MSDK_STRING(
-        "   [-pts_jump ] - checking of time stamps jumps. Jump for random value since 13-th frame. Also, you can change input frame rate (via pts). Default frame_rate = sf \n"));
-    msdk_printf(MSDK_STRING(
-        "   [-pts_fr ]   - input frame rate which used for pts. Default frame_rate = sf \n"));
-    msdk_printf(MSDK_STRING("   [-pts_advanced]   - enable FRC checking mode based on PTS \n"));
-    msdk_printf(MSDK_STRING(
-        "   [-pf file for performance data] -  file to save performance data. Default is off \n\n\n"));
+        "   [-ssitm (id)]         - specify YUV<->RGB transfer matrix for input surface.\n");
+    msdk_printf(
+        "   [-dsitm (id)]         - specify YUV<->RGB transfer matrix for output surface.\n");
+    msdk_printf("   [-ssinr (id)]         - specify YUV nominal range for input surface.\n");
+    msdk_printf("   [-dsinr (id)]         - specify YUV nominal range for output surface.\n\n");
+    msdk_printf("   [-mirror (mode)]      - mirror image using specified mode.\n");
 
-    msdk_printf(MSDK_STRING(
-        "   [-roi_check mode seed1 seed2] - checking of ROI processing. Default is OFF \n"));
-    msdk_printf(MSDK_STRING("               mode - usage model of cropping\n"));
-    msdk_printf(MSDK_STRING(
-        "                      var_to_fix - variable input ROI and fixed output ROI\n"));
-    msdk_printf(MSDK_STRING(
-        "                      fix_to_var - fixed input ROI and variable output ROI\n"));
-    msdk_printf(MSDK_STRING(
-        "                      var_to_var - variable input ROI and variable output ROI\n"));
-    msdk_printf(MSDK_STRING("               seed1 - seed for init of rand generator for src\n"));
-    msdk_printf(MSDK_STRING("               seed2 - seed for init of rand generator for dst\n"));
-    msdk_printf(MSDK_STRING(
-        "                       range of seed [1, 65535]. 0 reserved for random init\n\n"));
-
-    msdk_printf(MSDK_STRING("   [-tc_pattern (pattern)] - set telecine pattern\n"));
-    msdk_printf(MSDK_STRING(
-        "                        4 - provide a position inside a sequence of 5 frames where the artifacts starts. Use to -tc_pos to provide position\n"));
-    msdk_printf(MSDK_STRING("                        3 - 4:1 pattern\n"));
-    msdk_printf(MSDK_STRING("                        2 - frame repeat pattern\n"));
-    msdk_printf(MSDK_STRING("                        1 - 2:3:3:2 pattern\n"));
-    msdk_printf(MSDK_STRING("                        0 - 3:2 pattern\n\n"));
-
-    msdk_printf(MSDK_STRING(
-        "   [-tc_pos (position)] - Position inside a telecine sequence of 5 frames where the artifacts starts - Value [0 - 4]\n\n"));
-
-    msdk_printf(MSDK_STRING(
-        "   [-reset_start (frame number)] - after reaching this frame, encoder will be reset with new parameters, followed after this command and before -reset_end \n"));
-    msdk_printf(MSDK_STRING(
-        "   [-reset_end]                  - specifies end of reset related options \n"));
-    msdk_printf(MSDK_STRING(
-        "   [-api_ver_init::<1x,2x>]  - select the api version for the session initialization\n"));
-    msdk_printf(MSDK_STRING("   [-rbf] - read frame-by-frame from the input (sw lib only)\n\n"));
-
-    msdk_printf(MSDK_STRING("   [-3dlut] path to 3dlut table file\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-3dlutMemType] specify 3dLut memory type, 0: video, 1: sys. Default value is 0\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-3dlutMemType] specify 3dlut mode for HDR 3Dlut, allowwed values:17|33|65\n"));
-
-    msdk_printf(MSDK_STRING("\n"));
+    msdk_printf("   [-n frames] - number of frames to VPP process\n\n");
 
     msdk_printf(
-        MSDK_STRING(
-            "Usage2: %s -sw 352 -sh 144 -scc rgb3 -dw 320 -dh 240 -dcc nv12 -denoise 32 -iopattern d3d_to_d3d -i in.rgb -o out.yuv -roi_check var_to_fix 7 7\n"),
+        "   [-iopattern IN/OUT surface type] -  IN/OUT surface type: sys_to_sys, sys_to_d3d, d3d_to_sys, d3d_to_d3d    (def: sys_to_sys)\n");
+    msdk_printf("   [-async n] - maximum number of asynchronious tasks. def: -async 1 \n");
+    msdk_printf(
+        "   [-perf_opt n m] - n: number of prefetech frames. m : number of passes. In performance mode app preallocates bufer and load first n frames,  def: no performace 1 \n");
+    msdk_printf("   [-pts_check] - checking of time stampls. Default is OFF \n");
+    msdk_printf(
+        "   [-pts_jump ] - checking of time stamps jumps. Jump for random value since 13-th frame. Also, you can change input frame rate (via pts). Default frame_rate = sf \n");
+    msdk_printf(
+        "   [-pts_fr ]   - input frame rate which used for pts. Default frame_rate = sf \n");
+    msdk_printf("   [-pts_advanced]   - enable FRC checking mode based on PTS \n");
+    msdk_printf(
+        "   [-pf file for performance data] -  file to save performance data. Default is off \n\n\n");
+
+    msdk_printf("   [-roi_check mode seed1 seed2] - checking of ROI processing. Default is OFF \n");
+    msdk_printf("               mode - usage model of cropping\n");
+    msdk_printf("                      var_to_fix - variable input ROI and fixed output ROI\n");
+    msdk_printf("                      fix_to_var - fixed input ROI and variable output ROI\n");
+    msdk_printf("                      var_to_var - variable input ROI and variable output ROI\n");
+    msdk_printf("               seed1 - seed for init of rand generator for src\n");
+    msdk_printf("               seed2 - seed for init of rand generator for dst\n");
+    msdk_printf("                       range of seed [1, 65535]. 0 reserved for random init\n\n");
+
+    msdk_printf("   [-tc_pattern (pattern)] - set telecine pattern\n");
+    msdk_printf(
+        "                        4 - provide a position inside a sequence of 5 frames where the artifacts starts. Use to -tc_pos to provide position\n");
+    msdk_printf("                        3 - 4:1 pattern\n");
+    msdk_printf("                        2 - frame repeat pattern\n");
+    msdk_printf("                        1 - 2:3:3:2 pattern\n");
+    msdk_printf("                        0 - 3:2 pattern\n\n");
+
+    msdk_printf(
+        "   [-tc_pos (position)] - Position inside a telecine sequence of 5 frames where the artifacts starts - Value [0 - 4]\n\n");
+
+    msdk_printf(
+        "   [-reset_start (frame number)] - after reaching this frame, encoder will be reset with new parameters, followed after this command and before -reset_end \n");
+    msdk_printf("   [-reset_end]                  - specifies end of reset related options \n");
+    msdk_printf(
+        "   [-api_ver_init::<1x,2x>]  - select the api version for the session initialization\n");
+    msdk_printf("   [-rbf] - read frame-by-frame from the input (sw lib only)\n\n");
+
+    msdk_printf("   [-3dlut] path to 3dlut table file\n");
+    msdk_printf(
+        "   [-3dlutMemType] specify 3dLut memory type, 0: video, 1: sys. Default value is 0\n");
+    msdk_printf("   [-3dlutMemType] specify 3dlut mode for HDR 3Dlut, allowwed values:17|33|65\n");
+
+    msdk_printf("\n");
+
+    msdk_printf(
+        "Usage2: %s -sw 352 -sh 144 -scc rgb3 -dw 320 -dh 240 -dcc nv12 -denoise 32 -iopattern d3d_to_d3d -i in.rgb -o out.yuv -roi_check var_to_fix 7 7\n",
         strAppName);
 
-    msdk_printf(MSDK_STRING("\n"));
+    msdk_printf("\n");
 
 } // void vppPrintHelp(msdk_char *strAppName, msdk_char *strErrorMessage)
 
@@ -629,7 +573,7 @@ void ParseMCTFParams(msdk_char* strInput[],
             }
             else {
                 pParams->mctfParam[paramID].mode = VPP_FILTER_ENABLED_DEFAULT;
-                msdk_printf(MSDK_STRING("MCTF works in default mode; no parameters are passed.\n"));
+                msdk_printf("MCTF works in default mode; no parameters are passed.\n");
             }
             pParams->mctfParam[paramID].params.FilterStrength = _strength;
 
@@ -637,7 +581,7 @@ void ParseMCTFParams(msdk_char* strInput[],
                 i++;
         }
         else {
-            msdk_printf(MSDK_STRING("MCTF works in default mode; no parameters are passed.\n"));
+            msdk_printf("MCTF works in default mode; no parameters are passed.\n");
         }
     }
 }
@@ -1042,7 +986,7 @@ mfxStatus vppParseResetPar(msdk_char* strInput[],
                 pParams->colorfillParam[paramID].Enable = MFX_CODINGOPTION_OFF;
             }
             else {
-                msdk_printf(MSDK_STRING("Unknow reset option: %s\n"), strInput[i]);
+                msdk_printf("Unknow reset option: %s\n", strInput[i]);
 
                 return MFX_ERR_UNKNOWN;
             }
@@ -1058,16 +1002,14 @@ void AdjustBitDepth(sInputParams& params) {
         if (params.frameInfoIn[0].BitDepthLuma == 0) {
             params.frameInfoIn[0].BitDepthLuma = params.frameInfoIn[0].BitDepthChroma;
             msdk_printf(
-                MSDK_STRING(
-                    "Warning: input BitDepthLuma was defaulted to value which was set to BitDepthChroma (%d)."),
+                "Warning: input BitDepthLuma was defaulted to value which was set to BitDepthChroma (%d).",
                 params.frameInfoIn[0].BitDepthLuma);
         }
 
         if (params.frameInfoIn[0].BitDepthChroma == 0) {
             params.frameInfoIn[0].BitDepthChroma = params.frameInfoIn[0].BitDepthLuma;
             msdk_printf(
-                MSDK_STRING(
-                    "Warning: input BitDepthChroma was defaulted to value which was set to BitDepthLuma (%d)."),
+                "Warning: input BitDepthChroma was defaulted to value which was set to BitDepthLuma (%d).",
                 params.frameInfoIn[0].BitDepthChroma);
         }
     }
@@ -1076,16 +1018,14 @@ void AdjustBitDepth(sInputParams& params) {
         if (params.frameInfoOut[0].BitDepthLuma == 0) {
             params.frameInfoOut[0].BitDepthLuma = params.frameInfoOut[0].BitDepthChroma;
             msdk_printf(
-                MSDK_STRING(
-                    "Warning: output BitDepthLuma was defaulted to value which was set to BitDepthChroma (%d)."),
+                "Warning: output BitDepthLuma was defaulted to value which was set to BitDepthChroma (%d).",
                 params.frameInfoOut[0].BitDepthLuma);
         }
 
         if (params.frameInfoOut[0].BitDepthChroma == 0) {
             params.frameInfoOut[0].BitDepthChroma = params.frameInfoOut[0].BitDepthLuma;
             msdk_printf(
-                MSDK_STRING(
-                    "Warning: output BitDepthChroma was defaulted to value which was set to BitDepthLuma (%d)."),
+                "Warning: output BitDepthChroma was defaulted to value which was set to BitDepthLuma (%d).",
                 params.frameInfoOut[0].BitDepthChroma);
         }
     }
@@ -1392,7 +1332,7 @@ mfxStatus vppParseInputString(msdk_char* strInput[],
                         bHfound = true;
                     }
                     else
-                        msdk_printf(MSDK_STRING("Unknown Chroma siting flag %s"), strInput[i + ii]);
+                        msdk_printf("Unknown Chroma siting flag %s", strInput[i + ii]);
                 }
                 pParams->bChromaSiting = bVfound && bHfound;
                 if (!pParams->bChromaSiting) {
@@ -1758,7 +1698,7 @@ mfxStatus vppParseInputString(msdk_char* strInput[],
 #if (defined(LINUX32) || defined(LINUX64))
             else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-device"))) {
                 if (!pParams->strDevicePath.empty()) {
-                    msdk_printf(MSDK_STRING("error: you can specify only one device\n"));
+                    msdk_printf("error: you can specify only one device\n");
                     return MFX_ERR_UNSUPPORTED;
                 }
                 VAL_CHECK(i + 1 == nArgNum);
@@ -1778,12 +1718,12 @@ mfxStatus vppParseInputString(msdk_char* strInput[],
                 // <HighPart:LowPart>
                 msdk_char luid[MSDK_MAX_FILENAME_LEN];
                 if (i + 1 >= nArgNum) {
-                    msdk_printf(MSDK_STRING("error: Not enough parameters for -luid key\n"));
+                    msdk_printf("error: Not enough parameters for -luid key\n");
                     return MFX_ERR_UNSUPPORTED;
                 }
                 i++;
                 if (MFX_ERR_NONE != msdk_opt_read(strInput[i], luid)) {
-                    msdk_printf(MSDK_STRING("error: '-luid' arguments is invalid\n"));
+                    msdk_printf("error: '-luid' arguments is invalid\n");
                     return MFX_ERR_UNSUPPORTED;
                 }
 
@@ -1798,8 +1738,8 @@ mfxStatus vppParseInputString(msdk_char* strInput[],
                     pParams->luid.LowPart  = std::strtol(pieces_match[2].str().c_str(), 0, 16);
                 }
                 else {
-                    msdk_printf(MSDK_STRING(
-                        "error: format of -LUID is invalid, please, use: HighPart:LowPart\n"));
+                    msdk_printf(
+                        "error: format of -LUID is invalid, please, use: HighPart:LowPart\n");
                     return MFX_ERR_UNSUPPORTED;
                 }
             }
@@ -1807,12 +1747,12 @@ mfxStatus vppParseInputString(msdk_char* strInput[],
             else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-pci"))) {
                 msdk_char deviceInfo[MSDK_MAX_FILENAME_LEN];
                 if (i + 1 >= nArgNum) {
-                    msdk_printf(MSDK_STRING("error: Not enough parameters for -pci key\n"));
+                    msdk_printf("error: Not enough parameters for -pci key\n");
                     return MFX_ERR_UNSUPPORTED;
                 }
                 i++;
                 if ((msdk_strlen(strInput[i]) + 1) > MSDK_ARRAY_LEN(deviceInfo)) {
-                    msdk_printf(MSDK_STRING("error: '-pci' arguments is too long\n"));
+                    msdk_printf("error: '-pci' arguments is too long\n");
                     return MFX_ERR_UNSUPPORTED;
                 }
                 msdk_opt_read(strInput[i], deviceInfo);
@@ -1832,8 +1772,8 @@ mfxStatus vppParseInputString(msdk_char* strInput[],
                     pParams->PCIDeviceSetup = true;
                 }
                 else {
-                    msdk_printf(MSDK_STRING(
-                        "format of -pci is invalid, please, use: domain:bus:device.function"));
+                    msdk_printf(
+                        "format of -pci is invalid, please, use: domain:bus:device.function");
                     return MFX_ERR_UNSUPPORTED;
                 }
             }
@@ -1842,7 +1782,7 @@ mfxStatus vppParseInputString(msdk_char* strInput[],
                 pParams->adapterType = mfxMediaAdapterType::MFX_MEDIA_DISCRETE;
                 if (i + 1 < nArgNum && isdigit(*strInput[1 + i])) {
                     if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->dGfxIdx)) {
-                        msdk_printf(MSDK_STRING("value of -dGfx is invalid"));
+                        msdk_printf("value of -dGfx is invalid");
                         return MFX_ERR_UNSUPPORTED;
                     }
                 }
@@ -1965,7 +1905,7 @@ mfxStatus vppParseInputString(msdk_char* strInput[],
                 pParams->bReadByFrame = true;
             }
             else {
-                msdk_printf(MSDK_STRING("Unknown option: %s\n"), strInput[i]);
+                msdk_printf("Unknown option: %s\n", strInput[i]);
 
                 return MFX_ERR_UNKNOWN;
             }
@@ -2015,7 +1955,7 @@ mfxStatus vppParseInputString(msdk_char* strInput[],
 
     if (1 != pParams->strDstFiles.size() &&
         (pParams->resetFrmNums.size() + 1) != pParams->strDstFiles.size()) {
-        msdk_printf(MSDK_STRING("File output is disabled as -o option isn't specified\n"));
+        msdk_printf("File output is disabled as -o option isn't specified\n");
     };
 
     if (0 == pParams->IOPattern) {
@@ -2025,14 +1965,14 @@ mfxStatus vppParseInputString(msdk_char* strInput[],
 
     if ((pParams->ImpLib & MFX_IMPL_SOFTWARE) &&
         (pParams->IOPattern & (MFX_IOPATTERN_IN_VIDEO_MEMORY | MFX_IOPATTERN_OUT_VIDEO_MEMORY))) {
-        msdk_printf(MSDK_STRING(
-            "Warning: IOPattern has been reset to 'sys_to_sys' mode because software library implementation is selected."));
+        msdk_printf(
+            "Warning: IOPattern has been reset to 'sys_to_sys' mode because software library implementation is selected.");
         pParams->IOPattern = MFX_IOPATTERN_IN_SYSTEM_MEMORY | MFX_IOPATTERN_OUT_SYSTEM_MEMORY;
     }
 
 #if (defined(_WIN64) || defined(_WIN32)) && (MFX_VERSION >= 1031)
     if (pParams->bPreferdGfx && pParams->bPreferiGfx) {
-        msdk_printf(MSDK_STRING("Warning: both dGfx and iGfx flags set. iGfx will be preferred"));
+        msdk_printf("Warning: both dGfx and iGfx flags set. iGfx will be preferred");
         pParams->bPreferdGfx = false;
     }
 #endif
@@ -2193,7 +2133,7 @@ mfxStatus ParseCompositionParfile(const msdk_char* parFileName, sInputParams* pP
             pParams->inFrameInfo[nStreamInd].FourCC = Str2FourCC(fourcc);
 
             if (!pParams->inFrameInfo[nStreamInd].FourCC) {
-                msdk_printf(MSDK_STRING("Invalid fourcc parameter in par file: %s\n"), fourcc);
+                msdk_printf("Invalid fourcc parameter in par file: %s\n", fourcc);
                 return MFX_ERR_INVALID_VIDEO_PARAM;
             }
         }
@@ -2268,9 +2208,7 @@ mfxStatus ParseCompositionParfile(const msdk_char* parFileName, sInputParams* pP
 
     for (int i = 0; i < pParams->numStreams; i++) {
         if (!pParams->inFrameInfo[i].FourCC) {
-            msdk_printf(
-                MSDK_STRING("Fourcc parameter of stream %d in par file is invalid or missing.\n"),
-                i);
+            msdk_printf("Fourcc parameter of stream %d in par file is invalid or missing.\n", i);
             return MFX_ERR_INVALID_VIDEO_PARAM;
         }
     }

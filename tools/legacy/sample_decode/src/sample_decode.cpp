@@ -16,187 +16,162 @@
 #endif
 
 void PrintHelp(msdk_char* strAppName, const msdk_char* strErrorMessage) {
-    msdk_printf(MSDK_STRING("Decoding Sample Version %s\n\n"), GetMSDKSampleVersion().c_str());
+    msdk_printf("Decoding Sample Version %s\n\n", GetMSDKSampleVersion().c_str());
 
     if (strErrorMessage) {
-        msdk_printf(MSDK_STRING("Error: %s\n"), strErrorMessage);
+        msdk_printf("Error: %s\n", strErrorMessage);
     }
 
-    msdk_printf(MSDK_STRING("Usage: %s <codecid> [<options>] -i InputBitstream\n"), strAppName);
-    msdk_printf(MSDK_STRING("   or: %s <codecid> [<options>] -i InputBitstream -r\n"), strAppName);
-    msdk_printf(MSDK_STRING("   or: %s <codecid> [<options>] -i InputBitstream -o OutputYUVFile\n"),
-                strAppName);
-    msdk_printf(MSDK_STRING("\n"));
-    msdk_printf(MSDK_STRING("Supported codecs (<codecid>):\n"));
+    msdk_printf("Usage: %s <codecid> [<options>] -i InputBitstream\n", strAppName);
+    msdk_printf("   or: %s <codecid> [<options>] -i InputBitstream -r\n", strAppName);
+    msdk_printf("   or: %s <codecid> [<options>] -i InputBitstream -o OutputYUVFile\n", strAppName);
+    msdk_printf("\n");
+    msdk_printf("Supported codecs (<codecid>):\n");
+    msdk_printf("   <codecid>=h264|mpeg2|vc1|mvc|jpeg|vp9|av1 - built-in Media SDK codecs\n");
     msdk_printf(
-        MSDK_STRING("   <codecid>=h264|mpeg2|vc1|mvc|jpeg|vp9|av1 - built-in Media SDK codecs\n"));
-    msdk_printf(MSDK_STRING(
-        "   <codecid>=h265|vp9|capture            - in-box Media SDK plugins (may require separate downloading and installation)\n"));
-    msdk_printf(MSDK_STRING("\n"));
-    msdk_printf(MSDK_STRING("Work models:\n"));
-    msdk_printf(MSDK_STRING(
-        "  1. Performance model: decoding on MAX speed, no screen rendering, no YUV dumping (no -r or -o option)\n"));
+        "   <codecid>=h265|vp9|capture            - in-box Media SDK plugins (may require separate downloading and installation)\n");
+    msdk_printf("\n");
+    msdk_printf("Work models:\n");
     msdk_printf(
-        MSDK_STRING("  2. Rendering model: decoding with rendering on the screen (-r option)\n"));
-    msdk_printf(MSDK_STRING("  3. Dump model: decoding with YUV dumping (-o option)\n"));
-    msdk_printf(MSDK_STRING("\n"));
-    msdk_printf(MSDK_STRING("Options:\n"));
-    msdk_printf(MSDK_STRING("   [-?]                      - print help\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-hw]                     - use platform specific SDK implementation (default)\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-sw]                     - use software implementation, if not specified platform specific SDK implementation is used\n"));
-    msdk_printf(MSDK_STRING(
-        "                               (optional for Media SDK in-box plugins, required for user-decoder ones)\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-p plugin]               - DEPRECATED: decoder plugin. Supported values: hevcd_sw, hevcd_hw, vp8d_hw, vp9d_hw, camera_hw, capture_hw\n"));
-    msdk_printf(MSDK_STRING("   [-fps]                    - limits overall fps of pipeline\n"));
-    msdk_printf(MSDK_STRING("   [-w]                      - output width\n"));
-    msdk_printf(MSDK_STRING("   [-h]                      - output height\n"));
-    msdk_printf(MSDK_STRING("   [-di bob/adi]             - enable deinterlacing BOB/ADI\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-scaling_mode value]     - specify scaling mode (lowpower/quality) for VPP\n"));
-    msdk_printf(MSDK_STRING("   [-d]                      - enable decode error report\n"));
+        "  1. Performance model: decoding on MAX speed, no screen rendering, no YUV dumping (no -r or -o option)\n");
+    msdk_printf("  2. Rendering model: decoding with rendering on the screen (-r option)\n");
+    msdk_printf("  3. Dump model: decoding with YUV dumping (-o option)\n");
+    msdk_printf("\n");
+    msdk_printf("Options:\n");
+    msdk_printf("   [-?]                      - print help\n");
+    msdk_printf(
+        "   [-hw]                     - use platform specific SDK implementation (default)\n");
+    msdk_printf(
+        "   [-sw]                     - use software implementation, if not specified platform specific SDK implementation is used\n");
+    msdk_printf(
+        "                               (optional for Media SDK in-box plugins, required for user-decoder ones)\n");
+    msdk_printf(
+        "   [-p plugin]               - DEPRECATED: decoder plugin. Supported values: hevcd_sw, hevcd_hw, vp8d_hw, vp9d_hw, camera_hw, capture_hw\n");
+    msdk_printf("   [-fps]                    - limits overall fps of pipeline\n");
+    msdk_printf("   [-w]                      - output width\n");
+    msdk_printf("   [-h]                      - output height\n");
+    msdk_printf("   [-di bob/adi]             - enable deinterlacing BOB/ADI\n");
+    msdk_printf("   [-scaling_mode value]     - specify scaling mode (lowpower/quality) for VPP\n");
+    msdk_printf("   [-d]                      - enable decode error report\n");
 #if defined(_WIN32) || defined(_WIN64)
-    msdk_printf(MSDK_STRING(
-        "   [-dxgiFs]                 - enable fullscreen via IDXGISwapChain::SetFullScreenState method\n"));
-#endif
-    msdk_printf(MSDK_STRING(
-        "   [-dGfx]                   - prefer processing on dGfx (by default system decides), also can be set with index, for example: '-dGfx 1'\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-iGfx]                   - prefer processing on iGfx (by default system decides)\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-AdapterNum]             - specifies adapter number for processing, starts from 0\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-dispatcher:fullSearch]  - enable search for all available implementations in oneVPL dispatcher\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-dispatcher:lowLatency]  - enable limited implementation search and query in oneVPL dispatcher\n"));
-#if defined(LINUX32) || defined(LINUX64)
-    msdk_printf(MSDK_STRING("   [-device /path/to/device] - set graphics device for processing\n"));
     msdk_printf(
-        MSDK_STRING("                                 For example: '-device /dev/dri/card0'\n"));
-    msdk_printf(MSDK_STRING(
-        "                                              '-device /dev/dri/renderD128'\n"));
-    msdk_printf(MSDK_STRING(
-        "                                 If not specified, defaults to the first Intel device found on the system\n"));
+        "   [-dxgiFs]                 - enable fullscreen via IDXGISwapChain::SetFullScreenState method\n");
+#endif
+    msdk_printf(
+        "   [-dGfx]                   - prefer processing on dGfx (by default system decides), also can be set with index, for example: '-dGfx 1'\n");
+    msdk_printf(
+        "   [-iGfx]                   - prefer processing on iGfx (by default system decides)\n");
+    msdk_printf(
+        "   [-AdapterNum]             - specifies adapter number for processing, starts from 0\n");
+    msdk_printf(
+        "   [-dispatcher:fullSearch]  - enable search for all available implementations in oneVPL dispatcher\n");
+    msdk_printf(
+        "   [-dispatcher:lowLatency]  - enable limited implementation search and query in oneVPL dispatcher\n");
+#if defined(LINUX32) || defined(LINUX64)
+    msdk_printf("   [-device /path/to/device] - set graphics device for processing\n");
+    msdk_printf("                                 For example: '-device /dev/dri/card0'\n");
+    msdk_printf("                                              '-device /dev/dri/renderD128'\n");
+    msdk_printf(
+        "                                 If not specified, defaults to the first Intel device found on the system\n");
 #endif
 #ifdef ONEVPL_EXPERIMENTAL
     #if (defined(_WIN64) || defined(_WIN32))
-    msdk_printf(MSDK_STRING("   [-luid HighPart:LowPart] - setup adapter by LUID  \n"));
-    msdk_printf(MSDK_STRING("                                 For example: \"0x0:0x8a46\"  \n"));
+    msdk_printf("   [-luid HighPart:LowPart] - setup adapter by LUID  \n");
+    msdk_printf("                                 For example: \"0x0:0x8a46\"  \n");
     #endif
-    msdk_printf(MSDK_STRING("   [-pci domain:bus:device.function] - setup device with PCI \n"));
-    msdk_printf(MSDK_STRING("                                 For example: \"0:3:0.0\"  \n"));
+    msdk_printf("   [-pci domain:bus:device.function] - setup device with PCI \n");
+    msdk_printf("                                 For example: \"0:3:0.0\"  \n");
 #endif
 #if (MFX_VERSION >= MFX_VERSION_NEXT)
-    msdk_printf(MSDK_STRING("   [-ignore_level_constrain] - ignore level constrain\n"));
+    msdk_printf("   [-ignore_level_constrain] - ignore level constrain\n");
 #endif
-    msdk_printf(MSDK_STRING(
-        "   [-disable_film_grain]     - disable film grain application(valid only for av1)\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-api_ver_init::<1x,2x>]  - select the api version for the session initialization\n"));
-    msdk_printf(MSDK_STRING("\n"));
-    msdk_printf(MSDK_STRING("JPEG Chroma Type:\n"));
-    msdk_printf(MSDK_STRING("   [-jpeg_rgb] - RGB Chroma Type\n"));
-    msdk_printf(MSDK_STRING("Output format parameters:\n"));
     msdk_printf(
-        MSDK_STRING("   [-i420] - pipeline output format: NV12, output file format: I420\n"));
+        "   [-disable_film_grain]     - disable film grain application(valid only for av1)\n");
     msdk_printf(
-        MSDK_STRING("   [-nv12] - pipeline output format: NV12, output file format: NV12\n"));
+        "   [-api_ver_init::<1x,2x>]  - select the api version for the session initialization\n");
+    msdk_printf("\n");
+    msdk_printf("JPEG Chroma Type:\n");
+    msdk_printf("   [-jpeg_rgb] - RGB Chroma Type\n");
+    msdk_printf("Output format parameters:\n");
+    msdk_printf("   [-i420] - pipeline output format: NV12, output file format: I420\n");
+    msdk_printf("   [-nv12] - pipeline output format: NV12, output file format: NV12\n");
+    msdk_printf("   [-rgb4] - pipeline output format: RGB4, output file format: RGB4\n");
     msdk_printf(
-        MSDK_STRING("   [-rgb4] - pipeline output format: RGB4, output file format: RGB4\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-rgb4_fcr] - pipeline output format: RGB4 in full color range, output file format: RGB4 in full color range\n"));
-    msdk_printf(
-        MSDK_STRING("   [-p010] - pipeline output format: P010, output file format: P010\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-a2rgb10] - pipeline output format: A2RGB10, output file format: A2RGB10\n"));
-    msdk_printf(
-        MSDK_STRING("   [-p016] - pipeline output format: P010, output file format: P016\n"));
-    msdk_printf(
-        MSDK_STRING("   [-y216] - pipeline output format: Y216, output file format: Y216\n"));
-    msdk_printf(
-        MSDK_STRING("   [-y416] - pipeline output format: Y416, output file format: Y416\n"));
-    msdk_printf(MSDK_STRING("\n"));
+        "   [-rgb4_fcr] - pipeline output format: RGB4 in full color range, output file format: RGB4 in full color range\n");
+    msdk_printf("   [-p010] - pipeline output format: P010, output file format: P010\n");
+    msdk_printf("   [-a2rgb10] - pipeline output format: A2RGB10, output file format: A2RGB10\n");
+    msdk_printf("   [-p016] - pipeline output format: P010, output file format: P016\n");
+    msdk_printf("   [-y216] - pipeline output format: Y216, output file format: Y216\n");
+    msdk_printf("   [-y416] - pipeline output format: Y416, output file format: Y416\n");
+    msdk_printf("\n");
 #if D3D_SURFACES_SUPPORT
-    msdk_printf(MSDK_STRING("   [-d3d]                    - work with d3d9 surfaces\n"));
-    msdk_printf(MSDK_STRING("   [-d3d11]                  - work with d3d11 surfaces\n"));
+    msdk_printf("   [-d3d]                    - work with d3d9 surfaces\n");
+    msdk_printf("   [-d3d11]                  - work with d3d11 surfaces\n");
+    msdk_printf("   [-r]                      - render decoded data in a separate window \n");
     msdk_printf(
-        MSDK_STRING("   [-r]                      - render decoded data in a separate window \n"));
-    msdk_printf(MSDK_STRING(
-        "   [-wall w h n m t tmo]     - same as -r, and positioned rendering window in a particular cell on specific monitor \n"));
-    msdk_printf(MSDK_STRING(
-        "       w                     - number of columns of video windows on selected monitor\n"));
-    msdk_printf(MSDK_STRING(
-        "       h                     - number of rows of video windows on selected monitor\n"));
-    msdk_printf(MSDK_STRING(
-        "       n(0,.,w*h-1)          - order of video window in table that will be rendered\n"));
-    msdk_printf(MSDK_STRING("       m(0,1..)              - monitor id \n"));
-    msdk_printf(MSDK_STRING("       t(0/1)                - enable/disable window's title\n"));
-    msdk_printf(MSDK_STRING("       tmo                   - timeout for -wall option\n"));
-    msdk_printf(MSDK_STRING("\n"));
+        "   [-wall w h n m t tmo]     - same as -r, and positioned rendering window in a particular cell on specific monitor \n");
+    msdk_printf(
+        "       w                     - number of columns of video windows on selected monitor\n");
+    msdk_printf(
+        "       h                     - number of rows of video windows on selected monitor\n");
+    msdk_printf(
+        "       n(0,.,w*h-1)          - order of video window in table that will be rendered\n");
+    msdk_printf("       m(0,1..)              - monitor id \n");
+    msdk_printf("       t(0/1)                - enable/disable window's title\n");
+    msdk_printf("       tmo                   - timeout for -wall option\n");
+    msdk_printf("\n");
 #endif
 #if defined(LIBVA_SUPPORT)
-    msdk_printf(MSDK_STRING("   [-vaapi]                  - work with vaapi surfaces\n"));
+    msdk_printf("   [-vaapi]                  - work with vaapi surfaces\n");
 #endif
 #if defined(LIBVA_X11_SUPPORT)
-    msdk_printf(MSDK_STRING(
-        "   [-r]                      - render decoded data in a separate X11 window \n"));
+    msdk_printf("   [-r]                      - render decoded data in a separate X11 window \n");
 #endif
 #if defined(LIBVA_WAYLAND_SUPPORT)
+    msdk_printf("   [-rwld]                   - render decoded data in a Wayland window \n");
     msdk_printf(
-        MSDK_STRING("   [-rwld]                   - render decoded data in a Wayland window \n"));
-    msdk_printf(MSDK_STRING(
-        "   [-perf]                   - turn on asynchronous flipping for Wayland rendering \n"));
+        "   [-perf]                   - turn on asynchronous flipping for Wayland rendering \n");
 #endif
 #if defined(LIBVA_DRM_SUPPORT)
-    msdk_printf(MSDK_STRING(
-        "   [-rdrm]                   - render decoded data in a thru DRM frame buffer\n"));
-    msdk_printf(
-        MSDK_STRING("   [-window x y w h]         - set render window position and size\n"));
+    msdk_printf("   [-rdrm]                   - render decoded data in a thru DRM frame buffer\n");
+    msdk_printf("   [-window x y w h]         - set render window position and size\n");
 #endif
-    msdk_printf(MSDK_STRING(
-        "   [-low_latency]            - configures decoder for low latency mode (supported only for H.264 and JPEG codec)\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-calc_latency]           - calculates latency during decoding and prints log (supported only for H.264 and JPEG codec)\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-async]                  - depth of asynchronous pipeline. default value is 4. must be between 1 and 20\n"));
-    msdk_printf(MSDK_STRING("   [-gpucopy::<on,off>] Enable or disable GPU copy mode\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-robust:soft]            - GPU hang recovery by inserting an IDR frame\n"));
-    msdk_printf(MSDK_STRING("   [-timeout]                - timeout in seconds\n"));
     msdk_printf(
-        MSDK_STRING("   [-dec_postproc force/auto] - resize after decoder using direct pipe\n"));
+        "   [-low_latency]            - configures decoder for low latency mode (supported only for H.264 and JPEG codec)\n");
     msdk_printf(
-        MSDK_STRING("                  force: instruct to use decoder-based post processing\n"));
+        "   [-calc_latency]           - calculates latency during decoding and prints log (supported only for H.264 and JPEG codec)\n");
     msdk_printf(
-        MSDK_STRING("                         or fail if the decoded stream is unsupported\n"));
-    msdk_printf(MSDK_STRING(
-        "                  auto: instruct to use decoder-based post processing for supported streams \n"));
-    msdk_printf(MSDK_STRING(
-        "                        or perform VPP operation through separate pipeline component for unsupported streams\n"));
+        "   [-async]                  - depth of asynchronous pipeline. default value is 4. must be between 1 and 20\n");
+    msdk_printf("   [-gpucopy::<on,off>] Enable or disable GPU copy mode\n");
+    msdk_printf("   [-robust:soft]            - GPU hang recovery by inserting an IDR frame\n");
+    msdk_printf("   [-timeout]                - timeout in seconds\n");
+    msdk_printf("   [-dec_postproc force/auto] - resize after decoder using direct pipe\n");
+    msdk_printf("                  force: instruct to use decoder-based post processing\n");
+    msdk_printf("                         or fail if the decoded stream is unsupported\n");
+    msdk_printf(
+        "                  auto: instruct to use decoder-based post processing for supported streams \n");
+    msdk_printf(
+        "                        or perform VPP operation through separate pipeline component for unsupported streams\n");
 
 #if !defined(_WIN32) && !defined(_WIN64)
-    msdk_printf(MSDK_STRING("   [-threads_num]            - number of mediasdk task threads\n"));
-    msdk_printf(
-        MSDK_STRING("   [-threads_schedtype]      - scheduling type of mediasdk task threads\n"));
-    msdk_printf(MSDK_STRING("   [-threads_priority]       - priority of mediasdk task threads\n"));
-    msdk_printf(MSDK_STRING("\n"));
+    msdk_printf("   [-threads_num]            - number of mediasdk task threads\n");
+    msdk_printf("   [-threads_schedtype]      - scheduling type of mediasdk task threads\n");
+    msdk_printf("   [-threads_priority]       - priority of mediasdk task threads\n");
+    msdk_printf("\n");
     msdk_thread_printf_scheduling_help();
 #endif
 #if defined(_WIN32) || defined(_WIN64)
-    msdk_printf(MSDK_STRING("   [-jpeg_rotate n]          - rotate jpeg frame n degrees \n"));
-    msdk_printf(MSDK_STRING("       n(90,180,270)         - number of degrees \n"));
+    msdk_printf("   [-jpeg_rotate n]          - rotate jpeg frame n degrees \n");
+    msdk_printf("       n(90,180,270)         - number of degrees \n");
 #endif
 
 #if defined(_WIN32) || defined(_WIN64)
-    msdk_printf(MSDK_STRING("\nFeatures: \n"));
-    msdk_printf(MSDK_STRING("   Press 1 to toggle fullscreen rendering on/off\n"));
+    msdk_printf("\nFeatures: \n");
+    msdk_printf("   Press 1 to toggle fullscreen rendering on/off\n");
 #endif
-    msdk_printf(MSDK_STRING("\n"));
-    msdk_printf(MSDK_STRING("Example:\n"));
-    msdk_printf(MSDK_STRING("  %s h265 -i in.bit -o out.yuv -p 15dd936825ad475ea34e35f3f54217a6\n"),
-                strAppName);
+    msdk_printf("\n");
+    msdk_printf("Example:\n");
+    msdk_printf("  %s h265 -i in.bit -o out.yuv -p 15dd936825ad475ea34e35f3f54217a6\n", strAppName);
 }
 
 mfxStatus ParseInputString(msdk_char* strInput[], mfxU8 nArgNum, sInputParams* pParams) {
@@ -474,7 +449,7 @@ mfxStatus ParseInputString(msdk_char* strInput[], mfxU8 nArgNum, sInputParams* p
 #if defined(LINUX32) || defined(LINUX64)
         else if (0 == msdk_strcmp(strInput[i], MSDK_STRING("-device"))) {
             if (!pParams->strDevicePath.empty()) {
-                msdk_printf(MSDK_STRING("error: you can specify only one device\n"));
+                msdk_printf("error: you can specify only one device\n");
                 return MFX_ERR_UNSUPPORTED;
             }
             if (i + 1 >= nArgNum) {
@@ -764,15 +739,14 @@ mfxStatus ParseInputString(msdk_char* strInput[], mfxU8 nArgNum, sInputParams* p
             switch (strInput[i][1]) {
                 case MSDK_CHAR('p'):
                     ++i;
-                    msdk_printf(MSDK_STRING(
-                        "WARNING: plugins are deprecated and not supported by VPL RT \n"));
+                    msdk_printf("WARNING: plugins are deprecated and not supported by VPL RT \n");
                     break;
                 case MSDK_CHAR('i'):
                     if (++i < nArgNum) {
                         msdk_opt_read(strInput[i], pParams->strSrcFile);
                     }
                     else {
-                        msdk_printf(MSDK_STRING("error: option '-i' expects an argument\n"));
+                        msdk_printf("error: option '-i' expects an argument\n");
                     }
                     break;
                 case MSDK_CHAR('o'):
@@ -781,7 +755,7 @@ mfxStatus ParseInputString(msdk_char* strInput[], mfxU8 nArgNum, sInputParams* p
                         msdk_opt_read(strInput[i], pParams->strDstFile);
                     }
                     else {
-                        msdk_printf(MSDK_STRING("error: option '-o' expects an argument\n"));
+                        msdk_printf("error: option '-o' expects an argument\n");
                     }
                     break;
                 case MSDK_CHAR('?'):
@@ -798,12 +772,12 @@ mfxStatus ParseInputString(msdk_char* strInput[], mfxU8 nArgNum, sInputParams* p
     }
 
     if (0 == msdk_strlen(pParams->strSrcFile)) {
-        msdk_printf(MSDK_STRING("error: source file name not found"));
+        msdk_printf("error: source file name not found");
         return MFX_ERR_UNSUPPORTED;
     }
 
     if ((pParams->mode == MODE_FILE_DUMP) && (0 == msdk_strlen(pParams->strDstFile))) {
-        msdk_printf(MSDK_STRING("error: destination file name not found"));
+        msdk_printf("error: destination file name not found");
         return MFX_ERR_UNSUPPORTED;
     }
 
@@ -825,7 +799,7 @@ mfxStatus ParseInputString(msdk_char* strInput[], mfxU8 nArgNum, sInputParams* p
 
 #if (defined(_WIN64) || defined(_WIN32)) && (MFX_VERSION >= 1031)
     if (pParams->bPreferdGfx && pParams->bPreferiGfx) {
-        msdk_printf(MSDK_STRING("Warning: both dGfx and iGfx flags set. iGfx will be preferred"));
+        msdk_printf("Warning: both dGfx and iGfx flags set. iGfx will be preferred");
         pParams->bPreferdGfx = false;
     }
 #endif
@@ -870,7 +844,7 @@ int main(int argc, char* argv[])
     // print stream info
     Pipeline.PrintStreamInfo();
 
-    msdk_printf(MSDK_STRING("Decoding started\n"));
+    msdk_printf("Decoding started\n");
 
     mfxU64 prevResetBytesCount = 0xFFFFFFFFFFFFFFFF;
     for (;;) {
@@ -879,19 +853,18 @@ int main(int argc, char* argv[])
         if (MFX_ERR_INCOMPATIBLE_VIDEO_PARAM == sts || MFX_ERR_DEVICE_LOST == sts ||
             MFX_ERR_DEVICE_FAILED == sts) {
             if (prevResetBytesCount == Pipeline.GetTotalBytesProcessed()) {
-                msdk_printf(MSDK_STRING(
-                    "\nERROR: No input data was consumed since last reset. Quitting to avoid looping forever.\n"));
+                msdk_printf(
+                    "\nERROR: No input data was consumed since last reset. Quitting to avoid looping forever.\n");
                 break;
             }
             prevResetBytesCount = Pipeline.GetTotalBytesProcessed();
 
             if (MFX_ERR_INCOMPATIBLE_VIDEO_PARAM == sts) {
-                msdk_printf(MSDK_STRING(
-                    "\nERROR: Incompatible video parameters detected. Recovering...\n"));
+                msdk_printf("\nERROR: Incompatible video parameters detected. Recovering...\n");
             }
             else {
-                msdk_printf(MSDK_STRING(
-                    "\nERROR: Hardware device was lost or returned unexpected error. Recovering...\n"));
+                msdk_printf(
+                    "\nERROR: Hardware device was lost or returned unexpected error. Recovering...\n");
                 sts = Pipeline.ResetDevice();
                 MSDK_CHECK_STATUS(sts, "Pipeline.ResetDevice failed");
             }
@@ -906,7 +879,7 @@ int main(int argc, char* argv[])
         }
     }
 
-    msdk_printf(MSDK_STRING("\nDecoding finished\n"));
+    msdk_printf("\nDecoding finished\n");
 
     return 0;
 }

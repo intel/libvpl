@@ -41,7 +41,8 @@ struct D3DAllocatorParams;
 namespace TranscodingSample {
 struct sInputParams;
 
-void PrintError(const msdk_char* strErrorMessage, ...);
+void PrintError(const wchar_t* strErrorMessage, ...);
+void PrintError(const char* strErrorMessage, ...);
 void PrintStreamInfo(mfxU32 session_number, sInputParams* pParams, mfxVersion* pVer);
 
 class CmdProcessor {

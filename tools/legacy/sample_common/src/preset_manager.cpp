@@ -209,8 +209,8 @@ COutputPresetParameters CPresetManager::GetBasicPreset(EPresetModes mode, mfxU32
             break;
         default:
             if (mode != PRESET_DEFAULT) {
-                msdk_printf(MSDK_STRING(
-                    "WARNING: Presets are available for h.264 or h.265 codecs only. Request for particular preset is ignored.\n"));
+                msdk_printf(
+                    "WARNING: Presets are available for h.264 or h.265 codecs only. Request for particular preset is ignored.\n");
             }
 
             if (codecFourCC != MFX_CODEC_JPEG) {

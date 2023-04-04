@@ -10,7 +10,7 @@
 #include <memory.h>
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <cstdarg>
 #ifdef __cplusplus
     #include <string>
 #endif
@@ -27,8 +27,26 @@ typedef TCHAR msdk_char;
 typedef std::basic_string<msdk_char> msdk_string;
 typedef std::basic_ifstream<msdk_char> msdk_ifstream;
 typedef std::basic_ofstream<msdk_char> msdk_ofstream;
+inline int msdk_printf(const char* format, ...) {
+    va_list args;
+    va_start(args, format);
+    int result = vprintf(format, args);
+    va_end(args);
+    return result;
+}
+inline int msdk_printf(const wchar_t* format, ...) {
+    va_list args;
+    va_start(args, format);
+    int result = vwprintf(format, args);
+    va_end(args);
+    return result;
+}
     #endif
-    #define msdk_printf               _tprintf
+    #ifdef UNICODE
+        #define MSDK_FMT_S "%ls"
+    #else
+        #define MSDK_FMT_S "%s"
+    #endif
     #define msdk_fprintf              _ftprintf
     #define msdk_sprintf              _stprintf_s // to be removed
     #define msdk_vprintf              _vtprintf
@@ -43,7 +61,6 @@ typedef std::basic_ofstream<msdk_char> msdk_ofstream;
     #define msdk_strchr               _tcschr
     #define msdk_strnlen(str, lenmax) strnlen_s(str, lenmax)
     #define msdk_sscanf               _stscanf_s
-
     // msdk_strcopy is intended to be used with 2 parmeters, i.e. msdk_strcopy(dst, src)
     // for _tcscpy_s that's possible if DST is declared as: TCHAR DST[n];
     #define msdk_strcopy    _tcscpy_s
@@ -71,6 +88,7 @@ typedef std::ifstream msdk_ifstream;
 typedef std::ofstream msdk_ofstream;
     #endif
 typedef char msdk_char;
+    #define MSDK_FMT_S "%s"
 
     #define msdk_printf               printf
     #define msdk_sprintf              sprintf
@@ -103,5 +121,15 @@ typedef char msdk_char;
     #define MSDK_MEMCPY(dst, src, count) memcpy(dst, (src), (count))
 
 #endif // #if defined(_WIN32) || defined(_WIN64)
+
+inline bool msdk_match(const msdk_string& left, const std::string& right) {
+    return left == msdk_string(right.begin(), right.end());
+}
+inline bool msdk_starts_with(const msdk_string& left, const std::string& right) {
+    return left.find(msdk_string(right.begin(), right.end())) == 0;
+}
+inline bool msdk_contains(const msdk_string& left, const std::string& right) {
+    return left.find(msdk_string(right.begin(), right.end())) != left.npos;
+}
 
 #endif //__STRING_DEFS_H__

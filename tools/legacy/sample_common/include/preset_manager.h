@@ -93,34 +93,32 @@ protected:
     static msdk_string modesName[PRESET_MAX_MODES];
 };
 
-#define MODIFY_AND_PRINT_PARAM(paramName, presetName, shouldPrintPresetInfo)             \
-    if (!paramName) {                                                                    \
-        paramName = presetParams.presetName;                                             \
-        if (shouldPrintPresetInfo) {                                                     \
-            msdk_printf(MSDK_STRING(#presetName) MSDK_STRING(": %d\n"), (int)paramName); \
-        }                                                                                \
-    }                                                                                    \
-    else {                                                                               \
-        if (shouldPrintPresetInfo) {                                                     \
-            msdk_printf(MSDK_STRING(#presetName)                                         \
-                            MSDK_STRING(": %d (original preset value: %d)\n"),           \
-                        (int)paramName,                                                  \
-                        (int)presetParams.presetName);                                   \
-        }                                                                                \
+#define MODIFY_AND_PRINT_PARAM(paramName, presetName, shouldPrintPresetInfo) \
+    if (!paramName) {                                                        \
+        paramName = presetParams.presetName;                                 \
+        if (shouldPrintPresetInfo) {                                         \
+            msdk_printf(#presetName ": %d\n", (int)paramName);               \
+        }                                                                    \
+    }                                                                        \
+    else {                                                                   \
+        if (shouldPrintPresetInfo) {                                         \
+            msdk_printf(#presetName ": %d (original preset value: %d)\n",    \
+                        (int)paramName,                                      \
+                        (int)presetParams.presetName);                       \
+        }                                                                    \
     }
 
-#define MODIFY_AND_PRINT_PARAM_EXT(paramName, presetName, value, shouldPrintPresetInfo)  \
-    if (!paramName) {                                                                    \
-        paramName = (value);                                                             \
-        if (shouldPrintPresetInfo) {                                                     \
-            msdk_printf(MSDK_STRING(#presetName) MSDK_STRING(": %d\n"), (int)paramName); \
-        }                                                                                \
-    }                                                                                    \
-    else {                                                                               \
-        if (shouldPrintPresetInfo) {                                                     \
-            msdk_printf(MSDK_STRING(#presetName)                                         \
-                            MSDK_STRING(": %d (original preset value: %d)\n"),           \
-                        (int)paramName,                                                  \
-                        (int)(value));                                                   \
-        }                                                                                \
+#define MODIFY_AND_PRINT_PARAM_EXT(paramName, presetName, value, shouldPrintPresetInfo) \
+    if (!paramName) {                                                                   \
+        paramName = (value);                                                            \
+        if (shouldPrintPresetInfo) {                                                    \
+            msdk_printf(#presetName ": %d\n", (int)paramName);                          \
+        }                                                                               \
+    }                                                                                   \
+    else {                                                                              \
+        if (shouldPrintPresetInfo) {                                                    \
+            msdk_printf(#presetName ": %d (original preset value: %d)\n",               \
+                        (int)paramName,                                                 \
+                        (int)(value));                                                  \
+        }                                                                               \
     }

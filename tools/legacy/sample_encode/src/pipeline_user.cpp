@@ -459,9 +459,9 @@ mfxStatus CUserPipeline::FillBuffers() {
 }
 
 void CUserPipeline::PrintStreamInfo() {
-    msdk_printf(MSDK_STRING("\nPipeline with rotation plugin"));
-    msdk_printf(MSDK_STRING(
-        "\nNOTE: Some of command line options may have been ignored as non-supported for this pipeline. For details see readme-encode.rtf.\n\n"));
+    msdk_printf("\nPipeline with rotation plugin");
+    msdk_printf(
+        "\nNOTE: Some of command line options may have been ignored as non-supported for this pipeline. For details see readme-encode.rtf.\n\n");
 
     CEncodingPipeline::PrintStreamInfo();
 }

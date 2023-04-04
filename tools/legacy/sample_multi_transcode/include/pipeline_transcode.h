@@ -52,14 +52,6 @@
 
 #include "smt_cli_params.h"
 
-#if defined(_WIN32) || defined(_WIN64)
-    #define MSDK_CPU_ROTATE_PLUGIN MSDK_STRING("sample_rotate_plugin.dll")
-    #define MSDK_OCL_ROTATE_PLUGIN MSDK_STRING("sample_plugin_opencl.dll")
-#else
-    #define MSDK_CPU_ROTATE_PLUGIN MSDK_STRING("libsample_rotate_plugin.so")
-    #define MSDK_OCL_ROTATE_PLUGIN MSDK_STRING("libsample_plugin_opencl.so")
-#endif
-
 #define MAX_PREF_LEN 256
 
 #ifndef MFX_VERSION
@@ -172,7 +164,7 @@ class CIOStat : public CTimeStatistics {
 public:
     CIOStat() : CTimeStatistics(), DumpLogFileName(), ofile(stdout), bufDir() {}
 
-    CIOStat(const msdk_string& dir) : CTimeStatistics(), DumpLogFileName(), ofile(stdout) {
+    CIOStat(const std::string& dir) : CTimeStatistics(), DumpLogFileName(), ofile(stdout) {
         bufDir = dir;
     }
 
@@ -192,7 +184,7 @@ public:
         }
     }
 
-    inline void SetDirection(const msdk_string& dir) {
+    inline void SetDirection(const std::string& dir) {
         bufDir = dir;
     }
 
@@ -201,8 +193,7 @@ public:
         // print timings in ms
         msdk_fprintf(
             ofile,
-            MSDK_STRING(
-                "stat[%u.%llu]: %s=%d;Framerate=%.3f;Total=%.3lf;Samples=%lld;StdDev=%.3lf;Min=%.3lf;Max=%.3lf;Avg=%.3lf\n"),
+            "stat[%u.%llu]: %s=%d;Framerate=%.3f;Total=%.3lf;Samples=%lld;StdDev=%.3lf;Min=%.3lf;Max=%.3lf;Avg=%.3lf\n",
             (unsigned int)msdk_get_current_pid(),
             (unsigned long long int)rdtsc(),
             bufDir.c_str(),
@@ -217,9 +208,9 @@ public:
         fflush(ofile);
 
         if (!DumpLogFileName.empty()) {
-            msdk_stringstream sstr;
-            sstr << DumpLogFileName << MSDK_STRING("_ID_") << numPipelineid << MSDK_STRING(".log");
-            DumpDeltas(sstr.str());
+            msdk_stringstream dump_deltas_log_file_name_sstr;
+            dump_deltas_log_file_name_sstr << DumpLogFileName << "_ID_" << numPipelineid << ".log";
+            DumpDeltas(dump_deltas_log_file_name_sstr.str());
         }
     }
 
@@ -244,7 +235,7 @@ public:
 protected:
     msdk_string DumpLogFileName;
     FILE* ofile;
-    msdk_string bufDir;
+    std::string bufDir;
 };
 
 class ExtendedBSStore {
@@ -418,8 +409,8 @@ public:
     size_t GetRobustFlag();
     eAPIVersion GetVersionOfSessionInitAPI();
 
-    msdk_string GetSessionText() {
-        msdk_stringstream ss;
+    std::string GetSessionText() {
+        std::stringstream ss;
         ss << m_pmfxSession->operator mfxSession();
 
         return ss.str();

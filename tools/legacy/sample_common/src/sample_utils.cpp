@@ -169,7 +169,7 @@ mfxStatus CSmplYUVReader::SkipNframesFromBeginning(mfxU16 w,
     mfxU32 frameLength;
 
     if (MFX_ERR_NONE != GetFrameLength(w, h, m_ColorFormat, frameLength)) {
-        msdk_printf(MSDK_STRING("Input color format %s is unsupported in qpfile mode\n"),
+        msdk_printf("Input color format %s is unsupported in qpfile mode\n",
                     ColorFormatToStr(m_ColorFormat));
         return MFX_ERR_UNSUPPORTED;
     }
@@ -577,7 +577,7 @@ mfxStatus CSmplBitstreamWriter::WriteNextFrame(mfxBitstream* pMfxBitstream,
 
         // print encoding progress to console every certain number of frames (not to affect performance too much)
         if (isPrint && (1 == m_nProcessedFramesNum || (0 == (m_nProcessedFramesNum % 100)))) {
-            msdk_printf(MSDK_STRING("Frame number: %u\r"), (unsigned int)m_nProcessedFramesNum);
+            msdk_printf("Frame number: %u\r", (unsigned int)m_nProcessedFramesNum);
         }
     }
     else {
@@ -1516,7 +1516,7 @@ mfxStatus CSmplYUVWriter::WriteNextFrameI420(mfxFrameSurface1* pSurface) {
             break;
         }
         default: {
-            msdk_printf(MSDK_STRING("ERROR: I420 output is accessible only for NV12 and YV12.\n"));
+            msdk_printf("ERROR: I420 output is accessible only for NV12 and YV12.\n");
             return MFX_ERR_UNSUPPORTED;
         }
     }
@@ -1622,7 +1622,7 @@ mfxStatus CSmplYUVWriter::WriteNextFrameI420(mfxFrameSurface1* pSurface) {
             break;
         }
         default: {
-            msdk_printf(MSDK_STRING("ERROR: I420 output is accessible only for NV12 and YV12.\n"));
+            msdk_printf("ERROR: I420 output is accessible only for NV12 and YV12.\n");
             return MFX_ERR_UNSUPPORTED;
         }
     }
@@ -1818,7 +1818,7 @@ mfxU16 GetFreeSurface(mfxFrameSurface1* pSurfacesPool, mfxU16 nPoolSize) {
     } while (t.GetTime() < MSDK_SURFACE_WAIT_INTERVAL / 1000);
 
     if (idx == MSDK_INVALID_SURF_IDX) {
-        msdk_printf(MSDK_STRING("ERROR: No free surfaces in pool (during long period)\n"));
+        msdk_printf("ERROR: No free surfaces in pool (during long period)\n");
     }
 
     return idx;
@@ -1975,80 +1975,84 @@ mfxU16 CalculateDefaultBitrate(mfxU32 nCodecId,
 }
 
 mfxU16 StrToTargetUsage(msdk_string strInput) {
-    std::map<msdk_string, mfxU16> tu;
-    tu[MSDK_STRING("quality")]  = (mfxU16)MFX_TARGETUSAGE_1;
-    tu[MSDK_STRING("veryslow")] = (mfxU16)MFX_TARGETUSAGE_1;
-    tu[MSDK_STRING("slower")]   = (mfxU16)MFX_TARGETUSAGE_2;
-    tu[MSDK_STRING("slow")]     = (mfxU16)MFX_TARGETUSAGE_3;
-    tu[MSDK_STRING("medium")]   = (mfxU16)MFX_TARGETUSAGE_4;
-    tu[MSDK_STRING("balanced")] = (mfxU16)MFX_TARGETUSAGE_4;
-    tu[MSDK_STRING("fast")]     = (mfxU16)MFX_TARGETUSAGE_5;
-    tu[MSDK_STRING("faster")]   = (mfxU16)MFX_TARGETUSAGE_6;
-    tu[MSDK_STRING("veryfast")] = (mfxU16)MFX_TARGETUSAGE_7;
-    tu[MSDK_STRING("speed")]    = (mfxU16)MFX_TARGETUSAGE_7;
-    tu[MSDK_STRING("1")]        = (mfxU16)MFX_TARGETUSAGE_1;
-    tu[MSDK_STRING("2")]        = (mfxU16)MFX_TARGETUSAGE_2;
-    tu[MSDK_STRING("3")]        = (mfxU16)MFX_TARGETUSAGE_3;
-    tu[MSDK_STRING("4")]        = (mfxU16)MFX_TARGETUSAGE_4;
-    tu[MSDK_STRING("5")]        = (mfxU16)MFX_TARGETUSAGE_5;
-    tu[MSDK_STRING("6")]        = (mfxU16)MFX_TARGETUSAGE_6;
-    tu[MSDK_STRING("7")]        = (mfxU16)MFX_TARGETUSAGE_7;
+    std::map<msdk_string, decltype(MFX_TARGETUSAGE_1)> tu{
+        { MSDK_STRING("quality"), MFX_TARGETUSAGE_1 },
+        { MSDK_STRING("veryslow"), MFX_TARGETUSAGE_1 },
+        { MSDK_STRING("slower"), MFX_TARGETUSAGE_2 },
+        { MSDK_STRING("slow"), MFX_TARGETUSAGE_3 },
+        { MSDK_STRING("medium"), MFX_TARGETUSAGE_4 },
+        { MSDK_STRING("balanced"), MFX_TARGETUSAGE_4 },
+        { MSDK_STRING("fast"), MFX_TARGETUSAGE_5 },
+        { MSDK_STRING("faster"), MFX_TARGETUSAGE_6 },
+        { MSDK_STRING("veryfast"), MFX_TARGETUSAGE_7 },
+        { MSDK_STRING("speed"), MFX_TARGETUSAGE_7 },
+        { MSDK_STRING("1"), MFX_TARGETUSAGE_1 },
+        { MSDK_STRING("2"), MFX_TARGETUSAGE_2 },
+        { MSDK_STRING("3"), MFX_TARGETUSAGE_3 },
+        { MSDK_STRING("4"), MFX_TARGETUSAGE_4 },
+        { MSDK_STRING("5"), MFX_TARGETUSAGE_5 },
+        { MSDK_STRING("6"), MFX_TARGETUSAGE_6 },
+        { MSDK_STRING("7"), MFX_TARGETUSAGE_7 }
+    };
 
-    if (tu.find(strInput) == tu.end())
+    auto item = tu.find(strInput);
+    if (item == tu.end()) {
         return 0;
-    else
-        return tu[strInput];
-}
-
-const msdk_char* TargetUsageToStr(mfxU16 tu) {
-    switch (tu) {
-        case MFX_TARGETUSAGE_BALANCED:
-            return MSDK_STRING("balanced");
-        case MFX_TARGETUSAGE_BEST_QUALITY:
-            return MSDK_STRING("quality");
-        case MFX_TARGETUSAGE_BEST_SPEED:
-            return MSDK_STRING("speed");
-        case MFX_TARGETUSAGE_UNKNOWN:
-            return MSDK_STRING("unknown");
-        default:
-            return MSDK_STRING("unsupported");
+    }
+    else {
+        return item->second;
     }
 }
 
-const msdk_char* ColorFormatToStr(mfxU32 format) {
+const char* TargetUsageToStr(mfxU16 tu) {
+    switch (tu) {
+        case MFX_TARGETUSAGE_BALANCED:
+            return "balanced";
+        case MFX_TARGETUSAGE_BEST_QUALITY:
+            return "quality";
+        case MFX_TARGETUSAGE_BEST_SPEED:
+            return "speed";
+        case MFX_TARGETUSAGE_UNKNOWN:
+            return "unknown";
+        default:
+            return "unsupported";
+    }
+}
+
+const char* ColorFormatToStr(mfxU32 format) {
     switch (format) {
         case MFX_FOURCC_NV12:
-            return MSDK_STRING("NV12");
+            return "NV12";
         case MFX_FOURCC_YV12:
-            return MSDK_STRING("YV12");
+            return "YV12";
         case MFX_FOURCC_I420:
-            return MSDK_STRING("YUV420");
+            return "YUV420";
         case MFX_FOURCC_I422:
-            return MSDK_STRING("I422");
+            return "I422";
         case MFX_FOURCC_RGB4:
-            return MSDK_STRING("RGB4");
+            return "RGB4";
         case MFX_FOURCC_YUY2:
-            return MSDK_STRING("YUY2");
+            return "YUY2";
         case MFX_FOURCC_UYVY:
-            return MSDK_STRING("UYVY");
+            return "UYVY";
         case MFX_FOURCC_I210:
-            return MSDK_STRING("I210");
+            return "I210";
         case MFX_FOURCC_P010:
-            return MSDK_STRING("P010");
+            return "P010";
         case MFX_FOURCC_P210:
-            return MSDK_STRING("P210");
+            return "P210";
         case MFX_FOURCC_Y210:
-            return MSDK_STRING("Y210");
+            return "Y210";
         case MFX_FOURCC_Y410:
-            return MSDK_STRING("Y410");
+            return "Y410";
         case MFX_FOURCC_P016:
-            return MSDK_STRING("P016");
+            return "P016";
         case MFX_FOURCC_Y216:
-            return MSDK_STRING("Y216");
+            return "Y216";
         case MFX_FOURCC_YUV400:
-            return MSDK_STRING("YUV400");
+            return "YUV400";
         default:
-            return MSDK_STRING("unsupported");
+            return "unsupported";
     }
 }
 
@@ -2087,7 +2091,7 @@ msdk_string FormMVCFileName(const msdk_char* strFileNamePattern, const mfxU32 nu
 
     msdk_string mvcFileName, fileExt;
     msdk_stringstream sstr;
-    sstr << strFileNamePattern << MSDK_STRING("_") << numView << MSDK_STRING(".yuv");
+    sstr << strFileNamePattern << "_" << numView << ".yuv";
     mvcFileName = sstr.str();
 
     return msdk_string(mvcFileName);
@@ -2335,19 +2339,19 @@ bool msdk_trace_is_printable(int level) {
 msdk_ostream& operator<<(msdk_ostream& os, MsdkTraceLevel tl) {
     switch (tl) {
         case MSDK_TRACE_LEVEL_CRITICAL:
-            os << MSDK_STRING("CRITICAL");
+            os << "CRITICAL";
             break;
         case MSDK_TRACE_LEVEL_ERROR:
-            os << MSDK_STRING("ERROR");
+            os << "ERROR";
             break;
         case MSDK_TRACE_LEVEL_WARNING:
-            os << MSDK_STRING("WARNING");
+            os << "WARNING";
             break;
         case MSDK_TRACE_LEVEL_INFO:
-            os << MSDK_STRING("INFO");
+            os << "INFO";
             break;
         case MSDK_TRACE_LEVEL_DEBUG:
-            os << MSDK_STRING("DEBUG");
+            os << "DEBUG";
             break;
         default:
             break;
@@ -2562,74 +2566,74 @@ mfxStatus StrFormatToCodecFormatFourCC(msdk_char* strInput, mfxU32& codecFormat)
     return sts;
 }
 
-msdk_string StatusToString(mfxStatus sts) {
+const char* StatusToString(mfxStatus sts) {
     switch (sts) {
         case MFX_ERR_NONE:
-            return msdk_string(MSDK_STRING("MFX_ERR_NONE"));
+            return "MFX_ERR_NONE";
         case MFX_ERR_UNKNOWN:
-            return msdk_string(MSDK_STRING("MFX_ERR_UNKNOWN"));
+            return "MFX_ERR_UNKNOWN";
         case MFX_ERR_NULL_PTR:
-            return msdk_string(MSDK_STRING("MFX_ERR_NULL_PTR"));
+            return "MFX_ERR_NULL_PTR";
         case MFX_ERR_UNSUPPORTED:
-            return msdk_string(MSDK_STRING("MFX_ERR_UNSUPPORTED"));
+            return "MFX_ERR_UNSUPPORTED";
         case MFX_ERR_MEMORY_ALLOC:
-            return msdk_string(MSDK_STRING("MFX_ERR_MEMORY_ALLOC"));
+            return "MFX_ERR_MEMORY_ALLOC";
         case MFX_ERR_NOT_ENOUGH_BUFFER:
-            return msdk_string(MSDK_STRING("MFX_ERR_NOT_ENOUGH_BUFFER"));
+            return "MFX_ERR_NOT_ENOUGH_BUFFER";
         case MFX_ERR_INVALID_HANDLE:
-            return msdk_string(MSDK_STRING("MFX_ERR_INVALID_HANDLE"));
+            return "MFX_ERR_INVALID_HANDLE";
         case MFX_ERR_LOCK_MEMORY:
-            return msdk_string(MSDK_STRING("MFX_ERR_LOCK_MEMORY"));
+            return "MFX_ERR_LOCK_MEMORY";
         case MFX_ERR_NOT_INITIALIZED:
-            return msdk_string(MSDK_STRING("MFX_ERR_NOT_INITIALIZED"));
+            return "MFX_ERR_NOT_INITIALIZED";
         case MFX_ERR_NOT_FOUND:
-            return msdk_string(MSDK_STRING("MFX_ERR_NOT_FOUND"));
+            return "MFX_ERR_NOT_FOUND";
         case MFX_ERR_MORE_DATA:
-            return msdk_string(MSDK_STRING("MFX_ERR_MORE_DATA"));
+            return "MFX_ERR_MORE_DATA";
         case MFX_ERR_MORE_SURFACE:
-            return msdk_string(MSDK_STRING("MFX_ERR_MORE_SURFACE"));
+            return "MFX_ERR_MORE_SURFACE";
         case MFX_ERR_ABORTED:
-            return msdk_string(MSDK_STRING("MFX_ERR_ABORTED"));
+            return "MFX_ERR_ABORTED";
         case MFX_ERR_DEVICE_LOST:
-            return msdk_string(MSDK_STRING("MFX_ERR_DEVICE_LOST"));
+            return "MFX_ERR_DEVICE_LOST";
         case MFX_ERR_INCOMPATIBLE_VIDEO_PARAM:
-            return msdk_string(MSDK_STRING("MFX_ERR_INCOMPATIBLE_VIDEO_PARAM"));
+            return "MFX_ERR_INCOMPATIBLE_VIDEO_PARAM";
         case MFX_ERR_INVALID_VIDEO_PARAM:
-            return msdk_string(MSDK_STRING("MFX_ERR_INVALID_VIDEO_PARAM"));
+            return "MFX_ERR_INVALID_VIDEO_PARAM";
         case MFX_ERR_UNDEFINED_BEHAVIOR:
-            return msdk_string(MSDK_STRING("MFX_ERR_UNDEFINED_BEHAVIOR"));
+            return "MFX_ERR_UNDEFINED_BEHAVIOR";
         case MFX_ERR_DEVICE_FAILED:
-            return msdk_string(MSDK_STRING("MFX_ERR_DEVICE_FAILED"));
+            return "MFX_ERR_DEVICE_FAILED";
         case MFX_ERR_MORE_BITSTREAM:
-            return msdk_string(MSDK_STRING("MFX_ERR_MORE_BITSTREAM"));
+            return "MFX_ERR_MORE_BITSTREAM";
         case MFX_ERR_GPU_HANG:
-            return msdk_string(MSDK_STRING("MFX_ERR_GPU_HANG"));
+            return "MFX_ERR_GPU_HANG";
         case MFX_ERR_REALLOC_SURFACE:
-            return msdk_string(MSDK_STRING("MFX_ERR_REALLOC_SURFACE"));
+            return "MFX_ERR_REALLOC_SURFACE";
         case MFX_WRN_IN_EXECUTION:
-            return msdk_string(MSDK_STRING("MFX_WRN_IN_EXECUTION"));
+            return "MFX_WRN_IN_EXECUTION";
         case MFX_WRN_DEVICE_BUSY:
-            return msdk_string(MSDK_STRING("MFX_WRN_DEVICE_BUSY"));
+            return "MFX_WRN_DEVICE_BUSY";
         case MFX_WRN_VIDEO_PARAM_CHANGED:
-            return msdk_string(MSDK_STRING("MFX_WRN_VIDEO_PARAM_CHANGED"));
+            return "MFX_WRN_VIDEO_PARAM_CHANGED";
         case MFX_WRN_PARTIAL_ACCELERATION:
-            return msdk_string(MSDK_STRING("MFX_WRN_PARTIAL_ACCELERATION"));
+            return "MFX_WRN_PARTIAL_ACCELERATION";
         case MFX_WRN_INCOMPATIBLE_VIDEO_PARAM:
-            return msdk_string(MSDK_STRING("MFX_WRN_INCOMPATIBLE_VIDEO_PARAM"));
+            return "MFX_WRN_INCOMPATIBLE_VIDEO_PARAM";
         case MFX_WRN_VALUE_NOT_CHANGED:
-            return msdk_string(MSDK_STRING("MFX_WRN_VALUE_NOT_CHANGED"));
+            return "MFX_WRN_VALUE_NOT_CHANGED";
         case MFX_WRN_OUT_OF_RANGE:
-            return msdk_string(MSDK_STRING("MFX_WRN_OUT_OF_RANGE"));
+            return "MFX_WRN_OUT_OF_RANGE";
         case MFX_WRN_FILTER_SKIPPED:
-            return msdk_string(MSDK_STRING("MFX_WRN_FILTER_SKIPPED"));
+            return "MFX_WRN_FILTER_SKIPPED";
         case MFX_TASK_WORKING:
-            return msdk_string(MSDK_STRING("MFX_TASK_WORKING"));
+            return "MFX_TASK_WORKING";
         case MFX_TASK_BUSY:
-            return msdk_string(MSDK_STRING("MFX_TASK_BUSY"));
+            return "MFX_TASK_BUSY";
         case MFX_ERR_MORE_DATA_SUBMIT_TASK:
-            return msdk_string(MSDK_STRING("MFX_ERR_MORE_DATA_SUBMIT_TASK"));
+            return "MFX_ERR_MORE_DATA_SUBMIT_TASK";
         default:
-            return msdk_string(MSDK_STRING("[Unknown status]"));
+            return "[Unknown status]";
     }
 }
 
@@ -2886,9 +2890,9 @@ mfxStatus PrintLoadedModules() {
                 // path can be bigger than MAX_FILE_PATH, in this case it will be truncated
                 // so, print whole or truncated part of path and, if we get truncated path, print module name too
                 if (GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
-                    msdk_printf(MSDK_STRING("Loaded module name: %s ; "), moduleName);
+                    msdk_printf("Loaded module name: %s ; ", moduleName);
                 }
-                msdk_printf(MSDK_STRING("Loaded module path: %s \n"), modulePath);
+                msdk_printf("Loaded module path: %s \n", modulePath);
             }
         }
     }
@@ -2905,11 +2909,11 @@ int PrintLibMFXPath(struct dl_phdr_info* info, size_t size, void* data) {
         libPath.find(ONEVPLSW_MASK) != std::string::npos ||
         libPath.find(ONEVPLHW_MASK) != std::string::npos) {
         if (data) {
-            msdk_printf(MSDK_STRING("   %d: %s \n"), *((int*)data), info->dlpi_name);
+            msdk_printf("   %d: %s \n", *((int*)data), info->dlpi_name);
             *(int*)data += 1;
         }
         else {
-            msdk_printf(MSDK_STRING("Loaded module: %s \n"), info->dlpi_name);
+            msdk_printf("Loaded module: %s \n", info->dlpi_name);
         }
     }
     return 0;

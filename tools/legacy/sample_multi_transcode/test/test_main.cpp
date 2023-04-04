@@ -114,6 +114,10 @@ init_result init(std::vector<msdk_string> opts,
     return init((int)args.size(), &args[0], cmd_override);
 }
 
+TEST(Transcode_CLI, build_env) {
+    std::cout << "msdk_char size: " << sizeof(msdk_char) << std::endl;
+}
+
 TEST(Transcode_CLI, Optionsx0) {
     GTEST_SKIP() << "This case is failing and raises an SEH error";
     auto result = init_no_extras({});
@@ -432,6 +436,140 @@ TEST(Transcode_CLI, TrivialSessionOptions) {
     EXPECT_EQ(result.parsed[0].verSessionInit, TranscodingSample::API_2X);
 }
 
+TEST(Transcode_CLI, InputCodecSelect) {
+    TranscodingSample::CmdProcessor cmd;
+    auto result = init({ "-i::mpeg2", "in_file", "-o::h265", "out_file" }, &cmd);
+    EXPECT_EQ(result.status, MFX_ERR_NONE);
+    EXPECT_EQ(result.parsed[0].EncodeId, MFX_CODEC_HEVC);
+    EXPECT_EQ(result.parsed[0].DecodeId, MFX_CODEC_MPEG2);
+    EXPECT_EQ(msdk_string(result.parsed[0].strSrcFile), msdk_string("in_file"));
+    EXPECT_EQ(msdk_string(result.parsed[0].strDstFile), msdk_string("out_file"));
+
+    result = init({ "-i::h264", "in_file", "-o::h265", "out_file" }, &cmd);
+    EXPECT_EQ(result.status, MFX_ERR_NONE);
+    EXPECT_EQ(result.parsed[0].EncodeId, MFX_CODEC_HEVC);
+    EXPECT_EQ(result.parsed[0].DecodeId, MFX_CODEC_AVC);
+    EXPECT_EQ(msdk_string(result.parsed[0].strSrcFile), msdk_string("in_file"));
+    EXPECT_EQ(msdk_string(result.parsed[0].strDstFile), msdk_string("out_file"));
+
+    result = init({ "-i::h265", "in_file", "-o::h265", "out_file" }, &cmd);
+    EXPECT_EQ(result.status, MFX_ERR_NONE);
+    EXPECT_EQ(result.parsed[0].EncodeId, MFX_CODEC_HEVC);
+    EXPECT_EQ(result.parsed[0].DecodeId, MFX_CODEC_HEVC);
+    EXPECT_EQ(msdk_string(result.parsed[0].strSrcFile), msdk_string("in_file"));
+    EXPECT_EQ(msdk_string(result.parsed[0].strDstFile), msdk_string("out_file"));
+
+    result = init({ "-i::vc1", "in_file", "-o::h265", "out_file" }, &cmd);
+    EXPECT_EQ(result.status, MFX_ERR_NONE);
+    EXPECT_EQ(result.parsed[0].EncodeId, MFX_CODEC_HEVC);
+    EXPECT_EQ(result.parsed[0].DecodeId, MFX_CODEC_VC1);
+    EXPECT_EQ(msdk_string(result.parsed[0].strSrcFile), msdk_string("in_file"));
+    EXPECT_EQ(msdk_string(result.parsed[0].strDstFile), msdk_string("out_file"));
+
+    result = init({ "-i::jpeg", "in_file", "-o::h265", "out_file" }, &cmd);
+    EXPECT_EQ(result.status, MFX_ERR_NONE);
+    EXPECT_EQ(result.parsed[0].EncodeId, MFX_CODEC_HEVC);
+    EXPECT_EQ(result.parsed[0].DecodeId, MFX_CODEC_JPEG);
+    EXPECT_EQ(msdk_string(result.parsed[0].strSrcFile), msdk_string("in_file"));
+    EXPECT_EQ(msdk_string(result.parsed[0].strDstFile), msdk_string("out_file"));
+
+    result = init({ "-i::vp8", "in_file", "-o::h265", "out_file" }, &cmd);
+    EXPECT_EQ(result.status, MFX_ERR_NONE);
+    EXPECT_EQ(result.parsed[0].EncodeId, MFX_CODEC_HEVC);
+    EXPECT_EQ(result.parsed[0].DecodeId, MFX_CODEC_VP8);
+    EXPECT_EQ(msdk_string(result.parsed[0].strSrcFile), msdk_string("in_file"));
+    EXPECT_EQ(msdk_string(result.parsed[0].strDstFile), msdk_string("out_file"));
+
+    result = init({ "-i::vp9", "in_file", "-o::h265", "out_file" }, &cmd);
+    EXPECT_EQ(result.status, MFX_ERR_NONE);
+    EXPECT_EQ(result.parsed[0].EncodeId, MFX_CODEC_HEVC);
+    EXPECT_EQ(result.parsed[0].DecodeId, MFX_CODEC_VP9);
+    EXPECT_EQ(msdk_string(result.parsed[0].strSrcFile), msdk_string("in_file"));
+    EXPECT_EQ(msdk_string(result.parsed[0].strDstFile), msdk_string("out_file"));
+
+    result = init({ "-i::av1", "in_file", "-o::h265", "out_file" }, &cmd);
+    EXPECT_EQ(result.status, MFX_ERR_NONE);
+    EXPECT_EQ(result.parsed[0].EncodeId, MFX_CODEC_HEVC);
+    EXPECT_EQ(result.parsed[0].DecodeId, MFX_CODEC_AV1);
+    EXPECT_EQ(msdk_string(result.parsed[0].strSrcFile), msdk_string("in_file"));
+    EXPECT_EQ(msdk_string(result.parsed[0].strDstFile), msdk_string("out_file"));
+}
+
+TEST(Transcode_CLI, InputRawCodecSelect) {
+    GTEST_SKIP() << "Test not implemented";
+    // Test for -i::raw, -i::rgb4_frame, -i::nv12, -i::i420, -i::i422, -i::p010
+}
+
+TEST(Transcode_CLI, InputMVCCodecSelect) {
+    GTEST_SKIP() << "Test not implemented";
+    // Test for -i::mvc
+}
+
+TEST(Transcode_CLI, OutputCodecSelect) {
+    TranscodingSample::CmdProcessor cmd;
+    auto result = init({ "-i::h265", "in_file", "-o::mpeg2", "out_file" }, &cmd);
+    EXPECT_EQ(result.status, MFX_ERR_NONE);
+    EXPECT_EQ(result.parsed[0].EncodeId, MFX_CODEC_MPEG2);
+    EXPECT_EQ(result.parsed[0].DecodeId, MFX_CODEC_HEVC);
+    EXPECT_EQ(msdk_string(result.parsed[0].strSrcFile), msdk_string("in_file"));
+    EXPECT_EQ(msdk_string(result.parsed[0].strDstFile), msdk_string("out_file"));
+
+    result = init({ "-i::h265", "in_file", "-o::h264", "out_file" }, &cmd);
+    EXPECT_EQ(result.status, MFX_ERR_NONE);
+    EXPECT_EQ(result.parsed[0].EncodeId, MFX_CODEC_AVC);
+    EXPECT_EQ(result.parsed[0].DecodeId, MFX_CODEC_HEVC);
+    EXPECT_EQ(msdk_string(result.parsed[0].strSrcFile), msdk_string("in_file"));
+    EXPECT_EQ(msdk_string(result.parsed[0].strDstFile), msdk_string("out_file"));
+
+    result = init({ "-i::h265", "in_file", "-o::h265", "out_file" }, &cmd);
+    EXPECT_EQ(result.status, MFX_ERR_NONE);
+    EXPECT_EQ(result.parsed[0].EncodeId, MFX_CODEC_HEVC);
+    EXPECT_EQ(result.parsed[0].DecodeId, MFX_CODEC_HEVC);
+    EXPECT_EQ(msdk_string(result.parsed[0].strSrcFile), msdk_string("in_file"));
+    EXPECT_EQ(msdk_string(result.parsed[0].strDstFile), msdk_string("out_file"));
+
+    result = init({ "-i::h265", "in_file", "-o::jpeg", "out_file" }, &cmd);
+    EXPECT_EQ(result.status, MFX_ERR_NONE);
+    EXPECT_EQ(result.parsed[0].EncodeId, MFX_CODEC_JPEG);
+    EXPECT_EQ(result.parsed[0].DecodeId, MFX_CODEC_HEVC);
+    EXPECT_EQ(msdk_string(result.parsed[0].strSrcFile), msdk_string("in_file"));
+    EXPECT_EQ(msdk_string(result.parsed[0].strDstFile), msdk_string("out_file"));
+
+    result = init({ "-i::h265", "in_file", "-o::vp9", "out_file" }, &cmd);
+    EXPECT_EQ(result.status, MFX_ERR_NONE);
+    EXPECT_EQ(result.parsed[0].EncodeId, MFX_CODEC_VP9);
+    EXPECT_EQ(result.parsed[0].DecodeId, MFX_CODEC_HEVC);
+    EXPECT_EQ(msdk_string(result.parsed[0].strSrcFile), msdk_string("in_file"));
+    EXPECT_EQ(msdk_string(result.parsed[0].strDstFile), msdk_string("out_file"));
+
+    result = init({ "-i::h265", "in_file", "-o::av1", "out_file" }, &cmd);
+    EXPECT_EQ(result.status, MFX_ERR_NONE);
+    EXPECT_EQ(result.parsed[0].EncodeId, MFX_CODEC_AV1);
+    EXPECT_EQ(result.parsed[0].DecodeId, MFX_CODEC_HEVC);
+    EXPECT_EQ(msdk_string(result.parsed[0].strSrcFile), msdk_string("in_file"));
+    EXPECT_EQ(msdk_string(result.parsed[0].strDstFile), msdk_string("out_file"));
+}
+
+TEST(Transcode_CLI, OutputMVCCodecSelect) {
+    GTEST_SKIP() << "Test not implemented";
+    // Test for -o::mvc
+}
+
+TEST(Transcode_CLI, OutputVC1CodecSelect) {
+    GTEST_SKIP() << "Test not implemented";
+    // Test for -o::vc1
+}
+
+TEST(Transcode_CLI, OutputVP8CodecSelect) {
+    GTEST_SKIP() << "Test not implemented";
+    // Test for -o::vp8
+}
+
+TEST(Transcode_CLI, OutputRawCodecSelect) {
+    GTEST_SKIP() << "Test not implemented";
+    // Test for -o::raw, -o::rgb4_frame, -o::nv12, -o::i420, -o::i422, -o::i420, -o::p010
+}
+
 TEST(Transcode_CLI, OptionITooShort) {
     auto result = init({ "-i::0" });
     EXPECT_EQ(result.status, MFX_ERR_UNSUPPORTED);
@@ -598,7 +736,6 @@ TEST(Transcode_CLI, OptionHWD3D9) {
 
 TEST(Transcode_CLI, OptionDevice0) {
     auto result = init_session({ "-device", "foo/bar/renderD0" });
-    print_result(result);
     EXPECT_EQ(result.status, MFX_ERR_NONE);
     EXPECT_EQ(result.parsed[0].strDevicePath, msdk_string("foo/bar/renderD0"));
     EXPECT_EQ(result.parsed[0].DRMRenderNodeNum, 0);
@@ -606,7 +743,6 @@ TEST(Transcode_CLI, OptionDevice0) {
 
 TEST(Transcode_CLI, OptionDevice128) {
     auto result = init_session({ "-device", "foo/bar/renderD128" });
-    print_result(result);
     EXPECT_EQ(result.status, MFX_ERR_NONE);
     EXPECT_EQ(result.parsed[0].strDevicePath, msdk_string("foo/bar/renderD128"));
     EXPECT_EQ(result.parsed[0].DRMRenderNodeNum, 128);
@@ -615,7 +751,6 @@ TEST(Transcode_CLI, OptionDevice128) {
 TEST(Transcode_CLI, OptionDevice1024) {
     GTEST_SKIP() << "Test failing in existing codebase";
     auto result = init_session({ "-device", "foo/bar/renderD1024" });
-    print_result(result);
     EXPECT_EQ(result.status, MFX_ERR_NONE);
     EXPECT_EQ(result.parsed[0].strDevicePath, msdk_string("foo/bar/renderD1024"));
     EXPECT_EQ(result.parsed[0].DRMRenderNodeNum, 128);

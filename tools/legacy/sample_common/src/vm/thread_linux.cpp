@@ -299,28 +299,23 @@ mfxStatus msdk_thread_get_schedtype(const msdk_char* str, mfxI32& type) {
 }
 
 void msdk_thread_printf_scheduling_help() {
-    msdk_printf(MSDK_STRING("Note on the scheduling types and priorities:\n"));
-    msdk_printf(MSDK_STRING("  - <sched_type>: <priority_min> .. <priority_max> (notes)\n"));
-    msdk_printf(MSDK_STRING("The following scheduling types requires root privileges:\n"));
-    msdk_printf(MSDK_STRING("  - fifo: %d .. %d (static priority: low .. high)\n"),
+    msdk_printf("Note on the scheduling types and priorities:\n");
+    msdk_printf("  - <sched_type>: <priority_min> .. <priority_max> (notes)\n");
+    msdk_printf("The following scheduling types requires root privileges:\n");
+    msdk_printf("  - fifo: %d .. %d (static priority: low .. high)\n",
                 sched_get_priority_min(SCHED_FIFO),
                 sched_get_priority_max(SCHED_FIFO));
-    msdk_printf(MSDK_STRING("  - rr: %d .. %d (static priority: low .. high)\n"),
+    msdk_printf("  - rr: %d .. %d (static priority: low .. high)\n",
                 sched_get_priority_min(SCHED_RR),
                 sched_get_priority_max(SCHED_RR));
-    msdk_printf(
-        MSDK_STRING("The following scheduling types can be used by non-privileged users:\n"));
-    msdk_printf(MSDK_STRING("  - other: 0 .. 0 (static priority always 0)\n"));
-    msdk_printf(MSDK_STRING("  - batch: 0 .. 0 (static priority always 0)\n"));
-    msdk_printf(MSDK_STRING("  - idle: n/a\n"));
-    msdk_printf(
-        MSDK_STRING("If you want to adjust priority for the other or batch scheduling type,\n"));
-    msdk_printf(MSDK_STRING(
-        "you can do that process-wise using dynamic priority - so called nice value.\n"));
-    msdk_printf(MSDK_STRING("Range for the nice value is: %d .. %d (high .. low)\n"),
-                PRIO_MIN,
-                PRIO_MAX);
-    msdk_printf(MSDK_STRING("Please, see 'man(1) nice' for details.\n"));
+    msdk_printf("The following scheduling types can be used by non-privileged users:\n");
+    msdk_printf("  - other: 0 .. 0 (static priority always 0)\n");
+    msdk_printf("  - batch: 0 .. 0 (static priority always 0)\n");
+    msdk_printf("  - idle: n/a\n");
+    msdk_printf("If you want to adjust priority for the other or batch scheduling type,\n");
+    msdk_printf("you can do that process-wise using dynamic priority - so called nice value.\n");
+    msdk_printf("Range for the nice value is: %d .. %d (high .. low)\n", PRIO_MIN, PRIO_MAX);
+    msdk_printf("Please, see 'man(1) nice' for details.\n");
 }
 
 mfxU32 msdk_get_current_pid() {

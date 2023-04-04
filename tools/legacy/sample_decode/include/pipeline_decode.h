@@ -185,16 +185,16 @@ public:
     inline void PrintDecodeErrorReport(mfxExtDecodeErrorReport* pDecodeErrorReport) {
         if (pDecodeErrorReport) {
             if (pDecodeErrorReport->ErrorTypes & MFX_ERROR_SPS)
-                msdk_printf(MSDK_STRING("[Error] SPS Error detected!\n"));
+                msdk_printf("[Error] SPS Error detected!\n");
 
             if (pDecodeErrorReport->ErrorTypes & MFX_ERROR_PPS)
-                msdk_printf(MSDK_STRING("[Error] PPS Error detected!\n"));
+                msdk_printf("[Error] PPS Error detected!\n");
 
             if (pDecodeErrorReport->ErrorTypes & MFX_ERROR_SLICEHEADER)
-                msdk_printf(MSDK_STRING("[Error] SliceHeader Error detected!\n"));
+                msdk_printf("[Error] SliceHeader Error detected!\n");
 
             if (pDecodeErrorReport->ErrorTypes & MFX_ERROR_FRAME_GAP)
-                msdk_printf(MSDK_STRING("[Error] Frame Gap Error detected!\n"));
+                msdk_printf("[Error] Frame Gap Error detected!\n");
         }
     }
 

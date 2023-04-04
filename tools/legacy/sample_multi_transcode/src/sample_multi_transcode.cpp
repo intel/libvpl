@@ -43,8 +43,7 @@ mfxU32 GetPreferredAdapterNum(const mfxAdaptersInfo& adapters, const sInputParam
 
         // No dGfx in list
         if (idx == adapters.Adapters + adapters.NumActual) {
-            msdk_printf(
-                MSDK_STRING("Warning: No dGfx detected on machine. Will pick another adapter\n"));
+            msdk_printf("Warning: No dGfx detected on machine. Will pick another adapter\n");
             return 0;
         }
 
@@ -63,8 +62,7 @@ mfxU32 GetPreferredAdapterNum(const mfxAdaptersInfo& adapters, const sInputParam
 
         // No iGfx in list
         if (idx == adapters.Adapters + adapters.NumActual) {
-            msdk_printf(
-                MSDK_STRING("Warning: No iGfx detected on machine. Will pick another adapter\n"));
+            msdk_printf("Warning: No iGfx detected on machine. Will pick another adapter\n");
             return 0;
         }
 
@@ -165,8 +163,7 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
         MSDK_CHECK_STATUS(sts, "QueryAdapters failed");
 
         if (m_eDevType && m_DisplaysData.empty()) {
-            msdk_printf(
-                MSDK_STRING("No adapters found. HW-accelerated transcoding is impossible.\n"));
+            msdk_printf("No adapters found. HW-accelerated transcoding is impossible.\n");
             return MFX_ERR_UNSUPPORTED;
         }
 #endif
@@ -181,7 +178,7 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
         if (m_InputParamsArray[0].nMemoryModel == VISIBLE_INT_ALLOC ||
             m_InputParamsArray[0].nMemoryModel == HIDDEN_INT_ALLOC) {
             m_pLoader->ConfigureVersion({ { 0, 2 } });
-            msdk_printf(MSDK_STRING("warning: internal memory allocation requires 2.x API\n"));
+            msdk_printf("warning: internal memory allocation requires 2.x API\n");
 
             lowLatencyMode = false;
         }
@@ -284,7 +281,7 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
                     hdls.push_back(hdls.back());
                 }
                 else {
-                    msdk_printf(MSDK_STRING("error: failed to initialize alloc parameters\n"));
+                    msdk_printf("error: failed to initialize alloc parameters\n");
                     return MFX_ERR_MEMORY_ALLOC;
                 }
             }
@@ -333,7 +330,7 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
                     hdls.push_back(hdls.back());
                 }
                 else {
-                    msdk_printf(MSDK_STRING("error: failed to initialize alloc parameters\n"));
+                    msdk_printf("error: failed to initialize alloc parameters\n");
                     return MFX_ERR_MEMORY_ALLOC;
                 }
             }
@@ -357,7 +354,7 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
                     /* Rendering case */
                     hwdev.reset(CreateVAAPIDevice(InputParams.strDevicePath, params.libvaBackend));
                     if (!hwdev.get()) {
-                        msdk_printf(MSDK_STRING("error: failed to initialize VAAPI device\n"));
+                        msdk_printf("error: failed to initialize VAAPI device\n");
                         return MFX_ERR_DEVICE_FAILED;
                     }
 
@@ -411,7 +408,7 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
                     hwdev.reset(CreateVAAPIDevice(m_InputParamsArray[i].strDevicePath));
 
                     if (!hwdev.get()) {
-                        msdk_printf(MSDK_STRING("error: failed to initialize VAAPI device\n"));
+                        msdk_printf("error: failed to initialize VAAPI device\n");
                         return MFX_ERR_DEVICE_FAILED;
                     }
 
@@ -439,7 +436,7 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
                     hdls.push_back(hdls.back());
                 }
                 else {
-                    msdk_printf(MSDK_STRING("error: failed to initialize alloc parameters\n"));
+                    msdk_printf("error: failed to initialize alloc parameters\n");
                     return MFX_ERR_MEMORY_ALLOC;
                 }
             }
@@ -479,7 +476,7 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
 
     // create sessions, allocators
     for (i = 0; i < m_InputParamsArray.size(); i++) {
-        msdk_printf(MSDK_STRING("Session %d:\n"), (int)i);
+        msdk_printf("Session %d:\n", (int)i);
         auto pAllocator = std::make_unique<GeneralAllocator>();
         sts             = pAllocator->Init(m_pAllocParams[i].get());
         MSDK_CHECK_STATUS(sts, "pAllocator->Init failed");
@@ -530,7 +527,7 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
             sts = reader->Init(m_InputParamsArray[i].strSrcFile.c_str());
             if (sts == MFX_ERR_UNSUPPORTED && m_InputParamsArray[i].DecodeId == MFX_CODEC_AV1) {
                 reader.reset(new CSmplBitstreamReader());
-                msdk_printf(MSDK_STRING("WARNING: Stream is not IVF, default reader\n"));
+                msdk_printf("WARNING: Stream is not IVF, default reader\n");
             }
             MSDK_CHECK_STATUS(sts, "reader->Init failed");
             sts = m_pExtBSProcArray.back()->SetReader(reader);
@@ -560,9 +557,7 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
                 m_pExtBSProcArray.back()->SetWriter(m_GlobalBitstreamWriter);
             }
         }
-        else if (msdk_strncmp(MSDK_STRING("null"),
-                              m_InputParamsArray[i].strDstFile.c_str(),
-                              msdk_strlen(MSDK_STRING("null")))) {
+        else if (!msdk_match(m_InputParamsArray[i].strDstFile, "null")) {
             auto writer = std::make_shared<CSmplBitstreamWriter>();
             sts         = writer->Init(m_InputParamsArray[i].strDstFile.c_str());
 
@@ -675,9 +670,9 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
         MSDK_CHECK_STATUS(sts, "m_pThreadContextArray[i]->pPipeline->CompleteInit failed");
 
         if (m_pThreadContextArray[i]->pPipeline->GetJoiningFlag())
-            msdk_printf(MSDK_STRING("Session %d was joined with other sessions\n"), (int)i);
+            msdk_printf("Session %d was joined with other sessions\n", (int)i);
         else
-            msdk_printf(MSDK_STRING("Session %d was NOT joined with other sessions\n"), (int)i);
+            msdk_printf("Session %d was NOT joined with other sessions\n", (int)i);
 
         m_pThreadContextArray[i]->pPipeline->SetPipelineID(i);
     }
@@ -699,14 +694,14 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
         }
     }
 
-    msdk_printf(MSDK_STRING("\n"));
+    msdk_printf("\n");
 
     return sts;
 
 } // mfxStatus Launcher::Init()
 
 void Launcher::Run() {
-    msdk_printf(MSDK_STRING("Transcoding started\n"));
+    msdk_printf("Transcoding started\n");
 
     // mark start time
     m_StartTime = msdk_time_get_tick();
@@ -719,7 +714,7 @@ void Launcher::Run() {
         DoTranscoding();
     }
 
-    msdk_printf(MSDK_STRING("\nTranscoding finished\n"));
+    msdk_printf("\nTranscoding finished\n");
 
 } // mfxStatus Launcher::Init()
 
@@ -763,14 +758,12 @@ void Launcher::DoTranscoding() {
                     // But do not stop in robust mode when gpu hang's happened
                     if (m_pThreadContextArray[i]->transcodingSts != MFX_ERR_GPU_HANG ||
                         !m_pThreadContextArray[i]->pPipeline->GetRobustFlag()) {
-                        msdk_stringstream ss;
-                        ss << MSDK_STRING("\n\n session ") << i << MSDK_STRING(" [")
-                           << m_pThreadContextArray[i]->pPipeline->GetSessionText()
-                           << MSDK_STRING("] failed with status ")
-                           << StatusToString(m_pThreadContextArray[i]->transcodingSts)
-                           << MSDK_STRING(" shutting down the application...") << std::endl
-                           << std::endl;
-                        msdk_printf(MSDK_STRING("%s"), ss.str().c_str());
+                        msdk_cout << "\n\n session " << i << " ["
+                                  << m_pThreadContextArray[i]->pPipeline->GetSessionText()
+                                  << "] failed with status "
+                                  << StatusToString(m_pThreadContextArray[i]->transcodingSts)
+                                  << " shutting down the application..." << std::endl
+                                  << std::endl;
 
                         for (const auto& context : m_pThreadContextArray) {
                             context->pPipeline->StopSession();
@@ -778,13 +771,12 @@ void Launcher::DoTranscoding() {
                     }
                 }
                 else if (m_pThreadContextArray[i]->transcodingSts > MFX_ERR_NONE) {
-                    msdk_stringstream ss;
-                    ss << MSDK_STRING("\n\n session ") << i << MSDK_STRING(" [")
-                       << m_pThreadContextArray[i]->pPipeline->GetSessionText()
-                       << MSDK_STRING("] returned warning status ")
-                       << StatusToString(m_pThreadContextArray[i]->transcodingSts) << std::endl
-                       << std::endl;
-                    msdk_printf(MSDK_STRING("%s"), ss.str().c_str());
+                    msdk_cout << "\n\n session " << i << " ["
+                              << m_pThreadContextArray[i]->pPipeline->GetSessionText()
+                              << "] returned warning status "
+                              << StatusToString(m_pThreadContextArray[i]->transcodingSts)
+                              << std::endl
+                              << std::endl;
                 }
             }
             else {
@@ -831,13 +823,12 @@ void Launcher::DoRobustTranscoding() {
                     sts = m_pThreadContextArray[i]->pPipeline->Reset(m_pLoader.get());
                 }
                 if (sts) {
-                    msdk_printf(
-                        MSDK_STRING("\n[WARNING] GPU Hang recovery wasn't succeed. Exiting...\n"));
+                    msdk_printf("\n[WARNING] GPU Hang recovery wasn't succeed. Exiting...\n");
                     return;
                 }
             }
             bGPUHang = false;
-            msdk_printf(MSDK_STRING("\n[WARNING] Successfully recovered. Continue transcoding.\n"));
+            msdk_printf("\n[WARNING] Successfully recovered. Continue transcoding.\n");
         }
 
         DoTranscoding();
@@ -849,7 +840,7 @@ void Launcher::DoRobustTranscoding() {
         }
         if (!bGPUHang)
             break;
-        msdk_printf(MSDK_STRING("\n[WARNING] GPU Hang has happened. Trying to recover...\n"));
+        msdk_printf("\n[WARNING] GPU Hang has happened. Trying to recover...\n");
     }
 }
 
@@ -861,23 +852,23 @@ mfxF64 GetTimeSince(msdk_tick start) {
 mfxStatus Launcher::ProcessResult() {
     msdk_fstream performance_file(performance_file_name, std::ios_base::out);
 
-    msdk_stringstream ssTranscodingTime;
+    std::stringstream ssTranscodingTime;
     ssTranscodingTime << std::endl
-                      << MSDK_STRING("Common transcoding time is ") << GetTimeSince(m_StartTime)
-                      << MSDK_STRING(" sec") << std::endl;
+                      << "Common transcoding time is " << GetTimeSince(m_StartTime) << " sec"
+                      << std::endl;
 
     if (performance_file.is_open()) {
         performance_file << parameter_file_name << std::endl << std::endl;
     }
 
-    msdk_printf(MSDK_STRING("%s"), ssTranscodingTime.str().c_str());
+    msdk_printf("%s", ssTranscodingTime.str().c_str());
     if (performance_file.is_open()) {
         performance_file << ssTranscodingTime.str();
     }
 
     mfxStatus FinalSts = MFX_ERR_NONE;
-    msdk_printf(MSDK_STRING(
-        "-------------------------------------------------------------------------------\n"));
+    msdk_printf(
+        "-------------------------------------------------------------------------------\n");
 
     for (mfxU32 i = 0; i < m_pThreadContextArray.size(); i++) {
         mfxStatus transcodingSts = m_pThreadContextArray[i]->transcodingSts;
@@ -887,38 +878,33 @@ mfxStatus Launcher::ProcessResult() {
         if (!FinalSts)
             FinalSts = transcodingSts;
 
-        msdk_string SessionStsStr = transcodingSts ? msdk_string(MSDK_STRING("FAILED"))
-                                                   : msdk_string((MSDK_STRING("PASSED")));
+        const char* SessionStsStr = transcodingSts ? "FAILED" : "PASSED";
 
-        msdk_stringstream ss;
-        ss << MSDK_STRING("*** session ") << i << MSDK_STRING(" [")
-           << m_pThreadContextArray[i]->pPipeline->GetSessionText() << MSDK_STRING("] ")
-           << SessionStsStr << MSDK_STRING(" (") << StatusToString(transcodingSts)
-           << MSDK_STRING(") ") << workTime << MSDK_STRING(" sec, ") << framesNum
-           << MSDK_STRING(" frames, ") << std::fixed << std::setprecision(3) << framesNum / workTime
-           << MSDK_STRING(" fps") << std::endl;
+        msdk_stringstream session_info_sstr;
+        session_info_sstr << "*** session " << i << " ["
+                          << m_pThreadContextArray[i]->pPipeline->GetSessionText() << "] "
+                          << SessionStsStr << " (" << StatusToString(transcodingSts) << ") "
+                          << workTime << " sec, " << framesNum << " frames, " << std::fixed
+                          << std::setprecision(3) << framesNum / workTime << " fps" << std::endl;
         if (i < session_descriptions.size()) {
-            ss << session_descriptions[i] << std::endl;
+            session_info_sstr << session_descriptions[i] << std::endl;
         }
         else {
-            ss << MSDK_STRING("") << std::endl;
+            session_info_sstr << "" << std::endl;
         }
-        ss << std::endl;
-        msdk_printf(MSDK_STRING("%s"), ss.str().c_str());
+        session_info_sstr << std::endl;
+        msdk_cout << session_info_sstr.str();
         if (performance_file.is_open()) {
-            performance_file << ss.str();
+            performance_file << session_info_sstr.str();
         }
     }
-    msdk_printf(MSDK_STRING(
-        "-------------------------------------------------------------------------------\n"));
+    msdk_printf(
+        "-------------------------------------------------------------------------------\n");
 
-    msdk_stringstream ssTest;
-    ssTest << std::endl
-           << MSDK_STRING("The test ")
-           << (FinalSts ? msdk_string(MSDK_STRING("FAILED")) : msdk_string(MSDK_STRING("PASSED")))
-           << std::endl;
+    std::stringstream ssTest;
+    ssTest << std::endl << "The test " << (FinalSts ? "FAILED" : "PASSED") << std::endl;
 
-    msdk_printf(MSDK_STRING("%s"), ssTest.str().c_str());
+    msdk_printf("%s", ssTest.str().c_str());
     if (performance_file.is_open()) {
         performance_file << ssTest.str();
     }
@@ -991,14 +977,9 @@ mfxStatus Launcher::CheckAndFixAdapterDependency_1X(mfxU32 idxSession,
         !m_InputParamsArray[idxSession].bPreferdGfx) {
         m_InputParamsArray[idxSession].bPreferiGfx = pParentPipeline->IsPreferiGfx();
         m_InputParamsArray[idxSession].bPreferdGfx = pParentPipeline->IsPreferdGfx();
-        msdk_stringstream ss;
-        ss << MSDK_STRING("\n\n session with index: ") << idxSession
-           << MSDK_STRING(" adapter type was forced to ")
-           << (pParentPipeline->IsPreferiGfx() ? MSDK_STRING("integrated")
-                                               : MSDK_STRING("discrete"))
-           << std::endl
-           << std::endl;
-        msdk_printf(MSDK_STRING("%s"), ss.str().c_str());
+        msdk_cout << "\n\n session with index: " << idxSession << " adapter type was forced to "
+                  << (pParentPipeline->IsPreferiGfx() ? "integrated" : "discrete") << std::endl
+                  << std::endl;
 
         return MFX_ERR_NONE;
     }
@@ -1007,36 +988,30 @@ mfxStatus Launcher::CheckAndFixAdapterDependency_1X(mfxU32 idxSession,
     if (!pParentPipeline->IsPreferiGfx() && !pParentPipeline->IsPreferdGfx() &&
         (m_InputParamsArray[idxSession].bPreferiGfx ||
          m_InputParamsArray[idxSession].bPreferdGfx)) {
-        msdk_stringstream ss;
-        ss << MSDK_STRING("\n\n session with index: ") << idxSession
-           << MSDK_STRING(" failed because parent session [") << pParentPipeline->GetSessionText()
-           << MSDK_STRING("] doesn't have explicit adapter setting") << std::endl
-           << std::endl;
-        msdk_printf(MSDK_STRING("%s"), ss.str().c_str());
+        msdk_cout << "\n\n session with index: " << idxSession << " failed because parent session ["
+                  << pParentPipeline->GetSessionText() << "] doesn't have explicit adapter setting"
+                  << std::endl
+                  << std::endl;
 
         return MFX_ERR_UNSUPPORTED;
     }
 
     // Inherited sessions must have the same adapter as parent
     if (pParentPipeline->IsPreferiGfx() && !m_InputParamsArray[idxSession].bPreferiGfx) {
-        msdk_stringstream ss;
-        ss << MSDK_STRING("\n\n session with index: ") << idxSession
-           << MSDK_STRING(" failed because it has different adapter type with parent session [")
-           << pParentPipeline->GetSessionText() << MSDK_STRING("]") << std::endl
-           << std::endl;
-        msdk_printf(MSDK_STRING("%s"), ss.str().c_str());
+        msdk_cout << "\n\n session with index: " << idxSession
+                  << " failed because it has different adapter type with parent session ["
+                  << pParentPipeline->GetSessionText() << "]" << std::endl
+                  << std::endl;
 
         return MFX_ERR_UNSUPPORTED;
     }
 
     // Inherited sessions must have the same adapter as parent
     if (pParentPipeline->IsPreferdGfx() && !m_InputParamsArray[idxSession].bPreferdGfx) {
-        msdk_stringstream ss;
-        ss << MSDK_STRING("\n\n session with index: ") << idxSession
-           << MSDK_STRING(" failed because it has different adapter type with parent session [")
-           << pParentPipeline->GetSessionText() << MSDK_STRING("]") << std::endl
-           << std::endl;
-        msdk_printf(MSDK_STRING("%s"), ss.str().c_str());
+        msdk_cout << "\n\n session with index: " << idxSession
+                  << " failed because it has different adapter type with parent session ["
+                  << pParentPipeline->GetSessionText() << "]" << std::endl
+                  << std::endl;
 
         return MFX_ERR_UNSUPPORTED;
     }
@@ -1055,28 +1030,22 @@ mfxStatus Launcher::CheckAndFixAdapterDependency(mfxU32 idxSession,
         m_InputParamsArray[idxSession].adapterType == mfxMediaAdapterType::MFX_MEDIA_UNKNOWN) {
         m_InputParamsArray[idxSession].adapterType = pParentPipeline->GetAdapterType();
         m_InputParamsArray[idxSession].dGfxIdx     = pParentPipeline->GetdGfxIdx();
-        msdk_stringstream ss;
-        ss << MSDK_STRING("\n\n session with index: ") << idxSession
-           << MSDK_STRING(" adapter type was forced to ")
-           << (pParentPipeline->GetAdapterType() == mfxMediaAdapterType::MFX_MEDIA_INTEGRATED
-                   ? MSDK_STRING("integrated")
-                   : MSDK_STRING("discrete"));
+        msdk_cout << "\n\n session with index: " << idxSession << " adapter type was forced to "
+                  << (pParentPipeline->GetAdapterType() == mfxMediaAdapterType::MFX_MEDIA_INTEGRATED
+                          ? "integrated"
+                          : "discrete");
         if (pParentPipeline->GetdGfxIdx() != -1)
-            ss << MSDK_STRING(" with index ") << pParentPipeline->GetdGfxIdx();
-        ss << std::endl << std::endl;
-        msdk_printf(MSDK_STRING("%s"), ss.str().c_str());
+            msdk_cout << " with index " << pParentPipeline->GetdGfxIdx();
+        msdk_cout << std::endl << std::endl;
 
         return MFX_WRN_VIDEO_PARAM_CHANGED;
     }
 
     if (pParentPipeline->GetAdapterNum() != -1 && m_InputParamsArray[idxSession].adapterNum == -1) {
         m_InputParamsArray[idxSession].adapterNum = pParentPipeline->GetAdapterNum();
-        msdk_stringstream ss;
-        ss << MSDK_STRING("\n\n session with index: ") << idxSession
-           << MSDK_STRING(" adapter num was forced to ") << pParentPipeline->GetAdapterNum()
-           << std::endl
-           << std::endl;
-        msdk_printf(MSDK_STRING("%s"), ss.str().c_str());
+        msdk_cout << "\n\n session with index: " << idxSession << " adapter num was forced to "
+                  << pParentPipeline->GetAdapterNum() << std::endl
+                  << std::endl;
 
         return MFX_ERR_NONE;
     }
@@ -1084,12 +1053,10 @@ mfxStatus Launcher::CheckAndFixAdapterDependency(mfxU32 idxSession,
     // App can't change initialization of the previous session (parent session)
     if (pParentPipeline->GetAdapterType() == mfxMediaAdapterType::MFX_MEDIA_UNKNOWN &&
         m_InputParamsArray[idxSession].adapterType != mfxMediaAdapterType::MFX_MEDIA_UNKNOWN) {
-        msdk_stringstream ss;
-        ss << MSDK_STRING("\n\n session with index: ") << idxSession
-           << MSDK_STRING(" failed because parent session [") << pParentPipeline->GetSessionText()
-           << MSDK_STRING("] doesn't have explicit adapter setting") << std::endl
-           << std::endl;
-        msdk_printf(MSDK_STRING("%s"), ss.str().c_str());
+        msdk_cout << "\n\n session with index: " << idxSession << " failed because parent session ["
+                  << pParentPipeline->GetSessionText() << "] doesn't have explicit adapter setting"
+                  << std::endl
+                  << std::endl;
 
         return MFX_ERR_UNSUPPORTED;
     }
@@ -1097,23 +1064,19 @@ mfxStatus Launcher::CheckAndFixAdapterDependency(mfxU32 idxSession,
     // Inherited sessions must have the same adapter as parent
     if (pParentPipeline->GetAdapterType() != m_InputParamsArray[idxSession].adapterType ||
         pParentPipeline->GetdGfxIdx() != m_InputParamsArray[idxSession].dGfxIdx) {
-        msdk_stringstream ss;
-        ss << MSDK_STRING("\n\n session with index: ") << idxSession
-           << MSDK_STRING(" failed because it has different adapter type with parent session [")
-           << pParentPipeline->GetSessionText() << MSDK_STRING("]") << std::endl
-           << std::endl;
-        msdk_printf(MSDK_STRING("%s"), ss.str().c_str());
+        msdk_cout << "\n\n session with index: " << idxSession
+                  << " failed because it has different adapter type with parent session ["
+                  << pParentPipeline->GetSessionText() << "]" << std::endl
+                  << std::endl;
 
         return MFX_ERR_UNSUPPORTED;
     }
 
     if (pParentPipeline->GetAdapterNum() != m_InputParamsArray[idxSession].adapterNum) {
-        msdk_stringstream ss;
-        ss << MSDK_STRING("\n\n session with index: ") << idxSession
-           << MSDK_STRING(" failed because it has different adapter num with parent session [")
-           << pParentPipeline->GetSessionText() << MSDK_STRING("]") << std::endl
-           << std::endl;
-        msdk_printf(MSDK_STRING("%s"), ss.str().c_str());
+        msdk_cout << "\n\n session with index: " << idxSession
+                  << " failed because it has different adapter num with parent session ["
+                  << pParentPipeline->GetSessionText() << "]" << std::endl
+                  << std::endl;
 
         return MFX_ERR_UNSUPPORTED;
     }
@@ -1178,17 +1141,14 @@ mfxStatus Launcher::VerifyCrossSessionsOptions() {
     }
     if (!isAllMFEFramesEqual)
         msdk_printf(
-            MSDK_STRING(
-                "WARNING: All sessions for MFE should have the same number of MFE frames!\n used ammount of frame for MFE: %d\n"),
+            "WARNING: All sessions for MFE should have the same number of MFE frames!\n used ammount of frame for MFE: %d\n",
             (int)usedMFEMaxFrames);
     if (!isAllMFEModesEqual)
-        msdk_printf(
-            MSDK_STRING(
-                "WARNING: All sessions for MFE should have the same mode!\n, used mode: %d\n"),
-            (int)usedMFEMode);
+        msdk_printf("WARNING: All sessions for MFE should have the same mode!\n, used mode: %d\n",
+                    (int)usedMFEMode);
     if (!isAllMFESessionsJoined)
-        msdk_printf(MSDK_STRING(
-            "WARNING: Sessions for MFE should be joined! All sessions forced to be joined\n"));
+        msdk_printf(
+            "WARNING: Sessions for MFE should be joined! All sessions forced to be joined\n");
 
     for (mfxU32 i = 0; i < m_InputParamsArray.size(); i++) {
         if (m_InputParamsArray[i].bSingleTexture) {
@@ -1199,15 +1159,15 @@ mfxStatus Launcher::VerifyCrossSessionsOptions() {
         if (m_InputParamsArray[i].nTimeout && (m_InputParamsArray[i].eMode == Sink)) {
             for (mfxU32 j = 0; j < m_InputParamsArray.size(); j++) {
                 if (m_InputParamsArray[j].MaxFrameNumber != MFX_INFINITE) {
-                    msdk_printf(MSDK_STRING(
-                        "\"-timeout\" option isn't compatible with \"-n\". \"-n\" will be ignored.\n"));
+                    msdk_printf(
+                        "\"-timeout\" option isn't compatible with \"-n\". \"-n\" will be ignored.\n");
                     for (mfxU32 k = 0; k < m_InputParamsArray.size(); k++) {
                         m_InputParamsArray[k].MaxFrameNumber = MFX_INFINITE;
                     }
                     break;
                 }
             }
-            msdk_printf(MSDK_STRING("Timeout %d seconds has been set to all sessions\n"),
+            msdk_printf("Timeout %d seconds has been set to all sessions\n",
                         m_InputParamsArray[i].nTimeout);
             for (mfxU32 j = 0; j < m_InputParamsArray.size(); j++) {
                 m_InputParamsArray[j].nTimeout = m_InputParamsArray[i].nTimeout;
@@ -1227,8 +1187,8 @@ mfxStatus Launcher::VerifyCrossSessionsOptions() {
             }
             // topology definition
             if (!isSinkPresence) {
-                PrintError(MSDK_STRING(
-                    "Error in par file. Decode source session must be declared BEFORE encode sinks \n"));
+                PrintError(
+                    "Error in par file. Decode source session must be declared BEFORE encode sinks \n");
                 return MFX_ERR_UNSUPPORTED;
             }
             isSourcePresence = true;
@@ -1241,13 +1201,12 @@ mfxStatus Launcher::VerifyCrossSessionsOptions() {
             }
             else {
                 if (m_InputParamsArray[i].bIsJoin && !isHeterSessionJoin) {
-                    PrintError(MSDK_STRING(
-                        "Error in par file. All heterogeneous sessions must be joined \n"));
+                    PrintError("Error in par file. All heterogeneous sessions must be joined \n");
                     return MFX_ERR_UNSUPPORTED;
                 }
                 if (!m_InputParamsArray[i].bIsJoin && isHeterSessionJoin) {
-                    PrintError(MSDK_STRING(
-                        "Error in par file. All heterogeneous sessions must be NOT joined \n"));
+                    PrintError(
+                        "Error in par file. All heterogeneous sessions must be NOT joined \n");
                     return MFX_ERR_UNSUPPORTED;
                 }
             }
@@ -1267,13 +1226,12 @@ mfxStatus Launcher::VerifyCrossSessionsOptions() {
             }
             else {
                 if (m_InputParamsArray[i].bIsJoin && !isHeterSessionJoin) {
-                    PrintError(MSDK_STRING(
-                        "Error in par file. All heterogeneous sessions must be joined \n"));
+                    PrintError("Error in par file. All heterogeneous sessions must be joined \n");
                     return MFX_ERR_UNSUPPORTED;
                 }
                 if (!m_InputParamsArray[i].bIsJoin && isHeterSessionJoin) {
-                    PrintError(MSDK_STRING(
-                        "Error in par file. All heterogeneous sessions must be NOT joined \n"));
+                    PrintError(
+                        "Error in par file. All heterogeneous sessions must be NOT joined \n");
                     return MFX_ERR_UNSUPPORTED;
                 }
             }
@@ -1340,7 +1298,7 @@ mfxStatus Launcher::VerifyCrossSessionsOptions() {
     }
 
     if (isSinkPresence && !isSourcePresence) {
-        PrintError(MSDK_STRING("Error: Sink must be defined"));
+        PrintError("Error: Sink must be defined");
         return MFX_ERR_UNSUPPORTED;
     }
 
@@ -1353,8 +1311,8 @@ mfxStatus Launcher::VerifyCrossSessionsOptions() {
             m_InputParamsArray[j].bSingleTexture = true;
         }
         if (showWarning) {
-            msdk_printf(MSDK_STRING(
-                "WARNING: At least one session has -single_texture_d3d11 option, all other sessions are modified to have this setting enabled al well.\n"));
+            msdk_printf(
+                "WARNING: At least one session has -single_texture_d3d11 option, all other sessions are modified to have this setting enabled al well.\n");
         }
     }
 
@@ -1378,8 +1336,7 @@ mfxStatus Launcher::VerifyCrossSessionsOptions() {
                                            return l.nSyncOpTimeout < r.nSyncOpTimeout;
                                        });
             msdk_printf(
-                MSDK_STRING(
-                    "WARNING: The same value of the timeout should be used for sync operations in all sessions. Max value: %u will be used.\n"),
+                "WARNING: The same value of the timeout should be used for sync operations in all sessions. Max value: %u will be used.\n",
                 (*it).nSyncOpTimeout);
             for (size_t i = 0; i < m_InputParamsArray.size(); ++i) {
                 m_InputParamsArray[i].nSyncOpTimeout = (*it).nSyncOpTimeout;

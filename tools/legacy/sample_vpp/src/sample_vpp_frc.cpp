@@ -179,22 +179,21 @@ mfxU32 FRCChecker::CalculateGCD(mfxU32 val1, mfxU32 val2) {
 }
 
 void FRCChecker::PrintDumpInfoAboutMomentError() {
-    msdk_printf(MSDK_STRING("Error in FRC algorithm. Moment error \n"));
-    msdk_printf(MSDK_STRING("Input frame number is %d\n"), m_NumFrame_In);
-    msdk_printf(MSDK_STRING("Output frame number is %d\n"), m_NumFrame_Out);
-    msdk_printf(MSDK_STRING("Upper edge, Bottom edge, Current value are: %d\t %d\t %d\n"),
+    msdk_printf("Error in FRC algorithm. Moment error \n");
+    msdk_printf("Input frame number is %d\n", m_NumFrame_In);
+    msdk_printf("Output frame number is %d\n", m_NumFrame_Out);
+    msdk_printf("Upper edge, Bottom edge, Current value are: %d\t %d\t %d\n",
                 m_UpperEdge,
                 m_BottomEdge,
                 m_MomentError);
 }
 
 void FRCChecker::PrintDumpInfoAboutAverageError() {
-    msdk_printf(MSDK_STRING("Error in FRC algorithm. Average error \n"));
-    msdk_printf(MSDK_STRING("Input frame number is %d\n"), m_NumFrame_In);
-    msdk_printf(MSDK_STRING("Output frame number is %d\n"), m_NumFrame_Out);
-    msdk_printf(
-        MSDK_STRING("Maximum error: input FRC, output FRC, Current value are: %d\t %d\t %llu\n"),
-        m_Error_In,
-        m_Error_Out,
-        (unsigned long long int)m_AverageError);
+    msdk_printf("Error in FRC algorithm. Average error \n");
+    msdk_printf("Input frame number is %d\n", m_NumFrame_In);
+    msdk_printf("Output frame number is %d\n", m_NumFrame_Out);
+    msdk_printf("Maximum error: input FRC, output FRC, Current value are: %d\t %d\t %llu\n",
+                m_Error_In,
+                m_Error_Out,
+                (unsigned long long int)m_AverageError);
 }

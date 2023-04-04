@@ -103,7 +103,7 @@ public:
     virtual void release(mfxMemId mid, void* mem);
 
     static uint32_t getConnectorType(mfxI32 monitor_type);
-    static const msdk_char* getConnectorName(uint32_t connector_type);
+    static const char* getConnectorName(uint32_t connector_type);
 
 private:
     drmModeObjectPropertiesPtr getProperties(int fd, int objectId, int32_t objectTypeId);

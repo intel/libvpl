@@ -185,7 +185,7 @@ mfxStatus OutputProcessFrame(sAppResources Resources,
             Resources.pSurfStore->m_SyncPoints.front().first,
             MSDK_VPP_WAIT_INTERVAL);
         if (sts == MFX_WRN_IN_EXECUTION) {
-            msdk_printf(MSDK_STRING("SyncOperation wait interval exceeded\n"));
+            msdk_printf("SyncOperation wait interval exceeded\n");
         }
         MSDK_CHECK_NOT_EQUAL(sts, MFX_ERR_NONE, sts);
 
@@ -205,18 +205,18 @@ mfxStatus OutputProcessFrame(sAppResources Resources,
         DecreaseReference(&pProcessedSurface->Data);
 
         if (sts)
-            msdk_printf(MSDK_STRING("Failed to write frame to disk\n"));
+            msdk_printf("Failed to write frame to disk\n");
         MSDK_CHECK_NOT_EQUAL(sts, MFX_ERR_NONE, MFX_ERR_ABORTED);
 
         nFrames++;
 
         //VPP progress
         if (!Resources.pParams->bPerf) {
-            msdk_printf(MSDK_STRING("Frame number: %d\r"), nFrames);
+            msdk_printf("Frame number: %d\r", nFrames);
         }
         else {
             if (!(nFrames % 100))
-                msdk_printf(MSDK_STRING("."));
+                msdk_printf(".");
         }
     }
     return MFX_ERR_NONE;
@@ -442,8 +442,8 @@ int main(int argc, msdk_char* argv[])
                 shouldConvert             = true;
             }
             if (shouldConvert) {
-                msdk_printf(MSDK_STRING(
-                    "[WARNING] D3D11 does not support YV12 and I420 surfaces. Input will be converted to NV12 by file reader.\n"));
+                msdk_printf(
+                    "[WARNING] D3D11 does not support YV12 and I420 surfaces. Input will be converted to NV12 by file reader.\n");
             }
 
             MSDK_CHECK_STATUS(sts, "yuvReaders[i].Init failed");
@@ -455,8 +455,8 @@ int main(int argc, msdk_char* argv[])
         if ((Params.fccSource == MFX_FOURCC_I420 && (Params.ImpLib & MFX_IMPL_HARDWARE)) ||
             ((Params.ImpLib & 0x0f00) == MFX_IMPL_VIA_D3D11 &&
              Params.fccSource == MFX_FOURCC_YV12)) {
-            msdk_printf(MSDK_STRING(
-                "[WARNING] D3D11 does not support YV12 and I420 surfaces. Input will be converted to NV12 by file reader.\n"));
+            msdk_printf(
+                "[WARNING] D3D11 does not support YV12 and I420 surfaces. Input will be converted to NV12 by file reader.\n");
             Params.inFrameInfo[0].FourCC = MFX_FOURCC_NV12;
             Params.frameInfoIn[0].FourCC = MFX_FOURCC_NV12;
         }
@@ -532,7 +532,7 @@ int main(int argc, msdk_char* argv[])
 
     sts = InitResources(&Resources, &mfxParamsVideo, &Params);
     if (MFX_WRN_FILTER_SKIPPED == sts) {
-        msdk_printf(MSDK_STRING("\nVPP_WRN: some filter(s) skipped\n"));
+        msdk_printf("\nVPP_WRN: some filter(s) skipped\n");
         MSDK_IGNORE_MFX_STS(sts, MFX_WRN_FILTER_SKIPPED);
     }
     MSDK_CHECK_STATUS_SAFE(sts, "InitResources failed", {
@@ -573,7 +573,7 @@ int main(int argc, msdk_char* argv[])
     sts     = MFX_ERR_NONE;
     nFrames = 0;
 
-    msdk_printf(MSDK_STRING("VPP started\n"));
+    msdk_printf("VPP started\n");
     statTimer.StartTimeMeasurement();
 
     mfxU32 StartJumpFrame = 13;
@@ -666,7 +666,7 @@ int main(int argc, msdk_char* argv[])
                 }
             }
 
-            msdk_printf(MSDK_STRING("VPP reseted at frame number %d\n"), (int)numGetFrames);
+            msdk_printf("VPP reseted at frame number %d\n", (int)numGetFrames);
         }
 
         while (MFX_ERR_NONE <= sts || MFX_ERR_MORE_DATA == sts || bDoNotUpdateIn) {
@@ -924,7 +924,7 @@ int main(int argc, msdk_char* argv[])
 
             sts = Resources.pProcessor->mfxSession.SyncOperation(syncPoint, MSDK_VPP_WAIT_INTERVAL);
             if (sts)
-                msdk_printf(MSDK_STRING("SyncOperation wait interval exceeded\n"));
+                msdk_printf("SyncOperation wait interval exceeded\n");
             MSDK_BREAK_ON_ERROR(sts);
             if (!Resources.pParams->strDstFiles.empty()) {
                 GeneralWriter* writer = (1 == Resources.dstFileWritersN)
@@ -932,17 +932,17 @@ int main(int argc, msdk_char* argv[])
                                             : &Resources.pDstFileWriters[paramID];
                 sts = writer->PutNextFrame(Resources.pAllocator, &realFrameInfoOut, pOutSurf);
                 if (sts)
-                    msdk_printf(MSDK_STRING("Failed to write frame to disk\n"));
+                    msdk_printf("Failed to write frame to disk\n");
                 MSDK_CHECK_NOT_EQUAL(sts, MFX_ERR_NONE, MFX_ERR_ABORTED);
             }
             nFrames++;
 
             //VPP progress
             if (!Params.bPerf)
-                msdk_printf(MSDK_STRING("Frame number: %d\r"), (int)nFrames);
+                msdk_printf("Frame number: %d\r", (int)nFrames);
             else {
                 if (!(nFrames % 100))
-                    msdk_printf(MSDK_STRING("."));
+                    msdk_printf(".");
             }
         }
     } while (bNeedReset);
@@ -957,13 +957,12 @@ int main(int argc, msdk_char* argv[])
         WipeParams(&Params);
     });
 
-    msdk_printf(MSDK_STRING("\nVPP finished\n"));
-    msdk_printf(MSDK_STRING("\n"));
+    msdk_printf("\nVPP finished\n");
+    msdk_printf("\n");
 
-    msdk_printf(MSDK_STRING("Total frames %d \n"), (int)nFrames);
-    msdk_printf(MSDK_STRING("Total time %.2f sec \n"), (double)statTimer.GetTotalTime());
-    msdk_printf(MSDK_STRING("Frames per second %.3f fps \n"),
-                (double)(nFrames / statTimer.GetTotalTime()));
+    msdk_printf("Total frames %d \n", (int)nFrames);
+    msdk_printf("Total time %.2f sec \n", (double)statTimer.GetTotalTime());
+    msdk_printf("Frames per second %.3f fps \n", (double)(nFrames / statTimer.GetTotalTime()));
 
     PutPerformanceToFile(Params, nFrames / statTimer.GetTotalTime());
 

@@ -24,8 +24,8 @@
     #define MSDK_BUILD 0
 #endif
 
-static msdk_string GetMSDKSampleVersion() {
-    msdk_stringstream ss;
+static std::string GetMSDKSampleVersion() {
+    std::stringstream ss;
     ss << MSDK_MAJOR << "." << MSDK_MINOR << "." << MSDK_TARGETAPIMINOR << "." << MSDK_BUILD;
     return ss.str();
 }
