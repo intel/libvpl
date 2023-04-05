@@ -17,6 +17,7 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 ### Added
 - New prerequisites installation command in the vpl-infer README.md to fix build failure
 - Updated API to version 2.9
+- Enabled perceptual encoding prefilter option in sample_multi_transcode
 
 ### Changed
 - vpl-infer Dockerfile and Linux setup steps to better align with https://dgpu-docs.intel.com/
