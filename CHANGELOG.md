@@ -10,14 +10,16 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 
 ## [Unreleased]
 
-### Fixed
-- VPP processing for YUV input
-- Fix sample_multi_transcode segfault on wayland
+## [2023.2.0] - 2023-04-07
 
 ### Added
-- New prerequisites installation command in the vpl-infer README.md to fix build failure
-- Updated API to version 2.9
-- Enabled perceptual encoding prefilter option in sample_multi_transcode
+- oneVPL API 2.9 support
+- Perceptual encoding prefilter option to sample_multi_transcode
+
+### Fixed
+- VPP processing for YUV input
+- Sample_multi_transcode segfault on wayland
+- Missing prerequisites in vpl-infer README
 
 ### Changed
 - vpl-infer Dockerfile and Linux setup steps to better align with https://dgpu-docs.intel.com/
@@ -275,7 +277,8 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 - hello-transcode sample
 
 
-[Unreleased]: https://github.com/oneapi-src/oneVPL/compare/v2023.1.3...HEAD
+[Unreleased]: https://github.com/oneapi-src/oneVPL/compare/v2023.2.0...HEAD
+[2023.2.0]: https://github.com/oneapi-src/oneVPL/compare/v2023.1.3...v2023.2.0
 [2023.1.3]: https://github.com/oneapi-src/oneVPL/compare/v2023.1.2...v2023.1.3
 [2023.1.2]: https://github.com/oneapi-src/oneVPL/compare/v2023.1.1...v2023.1.2
 [2023.1.1]: https://github.com/oneapi-src/oneVPL/compare/v2023.1.0...v2023.1.1
