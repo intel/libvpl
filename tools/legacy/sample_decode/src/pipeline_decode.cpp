@@ -800,6 +800,15 @@ mfxStatus CDecodingPipeline::InitMfxParams(sInputParams* pParams) {
                 m_mfxVideoParams.mfx.FrameInfo.PicStruct = m_mfxBS.PicStruct;
             }
 
+            // MJPEG decoder just need 8 alignment for height but VPP need 16 alignment still
+            if (m_bVppIsUsed && (m_mfxVideoParams.mfx.CodecId == MFX_CODEC_JPEG) &&
+                (pParams->bUseHWLib)) {
+                m_mfxVideoParams.mfx.FrameInfo.Height =
+                    (MFX_PICSTRUCT_PROGRESSIVE == m_mfxVideoParams.mfx.FrameInfo.PicStruct)
+                        ? MSDK_ALIGN16(m_mfxVideoParams.mfx.FrameInfo.Height)
+                        : MSDK_ALIGN32(m_mfxVideoParams.mfx.FrameInfo.Height);
+            }
+
             switch (pParams->nRotation) {
                 case 0:
                     m_mfxVideoParams.mfx.Rotation = MFX_ROTATION_0;

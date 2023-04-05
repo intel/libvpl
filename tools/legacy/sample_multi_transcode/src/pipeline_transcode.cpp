@@ -412,6 +412,14 @@ mfxStatus CTranscodingPipeline::VPPPreInit(sInputParams* pParams) {
 #endif
 
         if (m_bIsVpp) {
+            // MJPEG decoder just need 8 alignment for height but VPP need 16 alignment still
+            if ((pParams->DecodeId == MFX_CODEC_JPEG) && (pParams->libType != MFX_IMPL_SOFTWARE)) {
+                m_mfxDecParams.mfx.FrameInfo.Height =
+                    (m_mfxDecParams.mfx.FrameInfo.PicStruct == MFX_PICSTRUCT_PROGRESSIVE)
+                        ? MSDK_ALIGN16(m_mfxDecParams.mfx.FrameInfo.Height)
+                        : MSDK_ALIGN32(m_mfxDecParams.mfx.FrameInfo.Height);
+            }
+
             sts = InitVppMfxParams(m_mfxVppParams, pParams);
             MSDK_CHECK_STATUS(sts, "InitVppMfxParams failed");
 
