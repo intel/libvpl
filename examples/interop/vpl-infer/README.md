@@ -4,7 +4,7 @@
 ## Intro
 
 This sample shows how to use the oneAPI Video Processing Library (oneVPL) 
-and Intel Distribution of OpenVINO™ Toolkit together to perform a simple inference pipeline 
+and Intel® Distribution of OpenVINO™ Toolkit together to perform a simple inference pipeline 
 
 ```mermaid
 graph LR;
@@ -17,7 +17,7 @@ graph LR;
 | OS               | Ubuntu* 20.04; Windows* 10
 | Hardware runtime | Compatible with Intel® oneAPI Video Processing Library(oneVPL) GPU implementation, which can be found at [Intel® oneVPL GPU Implementation Open Source](https://github.com/oneapi-src/oneVPL-intel-gpu)
 |                  | and Intel® Media SDK GPU implementation, which can be found at [Intel® Media SDK Open Source](https://github.com/Intel-Media-SDK/MediaSDK)
-| What You Will Learn | How to combine oneAPI Video Processing Library (oneVPL) and Intel Distribution of OpenVINO™ Toolkit
+| What You Will Learn | How to combine oneAPI Video Processing Library (oneVPL) and Intel® Distribution of OpenVINO™ Toolkit
 | Time to Complete | 5 minutes
 
 
@@ -74,7 +74,7 @@ This can be set up in a bare metal Ubuntu 20.04 system or with Docker for Linux,
     apt install -y cmake build-essential pkg-config libva-dev libva-drm2 vainfo
     ```
 
-2. Install Intel Distribution of OpenVINO™ Toolkit 2022.3.0 from archive
+2. Install Intel® Distribution of OpenVINO™ Toolkit 2022.3.0 from archive
 
     ``` 
     curl -L https://storage.openvinotoolkit.org/repositories/openvino/packages/2022.3/linux/l_openvino_toolkit_ubuntu20_2022.3.0.9052.9752fafe8eb_x86_64.tgz -o l_openvino_toolkit_ubuntu20_2022.3.0.tgz 
