@@ -153,5 +153,30 @@ Cannot open include file: 'atlbase.h': No such file or directory
 ```
 Ensure that the ATL build tools are installed through Visual Studio and that the path to the file is on the include path that the Visual Studio compiler uses
 
+### Debug build target
 
+Build the project with the following commands: 
 
+Linux:
+```
+cd <vpl-repo-clone-location>
+export VPL_INSTALL_DIR=`pwd`/../_vplinstall
+mkdir _build
+mkdir $VPL_INSTALL_DIR
+cd _build
+cmake .. -DCMAKE_INSTALL_PREFIX=$VPL_INSTALL_DIR -DCMAKE_BUILD_TYPE=Debug 
+cmake --build . --config Debug
+cmake --build . --config Debug --target install
+```
+
+Windows:
+```
+cd <vpl-repo-clone-location>
+set VPL_INSTALL_DIR=%cd%\..\_vplinstall
+mkdir _build
+mkdir %VPL_INSTALL_DIR%
+cd _build
+cmake .. -DCMAKE_INSTALL_PREFIX=%VPL_INSTALL_DIR%
+cmake --build . --config Debug
+cmake --build . --config Debug --target install
+```
