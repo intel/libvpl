@@ -10,6 +10,9 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 
 ## [Unreleased]
 
+### Added
+- Documentation on security policy and vulnerability reporting process
+
 ## [2023.2.0] - 2023-04-07
 
 ### Added
