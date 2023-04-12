@@ -10,8 +10,13 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 
 ## [Unreleased]
 
+## [2023.2.1] - 2023-04-14
+
 ### Added
 - Documentation on security policy and vulnerability reporting process
+
+### Removed
+- Fix for VPP processing for YUV input
 
 ## [2023.2.0] - 2023-04-07
 
@@ -280,7 +285,8 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 - hello-transcode sample
 
 
-[Unreleased]: https://github.com/oneapi-src/oneVPL/compare/v2023.2.0...HEAD
+[Unreleased]: https://github.com/oneapi-src/oneVPL/compare/v2023.2.1...HEAD
+[2023.2.0]: https://github.com/oneapi-src/oneVPL/compare/v2023.2.0...v2023.2.1
 [2023.2.0]: https://github.com/oneapi-src/oneVPL/compare/v2023.1.3...v2023.2.0
 [2023.1.3]: https://github.com/oneapi-src/oneVPL/compare/v2023.1.2...v2023.1.3
 [2023.1.2]: https://github.com/oneapi-src/oneVPL/compare/v2023.1.1...v2023.1.2
