@@ -30,75 +30,106 @@ def pretty_print_xml(root):
     return parsed_xml.toprettyxml()
 
 
-# pylint: disable=too-many-branches
-def summarize_report(report):
-    """summarize a report"""
-    suite = []
-    if "issues" in report and report["issues"]:
-        for issue in report["issues"]:
-            test_info = {}
-            suite.append(test_info)
-            test_info["status"] = ""
-            if "stateOnServer" in issue and issue["stateOnServer"]:
-                state_on_server = issue["stateOnServer"]
-                test_info["cid"] = state_on_server["cid"]
-                test_info["stream"] = state_on_server["stream"]
-                if "triage" in state_on_server:
-                    triage = state_on_server["triage"]
-                    test_info["status"] = triage["action"].lower()
-                test_info["external_ref"] = triage["externalReference"]
-            else:
-                test_info["cid"] = ""
-                test_info["stream"] = ""
-                test_info["external_ref"] = ""
-            if "checkerProperties" in issue and issue["checkerProperties"]:
-                checker_properties = issue["checkerProperties"]
-                test_info["desc"] = checker_properties[
-                    "subcategoryLongDescription"]
-                test_info["effect"] = checker_properties[
-                    "subcategoryLocalEffect"]
-            else:
-                test_info["desc"] = issue["checkerName"]
-                test_info["effect"] = issue["type"]
-            test_info['type'] = issue["checkerName"]
-            test_info['file'] = issue["strippedMainEventFilePathname"]
-            test_info['line'] = str(issue["mainEventLineNumber"])
-            test_info['col'] = str(issue["mainEventColumnNumber"])
-            test_info["name"] = ":".join(
-                [test_info["file"], test_info["line"], test_info["col"]])
-            test_info["mergeKey"] = issue["mergeKey"]
-            summary = []
-            if test_info.get("desc"):
-                summary.append(test_info["desc"])
-            if test_info.get("desc"):
-                summary.append(test_info["effect"])
-            if test_info.get("mergeKey"):
-                summary.append(f"Merge Key: {test_info['mergeKey']}")
-            if test_info.get("cid"):
-                summary.append(f"CID: {test_info['cid']}")
-            if test_info.get("external_ref"):
-                summary.append(f"see: {test_info['external_ref']}")
-            test_info["summary"] = '\n\n'.join(summary)
-            if test_info.get("external_ref"):
-                test_info["message"] = test_info.get("external_ref")
-            else:
-                test_info["message"] = f"CID: {test_info['cid']}"
-    return suite
+def summarize_server_state(issue, test_info):
+    """Summarize state on server for an issue"""
+    test_info["status"] = ""
+    if "stateOnServer" in issue and issue["stateOnServer"]:
+        state_on_server = issue["stateOnServer"]
+        test_info["cid"] = state_on_server["cid"]
+        test_info["stream"] = state_on_server["stream"]
+        if "triage" in state_on_server:
+            triage = state_on_server["triage"]
+            test_info["status"] = triage["action"].lower()
+        test_info["external_ref"] = triage["externalReference"]
+    else:
+        test_info["cid"] = ""
+        test_info["stream"] = ""
+        test_info["external_ref"] = ""
 
 
-def xunit_from_report(report, xunit, include_actions):
+def summarize_checker(issue, test_info):
+    """Summarize checker properties for an issue"""
+    if "checkerProperties" in issue and issue["checkerProperties"]:
+        checker_properties = issue["checkerProperties"]
+        test_info["desc"] = checker_properties["subcategoryLongDescription"]
+        test_info["effect"] = checker_properties["subcategoryLocalEffect"]
+    else:
+        test_info["desc"] = issue["checkerName"]
+        test_info["effect"] = issue["type"]
+
+
+def build_summary(test_info):
+    """Generate a summary string based on test info"""
+    summary = []
+    if test_info.get("desc"):
+        summary.append(test_info["desc"])
+    if test_info.get("effect"):
+        summary.append(test_info["effect"])
+    if test_info.get("mergeKey"):
+        summary.append(f"Merge Key: {test_info['mergeKey']}")
+    if test_info.get("cid"):
+        summary.append(f"CID: {test_info['cid']}")
+    if test_info.get("external_ref"):
+        summary.append(f"see: {test_info['external_ref']}")
+    return '\n\n'.join(summary)
+
+
+def build_message(test_info):
+    """Generate a short message based on test info"""
+    if test_info.get("external_ref"):
+        return test_info.get("external_ref")
+    return f"CID: {test_info['cid']}"
+
+
+class ReportSummary:
+    """Summary of coverity report"""
+    def __init__(self, report, problem_statuses):
+        self.problems = 0
+        self.ignored = 0
+        self.problem_statuses = problem_statuses
+        self.suite = []
+        self.summarize_report(report)
+
+    def summarize_issue(self, issue):
+        """Summarize a single issue"""
+        test_info = {}
+        self.suite.append(test_info)
+        summarize_server_state(issue, test_info)
+        test_info["ignore"] = test_info["status"] not in self.problem_statuses
+        if test_info["ignore"]:
+            self.ignored += 1
+        else:
+            self.problems += 1
+        summarize_checker(issue, test_info)
+        test_info['type'] = issue["checkerName"]
+        test_info['file'] = issue["strippedMainEventFilePathname"]
+        test_info['line'] = str(issue["mainEventLineNumber"])
+        test_info['col'] = str(issue["mainEventColumnNumber"])
+        test_info["name"] = ":".join(
+            [test_info["file"], test_info["line"], test_info["col"]])
+        test_info["mergeKey"] = issue["mergeKey"]
+        test_info["summary"] = build_summary(test_info)
+        test_info["message"] = build_message(test_info)
+
+    # pylint: disable=too-many-branches
+    def summarize_report(self, report):
+        """summarize a report"""
+        if "issues" in report and report["issues"]:
+            for issue in report["issues"]:
+                self.summarize_issue(issue)
+
+
+def xunit_from_report(xunit, summary):
     """write an xunit report for the results"""
-    suite = summarize_report(report)
     testsuites = ET.Element('testsuites')
     testsuite = ET.SubElement(testsuites, "testsuite")
     testsuite.attrib["name"] = "coverity"
     suite_fail = 0
-    for test in suite:
-        ignore = test["status"] not in include_actions
+    for test in summary.suite:
         testcase = ET.SubElement(testsuite, "testcase")
         testcase.attrib["classname"] = test['type']
         testcase.attrib["name"] = test["name"]
-        if ignore:
+        if test["ignore"]:
             testcase.attrib["status"] = "Skip"
             skipped = ET.SubElement(testcase, "skipped")
             skipped.text = test["summary"]
@@ -110,10 +141,9 @@ def xunit_from_report(report, xunit, include_actions):
             failure.attrib["type"] = test['type']
             failure.text = test["summary"]
             failure.attrib["message"] = test["message"]
-    testsuite.attrib["tests"] = str(len(suite))
-    testsuite.attrib["failures"] = str(suite_fail)
-    testsuites.attrib["tests"] = str(len(suite))
-    testsuites.attrib["failures"] = str(suite_fail)
+    testsuite.attrib["tests"] = str(len(summary.suite))
+    testsuite.attrib["failures"] = str(summary.problems)
+    testsuites.attrib["tests"] = str(len(summary.suite))
 
     pretty_xunit_report = pretty_print_xml(testsuites)
     with open(xunit, "w") as xml_file:
@@ -160,6 +190,8 @@ def read_command_line(cmd_line):
                         action="store",
                         default="",
                         help='Business unit (for reports)')
+    parser.add_argument(
+        '--report', help='Force reporting, even if no new issues were found')
     #build options
     parser.add_argument('--dir',
                         dest='intermediate_dir',
@@ -198,12 +230,8 @@ def read_command_line(cmd_line):
     return args
 
 
-def run(args):
-    """main entry point
-    """
-    # Set up analysis environment
-    md(args.intermediate_dir)
-
+def configure_coverity():
+    """Configure Coverity"""
     if os.name == "nt":
         run_command("cov-configure", "--msvc")
     run_command("cov-configure", "--gcc")
@@ -212,96 +240,127 @@ def run(args):
     run_command("cov-configure", "--template", "--compiler", "c++",
                 "--comptype", "g++")
 
-    run_command("cov-build", "--dir", args.intermediate_dir, *args.command)
+
+def build_under_coverity(intermediate_dir, command, strip_path):
+    """Build project under coverity"""
+    run_command("cov-build", "--dir", intermediate_dir, *command)
     # Analyze
-    run_command("cov-analyze", "--dir", args.intermediate_dir, "--strip-path",
-                args.strip_path, "--enable-constraint-fpp", "--ticker-mode",
-                "none", "--disable-default", "--concurrency", "--security",
-                "--rule", "--enable-fnptr", "--enable-virtual", "--enable",
+    run_command("cov-analyze", "--dir", intermediate_dir, "--strip-path",
+                strip_path, "--enable-constraint-fpp", "--ticker-mode", "none",
+                "--disable-default", "--concurrency", "--security", "--rule",
+                "--enable-fnptr", "--enable-virtual", "--enable",
                 "SECURE_CODING")
+
+
+# pylint: disable=too-many-arguments
+def get_preview_report(user, password, intermediate_dir, url, stream,
+                       code_version, strip_path, preview_report_v2_path,
+                       full_report_v9_path, active_report_v9_path,
+                       full_html_report_path, active_html_report_path):
+    """Generate preview reports (Pull from Coverity Connect, but don't push)"""
+    env = os.environ.copy()
+    env["COVERITY_PASSPHRASE"] = password
+    env["COV_USER"] = user
+    run_command("cov-commit-defects",
+                "--dir",
+                intermediate_dir,
+                "--url",
+                url,
+                "--stream",
+                stream,
+                "--ticker-mode",
+                "none",
+                "--version",
+                code_version,
+                "--strip-path",
+                strip_path,
+                "--preview-report-v2",
+                preview_report_v2_path,
+                env=env)
+
+    run_command("cov-format-errors", "--dir", intermediate_dir,
+                "--no-default-triage-filters", "--preview-report-v2",
+                preview_report_v2_path, "--json-output-v9",
+                full_report_v9_path)
+
+    run_command("cov-format-errors", "--dir", intermediate_dir,
+                "--preview-report-v2", preview_report_v2_path,
+                "--json-output-v9", active_report_v9_path)
+
+    md(full_html_report_path)
+    run_command("cov-format-errors", "--dir", intermediate_dir,
+                "--no-default-triage-filters", "--preview-report-v2",
+                preview_report_v2_path, "--html-output", full_html_report_path)
+
+    md(active_html_report_path)
+    run_command("cov-format-errors", "--dir", intermediate_dir,
+                "--preview-report-v2", preview_report_v2_path, "--html-output",
+                active_html_report_path)
+
+
+# pylint: disable=too-many-arguments
+def publish_to_coverity_connect(user, password, intermediate_dir, url, stream,
+                                code_version, strip_path, description,
+                                snapshot_id_path):
+    """Publish to Coverity Connect"""
+    env = os.environ.copy()
+    env["COVERITY_PASSPHRASE"] = password
+    env["COV_USER"] = user
+    run_command("cov-commit-defects", "--dir", intermediate_dir, "--url", url,
+                "--stream", stream, "--ticker-mode", "none", "--version",
+                code_version, "--strip-path", strip_path, "--description",
+                description, "--snapshot-id-file", snapshot_id_path, env)
+
+
+def run(args):
+    """main entry point
+    """
+    # Set up analysis environment
+    configure_coverity()
+    md(args.intermediate_dir)
+    build_under_coverity(args.intermediate_dir, args.command, args.strip_path)
 
     # Gather data
     md(os.path.join(args.report_dir, "json"))
     preview_report_v2_path = os.path.join(args.report_dir, "json",
                                           "preview_report_v2.json")
-    snapshot_id_path = "_snapshot_id.txt"
+    json_report_path = os.path.join(args.report_dir, "json",
+                                    "errors_v9_full.json")
+    get_preview_report(
+        args.user, args.password, args.intermediate_dir, args.url, args.stream,
+        args.code_version, args.strip_path, preview_report_v2_path,
+        json_report_path,
+        os.path.join(args.report_dir, "json", "errors_v9_active.json"),
+        os.path.join(args.report_dir, "html_full"),
+        os.path.join(args.report_dir, "html_active"))
 
-    # Special environment with Coverity user information
-    env = os.environ.copy()
-    env["COVERITY_PASSPHRASE"] = args.password
-    env["COV_USER"] = args.user
-    run_command("cov-commit-defects",
-                "--dir",
-                args.intermediate_dir,
-                "--url",
-                args.url,
-                "--stream",
-                args.stream,
-                "--ticker-mode",
-                "none",
-                "--version",
-                args.code_version,
-                "--strip-path",
-                args.strip_path,
-                "--preview-report-v2",
-                preview_report_v2_path,
-                env=env)
-
-    report_path = os.path.join(args.report_dir, "json", "errors_v9_full.json")
-    json_report_path = report_path  # use this report to emit issues
-    run_command("cov-format-errors", "--dir", args.intermediate_dir,
-                "--no-default-triage-filters", "--preview-report-v2",
-                preview_report_v2_path, "--json-output-v9", report_path)
-
-    report_path = os.path.join(args.report_dir, "json",
-                               "errors_v9_active.json")
-    run_command("cov-format-errors", "--dir", args.intermediate_dir,
-                "--preview-report-v2", preview_report_v2_path,
-                "--json-output-v9", report_path)
-
-    report_path = os.path.join(args.report_dir, "html_full")
-    md(report_path)
-    run_command("cov-format-errors", "--dir", args.intermediate_dir,
-                "--no-default-triage-filters", "--preview-report-v2",
-                preview_report_v2_path, "--html-output", report_path)
-
-    report_path = os.path.join(args.report_dir, "html_active")
-    md(report_path)
-    run_command("cov-format-errors", "--dir", args.intermediate_dir,
-                "--preview-report-v2", preview_report_v2_path, "--html-output",
-                report_path)
-
-    run_command("cov-commit-defects",
-                "--dir",
-                args.intermediate_dir,
-                "--url",
-                args.url,
-                "--stream",
-                args.stream,
-                "--ticker-mode",
-                "none",
-                "--version",
-                args.code_version,
-                "--strip-path",
-                args.strip_path,
-                "--description",
-                args.description,
-                "--snapshot-id-file",
-                snapshot_id_path,
-                env=env)
-
+    error_count = 0
+    with open(json_report_path, "r") as json_file:
+        report = json.load(json_file)
+        summary = ReportSummary(report, ['undecided'])
+        error_count = summary.problems
+        xunit_from_report(os.path.join(args.report_dir, "xunit.xml"), summary)
     snapshot_id = None
-    with open(snapshot_id_path, "r") as snapshot_id_file:
-        snapshot_id = snapshot_id_file.read().strip()
+    if args.report or error_count > 0:
+        publish_to_coverity_connect(args.user, args.password,
+                                    args.intermediate_dir, args.url,
+                                    args.stream, args.code_version,
+                                    args.strip_path, args.description,
+                                    "_snapshot_id.txt")
+
+        with open("_snapshot_id.txt", "r") as snapshot_id_file:
+            snapshot_id = snapshot_id_file.read().strip()
     snapshot_info = {}
-    snapshot_info["id"] = snapshot_id
+    if snapshot_id is not None:
+        snapshot_info["id"] = snapshot_id
     snapshot_info["stream"] = args.stream
     snapshot_info["version"] = args.code_version
     with open(os.path.join(args.report_dir, "json", "info.json"),
               "w") as info_file:
         json.dump(snapshot_info, info_file, indent=2)
 
-    cfg = f"""# This is an example configuration file for Coverity report generators. It
+    if snapshot_id is not None:
+        cfg = f"""# This is an example configuration file for Coverity report generators. It
 # tells report generators how to generate reports. You can make and modify a
 # copy of it for use in configuring a report generator.
 #
@@ -571,31 +630,31 @@ disa-stig:
 
     version: V5
 """
-    with open("_covreport.yml", "w") as file:
-        file.write(cfg)
+        with open("_covreport.yml", "w") as file:
+            file.write(cfg)
 
-    report_path = os.path.join(args.report_dir, "cvss_report.pdf")
-    run_command("cov-generate-cvss-report",
-                "_covreport.yml",
-                "--output",
-                report_path,
-                "--report",
-                "--password",
-                "env:COVERITY_PASSPHRASE",
-                env=env)
-    report_path = os.path.join(args.report_dir, "security_report.pdf")
-    run_command("cov-generate-security-report",
-                "_covreport.yml",
-                "--output",
-                report_path,
-                "--password",
-                "env:COVERITY_PASSPHRASE",
-                env=env)
+        # Special environment with Coverity user information
+        env = os.environ.copy()
+        env["COVERITY_PASSPHRASE"] = args.password
+        env["COV_USER"] = args.user
 
-    with open(json_report_path, "r") as json_file:
-        report = json.load(json_file)
-        xunit_from_report(report, os.path.join(args.report_dir, "xunit.xml"),
-                          ['undecided'])
+        report_path = os.path.join(args.report_dir, "cvss_report.pdf")
+        run_command("cov-generate-cvss-report",
+                    "_covreport.yml",
+                    "--output",
+                    report_path,
+                    "--report",
+                    "--password",
+                    "env:COVERITY_PASSPHRASE",
+                    env=env)
+        report_path = os.path.join(args.report_dir, "security_report.pdf")
+        run_command("cov-generate-security-report",
+                    "_covreport.yml",
+                    "--output",
+                    report_path,
+                    "--password",
+                    "env:COVERITY_PASSPHRASE",
+                    env=env)
 
     return 0
 
