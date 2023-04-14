@@ -42,11 +42,10 @@ object detection on each frame using the OpenVINO™ toolkit.
 
 | Option   | Description | Note
 | -------  | -------------------------------| -----------------
-| -hw      | oneVPL hardware implementation | Default
 | -i       | H.265 video elementary stream  |
 | -m       | Object detection network model |
 | -legacy  | Run sample using core 1.x API for portability |
-| -zerocopy| Process data without copying between oneVPL and the OpenVINO™ toolkit in hardware implemenation mode | with `-hw` only
+| -zerocopy| Process data without copying between oneVPL and the OpenVINO™ toolkit in hardware implemenation mode |
 |          | | not with `-legacy`
 
 
@@ -318,13 +317,13 @@ These instructions assume that Docker is already set up on your system.
     To run with 2.x API zero copy on GPU 
 
     ```
-    ./vpl-infer -i cars_320x240.h265 -m mobilenet-ssd.xml -zerocopy
+    .\vpl-infer -i cars_320x240.h265 -m mobilenet-ssd.xml -zerocopy
     ```
 
     To run with 1.x API (and extra copy) on GPU 
 
     ```
-    ./vpl-infer -i cars_320x240.h265 -m mobilenet-ssd.xml -legacy
+    .\vpl-infer -i cars_320x240.h265 -m mobilenet-ssd.xml -legacy
     ```
 
 ### Example of Output

@@ -143,13 +143,11 @@ set(VPL_CONTENT_DIR
 if("${TEST_ZERO_COPY}")
   add_test(
     NAME ${TARGET}-zerocopy-test
-    COMMAND
-      ${TARGET} ${IMPL_ARG} -i "${VPL_CONTENT_DIR}/cars_320x240.h265" -zerocopy
-      -m "/OpenVINO/public/mobilenet-ssd/FP32/mobilenet-ssd.xml")
+    COMMAND ${TARGET} -i "${VPL_CONTENT_DIR}/cars_320x240.h265" -zerocopy -m
+            "/OpenVINO/public/mobilenet-ssd/FP32/mobilenet-ssd.xml")
 endif()
 if("${TEST_LEGACY_API}")
-  add_test(
-    NAME ${TARGET}-legacyapi-test
-    COMMAND ${TARGET} ${IMPL_ARG} -i "${VPL_CONTENT_DIR}/cars_320x240.h265"
-            -legacy -m "/OpenVINO/public/mobilenet-ssd/FP32/mobilenet-ssd.xml")
+  add_test(NAME ${TARGET}-legacyapi-test
+           COMMAND ${TARGET} -i "${VPL_CONTENT_DIR}/cars_320x240.h265" -legacy
+                   -m "/OpenVINO/public/mobilenet-ssd/FP32/mobilenet-ssd.xml")
 endif()

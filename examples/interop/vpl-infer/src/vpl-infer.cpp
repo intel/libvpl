@@ -40,7 +40,6 @@ using namespace ov::preprocess;
 void Usage(void) {
     printf("\n");
     printf("   Usage    :    vpl-infer \n\n");
-    printf("     -hw         use hardware implementation (default)\n");
     printf("     -i          input file name (HEVC elementary stream)\n");
     printf("     -m          input model name (object detection)\n");
 #ifdef ZEROCOPY
@@ -48,7 +47,7 @@ void Usage(void) {
         "     -zerocopy   process without copying data between oneVPL and OpenVINO(TM) toolkit in hardware implemenation mode\n");
 #endif
     printf("     -legacy     run sample in legacy gen (ex: gen 9.x - SKL, KBL, CFL, etc)\n\n");
-    printf("   Example  :    vpl-infer -hw -i in.h265 -m mobilenet-ssd.xml\n\n");
+    printf("   Example  :    vpl-infer -i in.h265 -m mobilenet-ssd.xml\n\n");
     return;
 }
 
@@ -781,12 +780,6 @@ mfxSession CreateVPLSession(mfxLoader *loader, Params *cli) {
     VERIFY2(NULL != cfg[0], "MFXCreateConfig failed")
     cfgVal.Type     = MFX_VARIANT_TYPE_U32;
     cfgVal.Data.U32 = MFX_IMPL_TYPE_HARDWARE;
-    if (cli->bZeroCopy) {
-        cfgVal.Type     = MFX_VARIANT_TYPE_U32;
-        cfgVal.Data.U32 = MFX_IMPL_TYPE_HARDWARE;
-    }
-    else
-        cfgVal = cli->implValue;
 
     sts = MFXSetConfigFilterProperty(cfg[0], (mfxU8 *)"mfxImplDescription.Impl", cfgVal);
     VERIFY2(MFX_ERR_NONE == sts, "ERROR: MFXSetConfigFilterProperty failed for Impl");
