@@ -1767,6 +1767,11 @@ mfxStatus ParseInputString(msdk_char* strInput[], mfxU8 nArgNum, sInputParams* p
         pParams->nAsyncDepth = 4;
     }
 
+    if (pParams->nNumFrames == 0 && pParams->nPerfOpt > 0) {
+        msdk_printf(MSDK_STRING(
+            "Warning: if -n is not specified, number of frames to be encoded is dictated by -perf_opt.\n"));
+    }
+
     if (pParams->UseRegionEncode) {
         if (pParams->CodecId != MFX_CODEC_HEVC) {
             msdk_printf(MSDK_STRING(
