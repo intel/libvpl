@@ -649,12 +649,12 @@ int drmRenderer::drmSendHdrMetaData(mfxExtMasteringDisplayColourVolume* displayC
                     displayColor->DisplayPrimariesY[2];
                 m_hdrMetaData.data.hdmi_metadata_type1.white_point.x = displayColor->WhitePointX;
                 m_hdrMetaData.data.hdmi_metadata_type1.white_point.y = displayColor->WhitePointY;
-            }
-            if (contentLight->InsertPayloadToggle == MFX_PAYLOAD_IDR) {
+                m_hdrMetaData.data.hdmi_metadata_type1.max_display_mastering_luminance =
+                    displayColor->MaxDisplayMasteringLuminance / 10000;
                 m_hdrMetaData.data.hdmi_metadata_type1.min_display_mastering_luminance =
                     displayColor->MinDisplayMasteringLuminance;
-                m_hdrMetaData.data.hdmi_metadata_type1.max_display_mastering_luminance =
-                    displayColor->MaxDisplayMasteringLuminance;
+            }
+            if (contentLight->InsertPayloadToggle == MFX_PAYLOAD_IDR) {
                 m_hdrMetaData.data.hdmi_metadata_type1.max_cll = contentLight->MaxContentLightLevel;
                 m_hdrMetaData.data.hdmi_metadata_type1.max_fall =
                     contentLight->MaxPicAverageLightLevel;

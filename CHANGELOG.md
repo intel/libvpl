@@ -10,6 +10,9 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 
 ## [Unreleased]
 
+### Fixed
+- Fix HDR luminance value
+
 ## [2023.2.1] - 2023-04-14
 
 ### Added
