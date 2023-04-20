@@ -40,6 +40,40 @@
 
 using namespace TranscodingSample;
 
+msdk_string GetDllInfo(sInputParams* pParams) {
+#if defined(_WIN32) || defined(_WIN64)
+    std::vector<msdk_char> buf;
+    buf.resize(2048);
+    HANDLE hCurrent = GetCurrentProcess();
+    std::vector<HMODULE> modules;
+    DWORD cbNeeded;
+    int nModules;
+    if (NULL == EnumProcessModules(hCurrent, NULL, 0, &cbNeeded))
+        return "";
+    nModules = cbNeeded / sizeof(HMODULE);
+    modules.resize(nModules);
+    if (NULL == EnumProcessModules(hCurrent, &modules[0], (DWORD)modules.size(), &cbNeeded)) {
+        return "";
+    }
+    for (auto module : modules) {
+        DWORD chars_read = GetModuleFileName(module, &buf[0], (DWORD)buf.size());
+        while (buf.size() <= chars_read) {
+            buf.resize(buf.size() + 1024);
+            chars_read = GetModuleFileName(module, &buf[0], (DWORD)buf.size());
+        }
+        if (msdk_strstr(&buf[0], MSDK_STRING("libmfxhw")) &&
+            (MFX_IMPL_SOFTWARE != pParams->libType)) {
+            return msdk_string(buf.begin(), buf.end());
+        }
+        else if (msdk_strstr(&buf[0], MSDK_STRING("libmfxsw")) &&
+                 (MFX_IMPL_SOFTWARE == pParams->libType)) {
+            return msdk_string(buf.begin(), buf.end());
+        }
+    }
+#endif
+    return "";
+}
+
 // parsing defines
 #define IS_SEPARATOR(ch) ((ch) <= ' ' || (ch) == '=')
 #define VAL_CHECK(val, argIdx, argName)                                                        \
@@ -55,16 +89,6 @@ using namespace TranscodingSample;
 #ifndef MFX_VERSION
     #error MFX_VERSION not defined
 #endif
-
-msdk_tick TranscodingSample::GetTick() {
-    return msdk_time_get_tick();
-}
-
-mfxF64 TranscodingSample::GetTime(msdk_tick start) {
-    static msdk_tick frequency = msdk_time_get_frequency();
-
-    return MSDK_GET_TIME(msdk_time_get_tick(), start, frequency);
-}
 
 #define HELP_LINE(TEXT) msdk_printf(MSDK_STRING("%s\n"), MSDK_STRING(TEXT))
 
@@ -97,7 +121,7 @@ void TranscodingSample::PrintError(const msdk_char* strErrorMessage, ...) {
     }
 }
 
-void TranscodingSample::PrintHelp() {
+void PrintHelp() {
     msdk_printf(MSDK_STRING("Multi Transcoding Sample Version %s\n"),
                 GetMSDKSampleVersion().c_str());
     HELP_LINE("");
@@ -847,47 +871,13 @@ void TranscodingSample::PrintStreamInfo(mfxU32 session_number,
     msdk_printf(MSDK_STRING("\n"));
 }
 
-msdk_string TranscodingSample::GetDllInfo(sInputParams* pParams) {
-#if defined(_WIN32) || defined(_WIN64)
-    std::vector<msdk_char> buf;
-    buf.resize(2048);
-    HANDLE hCurrent = GetCurrentProcess();
-    std::vector<HMODULE> modules;
-    DWORD cbNeeded;
-    int nModules;
-    if (NULL == EnumProcessModules(hCurrent, NULL, 0, &cbNeeded))
-        return "";
-    nModules = cbNeeded / sizeof(HMODULE);
-    modules.resize(nModules);
-    if (NULL == EnumProcessModules(hCurrent, &modules[0], (DWORD)modules.size(), &cbNeeded)) {
-        return "";
-    }
-    for (auto module : modules) {
-        DWORD chars_read = GetModuleFileName(module, &buf[0], (DWORD)buf.size());
-        while (buf.size() <= chars_read) {
-            buf.resize(buf.size() + 1024);
-            chars_read = GetModuleFileName(module, &buf[0], (DWORD)buf.size());
-        }
-        if (msdk_strstr(&buf[0], MSDK_STRING("libmfxhw")) &&
-            (MFX_IMPL_SOFTWARE != pParams->libType)) {
-            return msdk_string(buf.begin(), buf.end());
-        }
-        else if (msdk_strstr(&buf[0], MSDK_STRING("libmfxsw")) &&
-                 (MFX_IMPL_SOFTWARE == pParams->libType)) {
-            return msdk_string(buf.begin(), buf.end());
-        }
-    }
-#endif
-    return "";
-}
-
 CmdProcessor::CmdProcessor()
         : m_SessionParamId(0),
           m_SessionArray(),
           m_decoderPlugins(),
           m_encoderPlugins(),
-          m_PerfFILE(nullptr),
-          m_parName(),
+          performance_file_name(),
+          parameter_file_name(),
           statisticsWindowSize(0),
           statisticsLogFile(nullptr),
           DumpLogFileName(),
@@ -895,30 +885,16 @@ CmdProcessor::CmdProcessor()
           bRobustFlag(false),
           bSoftRobustFlag(false),
           shouldUseGreedyFormula(false),
-          m_lines() {} //CmdProcessor::CmdProcessor()
+          session_descriptions() {} //CmdProcessor::CmdProcessor()
 
 CmdProcessor::~CmdProcessor() {
     m_SessionArray.clear();
     m_decoderPlugins.clear();
     m_encoderPlugins.clear();
-    if (m_PerfFILE)
-        fclose(m_PerfFILE);
     if (statisticsLogFile)
         fclose(statisticsLogFile);
 
 } //CmdProcessor::~CmdProcessor()
-
-void CmdProcessor::PrintParFileName() {
-    if (!m_parName.empty() && m_PerfFILE) {
-        msdk_fprintf(m_PerfFILE, MSDK_STRING("Input par file: %s\n\n"), m_parName.c_str());
-    }
-}
-
-msdk_string CmdProcessor::GetLine(mfxU32 n) {
-    if (m_lines.size() > n)
-        return m_lines[n];
-    return msdk_string();
-}
 
 mfxStatus CmdProcessor::ParseCmdLine(int argc, msdk_char* argv[]) {
     mfxStatus sts = MFX_ERR_UNSUPPORTED;
@@ -938,7 +914,7 @@ mfxStatus CmdProcessor::ParseCmdLine(int argc, msdk_char* argv[]) {
             if (!argv[0]) {
                 msdk_printf(MSDK_STRING("error: no argument given for '-par' option\n"));
             }
-            m_parName = msdk_string(argv[0]);
+            parameter_file_name = msdk_string(argv[0]);
         }
         else if (0 == msdk_strcmp(argv[0], MSDK_STRING("-timeout"))) {
             --argc;
@@ -965,7 +941,7 @@ mfxStatus CmdProcessor::ParseCmdLine(int argc, msdk_char* argv[]) {
             shouldUseGreedyFormula = true;
         }
         else if (0 == msdk_strcmp(argv[0], MSDK_STRING("-p"))) {
-            if (m_PerfFILE) {
+            if (!performance_file_name.empty()) {
                 msdk_printf(MSDK_STRING("error: only one performance file is supported"));
                 return MFX_ERR_UNSUPPORTED;
             }
@@ -974,11 +950,7 @@ mfxStatus CmdProcessor::ParseCmdLine(int argc, msdk_char* argv[]) {
             if (!argv[0]) {
                 msdk_printf(MSDK_STRING("error: no argument given for '-p' option\n"));
             }
-            MSDK_FOPEN(m_PerfFILE, argv[0], MSDK_STRING("w"));
-            if (NULL == m_PerfFILE) {
-                msdk_printf(MSDK_STRING("error: performance file \"%s\" not found"), argv[0]);
-                return MFX_ERR_UNSUPPORTED;
-            }
+            performance_file_name = msdk_string(argv[0]);
         }
         else if (0 == msdk_strcmp(argv[0], MSDK_STRING("--"))) {
             // just skip separator "--" which delimits cmd options and pipeline settings
@@ -1034,8 +1006,8 @@ mfxStatus CmdProcessor::ParseCmdLine(int argc, msdk_char* argv[]) {
                 GetMSDKSampleVersion().c_str());
 
     //Read pipeline from par file
-    if (!m_parName.empty() && !argv[0]) {
-        sts = ParseParFile(m_parName);
+    if (!parameter_file_name.empty() && !argv[0]) {
+        sts = ParseParFile(parameter_file_name);
 
         if (MFX_ERR_NONE != sts) {
             return sts;
@@ -1046,7 +1018,7 @@ mfxStatus CmdProcessor::ParseCmdLine(int argc, msdk_char* argv[]) {
         msdk_printf(MSDK_STRING("error: pipeline description not found\n"));
         return MFX_ERR_UNSUPPORTED;
     }
-    else if (argv[0] && !m_parName.empty()) {
+    else if (argv[0] && !parameter_file_name.empty()) {
         msdk_printf(MSDK_STRING(
             "error: simultaneously enabling parfile and description pipeline from command line forbidden\n"));
         return MFX_ERR_UNSUPPORTED;
@@ -1070,11 +1042,12 @@ mfxStatus CmdProcessor::ParseParFile(const msdk_string& filename) {
     }
     msdk_ifstream in_stream(filename);
     if (!in_stream.good()) {
-        msdk_printf(MSDK_STRING("error: ParFile \"%s\" not found\n"), m_parName.c_str());
+        msdk_printf(MSDK_STRING("error: ParFile \"%s\" not found\n"), parameter_file_name.c_str());
         return MFX_ERR_UNSUPPORTED;
     }
     if (!in_stream.is_open()) {
-        msdk_printf(MSDK_STRING("error: ParFile \"%s\" could not be opened\n"), m_parName.c_str());
+        msdk_printf(MSDK_STRING("error: ParFile \"%s\" could not be opened\n"),
+                    parameter_file_name.c_str());
         return MFX_ERR_UNSUPPORTED;
     }
     msdk_string line;
@@ -2146,7 +2119,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
     msdk_stringstream cmd;
     for (mfxU32 i = 0; i < argc; i++)
         cmd << argv[i] << MSDK_STRING(" ");
-    m_lines.push_back(cmd.str());
+    session_descriptions.push_back(cmd.str());
 
     TranscodingSample::sInputParams InputParams;
     if (m_nTimeout)
@@ -2254,20 +2227,19 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             }
         }
         else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-p"))) {
-            if (m_PerfFILE) {
+            VAL_CHECK(i + 1 == argc, i, argv[i]);
+            i++;
+
+            if (!performance_file_name.empty()) {
                 msdk_printf(MSDK_STRING("error: only one performance file is supported"));
                 return MFX_ERR_UNSUPPORTED;
             }
-            --argc;
-            ++argv;
+
             if (!argv[i]) {
                 msdk_printf(MSDK_STRING("error: no argument given for '-p' option\n"));
-            }
-            MSDK_FOPEN(m_PerfFILE, argv[i], MSDK_STRING("w"));
-            if (NULL == m_PerfFILE) {
-                msdk_printf(MSDK_STRING("error: performance file \"%s\" not found"), argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }
+            performance_file_name = msdk_string(argv[i]);
         }
         else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-roi_qpmap"))) {
             InputParams.bROIasQPMAP = true;

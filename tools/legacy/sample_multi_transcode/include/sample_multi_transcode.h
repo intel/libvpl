@@ -18,6 +18,7 @@
 #include "vpl_implementation_loader.h"
 
 #include <memory>
+#include <vector>
 #include "d3d11_allocator.h"
 #include "d3d11_device.h"
 #include "d3d_allocator.h"
@@ -65,7 +66,9 @@ protected:
     virtual void Close();
 
     // command line parser
-    CmdProcessor m_parser;
+    msdk_string performance_file_name;
+    msdk_string parameter_file_name;
+    std::vector<msdk_string> session_descriptions;
     // threads contexts to process playlist
     std::vector<std::unique_ptr<ThreadTranscodeContext>> m_pThreadContextArray;
     // allocator for each session

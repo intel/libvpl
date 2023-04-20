@@ -543,7 +543,7 @@ TEST(Transcode_CLI, OptionPerfFile) {
         TranscodingSample::CmdProcessor cmd;
         auto result = init_session({ "-p", name }, &cmd);
         EXPECT_EQ(result.status, MFX_ERR_NONE);
-        EXPECT_NE(cmd.GetPerformanceFile(), nullptr);
+        EXPECT_EQ(cmd.GetPerformanceFile(), msdk_string(name));
     } while (0);
     remove(name);
 }

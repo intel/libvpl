@@ -41,14 +41,8 @@ struct D3DAllocatorParams;
 namespace TranscodingSample {
 struct sInputParams;
 
-msdk_tick GetTick();
-mfxF64 GetTime(msdk_tick start);
-
-void PrintHelp();
 void PrintError(const msdk_char* strErrorMessage, ...);
 void PrintStreamInfo(mfxU32 session_number, sInputParams* pParams, mfxVersion* pVer);
-
-msdk_string GetDllInfo(sInputParams* pParams);
 
 class CmdProcessor {
 public:
@@ -56,11 +50,15 @@ public:
     virtual ~CmdProcessor();
     mfxStatus ParseCmdLine(int argc, msdk_char* argv[]);
     bool GetNextSessionParams(TranscodingSample::sInputParams& InputParams);
-    FILE* GetPerformanceFile() {
-        return m_PerfFILE;
+    msdk_string GetPerformanceFile() {
+        return performance_file_name;
     };
-    void PrintParFileName();
-    msdk_string GetLine(mfxU32 n);
+    msdk_string GetParameterFile() {
+        return parameter_file_name;
+    };
+    std::vector<msdk_string> GetSessionDescriptions() {
+        return session_descriptions;
+    };
 
 protected:
     mfxStatus ParseParFile(const msdk_string& filename);
@@ -79,8 +77,8 @@ protected:
     std::vector<TranscodingSample::sInputParams> m_SessionArray;
     std::map<mfxU32, sPluginParams> m_decoderPlugins;
     std::map<mfxU32, sPluginParams> m_encoderPlugins;
-    FILE* m_PerfFILE;
-    msdk_string m_parName;
+    msdk_string performance_file_name;
+    msdk_string parameter_file_name;
     mfxU32 statisticsWindowSize;
     FILE* statisticsLogFile;
     //store a name of a Logfile
@@ -89,7 +87,7 @@ protected:
     bool bRobustFlag;
     bool bSoftRobustFlag;
     bool shouldUseGreedyFormula;
-    std::vector<msdk_string> m_lines;
+    std::vector<msdk_string> session_descriptions;
 
 private:
     DISALLOW_COPY_AND_ASSIGN(CmdProcessor);

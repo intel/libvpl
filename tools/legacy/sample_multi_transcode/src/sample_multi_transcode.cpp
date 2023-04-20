@@ -77,7 +77,9 @@ mfxU32 GetPreferredAdapterNum(const mfxAdaptersInfo& adapters, const sInputParam
 #endif
 
 Launcher::Launcher()
-        : m_parser(),
+        : performance_file_name(),
+          parameter_file_name(),
+          session_descriptions(),
           m_pThreadContextArray(),
           m_pAllocArray(),
           m_InputParamsArray(),
@@ -131,7 +133,8 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
     CTranscodingPipeline* pSinkPipeline = NULL;
 
     // parse input par file
-    sts = m_parser.ParseCmdLine(argc, argv);
+    CmdProcessor parser;
+    sts = parser.ParseCmdLine(argc, argv);
     MSDK_CHECK_PARSE_RESULT(sts, MFX_ERR_NONE, sts);
     if (sts == MFX_WRN_OUT_OF_RANGE) {
         // There's no error in parameters parsing, but we should not continue further. For instance, in case of -? option
@@ -140,10 +143,14 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
 
     // get parameters for each session from parser
     mfxU32 id = DecoderTargetID;
-    while (m_parser.GetNextSessionParams(InputParams)) {
+    while (parser.GetNextSessionParams(InputParams)) {
         InputParams.TargetID = id++;
         m_InputParamsArray.push_back(InputParams);
     }
+
+    performance_file_name = parser.GetPerformanceFile();
+    parameter_file_name   = parser.GetParameterFile();
+    session_descriptions  = parser.GetSessionDescriptions();
 
     m_CSConfig.Tracer = &m_Tracer;
 
@@ -702,7 +709,7 @@ void Launcher::Run() {
     msdk_printf(MSDK_STRING("Transcoding started\n"));
 
     // mark start time
-    m_StartTime = GetTick();
+    m_StartTime = msdk_time_get_tick();
 
     // Robust flag is applied to every seession if enabled in one
     if (m_pThreadContextArray[0]->pPipeline->GetRobustFlag()) {
@@ -846,19 +853,26 @@ void Launcher::DoRobustTranscoding() {
     }
 }
 
+mfxF64 GetTimeSince(msdk_tick start) {
+    static msdk_tick frequency = msdk_time_get_frequency();
+    return MSDK_GET_TIME(msdk_time_get_tick(), start, frequency);
+}
+
 mfxStatus Launcher::ProcessResult() {
-    FILE* pPerfFile = m_parser.GetPerformanceFile();
+    msdk_fstream performance_file(performance_file_name, std::ios_base::out);
 
     msdk_stringstream ssTranscodingTime;
     ssTranscodingTime << std::endl
-                      << MSDK_STRING("Common transcoding time is ") << GetTime(m_StartTime)
+                      << MSDK_STRING("Common transcoding time is ") << GetTimeSince(m_StartTime)
                       << MSDK_STRING(" sec") << std::endl;
 
-    m_parser.PrintParFileName();
+    if (performance_file.is_open()) {
+        performance_file << parameter_file_name << std::endl << std::endl;
+    }
 
     msdk_printf(MSDK_STRING("%s"), ssTranscodingTime.str().c_str());
-    if (pPerfFile) {
-        msdk_fprintf(pPerfFile, MSDK_STRING("%s"), ssTranscodingTime.str().c_str());
+    if (performance_file.is_open()) {
+        performance_file << ssTranscodingTime.str();
     }
 
     mfxStatus FinalSts = MFX_ERR_NONE;
@@ -882,13 +896,17 @@ mfxStatus Launcher::ProcessResult() {
            << SessionStsStr << MSDK_STRING(" (") << StatusToString(transcodingSts)
            << MSDK_STRING(") ") << workTime << MSDK_STRING(" sec, ") << framesNum
            << MSDK_STRING(" frames, ") << std::fixed << std::setprecision(3) << framesNum / workTime
-           << MSDK_STRING(" fps") << std::endl
-           << m_parser.GetLine(i) << std::endl
-           << std::endl;
-
+           << MSDK_STRING(" fps") << std::endl;
+        if (i < session_descriptions.size()) {
+            ss << session_descriptions[i] << std::endl;
+        }
+        else {
+            ss << MSDK_STRING("") << std::endl;
+        }
+        ss << std::endl;
         msdk_printf(MSDK_STRING("%s"), ss.str().c_str());
-        if (pPerfFile) {
-            msdk_fprintf(pPerfFile, MSDK_STRING("%s"), ss.str().c_str());
+        if (performance_file.is_open()) {
+            performance_file << ss.str();
         }
     }
     msdk_printf(MSDK_STRING(
@@ -901,8 +919,11 @@ mfxStatus Launcher::ProcessResult() {
            << std::endl;
 
     msdk_printf(MSDK_STRING("%s"), ssTest.str().c_str());
-    if (pPerfFile) {
-        msdk_fprintf(pPerfFile, MSDK_STRING("%s"), ssTest.str().c_str());
+    if (performance_file.is_open()) {
+        performance_file << ssTest.str();
+    }
+    if (performance_file.is_open()) {
+        performance_file.close();
     }
     return FinalSts;
 } // mfxStatus Launcher::ProcessResult()
