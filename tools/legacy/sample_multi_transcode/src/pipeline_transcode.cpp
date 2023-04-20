@@ -18,10 +18,11 @@
 #include "mfx_itt_trace.h"
 #include "pipeline_transcode.h"
 #include "sample_utils.h"
-#include "transcode_utils.h"
+#include "smt_cli.h"
 #include "vpl/mfxdispatcher.h"
 
 #include "parameters_dumper.h"
+#include "smt_cli_params.h"
 
 // let's use std::max and std::min instead
 #undef max
@@ -72,59 +73,6 @@ mfxFrameInfo GetFrameInfo(const MfxVideoParamsWrapper& param) {
     }
 
     return frameInfo;
-}
-
-// set structure to define values
-sInputParams::sInputParams()
-        : __sInputParams(),
-          DumpLogFileName(),
-          m_ROIData(),
-          bDecoderPostProcessing(false),
-          bROIasQPMAP(false),
-          verSessionInit(API_2X) {
-#ifdef ENABLE_MCTF
-    mctfParam.mode                  = VPP_FILTER_DISABLED;
-    mctfParam.params.FilterStrength = 0;
-    mctfParam.rtParams.Reset();
-    #ifdef ENABLE_MCTF_EXT
-    mctfParam.params.BitsPerPixelx100k = 0;
-    mctfParam.params.Deblocking        = MFX_CODINGOPTION_OFF;
-    mctfParam.params.Overlap           = MFX_CODINGOPTION_OFF;
-    mctfParam.params.TemporalMode      = MFX_MCTF_TEMPORAL_MODE_2REF;
-    mctfParam.params.MVPrecision       = MFX_MVPRECISION_INTEGER;
-    #endif
-#endif
-    priority = MFX_PRIORITY_NORMAL;
-    libType  = MFX_IMPL_SOFTWARE;
-
-#if (defined(_WIN32) || defined(_WIN64))
-    //Adapter type
-    bPreferiGfx = false;
-    bPreferdGfx = false;
-#endif
-
-    //Adapter type
-    adapterType = mfxMediaAdapterType::MFX_MEDIA_UNKNOWN;
-    dGfxIdx     = -1;
-    adapterNum  = -1;
-
-    MaxFrameNumber   = MFX_INFINITE;
-    pVppCompDstRects = NULL;
-    m_hwdev          = NULL;
-    VppDenoiseLevel  = -1;
-    VppDenoiseMode   = 0;
-    bVppDenoiser     = false;
-    DetailLevel      = -1;
-
-    MFMode       = MFX_MF_DEFAULT;
-    numMFEFrames = 0;
-    mfeTimeout   = 0;
-
-    forceSyncAllSession  = MFX_CODINGOPTION_UNKNOWN;
-    bEnable3DLut         = false;
-    bEmbeddedDenoiser    = false;
-    EmbeddedDenoiseMode  = 0;
-    EmbeddedDenoiseLevel = -1;
 }
 
 CTranscodingPipeline::CTranscodingPipeline()
@@ -249,7 +197,7 @@ CTranscodingPipeline::CTranscodingPipeline()
           m_n3DLutVMemId(0xffffffff),
           m_n3DLutVWidth(65),
           m_n3DLutVHeight(65 * 128 * 2),
-          m_p3DLutFile(NULL) {
+          m_p3DLutFile() {
     inputStatistics.SetDirection(MSDK_STRING("Input"));
     outputStatistics.SetDirection(MSDK_STRING("Output"));
 } //CTranscodingPipeline::CTranscodingPipeline()
@@ -4275,11 +4223,11 @@ mfxStatus CTranscodingPipeline::Init(sInputParams* pParams,
         ((m_nVPPCompMode == VppCompOnly) || (m_nVPPCompMode == VppCompOnlyEncode) ||
          (m_nVPPCompMode == VppComp))) {
         if ((0 == msdk_strncmp(MSDK_STRING("null_render"),
-                               pParams->strDumpVppCompFile,
+                               pParams->strDumpVppCompFile.c_str(),
                                msdk_strlen(MSDK_STRING("null_render")))))
             m_vppCompDumpRenderMode = NULL_RENDER_VPP_COMP; // null_render case
-        else if (0 != msdk_strlen(pParams->strDumpVppCompFile)) {
-            sts = m_dumpVppCompFileWriter.Init(pParams->strDumpVppCompFile, 0);
+        else if (0 != msdk_strlen(pParams->strDumpVppCompFile.c_str())) {
+            sts = m_dumpVppCompFileWriter.Init(pParams->strDumpVppCompFile.c_str(), 0);
             MSDK_CHECK_STATUS(sts, "VPP COMP DUMP File Init failed");
             m_vppCompDumpRenderMode = DUMP_FILE_VPP_COMP;
         }

@@ -315,7 +315,7 @@ TEST(Transcode_CLI, TrivialSessionOptions) {
         EXPECT_EQ(result.parsed[0].temporalLayers[i].QPI, 0);
         EXPECT_EQ(result.parsed[0].temporalLayers[i].QPP, 0);
         EXPECT_EQ(result.parsed[0].temporalLayers[i].QPB, 0);
-        for (int j = 0; j < 16; ++j) {
+        for (int j = 0; j < 4; ++j) {
             EXPECT_EQ(result.parsed[0].temporalLayers[i].reserved2[j], 0);
         }
     }

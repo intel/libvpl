@@ -17,6 +17,7 @@
 #include <map>
 #include <vector>
 #include "pipeline_transcode.h"
+#include "smt_cli_params.h"
 
 struct D3DAllocatorParams;
 
@@ -68,7 +69,7 @@ protected:
 
     static bool isspace(char a);
     static bool is_not_allowed_char(char a);
-    bool ParseROIFile(msdk_char const* roi_file_name, std::vector<mfxExtEncoderROI>& m_ROIData);
+    bool ParseROIFile(const msdk_tstring& roi_file_name, std::vector<mfxExtEncoderROI>& m_ROIData);
 
     mfxStatus ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[]);
     mfxStatus ParseOption__set(msdk_char* strCodecType, msdk_char* strPluginPath);

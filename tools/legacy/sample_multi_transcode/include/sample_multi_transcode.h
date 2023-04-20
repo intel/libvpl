@@ -14,7 +14,7 @@
 
 #include "pipeline_transcode.h"
 #include "sample_utils.h"
-#include "transcode_utils.h"
+#include "smt_cli.h"
 #include "vpl_implementation_loader.h"
 
 #include <memory>
@@ -35,6 +35,7 @@
 #ifndef MFX_VERSION
     #error MFX_VERSION not defined
 #endif
+#include "smt_cli_params.h"
 
 namespace TranscodingSample {
 class Launcher {

@@ -11,7 +11,7 @@ add_executable(sample_multi_transcode)
 target_sources(
   sample_multi_transcode
   PRIVATE src/pipeline_transcode.cpp src/sample_multi_transcode.cpp
-          src/transcode_utils.cpp src/smt_tracer.cpp src/main.cpp)
+          src/smt_cli.cpp src/smt_tracer.cpp src/main.cpp)
 
 target_link_libraries(sample_multi_transcode PRIVATE sample_common)
 
@@ -52,7 +52,7 @@ if(BUILD_TESTS)
   target_sources(
     sample_multi_transcode_test
     PRIVATE src/pipeline_transcode.cpp src/sample_multi_transcode.cpp
-            src/transcode_utils.cpp src/smt_tracer.cpp test/test_main.cpp)
+            src/smt_cli.cpp src/smt_tracer.cpp test/test_main.cpp)
 
   target_link_libraries(sample_multi_transcode_test PUBLIC GTest::gtest)
   target_link_libraries(sample_multi_transcode_test PRIVATE sample_common)

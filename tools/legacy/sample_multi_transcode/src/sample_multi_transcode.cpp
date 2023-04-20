@@ -520,7 +520,7 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
         }
 
         if (reader.get()) {
-            sts = reader->Init(m_InputParamsArray[i].strSrcFile);
+            sts = reader->Init(m_InputParamsArray[i].strSrcFile.c_str());
             if (sts == MFX_ERR_UNSUPPORTED && m_InputParamsArray[i].DecodeId == MFX_CODEC_AV1) {
                 reader.reset(new CSmplBitstreamReader());
                 msdk_printf(MSDK_STRING("WARNING: Stream is not IVF, default reader\n"));
@@ -546,7 +546,7 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
                     writer->m_GopSize = m_CSConfig.GopSize;
                     writer->m_NumberOfEncoders = mfxU32(m_CSConfig.Targets.size());
                     writer->m_BaseEncoderID    = m_CSConfig.Targets[0].TargetID;
-                    sts                        = writer->Init(m_InputParamsArray[i].strDstFile);
+                    sts = writer->Init(m_InputParamsArray[i].strDstFile.c_str());
                     MSDK_CHECK_STATUS(sts, "could not create destination file");
                     m_GlobalBitstreamWriter = std::move(writer);
                 }
@@ -554,10 +554,10 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
             }
         }
         else if (msdk_strncmp(MSDK_STRING("null"),
-                              m_InputParamsArray[i].strDstFile,
+                              m_InputParamsArray[i].strDstFile.c_str(),
                               msdk_strlen(MSDK_STRING("null")))) {
             auto writer = std::make_shared<CSmplBitstreamWriter>();
-            sts         = writer->Init(m_InputParamsArray[i].strDstFile);
+            sts         = writer->Init(m_InputParamsArray[i].strDstFile.c_str());
 
             sts = m_pExtBSProcArray.back()->SetWriter(writer);
             MSDK_CHECK_STATUS(sts, "m_pExtBSProcArray.back()->SetWriter failed");

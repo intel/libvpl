@@ -2436,6 +2436,20 @@ mfxStatus msdk_opt_read(const msdk_char* string, mfxPriority& value) {
     return sts;
 }
 
+template <>
+mfxStatus msdk_opt_read(const msdk_char* string, std::string& value) {
+    msdk_tstring temp_value = msdk_tstring(string);
+    value                   = std::string(temp_value.begin(), temp_value.end());
+    return MFX_ERR_NONE;
+}
+
+template <>
+mfxStatus msdk_opt_read(const msdk_char* string, std::wstring& value) {
+    msdk_tstring temp_value = msdk_tstring(string);
+    value                   = std::wstring(temp_value.begin(), temp_value.end());
+    return MFX_ERR_NONE;
+}
+
 mfxStatus msdk_opt_read(msdk_char* string, mfxPriority& value);
 
 bool IsDecodeCodecSupported(mfxU32 codecFormat) {

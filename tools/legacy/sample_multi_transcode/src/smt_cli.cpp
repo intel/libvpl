@@ -21,8 +21,8 @@
     #include "vaapi_allocator.h"
 #endif
 
+#include "smt_cli.h"
 #include "sysmem_allocator.h"
-#include "transcode_utils.h"
 
 #include "version.h"
 
@@ -50,14 +50,6 @@ using namespace TranscodingSample;
                        argName);                                                               \
             return MFX_ERR_UNSUPPORTED;                                                        \
         }                                                                                      \
-    }
-
-#define SIZE_CHECK(cond)                                    \
-    {                                                       \
-        if (cond) {                                         \
-            PrintError(MSDK_STRING("Buffer is too small")); \
-            return MFX_ERR_UNSUPPORTED;                     \
-        }                                                   \
     }
 
 #ifndef MFX_VERSION
@@ -1001,10 +993,10 @@ bool CmdProcessor::is_not_allowed_char(char a) {
     return (std::isdigit(a) == 0) && (std::isspace(a) == 0) && (a != ';') && (a != '-');
 }
 
-bool CmdProcessor::ParseROIFile(const msdk_char* roi_file_name,
+bool CmdProcessor::ParseROIFile(const msdk_tstring& roi_file_name,
                                 std::vector<mfxExtEncoderROI>& m_ROIData) {
     FILE* roi_file = NULL;
-    MSDK_FOPEN(roi_file, roi_file_name, MSDK_STRING("rb"));
+    MSDK_FOPEN(roi_file, roi_file_name.c_str(), MSDK_STRING("rb"));
 
     m_ROIData.clear();
 
@@ -1274,9 +1266,9 @@ void ParseMCTFParams(msdk_char* strInput[], mfxU32 nArgNum, mfxU32& curArg, sInp
                 }
                 else {
                     // take very first FS value from the file and use it as a value for FilterStrength
-                    if (pParams->mctfParam.rtParams.GetCurParam()) {
-                        pParams->mctfParam.params.FilterStrength =
-                            pParams->mctfParam.rtParams.GetCurParam()->FilterStrength;
+                    auto cur_param = pParams->mctfParam.rtParams.GetCurParam();
+                    if (cur_param) {
+                        pParams->mctfParam.params.FilterStrength = cur_param->FilterStrength;
                     }
                 }
     #if defined ENABLE_MCTF_EXT
@@ -1768,17 +1760,16 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
     }
 #ifdef ONEVPL_EXPERIMENTAL
     else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-pci"))) {
-        msdk_char deviceInfo[MSDK_MAX_FILENAME_LEN];
+        msdk_tstring deviceInfo;
         VAL_CHECK(i + 1 == argc, i, argv[i]);
         i++;
-        SIZE_CHECK((msdk_strlen(argv[i]) + 1) > MSDK_ARRAY_LEN(deviceInfo));
         if (MFX_ERR_NONE != msdk_opt_read(argv[i], deviceInfo)) {
             PrintError(MSDK_STRING("-pci is invalid"));
             return MFX_ERR_UNSUPPORTED;
         }
 
         // template: <domain:bus:device.function>
-        std::string temp = std::string(deviceInfo);
+        std::string temp = std::string(deviceInfo.begin(), deviceInfo.end());
         const std::regex pieces_regex("([0-9]+):([0-9]+):([0-9]+).([0-9]+)");
         std::smatch pieces_match;
 
@@ -2135,7 +2126,6 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             }
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
-            SIZE_CHECK((msdk_strlen(argv[i]) + 1) > MSDK_ARRAY_LEN(InputParams.strSrcFile));
             msdk_opt_read(argv[i], InputParams.strSrcFile);
             if (InputParams.eMode == Source) {
                 switch (InputParams.DecodeId) {
@@ -2167,7 +2157,6 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             }
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
-            SIZE_CHECK((msdk_strlen(argv[i]) + 1) > MSDK_ARRAY_LEN(InputParams.strDstFile));
             msdk_opt_read(argv[i], InputParams.strDstFile);
             if (InputParams.eMode == Sink || InputParams.bIsMVC) {
                 switch (InputParams.EncodeId) {
@@ -2191,8 +2180,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
 
-            msdk_char strRoiFile[MSDK_MAX_FILENAME_LEN];
-            SIZE_CHECK((msdk_strlen(argv[i]) + 1) > MSDK_ARRAY_LEN(strRoiFile));
+            msdk_tstring strRoiFile;
             msdk_opt_read(argv[i], strRoiFile);
 
             if (!ParseROIFile(strRoiFile, InputParams.m_ROIData)) {
@@ -2564,7 +2552,6 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
                                    msdk_strlen(MSDK_STRING("-vpp_comp_dump")))) {
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
-            SIZE_CHECK((msdk_strlen(argv[i]) + 1) > MSDK_ARRAY_LEN(InputParams.strDumpVppCompFile));
             msdk_opt_read(argv[i], InputParams.strDumpVppCompFile);
         }
 #if defined(LIBVA_X11_SUPPORT)
@@ -3039,13 +3026,13 @@ mfxStatus CmdProcessor::ParseOption__set(msdk_char* strCodecType, msdk_char* str
 };
 
 mfxStatus CmdProcessor::VerifyAndCorrectInputParams(TranscodingSample::sInputParams& InputParams) {
-    if (0 == msdk_strlen(InputParams.strSrcFile) &&
+    if (0 == msdk_strlen(InputParams.strSrcFile.c_str()) &&
         (InputParams.eMode == Sink || InputParams.eMode == Native)) {
         PrintError(MSDK_STRING("Source file name not found"));
         return MFX_ERR_UNSUPPORTED;
     };
 
-    if (0 == msdk_strlen(InputParams.strDstFile) &&
+    if (0 == msdk_strlen(InputParams.strDstFile.c_str()) &&
         (InputParams.eMode == Source || InputParams.eMode == Native ||
          InputParams.eMode == VppComp) &&
         InputParams.eModeExt != VppCompOnly) {
