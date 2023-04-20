@@ -65,14 +65,6 @@ mfxStatus ConfigVideoEnhancementFilters(sInputParams* pParams,
     if (VPP_FILTER_ENABLED_CONFIGURED == pParams->mctfParam[paramID].mode) {
         auto mctfConfig            = pVppParam->AddExtBuffer<mfxExtVppMctf>();
         mctfConfig->FilterStrength = pParams->mctfParam[paramID].params.FilterStrength;
-    #if defined(ENABLE_MCTF_EXT)
-        mctfConfig->Overlap           = pParams->mctfParam[paramID].params.Overlap;
-        mctfConfig->TemporalMode      = pParams->mctfParam[paramID].params.TemporalMode;
-        mctfConfig->MVPrecision       = pParams->mctfParam[paramID].params.MVPrecision;
-        mctfConfig->BitsPerPixelx100k = pParams->mctfParam[paramID].params.BitsPerPixelx100k;
-        mctfConfig->Deblocking        = pParams->mctfParam[paramID].params.Deblocking;
-    #endif
-        //enable the filter
     }
 #endif
     if (VPP_FILTER_ENABLED_CONFIGURED == pParams->frcParam[paramID].mode) {

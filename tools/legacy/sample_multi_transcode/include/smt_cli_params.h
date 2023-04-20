@@ -82,12 +82,6 @@ typedef struct sVideoSignalInfo {
 // this is a structure with mctf-parameteres
 // that can be changed in run-time;
 typedef struct sMctfRunTimeParam {
-    #ifdef ENABLE_MCTF_EXT
-        #if 0
-        mfxU32 BitsPerPixelx100k;
-        mfxU16 Deblock;
-        #endif
-    #endif
     mfxU16 FilterStrength;
 } sMctfRunTimeParam;
 
@@ -633,13 +627,6 @@ typedef struct sInputParams {
         mctfParam.mode                  = VPP_FILTER_DISABLED;
         mctfParam.params.FilterStrength = 0;
         mctfParam.rtParams.Reset();
-    #ifdef ENABLE_MCTF_EXT
-        mctfParam.params.BitsPerPixelx100k = 0;
-        mctfParam.params.Deblocking        = MFX_CODINGOPTION_OFF;
-        mctfParam.params.Overlap           = MFX_CODINGOPTION_OFF;
-        mctfParam.params.TemporalMode      = MFX_MCTF_TEMPORAL_MODE_2REF;
-        mctfParam.params.MVPrecision       = MFX_MVPRECISION_INTEGER;
-    #endif
 #endif
     }
 } sInputParams;

@@ -331,13 +331,6 @@ int main(int argc, msdk_char* argv[])
     sMCTFParam defaultMctfParam;
     defaultMctfParam.mode                  = VPP_FILTER_DISABLED;
     defaultMctfParam.params.FilterStrength = 0;
-    #ifdef ENABLE_MCTF_EXT
-    defaultMctfParam.params.BitsPerPixelx100k = 0;
-    defaultMctfParam.params.Deblocking        = MFX_CODINGOPTION_OFF;
-    defaultMctfParam.params.Overlap           = MFX_CODINGOPTION_OFF;
-    defaultMctfParam.params.TemporalMode      = MFX_MCTF_TEMPORAL_MODE_2REF;
-    defaultMctfParam.params.MVPrecision       = MFX_MVPRECISION_INTEGER;
-    #endif
 #endif
     sVideoAnalysisParam defaultVAParam        = { VPP_FILTER_DISABLED };
     sIDetectParam defaultIDetectParam         = { VPP_FILTER_DISABLED };

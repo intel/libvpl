@@ -245,7 +245,6 @@ void TranscodingSample::PrintHelp() {
     HELP_LINE("                separated by comma.");
     HELP_LINE("                for example: -SignalInfoOut 0,9");
 #ifdef ENABLE_MCTF
-    #if !defined ENABLE_MCTF_EXT
     HELP_LINE("");
     HELP_LINE("  -mctf [Strength]");
     HELP_LINE("                Strength is an optional value;  it is in range [0...20]");
@@ -257,33 +256,6 @@ void TranscodingSample::PrintHelp() {
     HELP_LINE("                In fixed-strength mode, MCTF strength can be adjusted");
     HELP_LINE("                at framelevel;");
     HELP_LINE("                If no Strength is given, MCTF operates in auto mode.");
-    #else
-    HELP_LINE("");
-    HELP_LINE("  -mctf <MctfMode>:<BitsPerPixel>:<Strength>:<ME>:<Overlap>:<DB>");
-    HELP_LINE("                every parameter may be missed; in this case default value is used.");
-    HELP_LINE("                MctfMode:");
-    HELP_LINE("                    0 - spatial filter");
-    HELP_LINE("                    1 - temporal filtering, 1 backward reference");
-    HELP_LINE("                    2 - temporal filtering, 1 backward & 1 forward reference");
-    HELP_LINE("                    3 - temporal filtering, 2 backward & 2 forward references");
-    HELP_LINE("                    other values: force default mode to be used");
-    HELP_LINE("                BitsPerPixel: float, valid range [0...12.0]; if exists, is used");
-    HELP_LINE("                              for automatic filter strength adaptation.");
-    HELP_LINE("                              Default is 0.0");
-    HELP_LINE("                Strength: integer, [0...20]. Default value is 0.Might be a CSV");
-    HELP_LINE("                          filename (upto 15 symbols);");
-    HELP_LINE("                          if a string is convertible to an integer, integer");
-    HELP_LINE("                          has a priority over filename");
-    HELP_LINE("                ME: Motion Estimation precision;");
-    HELP_LINE("                    0 - integer ME (default)");
-    HELP_LINE("                    1 - quarter-pel ME");
-    HELP_LINE("                Overlap:");
-    HELP_LINE("                    0 - do not apply overlap ME (default)");
-    HELP_LINE("                    1 - to apply overlap ME");
-    HELP_LINE("                DB:");
-    HELP_LINE("                    0 - do not apply deblock Filter (default);");
-    HELP_LINE("                    1 - to apply Deblock Filter");
-    #endif //ENABLE_MCTF_EXT
 #endif //ENABLE_MCTF
 
     HELP_LINE("");
@@ -1295,13 +1267,6 @@ void ParseMCTFParams(msdk_char* strInput[], mfxU32 nArgNum, mfxU32& curArg, sInp
     pParams->mctfParam.mode                  = VPP_FILTER_ENABLED_DEFAULT;
     pParams->mctfParam.params.FilterStrength = 0;
     pParams->mctfParam.rtParams.Reset();
-    #if defined ENABLE_MCTF_EXT
-    pParams->mctfParam.params.TemporalMode      = MFX_MCTF_TEMPORAL_MODE_2REF; // default
-    pParams->mctfParam.params.BitsPerPixelx100k = 0;
-    pParams->mctfParam.params.Deblocking        = MFX_CODINGOPTION_OFF;
-    pParams->mctfParam.params.Overlap           = MFX_CODINGOPTION_OFF;
-    pParams->mctfParam.params.MVPrecision       = MFX_MVPRECISION_INTEGER;
-    #endif
 
     if (curArg + 1 >= nArgNum) {
         msdk_printf(
@@ -1388,7 +1353,6 @@ void ParseMCTFParamsByValue(const msdk_string& argument, sInputParams* pParams) 
     split(argument, mctf_param_parts, msdk_char(':'));
 
     mfxU16 _strength = 0;
-#ifndef ENABLE_MCTF_EXT
     try {
         _strength = std::stoi(mctf_param_parts[0]);
     }
@@ -1398,122 +1362,9 @@ void ParseMCTFParamsByValue(const msdk_string& argument, sInputParams* pParams) 
     catch (const std::out_of_range&) {
         msdk_printf(MSDK_STRING("MCTF strength out of bounds.\n"));
     }
-#else
-    // Order of arguments is:
-    // MctfMode:BitsPerPixel:Strength:ME   :Overlap:DB
-    // <int>   :<float>     :<int>   :<int>:<int>  :<int>
-    mfxU16 _temporal_mode = 2;
-    mfxF64 _bitsperpixel  = 0.0;
-    mfxU16 _me_precision  = 0;
-    mfxU16 _overlap       = 0;
-    mfxU16 _deblock       = 0;
-    try {
-        _temporal_mode = std::stoi(mctf_param_parts[0]);
-    }
-    catch (const std::invalid_argument&) {
-        msdk_printf(MSDK_STRING("Error reading MCTF temporal mode setting.\n"));
-    }
-    catch (const std::out_of_range&) {
-        msdk_printf(MSDK_STRING("MCTF temporal mode setting out of bounds.\n"));
-    }
-    try {
-        _bitsperpixel = std::stof(mctf_param_parts[1]);
-    }
-    catch (const std::invalid_argument&) {
-        msdk_printf(MSDK_STRING("Error reading MCTF bits per pixel setting.\n"));
-    }
-    catch (const std::out_of_range&) {
-        msdk_printf(MSDK_STRING("MCTF bits per pixel setting out of bounds.\n"));
-    }
-    try {
-        _strength = std::stoi(mctf_param_parts[2]);
-    }
-    catch (const std::invalid_argument&) {
-        msdk_printf(MSDK_STRING("Error reading MCTF strength setting.\n"));
-    }
-    catch (const std::out_of_range&) {
-        msdk_printf(MSDK_STRING("MCTF strength out of bounds.\n"));
-    }
-    try {
-        _me_precision = std::stoi(mctf_param_parts[3]);
-    }
-    catch (const std::invalid_argument&) {
-        msdk_printf(MSDK_STRING("Error reading MCTF MV precision setting.\n"));
-    }
-    catch (const std::out_of_range&) {
-        msdk_printf(MSDK_STRING("MCTF MV precision out of bounds.\n"));
-    }
-    try {
-        _overlap = std::stoi(mctf_param_parts[4]);
-    }
-    catch (const std::invalid_argument&) {
-        msdk_printf(MSDK_STRING("Error reading MCTF overlap setting.\n"));
-    }
-    catch (const std::out_of_range&) {
-        msdk_printf(MSDK_STRING("MCTF overlap out of bounds.\n"));
-    }
-    try {
-        _deblock = std::stoi(mctf_param_parts[5]);
-    }
-    catch (const std::invalid_argument&) {
-        msdk_printf(MSDK_STRING("Error reading MCTF deblock setting.\n"));
-    }
-    catch (const std::out_of_range&) {
-        msdk_printf(MSDK_STRING("MCTF deblock out of bounds.\n"));
-    }
-#endif // ENABLE_MCTF_EXT
     pParams->mctfParam.mode = VPP_FILTER_ENABLED_CONFIGURED;
     pParams->mctfParam.rtParams.Restart();
     pParams->mctfParam.params.FilterStrength = _strength;
-#if defined ENABLE_MCTF_EXT
-    pParams->mctfParam.params.BitsPerPixelx100k = mfxU32(_bitsperpixel * MCTF_BITRATE_MULTIPLIER);
-    switch (_temporal_mode) {
-        case 0:
-            pParams->mctfParam.params.TemporalMode = MFX_MCTF_TEMPORAL_MODE_SPATIAL;
-            break;
-        case 1:
-            pParams->mctfParam.params.TemporalMode = MFX_MCTF_TEMPORAL_MODE_1REF;
-            break;
-        case 2:
-            pParams->mctfParam.params.TemporalMode = MFX_MCTF_TEMPORAL_MODE_2REF;
-            break;
-        case 3:
-            pParams->mctfParam.params.TemporalMode = MFX_MCTF_TEMPORAL_MODE_4REF;
-            break;
-        default:
-            pParams->mctfParam.params.TemporalMode = MFX_MCTF_TEMPORAL_MODE_UNKNOWN;
-    };
-    switch (_deblock) {
-        case 0:
-            pParams->mctfParam.params.Deblocking = MFX_CODINGOPTION_OFF;
-            break;
-        case 1:
-            pParams->mctfParam.params.Deblocking = MFX_CODINGOPTION_ON;
-            break;
-        default:
-            pParams->mctfParam.params.Deblocking = MFX_CODINGOPTION_UNKNOWN;
-    };
-    switch (_overlap) {
-        case 0:
-            pParams->mctfParam.params.Overlap = MFX_CODINGOPTION_OFF;
-            break;
-        case 1:
-            pParams->mctfParam.params.Overlap = MFX_CODINGOPTION_ON;
-            break;
-        default:
-            pParams->mctfParam.params.Overlap = MFX_CODINGOPTION_UNKNOWN;
-    };
-    switch (_me_precision) {
-        case 0:
-            pParams->mctfParam.params.MVPrecision = MFX_MVPRECISION_INTEGER;
-            break;
-        case 1:
-            pParams->mctfParam.params.MVPrecision = MFX_MVPRECISION_QUARTERPEL;
-            break;
-        default:
-            pParams->mctfParam.params.MVPrecision = MFX_MVPRECISION_UNKNOWN;
-    };
-#endif // ENABLE_MCTF_EXT
 }
 
 // return values:

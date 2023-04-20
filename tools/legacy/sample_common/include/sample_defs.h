@@ -38,10 +38,6 @@ inline const char* path_to_name(const char* path, char delim) {
 #endif
 
 #define ENABLE_MCTF
-#if defined(MFX_VERSION_NEXT) && (MFX_VERSION >= MFX_VERSION_NEXT)
-    //---MCTF, extended interface
-    #undef ENABLE_MCTF_EXT
-#endif
 enum { MCTF_BITRATE_MULTIPLIER = 100000 };
 
 #if defined(_WIN32) || defined(_WIN64)

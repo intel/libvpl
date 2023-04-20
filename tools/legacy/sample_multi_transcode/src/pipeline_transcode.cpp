@@ -767,10 +767,6 @@ mfxStatus CTranscodingPipeline::VPPOneFrame(ExtendedSurface* pSurfaceIn,
 
         auto mctf            = surface->AddExtBuffer<mfxExtVppMctf>();
         mctf->FilterStrength = MCTFCurParam->FilterStrength;
-    #if defined ENABLE_MCTF_EXT
-        mctf->BitsPerPixelx100k = mfxU32(MCTF_LOSSLESS_BPP * MCTF_BITRATE_MULTIPLIER);
-        mctf->Deblocking        = MFX_CODINGOPTION_OFF;
-    #endif
         m_MctfRTParams.MoveForward();
     }
 #endif
@@ -3320,13 +3316,6 @@ mfxStatus CTranscodingPipeline::InitVppMfxParams(MfxVideoParamsWrapper& par,
                 mctf->FilterStrength = param->FilterStrength;
             }
         }
-    #if defined ENABLE_MCTF_EXT
-        mctf->Overlap           = pInParams->mctfParam.pInParams.Overlap;
-        mctf->TemporalMode      = pInParams->mctfParam.params.TemporalMode;
-        mctf->MVPrecision       = pInParams->mctfParam.params.MVPrecision;
-        mctf->BitsPerPixelx100k = pInParams->mctfParam.params.BitsPerPixelx100k;
-        mctf->Deblocking        = pInParams->mctfParam.params.Deblocking;
-    #endif
     }
     else if (VPP_FILTER_ENABLED_DEFAULT == pInParams->mctfParam.mode) {
         // MCTF enabling through do-use list:
