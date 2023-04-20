@@ -66,6 +66,8 @@ mfxF64 TranscodingSample::GetTime(msdk_tick start) {
     return MSDK_GET_TIME(msdk_time_get_tick(), start, frequency);
 }
 
+#define HELP_LINE(TEXT) msdk_printf(MSDK_STRING("%s\n"), MSDK_STRING(TEXT))
+
 void TranscodingSample::PrintError(const msdk_char* strErrorMessage, ...) {
     if (strErrorMessage) {
         msdk_printf(MSDK_STRING("ERROR: "));
@@ -73,539 +75,761 @@ void TranscodingSample::PrintError(const msdk_char* strErrorMessage, ...) {
         va_start(args, strErrorMessage);
         msdk_vprintf(strErrorMessage, args);
         va_end(args);
-        msdk_printf(
-            MSDK_STRING("\nUsage: sample_multi_transcode [options] [--] pipeline-description\n"));
-        msdk_printf(MSDK_STRING("   or: sample_multi_transcode [options] -par ParFile\n"));
-        msdk_printf(MSDK_STRING("\n"));
-        msdk_printf(MSDK_STRING("Run application with -? option to get full help text.\n\n"));
+        HELP_LINE("");
+        HELP_LINE("Usage: sample_multi_transcode [options] [--] pipeline-description");
+        HELP_LINE("   or: sample_multi_transcode [options] -par ParFile");
+        HELP_LINE("");
+        HELP_LINE("Run application with -? option to get full help text.");
+        HELP_LINE("");
     }
 }
 
 void TranscodingSample::PrintHelp() {
-    msdk_printf(MSDK_STRING("Multi Transcoding Sample Version %s\n\n"),
+    msdk_printf(MSDK_STRING("Multi Transcoding Sample Version %s\n"),
                 GetMSDKSampleVersion().c_str());
-    msdk_printf(MSDK_STRING("Command line parameters\n"));
-
-    msdk_printf(MSDK_STRING("Usage: sample_multi_transcode [options] [--] pipeline-description\n"));
-    msdk_printf(MSDK_STRING("   or: sample_multi_transcode [options] -par ParFile\n"));
-    msdk_printf(MSDK_STRING("\n"));
-    msdk_printf(MSDK_STRING("  -stat <N>\n"));
-    msdk_printf(MSDK_STRING("                Output statistic every N transcoding cycles\n"));
-    msdk_printf(MSDK_STRING("  -stat-log <name>\n"));
-    msdk_printf(MSDK_STRING(
-        "                Output statistic to the specified file (opened in append mode)\n"));
-    msdk_printf(MSDK_STRING("  -stat-per-frame <name>\n"));
-    msdk_printf(MSDK_STRING(
-        "                Output per-frame latency values to a file (opened in append mode). The file name will be for an input sesssion: <name>_input_ID_<N>.log\n"));
-    msdk_printf(MSDK_STRING(
-        "                or, for output session: <name>_output_ID_<N>.log; <N> - a number of a session.\n"));
-
-    msdk_printf(MSDK_STRING("Options:\n"));
-    //                     ("  ............xx
-    msdk_printf(MSDK_STRING("  -?            Print this help and exit\n"));
-    msdk_printf(MSDK_STRING("  -p <file-name>\n"));
-    msdk_printf(MSDK_STRING("                Collect performance statistics in specified file\n"));
-    msdk_printf(MSDK_STRING("  -timeout <seconds>\n"));
-    msdk_printf(MSDK_STRING("                Set time to run transcoding in seconds\n"));
-    msdk_printf(MSDK_STRING("  -greedy \n"));
-    msdk_printf(
-        MSDK_STRING("                Use greedy formula to calculate number of surfaces\n"));
-    msdk_printf(MSDK_STRING("\n"));
-    msdk_printf(MSDK_STRING("Pipeline description (general options):\n"));
-    msdk_printf(MSDK_STRING("  -i::h265|h264|mpeg2|vc1|mvc|jpeg|vp9|av1 <file-name>\n"));
-    msdk_printf(MSDK_STRING("                 Set input file and decoder type\n"));
-    msdk_printf(MSDK_STRING("  -i::i420|nv12|p010 <file-name>\n"));
-    msdk_printf(MSDK_STRING("                 Set raw input file and color format\n"));
-    msdk_printf(MSDK_STRING(
-        "  -i::rgb4_frame Set input rgb4 file for compositon. File should contain just one single frame (-vpp_comp_src_h and -vpp_comp_src_w should be specified as well).\n"));
-    msdk_printf(MSDK_STRING(
-        "  -msb10 - 10-bit color format is expected to have data in Most Significant Bits of words.\n"));
-    msdk_printf(MSDK_STRING("                LSB data placement is expected by default.\n"));
-    msdk_printf(MSDK_STRING("  -o::h265|h264|mpeg2|mvc|jpeg|vp9|av1|raw <file-name>|null\n"));
-    msdk_printf(MSDK_STRING("                Set output file and encoder type\n"));
-    msdk_printf(MSDK_STRING(
-        "                \'null\' keyword as file-name disables output file writing \n"));
-    msdk_printf(MSDK_STRING("  -sw|-hw|-hw_d3d11|-hw_d3d9\n"));
-    msdk_printf(MSDK_STRING("                SDK implementation to use: \n"));
-    msdk_printf(MSDK_STRING(
-        "                      -hw - platform-specific on default display adapter (default)\n"));
-    msdk_printf(MSDK_STRING(
-        "                      -hw_d3d11 - platform-specific via d3d11 (d3d11 is default for win)\n"));
-    msdk_printf(MSDK_STRING("                      -hw_d3d9 - platform-specific via d3d9\n"));
-    msdk_printf(MSDK_STRING("                      -sw - software\n"));
+    HELP_LINE("");
+    HELP_LINE("Command line parameters");
+    HELP_LINE("");
+    HELP_LINE("Usage: sample_multi_transcode [options] [--] pipeline-description");
+    HELP_LINE("   or: sample_multi_transcode [options] -par ParFile");
+    HELP_LINE("");
+    HELP_LINE("");
+    HELP_LINE("  -stat <N>");
+    HELP_LINE("                Output statistic every N transcoding cycles");
+    HELP_LINE("");
+    HELP_LINE("  -stat-log <name>");
+    HELP_LINE("                Output statistic to the specified file (opened in append mode)");
+    HELP_LINE("");
+    HELP_LINE("  -stat-per-frame <name>");
+    HELP_LINE("                Output per-frame latency values to a file (opened in append mode).");
+    HELP_LINE("                The file name will be for an input session:");
+    HELP_LINE("                <name>_input_ID_<N>.log");
+    HELP_LINE("                or, for output session: <name>_output_ID_<N>.log;");
+    HELP_LINE("                <N> - a number of a session.");
+    HELP_LINE("Options:");
+    HELP_LINE("");
+    HELP_LINE("  -?            Print this help and exit");
+    HELP_LINE("");
+    HELP_LINE("  -p <file-name>");
+    HELP_LINE("                Collect performance statistics in specified file");
+    HELP_LINE("");
+    HELP_LINE("  -timeout <seconds>");
+    HELP_LINE("                Set time to run transcoding in seconds");
+    HELP_LINE("");
+    HELP_LINE("  -greedy");
+    HELP_LINE("                Use greedy formula to calculate number of surfaces");
+    HELP_LINE("");
+    HELP_LINE("Pipeline description (general options):");
+    HELP_LINE("");
+    HELP_LINE("  -i::<h265|h264|mpeg2|vc1|mvc|jpeg|vp9|av1> <file-name>");
+    HELP_LINE("                Set input file and decoder type");
+    HELP_LINE("");
+    HELP_LINE("  -i::<i420|nv12|p010> <file-name>");
+    HELP_LINE("                Set raw input file and color format");
+    HELP_LINE("");
+    HELP_LINE("  -i::rgb4_frame Set input rgb4 file for composition.");
+    HELP_LINE("                File should contain just one single frame");
+    HELP_LINE("                (-vpp_comp_src_h and -vpp_comp_src_w should");
+    HELP_LINE("                be specified as well).");
+    HELP_LINE("");
+    HELP_LINE("  -msb10 - 10-bit color format is expected to have data in Most");
+    HELP_LINE("                Significant Bits of words.");
+    HELP_LINE("                LSB data placement is expected by default.");
+    HELP_LINE("");
+    HELP_LINE("  -o::<h265|h264|mpeg2|mvc|jpeg|vp9|av1|raw> <file-name>|null");
+    HELP_LINE("                Set output file and encoder type");
+    HELP_LINE("                'null' keyword as file-name disables output file writing");
+    HELP_LINE("");
+    HELP_LINE("  -sw|-hw|-hw_d3d11|-hw_d3d9");
+    HELP_LINE("                SDK implementation to use:");
+    HELP_LINE("                    -hw - platform-specific on default display adapter (default)");
+    HELP_LINE("                    -hw_d3d11 - platform-specific via d3d11");
+    HELP_LINE("                                (d3d11 is default for win)");
+    HELP_LINE("                    -hw_d3d9 - platform-specific via d3d9");
+    HELP_LINE("                    -sw - software");
 #if defined(LINUX32) || defined(LINUX64)
-    msdk_printf(MSDK_STRING("   -device /path/to/device - set graphics device for processing\n"));
-    msdk_printf(
-        MSDK_STRING("                              For example: '-device /dev/dri/card0'\n"));
-    msdk_printf(
-        MSDK_STRING("                                           '-device /dev/dri/renderD128'\n"));
-    msdk_printf(MSDK_STRING(
-        "                              If not specified, defaults to the first Intel device found on the system\n"));
+    HELP_LINE("");
+    HELP_LINE("  -device <path to device>");
+    HELP_LINE("                set graphics device for processing");
+    HELP_LINE("                For example: '-device /dev/dri/card0'");
+    HELP_LINE("                             '-device /dev/dri/renderD128'");
+    HELP_LINE("                If not specified, defaults to the first Intel");
+    HELP_LINE("                device found on the system");
 #endif
 #if (defined(_WIN64) || defined(_WIN32))
-    msdk_printf(MSDK_STRING(
-        "   [-dual_gfx::<on,off,adaptive>] - prefer encode processing on both iGfx and dGfx simultaneously\n"));
+    HELP_LINE("");
+    HELP_LINE("  -dual_gfx::<on,off,adaptive>");
+    HELP_LINE("                prefer encode processing on both iGfx and dGfx simultaneously");
 #endif
 #ifdef ONEVPL_EXPERIMENTAL
     #if (defined(_WIN64) || defined(_WIN32))
-    msdk_printf(MSDK_STRING("   -luid <HighPart:LowPart> - setup adapter by LUID  \n"));
-    msdk_printf(MSDK_STRING("                                 For example: \"0x0:0x8a46\"  \n"));
+    HELP_LINE("");
+    HELP_LINE("  -luid <HighPart:LowPart>");
+    HELP_LINE("                setup adapter by LUID");
+    HELP_LINE("                For example: \"0x0:0x8a46\"");
     #endif
-    msdk_printf(MSDK_STRING("   -pci <domain:bus:device.function> - setup device with PCI \n"));
-    msdk_printf(MSDK_STRING("                                 For example: \"0:3:0.0\"  \n"));
+    HELP_LINE("");
+    HELP_LINE("  -pci <domain:bus:device.function>");
+    HELP_LINE("                setup device with PCI");
+    HELP_LINE("                For example: \"0:3:0.0\"");
 #endif
-    msdk_printf(MSDK_STRING(
-        "   [-dGfx] - prefer processing on dGfx (by default system decides), also can be set with index, for example: '-dGfx 1'\n"));
-    msdk_printf(
-        MSDK_STRING("   [-iGfx] - prefer processing on iGfx (by default system decides)\n"));
-    msdk_printf(
-        MSDK_STRING("   [-AdapterNum] - specifies adapter number for processing, starts from 0\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-dispatcher:fullSearch]  - enable search for all available implementations in oneVPL dispatcher\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-dispatcher:lowLatency]  - enable limited implementation search and query in oneVPL dispatcher\n"));
-    msdk_printf(MSDK_STRING(
-        "  -mfe_frames <N> maximum number of frames to be combined in multi-frame encode pipeline"));
-    msdk_printf(MSDK_STRING("               0 - default for platform will be used\n"));
-    msdk_printf(MSDK_STRING(
-        "  -mfe_mode 0|1|2|3 multi-frame encode operation mode - should be the same for all sessions\n"));
-    msdk_printf(MSDK_STRING(
-        "            0, MFE operates as DEFAULT mode, decided by SDK if MFE enabled\n"));
-    msdk_printf(MSDK_STRING("            1, MFE is disabled\n"));
-    msdk_printf(MSDK_STRING("            2, MFE operates as AUTO mode\n"));
-    msdk_printf(MSDK_STRING("            3, MFE operates as MANUAL mode\n"));
-    msdk_printf(MSDK_STRING(
-        "  -mfe_timeout <N> multi-frame encode timeout in milliseconds - set per sessions control\n"));
-    msdk_printf(MSDK_STRING(
-        "  -HdrSEI:mdcv <mdcv array> set mastering display colour volume for HDR SEI metadata.\n"));
-    msdk_printf(MSDK_STRING(
-        "            totally 10 values (DPX[0],DPX[1],DPX[2],DPY[0],DPY[1],DPY[2],WPX,WPY,MaxDML,MinDML) for mdcv parameter to set, separated by comma.\n"));
-    msdk_printf(MSDK_STRING(
-        "            for example: -HdrSEI:mdcv 13250,7500,34000,34500,3000,16000,15635,16450,12000000,200\n"));
-    msdk_printf(
-        MSDK_STRING("  -HdrSEI:clli <clli array> set content light level for HDR SEI metadata.\n"));
-    msdk_printf(MSDK_STRING(
-        "            totally 2 values (MaxCLL, MaxPALL) to set, separated by comma.\n"));
-    msdk_printf(MSDK_STRING("            for example: -HdrSEI:clli 1000,40\n"));
-    msdk_printf(MSDK_STRING("  -SignalInfoIn <signal_info array> set input video signal info.\n"));
-    msdk_printf(MSDK_STRING(
-        "            totally 2 values (VideoFullRange, ColourPrimaries) to set, separated by comma.\n"));
-    msdk_printf(MSDK_STRING("            for example: -SignalInfoIn 0,9\n"));
-    msdk_printf(
-        MSDK_STRING("  -SignalInfoOut <signal_info array> set output video signal info.\n"));
-    msdk_printf(MSDK_STRING(
-        "            totally 2 values (VideoFullRange, ColourPrimaries) to set, separated by comma.\n"));
-    msdk_printf(MSDK_STRING("            for example: -SignalInfoOut 0,9\n"));
+    HELP_LINE("");
+    HELP_LINE("  -dGfx         prefer processing on dGfx (by default system decides),");
+    HELP_LINE("                also can be set with index,");
+    HELP_LINE("                For example: '-dGfx 1'");
+    HELP_LINE("");
+    HELP_LINE("  -iGfx         prefer processing on iGfx (by default system decides)");
+    HELP_LINE("");
+    HELP_LINE("  -AdapterNum   specifies adapter number for processing, starts from 0");
+    HELP_LINE("");
+    HELP_LINE("  -dispatcher:fullSearch");
+    HELP_LINE("                enable search for all available implementations in");
+    HELP_LINE("                oneVPL dispatcher");
+    HELP_LINE("");
+    HELP_LINE("  -dispatcher:lowLatency");
+    HELP_LINE("                enable limited implementation search and query in");
+    HELP_LINE("                oneVPL dispatcher");
+    HELP_LINE("");
+    HELP_LINE("  -mfe_frames <N>");
+    HELP_LINE("                maximum number of frames to be combined in multi-frame");
+    HELP_LINE("                encode pipeline");
+    HELP_LINE("                0 - default for platform will be used");
+    HELP_LINE("");
+    HELP_LINE("  -mfe_mode <0|1|2|3>");
+    HELP_LINE("                multi-frame encode operation mode - should be the same");
+    HELP_LINE("                for all sessions");
+    HELP_LINE("                0 - MFE operates as DEFAULT mode, decided by SDK if MFE enabled");
+    HELP_LINE("                1 - MFE is disabled");
+    HELP_LINE("                2 - MFE operates as AUTO mode");
+    HELP_LINE("                3 - MFE operates as MANUAL mode");
+    HELP_LINE("");
+    HELP_LINE("  -mfe_timeout <N>");
+    HELP_LINE("                multi-frame encode timeout in milliseconds");
+    HELP_LINE("                set per sessions control");
+    HELP_LINE("");
+    HELP_LINE("  -HdrSEI:mdcv <mdcv array>");
+    HELP_LINE("                set mastering display colour volume for HDR SEI metadata.");
+    HELP_LINE("                totally 10 values (DPX[0],DPX[1],DPX[2],DPY[0],DPY[1],DPY[2],");
+    HELP_LINE("                                   WPX,WPY,MaxDML,MinDML)");
+    HELP_LINE("                for mdcv parameter to set, separated by comma.");
+    HELP_LINE("                For example: -HdrSEI:mdcv 13250,7500,34000,34500,3000,16000,");
+    HELP_LINE("                                          15635,16450,12000000,200");
+    HELP_LINE("");
+    HELP_LINE("  -HdrSEI:clli <clli array>");
+    HELP_LINE("                set content light level for HDR SEI metadata.");
+    HELP_LINE("                totally 2 values (MaxCLL, MaxPALL) to set, separated by comma.");
+    HELP_LINE("                for example: -HdrSEI:clli 1000,40");
+    HELP_LINE("");
+    HELP_LINE("  -SignalInfoIn <signal_info array>");
+    HELP_LINE("                set input video signal info.");
+    HELP_LINE("                totally 2 values (VideoFullRange, ColourPrimaries) to set,");
+    HELP_LINE("                separated by comma.");
+    HELP_LINE("                for example: -SignalInfoIn 0,9");
+    HELP_LINE("");
+    HELP_LINE("  -SignalInfoOut <signal_info array>");
+    HELP_LINE("                set output video signal info.");
+    HELP_LINE("                totally 2 values (VideoFullRange, ColourPrimaries) to set,");
+    HELP_LINE("                separated by comma.");
+    HELP_LINE("                for example: -SignalInfoOut 0,9");
 #ifdef ENABLE_MCTF
     #if !defined ENABLE_MCTF_EXT
-    msdk_printf(MSDK_STRING("  -mctf [Strength]\n"));
-    msdk_printf(MSDK_STRING("        Strength is an optional value;  it is in range [0...20]\n"));
-    msdk_printf(MSDK_STRING("        value 0 makes MCTF operates in auto mode;\n"));
-    msdk_printf(MSDK_STRING(
-        "        Strength: integer, [0...20]. Default value is 0.Might be a CSV filename (upto 15 symbols); if a string is convertable to an integer, integer has a priority over filename\n"));
-    msdk_printf(MSDK_STRING(
-        "        In fixed-strength mode, MCTF strength can be adjusted at framelevel;\n"));
-    msdk_printf(MSDK_STRING("        If no Strength is given, MCTF operates in auto mode.\n"));
+    HELP_LINE("");
+    HELP_LINE("  -mctf [Strength]");
+    HELP_LINE("                Strength is an optional value;  it is in range [0...20]");
+    HELP_LINE("                value 0 makes MCTF operates in auto mode;");
+    HELP_LINE("                Strength: integer, [0...20]. Default value is 0.");
+    HELP_LINE("                Might be a CSV filename (upto 15 symbols);");
+    HELP_LINE("                if a string is convertible to an integer, integer has a");
+    HELP_LINE("                priority over filename");
+    HELP_LINE("                In fixed-strength mode, MCTF strength can be adjusted");
+    HELP_LINE("                at framelevel;");
+    HELP_LINE("                If no Strength is given, MCTF operates in auto mode.");
     #else
-    msdk_printf(MSDK_STRING("  -mctf MctfMode:BitsPerPixel:Strength:ME:Overlap:DB\n"));
-    msdk_printf(MSDK_STRING(
-        "        every parameter may be missed; in this case default value is used.\n"));
-    msdk_printf(MSDK_STRING("        MctfMode: 0 - spatial filter\n"));
-    msdk_printf(MSDK_STRING("        MctfMode: 1- temporal filtering, 1 backward reference\n"));
-    msdk_printf(
-        MSDK_STRING("        MctfMode: 2- temporal filtering, 1 backward & 1 forward reference\n"));
-    msdk_printf(MSDK_STRING(
-        "        MctfMode: 3- temporal filtering, 2 backward & 2 forward references\n"));
-    msdk_printf(MSDK_STRING("        MctfMode:  other values: force default mode to be used\n"));
-    msdk_printf(MSDK_STRING(
-        "        BitsPerPixel: float, valid range [0...12.0]; if exists, is used for automatic filter strength adaptation. Default is 0.0\n"));
-    msdk_printf(MSDK_STRING(
-        "        Strength: integer, [0...20]. Default value is 0.Might be a CSV filename (upto 15 symbols); if a string is convertable to an integer, integer has a priority over filename\n"));
-    msdk_printf(MSDK_STRING(
-        "        ME: Motion Estimation precision; 0 - integer ME (default); 1 - quater-pel ME\n"));
-    msdk_printf(MSDK_STRING(
-        "        Overlap: 0 - do not apply overlap ME (default); 1 - to apply overlap ME\n"));
-    msdk_printf(MSDK_STRING(
-        "        DB: 0 - do not apply deblock Filter (default); 1 - to apply Deblock Filter\n"));
+    HELP_LINE("");
+    HELP_LINE("  -mctf <MctfMode>:<BitsPerPixel>:<Strength>:<ME>:<Overlap>:<DB>");
+    HELP_LINE("                every parameter may be missed; in this case default value is used.");
+    HELP_LINE("                MctfMode:");
+    HELP_LINE("                    0 - spatial filter");
+    HELP_LINE("                    1 - temporal filtering, 1 backward reference");
+    HELP_LINE("                    2 - temporal filtering, 1 backward & 1 forward reference");
+    HELP_LINE("                    3 - temporal filtering, 2 backward & 2 forward references");
+    HELP_LINE("                    other values: force default mode to be used");
+    HELP_LINE("                BitsPerPixel: float, valid range [0...12.0]; if exists, is used");
+    HELP_LINE("                              for automatic filter strength adaptation.");
+    HELP_LINE("                              Default is 0.0");
+    HELP_LINE("                Strength: integer, [0...20]. Default value is 0.Might be a CSV");
+    HELP_LINE("                          filename (upto 15 symbols);");
+    HELP_LINE("                          if a string is convertible to an integer, integer");
+    HELP_LINE("                          has a priority over filename");
+    HELP_LINE("                ME: Motion Estimation precision;");
+    HELP_LINE("                    0 - integer ME (default)");
+    HELP_LINE("                    1 - quarter-pel ME");
+    HELP_LINE("                Overlap:");
+    HELP_LINE("                    0 - do not apply overlap ME (default)");
+    HELP_LINE("                    1 - to apply overlap ME");
+    HELP_LINE("                DB:");
+    HELP_LINE("                    0 - do not apply deblock Filter (default);");
+    HELP_LINE("                    1 - to apply Deblock Filter");
     #endif //ENABLE_MCTF_EXT
 #endif //ENABLE_MCTF
 
-    msdk_printf(MSDK_STRING(
-        "  -robust       Recover from gpu hang errors as they come (by resetting components)\n"));
-    msdk_printf(MSDK_STRING("  -robust:soft  Recover from gpu hang errors by inserting an IDR\n"));
-
-    msdk_printf(MSDK_STRING("  -async        Depth of asynchronous pipeline. default value 1\n"));
-    msdk_printf(MSDK_STRING(
-        "  -join         Join session with other session(s), by default sessions are not joined\n"));
-    msdk_printf(MSDK_STRING(
-        "  -priority     Use priority for join sessions. 0 - Low, 1 - Normal, 2 - High. Normal by default\n"));
-    msdk_printf(MSDK_STRING("  -threads num  Number of session internal threads to create\n"));
-    msdk_printf(
-        MSDK_STRING("  -n            Number of frames to transcode\n") MSDK_STRING(
-            "                  (session ends after this number of frames is reached). \n")
-            MSDK_STRING(
-                "                In decoding sessions (-o::sink) this parameter limits number\n")
-                MSDK_STRING("                   of frames acquired from decoder.\n") MSDK_STRING(
-                    "                In encoding sessions (-o::source) and transcoding sessions \n")
-                    MSDK_STRING(
-                        "                  this parameter limits number of frames sent to encoder.\n"));
-
-    msdk_printf(
-        MSDK_STRING("  -MemType::video    Force usage of external video allocator (default)\n"));
-    msdk_printf(
-        MSDK_STRING("  -ext_allocator     Force usage of external video allocator (default)\n"));
-    msdk_printf(MSDK_STRING("  -MemType::system   Force usage of external system allocator\n"));
-    msdk_printf(MSDK_STRING("  -sys   Force usage of external system allocator\n"));
-    msdk_printf(MSDK_STRING("  -MemType::opaque   Force usage of internal allocator\n"));
-    msdk_printf(MSDK_STRING("  -MemModel::GeneralAlloc (default)\n"));
-    msdk_printf(MSDK_STRING("        Force usage of:\n"));
-    msdk_printf(
-        MSDK_STRING("              External allocator in the case of video/system memory type\n"));
-    msdk_printf(
-        MSDK_STRING("              Internal allocator in the case of opaque memory type\n"));
-    msdk_printf(MSDK_STRING(
-        "  -MemModel::VisibleIntAlloc   Force usage of internal allocation with manual surfaces control\n"));
-    msdk_printf(MSDK_STRING(
-        "  -MemModel::HiddenIntAlloc    Force usage of internal allocation without manual surfaces control\n"));
-    msdk_printf(MSDK_STRING("  -memory [1/2/3]\n"));
-    msdk_printf(
-        MSDK_STRING("  1 - GeneralAlloc(default), 2 - VisibleIntAlloc, 3 - HiddenIntAlloc \n"));
-    msdk_printf(MSDK_STRING(
-        "  -AllocPolicy::optimal       Force optimal allocation policy for surface pool\n"));
-    msdk_printf(MSDK_STRING(
-        "  -AllocPolicy::limited       Force limited allocation policy for surface pool\n"));
-    msdk_printf(MSDK_STRING(
-        "  -AllocPolicy::unlimited     Force unlimited allocation policy for surface pool\n"));
-    msdk_printf(MSDK_STRING(
-        "  -preallocate <number of surfaces> Set numebr of surfaces to preallocate for -AllocPolicy::limited\n"));
-
-    msdk_printf(MSDK_STRING("  -dec::sys     Set dec output to system memory\n"));
-    msdk_printf(MSDK_STRING("  -vpp::sys     Set vpp output to system memory\n"));
-    msdk_printf(MSDK_STRING("  -vpp::vid     Set vpp output to video memory\n"));
-    msdk_printf(MSDK_STRING("  -fps <frames per second>\n"));
-    msdk_printf(MSDK_STRING("                Transcoding frame rate limit\n"));
-    msdk_printf(MSDK_STRING("  -pe           Set encoding plugin for this particular session.\n"));
-    msdk_printf(MSDK_STRING(
-        "                This setting overrides plugin settings defined by SET clause.\n"));
-    msdk_printf(MSDK_STRING("  -pd           Set decoding plugin for this particular session.\n"));
-    msdk_printf(MSDK_STRING(
-        "                This setting overrides plugin settings defined by SET clause.\n"));
-    msdk_printf(MSDK_STRING(
-        "                Supported values: hevcd_sw, hevcd_hw, hevce_sw, hevce_gacc, hevce_hw, vp8d_hw, vp8e_hw, vp9d_hw, vp9e_hw, camera_hw, capture_hw, h264_la_hw, ptir_hw, hevce_fei_hw\n"));
-    msdk_printf(MSDK_STRING("                Direct GUID number can be used as well\n"));
-    msdk_printf(MSDK_STRING(
-        "  -api_ver_init::<1x,2x>  Select the api version for the session initialization\n"));
-    msdk_printf(MSDK_STRING("\n"));
-    msdk_printf(MSDK_STRING("Pipeline description (encoding options):\n"));
+    HELP_LINE("");
+    HELP_LINE("  -robust       Recover from gpu hang errors as they come");
+    HELP_LINE("                (by resetting components)");
+    HELP_LINE("");
+    HELP_LINE("  -robust:soft  Recover from gpu hang errors by inserting an IDR");
+    HELP_LINE("");
+    HELP_LINE("  -async        Depth of asynchronous pipeline. default value 1");
+    HELP_LINE("");
+    HELP_LINE("  -join         Join session with other session(s),");
+    HELP_LINE("                by default sessions are not joined");
+    HELP_LINE("");
+    HELP_LINE("  -priority     Use priority for join sessions.");
+    HELP_LINE("                  0 - Low");
+    HELP_LINE("                  1 - Normal");
+    HELP_LINE("                  2 - High.");
+    HELP_LINE("                Normal by default");
+    HELP_LINE("");
+    HELP_LINE("  -threads num  Number of session internal threads to create");
+    HELP_LINE("");
+    HELP_LINE("  -n            Number of frames to transcode");
+    HELP_LINE("                (session ends after this number of frames is reached).");
+    HELP_LINE("                In decoding sessions (-o::sink) this parameter limits");
+    HELP_LINE("                number of frames acquired from decoder.");
+    HELP_LINE("                In encoding sessions (-o::source) and transcoding sessions");
+    HELP_LINE("                this parameter limits number of frames sent to encoder.");
+    HELP_LINE("");
+    HELP_LINE("  -MemType::video");
+    HELP_LINE("                Force usage of external video allocator (default)");
+    HELP_LINE("");
+    HELP_LINE("  -ext_allocator");
+    HELP_LINE("                Force usage of external video allocator (default)");
+    HELP_LINE("");
+    HELP_LINE("  -MemType::system");
+    HELP_LINE("                Force usage of external system allocator");
+    HELP_LINE("");
+    HELP_LINE("  -sys          Force usage of external system allocator");
+    HELP_LINE("");
+    HELP_LINE("  -MemType::opaque");
+    HELP_LINE("                Force usage of internal allocator");
+    HELP_LINE("");
+    HELP_LINE("  -MemModel::GeneralAlloc (default)");
+    HELP_LINE("                Force usage of:");
+    HELP_LINE("                    External allocator in the case of video/system memory type");
+    HELP_LINE("                    Internal allocator in the case of opaque memory type");
+    HELP_LINE("");
+    HELP_LINE("  -MemModel::VisibleIntAlloc");
+    HELP_LINE("                Force usage of internal allocation with manual surfaces control");
+    HELP_LINE("");
+    HELP_LINE("  -MemModel::HiddenIntAlloc");
+    HELP_LINE("                Force usage of internal allocation without manual surfaces control");
+    HELP_LINE("");
+    HELP_LINE("  -memory <1|2|3>");
+    HELP_LINE("                1 - GeneralAlloc(default)");
+    HELP_LINE("                2 - VisibleIntAlloc");
+    HELP_LINE("                3 - HiddenIntAlloc");
+    HELP_LINE("");
+    HELP_LINE("  -AllocPolicy::optimal");
+    HELP_LINE("                Force optimal allocation policy for surface pool");
+    HELP_LINE("");
+    HELP_LINE("  -AllocPolicy::limited");
+    HELP_LINE("                Force limited allocation policy for surface pool");
+    HELP_LINE("");
+    HELP_LINE("  -AllocPolicy::unlimited");
+    HELP_LINE("                Force unlimited allocation policy for surface pool");
+    HELP_LINE("");
+    HELP_LINE("  -preallocate <number of surfaces>");
+    HELP_LINE("                Set numebr of surfaces to preallocate for -AllocPolicy::limited");
+    HELP_LINE("");
+    HELP_LINE("  -dec::sys     Set dec output to system memory");
+    HELP_LINE("");
+    HELP_LINE("  -vpp::sys     Set vpp output to system memory");
+    HELP_LINE("");
+    HELP_LINE("  -vpp::vid     Set vpp output to video memory");
+    HELP_LINE("");
+    HELP_LINE("  -fps <frames per second>");
+    HELP_LINE("                Transcoding frame rate limit");
+    HELP_LINE("");
+    HELP_LINE("  -pe           Set encoding plugin for this particular session.");
+    HELP_LINE("                This setting overrides plugin settings defined by SET clause.");
+    HELP_LINE("");
+    HELP_LINE("  -pd           Set decoding plugin for this particular session.");
+    HELP_LINE("                This setting overrides plugin settings defined by SET clause.");
+    HELP_LINE("                Supported values: hevcd_sw, hevcd_hw, hevce_sw, hevce_gacc,");
+    HELP_LINE("                hevce_hw, vp8d_hw,vp8e_hw, vp9d_hw, vp9e_hw, camera_hw,");
+    HELP_LINE("                capture_hw, h264_la_hw, ptir_hw, hevce_fei_hw");
+    HELP_LINE("                Direct GUID number can be used as well");
+    HELP_LINE("");
+    HELP_LINE("  -api_ver_init::<1x|2x>");
+    HELP_LINE("                Select the api version for the session initialization");
+    HELP_LINE("");
+    HELP_LINE("Pipeline description (encoding options):");
     MOD_SMT_PRINT_HELP;
-    msdk_printf(MSDK_STRING("  -b <Kbits per second>\n"));
-    msdk_printf(
-        MSDK_STRING("                Encoded bit rate, valid for H.264, MPEG2 and MVC encoders\n"));
-    msdk_printf(MSDK_STRING(
-        "  -bm           Bitrate multiplier. Use it when required bitrate isn't fit into 16-bit\n"));
-    msdk_printf(MSDK_STRING(
-        "                Affects following parameters: InitialDelayInKB, BufferSizeInKB, TargetKbps, MaxKbps\n"));
-    msdk_printf(MSDK_STRING("  -f <frames per second>\n"));
-    msdk_printf(
-        MSDK_STRING("                Video frame rate for the FRC and deinterlace options\n"));
-    msdk_printf(MSDK_STRING("  -fe <frames per second>\n"));
-    msdk_printf(MSDK_STRING(
-        "                Video frame rate for the FRC and deinterlace options (deprecated, will be removed in next versions).\n"));
-    msdk_printf(MSDK_STRING("  -override_decoder_framerate <framerate> \n"));
-    msdk_printf(MSDK_STRING(
-        "                Forces decoder output framerate to be set to provided value (overwriting actual framerate from decoder)\n"));
-    msdk_printf(MSDK_STRING("  -override_encoder_framerate <framerate> \n"));
-    msdk_printf(MSDK_STRING(
-        "                Overwrites framerate of stream going into encoder input with provided value (this option does not enable FRC, it just ovewrites framerate value)\n"));
-    msdk_printf(MSDK_STRING("  -override_encoder_picstruct <picstruct> \n"));
-    msdk_printf(MSDK_STRING("                Overwrites encoder picstruct with specific value\n"));
-    msdk_printf(MSDK_STRING(
-        "  -u <usage>    Target usage. Valid for H.265, H.264, MPEG2 and MVC encoders. Expected values:\n"));
-    msdk_printf(MSDK_STRING(
-        "                veryslow(quality), slower, slow, medium(balanced), fast, faster, veryfast(speed)\n"));
-    msdk_printf(MSDK_STRING(
-        "  -q <quality>  Quality parameter for JPEG encoder; in range [1,100], 100 is the best quality\n"));
-    msdk_printf(MSDK_STRING("  -l numSlices  Number of slices for encoder; default value 0 \n"));
-    msdk_printf(MSDK_STRING("  -mss maxSliceSize \n"));
-    msdk_printf(MSDK_STRING(
-        "                Maximum slice size in bytes. Supported only with -hw and h264 codec. This option is not compatible with -l option.\n"));
-    msdk_printf(MSDK_STRING("  -BitrateLimit:<on,off>\n"));
-    msdk_printf(MSDK_STRING(
-        "                Turn this flag ON to set bitrate limitations imposed by the SDK encoder. Off by default.\n"));
-    msdk_printf(MSDK_STRING(
-        "  -la           Use the look ahead bitrate control algorithm (LA BRC) for H.264 encoder. Supported only with -hw option on 4th Generation Intel Core processors. \n"));
-    msdk_printf(MSDK_STRING(
-        "  -lad depth    Depth parameter for the LA BRC, the number of frames to be analyzed before encoding. In range [0,100] (0 - default: auto-select by mediasdk library).\n"));
-    msdk_printf(
-        MSDK_STRING("                May be 1 in the case when -mss option is specified \n"));
-    msdk_printf(MSDK_STRING(
-        "  -la_ext       Use external LA plugin (compatible with h264 & hevc encoders)\n"));
-    msdk_printf(MSDK_STRING("  -vbr          Variable bitrate control\n"));
-    msdk_printf(MSDK_STRING("  -cbr          Constant bitrate control\n"));
-    msdk_printf(MSDK_STRING("  -vcm          Video Conferencing Mode (VCM) bitrate control\n"));
-    msdk_printf(MSDK_STRING("  -hrd <KBytes> Maximum possible size of any compressed frames \n"));
-    msdk_printf(MSDK_STRING("  -wb <Kbits per second>\n"));
-    msdk_printf(MSDK_STRING("                Maximum bitrate for sliding window\n"));
-    msdk_printf(MSDK_STRING("  -ws           Sliding window size in frames\n"));
-    msdk_printf(MSDK_STRING("  -gop_size     Size of GOP structure in frames \n"));
-    msdk_printf(MSDK_STRING("  -dist         Distance between I- or P- key frames \n"));
-    msdk_printf(MSDK_STRING("  -num_ref      Number of reference frames\n"));
-    msdk_printf(MSDK_STRING("  -bref         Arrange B frames in B pyramid reference structure\n"));
-    msdk_printf(MSDK_STRING(
-        "  -nobref       Do not use B-pyramid (by default the decision is made by library)\n"));
-    msdk_printf(MSDK_STRING("  -bpyr         Enable B pyramid\n"));
-    msdk_printf(
-        MSDK_STRING("  -NumActiveRefP         - Number of active reference frames for P Frames\n"));
-    msdk_printf(
-        MSDK_STRING("  -gpb:<on,off>          - Enable or disable Generalized P/B frames\n"));
-    msdk_printf(MSDK_STRING("  -TransformSkip:<on,off>- Enable or disable TransformSkip\n"));
-    msdk_printf(MSDK_STRING("  -trows <rows>          - Number of rows for tiled encoding\n"));
-    msdk_printf(MSDK_STRING("  -tcols <cols>          - Number of columns for tiled encoding\n"));
-    msdk_printf(MSDK_STRING("  -CodecProfile          - Specifies codec profile\n"));
-    msdk_printf(MSDK_STRING("  -CodecLevel            - Specifies codec level\n"));
-    msdk_printf(MSDK_STRING("  -GopOptFlag:closed     - Closed gop\n"));
-    msdk_printf(MSDK_STRING("  -GopOptFlag:strict     - Strict gop\n"));
-    msdk_printf(MSDK_STRING("  -AdaptiveI:<on,off>    - Turn Adaptive I frames on/off\n"));
-    msdk_printf(MSDK_STRING("  -AdaptiveB:<on,off>    - Turn Adaptive B frames on/off\n"));
-    msdk_printf(MSDK_STRING(
-        "  -InitialDelayInKB      - The decoder starts decoding after the buffer reaches the initial size InitialDelayInKB, \n\
-                            which is equivalent to reaching an initial delay of InitialDelayInKB*8000/TargetKbps ms\n"));
-    msdk_printf(MSDK_STRING(
-        "  -MaxKbps               - For variable bitrate control, specifies the maximum bitrate at which \n\
-                            the encoded data enters the Video Buffering Verifier buffer\n"));
-    msdk_printf(MSDK_STRING("  -gpucopy::<on,off> Enable or disable GPU copy mode\n"));
-    msdk_printf(MSDK_STRING(
-        "  -repartitioncheck::<on,off> Enable or disable RepartitionCheckEnable mode\n"));
-    msdk_printf(MSDK_STRING(
-        "  -cqp          Constant quantization parameter (CQP BRC) bitrate control method\n"));
-    msdk_printf(MSDK_STRING(
-        "                              (by default constant bitrate control method is used), should be used along with -qpi, -qpp, -qpb.\n"));
-    msdk_printf(MSDK_STRING(
-        "  -qpi          Constant quantizer for I frames (if bitrace control method is CQP). In range [1,51]. 0 by default, i.e.no limitations on QP.\n"));
-    msdk_printf(MSDK_STRING(
-        "  -qpp          Constant quantizer for P frames (if bitrace control method is CQP). In range [1,51]. 0 by default, i.e.no limitations on QP.\n"));
-    msdk_printf(MSDK_STRING(
-        "  -qpb          Constant quantizer for B frames (if bitrace control method is CQP). In range [1,51]. 0 by default, i.e.no limitations on QP.\n"));
-    msdk_printf(MSDK_STRING(
-        "  -DisableQPOffset         Disable QP adjustment for GOP pyramid-level frames\n"));
-    msdk_printf(MSDK_STRING(
-        "  -MinQPI <QP>  min QP for I frames. In range [1,51]. 0 by default i.e. no limits\n"));
-    msdk_printf(MSDK_STRING(
-        "  -MaxQPI <QP>  max QP for I frames. In range [1,51]. 0 by default i.e. no limits\n"));
-    msdk_printf(MSDK_STRING(
-        "  -MinQPP <QP>  min QP for P frames. In range [1,51]. 0 by default i.e. no limits\n"));
-    msdk_printf(MSDK_STRING(
-        "  -MaxQPP <QP>  max QP for P frames. In range [1,51]. 0 by default i.e. no limits\n"));
-    msdk_printf(MSDK_STRING(
-        "  -MinQPB <QP>  min QP for B frames. In range [1,51]. 0 by default i.e. no limits\n"));
-    msdk_printf(MSDK_STRING(
-        "  -MaxQPB <QP>  max QP for B frames. In range [1,51]. 0 by default i.e. no limits\n"));
-    msdk_printf(MSDK_STRING(
-        "  -lowpower:<on,off>       Turn this option ON to enable QuickSync Fixed Function (low-power HW) encoding mode\n"));
-    msdk_printf(MSDK_STRING(
-        "  -qsv-ff                  Turn option lowpower ON to enable QuickSync Fixed Function (low-power HW) encoding mode\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-TargetBitDepthLuma] - Encoding target bit depth for luma samples, by default same as source one.\n"));
-    msdk_printf(MSDK_STRING(
-        "   [-TargetBitDepthChroma] - Encoding target bit depth for chroma samples, by default same as source one.\n"));
-    msdk_printf(MSDK_STRING("  -roi_file <roi-file-name>\n"));
-    msdk_printf(MSDK_STRING(
-        "                Set Regions of Interest for each frame from <roi-file-name>\n"));
-    msdk_printf(MSDK_STRING("  -roi_qpmap    Use QP map to emulate ROI for CQP mode\n"));
-    msdk_printf(MSDK_STRING("  -extmbqp      Use external MBQP map\n"));
-    msdk_printf(MSDK_STRING(
-        "  -AvcTemporalLayers [array:Layer.Scale]    Configures the AVC temporal layers hierarchy\n"));
+    HELP_LINE("");
+    HELP_LINE("  -b <Kbits per second>");
+    HELP_LINE("                Encoded bit rate, valid for H.264, MPEG2 and MVC encoders");
+    HELP_LINE("");
+    HELP_LINE("  -bm           Bitrate multiplier. Use it when required bitrate isn't");
+    HELP_LINE("                fit into 16-bit. Affects following parameters:");
+    HELP_LINE("                    InitialDelayInKB, BufferSizeInKB, TargetKbps, MaxKbps");
+    HELP_LINE("");
+    HELP_LINE("  -f <frames per second>");
+    HELP_LINE("                Video frame rate for the FRC and deinterlace options");
+    HELP_LINE("");
+    HELP_LINE("  -fe <frames per second>");
+    HELP_LINE("                Video frame rate for the FRC and deinterlace options");
+    HELP_LINE("                (deprecated, will be removed in next versions).");
+    HELP_LINE("");
+    HELP_LINE("  -override_decoder_framerate <framerate>");
+    HELP_LINE("                Forces decoder output framerate to be set to");
+    HELP_LINE("                provided value (overwriting actual framerate from");
+    HELP_LINE("                decoder)");
+    HELP_LINE("");
+    HELP_LINE("  -override_encoder_framerate <framerate>");
+    HELP_LINE("                Overwrites framerate of stream going into encoder input with");
+    HELP_LINE("                provided value (this option does not enable FRC, it just");
+    HELP_LINE("                overwrites framerate value)");
+    HELP_LINE("");
+    HELP_LINE("  -override_encoder_picstruct <picstruct>");
+    HELP_LINE("                Overwrites encoder picstruct with specific value");
+    HELP_LINE("");
+    HELP_LINE("  -u <usage>    Target usage. Valid for H.265, H.264, MPEG2 and MVC encoders.");
+    HELP_LINE("                Expected values:");
+    HELP_LINE("                    veryslow(quality)");
+    HELP_LINE("                    slower");
+    HELP_LINE("                    slow");
+    HELP_LINE("                    medium(balanced)");
+    HELP_LINE("                    fast");
+    HELP_LINE("                    faster");
+    HELP_LINE("                    veryfast(speed)");
+    HELP_LINE("");
+    HELP_LINE("  -q <quality>  Quality parameter for JPEG encoder;");
+    HELP_LINE("                in range [1,100], 100 is the best quality");
+    HELP_LINE("");
+    HELP_LINE("  -l numSlices  Number of slices for encoder; default value 0");
+    HELP_LINE("");
+    HELP_LINE("  -mss maxSliceSize");
+    HELP_LINE("                Maximum slice size in bytes.");
+    HELP_LINE("                Supported only with -hw and h264 codec.");
+    HELP_LINE("                This option is not compatible with -l option.");
+    HELP_LINE("");
+    HELP_LINE("  -BitrateLimit:<on|off>");
+    HELP_LINE("                Turn this flag ON to set bitrate limitations imposed");
+    HELP_LINE("                by the SDK encoder. Off by default.");
+    HELP_LINE("");
+    HELP_LINE("  -la           Use the look ahead bitrate control algorithm (LA BRC)");
+    HELP_LINE("                for H.264 encoder. Supported only with");
+    HELP_LINE("                -hw option on 4th Generation Intel Core processors.");
+    HELP_LINE("");
+    HELP_LINE("  -lad depth    Depth parameter for the LA BRC, the number of frames to be");
+    HELP_LINE("                analyzed before encoding.");
+    HELP_LINE("                In range [0,100] (0 - default: auto-select by mediasdk library).");
+    HELP_LINE("                May be 1 in the case when -mss option is specified");
+    HELP_LINE("");
+    HELP_LINE("  -la_ext       Use external LA plugin (compatible with h264 & hevc encoders)");
+    HELP_LINE("");
+    HELP_LINE("  -vbr          Variable bitrate control");
+    HELP_LINE("");
+    HELP_LINE("  -cbr          Constant bitrate control");
+    HELP_LINE("");
+    HELP_LINE("  -vcm          Video Conferencing Mode (VCM) bitrate control");
+    HELP_LINE("");
+    HELP_LINE("  -hrd <KBytes> Maximum possible size of any compressed frames");
+    HELP_LINE("");
+    HELP_LINE("  -wb <Kbits per second>");
+    HELP_LINE("                Maximum bitrate for sliding window");
+    HELP_LINE("");
+    HELP_LINE("  -ws           Sliding window size in frames");
+    HELP_LINE("");
+    HELP_LINE("  -gop_size     Size of GOP structure in frames");
+    HELP_LINE("");
+    HELP_LINE("  -dist         Distance between I- or P- key frames");
+    HELP_LINE("");
+    HELP_LINE("  -num_ref      Number of reference frames");
+    HELP_LINE("");
+    HELP_LINE("  -bref         Arrange B frames in B pyramid reference structure");
+    HELP_LINE("");
+    HELP_LINE("  -nobref       Do not use B-pyramid (by default the decision is made by library)");
+    HELP_LINE("");
+    HELP_LINE("  -bpyr         Enable B pyramid");
+    HELP_LINE("");
+    HELP_LINE("  -NumActiveRefP");
+    HELP_LINE("                Number of active reference frames for P Frames");
+    HELP_LINE("");
+    HELP_LINE("  -gpb:<on|off>");
+    HELP_LINE("                Enable or disable Generalized P/B frames");
+    HELP_LINE("");
+    HELP_LINE("  -TransformSkip:<on|off>");
+    HELP_LINE("                Enable or disable TransformSkip");
+    HELP_LINE("");
+    HELP_LINE("  -trows <rows> Number of rows for tiled encoding");
+    HELP_LINE("");
+    HELP_LINE("  -tcols <cols> Number of columns for tiled encoding");
+    HELP_LINE("");
+    HELP_LINE("  -CodecProfile Specifies codec profile");
+    HELP_LINE("");
+    HELP_LINE("  -CodecLevel   Specifies codec level");
+    HELP_LINE("");
+    HELP_LINE("  -GopOptFlag:closed");
+    HELP_LINE("                Closed gop");
+    HELP_LINE("");
+    HELP_LINE("  -GopOptFlag:strict");
+    HELP_LINE("                Strict gop");
+    HELP_LINE("");
+    HELP_LINE("  -AdaptiveI:<on|off>");
+    HELP_LINE("                Turn Adaptive I frames on/off");
+    HELP_LINE("");
+    HELP_LINE("  -AdaptiveB:<on|off>");
+    HELP_LINE("                Turn Adaptive B frames on/off");
+    HELP_LINE("");
+    HELP_LINE("  -InitialDelayInKB");
+    HELP_LINE("                The decoder starts decoding after the buffer reaches the");
+    HELP_LINE("                initial size InitialDelayInKB, which is equivalent to reaching");
+    HELP_LINE("                an initial delay of InitialDelayInKB*8000/TargetKbps ms");
+    HELP_LINE("");
+    HELP_LINE("  -MaxKbps      For variable bitrate control, specifies the maximum bitrate");
+    HELP_LINE("                at which the encoded data enters the Video Buffering Verifier");
+    HELP_LINE("                buffer");
+    HELP_LINE("");
+    HELP_LINE("  -gpucopy::<on|off>");
+    HELP_LINE("                Enable or disable GPU copy mode");
+    HELP_LINE("");
+    HELP_LINE("  -repartitioncheck::<on|off>");
+    HELP_LINE("                Enable or disable RepartitionCheckEnable mode");
+    HELP_LINE("");
+    HELP_LINE("  -cqp          Constant quantization parameter (CQP BRC) bitrate control method");
+    HELP_LINE("                (by default constant bitrate control method is used)");
+    HELP_LINE("                should be used along with -qpi, -qpp, -qpb.");
+    HELP_LINE("");
+    HELP_LINE("  -qpi          Constant quantizer for I frames (if bitrace control");
+    HELP_LINE("                method is CQP).");
+    HELP_LINE("                In range [1,51]. 0 by default, i.e.no limitations on QP.");
+    HELP_LINE("");
+    HELP_LINE("  -qpp          Constant quantizer for P frames (if bitrace control");
+    HELP_LINE("                method is CQP).");
+    HELP_LINE("                In range [1,51]. 0 by default, i.e.no limitations on QP.");
+    HELP_LINE("");
+    HELP_LINE("  -qpb          Constant quantizer for B frames (if bitrace control");
+    HELP_LINE("                method is CQP).");
+    HELP_LINE("                In range [1,51]. 0 by default, i.e.no limitations on QP.");
+    HELP_LINE("");
+    HELP_LINE("  -DisableQPOffset");
+    HELP_LINE("                Disable QP adjustment for GOP pyramid-level frames");
+    HELP_LINE("");
+    HELP_LINE("  -MinQPI <QP>  min QP for I frames. In range [1,51]. 0 by default i.e. no limits");
+    HELP_LINE("");
+    HELP_LINE("  -MaxQPI <QP>  max QP for I frames. In range [1,51]. 0 by default i.e. no limits");
+    HELP_LINE("");
+    HELP_LINE("  -MinQPP <QP>  min QP for P frames. In range [1,51]. 0 by default i.e. no limits");
+    HELP_LINE("");
+    HELP_LINE("  -MaxQPP <QP>  max QP for P frames. In range [1,51]. 0 by default i.e. no limits");
+    HELP_LINE("");
+    HELP_LINE("  -MinQPB <QP>  min QP for B frames. In range [1,51]. 0 by default i.e. no limits");
+    HELP_LINE("");
+    HELP_LINE("  -MaxQPB <QP>  max QP for B frames. In range [1,51]. 0 by default i.e. no limits");
+    HELP_LINE("");
+    HELP_LINE("  -lowpower:<on|off>");
+    HELP_LINE("                Turn this option ON to enable QuickSync Fixed Function");
+    HELP_LINE("                (low-power HW) encoding mode");
+    HELP_LINE("");
+    HELP_LINE("  -qsv-ff       Turn option lowpower ON to enable QuickSync Fixed Function");
+    HELP_LINE("                (low-power HW) encoding mode");
+    HELP_LINE("");
+    HELP_LINE("  -TargetBitDepthLuma");
+    HELP_LINE("                Encoding target bit depth for luma samples,");
+    HELP_LINE("                by default same as source one.");
+    HELP_LINE("");
+    HELP_LINE("  -TargetBitDepthChroma");
+    HELP_LINE("                Encoding target bit depth for chroma samples,");
+    HELP_LINE("                by default same as source one.");
+    HELP_LINE("");
+    HELP_LINE("  -roi_file <roi-file-name>");
+    HELP_LINE("                Set Regions of Interest for each frame from <roi-file-name>");
+    HELP_LINE("");
+    HELP_LINE("  -roi_qpmap    Use QP map to emulate ROI for CQP mode");
+    HELP_LINE("");
+    HELP_LINE("  -extmbqp      Use external MBQP map");
+    HELP_LINE("");
+    HELP_LINE("  -AvcTemporalLayers <array:Layer.Scale>");
+    HELP_LINE("                Configures the AVC temporal layers hierarchy");
 #if defined(_WIN32) || defined(_WIN64)
-    msdk_printf(MSDK_STRING(
-        "  -TemporalLayers [array:Layer.Scale]       Configures the AV1 + future codec temporal layers hierarchy\n"));
+    HELP_LINE("");
+    HELP_LINE("  -TemporalLayers <array:Layer.Scale>");
+    HELP_LINE("                Configures the AV1 + future codec temporal layers hierarchy");
 #endif
-    msdk_printf(MSDK_STRING(
-        "  -BaseLayerPID <pid>                       Sets priority ID for the base layer\n"));
-    msdk_printf(MSDK_STRING(
-        "  -SPSId <pid>                              Sets sequence parameter set ID\n"));
-    msdk_printf(
-        MSDK_STRING("  -PPSId <pid>                              Sets picture parameter set ID\n"));
-    msdk_printf(MSDK_STRING(
-        "  -PicTimingSEI:<on,off>                    Enables or disables picture timing SEI\n"));
-    msdk_printf(MSDK_STRING(
-        "  -NalHrdConformance:<on,off>               Enables or disables picture HRD conformance\n"));
-    msdk_printf(MSDK_STRING(
-        "  -VuiNalHrdParameters:<on,off>             Enables or disables NAL HRD parameters in VUI header\n"));
-    msdk_printf(MSDK_STRING(
-        "  -VuiTC                                    Sets transfer_characteristics for VUI. 1 - BT.709, 18 - HLG(BT.2020)\n"));
-    msdk_printf(
-        MSDK_STRING("  -EmbeddedDenoise <mode> <level>           Enables Denoiser in encoder\n"));
-    msdk_printf(MSDK_STRING("           mode - mode of deniose\n"));
-    msdk_printf(MSDK_STRING("               0    - default\n"));
-    msdk_printf(MSDK_STRING("               1001 - auto BD rate\n"));
-    msdk_printf(MSDK_STRING("               1002 - auto subjective\n"));
-    msdk_printf(MSDK_STRING("               1003 - auto adjust\n"));
-    msdk_printf(MSDK_STRING("               1004 - manual mode for pre-processing, need level\n"));
-    msdk_printf(MSDK_STRING("               1005 - manual mode for post-processing, need level\n"));
-    msdk_printf(MSDK_STRING("           level - range of noise level is [0, 100]\n"));
-    msdk_printf(MSDK_STRING(
-        "  -idr_interval size      idr interval, default 0 means every I is an IDR, 1 means every other I frame is an IDR etc\n"));
-    msdk_printf(MSDK_STRING("  -ivf:<on,off> Turn IVF header on/off\n"));
-    msdk_printf(MSDK_STRING("\n"));
-    msdk_printf(MSDK_STRING("Pipeline description (vpp options):\n"));
-    msdk_printf(MSDK_STRING("  -deinterlace             Forces VPP to deinterlace input stream\n"));
-    msdk_printf(MSDK_STRING(
-        "  -deinterlace::ADI        Forces VPP to deinterlace input stream using ADI algorithm\n"));
-    msdk_printf(MSDK_STRING(
-        "  -deinterlace::ADI_SCD    Forces VPP to deinterlace input stream using ADI_SCD algorithm\n"));
-    msdk_printf(MSDK_STRING(
-        "  -deinterlace::ADI_NO_REF Forces VPP to deinterlace input stream using ADI no ref algorithm\n"));
-    msdk_printf(MSDK_STRING(
-        "  -deinterlace::BOB        Forces VPP to deinterlace input stream using BOB algorithm\n"));
-    msdk_printf(MSDK_STRING(
-        "  -detail <level>          Enables detail (edge enhancement) filter with provided level(0..100)\n"));
-    msdk_printf(MSDK_STRING(
-        "  -denoise <level>         Enables denoise filter with provided level (0..100)\n"));
-    msdk_printf(
-        MSDK_STRING("  -VppHvsDenoise <mode> <level>      Enables vpp hvsdenoise filter)n"));
-    msdk_printf(MSDK_STRING("           mode - mode of deniose\n"));
-    msdk_printf(MSDK_STRING("               0    - default\n"));
-    msdk_printf(MSDK_STRING("               1001 - auto BD rate\n"));
-    msdk_printf(MSDK_STRING("               1002 - auto subjective\n"));
-    msdk_printf(MSDK_STRING("               1003 - auto adjust\n"));
-    msdk_printf(MSDK_STRING("               1004 - manual mode for pre-processing, need level\n"));
-    msdk_printf(MSDK_STRING("               1005 - manual mode for post-processing, need level\n"));
-    msdk_printf(MSDK_STRING("           level - range of noise level is [0, 100]\n"));
-    msdk_printf(
-        MSDK_STRING("  -FRC::PT      Enables FRC filter with Preserve Timestamp algorithm\n"));
-    msdk_printf(
-        MSDK_STRING("  -FRC::DT      Enables FRC filter with Distributed Timestamp algorithm\n"));
-    msdk_printf(
-        MSDK_STRING("  -FRC::INTERP  Enables FRC filter with Frame Interpolation algorithm\n"));
-    msdk_printf(
-        MSDK_STRING("  -scaling_mode <mode> Specifies scaling mode (lowpower/quality/EU)\n"));
-    msdk_printf(MSDK_STRING(
-        "  -ec::nv12|rgb4|yuy2|nv16|p010|p210|y210|y410|p016|y216   Forces encoder input to use provided chroma mode\n"));
-    msdk_printf(MSDK_STRING(
-        "  -dc::nv12|rgb4|yuy2|p010|y210|y410|p016|y216|y416   Forces decoder output to use provided chroma mode\n"));
-    msdk_printf(MSDK_STRING(
-        "     NOTE: chroma transform VPP may be automatically enabled if -ec/-dc parameters are provided\n"));
-    msdk_printf(MSDK_STRING(
-        "  -angle 180    Enables 180 degrees picture rotation user module before encoding\n"));
-    msdk_printf(MSDK_STRING(
-        "  -opencl       Uses implementation of rotation plugin (enabled with -angle option) through Intel(R) OpenCL\n"));
-    msdk_printf(MSDK_STRING(
-        "  -w            Destination picture width, invokes VPP resize or decoder fixed function resize engine (if -dec_postproc specified)\n"));
-    msdk_printf(MSDK_STRING(
-        "  -h            Destination picture height, invokes VPP resize or decoder fixed function resize engine (if -dec_postproc specified)\n"));
-    msdk_printf(MSDK_STRING("  -field_processing t2t|t2b|b2t|b2b|fr2fr - Field Copy feature\n"));
-    msdk_printf(
-        MSDK_STRING("  -WeightedPred::default|implicit       Enables weighted prediction usage\n"));
-    msdk_printf(MSDK_STRING(
-        "  -WeightedBiPred::default|implicit     Enables weighted bi-prediction usage\n"));
-    msdk_printf(MSDK_STRING(
-        "  -ir_type               - Intra refresh type. 0 - no refresh, 1 - vertical refresh, 2 - horizontal refresh, 3 - slice refresh\n"));
-    msdk_printf(MSDK_STRING(
-        "  -ir_cycle_size         - Number of pictures within refresh cycle starting from 2\n"));
-    msdk_printf(MSDK_STRING(
-        "  -ir_qp_delta           - QP difference for inserted intra MBs. This is signed value in [-51, 51] range\n"));
-    msdk_printf(MSDK_STRING(
-        "  -ir_cycle_dist         - Distance between the beginnings of the intra-refresh cycles in frames\n"));
-    msdk_printf(MSDK_STRING(
-        "  -LowDelayBRC           - strictly obey average frame size set by MaxKbps\n"));
-    msdk_printf(MSDK_STRING(
-        "  -amfs:<on,off>         - adaptive max frame size. If set on, P or B frame size can exceed MaxFrameSize when the scene change is detected.\
-                            It can benefit the video quality \n"));
-    msdk_printf(MSDK_STRING(
-        "  -mfs                   - maximum frame size in bytes. Supported only with h264 and hevc codec for VBR mode.\n"));
-    msdk_printf(MSDK_STRING(
-        "  -extbrc::<on,off,implicit>           Enables external BRC for AVC and HEVC encoders\n"));
-    msdk_printf(
-        MSDK_STRING("  -ExtBrcAdaptiveLTR:<on,off>         Set AdaptiveLTR for implicit extbrc"));
-    msdk_printf(MSDK_STRING(
-        "  -vpp_comp <sourcesNum>      Enables composition from several decoding sessions. Result is written to the file\n"));
-    msdk_printf(MSDK_STRING(
-        "  -vpp_comp_only <sourcesNum> Enables composition from several decoding sessions. Result is shown on screen\n"));
-    msdk_printf(MSDK_STRING(
-        "  -vpp_comp_num_tiles <Num>   Quantity of tiles for composition. if equal to 0 tiles processing ignored\n"));
-    msdk_printf(MSDK_STRING(
-        "  -vpp_comp_render            Set pipeline mode when pipeline makes vpp composition + encode and get data from shared buffer\n"));
-    msdk_printf(MSDK_STRING(
-        "  -vpp_comp_dst_x             X position of this stream in composed stream (should be used in decoder session)\n"));
-    msdk_printf(MSDK_STRING(
-        "  -vpp_comp_dst_y             Y position of this stream in composed stream (should be used in decoder session)\n"));
-    msdk_printf(MSDK_STRING(
-        "  -vpp_comp_dst_h             Height of this stream in composed stream (should be used in decoder session)\n"));
-    msdk_printf(MSDK_STRING(
-        "  -vpp_comp_dst_w             Width of this stream in composed stream (should be used in decoder session)\n"));
-    msdk_printf(MSDK_STRING(
-        "  -vpp_comp_src_h             Width of this stream in composed stream (should be used in decoder session)\n"));
-    msdk_printf(MSDK_STRING(
-        "  -vpp_comp_src_w             Width of this stream in composed stream (should be used in decoder session)\n"));
-    msdk_printf(MSDK_STRING(
-        "  -vpp_comp_tile_id           Tile_id for current channel of composition (should be used in decoder session)\n"));
-    msdk_printf(MSDK_STRING(
-        "  -vpp_comp_dump <file-name>  Dump of VPP Composition's output into file. Valid if with -vpp_comp* options\n"));
-    msdk_printf(MSDK_STRING(
-        "  -vpp_comp_dump null_render  Disabling rendering after VPP Composition. This is for performance measurements\n"));
-    msdk_printf(MSDK_STRING(
-        "  -dec_postproc               Resize after decoder using direct pipe (should be used in decoder session)\n"));
-    msdk_printf(
-        MSDK_STRING("  -single_texture_d3d11       single texture mode for d3d11 allocator \n"));
-    msdk_printf(MSDK_STRING(
-        "  -preset <default,dss,conference,gaming> Use particular preset for encoding parameters\n"));
-    msdk_printf(MSDK_STRING("  -pp                         Print preset parameters\n"));
-    msdk_printf(MSDK_STRING(
-        "  -forceSyncAllSession:<on,off>         Enable across-session synchronization \n"));
-    msdk_printf(MSDK_STRING(
-        "                              How it works: the decoder takes a required number of surfaces for work, \n"));
-    msdk_printf(MSDK_STRING(
-        "                              and when it ready to take more, does not take a new one, \n"));
-    msdk_printf(MSDK_STRING(
-        "                              but waits until one of them is available for work \n"));
-    msdk_printf(MSDK_STRING(
-        "                              Opion is ON by default for -MemModel::VisibleIntAlloc/HiddenIntAlloc(-memory 2/3) and 1->N scenarios"));
-    msdk_printf(MSDK_STRING(
-        "                              Option is not intended for -memory 1 and for transcoding scenarios  \n"));
-    msdk_printf(MSDK_STRING(
-        "   -dump [fileName]         - dump MSDK components configuration to the file in text form\n"));
-    msdk_printf(MSDK_STRING(
-        "   -tcbrctestfile <filepath> - if specified, the encoder will take targetFrameSize parameters for TCBRC test from text file. \
-                            The parameters for TCBRC should be calculated based on the channel width conditions, sample doesn't have this functionality. \
-                            Therefore the file data from <filepath> is used for TCBRC test. This is a test model\n"));
-    msdk_printf(MSDK_STRING("   -cs                      - turn on cascade scaling\n"));
-    msdk_printf(MSDK_STRING("   -trace                   - turn on tracing \n"));
-    msdk_printf(MSDK_STRING(
-        "   -trace::ENC              - turn on tracing, tune pipeline for ENC latency\n"));
-    msdk_printf(MSDK_STRING(
-        "   -trace::E2E              - turn on tracing, tune pipeline for E2E latency \n"));
-    msdk_printf(MSDK_STRING("   -trace_buffer_size <x>   - trace buffer size in MBytes\n"));
-    msdk_printf(MSDK_STRING(
-        "   -parallel_encoding       - use several encoders to encode single bitstream, see readme for more details\n"));
+    HELP_LINE("");
+    HELP_LINE("  -BaseLayerPID <pid>");
+    HELP_LINE("                Sets priority ID for the base layer");
+    HELP_LINE("");
+    HELP_LINE("  -SPSId <pid>  Sets sequence parameter set ID");
+    HELP_LINE("");
+    HELP_LINE("  -PPSId <pid>  Sets picture parameter set ID");
+    HELP_LINE("");
+    HELP_LINE("  -PicTimingSEI:<on|off>");
+    HELP_LINE("                Enables or disables picture timing SEI");
+    HELP_LINE("");
+    HELP_LINE("  -NalHrdConformance:<on|off>");
+    HELP_LINE("                Enables or disables picture HRD conformance");
+    HELP_LINE("");
+    HELP_LINE("  -VuiNalHrdParameters:<on|off>");
+    HELP_LINE("                Enables or disables NAL HRD parameters in VUI header");
+    HELP_LINE("");
+    HELP_LINE("  -VuiTC        Sets transfer_characteristics for VUI.");
+    HELP_LINE("                1 - BT.709");
+    HELP_LINE("                18 - HLG(BT.2020)");
+    HELP_LINE("");
+    HELP_LINE("  -EmbeddedDenoise <mode> <level>");
+    HELP_LINE("                Enables Denoiser in encoder");
+    HELP_LINE("                    mode - mode of deniose");
+    HELP_LINE("                    0    - default");
+    HELP_LINE("                    1001 - auto BD rate");
+    HELP_LINE("                    1002 - auto subjective");
+    HELP_LINE("                    1003 - auto adjust");
+    HELP_LINE("                    1004 - manual mode for pre-processing, need level");
+    HELP_LINE("                    1005 - manual mode for post-processing, need level");
+    HELP_LINE("                level - range of noise level is [0, 100]");
+    HELP_LINE("");
+    HELP_LINE("  -idr_interval size");
+    HELP_LINE("                idr interval:");
+    HELP_LINE("                0 (default) means every I is an IDR");
+    HELP_LINE("                1 means every other I frame is an IDR etc");
+    HELP_LINE("");
+    HELP_LINE("  -ivf:<on|off> Turn IVF header on/off");
+    HELP_LINE("");
+    HELP_LINE("Pipeline description (vpp options):");
+    HELP_LINE("");
+    HELP_LINE("  -deinterlace  Forces VPP to deinterlace input stream");
+    HELP_LINE("");
+    HELP_LINE("  -deinterlace::ADI");
+    HELP_LINE("                Forces VPP to deinterlace input stream using ADI algorithm");
+    HELP_LINE("");
+    HELP_LINE("  -deinterlace::ADI_SCD");
+    HELP_LINE("                Forces VPP to deinterlace input stream using ADI_SCD algorithm");
+    HELP_LINE("");
+    HELP_LINE("  -deinterlace::ADI_NO_REF");
+    HELP_LINE("                Forces VPP to deinterlace input stream using ADI no ref algorithm");
+    HELP_LINE("");
+    HELP_LINE("  -deinterlace::BOB");
+    HELP_LINE("                Forces VPP to deinterlace input stream using BOB algorithm");
+    HELP_LINE("");
+    HELP_LINE("  -detail <level>");
+    HELP_LINE("                Enables detail (edge enhancement) filter with");
+    HELP_LINE("                provided level(0..100)");
+    HELP_LINE("");
+    HELP_LINE("  -denoise <level>");
+    HELP_LINE("                Enables denoise filter with provided level (0..100)");
+    HELP_LINE("");
+    HELP_LINE("  -VppHvsDenoise <mode> <level>");
+    HELP_LINE("                Enables vpp hvsdenoise filter)");
+    HELP_LINE("                    mode - mode of deniose");
+    HELP_LINE("                        0    - default");
+    HELP_LINE("                        1001 - auto BD rate");
+    HELP_LINE("                        1002 - auto subjective");
+    HELP_LINE("                        1003 - auto adjust");
+    HELP_LINE("                        1004 - manual mode for pre-processing, need level");
+    HELP_LINE("                        1005 - manual mode for post-processing, need level");
+    HELP_LINE("                level - range of noise level is [0, 100]");
+    HELP_LINE("");
+    HELP_LINE("  -FRC::PT      Enables FRC filter with Preserve Timestamp algorithm");
+    HELP_LINE("");
+    HELP_LINE("  -FRC::DT      Enables FRC filter with Distributed Timestamp algorithm");
+    HELP_LINE("");
+    HELP_LINE("  -FRC::INTERP  Enables FRC filter with Frame Interpolation algorithm");
+    HELP_LINE("");
+    HELP_LINE("  -scaling_mode <mode>");
+    HELP_LINE("                Specifies scaling mode (lowpower/quality/EU)");
+    HELP_LINE("");
+    HELP_LINE("  -ec::<nv12|rgb4|yuy2|nv16|p010|p210|y210|y410|p016|y216>");
+    HELP_LINE("                Forces encoder input to use provided chroma mode");
+    HELP_LINE("");
+    HELP_LINE("  -dc::<nv12|rgb4|yuy2|p010|y210|y410|p016|y216|y416>");
+    HELP_LINE("                Forces decoder output to use provided chroma mode");
+    HELP_LINE("                NOTE: chroma transform VPP may be automatically enabled");
+    HELP_LINE("                if -ec/-dc parameters are provided");
+    HELP_LINE("");
+    HELP_LINE("  -angle 180    Enables 180 degrees picture rotation user module before encoding");
+    HELP_LINE("");
+    HELP_LINE("  -opencl       Uses implementation of rotation plugin");
+    HELP_LINE("                (enabled with -angle option) through Intel(R) OpenCL");
+    HELP_LINE("");
+    HELP_LINE("  -w            Destination picture width, invokes VPP resize or decoder");
+    HELP_LINE("                fixed function resize engine (if -dec_postproc specified)");
+    HELP_LINE("");
+    HELP_LINE("  -h            Destination picture height, invokes VPP resize or decoder fixed");
+    HELP_LINE("                function resize engine (if -dec_postproc specified)");
+    HELP_LINE("");
+    HELP_LINE("  -field_processing <t2t|t2b|b2t|b2b|fr2fr>");
+    HELP_LINE("                Field Copy feature");
+    HELP_LINE("");
+    HELP_LINE("  -WeightedPred::<default|implicit>");
+    HELP_LINE("                Enables weighted prediction usage");
+    HELP_LINE("");
+    HELP_LINE("  -WeightedBiPred::<default|implicit>");
+    HELP_LINE("                Enables weighted bi-prediction usage");
+    HELP_LINE("");
+    HELP_LINE("  -ir_type      Intra refresh type.");
+    HELP_LINE("                    0 - no refresh");
+    HELP_LINE("                    1 - vertical refresh");
+    HELP_LINE("                    2 - horizontal refresh");
+    HELP_LINE("                    3 - slice refresh");
+    HELP_LINE("");
+    HELP_LINE("  -ir_cycle_size");
+    HELP_LINE("                Number of pictures within refresh cycle starting from 2");
+    HELP_LINE("");
+    HELP_LINE("  -ir_qp_delta  QP difference for inserted intra MBs.");
+    HELP_LINE("                This is signed value in [-51, 51] range");
+    HELP_LINE("");
+    HELP_LINE("  -ir_cycle_dist");
+    HELP_LINE("                Distance between the beginnings of the intra-refresh");
+    HELP_LINE("                cycles in frames");
+    HELP_LINE("");
+    HELP_LINE("  -LowDelayBRC  strictly obey average frame size set by MaxKbps");
+    HELP_LINE("");
+    HELP_LINE("  -amfs:<on|off>");
+    HELP_LINE("                adaptive max frame size. If set on, P or B frame size");
+    HELP_LINE("                can exceed MaxFrameSize when the scene change is detected.");
+    HELP_LINE("                It can benefit the video quality");
+    HELP_LINE("");
+    HELP_LINE("  -mfs          maximum frame size in bytes. Supported only with h264 and");
+    HELP_LINE("                hevc codec for VBR mode.");
+    HELP_LINE("");
+    HELP_LINE("  -extbrc::<on|off|implicit>");
+    HELP_LINE("                Enables external BRC for AVC and HEVC encoders");
+    HELP_LINE("");
+    HELP_LINE("  -ExtBrcAdaptiveLTR:<on|off>");
+    HELP_LINE("                Set AdaptiveLTR for implicit extbrc");
+    HELP_LINE("");
+    HELP_LINE("  -vpp_comp <sourcesNum>");
+    HELP_LINE("                Enables composition from several decoding sessions.");
+    HELP_LINE("                Result is written to the file");
+    HELP_LINE("");
+    HELP_LINE("  -vpp_comp_only <sourcesNum>");
+    HELP_LINE("                Enables composition from several decoding sessions.");
+    HELP_LINE("                Result is shown on screen");
+    HELP_LINE("");
+    HELP_LINE("  -vpp_comp_num_tiles <Num>");
+    HELP_LINE("                Quantity of tiles for composition.");
+    HELP_LINE("                if equal to 0 tiles processing ignored");
+    HELP_LINE("");
+    HELP_LINE("  -vpp_comp_render");
+    HELP_LINE("                Set pipeline mode when pipeline makes vpp composition + encode");
+    HELP_LINE("                and get data from shared buffer");
+    HELP_LINE("");
+    HELP_LINE("  -vpp_comp_dst_x");
+    HELP_LINE("                X position of this stream in composed stream");
+    HELP_LINE("                (should be used in decoder session)");
+    HELP_LINE("");
+    HELP_LINE("  -vpp_comp_dst_y");
+    HELP_LINE("                Y position of this stream in composed stream");
+    HELP_LINE("                (should be used in decoder session)");
+    HELP_LINE("");
+    HELP_LINE("  -vpp_comp_dst_h");
+    HELP_LINE("                Height of this stream in composed stream");
+    HELP_LINE("                (should be used in decoder session)");
+    HELP_LINE("");
+    HELP_LINE("  -vpp_comp_dst_w");
+    HELP_LINE("                Width of this stream in composed stream");
+    HELP_LINE("                (should be used in decoder session)");
+    HELP_LINE("");
+    HELP_LINE("  -vpp_comp_src_h");
+    HELP_LINE("                Height of this stream in composed stream");
+    HELP_LINE("                (should be used in decoder session)");
+    HELP_LINE("");
+    HELP_LINE("  -vpp_comp_src_w");
+    HELP_LINE("                Width of this stream in composed stream");
+    HELP_LINE("                (should be used in decoder session)");
+    HELP_LINE("");
+    HELP_LINE("  -vpp_comp_tile_id");
+    HELP_LINE("                Tile_id for current channel of composition");
+    HELP_LINE("                (should be used in decoder session)");
+    HELP_LINE("");
+    HELP_LINE("  -vpp_comp_dump <file-name>");
+    HELP_LINE("                Dump of VPP Composition's output into file.");
+    HELP_LINE("                Valid if with -vpp_comp* options");
+    HELP_LINE("");
+    HELP_LINE("  -vpp_comp_dump null_render");
+    HELP_LINE("                Disabling rendering after VPP Composition.");
+    HELP_LINE("                This is for performance measurements");
+    HELP_LINE("");
+    HELP_LINE("  -dec_postproc Resize after decoder using direct pipe");
+    HELP_LINE("                (should be used in decoder session)");
+    HELP_LINE("");
+    HELP_LINE("  -single_texture_d3d11");
+    HELP_LINE("                single texture mode for d3d11 allocator");
+    HELP_LINE("");
+    HELP_LINE("  -preset <default|dss|conference|gaming>");
+    HELP_LINE("                Use particular preset for encoding parameters");
+    HELP_LINE("");
+    HELP_LINE("  -pp           Print preset parameters");
+    HELP_LINE("");
+    HELP_LINE("  -forceSyncAllSession:<on|off>");
+    HELP_LINE("                Enable across-session synchronization");
+    HELP_LINE("                How it works: the decoder takes a required number of");
+    HELP_LINE("                surfaces for work, and when it ready to take more,");
+    HELP_LINE("                does not take a new one, but waits until one of them");
+    HELP_LINE("                is available for work");
+    HELP_LINE("                Option is ON by default for");
+    HELP_LINE("                -MemModel::VisibleIntAlloc/HiddenIntAlloc(-memory 2/3)");
+    HELP_LINE("                and 1->N scenarios");
+    HELP_LINE("                Option is not intended for -memory 1 and for transcoding scenarios");
+    HELP_LINE("");
+    HELP_LINE("  -dump <fileName>");
+    HELP_LINE("                dump MSDK components configuration to the file in text form");
+    HELP_LINE("");
+    HELP_LINE("  -tcbrctestfile <filepath>");
+    HELP_LINE("                if specified, the encoder will take targetFrameSize parameters for");
+    HELP_LINE("                TCBRC test from text file. The parameters for TCBRC should be");
+    HELP_LINE("                calculated based on the channel width conditions, sample doesn't");
+    HELP_LINE("                have this functionality. Therefore the file data from <filepath>");
+    HELP_LINE("                is used for TCBRC test. This is a test model");
+    HELP_LINE("");
+    HELP_LINE("  -cs           turn on cascade scaling");
+    HELP_LINE("");
+    HELP_LINE("  -trace        turn on tracing");
+    HELP_LINE("");
+    HELP_LINE("  -trace::ENC   turn on tracing, tune pipeline for ENC latency");
+    HELP_LINE("");
+    HELP_LINE("  -trace::E2E   turn on tracing, tune pipeline for E2E latency");
+    HELP_LINE("");
+    HELP_LINE("  -trace_buffer_size <x>");
+    HELP_LINE("                trace buffer size in MBytes");
+    HELP_LINE("");
+    HELP_LINE("  -parallel_encoding");
+    HELP_LINE("                use several encoders to encode single bitstream,");
+    HELP_LINE("                see readme for more details");
 #if defined(LIBVA_X11_SUPPORT)
-    msdk_printf(MSDK_STRING("   -rx11                    - use libva X11 backend \n"));
+    HELP_LINE("");
+    HELP_LINE("  -rx11        use libva X11 backend");
 #endif
 #if defined(LIBVA_WAYLAND_SUPPORT)
-    msdk_printf(MSDK_STRING("   -rwld                    - use libva WAYLAND backend \n"));
+    HELP_LINE("");
+    HELP_LINE("  -rwld        use libva WAYLAND backend");
 #endif
 #if defined(LIBVA_DRM_SUPPORT)
-    msdk_printf(MSDK_STRING("   -rdrm                    - use libva DRM backend \n"));
+    HELP_LINE("");
+    HELP_LINE("  -rdrm        use libva DRM backend");
 #endif
-    msdk_printf(
-        MSDK_STRING("   -syncop_timeout          - SyncOperation timeout in milliseconds\n"));
+    HELP_LINE("");
+    HELP_LINE("  -syncop_timeout");
+    HELP_LINE("                SyncOperation timeout in milliseconds");
 #if defined(LIBVA_SUPPORT)
-    msdk_printf(MSDK_STRING("  -3dlut <file-name>          Enable 3DLUT VPP filter\n"));
+    HELP_LINE("");
+    HELP_LINE("  -3dlut <file-name>");
+    HELP_LINE("                Enable 3DLUT VPP filter");
 #endif
 #ifdef ONEVPL_EXPERIMENTAL
-    msdk_printf(
-        MSDK_STRING("  -perc_enc_filter            Enable perceptual encoding prefilter in VPP\n"));
+    HELP_LINE("");
+    HELP_LINE("  -perc_enc_filter            ");
+    HELP_LINE("                Enable perceptual encoding prefilter in VPP");
 #endif
-    msdk_printf(MSDK_STRING("\n"));
-    msdk_printf(MSDK_STRING("ParFile format:\n"));
-    msdk_printf(MSDK_STRING(
-        "  ParFile is extension of what can be achieved by setting pipeline in the command\n"));
-    msdk_printf(MSDK_STRING(
-        "line. For more information on ParFile format see readme-multi-transcode.pdf\n"));
-    msdk_printf(MSDK_STRING("\n"));
-    msdk_printf(MSDK_STRING("Examples:\n"));
-    msdk_printf(MSDK_STRING("  sample_multi_transcode -i::mpeg2 in.mpeg2 -o::h264 out.h264\n"));
-    msdk_printf(
-        MSDK_STRING("  sample_multi_transcode -i::mvc in.mvc -o::mvc out.mvc -w 320 -h 240\n"));
+    HELP_LINE("");
+    HELP_LINE("ParFile format:");
+    HELP_LINE("  ParFile is extension of what can be achieved by setting pipeline in the command");
+    HELP_LINE("  line. For more information on ParFile format see readme-multi-transcode.pdf");
+    HELP_LINE("");
+    HELP_LINE("Examples:");
+    HELP_LINE("  sample_multi_transcode -i::mpeg2 in.mpeg2 -o::h264 out.h264");
+    HELP_LINE("  sample_multi_transcode -i::mvc in.mvc -o::mvc out.mvc -w 320 -h 240");
 }
 
 void TranscodingSample::PrintStreamInfo(mfxU32 session_number,
