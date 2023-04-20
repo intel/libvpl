@@ -271,7 +271,7 @@ mfxStatus CVAAPIDeviceX11::RenderFrame(mfxFrameSurface1* pSurface,
         width  = pSurface->Info.CropX + pSurface->Info.CropW;
         height = pSurface->Info.CropY + pSurface->Info.CropH;
 
-        stride = width * bpp / 8;
+        stride = memId->m_image.pitches[0];
         size   = PAGE_ALIGN(stride * height);
 
         bo = drmintellib.drm_intel_bo_gem_create_from_prime(m_bufmgr,

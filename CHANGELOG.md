@@ -16,6 +16,7 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 ### Fixed
 - Fix HDR luminance value
 - Handling of special cases of CMAKE_INSTALL_PREFIX
+- X11 rendering corruption issue
 
 ## [2023.2.1] - 2023-04-14
 
