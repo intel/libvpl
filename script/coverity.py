@@ -191,7 +191,9 @@ def read_command_line(cmd_line):
                         default="",
                         help='Business unit (for reports)')
     parser.add_argument(
-        '--report', help='Force reporting, even if no new issues were found')
+        '--report',
+        action="store_true",
+        help='Force reporting, even if no new issues were found')
     #build options
     parser.add_argument('--dir',
                         dest='intermediate_dir',
@@ -306,10 +308,24 @@ def publish_to_coverity_connect(user, password, intermediate_dir, url, stream,
     env = os.environ.copy()
     env["COVERITY_PASSPHRASE"] = password
     env["COV_USER"] = user
-    run_command("cov-commit-defects", "--dir", intermediate_dir, "--url", url,
-                "--stream", stream, "--ticker-mode", "none", "--version",
-                code_version, "--strip-path", strip_path, "--description",
-                description, "--snapshot-id-file", snapshot_id_path, env)
+    run_command("cov-commit-defects",
+                "--dir",
+                intermediate_dir,
+                "--url",
+                url,
+                "--stream",
+                stream,
+                "--ticker-mode",
+                "none",
+                "--version",
+                code_version,
+                "--strip-path",
+                strip_path,
+                "--description",
+                description,
+                "--snapshot-id-file",
+                snapshot_id_path,
+                env=env)
 
 
 def run(args):
