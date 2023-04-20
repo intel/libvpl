@@ -835,7 +835,6 @@ void TranscodingSample::PrintHelp() {
 void TranscodingSample::PrintStreamInfo(mfxU32 session_number,
                                         sInputParams* pParams,
                                         mfxVersion* pVer) {
-    msdk_char buf[2048];
     MSDK_CHECK_POINTER_NO_RET(pVer);
 
     if ((MFX_IMPL_AUTO <= pParams->libType) && (MFX_IMPL_HARDWARE4 >= pParams->libType)) {
@@ -857,47 +856,44 @@ void TranscodingSample::PrintStreamInfo(mfxU32 session_number,
         msdk_printf(MSDK_STRING("Output video: To child session\n"));
     else
         msdk_printf(MSDK_STRING("Output video: %s\n"), CodecIdToStr(pParams->EncodeId).c_str());
-    if (PrintDllInfo(buf, MSDK_ARRAY_LEN(buf), pParams))
-        msdk_printf(MSDK_STRING("MFX dll: %s\n"), buf);
+    msdk_string dll_info = GetDllInfo(pParams);
+    if (!dll_info.empty())
+        msdk_printf(MSDK_STRING("MFX dll: %s\n"), dll_info.c_str());
     msdk_printf(MSDK_STRING("\n"));
 }
 
-bool TranscodingSample::PrintDllInfo(msdk_char* buf, mfxU32 buf_size, sInputParams* pParams) {
+msdk_string TranscodingSample::GetDllInfo(sInputParams* pParams) {
 #if defined(_WIN32) || defined(_WIN64)
+    std::vector<msdk_char> buf;
+    buf.resize(2048);
     HANDLE hCurrent = GetCurrentProcess();
-    HMODULE* pModules;
+    std::vector<HMODULE> modules;
     DWORD cbNeeded;
     int nModules;
     if (NULL == EnumProcessModules(hCurrent, NULL, 0, &cbNeeded))
-        return false;
-
+        return "";
     nModules = cbNeeded / sizeof(HMODULE);
-
-    pModules = new HMODULE[nModules];
-    if (NULL == pModules) {
-        return false;
+    modules.resize(nModules);
+    if (NULL == EnumProcessModules(hCurrent, &modules[0], (DWORD)modules.size(), &cbNeeded)) {
+        return "";
     }
-    if (NULL == EnumProcessModules(hCurrent, pModules, cbNeeded, &cbNeeded)) {
-        delete[] pModules;
-        return false;
-    }
-
-    for (int i = 0; i < nModules; i++) {
-        GetModuleFileName(pModules[i], buf, buf_size);
-        if (_tcsstr(buf, MSDK_STRING("libmfxhw")) && (MFX_IMPL_SOFTWARE != pParams->libType)) {
-            delete[] pModules;
-            return true;
+    for (auto module : modules) {
+        DWORD chars_read = GetModuleFileName(module, &buf[0], (DWORD)buf.size());
+        while (buf.size() <= chars_read) {
+            buf.resize(buf.size() + 1024);
+            chars_read = GetModuleFileName(module, &buf[0], (DWORD)buf.size());
         }
-        else if (_tcsstr(buf, MSDK_STRING("libmfxsw")) && (MFX_IMPL_SOFTWARE == pParams->libType)) {
-            delete[] pModules;
-            return true;
+        if (msdk_strstr(&buf[0], MSDK_STRING("libmfxhw")) &&
+            (MFX_IMPL_SOFTWARE != pParams->libType)) {
+            return msdk_string(buf.begin(), buf.end());
+        }
+        else if (msdk_strstr(&buf[0], MSDK_STRING("libmfxsw")) &&
+                 (MFX_IMPL_SOFTWARE == pParams->libType)) {
+            return msdk_string(buf.begin(), buf.end());
         }
     }
-    delete[] pModules;
-    return false;
-#else
-    return false;
 #endif
+    return "";
 }
 
 CmdProcessor::CmdProcessor()
@@ -906,7 +902,7 @@ CmdProcessor::CmdProcessor()
           m_decoderPlugins(),
           m_encoderPlugins(),
           m_PerfFILE(nullptr),
-          m_parName(nullptr),
+          m_parName(),
           statisticsWindowSize(0),
           statisticsLogFile(nullptr),
           DumpLogFileName(),
@@ -928,8 +924,8 @@ CmdProcessor::~CmdProcessor() {
 } //CmdProcessor::~CmdProcessor()
 
 void CmdProcessor::PrintParFileName() {
-    if (m_parName && m_PerfFILE) {
-        msdk_fprintf(m_PerfFILE, MSDK_STRING("Input par file: %s\n\n"), m_parName);
+    if (!m_parName.empty() && m_PerfFILE) {
+        msdk_fprintf(m_PerfFILE, MSDK_STRING("Input par file: %s\n\n"), m_parName.c_str());
     }
 }
 
@@ -940,7 +936,6 @@ msdk_string CmdProcessor::GetLine(mfxU32 n) {
 }
 
 mfxStatus CmdProcessor::ParseCmdLine(int argc, msdk_char* argv[]) {
-    FILE* parFile = NULL;
     mfxStatus sts = MFX_ERR_UNSUPPORTED;
 
     if (1 == argc) {
@@ -958,7 +953,7 @@ mfxStatus CmdProcessor::ParseCmdLine(int argc, msdk_char* argv[]) {
             if (!argv[0]) {
                 msdk_printf(MSDK_STRING("error: no argument given for '-par' option\n"));
             }
-            m_parName = argv[0];
+            m_parName = msdk_string(argv[0]);
         }
         else if (0 == msdk_strcmp(argv[0], MSDK_STRING("-timeout"))) {
             --argc;
@@ -1054,31 +1049,19 @@ mfxStatus CmdProcessor::ParseCmdLine(int argc, msdk_char* argv[]) {
                 GetMSDKSampleVersion().c_str());
 
     //Read pipeline from par file
-    if (m_parName && !argv[0]) {
-        MSDK_FOPEN(parFile, m_parName, MSDK_STRING("r"));
-        if (NULL == parFile) {
-            msdk_printf(MSDK_STRING("error: ParFile \"%s\" not found\n"), m_parName);
-            return MFX_ERR_UNSUPPORTED;
-        }
-
-        if (NULL != m_parName)
-            msdk_printf(MSDK_STRING("Par file is: %s\n\n"), m_parName);
-
-        sts = ParseParFile(parFile);
+    if (!m_parName.empty() && !argv[0]) {
+        sts = ParseParFile(m_parName);
 
         if (MFX_ERR_NONE != sts) {
-            fclose(parFile);
             return sts;
         }
-
-        fclose(parFile);
     }
     //Read pipeline from cmd line
     else if (!argv[0]) {
         msdk_printf(MSDK_STRING("error: pipeline description not found\n"));
         return MFX_ERR_UNSUPPORTED;
     }
-    else if (argv[0] && m_parName) {
+    else if (argv[0] && !m_parName.empty()) {
         msdk_printf(MSDK_STRING(
             "error: simultaneously enabling parfile and description pipeline from command line forbidden\n"));
         return MFX_ERR_UNSUPPORTED;
@@ -1095,53 +1078,38 @@ mfxStatus CmdProcessor::ParseCmdLine(int argc, msdk_char* argv[]) {
 
 } //mfxStatus CmdProcessor::ParseCmdLine(int argc, msdk_char *argv[])
 
-mfxStatus CmdProcessor::ParseParFile(FILE* parFile) {
+mfxStatus CmdProcessor::ParseParFile(const msdk_string& filename) {
     mfxStatus sts = MFX_ERR_UNSUPPORTED;
-    if (!parFile)
+    if (filename.empty()) {
         return MFX_ERR_UNSUPPORTED;
-
-    mfxU32 currPos   = 0;
-    mfxU32 lineIndex = 0;
-
-    // calculate file size
-    fseek(parFile, 0, SEEK_END);
-    mfxU32 fileSize = ftell(parFile) + 1;
-    fseek(parFile, 0, SEEK_SET);
-
-    // allocate buffer for parsing
-    auto parBuf = std::make_unique<msdk_char[]>(fileSize);
-    msdk_char* pCur;
-
-    while (currPos < fileSize) {
-        pCur = /*_fgetts*/ msdk_fgets(parBuf.get(), fileSize, parFile);
-        if (!pCur)
-            return MFX_ERR_NONE;
-        while (pCur[currPos] != '\n' && pCur[currPos] != 0) {
-            currPos++;
-            if (pCur + currPos >= parBuf.get() + fileSize)
-                return sts;
-        }
-        // zero string
-        if (!currPos)
-            continue;
-
-        sts = TokenizeLine(pCur, currPos);
-        MSDK_CHECK_STATUS(sts, "TokenizeLine failed");
-
-        currPos = 0;
-        lineIndex++;
     }
-
+    msdk_ifstream in_stream(filename);
+    if (!in_stream.good()) {
+        msdk_printf(MSDK_STRING("error: ParFile \"%s\" not found\n"), m_parName.c_str());
+        return MFX_ERR_UNSUPPORTED;
+    }
+    if (!in_stream.is_open()) {
+        msdk_printf(MSDK_STRING("error: ParFile \"%s\" could not be opened\n"), m_parName.c_str());
+        return MFX_ERR_UNSUPPORTED;
+    }
+    msdk_string line;
+    while (std::getline(in_stream, line)) {
+        if (line.empty()) {
+            continue;
+        }
+        sts = TokenizeLine(line);
+        MSDK_CHECK_STATUS(sts, "TokenizeLine failed");
+    }
     return MFX_ERR_NONE;
 
-} //mfxStatus CmdProcessor::ParseParFile(FILE *parFile)
+} //mfxStatus CmdProcessor::ParseParFile(const msdk_string& filename)
 
 // calculate length of string literal, including leading and trailing "
 // pTempLine = start of string (must begin with ")
 // length = remaining characters in pTempLine
 // returns length of string, or 0 if error
-mfxU32 CmdProcessor::GetStringLength(msdk_char* pTempLine, mfxU32 length) {
-    mfxU32 i;
+size_t CmdProcessor::GetStringLength(msdk_char* pTempLine, size_t length) {
+    size_t i;
 
     // error - no leading " found
     if (pTempLine[0] != '\"')
@@ -1159,8 +1127,12 @@ mfxU32 CmdProcessor::GetStringLength(msdk_char* pTempLine, mfxU32 length) {
     return i + 1;
 }
 
-mfxStatus CmdProcessor::TokenizeLine(msdk_char* pLine, mfxU32 length) {
-    mfxU32 i, strArgLen;
+mfxStatus CmdProcessor::TokenizeLine(const msdk_string& line) {
+    return TokenizeLine(line.c_str(), line.size());
+}
+
+mfxStatus CmdProcessor::TokenizeLine(const msdk_char* pLine, size_t length) {
+    size_t i, strArgLen;
     const mfxU8 maxArgNum = 255;
     msdk_char* argv[maxArgNum + 1];
     mfxU32 argc   = 0;
@@ -1217,7 +1189,7 @@ bool CmdProcessor::is_not_allowed_char(char a) {
     return (std::isdigit(a) == 0) && (std::isspace(a) == 0) && (a != ';') && (a != '-');
 }
 
-bool CmdProcessor::ParseROIFile(const msdk_tstring& roi_file_name,
+bool CmdProcessor::ParseROIFile(const msdk_string& roi_file_name,
                                 std::vector<mfxExtEncoderROI>& m_ROIData) {
     FILE* roi_file = NULL;
     MSDK_FOPEN(roi_file, roi_file_name.c_str(), MSDK_STRING("rb"));
@@ -1309,9 +1281,9 @@ msdk_char* ParseArgn(msdk_char* pIn, mfxU32 argn, msdk_char separator) {
         return pIn;
     else {
         for (mfxU32 n = 0; n != argn; ++n) {
-            while (separator != *pstr && msdk_char('\0') != *pstr)
+            while (separator != *pstr && *pstr)
                 ++pstr;
-            if (msdk_char('\0') == *pstr)
+            if (!*pstr)
                 return NULL;
             else
                 ++pstr;
@@ -1340,6 +1312,16 @@ bool ArgConvert(msdk_char* pIn,
     return bConvertIsOk;
 }
 
+template <typename T>
+bool ArgConvert(msdk_char* pIn,
+                mfxU32 argn,
+                const msdk_string& pattern,
+                T* pArg,
+                const T& ArgDefault,
+                mfxU32& NumOfGoodConverts) {
+    return ArgConvert(pIn, argn, pattern.c_str(), pArg, ArgDefault, NumOfGoodConverts);
+}
+
 //template <typename T=msdk_string>
 bool ArgConvert(msdk_char* pIn,
                 mfxU32 argn,
@@ -1352,10 +1334,10 @@ bool ArgConvert(msdk_char* pIn,
     if (pargs) {
         // lets calculate length of potential name:
         msdk_char* temp(pargs);
-        while (*temp != msdk_char(':') && *temp != msdk_char('\0'))
+        while (*temp != msdk_char(':') && *temp)
             ++temp;
-        std::iterator_traits<msdk_char*>::difference_type distance = std::distance(pargs, temp);
-        if (distance < std::iterator_traits<msdk_char*>::difference_type(MaxChars2Read)) {
+        mfxU32 distance = (mfxU32)std::distance(pargs, temp);
+        if (distance < MaxChars2Read) {
             if (msdk_sscanf(pargs, pattern, pArg, MaxChars2Read)) {
                 ++NumOfGoodConverts;
                 bConvertIsOk = true;
@@ -1363,6 +1345,15 @@ bool ArgConvert(msdk_char* pIn,
         };
     };
     return bConvertIsOk;
+}
+
+bool ArgConvert(msdk_char* pIn,
+                mfxU32 argn,
+                const msdk_string& pattern,
+                msdk_char* pArg,
+                mfxU32 MaxChars2Read,
+                mfxU32& NumOfGoodConverts) {
+    return ArgConvert(pIn, argn, pattern.c_str(), pArg, MaxChars2Read, NumOfGoodConverts);
 }
 
 void ParseMCTFParams(msdk_char* strInput[], mfxU32 nArgNum, mfxU32& curArg, sInputParams* pParams) {
@@ -1407,7 +1398,7 @@ void ParseMCTFParams(msdk_char* strInput[], mfxU32 nArgNum, mfxU32& curArg, sInp
                 // if it was not possible, try to get a file-name (upto 15 chars):
                 res = ArgConvert(strInput[i + 1],
                                  strength_idx,
-                                 file_pattern.str().c_str(),
+                                 file_pattern.str(),
                                  &(_tmp_str[0]),
                                  max_name_len,
                                  ParsedArgsNumber);
@@ -1984,7 +1975,7 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
     }
 #ifdef ONEVPL_EXPERIMENTAL
     else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-pci"))) {
-        msdk_tstring deviceInfo;
+        msdk_string deviceInfo;
         VAL_CHECK(i + 1 == argc, i, argv[i]);
         i++;
         if (MFX_ERR_NONE != msdk_opt_read(argv[i], deviceInfo)) {
@@ -2016,7 +2007,7 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
     #if defined(_WIN32)
     else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-LUID"))) {
         // <HighPart:LowPart>
-        msdk_char luid[MSDK_MAX_FILENAME_LEN];
+        msdk_string luid;
         VAL_CHECK(i + 1 == argc, i, argv[i]);
         i++;
         if (MFX_ERR_NONE != msdk_opt_read(argv[i], luid)) {
@@ -2024,7 +2015,7 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
             return MFX_ERR_UNSUPPORTED;
         }
 
-        std::string temp = std::string(luid);
+        std::string temp = std::string(luid.begin(), luid.end());
         const std::regex pieces_regex("(0[xX][0-9a-fA-F]+):(0[xX][0-9a-fA-F]+)");
         std::smatch pieces_match;
 
@@ -2404,7 +2395,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
 
-            msdk_tstring strRoiFile;
+            msdk_string strRoiFile;
             msdk_opt_read(argv[i], strRoiFile);
 
             if (!ParseROIFile(strRoiFile, InputParams.m_ROIData)) {
@@ -2919,7 +2910,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
                 PrintError(MSDK_STRING("-angle %s is invalid"), argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }
-            if (InputParams.strVPPPluginDLLPath[0] == '\0') {
+            if (!InputParams.strVPPPluginDLLPath[0]) {
                 msdk_opt_read(MSDK_CPU_ROTATE_PLUGIN, InputParams.strVPPPluginDLLPath);
             }
         }
@@ -3106,7 +3097,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             InputParams.shouldPrintPresets = true;
         }
         else if (0 == msdk_strcmp(argv[i], MSDK_STRING("-preset"))) {
-            msdk_char presetName[MSDK_MAX_FILENAME_LEN];
+            msdk_string presetName;
             VAL_CHECK(i + 1 >= argc, i, argv[i]);
             if (MFX_ERR_NONE != msdk_opt_read(argv[++i], presetName)) {
                 PrintError(MSDK_STRING("Preset Name is not defined"));
@@ -3250,13 +3241,13 @@ mfxStatus CmdProcessor::ParseOption__set(msdk_char* strCodecType, msdk_char* str
 };
 
 mfxStatus CmdProcessor::VerifyAndCorrectInputParams(TranscodingSample::sInputParams& InputParams) {
-    if (0 == msdk_strlen(InputParams.strSrcFile.c_str()) &&
+    if (InputParams.strSrcFile.empty() &&
         (InputParams.eMode == Sink || InputParams.eMode == Native)) {
         PrintError(MSDK_STRING("Source file name not found"));
         return MFX_ERR_UNSUPPORTED;
     };
 
-    if (0 == msdk_strlen(InputParams.strDstFile.c_str()) &&
+    if (InputParams.strDstFile.empty() &&
         (InputParams.eMode == Source || InputParams.eMode == Native ||
          InputParams.eMode == VppComp) &&
         InputParams.eModeExt != VppCompOnly) {
@@ -3399,7 +3390,7 @@ mfxStatus CmdProcessor::VerifyAndCorrectInputParams(TranscodingSample::sInputPar
     if (!memcmp(InputParams.decoderPluginParams.pluginGuid.Data,
                 MSDK_PLUGINGUID_NULL.Data,
                 sizeof(MSDK_PLUGINGUID_NULL)) &&
-        !strcmp(InputParams.decoderPluginParams.strPluginPath, "")) {
+        InputParams.decoderPluginParams.strPluginPath.empty()) {
         it = m_decoderPlugins.find(InputParams.DecodeId);
         if (it != m_decoderPlugins.end())
             InputParams.decoderPluginParams = it->second;
@@ -3416,7 +3407,7 @@ mfxStatus CmdProcessor::VerifyAndCorrectInputParams(TranscodingSample::sInputPar
     if (!memcmp(InputParams.encoderPluginParams.pluginGuid.Data,
                 MSDK_PLUGINGUID_NULL.Data,
                 sizeof(MSDK_PLUGINGUID_NULL)) &&
-        !strcmp(InputParams.encoderPluginParams.strPluginPath, "")) {
+        InputParams.encoderPluginParams.strPluginPath.empty()) {
         it = m_encoderPlugins.find(InputParams.EncodeId);
         if (it != m_encoderPlugins.end())
             InputParams.encoderPluginParams = it->second;

@@ -48,7 +48,7 @@ void PrintHelp();
 void PrintError(const msdk_char* strErrorMessage, ...);
 void PrintStreamInfo(mfxU32 session_number, sInputParams* pParams, mfxVersion* pVer);
 
-bool PrintDllInfo(msdk_char* buf, mfxU32 buf_size, sInputParams* pParams);
+msdk_string GetDllInfo(sInputParams* pParams);
 
 class CmdProcessor {
 public:
@@ -63,13 +63,14 @@ public:
     msdk_string GetLine(mfxU32 n);
 
 protected:
-    mfxStatus ParseParFile(FILE* file);
-    mfxStatus TokenizeLine(msdk_char* pLine, mfxU32 length);
-    mfxU32 GetStringLength(msdk_char* pTempLine, mfxU32 length);
+    mfxStatus ParseParFile(const msdk_string& filename);
+    mfxStatus TokenizeLine(const msdk_string& line);
+    mfxStatus TokenizeLine(const msdk_char* pLine, size_t length);
+    size_t GetStringLength(msdk_char* pTempLine, size_t length);
 
     static bool isspace(char a);
     static bool is_not_allowed_char(char a);
-    bool ParseROIFile(const msdk_tstring& roi_file_name, std::vector<mfxExtEncoderROI>& m_ROIData);
+    bool ParseROIFile(const msdk_string& roi_file_name, std::vector<mfxExtEncoderROI>& m_ROIData);
 
     mfxStatus ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[]);
     mfxStatus ParseOption__set(msdk_char* strCodecType, msdk_char* strPluginPath);
@@ -79,11 +80,11 @@ protected:
     std::map<mfxU32, sPluginParams> m_decoderPlugins;
     std::map<mfxU32, sPluginParams> m_encoderPlugins;
     FILE* m_PerfFILE;
-    msdk_char* m_parName;
+    msdk_string m_parName;
     mfxU32 statisticsWindowSize;
     FILE* statisticsLogFile;
     //store a name of a Logfile
-    msdk_tstring DumpLogFileName;
+    msdk_string DumpLogFileName;
     mfxU32 m_nTimeout;
     bool bRobustFlag;
     bool bSoftRobustFlag;

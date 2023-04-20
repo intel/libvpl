@@ -242,7 +242,7 @@ struct sInputParams {
     /* input\output streams   */
     /* ********************** */
     msdk_char strSrcFile[MSDK_MAX_FILENAME_LEN];
-    std::vector<msdk_tstring> strDstFiles;
+    std::vector<msdk_string> strDstFiles;
 
     msdk_char strPerfFile[MSDK_MAX_FILENAME_LEN];
     mfxU32 forcedOutputFourcc;

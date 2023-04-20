@@ -26,15 +26,14 @@ public:
     MsdkSoModule(const msdk_string& pluginName) : m_module(NULL) {
         m_module = msdk_so_load(pluginName.c_str());
         if (NULL == m_module) {
-            MSDK_TRACE_ERROR(msdk_tstring(MSDK_CHAR("Failed to load shared module: ")) +
-                             pluginName);
+            MSDK_TRACE_ERROR(msdk_string(MSDK_CHAR("Failed to load shared module: ")) + pluginName);
         }
     }
     template <class T>
     T GetAddr(const std::string& fncName) {
         T pCreateFunc = reinterpret_cast<T>(msdk_so_get_addr(m_module, fncName.c_str()));
         if (NULL == pCreateFunc) {
-            MSDK_TRACE_ERROR(msdk_tstring("Failed to get function addres: ") + fncName.c_str());
+            MSDK_TRACE_ERROR(msdk_string("Failed to get function addres: ") + fncName.c_str());
         }
         return pCreateFunc;
     }

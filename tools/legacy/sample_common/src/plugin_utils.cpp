@@ -137,7 +137,7 @@ const mfxPluginUID& msdkGetPluginUID(mfxIMPL impl, msdkComponentType type, mfxU3
     return MSDK_PLUGINGUID_NULL;
 }
 
-sPluginParams ParsePluginGuid(msdk_char* strPluginGuid) {
+sPluginParams ParsePluginGuid(const msdk_string& strPluginGuid) {
     sPluginParams pluginParams;
     mfxPluginUID uid;
     mfxStatus sts = ConvertStringToGuid(strPluginGuid, uid);
@@ -150,14 +150,9 @@ sPluginParams ParsePluginGuid(msdk_char* strPluginGuid) {
     return pluginParams;
 }
 
-sPluginParams ParsePluginPath(msdk_char* strPluginGuid) {
+sPluginParams ParsePluginPath(const msdk_string& strPluginGuid) {
     sPluginParams pluginParams;
-
-    msdk_char tmpVal[MSDK_MAX_FILENAME_LEN];
-    msdk_opt_read(strPluginGuid, tmpVal);
-
-    MSDK_MAKE_BYTE_STRING(pluginParams.strPluginPath, tmpVal, sizeof(pluginParams.strPluginPath));
-    pluginParams.type = MFX_PLUGINLOAD_TYPE_FILE;
-
+    pluginParams.strPluginPath = std::string(strPluginGuid.begin(), strPluginGuid.end());
+    pluginParams.type          = MFX_PLUGINLOAD_TYPE_FILE;
     return pluginParams;
 }

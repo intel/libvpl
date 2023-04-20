@@ -3986,8 +3986,8 @@ mfxStatus CTranscodingPipeline::Init(sInputParams* pParams,
     }
 
     if (!pParams->DumpLogFileName.empty()) {
-        inputStatistics.SetDumpName((pParams->DumpLogFileName + MSDK_STRING("_input")).c_str());
-        outputStatistics.SetDumpName((pParams->DumpLogFileName + MSDK_STRING("_output")).c_str());
+        inputStatistics.SetDumpName(pParams->DumpLogFileName + MSDK_STRING("_input"));
+        outputStatistics.SetDumpName(pParams->DumpLogFileName + MSDK_STRING("_output"));
     }
 
     // if no statistic-window is passed but overall stat-log exist:

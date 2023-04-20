@@ -577,7 +577,7 @@ mfxStatus CEncodingPipeline::InitMfxEncParams(sInputParams* pInParams) {
             index++;
 
             // Converting to byte-string if necessary
-            msdk_tstring tstr(pInParams->uSEI + index);
+            msdk_string tstr(pInParams->uSEI + index);
             std::transform(tstr.begin(), tstr.end(), std::back_inserter(msg), [](msdk_char c) {
                 return (char)c;
             });

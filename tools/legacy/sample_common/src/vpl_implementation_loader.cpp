@@ -59,7 +59,7 @@ static mfxU16 FoundSuitableAdapter() {
 }
 #endif
 
-const std::map<mfxAccelerationMode, const msdk_tstring> mfxAccelerationModeNames = {
+const std::map<mfxAccelerationMode, const msdk_string> mfxAccelerationModeNames = {
     { MFX_ACCEL_MODE_NA, MSDK_STRING("MFX_ACCEL_MODE_NA") },
     { MFX_ACCEL_MODE_VIA_D3D9, MSDK_STRING("MFX_ACCEL_MODE_VIA_D3D9") },
     { MFX_ACCEL_MODE_VIA_D3D11, MSDK_STRING("MFX_ACCEL_MODE_VIA_D3D11") },
@@ -558,7 +558,7 @@ mfxStatus MainVideoSession::PrintLibInfo(VPLImplementationLoader* Loader) {
 
     // Impl Name
     std::string implName = Loader->GetImplName();
-    msdk_tstring strImplName;
+    msdk_string strImplName;
     std::copy(std::begin(implName), std::end(implName), back_inserter(strImplName));
     msdk_printf(MSDK_STRING("    ImplName: %s \n"), strImplName.c_str());
 

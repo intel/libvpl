@@ -49,7 +49,7 @@ void PutPerformanceToFile(sInputParams& Params, mfxF64 FPS) {
     while (*srcFileName)
         *pFileName++ = (msdk_char)*srcFileName++;
 
-    msdk_tstring filters;
+    msdk_string filters;
 
     if (Params.frameInfoIn[0].PicStruct != Params.frameInfoOut[0].PicStruct) {
         filters += MSDK_STRING("DI ");

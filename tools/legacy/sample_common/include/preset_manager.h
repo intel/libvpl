@@ -85,6 +85,7 @@ public:
 
     static CPresetManager Inst;
     static EPresetModes PresetNameToMode(const msdk_char* name);
+    static EPresetModes PresetNameToMode(const msdk_string& name);
 
 protected:
     CPresetManager();

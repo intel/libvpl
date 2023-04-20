@@ -257,3 +257,12 @@ EPresetModes CPresetManager::PresetNameToMode(const msdk_char* name) {
     }
     return PRESET_MAX_MODES;
 }
+
+EPresetModes CPresetManager::PresetNameToMode(const msdk_string& name) {
+    for (int i = 0; i < PRESET_MAX_MODES; i++) {
+        if (!msdk_stricmp(modesName[i].c_str(), name.c_str())) {
+            return (EPresetModes)i;
+        }
+    }
+    return PRESET_MAX_MODES;
+}

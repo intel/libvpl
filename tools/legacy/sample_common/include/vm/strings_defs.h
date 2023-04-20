@@ -22,11 +22,12 @@
     #define MSDK_STRING(x) _T(x)
     #define MSDK_CHAR(x)   _T(x)
 
-    #ifdef __cplusplus
-typedef std::basic_string<TCHAR> msdk_tstring;
-    #endif
 typedef TCHAR msdk_char;
-
+    #ifdef __cplusplus
+typedef std::basic_string<msdk_char> msdk_string;
+typedef std::basic_ifstream<msdk_char> msdk_ifstream;
+typedef std::basic_ofstream<msdk_char> msdk_ofstream;
+    #endif
     #define msdk_printf               _tprintf
     #define msdk_fprintf              _ftprintf
     #define msdk_sprintf              _stprintf_s // to be removed
@@ -65,7 +66,9 @@ typedef TCHAR msdk_char;
     #define MSDK_CHAR(x)   x
 
     #ifdef __cplusplus
-typedef std::string msdk_tstring;
+typedef std::string msdk_string;
+typedef std::ifstream msdk_ifstream;
+typedef std::ofstream msdk_ofstream;
     #endif
 typedef char msdk_char;
 

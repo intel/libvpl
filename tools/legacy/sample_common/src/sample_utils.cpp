@@ -2438,15 +2438,15 @@ mfxStatus msdk_opt_read(const msdk_char* string, mfxPriority& value) {
 
 template <>
 mfxStatus msdk_opt_read(const msdk_char* string, std::string& value) {
-    msdk_tstring temp_value = msdk_tstring(string);
-    value                   = std::string(temp_value.begin(), temp_value.end());
+    msdk_string temp_value = msdk_string(string);
+    value                  = std::string(temp_value.begin(), temp_value.end());
     return MFX_ERR_NONE;
 }
 
 template <>
 mfxStatus msdk_opt_read(const msdk_char* string, std::wstring& value) {
-    msdk_tstring temp_value = msdk_tstring(string);
-    value                   = std::wstring(temp_value.begin(), temp_value.end());
+    msdk_string temp_value = msdk_string(string);
+    value                  = std::wstring(temp_value.begin(), temp_value.end());
     return MFX_ERR_NONE;
 }
 

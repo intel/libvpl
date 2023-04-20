@@ -183,12 +183,12 @@ typedef struct sInputParams {
     mfxU32 EncodeId; // type of output coded video
     mfxU32 DecodeId; // type of input coded video
 
-    msdk_tstring strSrcFile; // source bitstream file
-    msdk_tstring strDstFile; // destination bitstream file
-    msdk_tstring strDumpVppCompFile; // VPP composition output dump file
-    msdk_tstring strMfxParamsDumpFile;
+    msdk_string strSrcFile; // source bitstream file
+    msdk_string strDstFile; // destination bitstream file
+    msdk_string strDumpVppCompFile; // VPP composition output dump file
+    msdk_string strMfxParamsDumpFile;
 
-    msdk_tstring strTCBRCFilePath;
+    msdk_string strTCBRCFilePath;
 
     // specific encode parameters
     mfxU16 nTargetUsage;
@@ -265,7 +265,7 @@ typedef struct sInputParams {
     mfxU32 numViews; // number of views for Multi-View-Codec
 
     mfxU16 nRotationAngle; // if specified, enables rotation plugin in mfx pipeline
-    msdk_tstring strVPPPluginDLLPath; // plugin dll path and name
+    msdk_string strVPPPluginDLLPath; // plugin dll path and name
 
     sPluginParams decoderPluginParams;
     sPluginParams encoderPluginParams;
@@ -381,7 +381,7 @@ typedef struct sInputParams {
     bool rawInput;
 
     // 3DLut Binary File
-    msdk_tstring str3DLutFile;
+    msdk_string str3DLutFile;
     bool bEnable3DLut;
 
     mfxU16 nMemoryModel;

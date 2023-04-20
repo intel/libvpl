@@ -7,6 +7,7 @@
 #ifndef __PLUGIN_UTILS_H__
 #define __PLUGIN_UTILS_H__
 
+#include <string>
 #include "sample_defs.h"
 #include "sample_types.h"
 
@@ -31,12 +32,9 @@ typedef enum { MFX_PLUGINLOAD_TYPE_GUID = 1, MFX_PLUGINLOAD_TYPE_FILE = 2 } MfxP
 
 struct sPluginParams {
     mfxPluginUID pluginGuid;
-    mfxChar strPluginPath[MSDK_MAX_FILENAME_LEN] = {};
+    std::string strPluginPath;
     MfxPluginLoadType type;
-    sPluginParams() {
-        pluginGuid = {};
-        type       = {};
-    }
+    sPluginParams() : pluginGuid{ 0 }, strPluginPath(), type(MfxPluginLoadType(0)) {}
 };
 
 static const mfxPluginUID MSDK_PLUGINGUID_NULL = { { 0x00,
@@ -60,8 +58,8 @@ bool AreGuidsEqual(const mfxPluginUID& guid1, const mfxPluginUID& guid2);
 
 const mfxPluginUID& msdkGetPluginUID(mfxIMPL impl, msdkComponentType type, mfxU32 uCodecid);
 
-sPluginParams ParsePluginGuid(msdk_char*);
-sPluginParams ParsePluginPath(msdk_char*);
+sPluginParams ParsePluginGuid(const msdk_string&);
+sPluginParams ParsePluginPath(const msdk_string&);
 mfxStatus ConvertStringToGuid(const msdk_string& strGuid, mfxPluginUID& mfxGuid);
 
 #endif //__PLUGIN_UTILS_H__

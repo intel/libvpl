@@ -170,14 +170,10 @@ struct ExtendedBS {
 
 class CIOStat : public CTimeStatistics {
 public:
-    CIOStat() : CTimeStatistics(), ofile(stdout) {
-        MSDK_ZERO_MEMORY(bufDir);
-        DumpLogFileName.clear();
-    }
+    CIOStat() : CTimeStatistics(), DumpLogFileName(), ofile(stdout), bufDir() {}
 
-    CIOStat(const msdk_char* dir) : CTimeStatistics(), ofile(stdout) {
-        msdk_strncopy_s(bufDir, MAX_PREF_LEN, dir, MAX_PREF_LEN - 1);
-        bufDir[MAX_PREF_LEN - 1] = 0;
+    CIOStat(const msdk_string& dir) : CTimeStatistics(), DumpLogFileName(), ofile(stdout) {
+        bufDir = dir;
     }
 
     ~CIOStat() {}
@@ -186,7 +182,7 @@ public:
         ofile = file;
     }
 
-    inline void SetDumpName(const msdk_char* name) {
+    inline void SetDumpName(const msdk_string& name) {
         DumpLogFileName = name;
         if (!DumpLogFileName.empty()) {
             TurnOnDumping();
@@ -196,11 +192,8 @@ public:
         }
     }
 
-    inline void SetDirection(const msdk_char* dir) {
-        if (dir) {
-            msdk_strncopy_s(bufDir, MAX_PREF_LEN, dir, MAX_PREF_LEN - 1);
-            bufDir[MAX_PREF_LEN - 1] = 0;
-        }
+    inline void SetDirection(const msdk_string& dir) {
+        bufDir = dir;
     }
 
     inline void PrintStatistics(mfxU32 numPipelineid,
@@ -212,7 +205,7 @@ public:
                 "stat[%u.%llu]: %s=%d;Framerate=%.3f;Total=%.3lf;Samples=%lld;StdDev=%.3lf;Min=%.3lf;Max=%.3lf;Avg=%.3lf\n"),
             (unsigned int)msdk_get_current_pid(),
             (unsigned long long int)rdtsc(),
-            bufDir,
+            bufDir.c_str(),
             (int)numPipelineid,
             (double)target_framerate,
             (double)GetTotalTime(false),
@@ -249,9 +242,9 @@ public:
     }
 
 protected:
-    msdk_tstring DumpLogFileName;
+    msdk_string DumpLogFileName;
     FILE* ofile;
-    msdk_char bufDir[MAX_PREF_LEN];
+    msdk_string bufDir;
 };
 
 class ExtendedBSStore {
@@ -761,7 +754,7 @@ protected:
     mfxU32 m_n3DLutVMemId;
     mfxU32 m_n3DLutVWidth;
     mfxU32 m_n3DLutVHeight;
-    msdk_tstring m_p3DLutFile;
+    msdk_string m_p3DLutFile;
 
 #if (defined(_WIN32) || defined(_WIN64))
     mfxStatus CheckHyperEncodeParams(mfxHyperMode hyperMode);
