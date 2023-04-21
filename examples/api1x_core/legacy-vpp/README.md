@@ -70,7 +70,7 @@ Perform the following steps:
 
 4. Run the program using the following command:
    ```
-   ./legacy-vpp -hw -i ../../../content/cars_320x240.i420 -w 320 -h 240
+   ./legacy-vpp -i ../../../content/cars_320x240.i420 -w 320 -h 240
    ```
 
 
@@ -105,7 +105,7 @@ Perform the following steps:
 
 4. Run the program using the following command:
    ```
-   Release\legacy-vpp -hw -i ..\..\..\content\cars_320x240.i420 -w 320 -h 240
+   Release\legacy-vpp -i ..\..\..\content\cars_320x240.i420 -w 320 -h 240
    ```
 
 

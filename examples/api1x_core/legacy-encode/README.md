@@ -35,7 +35,7 @@ Native raw frame format: GPU=NV12.
 This code sample is licensed under MIT license.
 
 
-## Building the `hello-encode` Program
+## Building the `legacy-encode` Program
 
 ### On a Linux* System
 
@@ -68,7 +68,7 @@ Perform the following steps:
 
 4. Run the program using the following command:
    ```
-   ./legacy-encode -hw -i ../../../content/cars_320x240.i420 -w 320 -h 240
+   ./legacy-encode -i ../../../content/cars_320x240.i420 -w 320 -h 240
    ```
 
 
@@ -103,7 +103,7 @@ Perform the following steps:
 
 4. Run the program using the following command:
    ```
-   Release\legacy-encode -hw -i ..\..\..\content\cars_320x240.i420 -w 320 -h 240
+   Release\legacy-encode -i ..\..\..\content\cars_320x240.i420 -w 320 -h 240
    ```
 
 

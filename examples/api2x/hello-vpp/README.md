@@ -75,7 +75,7 @@ Perform the following steps:
 
 4. Run the program with default arguments using the following command:
    ```
-   ./hello-vpp -hw -i ../../../content/cars_320x240.i420 -w 320 -h 240
+   ./hello-vpp -i ../../../content/cars_320x240.i420 -w 320 -h 240
    ```
 
 ### On a Windows* System Using Visual Studio* Version 2017 or Newer
@@ -109,7 +109,7 @@ Perform the following steps:
 
 4. Run the program using the following command:
    ```
-   Release\hello-vpp -hw -i ..\..\..\content\cars_320x240.i420 -w 320 -h 240
+   Release\hello-vpp -i ..\..\..\content\cars_320x240.i420 -w 320 -h 240
    ```
 
 

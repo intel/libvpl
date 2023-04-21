@@ -20,12 +20,10 @@
 void Usage(void) {
     printf("\n");
     printf("   Usage  :  legacy-vpp\n");
-    printf("     -hw        use hardware implementation\n");
-    printf("     -sw        use software implementation\n");
-    printf("     -i input file name ( -sw=I420 raw frames,-hw=NV12)\n");
+    printf("     -i input file name (NV12 raw frames)\n");
     printf("     -w input width\n");
     printf("     -h input height\n\n");
-    printf("   Example:  legacy-vpp -i in.i420 -w 320 -h 240\n");
+    printf("   Example:  legacy-vpp -i in.NV12 -w 320 -h 240\n");
     printf("   To view:  ffplay -f rawvideo -pixel_format bgra -video_size %dx%d  "
            "%s\n\n",
            OUTPUT_WIDTH,
@@ -49,7 +47,7 @@ int main(int argc, char *argv[]) {
     int nIndexVPPOutSurf = 0;
     int result           = 0;
     mfxConfig cfg[1];
-
+    mfxVariant cfgVal[1];
     mfxFrameAllocRequest VPPRequest[2]  = {};
     mfxFrameSurface1 *vppInSurfacePool  = NULL;
     mfxFrameSurface1 *vppOutSurfacePool = NULL;
@@ -85,9 +83,10 @@ int main(int argc, char *argv[]) {
     // Implementation used must be the type requested from command line
     cfg[0] = MFXCreateConfig(loader);
     VERIFY(NULL != cfg[0], "MFXCreateConfig failed")
+    cfgVal[0].Type     = MFX_VARIANT_TYPE_U32;
+    cfgVal[0].Data.U32 = MFX_IMPL_TYPE_HARDWARE;
 
-    sts =
-        MFXSetConfigFilterProperty(cfg[0], (mfxU8 *)"mfxImplDescription.Impl", cliParams.implValue);
+    sts = MFXSetConfigFilterProperty(cfg[0], (mfxU8 *)"mfxImplDescription.Impl", cfgVal[0]);
     VERIFY(MFX_ERR_NONE == sts, "MFXSetConfigFilterProperty failed for Impl");
 
     sts = MFXCreateSession(loader, 0, &session);
@@ -101,10 +100,7 @@ int main(int argc, char *argv[]) {
     accelHandle = InitAcceleratorHandle(session, &accel_fd);
 
     // Initialize VPP parameters
-    PrepareFrameInfo(&VPPParams.vpp.In,
-                     (MFX_IMPL_SOFTWARE == cliParams.impl) ? MFX_FOURCC_I420 : MFX_FOURCC_NV12,
-                     cliParams.srcWidth,
-                     cliParams.srcHeight);
+    PrepareFrameInfo(&VPPParams.vpp.In, (MFX_FOURCC_NV12), cliParams.srcWidth, cliParams.srcHeight);
     PrepareFrameInfo(&VPPParams.vpp.Out, MFX_FOURCC_BGRA, OUTPUT_WIDTH, OUTPUT_HEIGHT);
 
     VPPParams.IOPattern = MFX_IOPATTERN_IN_SYSTEM_MEMORY | MFX_IOPATTERN_OUT_SYSTEM_MEMORY;

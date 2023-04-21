@@ -22,15 +22,13 @@
 void Usage(void) {
     printf("\n");
     printf("   Usage  :  hello-encode\n");
-    printf("     -hw        use hardware implementation\n");
-    printf("     -sw        use software implementation\n");
-    printf("     -i input file name (raw frames)\n");
+    printf("     -i input file name (NV12 raw frames)\n");
     printf("     -w input width\n");
     printf("     -h input height\n\n");
-    printf("   Example:  hello-encode -i in.i420 -w 320 -h 240\n");
+    printf("   Example:  hello-encode -i in.NV12 -w 320 -h 240\n");
     printf("   To view:  ffplay %s\n\n", OUTPUT_FILE);
     printf(" * Encode raw frames to HEVC/H265 elementary stream in %s\n\n", OUTPUT_FILE);
-    printf("   CPU native color format is I420/yuv420p.  GPU native color format is "
+    printf("   GPU native color format is "
            "NV12\n");
     return;
 }
@@ -76,9 +74,9 @@ int main(int argc, char *argv[]) {
     // Implementation used must be the type requested from command line
     cfg[0] = MFXCreateConfig(loader);
     VERIFY(NULL != cfg[0], "MFXCreateConfig failed")
-
-    sts =
-        MFXSetConfigFilterProperty(cfg[0], (mfxU8 *)"mfxImplDescription.Impl", cliParams.implValue);
+    cfgVal[0].Type     = MFX_VARIANT_TYPE_U32;
+    cfgVal[0].Data.U32 = MFX_IMPL_TYPE_HARDWARE;
+    sts = MFXSetConfigFilterProperty(cfg[0], (mfxU8 *)"mfxImplDescription.Impl", cfgVal[0]);
     VERIFY(MFX_ERR_NONE == sts, "MFXSetConfigFilterProperty failed for Impl");
 
     // Implementation must provide an HEVC encoder
@@ -116,17 +114,12 @@ int main(int argc, char *argv[]) {
     encodeParams.mfx.RateControlMethod       = MFX_RATECONTROL_VBR;
     encodeParams.mfx.FrameInfo.FrameRateExtN = FRAMERATE;
     encodeParams.mfx.FrameInfo.FrameRateExtD = 1;
-    if (MFX_IMPL_SOFTWARE == cliParams.impl) {
-        encodeParams.mfx.FrameInfo.FourCC = MFX_FOURCC_I420;
-    }
-    else {
-        encodeParams.mfx.FrameInfo.FourCC = MFX_FOURCC_NV12;
-    }
-    encodeParams.mfx.FrameInfo.ChromaFormat = MFX_CHROMAFORMAT_YUV420;
-    encodeParams.mfx.FrameInfo.CropW        = cliParams.srcWidth;
-    encodeParams.mfx.FrameInfo.CropH        = cliParams.srcHeight;
-    encodeParams.mfx.FrameInfo.Width        = ALIGN16(cliParams.srcWidth);
-    encodeParams.mfx.FrameInfo.Height       = ALIGN16(cliParams.srcHeight);
+    encodeParams.mfx.FrameInfo.FourCC        = MFX_FOURCC_NV12;
+    encodeParams.mfx.FrameInfo.ChromaFormat  = MFX_CHROMAFORMAT_YUV420;
+    encodeParams.mfx.FrameInfo.CropW         = cliParams.srcWidth;
+    encodeParams.mfx.FrameInfo.CropH         = cliParams.srcHeight;
+    encodeParams.mfx.FrameInfo.Width         = ALIGN16(cliParams.srcWidth);
+    encodeParams.mfx.FrameInfo.Height        = ALIGN16(cliParams.srcHeight);
 
     encodeParams.IOPattern = MFX_IOPATTERN_IN_SYSTEM_MEMORY;
 

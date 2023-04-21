@@ -67,11 +67,6 @@ enum ParamGroup {
 };
 
 typedef struct _Params {
-    mfxIMPL impl;
-#if (MFX_VERSION >= 2000)
-    mfxVariant implValue;
-#endif
-
     char *infileName;
     char *inmodelName;
 
@@ -104,12 +99,7 @@ bool ParseArgsAndValidate(int argc, char *argv[], Params *params, ParamGroup gro
     char *s;
 
     // init all params to 0
-    *params      = {};
-    params->impl = MFX_IMPL_SOFTWARE;
-#if (MFX_VERSION >= 2000)
-    params->implValue.Type     = MFX_VARIANT_TYPE_U32;
-    params->implValue.Data.U32 = MFX_IMPL_TYPE_SOFTWARE;
-#endif
+    *params = {};
 
     for (idx = 1; idx < argc;) {
         // all switches must start with '-'
@@ -142,18 +132,6 @@ bool ParseArgsAndValidate(int argc, char *argv[], Params *params, ParamGroup gro
         else if (IS_ARG_EQ(s, "h")) {
             if (!ValidateSize(argv[idx++], &params->srcHeight, MAX_HEIGHT))
                 return false;
-        }
-        else if (IS_ARG_EQ(s, "hw")) {
-            params->impl = MFX_IMPL_HARDWARE;
-#if (MFX_VERSION >= 2000)
-            params->implValue.Data.U32 = MFX_IMPL_TYPE_HARDWARE;
-#endif
-        }
-        else if (IS_ARG_EQ(s, "sw")) {
-            params->impl = MFX_IMPL_SOFTWARE;
-#if (MFX_VERSION >= 2000)
-            params->implValue.Data.U32 = MFX_IMPL_TYPE_SOFTWARE;
-#endif
         }
     }
 
@@ -263,7 +241,7 @@ void ShowImplementationInfo(mfxLoader loader, mfxU32 implnum) {
 
     printf("Implementation details:\n");
     printf("  ApiVersion:           %hu.%hu  \n", idesc->ApiVersion.Major, idesc->ApiVersion.Minor);
-    printf("  Implementation type:  %s\n", (idesc->Impl == MFX_IMPL_TYPE_SOFTWARE) ? "SW" : "HW");
+    printf("  Implementation type: HW\n");
     printf("  AccelerationMode via: ");
     switch (idesc->AccelerationMode) {
         case MFX_ACCEL_MODE_NA:

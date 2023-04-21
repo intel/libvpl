@@ -84,5 +84,5 @@ else()
   set(content_file cars_320x240.i420)
 endif()
 add_test(NAME ${TARGET}-test
-         COMMAND ${TARGET} ${IMPL_ARG} -i "${VPL_CONTENT_DIR}/${content_file}"
-                 -w 320 -h 240)
+         COMMAND ${TARGET} -i "${VPL_CONTENT_DIR}/${content_file}" -w 320 -h
+                 240)

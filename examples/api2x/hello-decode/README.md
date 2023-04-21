@@ -75,7 +75,7 @@ Perform the following steps:
 
 4. Run the program with default arguments using the following command:
    ```
-   ./hello-decode -hw -i ../../../content/cars_320x240.h265
+   ./hello-decode -i ../../../content/cars_320x240.h265
    ```
 
 ### On a Windows* System Using Visual Studio* Version 2017 or Newer
@@ -109,7 +109,7 @@ Perform the following steps:
 
 4. Run the program using the following command:
    ```
-   Release\hello-decode -hw -i ..\..\..\content/cars_320x240.h265
+   Release\hello-decode -i ..\..\..\content/cars_320x240.h265
    ```
 
 

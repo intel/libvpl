@@ -70,7 +70,7 @@ Perform the following steps:
 
 4. Run the program using the following command:
    ```
-   ./legacy-decode -hw -i ../../../content/cars_320x240.h265
+   ./legacy-decode -i ../../../content/cars_320x240.h265
    ```
 
 
@@ -105,7 +105,7 @@ Perform the following steps:
 
 4. Run the program using the following command:
    ```
-   Release\legacy-decode -hw -i ..\..\..\content\cars_320x240.h265
+   Release\legacy-decode -i ..\..\..\content\cars_320x240.h265
    ```
 
 

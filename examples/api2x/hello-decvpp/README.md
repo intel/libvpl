@@ -74,7 +74,7 @@ Perform the following steps:
 
 4. Run the program using the following command:
    ```
-   ./hello-decvpp -hw -i ../../../content/cars_320x240.h265
+   ./hello-decvpp -i ../../../content/cars_320x240.h265
    ```
 
 ### On a Windows* System Using Visual Studio* Version 2017 or Newer
@@ -108,7 +108,7 @@ Perform the following steps:
 
 4. Run the program using the following command:
    ```
-   Release\hello-decvpp -hw -i ..\..\..\content\cars_320x240.h265
+   Release\hello-decvpp -i ..\..\..\content\cars_320x240.h265
    ```
 
 

@@ -19,9 +19,8 @@
 void Usage(void) {
     printf("\n");
     printf("   Usage  :  legacy-decode \n\n");
-    printf("     -sw/-hw        use software or hardware implementation\n");
     printf("     -i             input file name (HEVC elementary stream)\n\n");
-    printf("   Example:  legacy-decode -sw  -i in.h265\n");
+    printf("   Example:  legacy-decode -i in.h265\n");
     printf(
         "   To view:  ffplay -f rawvideo -pixel_format yuv420p -video_size [width]x[height] %s\n\n",
         OUTPUT_FILE);
@@ -55,6 +54,7 @@ int main(int argc, char *argv[]) {
 
     // variables used only in 2.x version
     mfxConfig cfg;
+    mfxVariant cfgVal[1];
     mfxLoader loader = NULL;
 
     //Parse command line args to cliParams
@@ -76,8 +76,10 @@ int main(int argc, char *argv[]) {
     // Implementation used must be the type requested from command line
     cfg = MFXCreateConfig(loader);
     VERIFY(NULL != cfg, "MFXCreateConfig failed")
+    cfgVal[0].Type     = MFX_VARIANT_TYPE_U32;
+    cfgVal[0].Data.U32 = MFX_IMPL_TYPE_HARDWARE;
 
-    sts = MFXSetConfigFilterProperty(cfg, (mfxU8 *)"mfxImplDescription.Impl", cliParams.implValue);
+    sts = MFXSetConfigFilterProperty(cfg, (mfxU8 *)"mfxImplDescription.Impl", cfgVal[0]);
     VERIFY(MFX_ERR_NONE == sts, "MFXSetConfigFilterProperty failed for Impl");
 
     sts = MFXCreateSession(loader, 0, &session);
