@@ -10,6 +10,9 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 
 ## [Unreleased]
 
+### Removed 
+- USE_ONEAPI_INSTALL_LAYOUT build shortcut
+
 ### Fixed
 - Fix HDR luminance value
 

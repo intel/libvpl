@@ -22,28 +22,28 @@ endif()
 if(INSTALL_EXAMPLE_CODE)
   install(
     DIRECTORY content
-    DESTINATION ${ONEAPI_INSTALL_EXAMPLEDIR}
+    DESTINATION ${VPL_INSTALL_EXAMPLEDIR}
     COMPONENT dev)
 
   install(
     DIRECTORY api1x_core/legacy-decode api1x_core/legacy-vpp
               api1x_core/legacy-encode
-    DESTINATION ${ONEAPI_INSTALL_EXAMPLEDIR}/api1x_core
+    DESTINATION ${VPL_INSTALL_EXAMPLEDIR}/api1x_core
     COMPONENT dev)
 
   install(
     DIRECTORY interop/vpl-infer
-    DESTINATION ${ONEAPI_INSTALL_EXAMPLEDIR}/interop
+    DESTINATION ${VPL_INSTALL_EXAMPLEDIR}/interop
     COMPONENT dev)
 
   install(
     DIRECTORY api2x/hello-decode api2x/hello-decvpp api2x/hello-encode
               api2x/hello-transcode api2x/hello-vpp
-    DESTINATION ${ONEAPI_INSTALL_EXAMPLEDIR}/api2x
+    DESTINATION ${VPL_INSTALL_EXAMPLEDIR}/api2x
     COMPONENT dev)
 
   install(
     DIRECTORY tutorials/01_transition
-    DESTINATION ${ONEAPI_INSTALL_EXAMPLEDIR}/tutorials
+    DESTINATION ${VPL_INSTALL_EXAMPLEDIR}/tutorials
     COMPONENT dev)
 endif()
