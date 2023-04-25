@@ -192,6 +192,9 @@ void Dispatcher_CreateSession_ExtDeviceID_DRMRenderNodeNum_Invalid(mfxImplType i
 void Dispatcher_CreateSession_ExtDeviceID_DRMPrimaryNodeNum_Valid(mfxImplType implType);
 void Dispatcher_CreateSession_ExtDeviceID_DRMPrimaryNodeNum_Invalid(mfxImplType implType);
 
+void Dispatcher_CreateSession_ExtDeviceID_RevisionID_Valid(mfxImplType implType);
+void Dispatcher_CreateSession_ExtDeviceID_RevisionID_Invalid(mfxImplType implType);
+
 void Dispatcher_CreateSession_ExtDeviceID_DeviceName_Valid(mfxImplType implType);
 void Dispatcher_CreateSession_ExtDeviceID_DeviceName_Invalid(mfxImplType implType);
 

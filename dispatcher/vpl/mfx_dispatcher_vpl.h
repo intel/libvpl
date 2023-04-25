@@ -172,7 +172,7 @@ enum PropRanges {
 
 // must match eProp_TotalProps, is checked with static_assert in _config.cpp
 //   (should throw error at compile time if !=)
-#define NUM_TOTAL_FILTER_PROPS 55
+#define NUM_TOTAL_FILTER_PROPS 56
 
 // typedef child structures for easier reading
 typedef struct mfxDecoderDescription::decoder DecCodec;

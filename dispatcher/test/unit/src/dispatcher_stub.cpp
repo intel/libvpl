@@ -126,6 +126,16 @@ TEST(Dispatcher_Stub_CreateSession, ExtDeviceID_DRMPrimaryNodeNum_Invalid) {
     Dispatcher_CreateSession_ExtDeviceID_DRMPrimaryNodeNum_Invalid(MFX_IMPL_TYPE_STUB);
 }
 
+TEST(Dispatcher_Stub_CreateSession, ExtDeviceID_RevisionID_Valid) {
+    SKIP_IF_DISP_STUB_DISABLED();
+    Dispatcher_CreateSession_ExtDeviceID_RevisionID_Valid(MFX_IMPL_TYPE_STUB);
+}
+
+TEST(Dispatcher_Stub_CreateSession, ExtDeviceID_RevisionID_Invalid) {
+    SKIP_IF_DISP_STUB_DISABLED();
+    Dispatcher_CreateSession_ExtDeviceID_RevisionID_Invalid(MFX_IMPL_TYPE_STUB);
+}
+
 TEST(Dispatcher_Stub_CreateSession, ExtDeviceID_DeviceName_Valid) {
     SKIP_IF_DISP_STUB_DISABLED();
     Dispatcher_CreateSession_ExtDeviceID_DeviceName_Valid(MFX_IMPL_TYPE_STUB);

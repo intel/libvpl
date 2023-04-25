@@ -466,6 +466,44 @@ void Dispatcher_CreateSession_ExtDeviceID_DRMPrimaryNodeNum_Invalid(mfxImplType 
     MFXUnload(loader);
 }
 
+void Dispatcher_CreateSession_ExtDeviceID_RevisionID_Valid(mfxImplType implType) {
+    mfxLoader loader = MFXLoad();
+    EXPECT_FALSE(loader == nullptr);
+
+    mfxStatus sts = SetConfigImpl(loader, implType);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    SetConfigFilterProperty<mfxU16>(loader, "mfxExtendedDeviceId.RevisionID", 0x1034);
+
+    // create session with first implementation
+    mfxSession session = nullptr;
+    sts                = MFXCreateSession(loader, 0, &session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // free internal resources
+    sts = MFXClose(session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+    MFXUnload(loader);
+}
+
+void Dispatcher_CreateSession_ExtDeviceID_RevisionID_Invalid(mfxImplType implType) {
+    mfxLoader loader = MFXLoad();
+    EXPECT_FALSE(loader == nullptr);
+
+    mfxStatus sts = SetConfigImpl(loader, implType);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    SetConfigFilterProperty<mfxU16>(loader, "mfxExtendedDeviceId.RevisionID", 0XBCBC);
+
+    // create session with first implementation
+    mfxSession session = nullptr;
+    sts                = MFXCreateSession(loader, 0, &session);
+    EXPECT_EQ(sts, MFX_ERR_NOT_FOUND);
+
+    // free internal resources
+    MFXUnload(loader);
+}
+
 void Dispatcher_CreateSession_ExtDeviceID_DeviceName_Valid(mfxImplType implType) {
     mfxLoader loader = MFXLoad();
     EXPECT_FALSE(loader == nullptr);

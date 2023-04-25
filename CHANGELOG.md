@@ -13,6 +13,9 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 ### Removed 
 - USE_ONEAPI_INSTALL_LAYOUT build shortcut
 
+### Added
+- New MFXSetConfigFilterProperty property: `mfxExtendedDeviceId.RevisionID` 
+
 ### Fixed
 - Fix HDR luminance value
 - Handling of special cases of CMAKE_INSTALL_PREFIX
