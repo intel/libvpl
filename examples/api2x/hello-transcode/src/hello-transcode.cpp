@@ -34,9 +34,8 @@
 void Usage(void) {
     printf("\n");
     printf("   Usage  :  hello-transcode \n\n");
-    printf("     -sw            use software implementation (-hw not supported)\n");
     printf("     -i             input file name (MJPEG elementary stream)\n\n");
-    printf("   Example:  hello-transcode -sw  -i in.mjpeg\n");
+    printf("   Example:  hello-transcode -i in.mjpeg\n");
     printf("   To view:  ffplay %s\n\n", OUTPUT_FILE);
     printf(" * Transcode HEVC/H265 elementary stream in %s\n\n", OUTPUT_FILE);
     return;
@@ -73,11 +72,6 @@ int main(int argc, char *argv[]) {
         return 1; // return 1 as error code
     }
 
-    if (MFX_IMPL_TYPE_SOFTWARE != cliParams.implValue.Data.U32) {
-        printf("Only software implementation is supported\n");
-        return 1;
-    }
-
     source = fopen(cliParams.infileName, "rb");
     VERIFY(source, "Could not open input file");
 
@@ -91,9 +85,10 @@ int main(int argc, char *argv[]) {
     // Implementation used must be the type requested from command line
     cfg[0] = MFXCreateConfig(loader);
     VERIFY(NULL != cfg[0], "MFXCreateConfig failed")
+    cfgVal[0].Type     = MFX_VARIANT_TYPE_U32;
+    cfgVal[0].Data.U32 = MFX_IMPL_TYPE_HARDWARE;
 
-    sts =
-        MFXSetConfigFilterProperty(cfg[0], (mfxU8 *)"mfxImplDescription.Impl", cliParams.implValue);
+    sts = MFXSetConfigFilterProperty(cfg[0], (mfxU8 *)"mfxImplDescription.Impl", cfgVal[0]);
     VERIFY(MFX_ERR_NONE == sts, "MFXSetConfigFilterProperty failed for Impl");
 
     // Implementation must provide a JPEG decoder
@@ -153,6 +148,12 @@ int main(int argc, char *argv[]) {
     stream_info.IOPattern   = MFX_IOPATTERN_OUT_SYSTEM_MEMORY;
     sts                     = MFXVideoDECODE_DecodeHeader(session, &bs_dec_in, &stream_info);
     VERIFY(MFX_ERR_NONE == sts, "Error decoding header\n");
+
+    // Initialize the decoder
+    sts = MFXVideoDECODE_Init(session, &stream_info);
+    VERIFY(MFX_ERR_NONE == sts, "Error initializing decode\n");
+
+    printf("Transcoding %s -> %s\n", cliParams.infileName, OUTPUT_FILE);
 
     // Prepare bitstream for encode output and encode params
     //   in : stream_info.mfx.FrameInfo.Width, stream_info.mfx.FrameInfo.Height

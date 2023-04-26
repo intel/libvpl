@@ -6,11 +6,9 @@ perform simple video transcode.
 | Optimized for    | Description
 |----------------- | ----------------------------------------
 | OS               | Ubuntu* 20.04; Windows* 10
-| Software         | Intel® oneAPI Video Processing Library(oneVPL) CPU implementation
+| Hardware         | Compatible with Intel® oneAPI Video Processing Library(oneVPL) GPU implementation, which can be found at https://github.com/oneapi-src/oneVPL-intel-gpu
 | What You Will Learn | How to use oneVPL to transcode a MJPEG encoded video file to H.265 encoded video file
 | Time to Complete | 5 minutes
-
-The hello-transcode sample currently only supports Software mode.  
 
 ## Purpose
 
@@ -21,7 +19,7 @@ This sample is a command line application that takes a file containing a JPEG vi
 
 | Configuration     | Default setting
 | ----------------- | ----------------------------------
-| Target device     | CPU
+| Target device     | GPU
 | Input format      | MJPEG video elementary stream
 | Output format     | H.265 video elementary stream
 | Output resolution | same as input
@@ -36,9 +34,11 @@ Code samples are licensed under the MIT license. See
 ## Building the `hello-transcode` Program
 
 ### Include Files
+
 The oneVPL include folder is located at these locations on your development system:
- - Windows: %ONEAPI_ROOT%\vpl\latest\include 
- - Linux: $ONEAPI_ROOT/vpl/latest/include
+
+ - Windows:<vpl_install_dir>\include
+ - Linux:<vpl_install_dir>/include
 
 
 ### On a Linux* System
@@ -48,17 +48,19 @@ Perform the following steps:
 1. Install the prerequisite software. To build and run the sample you need to
    install prerequisite software and set up your environment:
 
-   - Intel® oneAPI Base Toolkit for Linux*
-   - [CMake](https://cmake.org)
+   - Follow the steps in [install.md](https://github.com/oneapi-src/oneVPL/blob/master/INSTALL.md) or install libvpl-dev.
+   - Follow the steps in [dgpu-docs](https://dgpu-docs.intel.com/) according to your GPU.
+   - Install the packages using following commands:
+   ```
+   apt update
+   apt install -y cmake build-essential pkg-config libva-dev libva-drm2 vainfo
+   ```
 
 2. Set up your environment using the following command.
    ```
-   source <oneapi_install_dir>/setvars.sh
+   source <vpl_install_dir>/etc/vpl/vars.sh
    ```
-   Here `<oneapi_install_dir>` represents the root folder of your oneAPI
-   installation, which is `/opt/intel/oneapi/` when installed as root, and
-   `~/intel/oneapi/` when installed as a normal user.  If you customized the
-   installation folder, it is in your custom location.
+   Here <vpl_install_dir> represents the root folder of your oneVPL installation. If you customized the installation folder, it is in your custom location.
 
 3. Build the program using the following commands:
    ```
@@ -70,37 +72,27 @@ Perform the following steps:
 
 4. Run the program with default arguments using the following command:
    ```
-   ./hello-transcode -sw -i ../../../content/cars_320x240.mjpeg
+   ./hello-transcode -i ../../../content/cars_320x240.mjpeg
    ```
 
 ### On a Windows* System Using Visual Studio* Version 2017 or Newer
 
 #### Building the program using CMake
 
-1. These instructions assume you can read and write to the location 
-   the examples are stored. If the examples have been installed in a
-   protected folder such as "Program Files" copy the entire `examples`
-   folder to a location with Read/Write access such as the Desktop
-   (%USERPROFILE%\Desktop) and resume these instruictions from that copy.
+1. Install prerequisites. To build and run the sample you need to install prerequisite software and set up your environment:
 
-2. Install the prerequisite software. To build and run the sample you need to
-   install prerequisite software and set up your environment:
-
-   - Intel® oneAPI Base Toolkit for Windows*
+   - Follow the steps in [install.md](https://github.com/oneapi-src/oneVPL/blob/master/INSTALL.md) to install oneVPL package.
+   - Visual Studio 2022
    - [CMake](https://cmake.org)
 
-3. Set up your environment using the following command.
+2. Set up your environment using the following command.
    ```
-   <oneapi_install_dir>\setvars.bat
+   <vpl_install_dir>\etc\vpl\vars.bat
    ```
-   Here `<oneapi_install_dir>` represents the root folder of your oneAPI
-   installation, which is which is `C:\Program Files (x86)\Intel\oneAPI\`
-   when installed using default options. If you customized the installation
-   folder, the `setvars.bat` is in your custom location.  Note that if a
-   compiler is not part of your oneAPI installation you should run in a Visual
-   Studio 64-bit command prompt.
+   Here <vpl_install_dir> represents the root folder of your oneVPL installation. If you customized the installation folder, the vars.bat is in your custom location. 
+   Note that if a compiler is not installed you should run in a Visual Studio 64-bit command prompt.
 
-4. Build the program with default arguments using the following commands:
+3. Build the program with default arguments using the following commands:
    ```
    mkdir build
    cd build
@@ -108,9 +100,9 @@ Perform the following steps:
    cmake --build . --config Release
    ```
 
-5. Run the program using the following command:
+4. Run the program using the following command:
    ```
-   Release\hello-transcode -sw -i ..\..\..\content\cars_320x240.mjpeg
+   Release\hello-transcode -i ..\..\..\content\cars_320x240.mjpeg
    ```
 
 
@@ -120,10 +112,11 @@ Perform the following steps:
 
 ```
 Implementation details:
-  ApiVersion:           2.5  
-  Implementation type:  SW
-  AccelerationMode via: NA 
-  Path: /opt/intel/oneapi/vpl/2021.6.0/lib/libvplswref64.so.1
+  ApiVersion:           2.8  
+  Implementation type:  HW
+  AccelerationMode via: VAAPI
+  DeviceID:             56a0/0
+  Path: /usr/lib/x86_64-linux-gnu/libmfx-gen.so.1.2.8
 
 Transcoding ../../../content/cars_320x240.mjpeg -> out.h265
 Transcoded 30 frames
