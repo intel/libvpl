@@ -1,0 +1,48 @@
+name: Evaluate Pull Request
+run-name: Evaluate Pull Request (Triggered by ${{ github.event_name }} by @${{ github.actor }})
+on:
+  push:
+    branches:
+      - "test/**"
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  lint:
+    runs-on: [self-hosted, build]
+    steps:
+      - name: Write Docker File
+        run: |
+          USER_ID=$(id -u ${USER})
+          GROUP_ID=$(id -g ${USER})
+          # Dockerfile will contain everything between <<EOL and EOL
+          cat >Dockerfile <<EOL
+          FROM ubuntu:20.04
+          # Suppress oddball issues with interactive apps
+          ARG DEBIAN_FRONTEND=noninteractive
+          # map in any proxy settings from the environment
+          ENV http_proxy ${http_proxy}
+          ENV https_proxy ${https_proxy}
+          ENV no_proxy ${no_proxy}
+          # Main environment configuration
+          RUN apt-get update && apt-get install -y --no-install-recommends python3-pip git
+          RUN pip3 install -U pre-commit gitlint
+          RUN git config --global safe.directory '*'
+          # Set up the user to match the host so that files created can be cleaned up
+          RUN addgroup --gid $GROUP_ID user
+          RUN adduser --disabled-password --gecos '' --uid $USER_ID --gid $GROUP_ID user
+          USER user
+          EOL
+          docker build -t vpllint:github_runner .
+      - uses: actions/checkout@v3
+      - name: Write Script
+        run: |
+          cat > action.sh <<EOL
+          #!/bin/bash
+          python -m pip install pre-commit
+          script/lint
+          EOL
+          chmod +x action.sh
+      - name: Run Lint
+        run: |
+          docker run --rm -v $PWD:/working -w/working vpllint:github_runner ./action.sh
