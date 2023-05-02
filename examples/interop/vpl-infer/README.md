@@ -76,9 +76,10 @@ This can be set up in a bare metal Ubuntu 20.04 system or with Docker for Linux,
 2. Install Intel® Distribution of OpenVINO™ Toolkit 2022.3.0 from archive
 
     ``` 
-    curl -L https://storage.openvinotoolkit.org/repositories/openvino/packages/2022.3/linux/l_openvino_toolkit_ubuntu20_2022.3.0.9052.9752fafe8eb_x86_64.tgz -o l_openvino_toolkit_ubuntu20_2022.3.0.tgz 
-    tar -xf l_openvino_toolkit_ubuntu20_2022.3.0.tgz 
-    mv l_openvino_toolkit_ubuntu20_2022.3.0.9052.9752fafe8eb_x86_64 openvino_2022.3.0 
+    curl -L https://storage.openvinotoolkit.org/repositories/openvino/packages/2022.3/linux/l_openvino_toolkit_ubuntu20_2022.3.0.9052.9752fafe8eb_x86_64.tgz -o l_openvino_toolkit_ubuntu20_2022.3.0.tgz
+    tar -xf l_openvino_toolkit_ubuntu20_2022.3.0.tgz
+    mkdir -p /opt/intel
+    mv l_openvino_toolkit_ubuntu20_2022.3.0.9052.9752fafe8eb_x86_64 /opt/intel/openvino_2022.3.0
     ln -s /opt/intel/openvino_2022.3.0 /opt/intel/openvino_2022
     ```
 

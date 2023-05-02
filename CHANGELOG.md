@@ -21,6 +21,7 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 - Fix HDR luminance value
 - Handling of special cases of CMAKE_INSTALL_PREFIX
 - X11 rendering corruption issue
+- Intel® Distribution of OpenVINO™ Toolkit installation steps in vpl-infer README
 
 ## [2023.2.1] - 2023-04-14
 
