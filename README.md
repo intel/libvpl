@@ -1,8 +1,8 @@
 # ![oneAPI](assets/oneapi-logo.png "oneAPI") Video Processing Library
 
-Intel oneAPI Video Processing Library (oneVPL) supports AI visual inference, media delivery, 
+Intel® oneAPI Video Processing Library (oneVPL) supports AI visual inference, media delivery, 
 cloud gaming, and virtual desktop infrastructure use cases by providing access to hardware 
-accelerated video decode, encode, and frame processing capabilities on Intel GPUs.  
+accelerated video decode, encode, and frame processing capabilities on Intel® GPUs.  
 
 See the [oneVPL Specification](https://spec.oneapi.io/versions/latest/elements/oneVPL/source/index.html) for additional information. This is part of the [oneAPI specification](https://www.oneapi.io/spec/).
 
@@ -16,8 +16,8 @@ This repository contains the following components:
 
 To use oneVPL for video processing you need to install at least one implementation. Here is a list:
 
-- [oneVPL-intel-gpu](https://github.com/oneapi-src/oneVPL-intel-gpu) for use on Intel Xe graphics and newer
-- [Media SDK](https://github.com/Intel-Media-SDK/MediaSDK) for use on legacy Intel graphics
+- [oneVPL-intel-gpu](https://github.com/oneapi-src/oneVPL-intel-gpu) for use on Intel® Iris® Xe graphics and newer
+- [Media SDK](https://github.com/Intel-Media-SDK/MediaSDK) for use on legacy Intel® graphics
 
 ## oneVPL Architecture
 ```mermaid
@@ -28,7 +28,7 @@ graph TD;
 
 As shown in this diagram, the oneVPL Dispatcher forwards function calls from the application to use the selected runtime.
 
-## oneVPL Dispatcher behavior when targeting Intel GPUs
+## oneVPL Dispatcher behavior when targeting Intel® GPUs
 Runtime loaded by oneVPL Dispatcher and their Microsoft* DirectX* support:
 
 
@@ -48,7 +48,7 @@ Runtime loaded by oneVPL Dispatcher and their Microsoft* DirectX* support:
 | ATSM (Intel® Data Center GPU Flex Series)  |                  |:heavy_check_mark:| DX11                        |
 | Future platforms...                        |                  |:heavy_check_mark:| DX11                        |
 
-For TGL and DG1, if both oneVPL and Intel(R) Media SDK runtime are installed then the oneVPL Dispatcher will prefer oneVPL runtime unless the application requests D3D9 by setting the oneVPL Dispatcher filter property "mfxImplDescription.AccelerationMode" to MFX_ACCEL_MODE_VIA_D3D9.
+For TGL and DG1, if both oneVPL and Intel® Media SDK runtime are installed then the oneVPL Dispatcher will prefer oneVPL runtime unless the application requests D3D9 by setting the oneVPL Dispatcher filter property "mfxImplDescription.AccelerationMode" to MFX_ACCEL_MODE_VIA_D3D9.
 
 ## Installation and Usage
 
@@ -71,5 +71,5 @@ for details.
 
 ## Security
 
-See the [Intel Security Center](https://www.intel.com/content/www/us/en/security-center/default.html) for information on how to report a potential
+See the [Intel® Security Center](https://www.intel.com/content/www/us/en/security-center/default.html) for information on how to report a potential
 security issue or vulnerability.
