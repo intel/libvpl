@@ -120,27 +120,28 @@ enum LibVABackend {
 
 #define MSDK_PRINT_RET_MSG(ERR, MSG)                                                    \
     {                                                                                   \
-        msdk_stringstream tmpStr1;                                                      \
+        std::stringstream tmpStr1;                                                      \
         tmpStr1 << std::endl                                                            \
                 << "[ERROR], sts=" << StatusToString(ERR) << "(" << ERR << ")"          \
                 << ", " << __FUNCTION__ << ", " << MSG << " at " << __FILENAME__ << ":" \
                 << __LINE__ << std::endl;                                               \
-        msdk_err << tmpStr1.str();                                                      \
+        std::cerr << tmpStr1.str();                                                     \
     }
 
 #define MSDK_PRINT_WRN_MSG(WRN, MSG)                                                    \
     {                                                                                   \
-        msdk_stringstream tmpStr1;                                                      \
+        std::stringstream tmpStr1;                                                      \
         tmpStr1 << std::endl                                                            \
                 << "[WARNING], sts=" << StatusToString(WRN) << "(" << WRN << ")"        \
                 << ", " << __FUNCTION__ << ", " << MSG << " at " << __FILENAME__ << ":" \
                 << __LINE__ << std::endl;                                               \
-        msdk_err << tmpStr1.str();                                                      \
+        std::cerr << tmpStr1.str();                                                     \
     }
 
-#define MSDK_TRACE_LEVEL(level, ERR)                                                               \
-    if (level <= msdk_trace_get_level()) {                                                         \
-        msdk_err << __FILENAME__ << " :" << __LINE__ << " [" << level << "] " << ERR << std::endl; \
+#define MSDK_TRACE_LEVEL(level, ERR)                                                  \
+    if (level <= msdk_trace_get_level()) {                                            \
+        std::cerr << __FILENAME__ << " :" << __LINE__ << " [" << level << "] " << ERR \
+                  << std::endl;                                                       \
     }
 
 #define MSDK_TRACE_CRITICAL(ERR) MSDK_TRACE_LEVEL(MSDK_TRACE_LEVEL_CRITICAL, ERR)
@@ -152,7 +153,7 @@ enum LibVABackend {
 #define MSDK_CHECK_ERROR(P, X, ERR)                         \
     {                                                       \
         if ((X) == (P)) {                                   \
-            msdk_stringstream tmpStr2;                      \
+            std::stringstream tmpStr2;                      \
             tmpStr2 << #X << "==" << #P << " error";        \
             MSDK_PRINT_RET_MSG(ERR, tmpStr2.str().c_str()); \
             return ERR;                                     \
@@ -162,7 +163,7 @@ enum LibVABackend {
 #define MSDK_CHECK_NOT_EQUAL(P, X, ERR)                     \
     {                                                       \
         if ((X) != (P)) {                                   \
-            msdk_stringstream tmpStr3;                      \
+            std::stringstream tmpStr3;                      \
             tmpStr3 << #X << "!=" << #P << " error";        \
             MSDK_PRINT_RET_MSG(ERR, tmpStr3.str().c_str()); \
             return ERR;                                     \
@@ -231,7 +232,7 @@ enum LibVABackend {
 #define MSDK_CHECK_POINTER(P, ...)                                       \
     {                                                                    \
         if (!(P)) {                                                      \
-            msdk_stringstream tmpStr4;                                   \
+            std::stringstream tmpStr4;                                   \
             tmpStr4 << #P << " pointer is NULL";                         \
             MSDK_PRINT_RET_MSG(MFX_ERR_NULL_PTR, tmpStr4.str().c_str()); \
             return __VA_ARGS__;                                          \
@@ -240,7 +241,7 @@ enum LibVABackend {
 #define MSDK_CHECK_POINTER_NO_RET(P)                                     \
     {                                                                    \
         if (!(P)) {                                                      \
-            msdk_stringstream tmpStr4;                                   \
+            std::stringstream tmpStr4;                                   \
             tmpStr4 << #P << " pointer is NULL";                         \
             MSDK_PRINT_RET_MSG(MFX_ERR_NULL_PTR, tmpStr4.str().c_str()); \
             return;                                                      \
@@ -305,13 +306,8 @@ enum LibVABackend {
 #define MFX_IMPL_VIA_MASK(x) (0x0f00 & (x))
 
 // Deprecated
-#define MSDK_PRINT_RET_MSG_(ERR)                                     \
-    {                                                                \
-        msdk_printf("\nReturn on error: error code %d,\t%s\t%d\n\n", \
-                    (int)ERR,                                        \
-                    __FILENAME__,                                    \
-                    __LINE__);                                       \
-    }
+#define MSDK_PRINT_RET_MSG_(ERR) \
+    { printf("\nReturn on error: error code %d,\t%s\t%d\n\n", (int)ERR, __FILENAME__, __LINE__); }
 #define MSDK_CHECK_RESULT(P, X, ERR)  \
     {                                 \
         if ((X) > (P)) {              \

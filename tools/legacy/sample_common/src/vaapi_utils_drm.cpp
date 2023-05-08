@@ -76,7 +76,7 @@ int open_intel_adapter(const std::string& devicePath, int type) {
     int fd = open(devicePath.c_str(), O_RDWR);
 
     if (fd < 0) {
-        msdk_printf("Failed to open specified device\n");
+        printf("Failed to open specified device\n");
         return -1;
     }
 
@@ -87,7 +87,7 @@ int open_intel_adapter(const std::string& devicePath, int type) {
     }
     else {
         close(fd);
-        msdk_printf("Specified device is not Intel one\n");
+        printf("Specified device is not Intel one\n");
         return -1;
     }
 }
@@ -209,11 +209,11 @@ drmRenderer::drmRenderer(int fd, mfxI32 monitorType)
     if (!res) {
         throw std::invalid_argument("Failed to allocate renderer");
     }
-    msdk_printf("drmrender: connected via %s to %dx%d@%d capable display\n",
-                getConnectorName(m_connector_type),
-                m_mode.hdisplay,
-                m_mode.vdisplay,
-                m_mode.vrefresh);
+    printf("drmrender: connected via %s to %dx%d@%d capable display\n",
+           getConnectorName(m_connector_type),
+           m_mode.hdisplay,
+           m_mode.vdisplay,
+           m_mode.vrefresh);
 
     drmSetColorSpace(false);
     drmSendHdrMetaData(NULL, NULL, false);
@@ -276,20 +276,20 @@ bool drmRenderer::getConnector(drmModeRes* resource, uint32_t connector_type) {
             if ((connector->connector_type == connector_type) ||
                 (connector_type == DRM_MODE_CONNECTOR_Unknown)) {
                 if (connector->connection == DRM_MODE_CONNECTED) {
-                    msdk_printf("drmrender: trying connection: %s\n",
-                                getConnectorName(connector->connector_type));
+                    printf("drmrender: trying connection: %s\n",
+                           getConnectorName(connector->connector_type));
                     m_connector_type = connector->connector_type;
                     m_connectorID    = connector->connector_id;
                     m_connectorProperties =
                         getProperties(m_fd, m_connectorID, DRM_MODE_OBJECT_CONNECTOR);
                     found = setupConnection(resource, connector);
                     if (found)
-                        msdk_printf("drmrender: succeeded...\n");
+                        printf("drmrender: succeeded...\n");
                     else
-                        msdk_printf("drmrender: failed...\n");
+                        printf("drmrender: failed...\n");
                 }
                 else if ((connector_type != DRM_MODE_CONNECTOR_Unknown)) {
-                    msdk_printf("drmrender: error: requested monitor not connected\n");
+                    printf("drmrender: error: requested monitor not connected\n");
                 }
             }
             m_drmlib.drmModeFreeConnector(connector);
@@ -297,7 +297,7 @@ bool drmRenderer::getConnector(drmModeRes* resource, uint32_t connector_type) {
                 return true;
         }
     }
-    msdk_printf("drmrender: error: requested monitor not available\n");
+    printf("drmrender: error: requested monitor not available\n");
     return found;
 }
 
@@ -306,7 +306,7 @@ bool drmRenderer::drmDisplayHasHdr(const uint8_t* edid) {
     const uint8_t* hdrDb;
 
     if (!edid) {
-        msdk_printf("drmrender: invalid EDID\n");
+        printf("drmrender: invalid EDID\n");
         return false;
     }
 
@@ -331,13 +331,13 @@ const uint8_t* drmRenderer::edidFindExtendedDataBlock(const uint8_t* edid,
     const uint8_t* ceaExtBlk;
 
     if (!edid) {
-        msdk_printf("drmrender: no EDID in blob\n");
+        printf("drmrender: no EDID in blob\n");
         return NULL;
     }
 
     ceaExtBlk = edidFindCeaExtensionBlock(edid);
     if (!ceaExtBlk) {
-        msdk_printf("drmrender: no CEA extension block available\n");
+        printf("drmrender: no CEA extension block available\n");
         return NULL;
     }
 
@@ -373,13 +373,13 @@ const uint8_t* drmRenderer::edidFindCeaExtensionBlock(const uint8_t* edid) {
     const uint8_t* ext = NULL;
 
     if (!edid) {
-        msdk_printf("drmrender: no EDID\n");
+        printf("drmrender: no EDID\n");
         return NULL;
     }
 
     ext_blks = edid[126];
     if (!ext_blks) {
-        msdk_printf("drmrender: EDID doesn't have any extension block\n");
+        printf("drmrender: EDID doesn't have any extension block\n");
         return NULL;
     }
 
@@ -402,8 +402,8 @@ bool drmRenderer::setupConnection(drmModeRes* resource, drmModeConnector* connec
     drmModePropertyBlobRes* edidBlob;
 
     if (!connector->count_modes) {
-        msdk_printf("drmrender: error: no valid modes for %s connector\n",
-                    getConnectorName(connector->connector_type));
+        printf("drmrender: error: no valid modes for %s connector\n",
+               getConnectorName(connector->connector_type));
         return false;
     }
 
@@ -431,7 +431,7 @@ bool drmRenderer::setupConnection(drmModeRes* resource, drmModeConnector* connec
             }
         }
         ret = true;
-        msdk_printf("drmrender: selected crtc already attached to connector\n");
+        printf("drmrender: selected crtc already attached to connector\n");
         m_drmlib.drmModeFreeEncoder(encoder);
     }
 
@@ -451,7 +451,7 @@ bool drmRenderer::setupConnection(drmModeRes* resource, drmModeConnector* connec
                     m_crtcIndex = j;
                     m_crtcID    = resource->crtcs[j];
                     ret         = true;
-                    msdk_printf("drmrender: found crtc with global search\n");
+                    printf("drmrender: found crtc with global search\n");
                     break;
                 }
                 m_drmlib.drmModeFreeEncoder(encoder);
@@ -466,7 +466,7 @@ bool drmRenderer::setupConnection(drmModeRes* resource, drmModeConnector* connec
             ret = false;
     }
     else {
-        msdk_printf("drmrender: failed to select crtc\n");
+        printf("drmrender: failed to select crtc\n");
     }
     return ret;
 }
@@ -508,7 +508,7 @@ bool drmRenderer::setMaster() {
         usleep(100);
         ++wait_count;
     } while (wait_count < 30000);
-    msdk_printf("drmrender: error: failed to get drm mastership during 3 seconds - aborting\n");
+    printf("drmrender: error: failed to get drm mastership during 3 seconds - aborting\n");
     return false;
 }
 
@@ -529,7 +529,7 @@ bool drmRenderer::restore() {
                                       1,
                                       &m_mode);
     if (ret) {
-        msdk_printf("drmrender: failed to restore original mode\n");
+        printf("drmrender: failed to restore original mode\n");
         return false;
     }
     dropMaster();
@@ -756,7 +756,7 @@ void* drmRenderer::acquire(mfxMemId mid) {
             set_tiling.stride      = vmid->m_image.pitches[0];
             ret = m_drmlib.drmIoctl(m_fd, DRM_IOCTL_I915_GEM_SET_TILING, &set_tiling);
             if (ret) {
-                msdk_printf("DRM_IOCTL_I915_GEM_SET_TILING Failed ret = %d\n", ret);
+                printf("DRM_IOCTL_I915_GEM_SET_TILING Failed ret = %d\n", ret);
                 return NULL;
             }
 
@@ -807,7 +807,7 @@ void drmRenderer::release(mfxMemId mid, void* mem) {
     if (!hdl)
         return;
     if (!restore()) {
-        msdk_printf(
+        printf(
             "drmrender: warning: failure to restore original mode may lead to application segfault!\n");
     }
     m_drmlib.drmModeRmFB(m_fd, *hdl);
@@ -841,7 +841,7 @@ mfxStatus drmRenderer::render(mfxFrameSurface1* pSurface) {
     else {
         if (m_overlay_wrn) {
             m_overlay_wrn = false;
-            msdk_printf("drmrender: warning: rendering via OVERLAY plane\n");
+            printf("drmrender: warning: rendering via OVERLAY plane\n");
         }
     // to support direct panel tonemap for 8K@60 HDR playback via CH7218 connected
     // to 8K HDR panel.

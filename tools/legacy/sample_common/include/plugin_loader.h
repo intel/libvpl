@@ -23,17 +23,17 @@ protected:
 
 public:
     MsdkSoModule() : m_module(NULL) {}
-    MsdkSoModule(const msdk_string& pluginName) : m_module(NULL) {
+    MsdkSoModule(const std::string& pluginName) : m_module(NULL) {
         m_module = msdk_so_load(pluginName.c_str());
         if (NULL == m_module) {
-            MSDK_TRACE_ERROR(msdk_string(MSDK_CHAR("Failed to load shared module: ")) + pluginName);
+            MSDK_TRACE_ERROR(std::string("Failed to load shared module: ") + pluginName);
         }
     }
     template <class T>
     T GetAddr(const std::string& fncName) {
         T pCreateFunc = reinterpret_cast<T>(msdk_so_get_addr(m_module, fncName.c_str()));
         if (NULL == pCreateFunc) {
-            MSDK_TRACE_ERROR(msdk_string("Failed to get function addres: ") + fncName.c_str());
+            MSDK_TRACE_ERROR(std::string("Failed to get function addres: ") + fncName.c_str());
         }
         return pCreateFunc;
     }
@@ -96,11 +96,11 @@ public:
               m_session(),
               m_uid() {
         mfxStatus sts = MFX_ERR_NONE;
-        msdk_stringstream strStream;
+        std::stringstream strStream;
 
         MSDK_MEMCPY(&m_uid, &uid, sizeof(mfxPluginUID));
         for (size_t i = 0; i != sizeof(mfxPluginUID); i++) {
-            strStream << "0x" << std::setfill(MSDK_CHAR('0')) << std::setw(2) << std::hex
+            strStream << "0x" << std::setfill('0') << std::setw(2) << std::hex
                       << (int)m_uid.Data[i];
             if (i != (sizeof(mfxPluginUID) - 1))
                 strStream << ", ";
@@ -131,11 +131,11 @@ public:
               m_session(),
               m_uid() {
         mfxStatus sts = MFX_ERR_NONE;
-        msdk_stringstream strStream;
+        std::stringstream strStream;
 
         MSDK_MEMCPY(&m_uid, &uid, sizeof(mfxPluginUID));
         for (size_t i = 0; i != sizeof(mfxPluginUID); i++) {
-            strStream << "0x" << std::setfill(MSDK_CHAR('0')) << std::setw(2) << std::hex
+            strStream << "0x" << std::setfill('0') << std::setw(2) << std::hex
                       << (int)m_uid.Data[i];
             if (i != (sizeof(mfxPluginUID) - 1))
                 strStream << ", ";

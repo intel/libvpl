@@ -31,7 +31,6 @@
 
     #include <DXGI.h>
     #include <psapi.h>
-    #include <tchar.h>
     #include <windows.h>
     #include <memory>
 
@@ -102,7 +101,7 @@ CSmplYUVReader::CSmplYUVReader()
           shouldShift10BitsHigh(false),
           m_bInited(false) {}
 
-mfxStatus CSmplYUVReader::Init(std::list<msdk_string> inputs,
+mfxStatus CSmplYUVReader::Init(std::list<std::string> inputs,
                                mfxU32 ColorFormat,
                                bool enableShifting) {
     Close();
@@ -132,7 +131,7 @@ mfxStatus CSmplYUVReader::Init(std::list<msdk_string> inputs,
     for (ls_iterator it = inputs.begin(); it != inputs.end(); it++) {
         m_files.push_back(NULL);
         auto& f = m_files.back();
-        MSDK_FOPEN(f, (*it).c_str(), MSDK_STRING("rb"));
+        MSDK_FOPEN(f, (*it).c_str(), "rb");
         MSDK_CHECK_POINTER(f, MFX_ERR_NULL_PTR);
     }
 
@@ -169,8 +168,8 @@ mfxStatus CSmplYUVReader::SkipNframesFromBeginning(mfxU16 w,
     mfxU32 frameLength;
 
     if (MFX_ERR_NONE != GetFrameLength(w, h, m_ColorFormat, frameLength)) {
-        msdk_printf("Input color format %s is unsupported in qpfile mode\n",
-                    ColorFormatToStr(m_ColorFormat));
+        printf("Input color format %s is unsupported in qpfile mode\n",
+               ColorFormatToStr(m_ColorFormat));
         return MFX_ERR_UNSUPPORTED;
     }
 
@@ -525,18 +524,18 @@ void CSmplBitstreamWriter::Close() {
     m_bInited = false;
 }
 
-mfxStatus CSmplBitstreamWriter::Init(const msdk_char* strFileName) {
+mfxStatus CSmplBitstreamWriter::Init(const char* strFileName) {
     MSDK_CHECK_POINTER(strFileName, MFX_ERR_NULL_PTR);
-    if (!msdk_strlen(strFileName))
+    if (!strlen(strFileName))
         return MFX_ERR_NONE;
 
     Close();
 
     //init file to write encoded data
-    MSDK_FOPEN(m_fSource, strFileName, MSDK_STRING("wb+"));
+    MSDK_FOPEN(m_fSource, strFileName, "wb+");
     MSDK_CHECK_POINTER(m_fSource, MFX_ERR_NULL_PTR);
 
-    m_sFile = msdk_string(strFileName);
+    m_sFile = std::string(strFileName);
     //set init state to true in case of success
     m_bInited = true;
     return MFX_ERR_NONE;
@@ -577,7 +576,7 @@ mfxStatus CSmplBitstreamWriter::WriteNextFrame(mfxBitstream* pMfxBitstream,
 
         // print encoding progress to console every certain number of frames (not to affect performance too much)
         if (isPrint && (1 == m_nProcessedFramesNum || (0 == (m_nProcessedFramesNum % 100)))) {
-            msdk_printf("Frame number: %u\r", (unsigned int)m_nProcessedFramesNum);
+            printf("Frame number: %u\r", (unsigned int)m_nProcessedFramesNum);
         }
     }
     else {
@@ -686,15 +685,15 @@ CSmplBitstreamDuplicateWriter::CSmplBitstreamDuplicateWriter() : CSmplBitstreamW
     m_bJoined          = false;
 }
 
-mfxStatus CSmplBitstreamDuplicateWriter::InitDuplicate(const msdk_char* strFileName) {
+mfxStatus CSmplBitstreamDuplicateWriter::InitDuplicate(const char* strFileName) {
     MSDK_CHECK_POINTER(strFileName, MFX_ERR_NULL_PTR);
-    MSDK_CHECK_ERROR(msdk_strlen(strFileName), 0, MFX_ERR_NOT_INITIALIZED);
+    MSDK_CHECK_ERROR(strlen(strFileName), 0, MFX_ERR_NOT_INITIALIZED);
 
     if (m_fSourceDuplicate) {
         fclose(m_fSourceDuplicate);
         m_fSourceDuplicate = NULL;
     }
-    MSDK_FOPEN(m_fSourceDuplicate, strFileName, MSDK_STRING("wb+"));
+    MSDK_FOPEN(m_fSourceDuplicate, strFileName, "wb+");
     MSDK_CHECK_POINTER(m_fSourceDuplicate, MFX_ERR_NULL_PTR);
 
     m_bJoined = false; // mark we own the file handle
@@ -763,15 +762,15 @@ void CSmplBitstreamReader::Reset() {
     fseek(m_fSource, 0, SEEK_SET);
 }
 
-mfxStatus CSmplBitstreamReader::Init(const msdk_char* strFileName) {
+mfxStatus CSmplBitstreamReader::Init(const char* strFileName) {
     MSDK_CHECK_POINTER(strFileName, MFX_ERR_NULL_PTR);
-    if (!msdk_strlen(strFileName))
+    if (!strlen(strFileName))
         return MFX_ERR_NONE;
 
     Close();
 
     //open file to read input stream
-    MSDK_FOPEN(m_fSource, strFileName, MSDK_STRING("rb"));
+    MSDK_FOPEN(m_fSource, strFileName, "rb");
     MSDK_CHECK_POINTER(m_fSource, MFX_ERR_NULL_PTR);
 
     m_bInited = true;
@@ -871,7 +870,7 @@ void CIVFFrameReader::Reset() {
     std::ignore = ReadHeader();
 }
 
-mfxStatus CIVFFrameReader::Init(const msdk_char* strFileName) {
+mfxStatus CIVFFrameReader::Init(const char* strFileName) {
     mfxStatus sts = CSmplBitstreamReader::Init(strFileName);
     MSDK_CHECK_STATUS(sts, "CSmplBitstreamReader::Init failed");
 
@@ -968,7 +967,7 @@ mfxStatus CIVFFrameWriter::Reset() {
     return MFX_ERR_NONE;
 }
 
-mfxStatus CIVFFrameWriter::Init(const msdk_char* strFileName,
+mfxStatus CIVFFrameWriter::Init(const char* strFileName,
                                 const mfxU16 w,
                                 const mfxU16 h,
                                 const mfxU32 fr_nom,
@@ -1024,11 +1023,11 @@ CSmplYUVWriter::CSmplYUVWriter()
           m_sFile(),
           m_nViews(0){};
 
-mfxStatus CSmplYUVWriter::Init(const msdk_char* strFileName, const mfxU32 numViews) {
+mfxStatus CSmplYUVWriter::Init(const char* strFileName, const mfxU32 numViews) {
     MSDK_CHECK_POINTER(strFileName, MFX_ERR_NULL_PTR);
-    MSDK_CHECK_ERROR(msdk_strlen(strFileName), 0, MFX_ERR_NOT_INITIALIZED);
+    MSDK_CHECK_ERROR(strlen(strFileName), 0, MFX_ERR_NOT_INITIALIZED);
 
-    m_sFile  = msdk_string(strFileName);
+    m_sFile  = std::string(strFileName);
     m_nViews = numViews;
 
     Close();
@@ -1036,7 +1035,7 @@ mfxStatus CSmplYUVWriter::Init(const msdk_char* strFileName, const mfxU32 numVie
     //open file to write decoded data
 
     if (!m_bIsMultiView) {
-        MSDK_FOPEN(m_fDest, m_sFile.c_str(), MSDK_STRING("wb"));
+        MSDK_FOPEN(m_fDest, m_sFile.c_str(), "wb");
         MSDK_CHECK_POINTER(m_fDest, MFX_ERR_NULL_PTR);
         ++m_numCreatedFiles;
     }
@@ -1047,9 +1046,7 @@ mfxStatus CSmplYUVWriter::Init(const msdk_char* strFileName, const mfxU32 numVie
 
         m_fDestMVC = new FILE*[numViews];
         for (i = 0; i < numViews; ++i) {
-            MSDK_FOPEN(m_fDestMVC[i],
-                       FormMVCFileName(m_sFile.c_str(), i).c_str(),
-                       MSDK_STRING("wb"));
+            MSDK_FOPEN(m_fDestMVC[i], FormMVCFileName(m_sFile.c_str(), i).c_str(), "wb");
             MSDK_CHECK_POINTER(m_fDestMVC[i], MFX_ERR_NULL_PTR);
             ++m_numCreatedFiles;
         }
@@ -1516,7 +1513,7 @@ mfxStatus CSmplYUVWriter::WriteNextFrameI420(mfxFrameSurface1* pSurface) {
             break;
         }
         default: {
-            msdk_printf("ERROR: I420 output is accessible only for NV12 and YV12.\n");
+            printf("ERROR: I420 output is accessible only for NV12 and YV12.\n");
             return MFX_ERR_UNSUPPORTED;
         }
     }
@@ -1622,7 +1619,7 @@ mfxStatus CSmplYUVWriter::WriteNextFrameI420(mfxFrameSurface1* pSurface) {
             break;
         }
         default: {
-            msdk_printf("ERROR: I420 output is accessible only for NV12 and YV12.\n");
+            printf("ERROR: I420 output is accessible only for NV12 and YV12.\n");
             return MFX_ERR_UNSUPPORTED;
         }
     }
@@ -1641,7 +1638,7 @@ void QPFile::Reader::ResetState(ReaderStatus set_sts) {
     m_FrameVals.clear();
 }
 
-mfxStatus QPFile::Reader::Read(const msdk_string& strFileName, mfxU32 codecid) {
+mfxStatus QPFile::Reader::Read(const std::string& strFileName, mfxU32 codecid) {
     m_ReaderSts   = READER_ERR_NONE;
     m_CurFrameNum = 0;
 
@@ -1650,7 +1647,7 @@ mfxStatus QPFile::Reader::Read(const msdk_string& strFileName, mfxU32 codecid) {
         return MFX_ERR_NOT_INITIALIZED;
     }
 
-    std::ifstream ifs(strFileName, msdk_fstream::in);
+    std::ifstream ifs(strFileName, std::fstream::in);
     if (!ifs.is_open()) {
         ResetState(READER_ERR_FILE_NOT_OPEN);
         return MFX_ERR_NOT_INITIALIZED;
@@ -1710,7 +1707,7 @@ void TCBRCTestFile::Reader::ResetState(ReaderStatus set_sts) {
     m_FrameVals.clear();
 }
 
-mfxStatus TCBRCTestFile::Reader::Read(const msdk_string& strFileName, mfxU32 codecid) {
+mfxStatus TCBRCTestFile::Reader::Read(const std::string& strFileName, mfxU32 codecid) {
     m_ReaderSts   = READER_ERR_NONE;
     m_CurFrameNum = 0;
 
@@ -1719,7 +1716,7 @@ mfxStatus TCBRCTestFile::Reader::Read(const msdk_string& strFileName, mfxU32 cod
         return MFX_ERR_NOT_INITIALIZED;
     }
 
-    std::ifstream ifs(strFileName, msdk_fstream::in);
+    std::ifstream ifs(strFileName, std::fstream::in);
     if (!ifs.is_open()) {
         ResetState(READER_ERR_FILE_NOT_OPEN);
         return MFX_ERR_NOT_INITIALIZED;
@@ -1818,16 +1815,16 @@ mfxU16 GetFreeSurface(mfxFrameSurface1* pSurfacesPool, mfxU16 nPoolSize) {
     } while (t.GetTime() < MSDK_SURFACE_WAIT_INTERVAL / 1000);
 
     if (idx == MSDK_INVALID_SURF_IDX) {
-        msdk_printf("ERROR: No free surfaces in pool (during long period)\n");
+        printf("ERROR: No free surfaces in pool (during long period)\n");
     }
 
     return idx;
 }
 
-msdk_string CodecIdToStr(mfxU32 nFourCC) {
-    msdk_string fcc;
+std::string CodecIdToStr(mfxU32 nFourCC) {
+    std::string fcc;
     for (size_t i = 0; i < 4; i++) {
-        fcc.push_back((msdk_char) * (i + (char*)&nFourCC));
+        fcc.push_back((char)*(i + (char*)&nFourCC));
     }
     return fcc;
 }
@@ -1974,25 +1971,17 @@ mfxU16 CalculateDefaultBitrate(mfxU32 nCodecId,
     return (mfxU16)bitrate;
 }
 
-mfxU16 StrToTargetUsage(msdk_string strInput) {
-    std::map<msdk_string, decltype(MFX_TARGETUSAGE_1)> tu{
-        { MSDK_STRING("quality"), MFX_TARGETUSAGE_1 },
-        { MSDK_STRING("veryslow"), MFX_TARGETUSAGE_1 },
-        { MSDK_STRING("slower"), MFX_TARGETUSAGE_2 },
-        { MSDK_STRING("slow"), MFX_TARGETUSAGE_3 },
-        { MSDK_STRING("medium"), MFX_TARGETUSAGE_4 },
-        { MSDK_STRING("balanced"), MFX_TARGETUSAGE_4 },
-        { MSDK_STRING("fast"), MFX_TARGETUSAGE_5 },
-        { MSDK_STRING("faster"), MFX_TARGETUSAGE_6 },
-        { MSDK_STRING("veryfast"), MFX_TARGETUSAGE_7 },
-        { MSDK_STRING("speed"), MFX_TARGETUSAGE_7 },
-        { MSDK_STRING("1"), MFX_TARGETUSAGE_1 },
-        { MSDK_STRING("2"), MFX_TARGETUSAGE_2 },
-        { MSDK_STRING("3"), MFX_TARGETUSAGE_3 },
-        { MSDK_STRING("4"), MFX_TARGETUSAGE_4 },
-        { MSDK_STRING("5"), MFX_TARGETUSAGE_5 },
-        { MSDK_STRING("6"), MFX_TARGETUSAGE_6 },
-        { MSDK_STRING("7"), MFX_TARGETUSAGE_7 }
+mfxU16 StrToTargetUsage(std::string strInput) {
+    std::map<std::string, decltype(MFX_TARGETUSAGE_1)> tu{
+        { "quality", MFX_TARGETUSAGE_1 },  { "veryslow", MFX_TARGETUSAGE_1 },
+        { "slower", MFX_TARGETUSAGE_2 },   { "slow", MFX_TARGETUSAGE_3 },
+        { "medium", MFX_TARGETUSAGE_4 },   { "balanced", MFX_TARGETUSAGE_4 },
+        { "fast", MFX_TARGETUSAGE_5 },     { "faster", MFX_TARGETUSAGE_6 },
+        { "veryfast", MFX_TARGETUSAGE_7 }, { "speed", MFX_TARGETUSAGE_7 },
+        { "1", MFX_TARGETUSAGE_1 },        { "2", MFX_TARGETUSAGE_2 },
+        { "3", MFX_TARGETUSAGE_3 },        { "4", MFX_TARGETUSAGE_4 },
+        { "5", MFX_TARGETUSAGE_5 },        { "6", MFX_TARGETUSAGE_6 },
+        { "7", MFX_TARGETUSAGE_7 }
     };
 
     auto item = tu.find(strInput);
@@ -2085,16 +2074,16 @@ mfxU32 GCD(mfxU32 a, mfxU32 b) {
     return b1;
 }
 
-msdk_string FormMVCFileName(const msdk_char* strFileNamePattern, const mfxU32 numView) {
+std::string FormMVCFileName(const char* strFileNamePattern, const mfxU32 numView) {
     if (NULL == strFileNamePattern)
-        return MSDK_STRING("");
+        return "";
 
-    msdk_string mvcFileName, fileExt;
-    msdk_stringstream sstr;
+    std::string mvcFileName, fileExt;
+    std::stringstream sstr;
     sstr << strFileNamePattern << "_" << numView << ".yuv";
     mvcFileName = sstr.str();
 
-    return msdk_string(mvcFileName);
+    return std::string(mvcFileName);
 }
 
 // function for getting a pointer to a specific external buffer from the array
@@ -2303,16 +2292,16 @@ void SEICalcSizeType(std::vector<mfxU8>& data, mfxU16 type, mfxU32 size) {
     data.push_back(mfxU8(B));
 }
 
-mfxU8 Char2Hex(msdk_char ch) {
-    msdk_char value = ch;
-    if (value >= MSDK_CHAR('0') && value <= MSDK_CHAR('9')) {
-        value -= MSDK_CHAR('0');
+mfxU8 Char2Hex(char ch) {
+    char value = ch;
+    if (value >= '0' && value <= '9') {
+        value -= '0';
     }
-    else if (value >= MSDK_CHAR('a') && value <= MSDK_CHAR('f')) {
-        value = value - MSDK_CHAR('a') + 10;
+    else if (value >= 'a' && value <= 'f') {
+        value = value - 'a' + 10;
     }
-    else if (value >= MSDK_CHAR('A') && value <= MSDK_CHAR('F')) {
-        value = value - MSDK_CHAR('A') + 10;
+    else if (value >= 'A' && value <= 'F') {
+        value = value - 'A' + 10;
     }
     else {
         value = 0;
@@ -2336,7 +2325,7 @@ bool msdk_trace_is_printable(int level) {
     return g_trace_level >= level;
 }
 
-msdk_ostream& operator<<(msdk_ostream& os, MsdkTraceLevel tl) {
+std::ostream& operator<<(std::ostream& os, MsdkTraceLevel tl) {
     switch (tl) {
         case MSDK_TRACE_LEVEL_CRITICAL:
             os << "CRITICAL";
@@ -2359,79 +2348,79 @@ msdk_ostream& operator<<(msdk_ostream& os, MsdkTraceLevel tl) {
     return os;
 }
 
-msdk_string NoFullPath(const msdk_string& file_path) {
-    size_t pos = file_path.find_last_of(MSDK_STRING("\\/"));
-    if (pos != msdk_string::npos) {
+std::string NoFullPath(const std::string& file_path) {
+    size_t pos = file_path.find_last_of("\\/");
+    if (pos != std::string::npos) {
         return file_path.substr(pos + 1);
     }
     return file_path;
 }
 
 template <>
-mfxStatus msdk_opt_read(const msdk_char* string, mfxU8& value) {
-    msdk_char* stopCharacter;
-    value = (mfxU8)msdk_strtol(string, &stopCharacter, 10);
+mfxStatus msdk_opt_read(const char* string, mfxU8& value) {
+    char* stopCharacter;
+    value = (mfxU8)strtol(string, &stopCharacter, 10);
 
-    return (msdk_strlen(stopCharacter) == 0) ? MFX_ERR_NONE : MFX_ERR_UNKNOWN;
+    return (strlen(stopCharacter) == 0) ? MFX_ERR_NONE : MFX_ERR_UNKNOWN;
 }
 
 template <>
-mfxStatus msdk_opt_read(const msdk_char* string, mfxU16& value) {
-    msdk_char* stopCharacter;
-    value = (mfxU16)msdk_strtol(string, &stopCharacter, 10);
+mfxStatus msdk_opt_read(const char* string, mfxU16& value) {
+    char* stopCharacter;
+    value = (mfxU16)strtol(string, &stopCharacter, 10);
 
-    return (msdk_strlen(stopCharacter) == 0) ? MFX_ERR_NONE : MFX_ERR_UNKNOWN;
+    return (strlen(stopCharacter) == 0) ? MFX_ERR_NONE : MFX_ERR_UNKNOWN;
 }
 
 template <>
-mfxStatus msdk_opt_read(const msdk_char* string, mfxU32& value) {
-    msdk_char* stopCharacter;
-    value = (mfxU32)msdk_strtol(string, &stopCharacter, 10);
+mfxStatus msdk_opt_read(const char* string, mfxU32& value) {
+    char* stopCharacter;
+    value = (mfxU32)strtol(string, &stopCharacter, 10);
 
-    return (msdk_strlen(stopCharacter) == 0) ? MFX_ERR_NONE : MFX_ERR_UNKNOWN;
+    return (strlen(stopCharacter) == 0) ? MFX_ERR_NONE : MFX_ERR_UNKNOWN;
 }
 
 template <>
-mfxStatus msdk_opt_read(const msdk_char* string, mfxF32& value) {
-    msdk_char* stopCharacter;
-    value = (mfxF32)msdk_strtod(string, &stopCharacter);
-    return (msdk_strlen(stopCharacter) == 0) ? MFX_ERR_NONE : MFX_ERR_UNKNOWN;
+mfxStatus msdk_opt_read(const char* string, mfxF32& value) {
+    char* stopCharacter;
+    value = (mfxF32)strtod(string, &stopCharacter);
+    return (strlen(stopCharacter) == 0) ? MFX_ERR_NONE : MFX_ERR_UNKNOWN;
 }
 template <>
-mfxStatus msdk_opt_read(const msdk_char* string, mfxF64& value) {
-    msdk_char* stopCharacter;
-    value = (mfxF64)msdk_strtod(string, &stopCharacter);
+mfxStatus msdk_opt_read(const char* string, mfxF64& value) {
+    char* stopCharacter;
+    value = (mfxF64)strtod(string, &stopCharacter);
 
-    return (msdk_strlen(stopCharacter) == 0) ? MFX_ERR_NONE : MFX_ERR_UNKNOWN;
+    return (strlen(stopCharacter) == 0) ? MFX_ERR_NONE : MFX_ERR_UNKNOWN;
 }
 
-mfxStatus msdk_opt_read(const msdk_char* string, mfxU8& value);
-mfxStatus msdk_opt_read(const msdk_char* string, mfxU16& value);
-mfxStatus msdk_opt_read(const msdk_char* string, mfxU32& value);
-mfxStatus msdk_opt_read(const msdk_char* string, mfxF64& value);
-mfxStatus msdk_opt_read(const msdk_char* string, mfxF32& value);
+mfxStatus msdk_opt_read(const char* string, mfxU8& value);
+mfxStatus msdk_opt_read(const char* string, mfxU16& value);
+mfxStatus msdk_opt_read(const char* string, mfxU32& value);
+mfxStatus msdk_opt_read(const char* string, mfxF64& value);
+mfxStatus msdk_opt_read(const char* string, mfxF32& value);
 
 template <>
-mfxStatus msdk_opt_read(const msdk_char* string, mfxI16& value) {
-    msdk_char* stopCharacter;
-    value = (mfxI16)msdk_strtol(string, &stopCharacter, 10);
+mfxStatus msdk_opt_read(const char* string, mfxI16& value) {
+    char* stopCharacter;
+    value = (mfxI16)strtol(string, &stopCharacter, 10);
 
-    return (msdk_strlen(stopCharacter) == 0) ? MFX_ERR_NONE : MFX_ERR_UNKNOWN;
+    return (strlen(stopCharacter) == 0) ? MFX_ERR_NONE : MFX_ERR_UNKNOWN;
 }
 
 template <>
-mfxStatus msdk_opt_read(const msdk_char* string, mfxI32& value) {
-    msdk_char* stopCharacter;
-    value = (mfxI32)msdk_strtol(string, &stopCharacter, 10);
+mfxStatus msdk_opt_read(const char* string, mfxI32& value) {
+    char* stopCharacter;
+    value = (mfxI32)strtol(string, &stopCharacter, 10);
 
-    return (msdk_strlen(stopCharacter) == 0) ? MFX_ERR_NONE : MFX_ERR_UNKNOWN;
+    return (strlen(stopCharacter) == 0) ? MFX_ERR_NONE : MFX_ERR_UNKNOWN;
 }
 
-mfxStatus msdk_opt_read(const msdk_char* string, mfxI16& value);
-mfxStatus msdk_opt_read(const msdk_char* string, mfxI32& value);
+mfxStatus msdk_opt_read(const char* string, mfxI16& value);
+mfxStatus msdk_opt_read(const char* string, mfxI32& value);
 
 template <>
-mfxStatus msdk_opt_read(const msdk_char* string, mfxPriority& value) {
+mfxStatus msdk_opt_read(const char* string, mfxPriority& value) {
     mfxU32 priority = 0;
     mfxStatus sts   = msdk_opt_read<>(string, priority);
 
@@ -2441,20 +2430,20 @@ mfxStatus msdk_opt_read(const msdk_char* string, mfxPriority& value) {
 }
 
 template <>
-mfxStatus msdk_opt_read(const msdk_char* string, std::string& value) {
-    msdk_string temp_value = msdk_string(string);
+mfxStatus msdk_opt_read(const char* string, std::string& value) {
+    std::string temp_value = std::string(string);
     value                  = std::string(temp_value.begin(), temp_value.end());
     return MFX_ERR_NONE;
 }
 
 template <>
-mfxStatus msdk_opt_read(const msdk_char* string, std::wstring& value) {
-    msdk_string temp_value = msdk_string(string);
+mfxStatus msdk_opt_read(const char* string, std::wstring& value) {
+    std::string temp_value = std::string(string);
     value                  = std::wstring(temp_value.begin(), temp_value.end());
     return MFX_ERR_NONE;
 }
 
-mfxStatus msdk_opt_read(msdk_char* string, mfxPriority& value);
+mfxStatus msdk_opt_read(char* string, mfxPriority& value);
 
 bool IsDecodeCodecSupported(mfxU32 codecFormat) {
     switch (codecFormat) {
@@ -2506,7 +2495,7 @@ bool IsPluginCodecSupported(mfxU32 codecFormat) {
     return true;
 }
 
-mfxStatus StrFormatToCodecFormatFourCC(msdk_char* strInput, mfxU32& codecFormat) {
+mfxStatus StrFormatToCodecFormatFourCC(char* strInput, mfxU32& codecFormat) {
     mfxStatus sts = MFX_ERR_NONE;
     codecFormat   = 0;
 
@@ -2514,49 +2503,49 @@ mfxStatus StrFormatToCodecFormatFourCC(msdk_char* strInput, mfxU32& codecFormat)
         sts = MFX_ERR_NULL_PTR;
 
     if (sts == MFX_ERR_NONE) {
-        if (0 == msdk_strcmp(strInput, MSDK_STRING("mpeg2"))) {
+        if (0 == strcmp(strInput, "mpeg2")) {
             codecFormat = MFX_CODEC_MPEG2;
         }
-        else if (0 == msdk_strcmp(strInput, MSDK_STRING("h264"))) {
+        else if (0 == strcmp(strInput, "h264")) {
             codecFormat = MFX_CODEC_AVC;
         }
-        else if (0 == msdk_strcmp(strInput, MSDK_STRING("h265"))) {
+        else if (0 == strcmp(strInput, "h265")) {
             codecFormat = MFX_CODEC_HEVC;
         }
-        else if (0 == msdk_strcmp(strInput, MSDK_STRING("vc1"))) {
+        else if (0 == strcmp(strInput, "vc1")) {
             codecFormat = MFX_CODEC_VC1;
         }
-        else if (0 == msdk_strcmp(strInput, MSDK_STRING("mvc"))) {
+        else if (0 == strcmp(strInput, "mvc")) {
             codecFormat = CODEC_MVC;
         }
-        else if (0 == msdk_strcmp(strInput, MSDK_STRING("jpeg"))) {
+        else if (0 == strcmp(strInput, "jpeg")) {
             codecFormat = MFX_CODEC_JPEG;
         }
-        else if (0 == msdk_strcmp(strInput, MSDK_STRING("vp8"))) {
+        else if (0 == strcmp(strInput, "vp8")) {
             codecFormat = MFX_CODEC_VP8;
         }
-        else if (0 == msdk_strcmp(strInput, MSDK_STRING("vp9"))) {
+        else if (0 == strcmp(strInput, "vp9")) {
             codecFormat = MFX_CODEC_VP9;
         }
-        else if (0 == msdk_strcmp(strInput, MSDK_STRING("av1"))) {
+        else if (0 == strcmp(strInput, "av1")) {
             codecFormat = MFX_CODEC_AV1;
         }
-        else if ((0 == msdk_strcmp(strInput, MSDK_STRING("raw")))) {
+        else if ((0 == strcmp(strInput, "raw"))) {
             codecFormat = MFX_CODEC_DUMP;
         }
-        else if ((0 == msdk_strcmp(strInput, MSDK_STRING("rgb4_frame")))) {
+        else if ((0 == strcmp(strInput, "rgb4_frame"))) {
             codecFormat = MFX_CODEC_RGB4;
         }
-        else if ((0 == msdk_strcmp(strInput, MSDK_STRING("nv12")))) {
+        else if ((0 == strcmp(strInput, "nv12"))) {
             codecFormat = MFX_CODEC_NV12;
         }
-        else if ((0 == msdk_strcmp(strInput, MSDK_STRING("i420")))) {
+        else if ((0 == strcmp(strInput, "i420"))) {
             codecFormat = MFX_CODEC_I420;
         }
-        else if ((0 == msdk_strcmp(strInput, MSDK_STRING("i422")))) {
+        else if ((0 == strcmp(strInput, "i422"))) {
             codecFormat = MFX_CODEC_I422;
         }
-        else if ((0 == msdk_strcmp(strInput, MSDK_STRING("p010")))) {
+        else if ((0 == strcmp(strInput, "p010"))) {
             codecFormat = MFX_CODEC_P010;
         }
         else
@@ -2637,12 +2626,12 @@ const char* StatusToString(mfxStatus sts) {
     }
 }
 
-mfxI32 getMonitorType(msdk_char* str) {
+mfxI32 getMonitorType(char* str) {
     struct {
-        const msdk_char* str;
+        const char* str;
         mfxI32 mfx_type;
     } table[] = {
-#define __DECLARE(type) { MSDK_STRING(#type), MFX_MONITOR_##type }
+#define __DECLARE(type) { #type, MFX_MONITOR_##type }
         __DECLARE(Unknown),
         __DECLARE(VGA),
         __DECLARE(DVII),
@@ -2667,7 +2656,7 @@ mfxI32 getMonitorType(msdk_char* str) {
 #undef __DECLARE
     };
     for (unsigned int i = 0; i < sizeof(table) / sizeof(table[0]); ++i) {
-        if (0 == msdk_strcmp(str, table[i].str)) {
+        if (0 == strcmp(str, table[i].str)) {
             return table[i].mfx_type;
         }
     }
@@ -2697,7 +2686,7 @@ void CH264FrameReader::Close() {
     }
 }
 
-mfxStatus CH264FrameReader::Init(const msdk_char* strFileName) {
+mfxStatus CH264FrameReader::Init(const char* strFileName) {
     mfxStatus sts = MFX_ERR_NONE;
 
     sts = CSmplBitstreamReader::Init(strFileName);
@@ -2878,21 +2867,19 @@ mfxStatus PrintLoadedModules() {
 
     const DWORD MAX_FILE_PATH = 1024;
     for (auto module : modules) {
-        TCHAR moduleName[MAX_PATH];
+        char moduleName[MAX_PATH];
         if (GetModuleBaseName(hProcess, module, moduleName, MAX_PATH)) {
-            if (_tcsstr(moduleName, _T(LIBMFXHW_MASK)) != NULL ||
-                _tcsstr(moduleName, _T(LIBMFXSW_MASK)) != NULL ||
-                _tcsstr(moduleName, _T(ONEVPL32)) != NULL ||
-                _tcsstr(moduleName, _T(ONEVPL64)) != NULL ||
-                _tcsstr(moduleName, _T(ONEVPLSW_MASK)) != NULL) {
-                TCHAR modulePath[MAX_FILE_PATH];
+            if (strstr(moduleName, LIBMFXHW_MASK) != NULL ||
+                strstr(moduleName, LIBMFXSW_MASK) != NULL || strstr(moduleName, ONEVPL32) != NULL ||
+                strstr(moduleName, ONEVPL64) != NULL || strstr(moduleName, ONEVPLSW_MASK) != NULL) {
+                char modulePath[MAX_FILE_PATH];
                 DWORD charsReturned = GetModuleFileName(module, modulePath, MAX_FILE_PATH);
                 // path can be bigger than MAX_FILE_PATH, in this case it will be truncated
                 // so, print whole or truncated part of path and, if we get truncated path, print module name too
                 if (GetLastError() == ERROR_INSUFFICIENT_BUFFER) {
-                    msdk_printf("Loaded module name: %s ; ", moduleName);
+                    printf("Loaded module name: %s ; ", moduleName);
                 }
-                msdk_printf("Loaded module path: %s \n", modulePath);
+                printf("Loaded module path: %s \n", modulePath);
             }
         }
     }
@@ -2909,11 +2896,11 @@ int PrintLibMFXPath(struct dl_phdr_info* info, size_t size, void* data) {
         libPath.find(ONEVPLSW_MASK) != std::string::npos ||
         libPath.find(ONEVPLHW_MASK) != std::string::npos) {
         if (data) {
-            msdk_printf("   %d: %s \n", *((int*)data), info->dlpi_name);
+            printf("   %d: %s \n", *((int*)data), info->dlpi_name);
             *(int*)data += 1;
         }
         else {
-            msdk_printf("Loaded module: %s \n", info->dlpi_name);
+            printf("Loaded module: %s \n", info->dlpi_name);
         }
     }
     return 0;

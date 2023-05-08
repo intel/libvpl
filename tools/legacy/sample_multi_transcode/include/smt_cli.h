@@ -49,46 +49,46 @@ class CmdProcessor {
 public:
     CmdProcessor();
     virtual ~CmdProcessor();
-    mfxStatus ParseCmdLine(int argc, msdk_char* argv[]);
+    mfxStatus ParseCmdLine(int argc, char* argv[]);
     bool GetNextSessionParams(TranscodingSample::sInputParams& InputParams);
-    msdk_string GetPerformanceFile() {
+    std::string GetPerformanceFile() {
         return performance_file_name;
     };
-    msdk_string GetParameterFile() {
+    std::string GetParameterFile() {
         return parameter_file_name;
     };
-    std::vector<msdk_string> GetSessionDescriptions() {
+    std::vector<std::string> GetSessionDescriptions() {
         return session_descriptions;
     };
 
 protected:
-    mfxStatus ParseParFile(const msdk_string& filename);
-    mfxStatus TokenizeLine(const msdk_string& line);
-    mfxStatus TokenizeLine(const msdk_char* pLine, size_t length);
-    size_t GetStringLength(msdk_char* pTempLine, size_t length);
+    mfxStatus ParseParFile(const std::string& filename);
+    mfxStatus TokenizeLine(const std::string& line);
+    mfxStatus TokenizeLine(const char* pLine, size_t length);
+    size_t GetStringLength(char* pTempLine, size_t length);
 
     static bool isspace(char a);
     static bool is_not_allowed_char(char a);
-    bool ParseROIFile(const msdk_string& roi_file_name, std::vector<mfxExtEncoderROI>& m_ROIData);
+    bool ParseROIFile(const std::string& roi_file_name, std::vector<mfxExtEncoderROI>& m_ROIData);
 
-    mfxStatus ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[]);
-    mfxStatus ParseOption__set(msdk_char* strCodecType, msdk_char* strPluginPath);
+    mfxStatus ParseParamsForOneSession(mfxU32 argc, char* argv[]);
+    mfxStatus ParseOption__set(char* strCodecType, char* strPluginPath);
     mfxStatus VerifyAndCorrectInputParams(TranscodingSample::sInputParams& InputParams);
     mfxU32 m_SessionParamId;
     std::vector<TranscodingSample::sInputParams> m_SessionArray;
     std::map<mfxU32, sPluginParams> m_decoderPlugins;
     std::map<mfxU32, sPluginParams> m_encoderPlugins;
-    msdk_string performance_file_name;
-    msdk_string parameter_file_name;
+    std::string performance_file_name;
+    std::string parameter_file_name;
     mfxU32 statisticsWindowSize;
     FILE* statisticsLogFile;
     //store a name of a Logfile
-    msdk_string DumpLogFileName;
+    std::string DumpLogFileName;
     mfxU32 m_nTimeout;
     bool bRobustFlag;
     bool bSoftRobustFlag;
     bool shouldUseGreedyFormula;
-    std::vector<msdk_string> session_descriptions;
+    std::vector<std::string> session_descriptions;
 
 private:
     DISALLOW_COPY_AND_ASSIGN(CmdProcessor);

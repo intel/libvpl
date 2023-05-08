@@ -44,7 +44,7 @@ public:
     Launcher();
     virtual ~Launcher();
 
-    virtual mfxStatus Init(int argc, msdk_char* argv[]);
+    virtual mfxStatus Init(int argc, char* argv[]);
     virtual void Run();
     virtual mfxStatus ProcessResult();
 
@@ -66,9 +66,9 @@ protected:
     virtual void Close();
 
     // command line parser
-    msdk_string performance_file_name;
-    msdk_string parameter_file_name;
-    std::vector<msdk_string> session_descriptions;
+    std::string performance_file_name;
+    std::string parameter_file_name;
+    std::vector<std::string> session_descriptions;
     // threads contexts to process playlist
     std::vector<std::unique_ptr<ThreadTranscodeContext>> m_pThreadContextArray;
     // allocator for each session

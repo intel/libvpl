@@ -61,102 +61,102 @@ void ownToMfxFrameInfo(sOwnFrameInfo* in, mfxFrameInfo* out, bool copyCropParams
 
 /* ******************************************************************* */
 
-static const msdk_char* FourCC2Str(mfxU32 FourCC) {
+static const char* FourCC2Str(mfxU32 FourCC) {
     switch (FourCC) {
         case MFX_FOURCC_NV12:
-            return MSDK_STRING("NV12");
+            return "NV12";
         case MFX_FOURCC_YV12:
-            return MSDK_STRING("YV12");
+            return "YV12";
         case MFX_FOURCC_YUY2:
-            return MSDK_STRING("YUY2");
+            return "YUY2";
         case MFX_FOURCC_RGB565:
-            return MSDK_STRING("RGB565");
+            return "RGB565";
         case MFX_FOURCC_RGB3:
-            return MSDK_STRING("RGB3");
+            return "RGB3";
         case MFX_FOURCC_RGB4:
-            return MSDK_STRING("RGB4");
+            return "RGB4";
 #if !(defined(_WIN32) || defined(_WIN64))
         case MFX_FOURCC_RGBP:
-            return MSDK_STRING("RGBP");
+            return "RGBP";
 #endif
         case MFX_FOURCC_YUV400:
-            return MSDK_STRING("YUV400");
+            return "YUV400";
         case MFX_FOURCC_YUV411:
-            return MSDK_STRING("YUV411");
+            return "YUV411";
         case MFX_FOURCC_YUV422H:
-            return MSDK_STRING("YUV422H");
+            return "YUV422H";
         case MFX_FOURCC_YUV422V:
-            return MSDK_STRING("YUV422V");
+            return "YUV422V";
         case MFX_FOURCC_YUV444:
-            return MSDK_STRING("YUV444");
+            return "YUV444";
         case MFX_FOURCC_P010:
-            return MSDK_STRING("P010");
+            return "P010";
         case MFX_FOURCC_P210:
-            return MSDK_STRING("P210");
+            return "P210";
         case MFX_FOURCC_NV16:
-            return MSDK_STRING("NV16");
+            return "NV16";
         case MFX_FOURCC_A2RGB10:
-            return MSDK_STRING("A2RGB10");
+            return "A2RGB10";
         case MFX_FOURCC_UYVY:
-            return MSDK_STRING("UYVY");
+            return "UYVY";
         case MFX_FOURCC_AYUV:
-            return MSDK_STRING("AYUV");
+            return "AYUV";
         case MFX_FOURCC_I420:
-            return MSDK_STRING("I420");
+            return "I420";
         case MFX_FOURCC_Y210:
-            return MSDK_STRING("Y210");
+            return "Y210";
         case MFX_FOURCC_Y410:
-            return MSDK_STRING("Y410");
+            return "Y410";
         case MFX_FOURCC_P016:
-            return MSDK_STRING("P016");
+            return "P016";
         case MFX_FOURCC_Y216:
-            return MSDK_STRING("Y216");
+            return "Y216";
         case MFX_FOURCC_Y416:
-            return MSDK_STRING("Y416");
+            return "Y416";
         case MFX_FOURCC_I010:
-            return MSDK_STRING("I010");
+            return "I010";
         default:
-            return MSDK_STRING("Unknown");
+            return "Unknown";
     }
 }
 
-const msdk_char* IOpattern2Str(mfxU32 IOpattern) {
+const char* IOpattern2Str(mfxU32 IOpattern) {
     switch (IOpattern) {
         case MFX_IOPATTERN_IN_SYSTEM_MEMORY | MFX_IOPATTERN_OUT_SYSTEM_MEMORY:
-            return MSDK_STRING("sys_to_sys");
+            return "sys_to_sys";
         case MFX_IOPATTERN_IN_SYSTEM_MEMORY | MFX_IOPATTERN_OUT_VIDEO_MEMORY:
-            return MSDK_STRING("sys_to_d3d");
+            return "sys_to_d3d";
         case MFX_IOPATTERN_IN_VIDEO_MEMORY | MFX_IOPATTERN_OUT_SYSTEM_MEMORY:
-            return MSDK_STRING("d3d_to_sys");
+            return "d3d_to_sys";
         case MFX_IOPATTERN_IN_VIDEO_MEMORY | MFX_IOPATTERN_OUT_VIDEO_MEMORY:
-            return MSDK_STRING("d3d_to_d3d");
+            return "d3d_to_d3d";
         default:
-            return MSDK_STRING("Not defined");
+            return "Not defined";
     }
 }
 
 /* ******************************************************************* */
 
 //static
-const msdk_char* PicStruct2Str(mfxU16 PicStruct) {
+const char* PicStruct2Str(mfxU16 PicStruct) {
     switch (PicStruct) {
         case MFX_PICSTRUCT_PROGRESSIVE:
-            return MSDK_STRING("progressive");
+            return "progressive";
         case MFX_PICSTRUCT_FIELD_TFF:
-            return MSDK_STRING("interlace (TFF)");
+            return "interlace (TFF)";
         case MFX_PICSTRUCT_FIELD_BFF:
-            return MSDK_STRING("interlace (BFF)");
+            return "interlace (BFF)";
         case MFX_PICSTRUCT_UNKNOWN:
-            return MSDK_STRING("unknown");
+            return "unknown";
         default:
-            return MSDK_STRING("interlace (no detail)");
+            return "interlace (no detail)";
     }
 }
 
 void PrintLibInfo(sFrameProcessor* pProcessor) {
     mfxStatus sts = pProcessor->mfxSession.PrintLibInfo(pProcessor->pLoader.get());
     if (sts != MFX_ERR_NONE)
-        msdk_printf("mfxSession.PrintLibInfo() failed\n");
+        printf("mfxSession.PrintLibInfo() failed\n");
     return;
 }
 
@@ -171,138 +171,118 @@ void PrintStreamInfo(sInputParams* pParams,
     MSDK_CHECK_POINTER_NO_RET(pMfxParams);
 
     Info = pMfxParams->vpp.In;
-    msdk_printf("Input format\t%s\n", FourCC2Str(Info.FourCC));
-    msdk_printf("Resolution\t%dx%d\n", Info.Width, Info.Height);
-    msdk_printf("Crop X,Y,W,H\t%d,%d,%d,%d\n", Info.CropX, Info.CropY, Info.CropW, Info.CropH);
-    msdk_printf("Frame rate\t%.2f\n", (double)((mfxF64)Info.FrameRateExtN / Info.FrameRateExtD));
-    msdk_printf("PicStruct\t%s\n", PicStruct2Str(Info.PicStruct));
+    printf("Input format\t%s\n", FourCC2Str(Info.FourCC));
+    printf("Resolution\t%dx%d\n", Info.Width, Info.Height);
+    printf("Crop X,Y,W,H\t%d,%d,%d,%d\n", Info.CropX, Info.CropY, Info.CropW, Info.CropH);
+    printf("Frame rate\t%.2f\n", (double)((mfxF64)Info.FrameRateExtN / Info.FrameRateExtD));
+    printf("PicStruct\t%s\n", PicStruct2Str(Info.PicStruct));
 
     Info = pMfxParams->vpp.Out;
-    msdk_printf("Output format\t%s\n", FourCC2Str(Info.FourCC));
-    msdk_printf("Resolution\t%dx%d\n", Info.Width, Info.Height);
-    msdk_printf("Crop X,Y,W,H\t%d,%d,%d,%d\n", Info.CropX, Info.CropY, Info.CropW, Info.CropH);
-    msdk_printf("Frame rate\t%.2f\n", (double)((mfxF64)Info.FrameRateExtN / Info.FrameRateExtD));
-    msdk_printf("PicStruct\t%s\n", PicStruct2Str(Info.PicStruct));
+    printf("Output format\t%s\n", FourCC2Str(Info.FourCC));
+    printf("Resolution\t%dx%d\n", Info.Width, Info.Height);
+    printf("Crop X,Y,W,H\t%d,%d,%d,%d\n", Info.CropX, Info.CropY, Info.CropW, Info.CropH);
+    printf("Frame rate\t%.2f\n", (double)((mfxF64)Info.FrameRateExtN / Info.FrameRateExtD));
+    printf("PicStruct\t%s\n", PicStruct2Str(Info.PicStruct));
 
-    msdk_printf("\n");
-    msdk_printf("Video Enhancement Algorithms\n");
-    msdk_printf("Deinterlace\t%s\n",
-                (pParams->frameInfoIn[0].PicStruct != pParams->frameInfoOut[0].PicStruct)
-                    ? MSDK_STRING("ON")
-                    : MSDK_STRING("OFF"));
-    msdk_printf("Signal info\t%s\n",
-                (VPP_FILTER_DISABLED != pParams->videoSignalInfoParam[0].mode)
-                    ? MSDK_STRING("ON")
-                    : MSDK_STRING("OFF"));
-    msdk_printf(
-        "Scaling\t\t%s\n",
-        (VPP_FILTER_DISABLED != pParams->bScaling) ? MSDK_STRING("ON") : MSDK_STRING("OFF"));
-    msdk_printf(
-        "CromaSiting\t\t%s\n",
-        (VPP_FILTER_DISABLED != pParams->bChromaSiting) ? MSDK_STRING("ON") : MSDK_STRING("OFF"));
-    msdk_printf("Denoise\t\t%s\n",
-                (VPP_FILTER_DISABLED != pParams->denoiseParam[0].mode) ? MSDK_STRING("ON")
-                                                                       : MSDK_STRING("OFF"));
+    printf("\n");
+    printf("Video Enhancement Algorithms\n");
+    printf(
+        "Deinterlace\t%s\n",
+        (pParams->frameInfoIn[0].PicStruct != pParams->frameInfoOut[0].PicStruct) ? "ON" : "OFF");
+    printf("Signal info\t%s\n",
+           (VPP_FILTER_DISABLED != pParams->videoSignalInfoParam[0].mode) ? "ON" : "OFF");
+    printf("Scaling\t\t%s\n", (VPP_FILTER_DISABLED != pParams->bScaling) ? "ON" : "OFF");
+    printf("CromaSiting\t\t%s\n", (VPP_FILTER_DISABLED != pParams->bChromaSiting) ? "ON" : "OFF");
+    printf("Denoise\t\t%s\n",
+           (VPP_FILTER_DISABLED != pParams->denoiseParam[0].mode) ? "ON" : "OFF");
 #ifdef ENABLE_MCTF
-    msdk_printf("MCTF\t\t%s\n",
-                (VPP_FILTER_DISABLED != pParams->mctfParam[0].mode) ? MSDK_STRING("ON")
-                                                                    : MSDK_STRING("OFF"));
+    printf("MCTF\t\t%s\n", (VPP_FILTER_DISABLED != pParams->mctfParam[0].mode) ? "ON" : "OFF");
 #endif
 
-    msdk_printf("ProcAmp\t\t%s\n",
-                (VPP_FILTER_DISABLED != pParams->procampParam[0].mode) ? MSDK_STRING("ON")
-                                                                       : MSDK_STRING("OFF"));
-    msdk_printf("DetailEnh\t%s\n",
-                (VPP_FILTER_DISABLED != pParams->detailParam[0].mode) ? MSDK_STRING("ON")
-                                                                      : MSDK_STRING("OFF"));
+    printf("ProcAmp\t\t%s\n",
+           (VPP_FILTER_DISABLED != pParams->procampParam[0].mode) ? "ON" : "OFF");
+    printf("DetailEnh\t%s\n", (VPP_FILTER_DISABLED != pParams->detailParam[0].mode) ? "ON" : "OFF");
     if (VPP_FILTER_DISABLED != pParams->frcParam[0].mode) {
         if (MFX_FRCALGM_FRAME_INTERPOLATION == pParams->frcParam[0].algorithm) {
-            msdk_printf("FRC:Interp\tON\n");
+            printf("FRC:Interp\tON\n");
         }
         else if (MFX_FRCALGM_DISTRIBUTED_TIMESTAMP == pParams->frcParam[0].algorithm) {
-            msdk_printf("FRC:AdvancedPTS\tON\n");
+            printf("FRC:AdvancedPTS\tON\n");
         }
         else {
-            msdk_printf("FRC:\t\tON\n");
+            printf("FRC:\t\tON\n");
         }
     }
-    //msdk_printf("FRC:Advanced\t%s\n",   (VPP_FILTER_DISABLED != pParams->frcParam.mode)  ? MSDK_STRING("ON"): MSDK_STRING("OFF"));
+    //printf("FRC:Advanced\t%s\n",   (VPP_FILTER_DISABLED != pParams->frcParam.mode)  ? "ON": "OFF");
     // MSDK 3.0
-    msdk_printf("GamutMapping \t%s\n",
-                (VPP_FILTER_DISABLED != pParams->gamutParam[0].mode) ? MSDK_STRING("ON")
-                                                                     : MSDK_STRING("OFF"));
-    msdk_printf("ColorSaturation\t%s\n",
-                (VPP_FILTER_DISABLED != pParams->tccParam[0].mode) ? MSDK_STRING("ON")
-                                                                   : MSDK_STRING("OFF"));
-    msdk_printf("ContrastEnh  \t%s\n",
-                (VPP_FILTER_DISABLED != pParams->aceParam[0].mode) ? MSDK_STRING("ON")
-                                                                   : MSDK_STRING("OFF"));
-    msdk_printf("SkinToneEnh  \t%s\n",
-                (VPP_FILTER_DISABLED != pParams->steParam[0].mode) ? MSDK_STRING("ON")
-                                                                   : MSDK_STRING("OFF"));
-    msdk_printf("MVC mode    \t%s\n",
-                (VPP_FILTER_DISABLED != pParams->multiViewParam[0].mode) ? MSDK_STRING("ON")
-                                                                         : MSDK_STRING("OFF"));
+    printf("GamutMapping \t%s\n",
+           (VPP_FILTER_DISABLED != pParams->gamutParam[0].mode) ? "ON" : "OFF");
+    printf("ColorSaturation\t%s\n",
+           (VPP_FILTER_DISABLED != pParams->tccParam[0].mode) ? "ON" : "OFF");
+    printf("ContrastEnh  \t%s\n",
+           (VPP_FILTER_DISABLED != pParams->aceParam[0].mode) ? "ON" : "OFF");
+    printf("SkinToneEnh  \t%s\n",
+           (VPP_FILTER_DISABLED != pParams->steParam[0].mode) ? "ON" : "OFF");
+    printf("MVC mode    \t%s\n",
+           (VPP_FILTER_DISABLED != pParams->multiViewParam[0].mode) ? "ON" : "OFF");
     // MSDK 6.0
-    msdk_printf("ImgStab    \t%s\n",
-                (VPP_FILTER_DISABLED != pParams->istabParam[0].mode) ? MSDK_STRING("ON")
-                                                                     : MSDK_STRING("OFF"));
-    msdk_printf("\n");
+    printf("ImgStab    \t%s\n",
+           (VPP_FILTER_DISABLED != pParams->istabParam[0].mode) ? "ON" : "OFF");
+    printf("\n");
 
-    msdk_printf("IOpattern type               \t%s\n", IOpattern2Str(pParams->IOPattern));
-    msdk_printf("Number of asynchronious tasks\t%hu\n", (unsigned short)pParams->asyncNum);
-    msdk_printf("Time stamps checking         \t%s\n",
-                pParams->ptsCheck ? MSDK_STRING("ON") : MSDK_STRING("OFF"));
+    printf("IOpattern type               \t%s\n", IOpattern2Str(pParams->IOPattern));
+    printf("Number of asynchronious tasks\t%hu\n", (unsigned short)pParams->asyncNum);
+    printf("Time stamps checking         \t%s\n", pParams->ptsCheck ? "ON" : "OFF");
 
     // info about ROI testing
     if (ROI_FIX_TO_FIX == pParams->roiCheckParam.mode) {
-        msdk_printf("ROI checking                 \tOFF\n");
+        printf("ROI checking                 \tOFF\n");
     }
     else {
-        msdk_printf("ROI checking                 \tON (seed1 = %i, seed2 = %i)\n",
-                    pParams->roiCheckParam.srcSeed,
-                    pParams->roiCheckParam.dstSeed);
+        printf("ROI checking                 \tON (seed1 = %i, seed2 = %i)\n",
+               pParams->roiCheckParam.srcSeed,
+               pParams->roiCheckParam.dstSeed);
     }
 
-    msdk_printf("\n");
+    printf("\n");
 
     //-------------------------------------------------------
     mfxIMPL impl;
     pMfxSession->QueryIMPL(&impl);
     bool isHWlib = MFX_IMPL_SOFTWARE != impl;
 
-    const msdk_char* sImpl = (isHWlib) ? MSDK_STRING("hw") : MSDK_STRING("sw");
-    msdk_printf("MediaSDK impl\t%s", sImpl);
+    const char* sImpl = (isHWlib) ? "hw" : "sw";
+    printf("MediaSDK impl\t%s", sImpl);
 
 #ifndef LIBVA_SUPPORT
     if (isHWlib || (pParams->vaType & (ALLOC_IMPL_VIA_D3D9 | ALLOC_IMPL_VIA_D3D11))) {
-        bool isD3D11            = ((ALLOC_IMPL_VIA_D3D11 == pParams->vaType) ||
+        bool isD3D11       = ((ALLOC_IMPL_VIA_D3D11 == pParams->vaType) ||
                         (pParams->ImpLib == (MFX_IMPL_HARDWARE | MFX_IMPL_VIA_D3D11)))
-                                      ? true
-                                      : false;
-        const msdk_char* sIface = (isD3D11) ? MSDK_STRING("VIA_D3D11") : MSDK_STRING("VIA_D3D9");
-        msdk_printf(" | %s", sIface);
+                                 ? true
+                                 : false;
+        const char* sIface = (isD3D11) ? "VIA_D3D11" : "VIA_D3D9";
+        printf(" | %s", sIface);
     }
 #endif
-    msdk_printf("\n");
+    printf("\n");
     //-------------------------------------------------------
 
     if (isHWlib && !pParams->bPartialAccel)
-        msdk_printf("HW accelaration is enabled\n");
+        printf("HW accelaration is enabled\n");
     else
-        msdk_printf("HW accelaration is disabled\n");
+        printf("HW accelaration is disabled\n");
 
 #if (defined(_WIN64) || defined(_WIN32)) && (MFX_VERSION >= 1031)
     if (pParams->bPreferdGfx)
-        msdk_printf("dGfx adapter is preferred\n");
+        printf("dGfx adapter is preferred\n");
 
     if (pParams->bPreferiGfx)
-        msdk_printf("iGfx adapter is preferred\n");
+        printf("iGfx adapter is preferred\n");
 #endif
 
     mfxVersion ver;
     pMfxSession->QueryVersion(&ver);
-    msdk_printf("MediaSDK ver\t%d.%d\n", ver.Major, ver.Minor);
+    printf("MediaSDK ver\t%d.%d\n", ver.Major, ver.Minor);
 
     return;
 }
@@ -316,14 +296,12 @@ mfxStatus InitParamsVPP(MfxVideoParamsWrapper* pParams, sInputParams* pInParams,
     if (pInParams->compositionParam.mode != VPP_FILTER_ENABLED_CONFIGURED &&
         (pInParams->frameInfoIn[paramID].nWidth == 0 ||
          pInParams->frameInfoIn[paramID].nHeight == 0)) {
-        vppPrintHelp(MSDK_STRING("sample_vpp"),
-                     MSDK_STRING("ERROR: Source width is not defined.\n"));
+        vppPrintHelp("sample_vpp", "ERROR: Source width is not defined.\n");
         return MFX_ERR_UNSUPPORTED;
     }
     if (pInParams->frameInfoOut[paramID].nWidth == 0 ||
         pInParams->frameInfoOut[paramID].nHeight == 0) {
-        vppPrintHelp(MSDK_STRING("sample_vpp"),
-                     MSDK_STRING("ERROR: Source height is not defined.\n"));
+        vppPrintHelp("sample_vpp", "ERROR: Source height is not defined.\n");
         return MFX_ERR_UNSUPPORTED;
     }
     *pParams = MfxVideoParamsWrapper();
@@ -439,7 +417,7 @@ mfxU32 GetPreferredAdapterNum(const mfxAdaptersInfo& adapters, const sInputParam
 
         // No dGfx in list
         if (idx == adapters.Adapters + adapters.NumActual) {
-            msdk_printf("Warning: No dGfx detected on machine. Will pick another adapter\n");
+            printf("Warning: No dGfx detected on machine. Will pick another adapter\n");
             return 0;
         }
 
@@ -458,7 +436,7 @@ mfxU32 GetPreferredAdapterNum(const mfxAdaptersInfo& adapters, const sInputParam
 
         // No iGfx in list
         if (idx == adapters.Adapters + adapters.NumActual) {
-            msdk_printf("Warning: No iGfx detected on machine. Will pick another adapter\n");
+            printf("Warning: No iGfx detected on machine. Will pick another adapter\n");
             return 0;
         }
 
@@ -488,7 +466,7 @@ mfxStatus GetImpl(const mfxVideoParam& params, mfxIMPL& impl, const sInputParams
 
     sts = MFXQueryAdapters(&interface_request, &adapters);
     if (sts == MFX_ERR_NOT_FOUND) {
-        msdk_printf("ERROR: No suitable adapters found for this workload\n");
+        printf("ERROR: No suitable adapters found for this workload\n");
     }
     MSDK_CHECK_STATUS(sts, "MFXQueryAdapters failed");
 
@@ -991,12 +969,12 @@ CRawVideoReader::CRawVideoReader()
           m_pPTSMaker(NULL),
           m_initFcc(0) {}
 
-mfxStatus CRawVideoReader::Init(const msdk_char* strFileName, PTSMaker* pPTSMaker, mfxU32 fcc) {
+mfxStatus CRawVideoReader::Init(const char* strFileName, PTSMaker* pPTSMaker, mfxU32 fcc) {
     Close();
 
     MSDK_CHECK_POINTER(strFileName, MFX_ERR_NULL_PTR);
 
-    MSDK_FOPEN(m_fSrc, strFileName, MSDK_STRING("rb"));
+    MSDK_FOPEN(m_fSrc, strFileName, "rb");
     MSDK_CHECK_POINTER(m_fSrc, MFX_ERR_ABORTED);
 
     m_pPTSMaker = pPTSMaker;
@@ -1615,7 +1593,7 @@ CRawVideoWriter::CRawVideoWriter() {
     return;
 }
 
-mfxStatus CRawVideoWriter::Init(const msdk_char* strFileName,
+mfxStatus CRawVideoWriter::Init(const char* strFileName,
                                 PTSMaker* pPTSMaker,
                                 mfxU32 forcedOutputFourcc) {
     Close();
@@ -1627,7 +1605,7 @@ mfxStatus CRawVideoWriter::Init(const msdk_char* strFileName,
 
     //CHECK_POINTER(strFileName, MFX_ERR_NULL_PTR);
 
-    MSDK_FOPEN(m_fDst, strFileName, MSDK_STRING("wb"));
+    MSDK_FOPEN(m_fDst, strFileName, "wb");
     MSDK_CHECK_POINTER(m_fDst, MFX_ERR_ABORTED);
     m_forcedOutputFourcc = forcedOutputFourcc;
 
@@ -2176,7 +2154,7 @@ void GeneralWriter::Close() {
     }
 };
 
-mfxStatus GeneralWriter::Init(const msdk_char* strFileName,
+mfxStatus GeneralWriter::Init(const char* strFileName,
                               PTSMaker* pPTSMaker,
                               sSVCLayerDescr* pDesc,
                               mfxU32 forcedOutputFourcc) {
@@ -2191,19 +2169,19 @@ mfxStatus GeneralWriter::Init(const msdk_char* strFileName,
             if (0 == m_ofile[did].get()) {
                 return MFX_ERR_UNKNOWN;
             }
-
-            msdk_char out_buf[MSDK_MAX_FILENAME_LEN * 4 + 20];
-            msdk_char fname[MSDK_MAX_FILENAME_LEN];
+            char out_buf[MSDK_MAX_FILENAME_LEN * 4 + 20];
+            size_t out_buf_size = MSDK_MAX_FILENAME_LEN * 4 + 20;
+            char fname[MSDK_MAX_FILENAME_LEN];
 
 #if defined(_WIN32) || defined(_WIN64)
             {
-                msdk_char drive[MSDK_MAX_FILENAME_LEN];
-                msdk_char dir[MSDK_MAX_FILENAME_LEN];
-                msdk_char ext[MSDK_MAX_FILENAME_LEN];
+                char drive[MSDK_MAX_FILENAME_LEN];
+                char dir[MSDK_MAX_FILENAME_LEN];
+                char ext[MSDK_MAX_FILENAME_LEN];
 
-                _tsplitpath_s(strFileName, drive, dir, fname, ext);
+                _splitpath_s(strFileName, drive, dir, fname, ext);
 
-                msdk_sprintf(out_buf, MSDK_STRING("%s%s%s_layer%i.yuv"), drive, dir, fname, did);
+                snprintf(out_buf, out_buf_size, "%s%s%s_layer%i.yuv", drive, dir, fname, (int)did);
             }
 #else
             {
@@ -2216,7 +2194,7 @@ mfxStatus GeneralWriter::Init(const msdk_char* strFileName,
                 if (pFound) {
                     *pFound = 0;
                 }
-                msdk_sprintf(out_buf, MSDK_STRING("%s_layer%i.yuv"), fname, (int)did);
+                snprintf(out_buf, out_buf_size, "%s_layer%i.yuv", fname, (int)did);
             }
 #endif
 
@@ -2317,10 +2295,10 @@ void PrintDllInfo() {
     }
 
     for (int i = 0; i < nModules; i++) {
-        msdk_char buf[2048];
+        char buf[2048];
         GetModuleFileName(pModules[i], buf, ARRAYSIZE(buf));
-        if (_tcsstr(buf, MSDK_STRING("libmfx"))) {
-            msdk_printf("MFX dll         %s\n", buf);
+        if (_tcsstr(buf, "libmfx")) {
+            printf("MFX dll         %s\n", buf);
         }
     }
     delete[] pModules;

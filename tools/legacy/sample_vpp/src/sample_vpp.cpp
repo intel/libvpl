@@ -34,43 +34,43 @@ void DecreaseReference(mfxFrameData* ptr) {
 
 void PutPerformanceToFile(sInputParams& Params, mfxF64 FPS) {
     FILE* fPRF = NULL;
-    MSDK_FOPEN(fPRF, Params.strPerfFile, MSDK_STRING("ab"));
+    MSDK_FOPEN(fPRF, Params.strPerfFile, "ab");
     if (!fPRF)
         return;
 
-    msdk_char* iopattern          = const_cast<msdk_char*>(IOpattern2Str(Params.IOPattern));
-    msdk_char iopattern_ascii[32] = { 0 };
-    msdk_char* pIOP               = iopattern_ascii;
+    char* iopattern          = const_cast<char*>(IOpattern2Str(Params.IOPattern));
+    char iopattern_ascii[32] = { 0 };
+    char* pIOP               = iopattern_ascii;
     while (*iopattern)
-        *pIOP++ = (msdk_char)*iopattern++;
-    msdk_char* srcFileName            = Params.strSrcFile;
-    msdk_char srcFileName_ascii[1024] = { 0 };
-    msdk_char* pFileName              = srcFileName_ascii;
+        *pIOP++ = (char)*iopattern++;
+    char* srcFileName            = Params.strSrcFile;
+    char srcFileName_ascii[1024] = { 0 };
+    char* pFileName              = srcFileName_ascii;
     while (*srcFileName)
-        *pFileName++ = (msdk_char)*srcFileName++;
+        *pFileName++ = (char)*srcFileName++;
 
-    msdk_string filters;
+    std::string filters;
 
     if (Params.frameInfoIn[0].PicStruct != Params.frameInfoOut[0].PicStruct) {
-        filters += MSDK_STRING("DI ");
+        filters += "DI ";
     }
     if (VPP_FILTER_DISABLED != Params.denoiseParam[0].mode) {
-        filters += MSDK_STRING("DN ");
+        filters += "DN ";
     }
     if (filters.empty()) {
-        filters = MSDK_STRING("NoFilters ");
+        filters = "NoFilters ";
     }
 
-    msdk_fprintf(fPRF,
-                 MSDK_STRING("%s, %dx%d, %dx%d, %s, %s, %f\r\n"),
-                 srcFileName_ascii,
-                 Params.frameInfoIn[0].nWidth,
-                 Params.frameInfoIn[0].nHeight,
-                 Params.frameInfoOut[0].nWidth,
-                 Params.frameInfoOut[0].nHeight,
-                 iopattern_ascii,
-                 filters.c_str(),
-                 FPS);
+    fprintf(fPRF,
+            "%s, %dx%d, %dx%d, %s, %s, %f\r\n",
+            srcFileName_ascii,
+            Params.frameInfoIn[0].nWidth,
+            Params.frameInfoIn[0].nHeight,
+            Params.frameInfoOut[0].nWidth,
+            Params.frameInfoOut[0].nHeight,
+            iopattern_ascii,
+            filters.c_str(),
+            FPS);
     fclose(fPRF);
 
 } // void PutPerformanceToFile(sInputVppParams& Params, mfxF64 FPS)
@@ -185,7 +185,7 @@ mfxStatus OutputProcessFrame(sAppResources Resources,
             Resources.pSurfStore->m_SyncPoints.front().first,
             MSDK_VPP_WAIT_INTERVAL);
         if (sts == MFX_WRN_IN_EXECUTION) {
-            msdk_printf("SyncOperation wait interval exceeded\n");
+            printf("SyncOperation wait interval exceeded\n");
         }
         MSDK_CHECK_NOT_EQUAL(sts, MFX_ERR_NONE, sts);
 
@@ -205,18 +205,18 @@ mfxStatus OutputProcessFrame(sAppResources Resources,
         DecreaseReference(&pProcessedSurface->Data);
 
         if (sts)
-            msdk_printf("Failed to write frame to disk\n");
+            printf("Failed to write frame to disk\n");
         MSDK_CHECK_NOT_EQUAL(sts, MFX_ERR_NONE, MFX_ERR_ABORTED);
 
         nFrames++;
 
         //VPP progress
         if (!Resources.pParams->bPerf) {
-            msdk_printf("Frame number: %d\r", nFrames);
+            printf("Frame number: %d\r", nFrames);
         }
         else {
             if (!(nFrames % 100))
-                msdk_printf(".");
+                printf(".");
         }
     }
     return MFX_ERR_NONE;
@@ -272,12 +272,7 @@ mfxU32 GetSurfaceSize(mfxU32 FourCC, mfxU32 width, mfxU32 height) {
     return nbytes;
 }
 
-#if defined(_WIN32) || defined(_WIN64)
-int _tmain(int argc, TCHAR* argv[])
-#else
-int main(int argc, msdk_char* argv[])
-#endif
-{
+int main(int argc, char* argv[]) {
     mfxStatus sts       = MFX_ERR_NONE;
     mfxU32 nFrames      = 0;
     mfxU16 nInStreamInd = 0;
@@ -393,7 +388,7 @@ int main(int argc, msdk_char* argv[])
     //parse input string
     sts = vppParseInputString(argv, (mfxU8)argc, &Params, &defaultFiltersParam);
     if (MFX_ERR_NONE != sts) {
-        vppPrintHelp(argv[0], MSDK_STRING("Parameters parsing error"));
+        vppPrintHelp(argv[0], "Parameters parsing error");
         return 1;
     }
     MSDK_CHECK_STATUS(sts, "vppParseInputString failed");
@@ -442,7 +437,7 @@ int main(int argc, msdk_char* argv[])
                 shouldConvert             = true;
             }
             if (shouldConvert) {
-                msdk_printf(
+                printf(
                     "[WARNING] D3D11 does not support YV12 and I420 surfaces. Input will be converted to NV12 by file reader.\n");
             }
 
@@ -455,7 +450,7 @@ int main(int argc, msdk_char* argv[])
         if ((Params.fccSource == MFX_FOURCC_I420 && (Params.ImpLib & MFX_IMPL_HARDWARE)) ||
             ((Params.ImpLib & 0x0f00) == MFX_IMPL_VIA_D3D11 &&
              Params.fccSource == MFX_FOURCC_YV12)) {
-            msdk_printf(
+            printf(
                 "[WARNING] D3D11 does not support YV12 and I420 surfaces. Input will be converted to NV12 by file reader.\n");
             Params.inFrameInfo[0].FourCC = MFX_FOURCC_NV12;
             Params.frameInfoIn[0].FourCC = MFX_FOURCC_NV12;
@@ -471,7 +466,7 @@ int main(int argc, msdk_char* argv[])
         //prepare file writers (YUV file)
         Resources.dstFileWritersN = (mfxU32)Params.strDstFiles.size();
         Resources.pDstFileWriters = new GeneralWriter[Resources.dstFileWritersN];
-        const msdk_char* istream;
+        const char* istream;
         for (mfxU32 i = 0; i < Resources.dstFileWritersN; i++) {
             istream = Params.isOutput ? Params.strDstFiles[i].c_str() : NULL;
             sts     = Resources.pDstFileWriters[i].Init(istream,
@@ -532,7 +527,7 @@ int main(int argc, msdk_char* argv[])
 
     sts = InitResources(&Resources, &mfxParamsVideo, &Params);
     if (MFX_WRN_FILTER_SKIPPED == sts) {
-        msdk_printf("\nVPP_WRN: some filter(s) skipped\n");
+        printf("\nVPP_WRN: some filter(s) skipped\n");
         MSDK_IGNORE_MFX_STS(sts, MFX_WRN_FILTER_SKIPPED);
     }
     MSDK_CHECK_STATUS_SAFE(sts, "InitResources failed", {
@@ -573,7 +568,7 @@ int main(int argc, msdk_char* argv[])
     sts     = MFX_ERR_NONE;
     nFrames = 0;
 
-    msdk_printf("VPP started\n");
+    printf("VPP started\n");
     statTimer.StartTimeMeasurement();
 
     mfxU32 StartJumpFrame = 13;
@@ -666,7 +661,7 @@ int main(int argc, msdk_char* argv[])
                 }
             }
 
-            msdk_printf("VPP reseted at frame number %d\n", (int)numGetFrames);
+            printf("VPP reseted at frame number %d\n", (int)numGetFrames);
         }
 
         while (MFX_ERR_NONE <= sts || MFX_ERR_MORE_DATA == sts || bDoNotUpdateIn) {
@@ -924,7 +919,7 @@ int main(int argc, msdk_char* argv[])
 
             sts = Resources.pProcessor->mfxSession.SyncOperation(syncPoint, MSDK_VPP_WAIT_INTERVAL);
             if (sts)
-                msdk_printf("SyncOperation wait interval exceeded\n");
+                printf("SyncOperation wait interval exceeded\n");
             MSDK_BREAK_ON_ERROR(sts);
             if (!Resources.pParams->strDstFiles.empty()) {
                 GeneralWriter* writer = (1 == Resources.dstFileWritersN)
@@ -932,17 +927,17 @@ int main(int argc, msdk_char* argv[])
                                             : &Resources.pDstFileWriters[paramID];
                 sts = writer->PutNextFrame(Resources.pAllocator, &realFrameInfoOut, pOutSurf);
                 if (sts)
-                    msdk_printf("Failed to write frame to disk\n");
+                    printf("Failed to write frame to disk\n");
                 MSDK_CHECK_NOT_EQUAL(sts, MFX_ERR_NONE, MFX_ERR_ABORTED);
             }
             nFrames++;
 
             //VPP progress
             if (!Params.bPerf)
-                msdk_printf("Frame number: %d\r", (int)nFrames);
+                printf("Frame number: %d\r", (int)nFrames);
             else {
                 if (!(nFrames % 100))
-                    msdk_printf(".");
+                    printf(".");
             }
         }
     } while (bNeedReset);
@@ -957,12 +952,12 @@ int main(int argc, msdk_char* argv[])
         WipeParams(&Params);
     });
 
-    msdk_printf("\nVPP finished\n");
-    msdk_printf("\n");
+    printf("\nVPP finished\n");
+    printf("\n");
 
-    msdk_printf("Total frames %d \n", (int)nFrames);
-    msdk_printf("Total time %.2f sec \n", (double)statTimer.GetTotalTime());
-    msdk_printf("Frames per second %.3f fps \n", (double)(nFrames / statTimer.GetTotalTime()));
+    printf("Total frames %d \n", (int)nFrames);
+    printf("Total time %.2f sec \n", (double)statTimer.GetTotalTime());
+    printf("Frames per second %.3f fps \n", (double)(nFrames / statTimer.GetTotalTime()));
 
     PutPerformanceToFile(Params, nFrames / statTimer.GetTotalTime());
 
@@ -970,6 +965,5 @@ int main(int argc, msdk_char* argv[])
     WipeParams(&Params);
 
     return 0; /* OK */
-
-} // int _tmain(int argc, msdk_char *argv[])
+}
 /* EOF */

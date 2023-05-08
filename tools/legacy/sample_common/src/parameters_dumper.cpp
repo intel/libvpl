@@ -18,7 +18,6 @@
 #include "vpl/mfxvideo++.h"
 #include "vpl/mfxvideo.h"
 
-#include "sample_types.h"
 #include "vpl/mfxmvc.h"
 #include "vpl/mfxvp8.h"
 
@@ -562,7 +561,7 @@ void CParametersDumper::SerializeExtensionBuffer(std::ostream& sstr,
             SERIALIZE_INFO_ARRAY(prefix, reserved1);
             SERIALIZE_INFO(prefix, NumInputStream);
             for (int i = 0; i < info.NumInputStream; i++) {
-                msdk_stringstream sstr;
+                std::stringstream sstr;
                 sstr << name_prefix << "InputStream[" << i << "].";
                 SerializeVPPCompInputStream(sstr, sstr.str().c_str(), info.InputStream[i]);
             }
@@ -848,7 +847,7 @@ void CParametersDumper::SerializeVideoParamStruct(std::ostream& sstr,
     SERIALIZE_INFO(prefix, reserved2);
 }
 
-mfxStatus CParametersDumper::DumpLibraryConfiguration(msdk_string fileName,
+mfxStatus CParametersDumper::DumpLibraryConfiguration(std::string fileName,
                                                       MFXVideoDECODE* pMfxDec,
                                                       MFXVideoVPP* pMfxVPP,
                                                       MFXVideoENCODE* pMfxEnc,
@@ -879,12 +878,12 @@ mfxStatus CParametersDumper::DumpLibraryConfiguration(msdk_string fileName,
                 ClearExtBuffs(&params);
             }
         }
-        msdk_fstream dump_fstr(fileName.c_str(), std::fstream::out);
+        std::fstream dump_fstr(fileName.c_str(), std::fstream::out);
         dump_fstr << sstr.str();
         dump_fstr.close();
     }
     catch (...) {
-        msdk_printf("Cannot save library settings into file.\n");
+        printf("Cannot save library settings into file.\n");
         return MFX_ERR_NULL_PTR;
     }
     return MFX_ERR_NONE;
@@ -899,7 +898,7 @@ void CParametersDumper::ShowConfigurationDiff(std::ostream& str1, std::ostream& 
     std::string l, r;
     while (ss1 >> l && ss2 >> r) {
         if (l != r) {
-            msdk_printf("%s changed to %s \n", l.c_str(), r.c_str());
+            printf("%s changed to %s \n", l.c_str(), r.c_str());
         }
         else {
             continue;

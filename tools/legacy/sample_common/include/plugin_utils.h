@@ -9,7 +9,6 @@
 
 #include <string>
 #include "sample_defs.h"
-#include "sample_types.h"
 
 #if defined(_WIN32) || defined(_WIN64)
     #define MSDK_CPU_ROTATE_PLUGIN "sample_rotate_plugin.dll"
@@ -58,8 +57,8 @@ bool AreGuidsEqual(const mfxPluginUID& guid1, const mfxPluginUID& guid2);
 
 const mfxPluginUID& msdkGetPluginUID(mfxIMPL impl, msdkComponentType type, mfxU32 uCodecid);
 
-sPluginParams ParsePluginGuid(const msdk_string&);
-sPluginParams ParsePluginPath(const msdk_string&);
-mfxStatus ConvertStringToGuid(const msdk_string& strGuid, mfxPluginUID& mfxGuid);
+sPluginParams ParsePluginGuid(const std::string&);
+sPluginParams ParsePluginPath(const std::string&);
+mfxStatus ConvertStringToGuid(const std::string& strGuid, mfxPluginUID& mfxGuid);
 
 #endif //__PLUGIN_UTILS_H__

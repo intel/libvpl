@@ -12,6 +12,7 @@
     #include <mmsystem.h>
     #include <windowsx.h>
 
+    #include <iomanip>
     #include "decode_render.h"
     #include "sample_defs.h"
     #include "winUser.h"
@@ -220,10 +221,9 @@ VOID CDecodeD3DRender::UpdateTitle(double fps) {
         }
 
         if (NULL != m_sWindowParams.lpWindowName) {
-            TCHAR str[20];
-            _stprintf_s(str, 20, MSDK_STRING("fps=%.2lf"), fps);
-
-            SetWindowText(m_Hwnd, str);
+            std::stringstream ss;
+            ss << "fps=" << std::setprecision(2) << fps;
+            SetWindowTextA(m_Hwnd, ss.str().c_str());
         }
     }
 }

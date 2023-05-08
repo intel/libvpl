@@ -12,7 +12,7 @@
 
     #include <windows.h>
 
-msdk_so_handle msdk_so_load(const msdk_char* file_name) {
+msdk_so_handle msdk_so_load(const char* file_name) {
     if (!file_name)
         return NULL;
     return (msdk_so_handle)LoadLibrary((LPCTSTR)file_name);

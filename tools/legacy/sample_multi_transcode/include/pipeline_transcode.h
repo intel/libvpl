@@ -174,7 +174,7 @@ public:
         ofile = file;
     }
 
-    inline void SetDumpName(const msdk_string& name) {
+    inline void SetDumpName(const std::string& name) {
         DumpLogFileName = name;
         if (!DumpLogFileName.empty()) {
             TurnOnDumping();
@@ -191,7 +191,7 @@ public:
     inline void PrintStatistics(mfxU32 numPipelineid,
                                 mfxF64 target_framerate = -1 /*default stands for infinite*/) {
         // print timings in ms
-        msdk_fprintf(
+        fprintf(
             ofile,
             "stat[%u.%llu]: %s=%d;Framerate=%.3f;Total=%.3lf;Samples=%lld;StdDev=%.3lf;Min=%.3lf;Max=%.3lf;Avg=%.3lf\n",
             (unsigned int)msdk_get_current_pid(),
@@ -208,13 +208,13 @@ public:
         fflush(ofile);
 
         if (!DumpLogFileName.empty()) {
-            msdk_stringstream dump_deltas_log_file_name_sstr;
+            std::stringstream dump_deltas_log_file_name_sstr;
             dump_deltas_log_file_name_sstr << DumpLogFileName << "_ID_" << numPipelineid << ".log";
             DumpDeltas(dump_deltas_log_file_name_sstr.str());
         }
     }
 
-    inline void DumpDeltas(const msdk_string& file_name) {
+    inline void DumpDeltas(const std::string& file_name) {
         if (m_time_deltas.empty())
             return;
 
@@ -233,7 +233,7 @@ public:
     }
 
 protected:
-    msdk_string DumpLogFileName;
+    std::string DumpLogFileName;
     FILE* ofile;
     std::string bufDir;
 };
@@ -708,10 +708,10 @@ protected:
     mfxU32 m_QPforI;
     mfxU32 m_QPforP;
 
-    msdk_string m_sGenericPluginPath;
+    std::string m_sGenericPluginPath;
     mfxU16 m_nRotationAngle;
 
-    msdk_string m_strMfxParamsDumpFile;
+    std::string m_strMfxParamsDumpFile;
 
     void FillMBQPBuffer(mfxExtMBQP& qpMap, mfxU16 pictStruct);
 
@@ -745,7 +745,7 @@ protected:
     mfxU32 m_n3DLutVMemId;
     mfxU32 m_n3DLutVWidth;
     mfxU32 m_n3DLutVHeight;
-    msdk_string m_p3DLutFile;
+    std::string m_p3DLutFile;
 
 #if (defined(_WIN32) || defined(_WIN64))
     mfxStatus CheckHyperEncodeParams(mfxHyperMode hyperMode);

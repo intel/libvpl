@@ -104,8 +104,8 @@ struct sInputParams {
     mfxU16 nEncTileRows; // number of rows for encoding tiling
     mfxU16 nEncTileCols; // number of columns for encoding tiling
 
-    msdk_string strQPFilePath;
-    msdk_string strTCBRCFilePath;
+    std::string strQPFilePath;
+    std::string strTCBRCFilePath;
 
     mfxAccelerationMode accelerationMode;
 
@@ -141,15 +141,15 @@ struct sInputParams {
     mfxI32 adapterNum;
     bool dispFullSearch;
 
-    std::list<msdk_string> InputFiles;
+    std::list<std::string> InputFiles;
 
     sPluginParams pluginParams;
 
-    std::vector<msdk_char*> dstFileBuff;
+    std::vector<char*> dstFileBuff;
 
     mfxU32 HEVCPluginVersion;
     mfxU8 nRotationAngle; // if specified, enables rotation plugin in mfx pipeline
-    msdk_char strPluginDLLPath[MSDK_MAX_FILENAME_LEN]; // plugin dll path and name
+    char strPluginDLLPath[MSDK_MAX_FILENAME_LEN]; // plugin dll path and name
 
     mfxU16
         nAsyncDepth; // depth of asynchronous pipeline, this number can be tuned to achieve better performance
@@ -251,18 +251,18 @@ struct sInputParams {
 
     mfxU16 nIVFHeader;
 
-    msdk_char* RoundingOffsetFile;
+    char* RoundingOffsetFile;
     mfxU16 TargetBitDepthLuma;
     mfxU16 TargetBitDepthChroma;
-    msdk_char DumpFileName[MSDK_MAX_FILENAME_LEN];
-    msdk_char uSEI[MSDK_MAX_USER_DATA_UNREG_SEI_LEN];
+    char DumpFileName[MSDK_MAX_FILENAME_LEN];
+    char uSEI[MSDK_MAX_USER_DATA_UNREG_SEI_LEN];
 
     EPresetModes PresetMode;
     bool shouldPrintPresets;
 
 #if defined(ENABLE_V4L2_SUPPORT)
-    msdk_char DeviceName[MSDK_MAX_FILENAME_LEN];
-    msdk_char MipiModeName[MSDK_MAX_FILENAME_LEN];
+    char DeviceName[MSDK_MAX_FILENAME_LEN];
+    char MipiModeName[MSDK_MAX_FILENAME_LEN];
     enum V4L2PixelFormat v4l2Format;
     int MipiPort;
     enum AtomISPMode MipiMode;
@@ -459,13 +459,13 @@ protected:
 
     virtual mfxStatus InitFileWriters(sInputParams* pParams);
     virtual void FreeFileWriters();
-    virtual mfxStatus InitFileWriter(CSmplBitstreamWriter** ppWriter, const msdk_char* filename);
+    virtual mfxStatus InitFileWriter(CSmplBitstreamWriter** ppWriter, const char* filename);
     virtual mfxStatus InitFileWriter(CSmplBitstreamWriter** ppWriter,
-                                     const msdk_char* filename,
+                                     const char* filename,
                                      bool no_outfile);
 
     virtual mfxStatus InitIVFFileWriter(CIVFFrameWriter** ppWriter,
-                                        const msdk_char* filename,
+                                        const char* filename,
                                         const mfxU16 w,
                                         const mfxU16 h,
                                         const mfxU32 fr_nom,

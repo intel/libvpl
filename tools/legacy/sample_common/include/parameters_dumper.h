@@ -10,14 +10,14 @@
 
 class CParametersDumper {
 protected:
-    static void SerializeFrameInfoStruct(msdk_ostream& sstr,
+    static void SerializeFrameInfoStruct(std::ostream& sstr,
                                          const char* prefix,
                                          mfxFrameInfo& info);
-    static void SerializeMfxInfoMFXStruct(msdk_ostream& sstr, const char* prefix, mfxInfoMFX& info);
-    static void SerializeExtensionBuffer(msdk_ostream& sstr,
+    static void SerializeMfxInfoMFXStruct(std::ostream& sstr, const char* prefix, mfxInfoMFX& info);
+    static void SerializeExtensionBuffer(std::ostream& sstr,
                                          const char* prefix,
                                          mfxExtBuffer* pExtBuffer);
-    static void SerializeVPPCompInputStream(msdk_ostream& sstr,
+    static void SerializeVPPCompInputStream(std::ostream& sstr,
                                             const char* prefix,
                                             mfxVPPCompInputStream& info);
 
@@ -61,7 +61,7 @@ public:
                                           const char* sectionName,
                                           mfxVideoParam& info,
                                           bool shouldUseVPPSection = false);
-    static mfxStatus DumpLibraryConfiguration(msdk_string fileName,
+    static mfxStatus DumpLibraryConfiguration(std::string fileName,
                                               MFXVideoDECODE* pMfxDec,
                                               MFXVideoVPP* pMfxVPP,
                                               MFXVideoENCODE* pMfxEnc,

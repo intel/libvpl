@@ -148,18 +148,18 @@ void v4l2Device::V4L2Init() {
     }
 
     ret = blockIOCTL(m_fd, VIDIOC_QUERYCAP, &caps);
-    msdk_printf("Driver Caps:\n"
-                "  Driver: \"%s\"\n"
-                "  Card: \"%s\"\n"
-                "  Bus: \"%s\"\n"
-                "  Version: %d.%d\n"
-                "  Capabilities: %08x\n",
-                caps.driver,
-                caps.card,
-                caps.bus_info,
-                (caps.version >> 16) && 0xff,
-                (caps.version >> 24) && 0xff,
-                caps.capabilities);
+    printf("Driver Caps:\n"
+           "  Driver: \"%s\"\n"
+           "  Card: \"%s\"\n"
+           "  Bus: \"%s\"\n"
+           "  Version: %d.%d\n"
+           "  Capabilities: %08x\n",
+           caps.driver,
+           caps.card,
+           caps.bus_info,
+           (caps.version >> 16) && 0xff,
+           (caps.version >> 24) && 0xff,
+           caps.capabilities);
 
     BYE_ON(ret, "VIDIOC_QUERYCAP failed: %s\n", ERRSTR);
     BYE_ON(~caps.capabilities & V4L2_CAP_VIDEO_CAPTURE,
@@ -171,7 +171,7 @@ void v4l2Device::V4L2Init() {
 
     BYE_ON(ret < 0, "VIDIOC_G_FMT failed: %s\n", ERRSTR);
 
-    msdk_printf(
+    printf(
         "G_FMT(start): width = %u, height = %u, 4cc = %.4s, BPP = %u sizeimage = %d field = %d\n",
         fmt.fmt.pix.width,
         fmt.fmt.pix.height,
@@ -182,25 +182,24 @@ void v4l2Device::V4L2Init() {
 
     fmt.fmt.pix = m_format;
 
-    msdk_printf(
-        "G_FMT(pre): width = %u, height = %u, 4cc = %.4s, BPP = %u sizeimage = %d field = %d\n",
-        fmt.fmt.pix.width,
-        fmt.fmt.pix.height,
-        (char*)&fmt.fmt.pix.pixelformat,
-        fmt.fmt.pix.bytesperline,
-        fmt.fmt.pix.sizeimage,
-        fmt.fmt.pix.field);
+    printf("G_FMT(pre): width = %u, height = %u, 4cc = %.4s, BPP = %u sizeimage = %d field = %d\n",
+           fmt.fmt.pix.width,
+           fmt.fmt.pix.height,
+           (char*)&fmt.fmt.pix.pixelformat,
+           fmt.fmt.pix.bytesperline,
+           fmt.fmt.pix.sizeimage,
+           fmt.fmt.pix.field);
 
     ret = blockIOCTL(m_fd, VIDIOC_S_FMT, &fmt);
     BYE_ON(ret < 0, "VIDIOC_S_FMT failed: %s\n", ERRSTR);
 
     ret = blockIOCTL(m_fd, VIDIOC_G_FMT, &fmt);
     BYE_ON(ret < 0, "VIDIOC_G_FMT failed: %s\n", ERRSTR);
-    msdk_printf("G_FMT(final): width = %u, height = %u, 4cc = %.4s, BPP = %u\n",
-                fmt.fmt.pix.width,
-                fmt.fmt.pix.height,
-                (char*)&fmt.fmt.pix.pixelformat,
-                fmt.fmt.pix.bytesperline);
+    printf("G_FMT(final): width = %u, height = %u, 4cc = %.4s, BPP = %u\n",
+           fmt.fmt.pix.width,
+           fmt.fmt.pix.height,
+           (char*)&fmt.fmt.pix.pixelformat,
+           fmt.fmt.pix.bytesperline);
 
     CLEAR(rqbufs);
     rqbufs.count  = m_num_buffers;

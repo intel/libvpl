@@ -212,31 +212,31 @@ mfxStatus CTranscodingPipeline::CheckRequiredAPIVersion(mfxVersion& version,
     MSDK_CHECK_POINTER(pParams, MFX_ERR_NULL_PTR);
 
     if (pParams->bIsMVC && !CheckVersion(&version, MSDK_FEATURE_MVC)) {
-        msdk_printf("error: MVC is not supported in the %d.%d API version\n",
-                    version.Major,
-                    version.Minor);
+        printf("error: MVC is not supported in the %d.%d API version\n",
+               version.Major,
+               version.Minor);
         return MFX_ERR_UNSUPPORTED;
     }
     if ((pParams->DecodeId == MFX_CODEC_JPEG) &&
         !CheckVersion(&version, MSDK_FEATURE_JPEG_DECODE)) {
-        msdk_printf("error: Jpeg decoder is not supported in the %d.%d API version\n",
-                    version.Major,
-                    version.Minor);
+        printf("error: Jpeg decoder is not supported in the %d.%d API version\n",
+               version.Major,
+               version.Minor);
         return MFX_ERR_UNSUPPORTED;
     }
     if ((pParams->EncodeId == MFX_CODEC_JPEG) &&
         !CheckVersion(&version, MSDK_FEATURE_JPEG_ENCODE)) {
-        msdk_printf("error: Jpeg encoder is not supported in the %d.%d API version\n",
-                    version.Major,
-                    version.Minor);
+        printf("error: Jpeg encoder is not supported in the %d.%d API version\n",
+               version.Major,
+               version.Minor);
         return MFX_ERR_UNSUPPORTED;
     }
 
     if ((pParams->bLABRC || pParams->nLADepth) &&
         !CheckVersion(&version, MSDK_FEATURE_LOOK_AHEAD)) {
-        msdk_printf("error: Look Ahead is not supported in the %d.%d API version\n",
-                    version.Major,
-                    version.Minor);
+        printf("error: Look Ahead is not supported in the %d.%d API version\n",
+               version.Major,
+               version.Minor);
         return MFX_ERR_UNSUPPORTED;
     }
 
@@ -330,7 +330,7 @@ mfxStatus CTranscodingPipeline::VPPPreInit(sInputParams* pParams) {
             (pParams->EncoderFourCC && decoderFourCC && pParams->EncoderFourCC != decoderFourCC &&
              m_bEncodeEnable)) {
             if (m_bIsFieldWeaving || m_bIsFieldSplitting) {
-                msdk_printf(
+                printf(
                     "ERROR: Field weaving or Field Splitting is enabled according to streams parameters. Other VPP filters cannot be used in this mode, please remove corresponding options.\n");
                 return MFX_ERR_UNSUPPORTED;
             }
@@ -440,10 +440,10 @@ mfxStatus CTranscodingPipeline::EncodePreInit(sInputParams* pParams) {
             if (sts == MFX_WRN_INCOMPATIBLE_VIDEO_PARAM) {
                 if (co2 && co2->BitrateLimit != MFX_CODINGOPTION_OFF &&
                     initialTargetKbps != m_mfxEncParams.mfx.TargetKbps) {
-                    msdk_printf("[WARNING] -BitrateLimit:on, target bitrate was changed\n");
+                    printf("[WARNING] -BitrateLimit:on, target bitrate was changed\n");
                 }
 
-                msdk_printf("[WARNING] Configuration changed on the Query() call\n");
+                printf("[WARNING] Configuration changed on the Query() call\n");
 
                 CParametersDumper().ShowConfigurationDiff(str1, str2);
                 MSDK_IGNORE_MFX_STS(sts, MFX_WRN_INCOMPATIBLE_VIDEO_PARAM);
@@ -593,7 +593,7 @@ mfxStatus CTranscodingPipeline::DecodeOneFrame(ExtendedSurface* pExtSurface) {
                 MSDK_CHECK_POINTER_SAFE(
                     pmfxSurface,
                     MFX_ERR_MEMORY_ALLOC,
-                    msdk_printf("ERROR: No free surfaces in decoder pool (during long period)\n"));
+                    printf("ERROR: No free surfaces in decoder pool (during long period)\n"));
             }
 
             m_ScalerConfig.Tracer->BeforeDecodeStart();
@@ -623,7 +623,7 @@ mfxStatus CTranscodingPipeline::DecodeOneFrame(ExtendedSurface* pExtSurface) {
 
         if ((MFX_WRN_DEVICE_BUSY == sts) &&
             (DevBusyTimer.GetTime() > (mfxF64)GetSyncOpTimeout() / 1000)) {
-            msdk_printf("ERROR: Decoder device busy (during long period)\n");
+            printf("ERROR: Decoder device busy (during long period)\n");
             return MFX_ERR_DEVICE_FAILED;
         }
 
@@ -676,7 +676,7 @@ mfxStatus CTranscodingPipeline::DecodeLastFrame(ExtendedSurface* pExtSurface) {
                 MSDK_CHECK_POINTER_SAFE(
                     pmfxSurface,
                     MFX_ERR_MEMORY_ALLOC,
-                    msdk_printf(
+                    printf(
                         "ERROR: No free surfaces in decoder pool (during long period)\n")); // return an error if a free surface wasn't found
             }
             else if (m_MemoryModel == VISIBLE_INT_ALLOC) {
@@ -687,7 +687,7 @@ mfxStatus CTranscodingPipeline::DecodeLastFrame(ExtendedSurface* pExtSurface) {
                 MSDK_CHECK_POINTER_SAFE(
                     pmfxSurface,
                     MFX_ERR_MEMORY_ALLOC,
-                    msdk_printf("ERROR: No free surfaces in decoder pool (during long period)\n"));
+                    printf("ERROR: No free surfaces in decoder pool (during long period)\n"));
             }
             sts = m_pmfxDEC->DecodeFrameAsync(nullptr,
                                               pmfxSurface,
@@ -701,7 +701,7 @@ mfxStatus CTranscodingPipeline::DecodeLastFrame(ExtendedSurface* pExtSurface) {
 
         if ((MFX_WRN_DEVICE_BUSY == sts) &&
             (DevBusyTimer.GetTime() > (mfxF64)GetSyncOpTimeout() / 1000)) {
-            msdk_printf("ERROR: Decoder device busy (during long period)\n");
+            printf("ERROR: Decoder device busy (during long period)\n");
             return MFX_ERR_DEVICE_FAILED;
         }
     }
@@ -731,7 +731,7 @@ mfxStatus CTranscodingPipeline::VPPOneFrame(ExtendedSurface* pSurfaceIn,
             MSDK_CHECK_POINTER_SAFE(
                 out_surface,
                 MFX_ERR_MEMORY_ALLOC,
-                msdk_printf(
+                printf(
                     "ERROR: No free surfaces for VPP in encoder pool (during long period)\n")); // return an error if a free surface wasn't found
         }
         else if (m_MemoryModel == VISIBLE_INT_ALLOC) {
@@ -742,8 +742,7 @@ mfxStatus CTranscodingPipeline::VPPOneFrame(ExtendedSurface* pSurfaceIn,
             MSDK_CHECK_POINTER_SAFE(
                 out_surface,
                 MFX_ERR_MEMORY_ALLOC,
-                msdk_printf(
-                    "ERROR: No free surfaces for VPP in encoder pool (during long period)\n"));
+                printf("ERROR: No free surfaces for VPP in encoder pool (during long period)\n"));
         }
 
         // make sure picture structure has the initial value
@@ -970,7 +969,7 @@ void CTranscodingPipeline::StopSession() {
     std::lock_guard<std::mutex> guard(m_mStopSession);
     m_bForceStop = true;
 
-    msdk_cout << "session [" << GetSessionText() << "] m_bForceStop is set" << std::endl;
+    std::cout << "session [" << GetSessionText() << "] m_bForceStop is set" << std::endl;
 }
 
 mfxStatus CTranscodingPipeline::CheckStopCondition() {
@@ -1307,7 +1306,7 @@ mfxStatus CTranscodingPipeline::Decode() {
         }
 
         if (!statisticsWindowSize && 0 == (m_nProcessedFramesNum - 1) % 100) {
-            msdk_printf(".");
+            printf(".");
         }
 
         if (bEndOfFile && m_nTimeout) {
@@ -1374,7 +1373,7 @@ mfxStatus CTranscodingPipeline::Encode() {
                         }
                     }
                     if (StsWaitForSurface != MFX_ERR_NONE) {
-                        msdk_printf("ERROR: timed out waiting surface from upstream component\n");
+                        printf("ERROR: timed out waiting surface from upstream component\n");
                         return MFX_ERR_NOT_FOUND;
                     }
                 }
@@ -2047,7 +2046,7 @@ mfxStatus CTranscodingPipeline::Transcode() {
             }
         }
         else if (0 == (m_nProcessedFramesNum - 1) % 100) {
-            msdk_printf(".");
+            printf(".");
         }
 
         m_BSPool.back()->Syncp = VppExtSurface.Syncp;
@@ -2447,7 +2446,7 @@ mfxStatus CTranscodingPipeline::InitDecMfxParams(sInputParams* pInParams) {
 
         // check DecodeHeader status
         if (MFX_WRN_PARTIAL_ACCELERATION == sts) {
-            msdk_printf("WARNING: partial acceleration\n");
+            printf("WARNING: partial acceleration\n");
             MSDK_IGNORE_MFX_STS(sts, MFX_WRN_PARTIAL_ACCELERATION);
         }
         MSDK_CHECK_STATUS(sts, "m_pmfxDEC->DecodeHeader failed");
@@ -2941,7 +2940,7 @@ mfxStatus CTranscodingPipeline::InitEncMfxParams(sInputParams* pInParams) {
         hyperEncodeParam->Mode = pInParams->hyperMode;
         mfxStatus sts          = CheckHyperEncodeParams(hyperEncodeParam->Mode);
         if (sts != MFX_ERR_NONE)
-            msdk_printf(
+            printf(
                 "         more information in HyperEncode_FeatureDeveloperGuide.md in oneVPL-intel-gpu repo\n");
 
         MSDK_CHECK_STATUS(sts, "CheckHyperEncodeParams failed\n");
@@ -2954,7 +2953,7 @@ mfxStatus CTranscodingPipeline::InitEncMfxParams(sInputParams* pInParams) {
             av1BitstreamParam->WriteIVFHeaders = pInParams->nIVFHeader;
         }
         else {
-            msdk_printf("WARNING: -ivf:on/off, support AV1 only\n");
+            printf("WARNING: -ivf:on/off, support AV1 only\n");
         }
     }
 
@@ -3004,47 +3003,47 @@ mfxStatus TranscodingSample::CTranscodingPipeline::LoadStaticSurface() {
 
 #if (defined(_WIN64) || defined(_WIN32))
 mfxStatus CTranscodingPipeline::CheckHyperEncodeParams(mfxHyperMode hyperMode) {
-    msdk_printf("HYPER ENCODE MODE: %s\n",
-                (hyperMode == MFX_HYPERMODE_OFF)
-                    ? "OFF"
-                    : ((hyperMode == MFX_HYPERMODE_ON) ? "ON" : "ADAPTIVE"));
+    printf("HYPER ENCODE MODE: %s\n",
+           (hyperMode == MFX_HYPERMODE_OFF)
+               ? "OFF"
+               : ((hyperMode == MFX_HYPERMODE_ON) ? "ON" : "ADAPTIVE"));
     if (hyperMode == MFX_HYPERMODE_ON) {
         // check supported encoders
         if (m_mfxEncParams.mfx.CodecId != MFX_CODEC_AVC &&
             m_mfxEncParams.mfx.CodecId != MFX_CODEC_HEVC &&
             m_mfxEncParams.mfx.CodecId != MFX_CODEC_AV1) {
-            msdk_printf("[ERROR], does not support %s encoder\n",
-                        CodecIdToStr(m_mfxEncParams.mfx.CodecId).c_str());
+            printf("[ERROR], does not support %s encoder\n",
+                   CodecIdToStr(m_mfxEncParams.mfx.CodecId).c_str());
             return MFX_ERR_UNSUPPORTED;
         }
         // check gop size
         if (m_mfxEncParams.mfx.GopPicSize == 0) {
-            msdk_printf("[ERROR], gop size must be > 0\n");
-            msdk_printf("         set gop size using '-gop_size' option\n");
+            printf("[ERROR], gop size must be > 0\n");
+            printf("         set gop size using '-gop_size' option\n");
             return MFX_ERR_INVALID_VIDEO_PARAM;
         }
         // check lowpower
         if (m_mfxEncParams.mfx.LowPower != MFX_CODINGOPTION_ON) {
-            msdk_printf("[ERROR], lowpower mode must be on\n");
-            msdk_printf("         turn lowpower mode on ('-lowpower:on')\n");
+            printf("[ERROR], lowpower mode must be on\n");
+            printf("         turn lowpower mode on ('-lowpower:on')\n");
             return MFX_ERR_INVALID_VIDEO_PARAM;
         }
         // check idr interval
         if (m_mfxEncParams.mfx.CodecId == MFX_CODEC_AVC && m_mfxEncParams.mfx.IdrInterval != 0) {
-            msdk_printf("[ERROR], idr interval must be 0 for AVC\n");
-            msdk_printf("         set idr interval to 0 ('-idr_interval 0')\n");
+            printf("[ERROR], idr interval must be 0 for AVC\n");
+            printf("         set idr interval to 0 ('-idr_interval 0')\n");
             return MFX_ERR_INVALID_VIDEO_PARAM;
         }
         else if (m_mfxEncParams.mfx.CodecId == MFX_CODEC_HEVC &&
                  m_mfxEncParams.mfx.IdrInterval != 1) {
-            msdk_printf("[ERROR], idr interval must be 1 for HEVC\n");
-            msdk_printf("         set idr interval to 1 ('-idr_interval 1')\n");
+            printf("[ERROR], idr interval must be 1 for HEVC\n");
+            printf("         set idr interval to 1 ('-idr_interval 1')\n");
             return MFX_ERR_INVALID_VIDEO_PARAM;
         }
         else if (m_mfxEncParams.mfx.CodecId == MFX_CODEC_AV1 &&
                  m_mfxEncParams.mfx.IdrInterval != 1) {
-            msdk_printf("[ERROR], idr interval must be 1 for AV1\n");
-            msdk_printf("         set idr interval to 1 ('-idr_interval 1')\n");
+            printf("[ERROR], idr interval must be 1 for AV1\n");
+            printf("         set idr interval to 1 ('-idr_interval 1')\n");
             return MFX_ERR_INVALID_VIDEO_PARAM;
         }
     }
@@ -3471,9 +3470,9 @@ mfxStatus CTranscodingPipeline::AllocFrames(mfxFrameAllocRequest* pRequest, bool
     mfxU16 i;
 
     nSurfNum = pRequest->NumFrameMin = pRequest->NumFrameSuggested;
-    msdk_printf("Pipeline surfaces number (%s): %d\n",
-                isDecAlloc ? "DecPool" : "EncPool",
-                (int)nSurfNum);
+    printf("Pipeline surfaces number (%s): %d\n",
+           isDecAlloc ? "DecPool" : "EncPool",
+           (int)nSurfNum);
 
     mfxFrameAllocResponse* pResponse = isDecAlloc ? &m_mfxDecResponse : &m_mfxEncResponse;
 
@@ -3968,8 +3967,8 @@ mfxStatus CTranscodingPipeline::Init(sInputParams* pParams,
     }
 
     if (!pParams->DumpLogFileName.empty()) {
-        inputStatistics.SetDumpName(pParams->DumpLogFileName + MSDK_STRING("_input"));
-        outputStatistics.SetDumpName(pParams->DumpLogFileName + MSDK_STRING("_output"));
+        inputStatistics.SetDumpName(pParams->DumpLogFileName + "_input");
+        outputStatistics.SetDumpName(pParams->DumpLogFileName + "_output");
     }
 
     // if no statistic-window is passed but overall stat-log exist:
@@ -4009,7 +4008,7 @@ mfxStatus CTranscodingPipeline::Init(sInputParams* pParams,
 
                 memset(&RenderParam, 0, sizeof(sWindowParams));
 
-                RenderParam.lpWindowName = MSDK_STRING("sample_multi_transcode");
+                RenderParam.lpWindowName = "sample_multi_transcode";
                 RenderParam.nx           = 0;
                 RenderParam.ny           = 0;
                 RenderParam.nWidth       = pParams->nDstWidth;
@@ -4017,7 +4016,7 @@ mfxStatus CTranscodingPipeline::Init(sInputParams* pParams,
                 RenderParam.ncell        = 0;
                 RenderParam.nAdapter     = 0;
 
-                RenderParam.lpClassName = MSDK_STRING("Render Window Class");
+                RenderParam.lpClassName = "Render Window Class";
                 RenderParam.dwStyle     = WS_OVERLAPPEDWINDOW;
                 RenderParam.hWndParent  = NULL;
                 RenderParam.hMenu       = NULL;
@@ -4258,7 +4257,7 @@ mfxStatus CTranscodingPipeline::Init(sInputParams* pParams,
         MSDK_CHECK_STATUS(sts, "m_pmfxVPP->Init failed");
 
         if (MFX_WRN_PARTIAL_ACCELERATION == sts) {
-            msdk_printf("WARNING: partial acceleration\n");
+            printf("WARNING: partial acceleration\n");
             MSDK_IGNORE_MFX_STS(sts, MFX_WRN_PARTIAL_ACCELERATION);
         }
         MSDK_CHECK_STATUS(sts, "m_pmfxVPP->Init failed");
@@ -4333,7 +4332,7 @@ mfxStatus CTranscodingPipeline::CompleteInit() {
     if (m_pmfxDEC.get()) {
         sts = m_pmfxDEC->Init(&m_mfxDecParams);
         if (MFX_WRN_PARTIAL_ACCELERATION == sts) {
-            msdk_printf("WARNING: partial acceleration\n");
+            printf("WARNING: partial acceleration\n");
             MSDK_IGNORE_MFX_STS(sts, MFX_WRN_PARTIAL_ACCELERATION);
         }
         MSDK_CHECK_STATUS(sts, "m_pmfxDEC->Init failed");
@@ -4385,7 +4384,7 @@ mfxStatus CTranscodingPipeline::CompleteInit() {
 
         sts = m_pmfxENC->Init(&m_mfxEncParams);
         if (MFX_WRN_PARTIAL_ACCELERATION == sts) {
-            msdk_printf("WARNING: partial acceleration\n");
+            printf("WARNING: partial acceleration\n");
             MSDK_IGNORE_MFX_STS(sts, MFX_WRN_PARTIAL_ACCELERATION);
         }
         MSDK_CHECK_STATUS(sts, "m_pmfxENC->Init failed");
@@ -4404,8 +4403,7 @@ mfxFrameSurface1* CTranscodingPipeline::GetFreeSurface(bool isDec, mfxU64 timeou
         {
             std::lock_guard<std::mutex> lock(m_mStopSession);
             if (m_bForceStop) {
-                msdk_printf(
-                    "WARNING: m_bForceStop is set, returning NULL ptr from GetFreeSurface\n");
+                printf("WARNING: m_bForceStop is set, returning NULL ptr from GetFreeSurface\n");
                 break;
             }
         }
@@ -4452,8 +4450,7 @@ mfxFrameSurface1* CTranscodingPipeline::GetFreeSurfaceForCS(bool isDec, mfxU64 t
         {
             std::lock_guard<std::mutex> lock(m_mStopSession);
             if (m_bForceStop) {
-                msdk_printf(
-                    "WARNING: m_bForceStop is set, returning NULL ptr from GetFreeSurface\n");
+                printf("WARNING: m_bForceStop is set, returning NULL ptr from GetFreeSurface\n");
                 break;
             }
         }
@@ -4532,7 +4529,7 @@ void CTranscodingPipeline::SetNumFramesForReset(mfxU32 nFrames) {
 
 void CTranscodingPipeline::HandlePossibleGpuHang(mfxStatus& sts) {
     if (sts == MFX_ERR_GPU_HANG && m_bSoftGpuHangRecovery) {
-        msdk_printf("[WARNING] GPU hang happened. Inserting an IDR and continuing transcoding.\n");
+        printf("[WARNING] GPU hang happened. Inserting an IDR and continuing transcoding.\n");
         m_bInsertIDR = true;
         for (BSList::iterator it = m_BSPool.begin(); it != m_BSPool.end(); it++) {
             (*it)->IsFree               = true;
@@ -5179,7 +5176,7 @@ void CTranscodingPipeline::ModifyParamsUsingPresets(sInputParams& params,
                                        params.libType != MFX_IMPL_SOFTWARE);
 
     if (params.shouldPrintPresets) {
-        msdk_printf("Preset-controlled parameters (%s):\n", presetParams.PresetName.c_str());
+        printf("Preset-controlled parameters (%s):\n", presetParams.PresetName.c_str());
     }
 
     if (!params.nRateControlMethod) {
@@ -5222,13 +5219,13 @@ void CTranscodingPipeline::ModifyParamsUsingPresets(sInputParams& params,
     MODIFY_AND_PRINT_PARAM(params.nMaxFrameSize, MaxFrameSize, params.shouldPrintPresets);
     MODIFY_AND_PRINT_PARAM(params.nLADepth, LookAheadDepth, params.shouldPrintPresets);
     if (params.shouldPrintPresets) {
-        msdk_printf("\n");
+        printf("\n");
     }
 }
 
 void CTranscodingPipeline::PrintLibInfo(VPLImplementationLoader* Loader) {
     mfxStatus sts = m_pmfxSession->PrintLibInfo(Loader);
     if (sts != MFX_ERR_NONE)
-        msdk_printf("mfxSession.PrintLibInfo() failed\n");
+        printf("mfxSession.PrintLibInfo() failed\n");
     return;
 }

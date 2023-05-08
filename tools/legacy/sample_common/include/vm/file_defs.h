@@ -13,7 +13,7 @@
 
 #if defined(_WIN32) || defined(_WIN64)
 
-    #define MSDK_FOPEN(file, name, mode) _tfopen_s(&file, name, mode)
+    #define MSDK_FOPEN(file, name, mode) fopen_s(&file, name, mode)
 
     #define msdk_fgets _fgetts
 #else // #if defined(_WIN32) || defined(_WIN64)

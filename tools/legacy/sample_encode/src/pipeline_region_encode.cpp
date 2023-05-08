@@ -297,7 +297,7 @@ mfxStatus CRegionEncodingPipeline::Init(sInputParams* pParams) {
 
     // Init session
     if (pParams->bUseHWLib) {
-        msdk_printf("Hardware library is unsupported in Region Encoding mode\n");
+        printf("Hardware library is unsupported in Region Encoding mode\n");
         return MFX_ERR_UNSUPPORTED;
     }
     else {
@@ -330,30 +330,30 @@ mfxStatus CRegionEncodingPipeline::Init(sInputParams* pParams) {
     MSDK_CHECK_STATUS(sts, "m_mfxSession.QueryVersion failed");
 
     if ((pParams->MVC_flags & MVC_ENABLED) != 0 && !CheckVersion(&version, MSDK_FEATURE_MVC)) {
-        msdk_printf("error: MVC is not supported in the %d.%d API version\n",
-                    version.Major,
-                    version.Minor);
+        printf("error: MVC is not supported in the %d.%d API version\n",
+               version.Major,
+               version.Minor);
         return MFX_ERR_UNSUPPORTED;
     }
     if ((pParams->MVC_flags & MVC_VIEWOUTPUT) != 0 &&
         !CheckVersion(&version, MSDK_FEATURE_MVC_VIEWOUTPUT)) {
-        msdk_printf("error: MVC Viewoutput is not supported in the %d.%d API version\n",
-                    version.Major,
-                    version.Minor);
+        printf("error: MVC Viewoutput is not supported in the %d.%d API version\n",
+               version.Major,
+               version.Minor);
         return MFX_ERR_UNSUPPORTED;
     }
     if ((pParams->CodecId == MFX_CODEC_JPEG) && !CheckVersion(&version, MSDK_FEATURE_JPEG_ENCODE)) {
-        msdk_printf("error: Jpeg is not supported in the %d.%d API version\n",
-                    version.Major,
-                    version.Minor);
+        printf("error: Jpeg is not supported in the %d.%d API version\n",
+               version.Major,
+               version.Minor);
         return MFX_ERR_UNSUPPORTED;
     }
 
     if ((pParams->nRateControlMethod == MFX_RATECONTROL_LA) &&
         !CheckVersion(&version, MSDK_FEATURE_LOOK_AHEAD)) {
-        msdk_printf("error: Look ahead is not supported in the %d.%d API version\n",
-                    version.Major,
-                    version.Minor);
+        printf("error: Look ahead is not supported in the %d.%d API version\n",
+               version.Major,
+               version.Minor);
         return MFX_ERR_UNSUPPORTED;
     }
 
@@ -393,10 +393,9 @@ void CRegionEncodingPipeline::Close() {
         mfxU32 frameNum = m_resources.GetSize()
                               ? m_FileWriters.first->m_nProcessedFramesNum / m_resources.GetSize()
                               : 0;
-        msdk_printf("Frame number: %u   \r", (unsigned int)frameNum);
-        msdk_printf(
-            "\nEncode fps: %.2lf\n",
-            (double)(m_timeAll ? frameNum * ((double)time_get_frequency()) / m_timeAll : 0.0));
+        printf("Frame number: %u   \r", (unsigned int)frameNum);
+        printf("\nEncode fps: %.2lf\n",
+               (double)(m_timeAll ? frameNum * ((double)time_get_frequency()) / m_timeAll : 0.0));
     }
 
     DeallocateExtMVCBuffers();
@@ -443,7 +442,7 @@ mfxStatus CRegionEncodingPipeline::ResetMFXComponents(sInputParams* pParams) {
 
         sts = m_resources[regId].pEncoder->Init(&m_mfxEncParams);
         if (MFX_WRN_PARTIAL_ACCELERATION == sts) {
-            msdk_printf("WARNING: partial acceleration\n");
+            printf("WARNING: partial acceleration\n");
             MSDK_IGNORE_MFX_STS(sts, MFX_WRN_PARTIAL_ACCELERATION);
         }
 

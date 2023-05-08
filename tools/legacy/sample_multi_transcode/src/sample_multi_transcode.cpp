@@ -43,7 +43,7 @@ mfxU32 GetPreferredAdapterNum(const mfxAdaptersInfo& adapters, const sInputParam
 
         // No dGfx in list
         if (idx == adapters.Adapters + adapters.NumActual) {
-            msdk_printf("Warning: No dGfx detected on machine. Will pick another adapter\n");
+            printf("Warning: No dGfx detected on machine. Will pick another adapter\n");
             return 0;
         }
 
@@ -62,7 +62,7 @@ mfxU32 GetPreferredAdapterNum(const mfxAdaptersInfo& adapters, const sInputParam
 
         // No iGfx in list
         if (idx == adapters.Adapters + adapters.NumActual) {
-            msdk_printf("Warning: No iGfx detected on machine. Will pick another adapter\n");
+            printf("Warning: No iGfx detected on machine. Will pick another adapter\n");
             return 0;
         }
 
@@ -111,7 +111,7 @@ CTranscodingPipeline* CreatePipeline() {
     return new CTranscodingPipeline;
 }
 
-mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
+mfxStatus Launcher::Init(int argc, char* argv[]) {
     mfxStatus sts;
     mfxU32 i                     = 0;
     SafetySurfaceBuffer* pBuffer = NULL;
@@ -163,7 +163,7 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
         MSDK_CHECK_STATUS(sts, "QueryAdapters failed");
 
         if (m_eDevType && m_DisplaysData.empty()) {
-            msdk_printf("No adapters found. HW-accelerated transcoding is impossible.\n");
+            printf("No adapters found. HW-accelerated transcoding is impossible.\n");
             return MFX_ERR_UNSUPPORTED;
         }
 #endif
@@ -178,7 +178,7 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
         if (m_InputParamsArray[0].nMemoryModel == VISIBLE_INT_ALLOC ||
             m_InputParamsArray[0].nMemoryModel == HIDDEN_INT_ALLOC) {
             m_pLoader->ConfigureVersion({ { 0, 2 } });
-            msdk_printf("warning: internal memory allocation requires 2.x API\n");
+            printf("warning: internal memory allocation requires 2.x API\n");
 
             lowLatencyMode = false;
         }
@@ -281,7 +281,7 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
                     hdls.push_back(hdls.back());
                 }
                 else {
-                    msdk_printf("error: failed to initialize alloc parameters\n");
+                    printf("error: failed to initialize alloc parameters\n");
                     return MFX_ERR_MEMORY_ALLOC;
                 }
             }
@@ -330,7 +330,7 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
                     hdls.push_back(hdls.back());
                 }
                 else {
-                    msdk_printf("error: failed to initialize alloc parameters\n");
+                    printf("error: failed to initialize alloc parameters\n");
                     return MFX_ERR_MEMORY_ALLOC;
                 }
             }
@@ -354,7 +354,7 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
                     /* Rendering case */
                     hwdev.reset(CreateVAAPIDevice(InputParams.strDevicePath, params.libvaBackend));
                     if (!hwdev.get()) {
-                        msdk_printf("error: failed to initialize VAAPI device\n");
+                        printf("error: failed to initialize VAAPI device\n");
                         return MFX_ERR_DEVICE_FAILED;
                     }
 
@@ -408,7 +408,7 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
                     hwdev.reset(CreateVAAPIDevice(m_InputParamsArray[i].strDevicePath));
 
                     if (!hwdev.get()) {
-                        msdk_printf("error: failed to initialize VAAPI device\n");
+                        printf("error: failed to initialize VAAPI device\n");
                         return MFX_ERR_DEVICE_FAILED;
                     }
 
@@ -436,7 +436,7 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
                     hdls.push_back(hdls.back());
                 }
                 else {
-                    msdk_printf("error: failed to initialize alloc parameters\n");
+                    printf("error: failed to initialize alloc parameters\n");
                     return MFX_ERR_MEMORY_ALLOC;
                 }
             }
@@ -476,7 +476,7 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
 
     // create sessions, allocators
     for (i = 0; i < m_InputParamsArray.size(); i++) {
-        msdk_printf("Session %d:\n", (int)i);
+        printf("Session %d:\n", (int)i);
         auto pAllocator = std::make_unique<GeneralAllocator>();
         sts             = pAllocator->Init(m_pAllocParams[i].get());
         MSDK_CHECK_STATUS(sts, "pAllocator->Init failed");
@@ -527,14 +527,14 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
             sts = reader->Init(m_InputParamsArray[i].strSrcFile.c_str());
             if (sts == MFX_ERR_UNSUPPORTED && m_InputParamsArray[i].DecodeId == MFX_CODEC_AV1) {
                 reader.reset(new CSmplBitstreamReader());
-                msdk_printf("WARNING: Stream is not IVF, default reader\n");
+                printf("WARNING: Stream is not IVF, default reader\n");
             }
             MSDK_CHECK_STATUS(sts, "reader->Init failed");
             sts = m_pExtBSProcArray.back()->SetReader(reader);
             MSDK_CHECK_STATUS(sts, "m_pExtBSProcArray.back()->SetReader failed");
         }
         else if (yuvreader.get()) {
-            std::list<msdk_string> input;
+            std::list<std::string> input;
             input.push_back(m_InputParamsArray[i].strSrcFile);
             sts = yuvreader->Init(input, m_InputParamsArray[i].DecodeId);
             MSDK_CHECK_STATUS(sts, "m_YUVReader->Init failed");
@@ -670,9 +670,9 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
         MSDK_CHECK_STATUS(sts, "m_pThreadContextArray[i]->pPipeline->CompleteInit failed");
 
         if (m_pThreadContextArray[i]->pPipeline->GetJoiningFlag())
-            msdk_printf("Session %d was joined with other sessions\n", (int)i);
+            printf("Session %d was joined with other sessions\n", (int)i);
         else
-            msdk_printf("Session %d was NOT joined with other sessions\n", (int)i);
+            printf("Session %d was NOT joined with other sessions\n", (int)i);
 
         m_pThreadContextArray[i]->pPipeline->SetPipelineID(i);
     }
@@ -694,14 +694,14 @@ mfxStatus Launcher::Init(int argc, msdk_char* argv[]) {
         }
     }
 
-    msdk_printf("\n");
+    printf("\n");
 
     return sts;
 
 } // mfxStatus Launcher::Init()
 
 void Launcher::Run() {
-    msdk_printf("Transcoding started\n");
+    printf("Transcoding started\n");
 
     // mark start time
     m_StartTime = msdk_time_get_tick();
@@ -714,7 +714,7 @@ void Launcher::Run() {
         DoTranscoding();
     }
 
-    msdk_printf("\nTranscoding finished\n");
+    printf("\nTranscoding finished\n");
 
 } // mfxStatus Launcher::Init()
 
@@ -758,7 +758,7 @@ void Launcher::DoTranscoding() {
                     // But do not stop in robust mode when gpu hang's happened
                     if (m_pThreadContextArray[i]->transcodingSts != MFX_ERR_GPU_HANG ||
                         !m_pThreadContextArray[i]->pPipeline->GetRobustFlag()) {
-                        msdk_cout << "\n\n session " << i << " ["
+                        std::cout << "\n\n session " << i << " ["
                                   << m_pThreadContextArray[i]->pPipeline->GetSessionText()
                                   << "] failed with status "
                                   << StatusToString(m_pThreadContextArray[i]->transcodingSts)
@@ -771,7 +771,7 @@ void Launcher::DoTranscoding() {
                     }
                 }
                 else if (m_pThreadContextArray[i]->transcodingSts > MFX_ERR_NONE) {
-                    msdk_cout << "\n\n session " << i << " ["
+                    std::cout << "\n\n session " << i << " ["
                               << m_pThreadContextArray[i]->pPipeline->GetSessionText()
                               << "] returned warning status "
                               << StatusToString(m_pThreadContextArray[i]->transcodingSts)
@@ -823,12 +823,12 @@ void Launcher::DoRobustTranscoding() {
                     sts = m_pThreadContextArray[i]->pPipeline->Reset(m_pLoader.get());
                 }
                 if (sts) {
-                    msdk_printf("\n[WARNING] GPU Hang recovery wasn't succeed. Exiting...\n");
+                    printf("\n[WARNING] GPU Hang recovery wasn't succeed. Exiting...\n");
                     return;
                 }
             }
             bGPUHang = false;
-            msdk_printf("\n[WARNING] Successfully recovered. Continue transcoding.\n");
+            printf("\n[WARNING] Successfully recovered. Continue transcoding.\n");
         }
 
         DoTranscoding();
@@ -840,7 +840,7 @@ void Launcher::DoRobustTranscoding() {
         }
         if (!bGPUHang)
             break;
-        msdk_printf("\n[WARNING] GPU Hang has happened. Trying to recover...\n");
+        printf("\n[WARNING] GPU Hang has happened. Trying to recover...\n");
     }
 }
 
@@ -850,7 +850,7 @@ mfxF64 GetTimeSince(msdk_tick start) {
 }
 
 mfxStatus Launcher::ProcessResult() {
-    msdk_fstream performance_file(performance_file_name, std::ios_base::out);
+    std::fstream performance_file(performance_file_name, std::ios_base::out);
 
     std::stringstream ssTranscodingTime;
     ssTranscodingTime << std::endl
@@ -861,14 +861,13 @@ mfxStatus Launcher::ProcessResult() {
         performance_file << parameter_file_name << std::endl << std::endl;
     }
 
-    msdk_printf("%s", ssTranscodingTime.str().c_str());
+    printf("%s", ssTranscodingTime.str().c_str());
     if (performance_file.is_open()) {
         performance_file << ssTranscodingTime.str();
     }
 
     mfxStatus FinalSts = MFX_ERR_NONE;
-    msdk_printf(
-        "-------------------------------------------------------------------------------\n");
+    printf("-------------------------------------------------------------------------------\n");
 
     for (mfxU32 i = 0; i < m_pThreadContextArray.size(); i++) {
         mfxStatus transcodingSts = m_pThreadContextArray[i]->transcodingSts;
@@ -880,7 +879,7 @@ mfxStatus Launcher::ProcessResult() {
 
         const char* SessionStsStr = transcodingSts ? "FAILED" : "PASSED";
 
-        msdk_stringstream session_info_sstr;
+        std::stringstream session_info_sstr;
         session_info_sstr << "*** session " << i << " ["
                           << m_pThreadContextArray[i]->pPipeline->GetSessionText() << "] "
                           << SessionStsStr << " (" << StatusToString(transcodingSts) << ") "
@@ -893,18 +892,17 @@ mfxStatus Launcher::ProcessResult() {
             session_info_sstr << "" << std::endl;
         }
         session_info_sstr << std::endl;
-        msdk_cout << session_info_sstr.str();
+        std::cout << session_info_sstr.str();
         if (performance_file.is_open()) {
             performance_file << session_info_sstr.str();
         }
     }
-    msdk_printf(
-        "-------------------------------------------------------------------------------\n");
+    printf("-------------------------------------------------------------------------------\n");
 
     std::stringstream ssTest;
     ssTest << std::endl << "The test " << (FinalSts ? "FAILED" : "PASSED") << std::endl;
 
-    msdk_printf("%s", ssTest.str().c_str());
+    printf("%s", ssTest.str().c_str());
     if (performance_file.is_open()) {
         performance_file << ssTest.str();
     }
@@ -977,7 +975,7 @@ mfxStatus Launcher::CheckAndFixAdapterDependency_1X(mfxU32 idxSession,
         !m_InputParamsArray[idxSession].bPreferdGfx) {
         m_InputParamsArray[idxSession].bPreferiGfx = pParentPipeline->IsPreferiGfx();
         m_InputParamsArray[idxSession].bPreferdGfx = pParentPipeline->IsPreferdGfx();
-        msdk_cout << "\n\n session with index: " << idxSession << " adapter type was forced to "
+        std::cout << "\n\n session with index: " << idxSession << " adapter type was forced to "
                   << (pParentPipeline->IsPreferiGfx() ? "integrated" : "discrete") << std::endl
                   << std::endl;
 
@@ -988,7 +986,7 @@ mfxStatus Launcher::CheckAndFixAdapterDependency_1X(mfxU32 idxSession,
     if (!pParentPipeline->IsPreferiGfx() && !pParentPipeline->IsPreferdGfx() &&
         (m_InputParamsArray[idxSession].bPreferiGfx ||
          m_InputParamsArray[idxSession].bPreferdGfx)) {
-        msdk_cout << "\n\n session with index: " << idxSession << " failed because parent session ["
+        std::cout << "\n\n session with index: " << idxSession << " failed because parent session ["
                   << pParentPipeline->GetSessionText() << "] doesn't have explicit adapter setting"
                   << std::endl
                   << std::endl;
@@ -998,7 +996,7 @@ mfxStatus Launcher::CheckAndFixAdapterDependency_1X(mfxU32 idxSession,
 
     // Inherited sessions must have the same adapter as parent
     if (pParentPipeline->IsPreferiGfx() && !m_InputParamsArray[idxSession].bPreferiGfx) {
-        msdk_cout << "\n\n session with index: " << idxSession
+        std::cout << "\n\n session with index: " << idxSession
                   << " failed because it has different adapter type with parent session ["
                   << pParentPipeline->GetSessionText() << "]" << std::endl
                   << std::endl;
@@ -1008,7 +1006,7 @@ mfxStatus Launcher::CheckAndFixAdapterDependency_1X(mfxU32 idxSession,
 
     // Inherited sessions must have the same adapter as parent
     if (pParentPipeline->IsPreferdGfx() && !m_InputParamsArray[idxSession].bPreferdGfx) {
-        msdk_cout << "\n\n session with index: " << idxSession
+        std::cout << "\n\n session with index: " << idxSession
                   << " failed because it has different adapter type with parent session ["
                   << pParentPipeline->GetSessionText() << "]" << std::endl
                   << std::endl;
@@ -1030,20 +1028,20 @@ mfxStatus Launcher::CheckAndFixAdapterDependency(mfxU32 idxSession,
         m_InputParamsArray[idxSession].adapterType == mfxMediaAdapterType::MFX_MEDIA_UNKNOWN) {
         m_InputParamsArray[idxSession].adapterType = pParentPipeline->GetAdapterType();
         m_InputParamsArray[idxSession].dGfxIdx     = pParentPipeline->GetdGfxIdx();
-        msdk_cout << "\n\n session with index: " << idxSession << " adapter type was forced to "
+        std::cout << "\n\n session with index: " << idxSession << " adapter type was forced to "
                   << (pParentPipeline->GetAdapterType() == mfxMediaAdapterType::MFX_MEDIA_INTEGRATED
                           ? "integrated"
                           : "discrete");
         if (pParentPipeline->GetdGfxIdx() != -1)
-            msdk_cout << " with index " << pParentPipeline->GetdGfxIdx();
-        msdk_cout << std::endl << std::endl;
+            std::cout << " with index " << pParentPipeline->GetdGfxIdx();
+        std::cout << std::endl << std::endl;
 
         return MFX_WRN_VIDEO_PARAM_CHANGED;
     }
 
     if (pParentPipeline->GetAdapterNum() != -1 && m_InputParamsArray[idxSession].adapterNum == -1) {
         m_InputParamsArray[idxSession].adapterNum = pParentPipeline->GetAdapterNum();
-        msdk_cout << "\n\n session with index: " << idxSession << " adapter num was forced to "
+        std::cout << "\n\n session with index: " << idxSession << " adapter num was forced to "
                   << pParentPipeline->GetAdapterNum() << std::endl
                   << std::endl;
 
@@ -1053,7 +1051,7 @@ mfxStatus Launcher::CheckAndFixAdapterDependency(mfxU32 idxSession,
     // App can't change initialization of the previous session (parent session)
     if (pParentPipeline->GetAdapterType() == mfxMediaAdapterType::MFX_MEDIA_UNKNOWN &&
         m_InputParamsArray[idxSession].adapterType != mfxMediaAdapterType::MFX_MEDIA_UNKNOWN) {
-        msdk_cout << "\n\n session with index: " << idxSession << " failed because parent session ["
+        std::cout << "\n\n session with index: " << idxSession << " failed because parent session ["
                   << pParentPipeline->GetSessionText() << "] doesn't have explicit adapter setting"
                   << std::endl
                   << std::endl;
@@ -1064,7 +1062,7 @@ mfxStatus Launcher::CheckAndFixAdapterDependency(mfxU32 idxSession,
     // Inherited sessions must have the same adapter as parent
     if (pParentPipeline->GetAdapterType() != m_InputParamsArray[idxSession].adapterType ||
         pParentPipeline->GetdGfxIdx() != m_InputParamsArray[idxSession].dGfxIdx) {
-        msdk_cout << "\n\n session with index: " << idxSession
+        std::cout << "\n\n session with index: " << idxSession
                   << " failed because it has different adapter type with parent session ["
                   << pParentPipeline->GetSessionText() << "]" << std::endl
                   << std::endl;
@@ -1073,7 +1071,7 @@ mfxStatus Launcher::CheckAndFixAdapterDependency(mfxU32 idxSession,
     }
 
     if (pParentPipeline->GetAdapterNum() != m_InputParamsArray[idxSession].adapterNum) {
-        msdk_cout << "\n\n session with index: " << idxSession
+        std::cout << "\n\n session with index: " << idxSession
                   << " failed because it has different adapter num with parent session ["
                   << pParentPipeline->GetSessionText() << "]" << std::endl
                   << std::endl;
@@ -1140,15 +1138,14 @@ mfxStatus Launcher::VerifyCrossSessionsOptions() {
         }
     }
     if (!isAllMFEFramesEqual)
-        msdk_printf(
+        printf(
             "WARNING: All sessions for MFE should have the same number of MFE frames!\n used ammount of frame for MFE: %d\n",
             (int)usedMFEMaxFrames);
     if (!isAllMFEModesEqual)
-        msdk_printf("WARNING: All sessions for MFE should have the same mode!\n, used mode: %d\n",
-                    (int)usedMFEMode);
+        printf("WARNING: All sessions for MFE should have the same mode!\n, used mode: %d\n",
+               (int)usedMFEMode);
     if (!isAllMFESessionsJoined)
-        msdk_printf(
-            "WARNING: Sessions for MFE should be joined! All sessions forced to be joined\n");
+        printf("WARNING: Sessions for MFE should be joined! All sessions forced to be joined\n");
 
     for (mfxU32 i = 0; i < m_InputParamsArray.size(); i++) {
         if (m_InputParamsArray[i].bSingleTexture) {
@@ -1159,7 +1156,7 @@ mfxStatus Launcher::VerifyCrossSessionsOptions() {
         if (m_InputParamsArray[i].nTimeout && (m_InputParamsArray[i].eMode == Sink)) {
             for (mfxU32 j = 0; j < m_InputParamsArray.size(); j++) {
                 if (m_InputParamsArray[j].MaxFrameNumber != MFX_INFINITE) {
-                    msdk_printf(
+                    printf(
                         "\"-timeout\" option isn't compatible with \"-n\". \"-n\" will be ignored.\n");
                     for (mfxU32 k = 0; k < m_InputParamsArray.size(); k++) {
                         m_InputParamsArray[k].MaxFrameNumber = MFX_INFINITE;
@@ -1167,8 +1164,8 @@ mfxStatus Launcher::VerifyCrossSessionsOptions() {
                     break;
                 }
             }
-            msdk_printf("Timeout %d seconds has been set to all sessions\n",
-                        m_InputParamsArray[i].nTimeout);
+            printf("Timeout %d seconds has been set to all sessions\n",
+                   m_InputParamsArray[i].nTimeout);
             for (mfxU32 j = 0; j < m_InputParamsArray.size(); j++) {
                 m_InputParamsArray[j].nTimeout = m_InputParamsArray[i].nTimeout;
             }
@@ -1311,7 +1308,7 @@ mfxStatus Launcher::VerifyCrossSessionsOptions() {
             m_InputParamsArray[j].bSingleTexture = true;
         }
         if (showWarning) {
-            msdk_printf(
+            printf(
                 "WARNING: At least one session has -single_texture_d3d11 option, all other sessions are modified to have this setting enabled al well.\n");
         }
     }
@@ -1335,7 +1332,7 @@ mfxStatus Launcher::VerifyCrossSessionsOptions() {
                                        [](auto const& l, auto const& r) {
                                            return l.nSyncOpTimeout < r.nSyncOpTimeout;
                                        });
-            msdk_printf(
+            printf(
                 "WARNING: The same value of the timeout should be used for sync operations in all sessions. Max value: %u will be used.\n",
                 (*it).nSyncOpTimeout);
             for (size_t i = 0; i < m_InputParamsArray.size(); ++i) {

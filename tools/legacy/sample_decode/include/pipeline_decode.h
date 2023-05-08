@@ -131,8 +131,8 @@ struct sInputParams {
 
     bool bIgnoreLevelConstrain;
 
-    msdk_char strSrcFile[MSDK_MAX_FILENAME_LEN];
-    msdk_char strDstFile[MSDK_MAX_FILENAME_LEN];
+    char strSrcFile[MSDK_MAX_FILENAME_LEN];
+    char strDstFile[MSDK_MAX_FILENAME_LEN];
 
     bool bDisableFilmGrain;
     eAPIVersion verSessionInit;
@@ -185,16 +185,16 @@ public:
     inline void PrintDecodeErrorReport(mfxExtDecodeErrorReport* pDecodeErrorReport) {
         if (pDecodeErrorReport) {
             if (pDecodeErrorReport->ErrorTypes & MFX_ERROR_SPS)
-                msdk_printf("[Error] SPS Error detected!\n");
+                printf("[Error] SPS Error detected!\n");
 
             if (pDecodeErrorReport->ErrorTypes & MFX_ERROR_PPS)
-                msdk_printf("[Error] PPS Error detected!\n");
+                printf("[Error] PPS Error detected!\n");
 
             if (pDecodeErrorReport->ErrorTypes & MFX_ERROR_SLICEHEADER)
-                msdk_printf("[Error] SliceHeader Error detected!\n");
+                printf("[Error] SliceHeader Error detected!\n");
 
             if (pDecodeErrorReport->ErrorTypes & MFX_ERROR_FRAME_GAP)
-                msdk_printf("[Error] Frame Gap Error detected!\n");
+                printf("[Error] Frame Gap Error detected!\n");
         }
     }
 

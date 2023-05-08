@@ -35,7 +35,7 @@ X11LibVA::X11LibVA(void)
                                  : m_x11lib.XOpenDisplay(VAAPI_X_DEFAULT_DISPLAY);
 
     if (!m_display) {
-        msdk_printf("Failed to open X Display: try to check/set DISPLAY environment variable.\n");
+        printf("Failed to open X Display: try to check/set DISPLAY environment variable.\n");
         throw std::bad_alloc();
     }
 
@@ -61,7 +61,7 @@ X11LibVA::X11LibVA(void)
 
     if (fd < 0) {
         m_x11lib.XCloseDisplay(m_display);
-        msdk_printf("Failed to open adapter\n");
+        printf("Failed to open adapter\n");
         throw std::bad_alloc();
     }
 
@@ -72,7 +72,7 @@ X11LibVA::X11LibVA(void)
 
     if (!m_va_dpy) {
         m_x11lib.XCloseDisplay(m_display);
-        msdk_printf("Failed to get VA Display\n");
+        printf("Failed to get VA Display\n");
         throw std::bad_alloc();
     }
 
@@ -81,7 +81,7 @@ X11LibVA::X11LibVA(void)
 
     if (VA_STATUS_SUCCESS != sts) {
         m_x11lib.XCloseDisplay(m_display);
-        msdk_printf("Failed to initialize VAAPI: %d\n", (int)sts);
+        printf("Failed to initialize VAAPI: %d\n", (int)sts);
         throw std::bad_alloc();
     }
 
@@ -109,7 +109,7 @@ X11LibVA::X11LibVA(void)
     }
     if (VA_STATUS_SUCCESS != sts) {
         Close();
-        msdk_printf("Failed to initialize VP: %d\n", sts);
+        printf("Failed to initialize VP: %d\n", sts);
         throw std::bad_alloc();
     }
     #endif // X11_DRI3_SUPPORT
@@ -124,16 +124,16 @@ void X11LibVA::Close() {
     if (m_contextID != VA_INVALID_ID) {
         sts = m_libva.vaDestroyContext(m_va_dpy, m_contextID);
         if (sts != VA_STATUS_SUCCESS)
-            msdk_printf("Failed to destroy VA context: %d\n", (int)sts);
+            printf("Failed to destroy VA context: %d\n", (int)sts);
     }
     if (m_configID != VA_INVALID_ID) {
         sts = m_libva.vaDestroyConfig(m_va_dpy, m_configID);
         if (sts != VA_STATUS_SUCCESS)
-            msdk_printf("Failed to destroy VA config: %d\n", (int)sts);
+            printf("Failed to destroy VA config: %d\n", (int)sts);
     }
     sts = m_libva.vaTerminate(m_va_dpy);
     if (sts != VA_STATUS_SUCCESS)
-        msdk_printf("Failed to close VAAPI library: %d\n", (int)sts);
+        printf("Failed to close VAAPI library: %d\n", (int)sts);
 
     m_x11lib.XCloseDisplay(m_display);
     if (fd != -1) {

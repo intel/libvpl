@@ -10,11 +10,11 @@
 
 CPresetManager CPresetManager::Inst;
 
-msdk_string CPresetManager::modesName[PRESET_MAX_MODES] = {
-    MSDK_STRING("Default"),
-    MSDK_STRING("DSS"),
-    MSDK_STRING("Conference"),
-    MSDK_STRING("Gaming"),
+const char* CPresetManager::modesName[PRESET_MAX_MODES] = {
+    "Default",
+    "DSS",
+    "Conference",
+    "Gaming",
 };
 
 //GopRefDist, TargetUsage, RateControlMethod, ExtBRCType, AsyncDepth, BRefType, EncTools
@@ -209,7 +209,7 @@ COutputPresetParameters CPresetManager::GetBasicPreset(EPresetModes mode, mfxU32
             break;
         default:
             if (mode != PRESET_DEFAULT) {
-                msdk_printf(
+                printf(
                     "WARNING: Presets are available for h.264 or h.265 codecs only. Request for particular preset is ignored.\n");
             }
 
@@ -249,18 +249,18 @@ CDependentPresetParameters CPresetManager::GetDependentPresetParameters(EPresetM
     return retVal;
 }
 
-EPresetModes CPresetManager::PresetNameToMode(const msdk_char* name) {
+EPresetModes CPresetManager::PresetNameToMode(const char* name) {
     for (int i = 0; i < PRESET_MAX_MODES; i++) {
-        if (!msdk_stricmp(modesName[i].c_str(), name)) {
+        if (!msdk_stricmp(modesName[i], name)) {
             return (EPresetModes)i;
         }
     }
     return PRESET_MAX_MODES;
 }
 
-EPresetModes CPresetManager::PresetNameToMode(const msdk_string& name) {
+EPresetModes CPresetManager::PresetNameToMode(const std::string& name) {
     for (int i = 0; i < PRESET_MAX_MODES; i++) {
-        if (!msdk_stricmp(modesName[i].c_str(), name.c_str())) {
+        if (!msdk_stricmp(modesName[i], name.c_str())) {
             return (EPresetModes)i;
         }
     }

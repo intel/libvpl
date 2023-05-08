@@ -6,17 +6,11 @@
 
 #include "sample_multi_transcode.h"
 
-#if defined(_WIN32) || defined(_WIN64)
-int _tmain(int argc, TCHAR* argv[])
-#else
-int main(int argc, char* argv[])
-#endif
-{
+int main(int argc, char* argv[]) {
     mfxStatus sts;
     TranscodingSample::Launcher transcode;
     if (argc < 2) {
-        msdk_printf(
-            "[ERROR] Command line is empty. Use -? for getting help on available options.\n");
+        printf("[ERROR] Command line is empty. Use -? for getting help on available options.\n");
         return 0;
     }
 

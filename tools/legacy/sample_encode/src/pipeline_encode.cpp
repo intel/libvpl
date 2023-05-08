@@ -172,7 +172,7 @@ mfxStatus CEncTaskPool::SynchronizeFirstTask(mfxU32 syncOpTimeout) {
                 }
                 ClearTasks();
                 sts = MFX_ERR_NONE;
-                msdk_printf("GPU hang happened\n");
+                printf("GPU hang happened\n");
             }
             // MFX_WRN_IN_EXECUTION has to be reported
             MSDK_CHECK_NOERROR_STATUS_NO_RET(sts, "SyncOperation fail or timeout");
@@ -213,7 +213,7 @@ mfxStatus CEncTaskPool::SynchronizeFirstTask(mfxU32 syncOpTimeout) {
                         bGpuHang = true;
                         ClearTasks();
                         sts = MFX_ERR_NONE;
-                        msdk_printf("GPU hang happened\n");
+                        printf("GPU hang happened\n");
                     }
 
                     if (MFX_ERR_NONE == sts) {
@@ -564,7 +564,7 @@ mfxStatus CEncodingPipeline::InitMfxEncParams(sInputParams* pInParams) {
         }
         index = 32; //32 characters for uuid
 
-        if (msdk_strlen(pInParams->uSEI) > index) {
+        if (strlen(pInParams->uSEI) > index) {
             index++; //skip the delimiter
             if (pInParams->CodecId == MFX_CODEC_HEVC) {
                 pl->CtrlFlags = pInParams->uSEI[index++] == '0' ? 0 : MFX_PAYLOAD_CTRL_SUFFIX;
@@ -573,12 +573,12 @@ mfxStatus CEncodingPipeline::InitMfxEncParams(sInputParams* pInParams) {
                 pl->CtrlFlags = pInParams->uSEI[index++] == '0';
             }
         }
-        if (msdk_strlen(pInParams->uSEI) > index) {
+        if (strlen(pInParams->uSEI) > index) {
             index++;
 
             // Converting to byte-string if necessary
-            msdk_string tstr(pInParams->uSEI + index);
-            std::transform(tstr.begin(), tstr.end(), std::back_inserter(msg), [](msdk_char c) {
+            std::string tstr(pInParams->uSEI + index);
+            std::transform(tstr.begin(), tstr.end(), std::back_inserter(msg), [](char c) {
                 return (char)c;
             });
         }
@@ -767,7 +767,7 @@ mfxStatus CEncodingPipeline::InitMfxEncParams(sInputParams* pInParams) {
             av1BitstreamParam->WriteIVFHeaders = pInParams->nIVFHeader;
         }
         else {
-            msdk_printf("WARNING: -ivf:on/off, support AV1 only\n");
+            printf("WARNING: -ivf:on/off, support AV1 only\n");
         }
     }
 
@@ -787,7 +787,7 @@ mfxStatus CEncodingPipeline::InitMfxEncParams(sInputParams* pInParams) {
         hyperEncodeParam->Mode = pInParams->hyperMode;
         mfxStatus sts          = CheckHyperEncodeParams(hyperEncodeParam->Mode);
         if (sts != MFX_ERR_NONE)
-            msdk_printf(
+            printf(
                 "         more information in HyperEncode_FeatureDeveloperGuide.md in oneVPL-intel-gpu repo\n");
 
         MSDK_CHECK_STATUS(sts, "CheckHyperEncodeParams failed\n");
@@ -799,41 +799,41 @@ mfxStatus CEncodingPipeline::InitMfxEncParams(sInputParams* pInParams) {
 
 #if (defined(_WIN64) || defined(_WIN32))
 mfxStatus CEncodingPipeline::CheckHyperEncodeParams(mfxHyperMode hyperMode) {
-    msdk_printf("HYPER ENCODE MODE: %s\n",
-                (hyperMode == MFX_HYPERMODE_OFF)
-                    ? "OFF"
-                    : ((hyperMode == MFX_HYPERMODE_ON) ? "ON" : "ADAPTIVE"));
+    printf("HYPER ENCODE MODE: %s\n",
+           (hyperMode == MFX_HYPERMODE_OFF)
+               ? "OFF"
+               : ((hyperMode == MFX_HYPERMODE_ON) ? "ON" : "ADAPTIVE"));
     if (hyperMode == MFX_HYPERMODE_ON) {
         // check supported encoders
         if (m_mfxEncParams.mfx.CodecId != MFX_CODEC_AVC &&
             m_mfxEncParams.mfx.CodecId != MFX_CODEC_HEVC &&
             m_mfxEncParams.mfx.CodecId != MFX_CODEC_AV1) {
-            msdk_printf("[ERROR], does not support %s encoder\n",
-                        CodecIdToStr(m_mfxEncParams.mfx.CodecId).c_str());
+            printf("[ERROR], does not support %s encoder\n",
+                   CodecIdToStr(m_mfxEncParams.mfx.CodecId).c_str());
             return MFX_ERR_UNSUPPORTED;
         }
         // check gop size
         if (m_mfxEncParams.mfx.GopPicSize == 0) {
-            msdk_printf("[ERROR], gop size must be > 0\n");
-            msdk_printf("         set gop size using '-g' option\n");
+            printf("[ERROR], gop size must be > 0\n");
+            printf("         set gop size using '-g' option\n");
             return MFX_ERR_INVALID_VIDEO_PARAM;
         }
         // check lowpower
         if (m_mfxEncParams.mfx.LowPower != MFX_CODINGOPTION_ON) {
-            msdk_printf("[ERROR], lowpower mode must be on\n");
-            msdk_printf("         turn lowpower mode on ('-lowpower:on')\n");
+            printf("[ERROR], lowpower mode must be on\n");
+            printf("         turn lowpower mode on ('-lowpower:on')\n");
             return MFX_ERR_INVALID_VIDEO_PARAM;
         }
         // check idr interval
         if (m_mfxEncParams.mfx.CodecId == MFX_CODEC_AVC && m_mfxEncParams.mfx.IdrInterval != 0) {
-            msdk_printf("[ERROR], idr interval must be 0 for AVC\n");
-            msdk_printf("         set idr interval to 0 ('-idr_interval 0')\n");
+            printf("[ERROR], idr interval must be 0 for AVC\n");
+            printf("         set idr interval to 0 ('-idr_interval 0')\n");
             return MFX_ERR_INVALID_VIDEO_PARAM;
         }
         else if (m_mfxEncParams.mfx.CodecId == MFX_CODEC_HEVC &&
                  m_mfxEncParams.mfx.IdrInterval != 1) {
-            msdk_printf("[ERROR], idr interval must be 1 for HEVC\n");
-            msdk_printf("         set idr interval to 1 ('-idr_interval 1')\n");
+            printf("[ERROR], idr interval must be 1 for HEVC\n");
+            printf("         set idr interval to 1 ('-idr_interval 1')\n");
             return MFX_ERR_INVALID_VIDEO_PARAM;
         }
     }
@@ -1004,10 +1004,9 @@ mfxStatus CEncodingPipeline::AllocFrames() {
 
     if (co2 && co2->BitrateLimit != MFX_CODINGOPTION_OFF &&
         initialTargetKbps != m_mfxEncParams.mfx.TargetKbps) {
-        msdk_printf(
-            "WARNING: -BitrateLimit:on, target bitrate was changed from %d kbps to %hu kbps.\n",
-            (int)initialTargetKbps,
-            (short int)m_mfxEncParams.mfx.TargetKbps);
+        printf("WARNING: -BitrateLimit:on, target bitrate was changed from %d kbps to %hu kbps.\n",
+               (int)initialTargetKbps,
+               (short int)m_mfxEncParams.mfx.TargetKbps);
     }
 
     // Calculate the number of surfaces for components.
@@ -1343,7 +1342,7 @@ CEncodingPipeline::~CEncodingPipeline() {
 }
 
 mfxStatus CEncodingPipeline::InitIVFFileWriter(CIVFFrameWriter** ppWriter,
-                                               const msdk_char* filename,
+                                               const char* filename,
                                                const mfxU16 w,
                                                const mfxU16 h,
                                                const mfxU32 fr_nom,
@@ -1369,8 +1368,7 @@ mfxStatus CEncodingPipeline::InitIVFFileWriter(CIVFFrameWriter** ppWriter,
     return sts;
 }
 
-mfxStatus CEncodingPipeline::InitFileWriter(CSmplBitstreamWriter** ppWriter,
-                                            const msdk_char* filename) {
+mfxStatus CEncodingPipeline::InitFileWriter(CSmplBitstreamWriter** ppWriter, const char* filename) {
     MSDK_CHECK_ERROR(ppWriter, NULL, MFX_ERR_NULL_PTR);
 
     MSDK_SAFE_DELETE(*ppWriter);
@@ -1383,7 +1381,7 @@ mfxStatus CEncodingPipeline::InitFileWriter(CSmplBitstreamWriter** ppWriter,
 }
 
 mfxStatus CEncodingPipeline::InitFileWriter(CSmplBitstreamWriter** ppWriter,
-                                            const msdk_char* filename,
+                                            const char* filename,
                                             const bool no_outfile) {
     MSDK_CHECK_ERROR(ppWriter, NULL, MFX_ERR_NULL_PTR);
 
@@ -1414,7 +1412,7 @@ mfxStatus CEncodingPipeline::InitFileWriters(sInputParams* pParams) {
     // no output mode
     if (!pParams->dstFileBuff.size()) {
         // do nothing but preventing from assertion by 0 vector size in following process
-        pParams->dstFileBuff.push_back((msdk_char*)"null");
+        pParams->dstFileBuff.push_back((char*)"null");
         m_bNoOutFile = true;
     }
 
@@ -1484,7 +1482,7 @@ mfxU32 CEncodingPipeline::GetPreferredAdapterNum(const mfxAdaptersInfo& adapters
 
         // No dGfx in list
         if (idx == adapters.Adapters + adapters.NumActual) {
-            msdk_printf("Warning: No dGfx detected on machine. Will pick another adapter\n");
+            printf("Warning: No dGfx detected on machine. Will pick another adapter\n");
             return 0;
         }
 
@@ -1503,7 +1501,7 @@ mfxU32 CEncodingPipeline::GetPreferredAdapterNum(const mfxAdaptersInfo& adapters
 
         // No iGfx in list
         if (idx == adapters.Adapters + adapters.NumActual) {
-            msdk_printf("Warning: No iGfx detected on machine. Will pick another adapter\n");
+            printf("Warning: No iGfx detected on machine. Will pick another adapter\n");
             return 0;
         }
 
@@ -1591,7 +1589,7 @@ mfxStatus CEncodingPipeline::GetImpl(const sInputParams& params, mfxIMPL& impl) 
 
     sts = MFXQueryAdapters(&interface_request, &adapters);
     if (sts == MFX_ERR_NOT_FOUND) {
-        msdk_printf("ERROR: No suitable adapters found for this workload\n");
+        printf("ERROR: No suitable adapters found for this workload\n");
     }
     MSDK_CHECK_STATUS(sts, "MFXQueryAdapters failed");
 
@@ -1735,30 +1733,30 @@ mfxStatus CEncodingPipeline::Init(sInputParams* pParams) {
     MSDK_CHECK_STATUS(sts, "m_mfxSession.QueryVersion failed");
 
     if ((pParams->MVC_flags & MVC_ENABLED) != 0 && !CheckVersion(&version, MSDK_FEATURE_MVC)) {
-        msdk_printf("error: MVC is not supported in the %d.%d API version\n",
-                    (int)version.Major,
-                    (int)version.Minor);
+        printf("error: MVC is not supported in the %d.%d API version\n",
+               (int)version.Major,
+               (int)version.Minor);
         return MFX_ERR_UNSUPPORTED;
     }
     if ((pParams->MVC_flags & MVC_VIEWOUTPUT) != 0 &&
         !CheckVersion(&version, MSDK_FEATURE_MVC_VIEWOUTPUT)) {
-        msdk_printf("error: MVC Viewoutput is not supported in the %d.%d API version\n",
-                    (int)version.Major,
-                    (int)version.Minor);
+        printf("error: MVC Viewoutput is not supported in the %d.%d API version\n",
+               (int)version.Major,
+               (int)version.Minor);
         return MFX_ERR_UNSUPPORTED;
     }
     if ((pParams->CodecId == MFX_CODEC_JPEG) && !CheckVersion(&version, MSDK_FEATURE_JPEG_ENCODE)) {
-        msdk_printf("error: Jpeg is not supported in the %d.%d API version\n",
-                    (int)version.Major,
-                    (int)version.Minor);
+        printf("error: Jpeg is not supported in the %d.%d API version\n",
+               (int)version.Major,
+               (int)version.Minor);
         return MFX_ERR_UNSUPPORTED;
     }
 
     if ((pParams->nRateControlMethod == MFX_RATECONTROL_LA) &&
         !CheckVersion(&version, MSDK_FEATURE_LOOK_AHEAD)) {
-        msdk_printf("error: Look ahead is not supported in the %d.%d API version\n",
-                    (int)version.Major,
-                    (int)version.Minor);
+        printf("error: Look ahead is not supported in the %d.%d API version\n",
+               (int)version.Major,
+               (int)version.Minor);
         return MFX_ERR_UNSUPPORTED;
     }
 
@@ -1780,14 +1778,14 @@ mfxStatus CEncodingPipeline::Init(sInputParams* pParams) {
         (pParams->FileInputFourCC != pParams->EncodeFourCC && !pParams->bUseHWLib)) {
         bVpp = true;
         if (m_bIsFieldSplitting) {
-            msdk_printf(
+            printf(
                 "ERROR: Field Splitting is enabled according to streams parameters. Other VPP filters cannot be used in this mode, please remove corresponding options.\n");
             return MFX_ERR_UNSUPPORTED;
         }
     }
 
     if (bVpp) {
-        msdk_printf("Note: VPP is enabled.\n");
+        printf("Note: VPP is enabled.\n");
         m_pmfxVPP = new MFXVideoVPP(m_mfxSession);
         MSDK_CHECK_POINTER(m_pmfxVPP, MFX_ERR_MEMORY_ALLOC);
     }
@@ -1814,13 +1812,13 @@ mfxStatus CEncodingPipeline::Init(sInputParams* pParams) {
     }
 
     if (readerShift) {
-        msdk_printf(
+        printf(
             "\n10-bit frames data will be shifted to MSB area to be compatible with MSDK 10-bit input format\n");
     }
 
     if (m_pmfxVPP && pParams->shouldUseShifted10BitVPP && !pParams->shouldUseShifted10BitEnc &&
         pParams->bUseHWLib) {
-        msdk_printf(
+        printf(
             "ERROR: Encoder requires P010 LSB format. VPP currently supports only MSB encoding for P010 format.\nSample cannot combine both of them in one pipeline.\n");
         return MFX_ERR_UNSUPPORTED;
     }
@@ -1919,7 +1917,7 @@ mfxStatus CEncodingPipeline::CaptureStartV4L2Pipeline() {
         v4l2Device* m_v4l2Display = &v4l2Pipeline;
 
         if (pthread_create(&m_PollThread, NULL, PollingThread, (void*)m_v4l2Display)) {
-            msdk_printf("Couldn't create v4l2 polling thread\n");
+            printf("Couldn't create v4l2 polling thread\n");
             return MFX_ERR_UNKNOWN;
         }
     }
@@ -1971,21 +1969,20 @@ mfxStatus CEncodingPipeline::InitEncFrameParams(sTask* pTask) {
 
 void CEncodingPipeline::Close() {
     if (m_FileWriters.first) {
-        msdk_printf("Frame number: %u\r\n", m_FileWriters.first->m_nProcessedFramesNum);
+        printf("Frame number: %u\r\n", m_FileWriters.first->m_nProcessedFramesNum);
         mfxF64 ProcDeltaTime = m_statOverall.GetDeltaTime() - m_statFile.GetDeltaTime() -
                                m_TaskPool.GetFileStatistics().GetDeltaTime();
-        msdk_printf("Encoding fps: %.0f\n",
-                    m_FileWriters.first->m_nProcessedFramesNum / ProcDeltaTime);
+        printf("Encoding fps: %.0f\n", m_FileWriters.first->m_nProcessedFramesNum / ProcDeltaTime);
 
         if (m_bPartialOutput) {
             const msdk_tick freq = time_get_frequency();
 
-            msdk_printf("Average first block latency: %.5f\n",
-                        (1000.0 * m_TaskPool.firstOut_total) /
-                            (freq * m_FileWriters.first->m_nProcessedFramesNum));
-            msdk_printf("Average last block latency: %.5f\n",
-                        (1000.0 * m_TaskPool.lastOut_total) /
-                            (freq * m_FileWriters.first->m_nProcessedFramesNum));
+            printf("Average first block latency: %.5f\n",
+                   (1000.0 * m_TaskPool.firstOut_total) /
+                       (freq * m_FileWriters.first->m_nProcessedFramesNum));
+            printf("Average last block latency: %.5f\n",
+                   (1000.0 * m_TaskPool.lastOut_total) /
+                       (freq * m_FileWriters.first->m_nProcessedFramesNum));
         }
     }
 
@@ -2091,7 +2088,7 @@ mfxStatus CEncodingPipeline::ResetMFXComponents(sInputParams* pParams) {
 
     sts = m_pmfxENC->Init(&m_mfxEncParams);
     if (MFX_WRN_PARTIAL_ACCELERATION == sts) {
-        msdk_printf("WARNING: partial acceleration\n");
+        printf("WARNING: partial acceleration\n");
         MSDK_IGNORE_MFX_STS(sts, MFX_WRN_PARTIAL_ACCELERATION);
     }
 
@@ -2109,7 +2106,7 @@ mfxStatus CEncodingPipeline::ResetMFXComponents(sInputParams* pParams) {
     if (m_pmfxVPP) {
         sts = m_pmfxVPP->Init(&m_mfxVppParams);
         if (MFX_WRN_PARTIAL_ACCELERATION == sts) {
-            msdk_printf("WARNING: partial acceleration\n");
+            printf("WARNING: partial acceleration\n");
             MSDK_IGNORE_MFX_STS(sts, MFX_WRN_PARTIAL_ACCELERATION);
         }
         MSDK_CHECK_STATUS(sts, "m_pmfxVPP->Init failed");
@@ -2147,13 +2144,13 @@ mfxStatus CEncodingPipeline::OpenRoundingOffsetFile(sInputParams* pInParams) {
     bool enableRoundingOffset =
         pInParams->RoundingOffsetFile && pInParams->CodecId == MFX_CODEC_AVC;
     if (enableRoundingOffset && m_round_in == nullptr) {
-        MSDK_FOPEN(m_round_in, pInParams->RoundingOffsetFile, MSDK_CHAR("rb"));
+        MSDK_FOPEN(m_round_in, pInParams->RoundingOffsetFile, "rb");
         if (m_round_in == nullptr) {
-            msdk_printf("ERROR: Can't open file %s\n", pInParams->RoundingOffsetFile);
+            printf("ERROR: Can't open file %s\n", pInParams->RoundingOffsetFile);
             return MFX_ERR_UNSUPPORTED;
         }
 
-        msdk_printf("Using rounding offset input file: %s\n", pInParams->RoundingOffsetFile);
+        printf("Using rounding offset input file: %s\n", pInParams->RoundingOffsetFile);
     }
     else {
         return MFX_ERR_NONE;
@@ -2164,7 +2161,7 @@ mfxStatus CEncodingPipeline::OpenRoundingOffsetFile(sInputParams* pInParams) {
 
 mfxU32 CEncodingPipeline::GetSufficientBufferSize() {
     if (!GetFirstEncoder()) {
-        msdk_printf("ERROR: GetFirstEncoder() fail \n");
+        printf("ERROR: GetFirstEncoder() fail \n");
         return 0;
     }
 
@@ -2284,7 +2281,7 @@ mfxStatus CEncodingPipeline::Run() {
 
 #if defined(ENABLE_V4L2_SUPPORT)
     if (isV4L2InputEnabled) {
-        msdk_printf("Press Ctrl+C to terminate this application\n");
+        printf("Press Ctrl+C to terminate this application\n");
     }
 #endif
 
@@ -2750,77 +2747,74 @@ void CEncodingPipeline::LoadNextControl(mfxEncodeCtrl*& pCtrl, mfxU32 encSurfIdx
 void CEncodingPipeline::PrintLibInfo() {
     mfxStatus sts = m_mfxSession.PrintLibInfo(m_pLoader.get());
     if (sts != MFX_ERR_NONE)
-        msdk_printf("m_mfxSession.PrintLibInfo failed\n");
+        printf("m_mfxSession.PrintLibInfo failed\n");
     return;
 }
 
 void CEncodingPipeline::PrintStreamInfo() {
-    msdk_printf("Encoding Sample Version %s\n", GetMSDKSampleVersion().c_str());
-    msdk_printf("\nInput file format\t%s\n", ColorFormatToStr(m_FileReader.m_ColorFormat));
-    msdk_printf("Output video\t\t%s\n", CodecIdToStr(m_mfxEncParams.mfx.CodecId).c_str());
+    printf("Encoding Sample Version %s\n", GetMSDKSampleVersion().c_str());
+    printf("\nInput file format\t%s\n", ColorFormatToStr(m_FileReader.m_ColorFormat));
+    printf("Output video\t\t%s\n", CodecIdToStr(m_mfxEncParams.mfx.CodecId).c_str());
 
     mfxFrameInfo SrcPicInfo = m_mfxVppParams.vpp.In;
     mfxFrameInfo DstPicInfo = m_mfxEncParams.mfx.FrameInfo;
 
-    msdk_printf("Source picture:\n");
-    msdk_printf("\tResolution\t%dx%d\n", (int)SrcPicInfo.Width, (int)SrcPicInfo.Height);
-    msdk_printf("\tCrop X,Y,W,H\t%d,%d,%d,%d\n",
-                (int)SrcPicInfo.CropX,
-                (int)SrcPicInfo.CropY,
-                (int)SrcPicInfo.CropW,
-                (int)SrcPicInfo.CropH);
+    printf("Source picture:\n");
+    printf("\tResolution\t%dx%d\n", (int)SrcPicInfo.Width, (int)SrcPicInfo.Height);
+    printf("\tCrop X,Y,W,H\t%d,%d,%d,%d\n",
+           (int)SrcPicInfo.CropX,
+           (int)SrcPicInfo.CropY,
+           (int)SrcPicInfo.CropW,
+           (int)SrcPicInfo.CropH);
 
-    msdk_printf("Destination picture:\n");
-    msdk_printf("\tResolution\t%dx%d\n", (int)DstPicInfo.Width, (int)DstPicInfo.Height);
-    msdk_printf("\tCrop X,Y,W,H\t%d,%d,%d,%d\n",
-                (int)DstPicInfo.CropX,
-                (int)DstPicInfo.CropY,
-                (int)DstPicInfo.CropW,
-                (int)DstPicInfo.CropH);
+    printf("Destination picture:\n");
+    printf("\tResolution\t%dx%d\n", (int)DstPicInfo.Width, (int)DstPicInfo.Height);
+    printf("\tCrop X,Y,W,H\t%d,%d,%d,%d\n",
+           (int)DstPicInfo.CropX,
+           (int)DstPicInfo.CropY,
+           (int)DstPicInfo.CropW,
+           (int)DstPicInfo.CropH);
 
-    msdk_printf("Frame rate\t%.2f\n",
-                (double)(DstPicInfo.FrameRateExtN * 1.0 / DstPicInfo.FrameRateExtD));
+    printf("Frame rate\t%.2f\n",
+           (double)(DstPicInfo.FrameRateExtN * 1.0 / DstPicInfo.FrameRateExtD));
     if (m_mfxEncParams.mfx.RateControlMethod != MFX_RATECONTROL_CQP) {
-        msdk_printf("Bit rate(Kbps)\t%d\n", (int)m_mfxEncParams.mfx.TargetKbps);
+        printf("Bit rate(Kbps)\t%d\n", (int)m_mfxEncParams.mfx.TargetKbps);
     }
     else {
-        msdk_printf("QPI\t%d\nQPP\t%d\nQPB\t%d\n",
-                    (int)m_mfxEncParams.mfx.QPI,
-                    (int)m_mfxEncParams.mfx.QPP,
-                    (int)m_mfxEncParams.mfx.QPB);
+        printf("QPI\t%d\nQPP\t%d\nQPB\t%d\n",
+               (int)m_mfxEncParams.mfx.QPI,
+               (int)m_mfxEncParams.mfx.QPP,
+               (int)m_mfxEncParams.mfx.QPB);
     }
-    msdk_printf("Gop size\t%d\n", (int)m_mfxEncParams.mfx.GopPicSize);
-    msdk_printf("Ref dist\t%d\n", (int)m_mfxEncParams.mfx.GopRefDist);
-    msdk_printf("Ref number\t%d\n", (int)m_mfxEncParams.mfx.NumRefFrame);
-    msdk_printf("Idr Interval\t%d\n", (int)m_mfxEncParams.mfx.IdrInterval);
-    msdk_printf("Target usage\t%s\n", TargetUsageToStr(m_mfxEncParams.mfx.TargetUsage));
+    printf("Gop size\t%d\n", (int)m_mfxEncParams.mfx.GopPicSize);
+    printf("Ref dist\t%d\n", (int)m_mfxEncParams.mfx.GopRefDist);
+    printf("Ref number\t%d\n", (int)m_mfxEncParams.mfx.NumRefFrame);
+    printf("Idr Interval\t%d\n", (int)m_mfxEncParams.mfx.IdrInterval);
+    printf("Target usage\t%s\n", TargetUsageToStr(m_mfxEncParams.mfx.TargetUsage));
 
-    const msdk_char* sMemType =
+    const char* sMemType =
 #if defined(_WIN32) || defined(_WIN64)
-        m_memType == D3D9_MEMORY
-            ? MSDK_STRING("d3d")
+        m_memType == D3D9_MEMORY ? "d3d"
 #else
-        m_memType == D3D9_MEMORY
-            ? MSDK_STRING("vaapi")
+        m_memType == D3D9_MEMORY ? "vaapi"
 #endif
-            : (m_memType == D3D11_MEMORY ? MSDK_STRING("d3d11") : MSDK_STRING("system"));
-    msdk_printf("Memory type\t%s\n", sMemType);
+                                 : (m_memType == D3D11_MEMORY ? "d3d11" : "system");
+    printf("Memory type\t%s\n", sMemType);
 
     mfxIMPL impl;
     GetFirstSession().QueryIMPL(&impl);
 
-    const msdk_char* sImpl = (MFX_IMPL_VIA_D3D11 == MFX_IMPL_VIA_MASK(impl))
-                                 ? MSDK_STRING("hw_d3d11")
-                             : (MFX_IMPL_HARDWARE == MFX_IMPL_BASETYPE(impl))  ? MSDK_STRING("hw")
-                             : (MFX_IMPL_HARDWARE2 == MFX_IMPL_BASETYPE(impl)) ? MSDK_STRING("hw2")
-                             : (MFX_IMPL_HARDWARE3 == MFX_IMPL_BASETYPE(impl)) ? MSDK_STRING("hw3")
-                             : (MFX_IMPL_HARDWARE4 == MFX_IMPL_BASETYPE(impl)) ? MSDK_STRING("hw4")
-                                                                               : MSDK_STRING("sw");
-    msdk_printf("Media SDK impl\t\t%s\n", sImpl);
+    const char* sImpl = (MFX_IMPL_VIA_D3D11 == MFX_IMPL_VIA_MASK(impl))   ? "hw_d3d11"
+                        : (MFX_IMPL_HARDWARE == MFX_IMPL_BASETYPE(impl))  ? "hw"
+                        : (MFX_IMPL_HARDWARE2 == MFX_IMPL_BASETYPE(impl)) ? "hw2"
+                        : (MFX_IMPL_HARDWARE3 == MFX_IMPL_BASETYPE(impl)) ? "hw3"
+                        : (MFX_IMPL_HARDWARE4 == MFX_IMPL_BASETYPE(impl)) ? "hw4"
+                                                                          : "sw";
+    printf("Media SDK impl\t\t%s\n", sImpl);
 
     mfxVersion ver;
     GetFirstSession().QueryVersion(&ver);
-    msdk_printf("Media SDK version\t%d.%d\n", (int)ver.Major, (int)ver.Minor);
+    printf("Media SDK version\t%d.%d\n", (int)ver.Major, (int)ver.Minor);
 
-    msdk_printf("\n");
+    printf("\n");
 }

@@ -76,16 +76,15 @@ public:
         m_bNeedDumping = false;
     }
 
-    inline void PrintStatistics(const msdk_char* prefix) {
-        msdk_printf(
-            "%s Total:%.3lfms(%llu smpls),Avg %.3lfms,StdDev:%.3lfms,Min:%.3lfms,Max:%.3lfms\n",
-            prefix,
-            (double)totalTime,
-            (unsigned long long int)numMeasurements,
-            (double)GetAvgTime(false),
-            (double)GetTimeStdDev(false),
-            (double)GetMinTime(false),
-            (double)GetMaxTime(false));
+    inline void PrintStatistics(const char* prefix) {
+        printf("%s Total:%.3lfms(%llu smpls),Avg %.3lfms,StdDev:%.3lfms,Min:%.3lfms,Max:%.3lfms\n",
+               prefix,
+               (double)totalTime,
+               (unsigned long long int)numMeasurements,
+               (double)GetAvgTime(false),
+               (double)GetTimeStdDev(false),
+               (double)GetMinTime(false),
+               (double)GetMaxTime(false));
     }
 
     inline mfxU64 GetNumMeasurements() {
@@ -174,7 +173,7 @@ public:
 
     inline void TurnOffDumping() {}
 
-    inline void PrintStatistics(const msdk_char* /*prefix*/) {}
+    inline void PrintStatistics(const char* /*prefix*/) {}
 
     inline mfxU64 GetNumMeasurements() {
         return 0;

@@ -175,11 +175,11 @@ void PTSMaker::JumpPTS() {
 }
 
 void PTSMaker::PrintDumpInfo() {
-    msdk_printf("Error in PTS setting \n");
-    msdk_printf("Input frame number is %d\n", m_NumFrame_In);
-    msdk_printf("Output frame number is %d\n", m_NumFrame_Out);
-    msdk_printf("Initial time offset is %f\n", m_TimeOffset);
-    msdk_printf("PTS difference is %f\n", m_CurrDiff);
+    printf("Error in PTS setting \n");
+    printf("Input frame number is %d\n", m_NumFrame_In);
+    printf("Output frame number is %d\n", m_NumFrame_Out);
+    printf("Initial time offset is %f\n", m_TimeOffset);
+    printf("PTS difference is %f\n", m_CurrDiff);
 }
 
 /***************************************************************************/

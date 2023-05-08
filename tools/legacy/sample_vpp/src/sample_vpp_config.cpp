@@ -243,7 +243,7 @@ mfxStatus Config3dlut(sInputParams* pParams, sAppResources* pResources) {
 
     if (pParams->b3dLut) {
         FILE* file;
-        MSDK_FOPEN(file, pParams->lutTableFile, MSDK_STRING("rb"));
+        MSDK_FOPEN(file, pParams->lutTableFile, "rb");
         if (!file)
             return MFX_ERR_NULL_PTR;
         fseek(file, 0, SEEK_END);

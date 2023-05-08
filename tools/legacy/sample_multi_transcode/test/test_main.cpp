@@ -25,9 +25,7 @@ struct init_result {
 #define EXPECT_CONTAINS(ACTUAL, EXPECTED) EXPECT_TRUE(ACTUAL.find(EXPECTED) != ACTUAL.npos);
 
 // TranscodingSample::CmdProcessor::ParseCmdLine expects non-const char*
-init_result init(int argc,
-                 msdk_char* argv[],
-                 TranscodingSample::CmdProcessor* cmd_override = nullptr) {
+init_result init(int argc, char* argv[], TranscodingSample::CmdProcessor* cmd_override = nullptr) {
     init_result result;
     std::stringstream ss;
     for (int i = 0; i < argc; i++) {
@@ -81,33 +79,33 @@ void print_result(const init_result& result) {
     }
 }
 
-init_result init_no_extras(std::vector<msdk_string> opts,
+init_result init_no_extras(std::vector<std::string> opts,
                            TranscodingSample::CmdProcessor* cmd_override = nullptr) {
-    std::vector<msdk_char*> args;
+    std::vector<char*> args;
     for (auto& opt : opts) {
         args.push_back(&opt[0]);
     }
     return init((int)args.size(), &args[0], cmd_override);
 }
 
-init_result init_session(std::vector<msdk_string> opts,
+init_result init_session(std::vector<std::string> opts,
                          TranscodingSample::CmdProcessor* cmd_override = nullptr) {
     opts.insert(opts.begin(), "out_file");
     opts.insert(opts.begin(), "-o::h265");
     opts.insert(opts.begin(), "in_file");
     opts.insert(opts.begin(), "-i::h264");
     opts.insert(opts.begin(), "exe_name");
-    std::vector<msdk_char*> args;
+    std::vector<char*> args;
     for (auto& opt : opts) {
         args.push_back(&opt[0]);
     }
     return init((int)args.size(), &args[0], cmd_override);
 }
 
-init_result init(std::vector<msdk_string> opts,
+init_result init(std::vector<std::string> opts,
                  TranscodingSample::CmdProcessor* cmd_override = nullptr) {
     opts.insert(opts.begin(), "exe_name");
-    std::vector<msdk_char*> args;
+    std::vector<char*> args;
     for (auto& opt : opts) {
         args.push_back(&opt[0]);
     }
@@ -115,7 +113,7 @@ init_result init(std::vector<msdk_string> opts,
 }
 
 TEST(Transcode_CLI, build_env) {
-    std::cout << "msdk_char size: " << sizeof(msdk_char) << std::endl;
+    std::cout << "char size: " << sizeof(char) << std::endl;
 }
 
 TEST(Transcode_CLI, Optionsx0) {
@@ -206,11 +204,11 @@ TEST(Transcode_CLI, TrivialSessionOptions) {
     EXPECT_EQ(result.parsed[0].bSoftRobustFlag, false);
     EXPECT_EQ(result.parsed[0].EncodeId, MFX_CODEC_HEVC);
     EXPECT_EQ(result.parsed[0].DecodeId, MFX_CODEC_AVC);
-    EXPECT_EQ(msdk_string(result.parsed[0].strSrcFile), msdk_string("in_file"));
-    EXPECT_EQ(msdk_string(result.parsed[0].strDstFile), msdk_string("out_file"));
-    EXPECT_TRUE(msdk_string(result.parsed[0].strDumpVppCompFile).empty());
-    EXPECT_TRUE(msdk_string(result.parsed[0].strMfxParamsDumpFile).empty());
-    EXPECT_TRUE(msdk_string(result.parsed[0].strTCBRCFilePath).empty());
+    EXPECT_EQ(std::string(result.parsed[0].strSrcFile), std::string("in_file"));
+    EXPECT_EQ(std::string(result.parsed[0].strDstFile), std::string("out_file"));
+    EXPECT_TRUE(std::string(result.parsed[0].strDumpVppCompFile).empty());
+    EXPECT_TRUE(std::string(result.parsed[0].strMfxParamsDumpFile).empty());
+    EXPECT_TRUE(std::string(result.parsed[0].strTCBRCFilePath).empty());
     EXPECT_EQ(result.parsed[0].nTargetUsage, 0);
     EXPECT_EQ(result.parsed[0].dDecoderFrameRateOverride, 0.0);
     EXPECT_EQ(result.parsed[0].dEncoderFrameRateOverride, 0.0);
@@ -269,13 +267,13 @@ TEST(Transcode_CLI, TrivialSessionOptions) {
     EXPECT_EQ(result.parsed[0].bIsMVC, false);
     EXPECT_EQ(result.parsed[0].numViews, 0);
     EXPECT_EQ(result.parsed[0].nRotationAngle, 0);
-    EXPECT_TRUE(msdk_string(result.parsed[0].strVPPPluginDLLPath).empty());
-    EXPECT_TRUE(msdk_string(result.parsed[0].decoderPluginParams.strPluginPath).empty());
+    EXPECT_TRUE(std::string(result.parsed[0].strVPPPluginDLLPath).empty());
+    EXPECT_TRUE(std::string(result.parsed[0].decoderPluginParams.strPluginPath).empty());
     for (int i = 0; i < 16; ++i) {
         EXPECT_EQ(result.parsed[0].decoderPluginParams.pluginGuid.Data[i], 0);
     }
     EXPECT_EQ(result.parsed[0].decoderPluginParams.type, (MfxPluginLoadType)0);
-    EXPECT_TRUE(msdk_string(result.parsed[0].encoderPluginParams.strPluginPath).empty());
+    EXPECT_TRUE(std::string(result.parsed[0].encoderPluginParams.strPluginPath).empty());
     for (int i = 0; i < 16; ++i) {
         EXPECT_EQ(result.parsed[0].encoderPluginParams.pluginGuid.Data[i], 0);
     }
@@ -402,7 +400,7 @@ TEST(Transcode_CLI, TrivialSessionOptions) {
     EXPECT_EQ(result.parsed[0].PresetMode, PRESET_DEFAULT);
     EXPECT_EQ(result.parsed[0].shouldPrintPresets, false);
     EXPECT_EQ(result.parsed[0].rawInput, false);
-    EXPECT_TRUE(msdk_string(result.parsed[0].str3DLutFile).empty());
+    EXPECT_TRUE(std::string(result.parsed[0].str3DLutFile).empty());
     EXPECT_EQ(result.parsed[0].bEnable3DLut, false);
     EXPECT_EQ(result.parsed[0].nMemoryModel, 0);
     EXPECT_EQ(result.parsed[0].AllocPolicy, MFX_ALLOCATION_UNLIMITED);
@@ -442,57 +440,57 @@ TEST(Transcode_CLI, InputCodecSelect) {
     EXPECT_EQ(result.status, MFX_ERR_NONE);
     EXPECT_EQ(result.parsed[0].EncodeId, MFX_CODEC_HEVC);
     EXPECT_EQ(result.parsed[0].DecodeId, MFX_CODEC_MPEG2);
-    EXPECT_EQ(msdk_string(result.parsed[0].strSrcFile), msdk_string("in_file"));
-    EXPECT_EQ(msdk_string(result.parsed[0].strDstFile), msdk_string("out_file"));
+    EXPECT_EQ(std::string(result.parsed[0].strSrcFile), std::string("in_file"));
+    EXPECT_EQ(std::string(result.parsed[0].strDstFile), std::string("out_file"));
 
     result = init({ "-i::h264", "in_file", "-o::h265", "out_file" }, &cmd);
     EXPECT_EQ(result.status, MFX_ERR_NONE);
     EXPECT_EQ(result.parsed[0].EncodeId, MFX_CODEC_HEVC);
     EXPECT_EQ(result.parsed[0].DecodeId, MFX_CODEC_AVC);
-    EXPECT_EQ(msdk_string(result.parsed[0].strSrcFile), msdk_string("in_file"));
-    EXPECT_EQ(msdk_string(result.parsed[0].strDstFile), msdk_string("out_file"));
+    EXPECT_EQ(std::string(result.parsed[0].strSrcFile), std::string("in_file"));
+    EXPECT_EQ(std::string(result.parsed[0].strDstFile), std::string("out_file"));
 
     result = init({ "-i::h265", "in_file", "-o::h265", "out_file" }, &cmd);
     EXPECT_EQ(result.status, MFX_ERR_NONE);
     EXPECT_EQ(result.parsed[0].EncodeId, MFX_CODEC_HEVC);
     EXPECT_EQ(result.parsed[0].DecodeId, MFX_CODEC_HEVC);
-    EXPECT_EQ(msdk_string(result.parsed[0].strSrcFile), msdk_string("in_file"));
-    EXPECT_EQ(msdk_string(result.parsed[0].strDstFile), msdk_string("out_file"));
+    EXPECT_EQ(std::string(result.parsed[0].strSrcFile), std::string("in_file"));
+    EXPECT_EQ(std::string(result.parsed[0].strDstFile), std::string("out_file"));
 
     result = init({ "-i::vc1", "in_file", "-o::h265", "out_file" }, &cmd);
     EXPECT_EQ(result.status, MFX_ERR_NONE);
     EXPECT_EQ(result.parsed[0].EncodeId, MFX_CODEC_HEVC);
     EXPECT_EQ(result.parsed[0].DecodeId, MFX_CODEC_VC1);
-    EXPECT_EQ(msdk_string(result.parsed[0].strSrcFile), msdk_string("in_file"));
-    EXPECT_EQ(msdk_string(result.parsed[0].strDstFile), msdk_string("out_file"));
+    EXPECT_EQ(std::string(result.parsed[0].strSrcFile), std::string("in_file"));
+    EXPECT_EQ(std::string(result.parsed[0].strDstFile), std::string("out_file"));
 
     result = init({ "-i::jpeg", "in_file", "-o::h265", "out_file" }, &cmd);
     EXPECT_EQ(result.status, MFX_ERR_NONE);
     EXPECT_EQ(result.parsed[0].EncodeId, MFX_CODEC_HEVC);
     EXPECT_EQ(result.parsed[0].DecodeId, MFX_CODEC_JPEG);
-    EXPECT_EQ(msdk_string(result.parsed[0].strSrcFile), msdk_string("in_file"));
-    EXPECT_EQ(msdk_string(result.parsed[0].strDstFile), msdk_string("out_file"));
+    EXPECT_EQ(std::string(result.parsed[0].strSrcFile), std::string("in_file"));
+    EXPECT_EQ(std::string(result.parsed[0].strDstFile), std::string("out_file"));
 
     result = init({ "-i::vp8", "in_file", "-o::h265", "out_file" }, &cmd);
     EXPECT_EQ(result.status, MFX_ERR_NONE);
     EXPECT_EQ(result.parsed[0].EncodeId, MFX_CODEC_HEVC);
     EXPECT_EQ(result.parsed[0].DecodeId, MFX_CODEC_VP8);
-    EXPECT_EQ(msdk_string(result.parsed[0].strSrcFile), msdk_string("in_file"));
-    EXPECT_EQ(msdk_string(result.parsed[0].strDstFile), msdk_string("out_file"));
+    EXPECT_EQ(std::string(result.parsed[0].strSrcFile), std::string("in_file"));
+    EXPECT_EQ(std::string(result.parsed[0].strDstFile), std::string("out_file"));
 
     result = init({ "-i::vp9", "in_file", "-o::h265", "out_file" }, &cmd);
     EXPECT_EQ(result.status, MFX_ERR_NONE);
     EXPECT_EQ(result.parsed[0].EncodeId, MFX_CODEC_HEVC);
     EXPECT_EQ(result.parsed[0].DecodeId, MFX_CODEC_VP9);
-    EXPECT_EQ(msdk_string(result.parsed[0].strSrcFile), msdk_string("in_file"));
-    EXPECT_EQ(msdk_string(result.parsed[0].strDstFile), msdk_string("out_file"));
+    EXPECT_EQ(std::string(result.parsed[0].strSrcFile), std::string("in_file"));
+    EXPECT_EQ(std::string(result.parsed[0].strDstFile), std::string("out_file"));
 
     result = init({ "-i::av1", "in_file", "-o::h265", "out_file" }, &cmd);
     EXPECT_EQ(result.status, MFX_ERR_NONE);
     EXPECT_EQ(result.parsed[0].EncodeId, MFX_CODEC_HEVC);
     EXPECT_EQ(result.parsed[0].DecodeId, MFX_CODEC_AV1);
-    EXPECT_EQ(msdk_string(result.parsed[0].strSrcFile), msdk_string("in_file"));
-    EXPECT_EQ(msdk_string(result.parsed[0].strDstFile), msdk_string("out_file"));
+    EXPECT_EQ(std::string(result.parsed[0].strSrcFile), std::string("in_file"));
+    EXPECT_EQ(std::string(result.parsed[0].strDstFile), std::string("out_file"));
 }
 
 TEST(Transcode_CLI, InputRawCodecSelect) {
@@ -511,43 +509,43 @@ TEST(Transcode_CLI, OutputCodecSelect) {
     EXPECT_EQ(result.status, MFX_ERR_NONE);
     EXPECT_EQ(result.parsed[0].EncodeId, MFX_CODEC_MPEG2);
     EXPECT_EQ(result.parsed[0].DecodeId, MFX_CODEC_HEVC);
-    EXPECT_EQ(msdk_string(result.parsed[0].strSrcFile), msdk_string("in_file"));
-    EXPECT_EQ(msdk_string(result.parsed[0].strDstFile), msdk_string("out_file"));
+    EXPECT_EQ(std::string(result.parsed[0].strSrcFile), std::string("in_file"));
+    EXPECT_EQ(std::string(result.parsed[0].strDstFile), std::string("out_file"));
 
     result = init({ "-i::h265", "in_file", "-o::h264", "out_file" }, &cmd);
     EXPECT_EQ(result.status, MFX_ERR_NONE);
     EXPECT_EQ(result.parsed[0].EncodeId, MFX_CODEC_AVC);
     EXPECT_EQ(result.parsed[0].DecodeId, MFX_CODEC_HEVC);
-    EXPECT_EQ(msdk_string(result.parsed[0].strSrcFile), msdk_string("in_file"));
-    EXPECT_EQ(msdk_string(result.parsed[0].strDstFile), msdk_string("out_file"));
+    EXPECT_EQ(std::string(result.parsed[0].strSrcFile), std::string("in_file"));
+    EXPECT_EQ(std::string(result.parsed[0].strDstFile), std::string("out_file"));
 
     result = init({ "-i::h265", "in_file", "-o::h265", "out_file" }, &cmd);
     EXPECT_EQ(result.status, MFX_ERR_NONE);
     EXPECT_EQ(result.parsed[0].EncodeId, MFX_CODEC_HEVC);
     EXPECT_EQ(result.parsed[0].DecodeId, MFX_CODEC_HEVC);
-    EXPECT_EQ(msdk_string(result.parsed[0].strSrcFile), msdk_string("in_file"));
-    EXPECT_EQ(msdk_string(result.parsed[0].strDstFile), msdk_string("out_file"));
+    EXPECT_EQ(std::string(result.parsed[0].strSrcFile), std::string("in_file"));
+    EXPECT_EQ(std::string(result.parsed[0].strDstFile), std::string("out_file"));
 
     result = init({ "-i::h265", "in_file", "-o::jpeg", "out_file" }, &cmd);
     EXPECT_EQ(result.status, MFX_ERR_NONE);
     EXPECT_EQ(result.parsed[0].EncodeId, MFX_CODEC_JPEG);
     EXPECT_EQ(result.parsed[0].DecodeId, MFX_CODEC_HEVC);
-    EXPECT_EQ(msdk_string(result.parsed[0].strSrcFile), msdk_string("in_file"));
-    EXPECT_EQ(msdk_string(result.parsed[0].strDstFile), msdk_string("out_file"));
+    EXPECT_EQ(std::string(result.parsed[0].strSrcFile), std::string("in_file"));
+    EXPECT_EQ(std::string(result.parsed[0].strDstFile), std::string("out_file"));
 
     result = init({ "-i::h265", "in_file", "-o::vp9", "out_file" }, &cmd);
     EXPECT_EQ(result.status, MFX_ERR_NONE);
     EXPECT_EQ(result.parsed[0].EncodeId, MFX_CODEC_VP9);
     EXPECT_EQ(result.parsed[0].DecodeId, MFX_CODEC_HEVC);
-    EXPECT_EQ(msdk_string(result.parsed[0].strSrcFile), msdk_string("in_file"));
-    EXPECT_EQ(msdk_string(result.parsed[0].strDstFile), msdk_string("out_file"));
+    EXPECT_EQ(std::string(result.parsed[0].strSrcFile), std::string("in_file"));
+    EXPECT_EQ(std::string(result.parsed[0].strDstFile), std::string("out_file"));
 
     result = init({ "-i::h265", "in_file", "-o::av1", "out_file" }, &cmd);
     EXPECT_EQ(result.status, MFX_ERR_NONE);
     EXPECT_EQ(result.parsed[0].EncodeId, MFX_CODEC_AV1);
     EXPECT_EQ(result.parsed[0].DecodeId, MFX_CODEC_HEVC);
-    EXPECT_EQ(msdk_string(result.parsed[0].strSrcFile), msdk_string("in_file"));
-    EXPECT_EQ(msdk_string(result.parsed[0].strDstFile), msdk_string("out_file"));
+    EXPECT_EQ(std::string(result.parsed[0].strSrcFile), std::string("in_file"));
+    EXPECT_EQ(std::string(result.parsed[0].strDstFile), std::string("out_file"));
 }
 
 TEST(Transcode_CLI, OutputMVCCodecSelect) {
@@ -586,7 +584,7 @@ TEST(Transcode_CLI, OptionIMissingFile) {
     EXPECT_EQ(result.status, MFX_ERR_UNSUPPORTED);
     EXPECT_CONTAINS(result.out, "parameters");
     EXPECT_EQ(result.parsed[0].DecodeId, MFX_CODEC_AVC);
-    EXPECT_TRUE(msdk_string(result.parsed[0].strSrcFile).empty());
+    EXPECT_TRUE(std::string(result.parsed[0].strSrcFile).empty());
 }
 
 TEST(Transcode_CLI, OptionISpecials) {
@@ -681,7 +679,7 @@ TEST(Transcode_CLI, OptionPerfFile) {
         TranscodingSample::CmdProcessor cmd;
         auto result = init_session({ "-p", name }, &cmd);
         EXPECT_EQ(result.status, MFX_ERR_NONE);
-        EXPECT_EQ(cmd.GetPerformanceFile(), msdk_string(name));
+        EXPECT_EQ(cmd.GetPerformanceFile(), std::string(name));
     } while (0);
     remove(name);
 }
@@ -737,14 +735,14 @@ TEST(Transcode_CLI, OptionHWD3D9) {
 TEST(Transcode_CLI, OptionDevice0) {
     auto result = init_session({ "-device", "foo/bar/renderD0" });
     EXPECT_EQ(result.status, MFX_ERR_NONE);
-    EXPECT_EQ(result.parsed[0].strDevicePath, msdk_string("foo/bar/renderD0"));
+    EXPECT_EQ(result.parsed[0].strDevicePath, std::string("foo/bar/renderD0"));
     EXPECT_EQ(result.parsed[0].DRMRenderNodeNum, 0);
 }
 
 TEST(Transcode_CLI, OptionDevice128) {
     auto result = init_session({ "-device", "foo/bar/renderD128" });
     EXPECT_EQ(result.status, MFX_ERR_NONE);
-    EXPECT_EQ(result.parsed[0].strDevicePath, msdk_string("foo/bar/renderD128"));
+    EXPECT_EQ(result.parsed[0].strDevicePath, std::string("foo/bar/renderD128"));
     EXPECT_EQ(result.parsed[0].DRMRenderNodeNum, 128);
 }
 
@@ -752,7 +750,7 @@ TEST(Transcode_CLI, OptionDevice1024) {
     GTEST_SKIP() << "Test failing in existing codebase";
     auto result = init_session({ "-device", "foo/bar/renderD1024" });
     EXPECT_EQ(result.status, MFX_ERR_NONE);
-    EXPECT_EQ(result.parsed[0].strDevicePath, msdk_string("foo/bar/renderD1024"));
+    EXPECT_EQ(result.parsed[0].strDevicePath, std::string("foo/bar/renderD1024"));
     EXPECT_EQ(result.parsed[0].DRMRenderNodeNum, 128);
 }
 

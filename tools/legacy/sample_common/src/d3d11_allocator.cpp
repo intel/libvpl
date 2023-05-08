@@ -138,8 +138,7 @@ mfxStatus D3D11FrameAllocator::LockFrame(mfxMemId mid, mfxFrameData* ptr) {
                     hRes =
                         m_pDeviceContext->Map(sr.GetStaging(), 0, mapType, mapFlags, &lockedRect);
                     if (S_OK != hRes && DXGI_ERROR_WAS_STILL_DRAWING != hRes) {
-                        msdk_printf("ERROR: m_pDeviceContext->Map = 0x%08lx\n",
-                                    (unsigned long int)hRes);
+                        printf("ERROR: m_pDeviceContext->Map = 0x%08lx\n", (unsigned long int)hRes);
                     }
                 } while (DXGI_ERROR_WAS_STILL_DRAWING == hRes);
             }
@@ -365,8 +364,8 @@ mfxStatus D3D11FrameAllocator::AllocImpl(mfxFrameAllocRequest* request,
     DXGI_FORMAT colorFormat = ConverColortFormat(request->Info.FourCC);
 
     if (DXGI_FORMAT_UNKNOWN == colorFormat) {
-        msdk_printf("D3D11 Allocator: invalid fourcc is provided (%#X), exitting\n",
-                    (unsigned int)request->Info.FourCC);
+        printf("D3D11 Allocator: invalid fourcc is provided (%#X), exitting\n",
+               (unsigned int)request->Info.FourCC);
         return MFX_ERR_UNSUPPORTED;
     }
 
@@ -438,9 +437,9 @@ mfxStatus D3D11FrameAllocator::AllocImpl(mfxFrameAllocRequest* request,
             hRes = m_initParams.pDevice->CreateTexture2D(&desc, NULL, &pTexture2D);
 
             if (FAILED(hRes)) {
-                msdk_printf("CreateTexture2D(%lld) failed, hr = 0x%08lx\n",
-                            (long long)i,
-                            (unsigned long int)hRes);
+                printf("CreateTexture2D(%lld) failed, hr = 0x%08lx\n",
+                       (long long)i,
+                       (unsigned long int)hRes);
                 return MFX_ERR_MEMORY_ALLOC;
             }
             newTexture.textures.push_back(pTexture2D);
@@ -456,9 +455,9 @@ mfxStatus D3D11FrameAllocator::AllocImpl(mfxFrameAllocRequest* request,
             hRes = m_initParams.pDevice->CreateTexture2D(&desc, NULL, &pTexture2D);
 
             if (FAILED(hRes)) {
-                msdk_printf("Create staging texture(%lld) failed hr = 0x%X\n",
-                            (long long)i,
-                            (unsigned int)hRes);
+                printf("Create staging texture(%lld) failed hr = 0x%X\n",
+                       (long long)i,
+                       (unsigned int)hRes);
                 return MFX_ERR_MEMORY_ALLOC;
             }
             newTexture.stagingTexture.push_back(pTexture2D);

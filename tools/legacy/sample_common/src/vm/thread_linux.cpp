@@ -273,23 +273,23 @@ mfxStatus msdk_setrlimit_vmem(mfxU64 size) {
     return MFX_ERR_NONE;
 }
 
-mfxStatus msdk_thread_get_schedtype(const msdk_char* str, mfxI32& type) {
-    if (!msdk_strcmp(str, MSDK_STRING("fifo"))) {
+mfxStatus msdk_thread_get_schedtype(const char* str, mfxI32& type) {
+    if (!strcmp(str, "fifo")) {
         type = SCHED_FIFO;
     }
-    else if (!msdk_strcmp(str, MSDK_STRING("rr"))) {
+    else if (!strcmp(str, "rr")) {
         type = SCHED_RR;
     }
-    else if (!msdk_strcmp(str, MSDK_STRING("other"))) {
+    else if (!strcmp(str, "other")) {
         type = SCHED_OTHER;
     }
-    else if (!msdk_strcmp(str, MSDK_STRING("batch"))) {
+    else if (!strcmp(str, "batch")) {
         type = SCHED_BATCH;
     }
-    else if (!msdk_strcmp(str, MSDK_STRING("idle"))) {
+    else if (!strcmp(str, "idle")) {
         type = SCHED_IDLE;
     }
-    //    else if (!msdk_strcmp(str, MSDK_STRING("deadline"))) {
+    //    else if (!strcmp(str, "deadline")) {
     //        type = SCHED_DEADLINE;
     //    }
     else {
@@ -299,23 +299,23 @@ mfxStatus msdk_thread_get_schedtype(const msdk_char* str, mfxI32& type) {
 }
 
 void msdk_thread_printf_scheduling_help() {
-    msdk_printf("Note on the scheduling types and priorities:\n");
-    msdk_printf("  - <sched_type>: <priority_min> .. <priority_max> (notes)\n");
-    msdk_printf("The following scheduling types requires root privileges:\n");
-    msdk_printf("  - fifo: %d .. %d (static priority: low .. high)\n",
-                sched_get_priority_min(SCHED_FIFO),
-                sched_get_priority_max(SCHED_FIFO));
-    msdk_printf("  - rr: %d .. %d (static priority: low .. high)\n",
-                sched_get_priority_min(SCHED_RR),
-                sched_get_priority_max(SCHED_RR));
-    msdk_printf("The following scheduling types can be used by non-privileged users:\n");
-    msdk_printf("  - other: 0 .. 0 (static priority always 0)\n");
-    msdk_printf("  - batch: 0 .. 0 (static priority always 0)\n");
-    msdk_printf("  - idle: n/a\n");
-    msdk_printf("If you want to adjust priority for the other or batch scheduling type,\n");
-    msdk_printf("you can do that process-wise using dynamic priority - so called nice value.\n");
-    msdk_printf("Range for the nice value is: %d .. %d (high .. low)\n", PRIO_MIN, PRIO_MAX);
-    msdk_printf("Please, see 'man(1) nice' for details.\n");
+    printf("Note on the scheduling types and priorities:\n");
+    printf("  - <sched_type>: <priority_min> .. <priority_max> (notes)\n");
+    printf("The following scheduling types requires root privileges:\n");
+    printf("  - fifo: %d .. %d (static priority: low .. high)\n",
+           sched_get_priority_min(SCHED_FIFO),
+           sched_get_priority_max(SCHED_FIFO));
+    printf("  - rr: %d .. %d (static priority: low .. high)\n",
+           sched_get_priority_min(SCHED_RR),
+           sched_get_priority_max(SCHED_RR));
+    printf("The following scheduling types can be used by non-privileged users:\n");
+    printf("  - other: 0 .. 0 (static priority always 0)\n");
+    printf("  - batch: 0 .. 0 (static priority always 0)\n");
+    printf("  - idle: n/a\n");
+    printf("If you want to adjust priority for the other or batch scheduling type,\n");
+    printf("you can do that process-wise using dynamic priority - so called nice value.\n");
+    printf("Range for the nice value is: %d .. %d (high .. low)\n", PRIO_MIN, PRIO_MAX);
+    printf("Please, see 'man(1) nice' for details.\n");
 }
 
 mfxU32 msdk_get_current_pid() {

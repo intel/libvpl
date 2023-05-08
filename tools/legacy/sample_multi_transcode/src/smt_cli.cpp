@@ -40,9 +40,9 @@
 
 using namespace TranscodingSample;
 
-msdk_string GetDllInfo(sInputParams* pParams) {
+std::string GetDllInfo(sInputParams* pParams) {
 #if defined(_WIN32) || defined(_WIN64)
-    std::vector<msdk_char> buf;
+    std::vector<char> buf;
     buf.resize(2048);
     HANDLE hCurrent = GetCurrentProcess();
     std::vector<HMODULE> modules;
@@ -62,10 +62,10 @@ msdk_string GetDllInfo(sInputParams* pParams) {
             chars_read = GetModuleFileName(module, &buf[0], (DWORD)buf.size());
         }
         if (msdk_contains(&buf[0], "libmfxhw") && (MFX_IMPL_SOFTWARE != pParams->libType)) {
-            return msdk_string(buf.begin(), buf.end());
+            return std::string(buf.begin(), buf.end());
         }
         else if (msdk_contains(&buf[0], "libmfxsw") && (MFX_IMPL_SOFTWARE == pParams->libType)) {
-            return msdk_string(buf.begin(), buf.end());
+            return std::string(buf.begin(), buf.end());
         }
     }
 #endif
@@ -92,14 +92,12 @@ msdk_string GetDllInfo(sInputParams* pParams) {
 // note that we are not using std::endl because
 // we don't need or want to flush the buffer
 // each line.
-#define HELP_LINE(TEXT) msdk_cout << TEXT << "\n"
+#define HELP_LINE(TEXT) std::cout << TEXT << "\n"
 
-size_t split(const msdk_string& source,
-             std::vector<msdk_string>& dest,
-             msdk_char delim = msdk_char(' ')) {
+size_t split(const std::string& source, std::vector<std::string>& dest, char delim = char(' ')) {
     size_t items = 0;
-    msdk_string item;
-    msdk_stringstream source_stream(source);
+    std::string item;
+    std::stringstream source_stream(source);
     while (getline(source_stream, item, delim)) {
         items += 1;
         dest.push_back(item);
@@ -109,7 +107,7 @@ size_t split(const msdk_string& source,
 
 void TranscodingSample::PrintError(const wchar_t* strErrorMessage, ...) {
     if (strErrorMessage) {
-        msdk_printf("ERROR: ");
+        printf("ERROR: ");
         va_list args;
         va_start(args, strErrorMessage);
         vwprintf(strErrorMessage, args);
@@ -120,17 +118,17 @@ void TranscodingSample::PrintError(const wchar_t* strErrorMessage, ...) {
         HELP_LINE("");
         HELP_LINE("Run application with -? option to get full help text.");
         HELP_LINE("");
-        msdk_cout.flush();
+        std::cout.flush();
     }
 }
 
 void TranscodingSample::PrintError(const char* strErrorMessage, ...) {
     if (strErrorMessage) {
-        msdk_printf("ERROR: ");
+        printf("ERROR: ");
         va_list args;
         va_start(args, strErrorMessage);
-        msdk_string message(strErrorMessage, strErrorMessage + strlen(strErrorMessage));
-        msdk_vprintf(message.c_str(), args);
+        std::string message(strErrorMessage, strErrorMessage + strlen(strErrorMessage));
+        vprintf(message.c_str(), args);
         va_end(args);
         HELP_LINE("");
         HELP_LINE("Usage: sample_multi_transcode [options] [--] pipeline-description");
@@ -138,12 +136,12 @@ void TranscodingSample::PrintError(const char* strErrorMessage, ...) {
         HELP_LINE("");
         HELP_LINE("Run application with -? option to get full help text.");
         HELP_LINE("");
-        msdk_cout.flush();
+        std::cout.flush();
     }
 }
 
 void PrintHelp() {
-    msdk_printf("Multi Transcoding Sample Version %s\n", GetMSDKSampleVersion().c_str());
+    printf("Multi Transcoding Sample Version %s\n", GetMSDKSampleVersion().c_str());
     HELP_LINE("");
     HELP_LINE("Command line parameters");
     HELP_LINE("");
@@ -859,7 +857,7 @@ void PrintHelp() {
     HELP_LINE("Examples:");
     HELP_LINE("  sample_multi_transcode -i::mpeg2 in.mpeg2 -o::h264 out.h264");
     HELP_LINE("  sample_multi_transcode -i::mvc in.mvc -o::mvc out.mvc -w 320 -h 240");
-    msdk_cout.flush();
+    std::cout.flush();
 }
 
 void TranscodingSample::PrintStreamInfo(mfxU32 session_number,
@@ -868,27 +866,27 @@ void TranscodingSample::PrintStreamInfo(mfxU32 session_number,
     MSDK_CHECK_POINTER_NO_RET(pVer);
 
     if ((MFX_IMPL_AUTO <= pParams->libType) && (MFX_IMPL_HARDWARE4 >= pParams->libType)) {
-        msdk_printf("MFX %s Session %d API ver %d.%d parameters: \n",
-                    (MFX_IMPL_SOFTWARE == pParams->libType) ? "SOFTWARE" : "HARDWARE",
-                    (int)session_number,
-                    (int)pVer->Major,
-                    (int)pVer->Minor);
+        printf("MFX %s Session %d API ver %d.%d parameters: \n",
+               (MFX_IMPL_SOFTWARE == pParams->libType) ? "SOFTWARE" : "HARDWARE",
+               (int)session_number,
+               (int)pVer->Major,
+               (int)pVer->Minor);
     }
 
     if (0 == pParams->DecodeId)
-        msdk_printf("Input  video: From parent session\n");
+        printf("Input  video: From parent session\n");
     else
-        msdk_printf("Input  video: %s\n", CodecIdToStr(pParams->DecodeId).c_str());
+        printf("Input  video: %s\n", CodecIdToStr(pParams->DecodeId).c_str());
 
     // means that source is parent session
     if (0 == pParams->EncodeId)
-        msdk_printf("Output video: To child session\n");
+        printf("Output video: To child session\n");
     else
-        msdk_printf("Output video: %s\n", CodecIdToStr(pParams->EncodeId).c_str());
-    msdk_string dll_info = GetDllInfo(pParams);
+        printf("Output video: %s\n", CodecIdToStr(pParams->EncodeId).c_str());
+    std::string dll_info = GetDllInfo(pParams);
     if (!dll_info.empty())
-        msdk_printf("MFX dll: %s\n", dll_info.c_str());
-    msdk_printf("\n");
+        printf("MFX dll: %s\n", dll_info.c_str());
+    printf("\n");
 }
 
 CmdProcessor::CmdProcessor()
@@ -916,7 +914,7 @@ CmdProcessor::~CmdProcessor() {
 
 } //CmdProcessor::~CmdProcessor()
 
-mfxStatus CmdProcessor::ParseCmdLine(int argc, msdk_char* argv[]) {
+mfxStatus CmdProcessor::ParseCmdLine(int argc, char* argv[]) {
     mfxStatus sts = MFX_ERR_UNSUPPORTED;
 
     if (1 == argc) {
@@ -932,18 +930,18 @@ mfxStatus CmdProcessor::ParseCmdLine(int argc, msdk_char* argv[]) {
             --argc;
             ++argv;
             if (!argv[0]) {
-                msdk_printf("error: no argument given for '-par' option\n");
+                printf("error: no argument given for '-par' option\n");
             }
-            parameter_file_name = msdk_string(argv[0]);
+            parameter_file_name = std::string(argv[0]);
         }
         else if (msdk_match(argv[0], "-timeout")) {
             --argc;
             ++argv;
             if (!argv[0]) {
-                msdk_printf("error: no argument given for '-timeout' option\n");
+                printf("error: no argument given for '-timeout' option\n");
             }
             if (MFX_ERR_NONE != msdk_opt_read(argv[0], m_nTimeout)) {
-                msdk_printf("error: -timeout \"%s\" is invalid", argv[0]);
+                printf("error: -timeout \"%s\" is invalid", argv[0]);
                 return MFX_ERR_UNSUPPORTED;
             }
         }
@@ -962,15 +960,15 @@ mfxStatus CmdProcessor::ParseCmdLine(int argc, msdk_char* argv[]) {
         }
         else if (msdk_match(argv[0], "-p")) {
             if (!performance_file_name.empty()) {
-                msdk_printf("error: only one performance file is supported");
+                printf("error: only one performance file is supported");
                 return MFX_ERR_UNSUPPORTED;
             }
             --argc;
             ++argv;
             if (!argv[0]) {
-                msdk_printf("error: no argument given for '-p' option\n");
+                printf("error: no argument given for '-p' option\n");
             }
-            performance_file_name = msdk_string(argv[0]);
+            performance_file_name = std::string(argv[0]);
         }
         else if (msdk_match(argv[0], "--")) {
             // just skip separator "--" which delimits cmd options and pipeline settings
@@ -980,38 +978,38 @@ mfxStatus CmdProcessor::ParseCmdLine(int argc, msdk_char* argv[]) {
             --argc;
             ++argv;
             if (!argv[0]) {
-                msdk_printf("error: no argument given for 'stat' option\n");
+                printf("error: no argument given for 'stat' option\n");
             }
             if (MFX_ERR_NONE != msdk_opt_read(argv[0], statisticsWindowSize)) {
-                msdk_printf("error: stat \"%s\" is invalid", argv[0]);
+                printf("error: stat \"%s\" is invalid", argv[0]);
                 return MFX_ERR_UNSUPPORTED;
             }
         }
         else if (msdk_match(argv[0], "-stat-log")) {
             if (statisticsLogFile) {
-                msdk_printf("error: only one statistics file is supported");
+                printf("error: only one statistics file is supported");
                 return MFX_ERR_UNSUPPORTED;
             }
             --argc;
             ++argv;
             if (!argv[0]) {
-                msdk_printf("error: no argument given for 'stat-log' option\n");
+                printf("error: no argument given for 'stat-log' option\n");
             }
-            MSDK_FOPEN(statisticsLogFile, argv[0], MSDK_STRING("w"));
+            MSDK_FOPEN(statisticsLogFile, argv[0], "w");
             if (NULL == statisticsLogFile) {
-                msdk_printf("error: statistics file \"%s\" not found", argv[0]);
+                printf("error: statistics file \"%s\" not found", argv[0]);
                 return MFX_ERR_UNSUPPORTED;
             }
         }
         else if (msdk_match(argv[0], "-stat-per-frame")) {
             if (!DumpLogFileName.empty()) {
-                msdk_printf("error: only one dump file is supported");
+                printf("error: only one dump file is supported");
                 return MFX_ERR_UNSUPPORTED;
             }
             --argc;
             ++argv;
             if (!argv[0]) {
-                msdk_printf("error: no argument given for 'stat-dump' option\n");
+                printf("error: no argument given for 'stat-dump' option\n");
             }
             DumpLogFileName = argv[0];
         }
@@ -1022,7 +1020,7 @@ mfxStatus CmdProcessor::ParseCmdLine(int argc, msdk_char* argv[]) {
         ++argv;
     }
 
-    msdk_printf("Multi Transcoding Sample Version %s\n\n", GetMSDKSampleVersion().c_str());
+    printf("Multi Transcoding Sample Version %s\n\n", GetMSDKSampleVersion().c_str());
 
     //Read pipeline from par file
     if (!parameter_file_name.empty() && !argv[0]) {
@@ -1034,41 +1032,41 @@ mfxStatus CmdProcessor::ParseCmdLine(int argc, msdk_char* argv[]) {
     }
     //Read pipeline from cmd line
     else if (!argv[0]) {
-        msdk_printf("error: pipeline description not found\n");
+        printf("error: pipeline description not found\n");
         return MFX_ERR_UNSUPPORTED;
     }
     else if (argv[0] && !parameter_file_name.empty()) {
-        msdk_printf(
+        printf(
             "error: simultaneously enabling parfile and description pipeline from command line forbidden\n");
         return MFX_ERR_UNSUPPORTED;
     }
     else {
         sts = ParseParamsForOneSession(argc, argv);
         if (MFX_ERR_NONE != sts) {
-            msdk_printf("error: pipeline description is invalid\n");
+            printf("error: pipeline description is invalid\n");
             return sts;
         }
     }
 
     return sts;
 
-} //mfxStatus CmdProcessor::ParseCmdLine(int argc, msdk_char *argv[])
+} //mfxStatus CmdProcessor::ParseCmdLine(int argc, char *argv[])
 
-mfxStatus CmdProcessor::ParseParFile(const msdk_string& filename) {
+mfxStatus CmdProcessor::ParseParFile(const std::string& filename) {
     mfxStatus sts = MFX_ERR_UNSUPPORTED;
     if (filename.empty()) {
         return MFX_ERR_UNSUPPORTED;
     }
-    msdk_ifstream in_stream(filename);
+    std::ifstream in_stream(filename);
     if (!in_stream.good()) {
-        msdk_printf("error: ParFile \"%s\" not found\n", parameter_file_name.c_str());
+        printf("error: ParFile \"%s\" not found\n", parameter_file_name.c_str());
         return MFX_ERR_UNSUPPORTED;
     }
     if (!in_stream.is_open()) {
-        msdk_printf("error: ParFile \"%s\" could not be opened\n", parameter_file_name.c_str());
+        printf("error: ParFile \"%s\" could not be opened\n", parameter_file_name.c_str());
         return MFX_ERR_UNSUPPORTED;
     }
-    msdk_string line;
+    std::string line;
     while (std::getline(in_stream, line)) {
         if (line.empty()) {
             continue;
@@ -1078,13 +1076,13 @@ mfxStatus CmdProcessor::ParseParFile(const msdk_string& filename) {
     }
     return MFX_ERR_NONE;
 
-} //mfxStatus CmdProcessor::ParseParFile(const msdk_string& filename)
+} //mfxStatus CmdProcessor::ParseParFile(const std::string& filename)
 
 // calculate length of string literal, including leading and trailing "
 // pTempLine = start of string (must begin with ")
 // length = remaining characters in pTempLine
 // returns length of string, or 0 if error
-size_t CmdProcessor::GetStringLength(msdk_char* pTempLine, size_t length) {
+size_t CmdProcessor::GetStringLength(char* pTempLine, size_t length) {
     size_t i;
 
     // error - no leading " found
@@ -1103,22 +1101,22 @@ size_t CmdProcessor::GetStringLength(msdk_char* pTempLine, size_t length) {
     return i + 1;
 }
 
-mfxStatus CmdProcessor::TokenizeLine(const msdk_string& line) {
+mfxStatus CmdProcessor::TokenizeLine(const std::string& line) {
     return TokenizeLine(line.c_str(), line.size());
 }
 
-mfxStatus CmdProcessor::TokenizeLine(const msdk_char* pLine, size_t length) {
+mfxStatus CmdProcessor::TokenizeLine(const char* pLine, size_t length) {
     size_t i, strArgLen;
     const mfxU8 maxArgNum = 255;
-    msdk_char* argv[maxArgNum + 1];
+    char* argv[maxArgNum + 1];
     mfxU32 argc   = 0;
-    auto pMemLine = std::make_unique<msdk_char[]>(length + 2);
+    auto pMemLine = std::make_unique<char[]>(length + 2);
 
-    msdk_char* pTempLine = pMemLine.get();
-    pTempLine[0]         = ' ';
+    char* pTempLine = pMemLine.get();
+    pTempLine[0]    = ' ';
     pTempLine++;
 
-    MSDK_MEMCPY_BUF(pTempLine, 0, length * sizeof(msdk_char), pLine, length * sizeof(msdk_char));
+    MSDK_MEMCPY_BUF(pTempLine, 0, length * sizeof(char), pLine, length * sizeof(char));
 
     // parse into command streams
     for (i = 0; i < length; i++) {
@@ -1165,10 +1163,10 @@ bool CmdProcessor::is_not_allowed_char(char a) {
     return (std::isdigit(a) == 0) && (std::isspace(a) == 0) && (a != ';') && (a != '-');
 }
 
-bool CmdProcessor::ParseROIFile(const msdk_string& roi_file_name,
+bool CmdProcessor::ParseROIFile(const std::string& roi_file_name,
                                 std::vector<mfxExtEncoderROI>& m_ROIData) {
     FILE* roi_file = NULL;
-    MSDK_FOPEN(roi_file, roi_file_name.c_str(), MSDK_STRING("rb"));
+    MSDK_FOPEN(roi_file, roi_file_name.c_str(), "rb");
 
     m_ROIData.clear();
 
@@ -1203,7 +1201,7 @@ bool CmdProcessor::ParseROIFile(const msdk_string& roi_file_name,
         std::stringstream unformatted_roi_data_ss(unformatted_roi_data);
         std::vector<std::string> items;
         items.clear();
-        split(unformatted_roi_data, items, msdk_char(';'));
+        split(unformatted_roi_data, items, char(';'));
 
         // parse data and store roi data for each frame
         unsigned int item_ind = 0;
@@ -1246,12 +1244,12 @@ bool CmdProcessor::ParseROIFile(const msdk_string& roi_file_name,
 }
 #ifdef ENABLE_MCTF
 
-int ParseMCTFParamsFileContent(msdk_fstream& input, sInputParams* pParams, int maxParams);
-void ParseMCTFParamsByValue(const msdk_string& argument, sInputParams* pParams);
+int ParseMCTFParamsFileContent(std::fstream& input, sInputParams* pParams, int maxParams);
+void ParseMCTFParamsByValue(const std::string& argument, sInputParams* pParams);
 
-void ParseMCTFParams(msdk_char* strInput[], mfxU32 nArgNum, mfxU32& curArg, sInputParams* pParams) {
+void ParseMCTFParams(char* strInput[], mfxU32 nArgNum, mfxU32& curArg, sInputParams* pParams) {
     if (!msdk_match(strInput[curArg], "-mctf")) {
-        msdk_printf("MCTF options should start with -mcft.\n");
+        printf("MCTF options should start with -mcft.\n");
         return;
     }
 
@@ -1260,21 +1258,20 @@ void ParseMCTFParams(msdk_char* strInput[], mfxU32 nArgNum, mfxU32& curArg, sInp
     pParams->mctfParam.rtParams.Reset();
 
     if (curArg + 1 >= nArgNum) {
-        msdk_printf("MCTF option should have at least one value. Enabling default settings\n");
+        printf("MCTF option should have at least one value. Enabling default settings\n");
         return;
     }
     curArg++;
 
-    msdk_string argument = msdk_string(strInput[curArg]);
+    std::string argument = std::string(strInput[curArg]);
 
     if (argument.empty()) {
-        msdk_printf(
-            "MCTF option should have at least one non-empty value. Enabling default settings\n");
+        printf("MCTF option should have at least one non-empty value. Enabling default settings\n");
         return;
     }
 
     // Try to read argument as a file
-    msdk_fstream fs_file(argument, std::ios_base::in);
+    std::fstream fs_file(argument, std::ios_base::in);
     if (fs_file.is_open()) {
         ParseMCTFParamsFileContent(fs_file, pParams, 10000);
         return;
@@ -1285,21 +1282,21 @@ void ParseMCTFParams(msdk_char* strInput[], mfxU32 nArgNum, mfxU32& curArg, sInp
 }
 #endif // ENABLE_MCTF
 
-int ParseMCTFParamsFileContent(msdk_fstream& input, sInputParams* pParams, int maxParams) {
+int ParseMCTFParamsFileContent(std::fstream& input, sInputParams* pParams, int maxParams) {
     int nOfRTParams = 0;
-    msdk_string line;
-    msdk_string temp_str;
-    while (getline(input, line, msdk_char(','))) {
+    std::string line;
+    std::string temp_str;
+    while (getline(input, line, char(','))) {
         if (nOfRTParams >= maxParams) {
             break;
         }
-        std::vector<msdk_string> elem_parts;
-        msdk_stringstream elem_stream(line);
+        std::vector<std::string> elem_parts;
+        std::stringstream elem_stream(line);
         // currently, there is just 1 param in the file;
         sMctfRunTimeParam tmp = { 0 };
         if (elem_parts.size() < 1) {
-            msdk_printf("there was an error met during parsing FS file. %d entries were parsed.\n",
-                        nOfRTParams);
+            printf("there was an error met during parsing FS file. %d entries were parsed.\n",
+                   nOfRTParams);
             break;
         }
 
@@ -1309,11 +1306,11 @@ int ParseMCTFParamsFileContent(msdk_fstream& input, sInputParams* pParams, int m
         }
         catch (...) {
             if (nOfRTParams == 0) {
-                msdk_printf("Nothing found in FS file.\n");
+                printf("Nothing found in FS file.\n");
             }
             else {
-                msdk_printf("There was an error reading entry %d in the FS file. ending parsing.\n",
-                            nOfRTParams);
+                printf("There was an error reading entry %d in the FS file. ending parsing.\n",
+                       nOfRTParams);
             }
             break;
         }
@@ -1332,21 +1329,21 @@ int ParseMCTFParamsFileContent(msdk_fstream& input, sInputParams* pParams, int m
     return nOfRTParams;
 }
 
-void ParseMCTFParamsByValue(const msdk_string& argument, sInputParams* pParams) {
-    std::vector<msdk_string> mctf_param_parts;
-    msdk_stringstream mctf_param_stream(argument);
-    msdk_string temp_str;
-    split(argument, mctf_param_parts, msdk_char(':'));
+void ParseMCTFParamsByValue(const std::string& argument, sInputParams* pParams) {
+    std::vector<std::string> mctf_param_parts;
+    std::stringstream mctf_param_stream(argument);
+    std::string temp_str;
+    split(argument, mctf_param_parts, char(':'));
 
     mfxU16 _strength = 0;
     try {
         _strength = std::stoi(mctf_param_parts[0]);
     }
     catch (const std::invalid_argument&) {
-        msdk_printf("Error reading MCTF strength setting.\n");
+        printf("Error reading MCTF strength setting.\n");
     }
     catch (const std::out_of_range&) {
-        msdk_printf("MCTF strength out of bounds.\n");
+        printf("MCTF strength out of bounds.\n");
     }
     pParams->mctfParam.mode = VPP_FILTER_ENABLED_CONFIGURED;
     pParams->mctfParam.rtParams.Restart();
@@ -1356,7 +1353,7 @@ void ParseMCTFParamsByValue(const msdk_string& argument, sInputParams* pParams) 
 // return values:
 //   0 if argv[i] is processed successfully (MFX_ERR_NONE)
 // < 1 if argv[i] is processed and generates an error OR argv[i] is not processed (no match)
-mfxStatus ParseAdditionalParams(msdk_char* argv[],
+mfxStatus ParseAdditionalParams(char* argv[],
                                 mfxU32 argc,
                                 mfxU32& i,
                                 TranscodingSample::sInputParams& InputParams) {
@@ -1366,7 +1363,7 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
         mfxU16 arr[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
         int j;
         size_t k;
-        std::vector<msdk_string> args;
+        std::vector<std::string> args;
         k = split(argv[i + 1], args);
         if (k != 8) {
             PrintError("Invalid number of layers for AvcTemporalLayers");
@@ -1400,7 +1397,7 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
         int j;
         size_t k;
 
-        std::vector<msdk_string> args;
+        std::vector<std::string> args;
         k = split(argv[i + 1], args);
         if (k != 8) {
             PrintError("Invalid number of layers for TemporalLayers");
@@ -1412,11 +1409,11 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
                 arr[j] = (mfxU16)std::stoul(args[j]);
             }
             catch (const std::invalid_argument&) {
-                msdk_printf("TemporalLayers setting invalid.\n");
+                printf("TemporalLayers setting invalid.\n");
                 return MFX_ERR_UNSUPPORTED;
             }
             catch (const std::out_of_range&) {
-                msdk_printf("TemporalLayers setting out of bounds.\n");
+                printf("TemporalLayers setting out of bounds.\n");
                 return MFX_ERR_UNSUPPORTED;
             }
         }
@@ -1546,8 +1543,8 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
         VAL_CHECK(i + 1 >= argc, i, argv[i]);
         mfxU32 arr[10] = { 0, 0, 0, 0, 0, 0, 0, 0 };
         size_t k;
-        std::vector<msdk_string> args;
-        k = split(argv[i + 1], args, msdk_char(','));
+        std::vector<std::string> args;
+        k = split(argv[i + 1], args, char(','));
         if (k != 10) {
             PrintError("Invalid number of layers for MDCV");
             return MFX_ERR_UNSUPPORTED;
@@ -1558,11 +1555,11 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
                 arr[j] = (mfxU32)std::stoul(args[j]);
             }
             catch (const std::invalid_argument&) {
-                msdk_printf("Error reading MDCV Layers setting.\n");
+                printf("Error reading MDCV Layers setting.\n");
                 return MFX_ERR_UNSUPPORTED;
             }
             catch (const std::out_of_range&) {
-                msdk_printf("MDCV Layers setting out of bounds.\n");
+                printf("MDCV Layers setting out of bounds.\n");
                 return MFX_ERR_UNSUPPORTED;
             }
         }
@@ -1582,9 +1579,9 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
         InputParams.bEnableCLLI = true;
         auto pInCLLI            = &(InputParams.SEIMetaCLLI);
         VAL_CHECK(i + 1 >= argc, i, argv[i]);
-        std::vector<msdk_string> items;
+        std::vector<std::string> items;
         items.clear();
-        split(argv[i + 1], items, msdk_char(','));
+        split(argv[i + 1], items, char(','));
         if (items.size() != 2) {
             PrintError("Invalid number of layers for CLLI");
             return MFX_ERR_UNSUPPORTED;
@@ -1617,9 +1614,9 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
         auto pSignalInfoIn     = &(InputParams.SignalInfoIn);
         pSignalInfoIn->Enabled = true;
         VAL_CHECK(i + 1 >= argc, i, argv[i]);
-        std::vector<msdk_string> items;
+        std::vector<std::string> items;
         items.clear();
-        split(argv[i + 1], items, msdk_char(','));
+        split(argv[i + 1], items, char(','));
         if (items.size() != 2) {
             PrintError("Invalid number of layers for SignalInfoIn");
             return MFX_ERR_UNSUPPORTED;
@@ -1652,9 +1649,9 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
         auto pSignalInfoOut     = &(InputParams.SignalInfoOut);
         pSignalInfoOut->Enabled = true;
         VAL_CHECK(i + 1 >= argc, i, argv[i]);
-        std::vector<msdk_string> items;
+        std::vector<std::string> items;
         items.clear();
-        split(argv[i + 1], items, msdk_char(','));
+        split(argv[i + 1], items, char(','));
         if (items.size() != 2) {
             PrintError("Invalid number of layers for SignalInfoOut");
             return MFX_ERR_UNSUPPORTED;
@@ -1696,18 +1693,16 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
         InputParams.bForceSysMem = true;
     }
     else if (msdk_match(argv[i], "-opaq") || msdk_match(argv[i], "-MemType::opaque")) {
-        msdk_printf(
-            "WARNING: -opaq option is ignored, opaque memory support is disabled in opeVPL.\n");
+        printf("WARNING: -opaq option is ignored, opaque memory support is disabled in opeVPL.\n");
     }
     else if (msdk_match(argv[i], "-memory")) {
         VAL_CHECK(i + 1 >= argc, i, argv[i]);
         if (MFX_ERR_NONE != msdk_opt_read(argv[++i], InputParams.nMemoryModel)) {
-            PrintError("-memory " MSDK_FMT_S " is invalid", argv[i]);
+            PrintError("-memory %s is invalid", argv[i]);
             return MFX_ERR_UNSUPPORTED;
         }
         if (InputParams.nMemoryModel < 1 || InputParams.nMemoryModel > 3) {
-            PrintError(" \"" MSDK_FMT_S "\" memory type is invalid. Default (1) will be used.",
-                       argv[i]);
+            PrintError(" \"%s\" memory type is invalid. Default (1) will be used.", argv[i]);
             InputParams.nMemoryModel = GENERAL_ALLOC;
         }
     }
@@ -1766,7 +1761,7 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
         VAL_CHECK(i + 1 == argc, i, argv[i]);
         i++;
         if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.TraceBufferSize)) {
-            PrintError("-trace_buffer_size \"" MSDK_FMT_S "\" is invalid", argv[i]);
+            PrintError("-trace_buffer_size \"%s\" is invalid", argv[i]);
             return MFX_ERR_UNSUPPORTED;
         }
     }
@@ -1860,15 +1855,13 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
     else if (msdk_match(argv[i], "-NumActiveRefP")) {
         VAL_CHECK(i + 1 == argc, i, argv[i]);
         if (MFX_ERR_NONE != msdk_opt_read(argv[++i], InputParams.nNumRefActiveP)) {
-            PrintError("Number of active reference frames for P frames \"" MSDK_FMT_S
-                       "\" is invalid",
-                       argv[i]);
+            PrintError("Number of active reference frames for P frames \"%s\" is invalid", argv[i]);
             return MFX_ERR_UNSUPPORTED;
         }
     }
 #ifdef ONEVPL_EXPERIMENTAL
     else if (msdk_match(argv[i], "-pci")) {
-        msdk_string deviceInfo;
+        std::string deviceInfo;
         VAL_CHECK(i + 1 == argc, i, argv[i]);
         i++;
         if (MFX_ERR_NONE != msdk_opt_read(argv[i], deviceInfo)) {
@@ -1890,8 +1883,7 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
             InputParams.PCIDeviceSetup = true;
         }
         else {
-            PrintError("format of -pci \"" MSDK_FMT_S
-                       "\" is invalid, please, use: domain:bus:device.function",
+            PrintError("format of -pci \"%s\" is invalid, please, use: domain:bus:device.function",
                        argv[i]);
             return MFX_ERR_UNSUPPORTED;
         }
@@ -1899,7 +1891,7 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
     #if defined(_WIN32)
     else if (msdk_match(argv[i], "-LUID")) {
         // <HighPart:LowPart>
-        msdk_string luid;
+        std::string luid;
         VAL_CHECK(i + 1 == argc, i, argv[i]);
         i++;
         if (MFX_ERR_NONE != msdk_opt_read(argv[i], luid)) {
@@ -1917,9 +1909,7 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
             InputParams.luid.LowPart  = std::strtol(pieces_match[2].str().c_str(), 0, 16);
         }
         else {
-            PrintError("format of -LUID \"" MSDK_FMT_S
-                       "\" is invalid, please, use: HighPart:LowPart",
-                       argv[i]);
+            PrintError("format of -LUID \"%\" is invalid, please, use: HighPart:LowPart", argv[i]);
             return MFX_ERR_UNSUPPORTED;
         }
     }
@@ -1960,7 +1950,7 @@ mfxStatus ParseAdditionalParams(msdk_char* argv[],
     return MFX_ERR_NONE;
 }
 
-mfxStatus ParseVPPCmdLine(msdk_char* argv[],
+mfxStatus ParseVPPCmdLine(char* argv[],
                           mfxU32 argc,
                           mfxU32& index,
                           TranscodingSample::sInputParams* params,
@@ -1969,19 +1959,19 @@ mfxStatus ParseVPPCmdLine(msdk_char* argv[],
         VAL_CHECK(index + 1 == argc, index, argv[index]);
         index++;
         if (MFX_ERR_NONE != msdk_opt_read(argv[index], params->VppDenoiseMode)) {
-            PrintError("-vpp denoise mode\"" MSDK_FMT_S "\" is invalid", argv[index]);
+            PrintError("-vpp denoise mode\"%s\" is invalid", argv[index]);
             return MFX_ERR_UNSUPPORTED;
         }
         index++;
         if (MFX_ERR_NONE != msdk_opt_read(argv[index], params->VppDenoiseLevel) ||
             !(params->VppDenoiseLevel >= 0 && params->VppDenoiseLevel <= 100)) {
-            PrintError("-vpp denoise level\"" MSDK_FMT_S "\" is invalid", argv[index]);
+            PrintError("-vpp denoise level\"%s\" is invalid", argv[index]);
             return MFX_ERR_UNSUPPORTED;
         }
         if (!((params->VppDenoiseMode == 0) ||
               (params->VppDenoiseMode > MFX_DENOISE_MODE_VENDOR &&
                params->VppDenoiseMode < MFX_DENOISE_MODE_INTEL_HVS_POST_MANUAL + 1))) {
-            PrintError("-vpp denoise mode\"" MSDK_FMT_S "\" is invalid", params->VppDenoiseMode);
+            PrintError("-vpp denoise mode\"%s\" is invalid", params->VppDenoiseMode);
             return MFX_ERR_UNSUPPORTED;
         }
         params->bVppDenoiser = true;
@@ -1993,7 +1983,7 @@ mfxStatus ParseVPPCmdLine(msdk_char* argv[],
         index++;
         if (MFX_ERR_NONE != msdk_opt_read(argv[index], params->VppDenoiseLevel) ||
             !(params->VppDenoiseLevel >= 0 && params->VppDenoiseLevel <= 100)) {
-            PrintError("-vpp denoise level\"" MSDK_FMT_S "\" is invalid", argv[index]);
+            PrintError("-vpp denoise level\"%s\" is invalid", argv[index]);
             return MFX_ERR_UNSUPPORTED;
         }
         skipped += 2;
@@ -2005,7 +1995,7 @@ mfxStatus ParseVPPCmdLine(msdk_char* argv[],
         index++;
         if (MFX_ERR_NONE != msdk_opt_read(argv[index], params->DetailLevel) ||
             !(params->DetailLevel >= 0 && params->DetailLevel <= 100)) {
-            PrintError("-detail \"" MSDK_FMT_S "\" is invalid", argv[index]);
+            PrintError("-detail \"%s\" is invalid", argv[index]);
             return MFX_ERR_UNSUPPORTED;
         }
         skipped += 2;
@@ -2058,7 +2048,7 @@ mfxStatus ParseVPPCmdLine(msdk_char* argv[],
         else if (msdk_match(argv[index], "eu"))
             params->ScalingMode = MFX_SCALING_MODE_INTEL_GEN_COMPUTE;
         else {
-            PrintError("-scaling_mode \"" MSDK_FMT_S "\" is invalid", argv[index]);
+            PrintError("-scaling_mode \"%s\" is invalid", argv[index]);
             return MFX_ERR_UNSUPPORTED;
         }
         return MFX_ERR_NONE;
@@ -2153,7 +2143,7 @@ mfxStatus ParseVPPCmdLine(msdk_char* argv[],
         else if (msdk_match(argv[index], "fr2fr"))
             params->fieldProcessingMode = FC_FR2FR;
         else {
-            PrintError("-field_processing \"" MSDK_FMT_S "\" is invalid", argv[index]);
+            PrintError("-field_processing \"%s\" is invalid", argv[index]);
             return MFX_ERR_UNSUPPORTED;
         }
         return MFX_ERR_NONE;
@@ -2170,14 +2160,14 @@ mfxStatus ParseVPPCmdLine(msdk_char* argv[],
     return MFX_ERR_MORE_DATA;
 }
 
-mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[]) {
+mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, char* argv[]) {
     mfxStatus sts           = MFX_ERR_NONE;
     mfxStatus stsExtBuf     = MFX_ERR_NONE;
     mfxStatus stsAddlParams = MFX_ERR_NONE;
     mfxU32 skipped          = 0;
 
     // save original cmd line for debug purpose
-    msdk_stringstream cmd;
+    std::stringstream cmd;
     for (mfxU32 i = 0; i < argc; i++)
         cmd << argv[i] << " ";
     session_descriptions.push_back(cmd.str());
@@ -2200,7 +2190,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
 
     if (msdk_match(argv[0], "set")) {
         if (argc != 3) {
-            msdk_printf("error: number of arguments for 'set' options is wrong");
+            printf("error: number of arguments for 'set' options is wrong");
             return MFX_ERR_UNSUPPORTED;
         }
         sts = ParseOption__set(argv[1], argv[2]);
@@ -2272,11 +2262,11 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
 
-            msdk_string strRoiFile;
+            std::string strRoiFile;
             msdk_opt_read(argv[i], strRoiFile);
 
             if (!ParseROIFile(strRoiFile, InputParams.m_ROIData)) {
-                PrintError("Incorrect ROI file: \"" MSDK_FMT_S "\" ", strRoiFile.c_str());
+                PrintError("Incorrect ROI file: \"%s\" ", strRoiFile.c_str());
                 return MFX_ERR_UNSUPPORTED;
             }
         }
@@ -2285,15 +2275,15 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             i++;
 
             if (!performance_file_name.empty()) {
-                msdk_printf("error: only one performance file is supported");
+                printf("error: only one performance file is supported");
                 return MFX_ERR_UNSUPPORTED;
             }
 
             if (!argv[i]) {
-                msdk_printf("error: no argument given for '-p' option\n");
+                printf("error: no argument given for '-p' option\n");
                 return MFX_ERR_UNSUPPORTED;
             }
-            performance_file_name = msdk_string(argv[i]);
+            performance_file_name = std::string(argv[i]);
         }
         else if (msdk_match(argv[i], "-roi_qpmap")) {
             InputParams.bROIasQPMAP = true;
@@ -2320,7 +2310,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
 #if (defined(LINUX32) || defined(LINUX64))
         else if (msdk_match(argv[i], "-device")) {
             if (!InputParams.strDevicePath.empty()) {
-                msdk_printf("error: you can specify only one device\n");
+                printf("error: you can specify only one device\n");
                 return MFX_ERR_UNSUPPORTED;
             }
 
@@ -2354,7 +2344,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             // Temporary check for giving priority to -fe option
             if (!InputParams.dVPPOutFramerate) {
                 if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.dVPPOutFramerate)) {
-                    PrintError("FrameRate \"" MSDK_FMT_S "\" is invalid", argv[i]);
+                    PrintError("FrameRate \"%s\" is invalid", argv[i]);
                     return MFX_ERR_UNSUPPORTED;
                 }
             }
@@ -2363,7 +2353,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
             if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.dVPPOutFramerate)) {
-                PrintError("FrameRate \"" MSDK_FMT_S "\" is invalid", argv[i]);
+                PrintError("FrameRate \"%s\" is invalid", argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }
         }
@@ -2371,7 +2361,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
             if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.nFPS)) {
-                PrintError("FPS limit \"" MSDK_FMT_S "\" is invalid", argv[i]);
+                PrintError("FPS limit \"%s\" is invalid", argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }
         }
@@ -2379,7 +2369,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
             if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.nBitRate)) {
-                PrintError("BitRate \"" MSDK_FMT_S "\" is invalid", argv[i]);
+                PrintError("BitRate \"%s\" is invalid", argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }
         }
@@ -2387,7 +2377,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
             if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.nBitRateMultiplier)) {
-                PrintError("Bitrate multiplier \"" MSDK_FMT_S "\" is invalid", argv[i]);
+                PrintError("Bitrate multiplier \"%s\" is invalid", argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }
         }
@@ -2395,8 +2385,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
             if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.WinBRCMaxAvgKbps)) {
-                PrintError("Maximum bitrate for sliding window \"" MSDK_FMT_S "\" is invalid",
-                           argv[i]);
+                PrintError("Maximum bitrate for sliding window \"%s\" is invalid", argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }
         }
@@ -2404,7 +2393,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
             if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.WinBRCSize)) {
-                PrintError("Sliding window size \"" MSDK_FMT_S "\" is invalid", argv[i]);
+                PrintError("Sliding window size \"%s\" is invalid", argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }
         }
@@ -2412,7 +2401,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
             if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.BufferSizeInKB)) {
-                PrintError("Frame buffer size \"" MSDK_FMT_S "\" is invalid", argv[i]);
+                PrintError("Frame buffer size \"%s\" is invalid", argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }
         }
@@ -2420,7 +2409,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
             if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.GopRefDist)) {
-                PrintError("GOP reference distance \"" MSDK_FMT_S "\" is invalid", argv[i]);
+                PrintError("GOP reference distance \"%s\" is invalid", argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }
         }
@@ -2428,7 +2417,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
             if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.GopPicSize)) {
-                PrintError("GOP size \"" MSDK_FMT_S "\" is invalid", argv[i]);
+                PrintError("GOP size \"%s\" is invalid", argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }
         }
@@ -2436,7 +2425,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
             if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.NumRefFrame)) {
-                PrintError("Number of reference frames \"" MSDK_FMT_S "\" is invalid", argv[i]);
+                PrintError("Number of reference frames \"%s\" is invalid", argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }
         }
@@ -2444,7 +2433,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
             if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.nEncTileRows)) {
-                PrintError("Encoding tile row count \"" MSDK_FMT_S "\" is invalid", argv[i]);
+                PrintError("Encoding tile row count \"%s\" is invalid", argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }
         }
@@ -2452,7 +2441,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
             if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.nEncTileCols)) {
-                PrintError("Encoding tile column count \"" MSDK_FMT_S "\" is invalid", argv[i]);
+                PrintError("Encoding tile column count \"%s\" is invalid", argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }
         }
@@ -2460,7 +2449,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
             if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.CodecLevel)) {
-                PrintError("CodecLevel \"" MSDK_FMT_S "\" is invalid", argv[i]);
+                PrintError("CodecLevel \"%s\" is invalid", argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }
         }
@@ -2468,7 +2457,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
             if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.CodecProfile)) {
-                PrintError("CodecProfile \"" MSDK_FMT_S "\" is invalid", argv[i]);
+                PrintError("CodecProfile \"%s\" is invalid", argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }
         }
@@ -2476,7 +2465,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
             if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.MaxKbps)) {
-                PrintError("MaxKbps \"" MSDK_FMT_S "\" is invalid", argv[i]);
+                PrintError("MaxKbps \"%s\" is invalid", argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }
         }
@@ -2484,7 +2473,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
             if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.InitialDelayInKB)) {
-                PrintError("InitialDelayInKB \"" MSDK_FMT_S "\" is invalid", argv[i]);
+                PrintError("InitialDelayInKB \"%s\" is invalid", argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }
         }
@@ -2517,8 +2506,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             i++;
             InputParams.nTargetUsage = StrToTargetUsage(argv[i]);
             if (!InputParams.nTargetUsage) {
-                PrintError(" \"" MSDK_FMT_S "\" target usage is invalid. Balanced will be used.",
-                           argv[i]);
+                PrintError(" \"%s\" target usage is invalid. Balanced will be used.", argv[i]);
                 InputParams.nTargetUsage = MFX_TARGETUSAGE_BALANCED;
             }
         }
@@ -2538,7 +2526,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
             if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.nQuality)) {
-                PrintError(" \"" MSDK_FMT_S "\" quality is invalid", argv[i]);
+                PrintError(" \"%s\" quality is invalid", argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }
         }
@@ -2546,7 +2534,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
             if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.nDstWidth)) {
-                PrintError("width \"" MSDK_FMT_S "\" is invalid", argv[i]);
+                PrintError("width \"%s\" is invalid", argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }
         }
@@ -2554,7 +2542,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
             if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.nDstHeight)) {
-                PrintError("height \"" MSDK_FMT_S "\" is invalid", argv[i]);
+                PrintError("height \"%s\" is invalid", argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }
         }
@@ -2562,7 +2550,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
             if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.nSlices)) {
-                PrintError("numSlices \"" MSDK_FMT_S "\" is invalid", argv[i]);
+                PrintError("numSlices \"%s\" is invalid", argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }
         }
@@ -2570,7 +2558,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
             if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.nMaxSliceSize)) {
-                PrintError("maxSliceSize \"" MSDK_FMT_S "\" is invalid", argv[i]);
+                PrintError("maxSliceSize \"%s\" is invalid", argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }
         }
@@ -2578,7 +2566,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
             if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.nAsyncDepth)) {
-                PrintError("async \"" MSDK_FMT_S "\" is invalid", argv[i]);
+                PrintError("async \"%s\" is invalid", argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }
         }
@@ -2589,7 +2577,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
             if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.priority)) {
-                PrintError("priority \"" MSDK_FMT_S "\" is invalid", argv[i]);
+                PrintError("priority \"%s\" is invalid", argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }
         }
@@ -2614,7 +2602,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             i++;
             /* NB! numSurf4Comp should be equal to Number of decoding session */
             if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.numSurf4Comp)) {
-                PrintError("-n \"" MSDK_FMT_S "\" is invalid", argv[i]);
+                PrintError("-n \"%s\" is invalid", argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }
             /* This is can init early */
@@ -2631,7 +2619,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             i++;
             /* NB! numSurf4Comp should be equal to Number of decoding session */
             if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.numSurf4Comp)) {
-                PrintError("-n \"" MSDK_FMT_S "\" is invalid", argv[i]);
+                PrintError("-n \"%s\" is invalid", argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }
             /* This is can init early */
@@ -2688,7 +2676,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
             if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.nVppCompDstX)) {
-                PrintError("vpp_comp_dst_x " MSDK_FMT_S " is invalid", argv[i]);
+                PrintError("vpp_comp_dst_x %s is invalid", argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }
             if (InputParams.eModeExt != VppComp)
@@ -2698,7 +2686,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
             if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.nVppCompDstY)) {
-                PrintError("-vpp_comp_dst_y " MSDK_FMT_S " is invalid", argv[i]);
+                PrintError("-vpp_comp_dst_y %s is invalid", argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }
             if (InputParams.eModeExt != VppComp)
@@ -2708,7 +2696,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
             if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.nVppCompDstW)) {
-                PrintError("-vpp_comp_dst_w " MSDK_FMT_S " is invalid", argv[i]);
+                PrintError("-vpp_comp_dst_w %s is invalid", argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }
             if (InputParams.eModeExt != VppComp)
@@ -2718,7 +2706,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
             if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.nVppCompDstH)) {
-                PrintError("-vpp_comp_dst_h " MSDK_FMT_S " is invalid", argv[i]);
+                PrintError("-vpp_comp_dst_h %s is invalid", argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }
             if (InputParams.eModeExt != VppComp)
@@ -2728,7 +2716,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
             if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.nVppCompSrcW)) {
-                PrintError("-vpp_comp_src_w " MSDK_FMT_S " is invalid", argv[i]);
+                PrintError("-vpp_comp_src_w %s is invalid", argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }
             if (InputParams.eModeExt != VppComp)
@@ -2738,7 +2726,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
             if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.nVppCompSrcH)) {
-                PrintError("-vpp_comp_src_h " MSDK_FMT_S " is invalid", argv[i]);
+                PrintError("-vpp_comp_src_h %s is invalid", argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }
             if (InputParams.eModeExt != VppComp)
@@ -2748,7 +2736,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
             if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.numTiles4Comp)) {
-                PrintError("-vpp_comp_num_tiles " MSDK_FMT_S " is invalid", argv[i]);
+                PrintError("-vpp_comp_num_tiles %s is invalid", argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }
             if (InputParams.eModeExt != VppCompOnly)
@@ -2758,7 +2746,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
             if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.nVppCompTileId)) {
-                PrintError("-vpp_comp_tile_id " MSDK_FMT_S " is invalid", argv[i]);
+                PrintError("-vpp_comp_tile_id %s is invalid", argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }
         }
@@ -2773,7 +2761,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
             if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.MaxFrameNumber)) {
-                PrintError("-n " MSDK_FMT_S " is invalid", argv[i]);
+                PrintError("-n %s is invalid", argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }
         }
@@ -2781,18 +2769,18 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
             if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.nRotationAngle)) {
-                PrintError("-angle " MSDK_FMT_S " is invalid", argv[i]);
+                PrintError("-angle %s is invalid", argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }
             if (!InputParams.strVPPPluginDLLPath[0]) {
-                InputParams.strVPPPluginDLLPath = msdk_string(MSDK_CPU_ROTATE_PLUGIN);
+                InputParams.strVPPPluginDLLPath = std::string(MSDK_CPU_ROTATE_PLUGIN);
             }
         }
         else if (msdk_match(argv[i], "-mfe_frames")) {
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
             if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.numMFEFrames)) {
-                PrintError("-mfe_frames " MSDK_FMT_S " num frames is invalid", argv[i]);
+                PrintError("-mfe_frames %s num frames is invalid", argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }
         }
@@ -2800,7 +2788,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
             if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.MFMode)) {
-                PrintError("-mfe_mode " MSDK_FMT_S " is invalid", argv[i]);
+                PrintError("-mfe_mode %s is invalid", argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }
         }
@@ -2808,7 +2796,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
             if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.mfeTimeout)) {
-                PrintError("-mfe_timeout " MSDK_FMT_S " is invalid", argv[i]);
+                PrintError("-mfe_timeout %s is invalid", argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }
         }
@@ -2816,7 +2804,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
             if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.nTimeout)) {
-                PrintError("-timeout " MSDK_FMT_S " is invalid", argv[i]);
+                PrintError("-timeout %s is invalid", argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }
             skipped += 2;
@@ -2825,7 +2813,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
             if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.strMfxParamsDumpFile)) {
-                PrintError("Dump file name \"" MSDK_FMT_S "\" is invalid", argv[i]);
+                PrintError("Dump file name \"%s\" is invalid", argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }
         }
@@ -2833,7 +2821,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             InputParams.bRobustFlag = true;
         }
         else if (msdk_match(argv[i], "-opencl")) {
-            InputParams.strVPPPluginDLLPath = msdk_string(MSDK_OCL_ROTATE_PLUGIN);
+            InputParams.strVPPPluginDLLPath = std::string(MSDK_OCL_ROTATE_PLUGIN);
             InputParams.bOpenCL             = true;
         }
 
@@ -2861,7 +2849,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
             if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.nLADepth)) {
-                PrintError("look ahead depth \"" MSDK_FMT_S "\" is invalid", argv[i]);
+                PrintError("look ahead depth \"%s\" is invalid", argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }
         }
@@ -2887,7 +2875,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
             if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.dDecoderFrameRateOverride)) {
-                PrintError("Framerate \"" MSDK_FMT_S "\" is invalid", argv[i]);
+                PrintError("Framerate \"%s\" is invalid", argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }
         }
@@ -2895,7 +2883,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
             if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.dEncoderFrameRateOverride)) {
-                PrintError("Framerate \"" MSDK_FMT_S "\" is invalid", argv[i]);
+                PrintError("Framerate \"%s\" is invalid", argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }
         }
@@ -2903,7 +2891,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
             if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.EncoderPicstructOverride)) {
-                PrintError("Picstruct \"" MSDK_FMT_S "\" is invalid", argv[i]);
+                PrintError("Picstruct \"%s\" is invalid", argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }
         }
@@ -2971,7 +2959,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             InputParams.shouldPrintPresets = true;
         }
         else if (msdk_match(argv[i], "-preset")) {
-            msdk_string presetName;
+            std::string presetName;
             VAL_CHECK(i + 1 >= argc, i, argv[i]);
             if (MFX_ERR_NONE != msdk_opt_read(argv[++i], presetName)) {
                 PrintError("Preset Name is not defined");
@@ -3057,7 +3045,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
             // either unrecognized parameter, or parse error with recognized parameter
             if (stsAddlParams) {
                 if (stsAddlParams == MFX_ERR_NOT_FOUND)
-                    PrintError("Invalid input argument number %d " MSDK_FMT_S "", i, argv[i]);
+                    PrintError("Invalid input argument number %d %s", i, argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }
         }
@@ -3071,38 +3059,38 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, msdk_char* argv[])
 
     return MFX_ERR_NONE;
 
-} //mfxStatus CmdProcessor::ParseParamsForOneSession(msdk_char *pLine, mfxU32 length)
+} //mfxStatus CmdProcessor::ParseParamsForOneSession(char *pLine, mfxU32 length)
 
-mfxStatus CmdProcessor::ParseOption__set(msdk_char* strCodecType, msdk_char* strPluginGuid) {
+mfxStatus CmdProcessor::ParseOption__set(char* strCodecType, char* strPluginGuid) {
     mfxU32 codecid = 0;
     mfxU32 type    = 0;
     sPluginParams pluginParams;
 
     //Parse codec type - decoder or encoder
-    if (msdk_match(strCodecType, msdk_string("-i::") + msdk_string(strCodecType))) {
+    if (msdk_match(strCodecType, std::string("-i::") + std::string(strCodecType))) {
         type = MSDK_VDECODE;
     }
-    else if (msdk_match(strCodecType, msdk_string("-o::") + msdk_string(strCodecType))) {
+    else if (msdk_match(strCodecType, std::string("-o::") + std::string(strCodecType))) {
         type = MSDK_VENCODE;
     }
     else {
-        msdk_printf("error: incorrect definition codec type (must be -i:: or -o::)\n");
+        printf("error: incorrect definition codec type (must be -i:: or -o::)\n");
         return MFX_ERR_UNSUPPORTED;
     }
 
     if (StrFormatToCodecFormatFourCC(strCodecType + 4, codecid) != MFX_ERR_NONE) {
-        msdk_printf("error: codec is unknown\n");
+        printf("error: codec is unknown\n");
         return MFX_ERR_UNSUPPORTED;
     }
 
     if (!IsPluginCodecSupported(codecid)) {
-        msdk_printf("error: codec is unsupported\n");
+        printf("error: codec is unsupported\n");
         return MFX_ERR_UNSUPPORTED;
     }
 
     pluginParams = ParsePluginGuid(strPluginGuid);
     if (AreGuidsEqual(pluginParams.pluginGuid, MSDK_PLUGINGUID_NULL)) {
-        msdk_printf("error: invalid codec guid\n");
+        printf("error: invalid codec guid\n");
         return MFX_ERR_UNSUPPORTED;
     }
 
@@ -3156,7 +3144,7 @@ mfxStatus CmdProcessor::VerifyAndCorrectInputParams(TranscodingSample::sInputPar
             PrintError("raw input is not supported with memory model 2.0\n");
             return MFX_ERR_UNSUPPORTED;
         }
-        msdk_printf("warning: system memory will be used\n");
+        printf("warning: system memory will be used\n");
         InputParams.rawInput = true;
     }
     else {
@@ -3171,8 +3159,7 @@ mfxStatus CmdProcessor::VerifyAndCorrectInputParams(TranscodingSample::sInputPar
 
     if ((!InputParams.FRCAlgorithm && !InputParams.bEnableDeinterlacing) &&
         InputParams.dVPPOutFramerate) {
-        msdk_printf(
-            "-f option is ignored, it can be used with FRC or deinterlace options only. \n");
+        printf("-f option is ignored, it can be used with FRC or deinterlace options only. \n");
         InputParams.dVPPOutFramerate = 0;
     }
 
@@ -3253,7 +3240,7 @@ mfxStatus CmdProcessor::VerifyAndCorrectInputParams(TranscodingSample::sInputPar
     }
 
     if (InputParams.enableQSVFF && InputParams.eMode == Sink) {
-        msdk_printf(
+        printf(
             "WARNING: -lowpower(-qsv-ff) option is not valid for decoder-only sessions, this parameter will be ignored.\n");
     }
 
@@ -3271,7 +3258,7 @@ mfxStatus CmdProcessor::VerifyAndCorrectInputParams(TranscodingSample::sInputPar
     else {
         // Decoding plugin was set manually, so let's check if codec supports plugins
         if (!IsPluginCodecSupported(InputParams.DecodeId)) {
-            msdk_printf("error: decoder does not support plugins\n");
+            printf("error: decoder does not support plugins\n");
             return MFX_ERR_UNSUPPORTED;
         }
     }
@@ -3288,18 +3275,18 @@ mfxStatus CmdProcessor::VerifyAndCorrectInputParams(TranscodingSample::sInputPar
     else {
         // Encoding plugin was set manually, so let's check if codec supports plugins
         if (!IsPluginCodecSupported(InputParams.EncodeId)) {
-            msdk_printf("error: encoder does not support plugins\n");
+            printf("error: encoder does not support plugins\n");
             return MFX_ERR_UNSUPPORTED;
         }
     }
 
     if (InputParams.EncoderFourCC && InputParams.eMode == Sink) {
-        msdk_printf(
+        printf(
             "WARNING: -ec option is used in session without encoder, this parameter will be ignored \n");
     }
 
     if (InputParams.DecoderFourCC && InputParams.eMode != Native && InputParams.eMode != Sink) {
-        msdk_printf(
+        printf(
             "WARNING: -dc option is used in session without decoder, this parameter will be ignored \n");
     }
 
@@ -3312,20 +3299,20 @@ mfxStatus CmdProcessor::VerifyAndCorrectInputParams(TranscodingSample::sInputPar
 
     if ((InputParams.nEncTileRows || InputParams.nEncTileCols) &&
         (InputParams.EncodeId != MFX_CODEC_HEVC) && (InputParams.EncodeId != MFX_CODEC_VP9)) {
-        msdk_printf(
+        printf(
             "WARNING: -trows and -tcols are only supported for VP9 and HEVC encoder, these parameters will be ignored.\n");
         InputParams.nEncTileRows = 0;
         InputParams.nEncTileCols = 0;
     }
 
     if (InputParams.forceSyncAllSession && InputParams.nMemoryModel == GENERAL_ALLOC) {
-        msdk_printf(
+        printf(
             "WARNING: forceSyncAllSession option is not valid for general memory type, this parameter will be ignored.\n");
     }
 
 #if (defined(_WIN32) || defined(_WIN64))
     if (InputParams.bPreferiGfx && InputParams.bPreferdGfx) {
-        msdk_printf("WARNING: both dGfx and iGfx flags set. iGfx will be preferred\n");
+        printf("WARNING: both dGfx and iGfx flags set. iGfx will be preferred\n");
         InputParams.bPreferdGfx = false;
     }
 #endif
@@ -3339,21 +3326,19 @@ mfxStatus CmdProcessor::VerifyAndCorrectInputParams(TranscodingSample::sInputPar
                                            InputParams.BufferSizeInKB });
         InputParams.nBitRateMultiplier =
             (mfxU16)std::ceil(static_cast<double>(maxVal) / mfxU16Limit);
-        msdk_printf("WARNING: BitRateMultiplier(-bm) was updated, new value: %d. \n",
-                    (int)InputParams.nBitRateMultiplier);
+        printf("WARNING: BitRateMultiplier(-bm) was updated, new value: %d. \n",
+               (int)InputParams.nBitRateMultiplier);
 
         auto recalculate = [mfxU16Limit, InputParams](mfxU32& param, std::string paramName) {
             if (param) {
                 if (param > mfxU16Limit) {
-                    msdk_printf("WARNING: %s (%d) > allow limit (%d). \n",
-                                paramName.c_str(),
-                                (int)param,
-                                (int)mfxU16Limit);
+                    printf("WARNING: %s (%d) > allow limit (%d). \n",
+                           paramName.c_str(),
+                           (int)param,
+                           (int)mfxU16Limit);
                 }
                 param = param / InputParams.nBitRateMultiplier;
-                msdk_printf("WARNING: %s was updated, new value: %d. \n",
-                            paramName.c_str(),
-                            (int)param);
+                printf("WARNING: %s was updated, new value: %d. \n", paramName.c_str(), (int)param);
             }
         };
 

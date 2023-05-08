@@ -38,8 +38,6 @@
 #include "vm/thread_defs.h"
 #include "vm/time_defs.h"
 
-#include "sample_types.h"
-
 #include "abstract_splitter.h"
 #include "avc_bitstream.h"
 #include "avc_headers.h"
@@ -111,7 +109,7 @@ struct FrameInfo {
 // from external text file (for encoding in qpfile mode)
 class Reader {
 public:
-    mfxStatus Read(const msdk_string& strFileName, mfxU32 codecid);
+    mfxStatus Read(const std::string& strFileName, mfxU32 codecid);
     void ResetState();
 
     mfxU32 GetCurrentEncodedOrder() const;
@@ -206,7 +204,7 @@ struct FrameInfo {
 // from external text file (for encoding in Low delay BRC mode)
 class Reader {
 public:
-    mfxStatus Read(const msdk_string& strFileName, mfxU32 codecid);
+    mfxStatus Read(const std::string& strFileName, mfxU32 codecid);
     void ResetState();
 
     mfxU32 GetTargetFrameSize(mfxU32 frameOrder) const;
@@ -788,12 +786,12 @@ private:
 
 class CSmplYUVReader {
 public:
-    typedef std::list<msdk_string>::iterator ls_iterator;
+    typedef std::list<std::string>::iterator ls_iterator;
     CSmplYUVReader();
     virtual ~CSmplYUVReader();
 
     virtual void Close();
-    virtual mfxStatus Init(std::list<msdk_string> inputs,
+    virtual mfxStatus Init(std::list<std::string> inputs,
                            mfxU32 ColorFormat,
                            bool shouldShiftP010 = false);
     virtual mfxStatus SkipNframesFromBeginning(mfxU16 w, mfxU16 h, mfxU32 viewId, mfxU32 nframes);
@@ -814,7 +812,7 @@ public:
     CSmplBitstreamWriter();
     virtual ~CSmplBitstreamWriter();
 
-    virtual mfxStatus Init(const msdk_char* strFileName);
+    virtual mfxStatus Init(const char* strFileName);
     virtual void ForceInitStatus(bool status);
     virtual mfxStatus WriteNextFrame(mfxBitstream* pMfxBitstream,
                                      bool isPrint         = true,
@@ -831,7 +829,7 @@ protected:
 
     FILE* m_fSource;
     bool m_bInited;
-    msdk_string m_sFile;
+    std::string m_sFile;
 };
 
 class CSmplYUVWriter {
@@ -840,7 +838,7 @@ public:
     virtual ~CSmplYUVWriter();
 
     virtual void Close();
-    virtual mfxStatus Init(const msdk_char* strFileName, const mfxU32 numViews);
+    virtual mfxStatus Init(const char* strFileName, const mfxU32 numViews);
     virtual mfxStatus Reset();
     virtual mfxStatus WriteNextFrame(mfxFrameSurface1* pSurface);
     virtual mfxStatus WriteNextFrameI420(mfxFrameSurface1* pSurface);
@@ -856,7 +854,7 @@ protected:
     FILE *m_fDest, **m_fDestMVC;
     bool m_bInited, m_bIsMultiView;
     mfxU32 m_numCreatedFiles;
-    msdk_string m_sFile;
+    std::string m_sFile;
     mfxU32 m_nViews;
 };
 
@@ -868,7 +866,7 @@ public:
     //resets position to file begin
     virtual void Reset();
     virtual void Close();
-    virtual mfxStatus Init(const msdk_char* strFileName);
+    virtual mfxStatus Init(const char* strFileName);
     virtual mfxStatus ReadNextFrame(mfxBitstream* pBS);
 
 protected:
@@ -886,7 +884,7 @@ public:
 
     /** Free resources.*/
     virtual void Close();
-    virtual mfxStatus Init(const msdk_char* strFileName);
+    virtual mfxStatus Init(const char* strFileName);
     virtual mfxStatus ReadNextFrame(mfxBitstream* pBS);
 
 private:
@@ -922,7 +920,7 @@ class CIVFFrameReader : public CSmplBitstreamReader {
 public:
     CIVFFrameReader();
     virtual void Reset();
-    virtual mfxStatus Init(const msdk_char* strFileName);
+    virtual mfxStatus Init(const char* strFileName);
     virtual mfxStatus ReadNextFrame(mfxBitstream* pBS);
 
 protected:
@@ -958,7 +956,7 @@ class CSmplBitstreamDuplicateWriter : public CSmplBitstreamWriter {
 public:
     CSmplBitstreamDuplicateWriter();
 
-    virtual mfxStatus InitDuplicate(const msdk_char* strFileName);
+    virtual mfxStatus InitDuplicate(const char* strFileName);
     virtual mfxStatus JoinDuplicate(CSmplBitstreamDuplicateWriter* pJoinee);
     virtual mfxStatus WriteNextFrame(mfxBitstream* pMfxBitstream, bool isPrint = true);
     virtual void Close();
@@ -1187,8 +1185,8 @@ mfxU16 CalculateDefaultBitrate(mfxU32 nCodecId,
                                mfxF64 dFrameRate);
 
 //serialization fnc set
-msdk_string CodecIdToStr(mfxU32 nFourCC);
-mfxU16 StrToTargetUsage(msdk_string strInput);
+std::string CodecIdToStr(mfxU32 nFourCC);
+mfxU16 StrToTargetUsage(std::string strInput);
 const char* TargetUsageToStr(mfxU16 tu);
 const char* ColorFormatToStr(mfxU32 format);
 
@@ -1196,7 +1194,7 @@ const char* ColorFormatToStr(mfxU32 format);
 mfxStatus MJPEG_AVI_ParsePicStruct(mfxBitstream* bitstream);
 
 // For MVC encoding/decoding purposes
-msdk_string FormMVCFileName(const msdk_char* strFileName, const mfxU32 numView);
+std::string FormMVCFileName(const char* strFileName, const mfxU32 numView);
 
 //piecewise linear function for bitrate approximation
 class PartiallyLinearFNC {
@@ -1338,7 +1336,7 @@ void ConfigureAspectRatioConversion(mfxInfoVPP* pVppInfo);
 
 void SEICalcSizeType(std::vector<mfxU8>& data, mfxU16 type, mfxU32 size);
 
-mfxU8 Char2Hex(msdk_char ch);
+mfxU8 Char2Hex(char ch);
 
 enum MsdkTraceLevel {
     MSDK_TRACE_LEVEL_SILENT   = -1,
@@ -1349,22 +1347,22 @@ enum MsdkTraceLevel {
     MSDK_TRACE_LEVEL_DEBUG    = 4,
 };
 
-msdk_string NoFullPath(const msdk_string&);
+std::string NoFullPath(const std::string&);
 int msdk_trace_get_level();
 void msdk_trace_set_level(int);
 bool msdk_trace_is_printable(int);
 
-msdk_ostream& operator<<(msdk_ostream& os, MsdkTraceLevel tt);
+std::ostream& operator<<(std::ostream& os, MsdkTraceLevel tt);
 
 template <typename T>
-mfxStatus msdk_opt_read(const msdk_char* string, T& value);
+mfxStatus msdk_opt_read(const char* string, T& value);
 
 template <size_t S>
-mfxStatus msdk_opt_read(const msdk_char* string, msdk_char (&value)[S]) {
+mfxStatus msdk_opt_read(const char* string, char (&value)[S]) {
     value[0] = 0;
 #if defined(_WIN32) || defined(_WIN64)
     value[S - 1] = 0;
-    return (0 == _tcsncpy_s(value, string, S - 1)) ? MFX_ERR_NONE : MFX_ERR_UNKNOWN;
+    return (0 == strncpy_s(value, string, S - 1)) ? MFX_ERR_NONE : MFX_ERR_UNKNOWN;
 #else
     if (strlen(string) < S) {
         strncpy(value, string, S - 1);
@@ -1376,13 +1374,13 @@ mfxStatus msdk_opt_read(const msdk_char* string, msdk_char (&value)[S]) {
 }
 
 template <typename T>
-inline mfxStatus msdk_opt_read(const msdk_string& string, T& value) {
+inline mfxStatus msdk_opt_read(const std::string& string, T& value) {
     return msdk_opt_read(string.c_str(), value);
 }
 
-mfxStatus StrFormatToCodecFormatFourCC(msdk_char* strInput, mfxU32& codecFormat);
+mfxStatus StrFormatToCodecFormatFourCC(char* strInput, mfxU32& codecFormat);
 const char* StatusToString(mfxStatus sts);
-mfxI32 getMonitorType(msdk_char* str);
+mfxI32 getMonitorType(char* str);
 
 void WaitForDeviceToBecomeFree(MFXVideoSession& session,
                                mfxSyncPoint& syncPoint,
@@ -1504,7 +1502,7 @@ public:
     CIVFFrameWriter();
 
     virtual mfxStatus Reset();
-    virtual mfxStatus Init(const msdk_char* strFileName,
+    virtual mfxStatus Init(const char* strFileName,
                            const mfxU16 w,
                            const mfxU16 h,
                            const mfxU32 fr_nom,

@@ -21,20 +21,20 @@ bool FRCAdvancedChecker::IsTimeStampsNear(mfxU64 timeStampRef, mfxU64 timeStampT
         return true;
     }
     else {
-        msdk_printf("\n\nError in FRC Advanced algorithm. \n");
+        printf("\n\nError in FRC Advanced algorithm. \n");
 
-        msdk_printf("Output frame number is %d\n", m_numOutputFrames - 1);
+        printf("Output frame number is %d\n", m_numOutputFrames - 1);
 
         int iPTS_Ref = (int)timeStampRef;
         int iPTS_Tst = (int)timeStampTst;
         int iAbsDiff = (int)absDiff;
         int iEps     = (int)eps;
 
-        msdk_printf("Error: refTimeStamp, tstTimeStamp, Diff, Delta are: %d %d %u %d\n",
-                    iPTS_Ref,
-                    iPTS_Tst,
-                    iAbsDiff,
-                    iEps);
+        printf("Error: refTimeStamp, tstTimeStamp, Diff, Delta are: %d %d %u %d\n",
+               iPTS_Ref,
+               iPTS_Tst,
+               iAbsDiff,
+               iEps);
 
         return false;
     }
