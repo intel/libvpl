@@ -4,6 +4,7 @@
   # SPDX-License-Identifier: MIT
   ############################################################################*/
 
+#include <fstream>
 #include "vpl/mfx_dispatcher_vpl.h"
 
 #if defined(_WIN32) || defined(_WIN64)
@@ -483,6 +484,27 @@ mfxStatus LoaderCtxMSDK::CheckD3D9Support(mfxU64 luid, STRING_TYPE libNameFull, 
 #endif
 }
 
+mfxU32 read_device_file(std::string &path) {
+    mfxU32 result = 0;
+    std::string line;
+    std::ifstream dev_str(path);
+    if (!dev_str.is_open()) {
+        return 0;
+    }
+    std::getline(dev_str, line);
+    dev_str.close();
+    try {
+        result = std::stoul(line, 0, 16);
+    }
+    catch (std::invalid_argument &) {
+        return 0;
+    }
+    catch (std::out_of_range &) {
+        return 0;
+    }
+    return result;
+}
+
 mfxStatus LoaderCtxMSDK::GetRenderNodeDescription(mfxU32 adapterID,
                                                   mfxU32 &vendorID,
                                                   mfxU16 &deviceID) {
@@ -496,28 +518,12 @@ mfxStatus LoaderCtxMSDK::GetRenderNodeDescription(mfxU32 adapterID,
     std::string vendorPath = "/sys/class/drm/renderD" + nodeStr + "/device/vendor";
     std::string devPath    = "/sys/class/drm/renderD" + nodeStr + "/device/device";
 
-    // check if vendor == 0x8086
-    FILE *vendorFile = fopen(vendorPath.c_str(), "r");
-    if (vendorFile) {
-        unsigned int u32 = 0;
-        int nRead        = fscanf(vendorFile, "%x", &u32);
-        if (nRead == 1)
-            vendorID = (mfxU32)u32;
-        fclose(vendorFile);
-    }
+    vendorID = read_device_file(vendorPath);
 
     if (vendorID != 0x8086)
         return MFX_ERR_UNSUPPORTED;
 
-    // get deviceID for this node
-    FILE *devFile = fopen(devPath.c_str(), "r");
-    if (devFile) {
-        unsigned int u32 = 0;
-        int nRead        = fscanf(devFile, "%x", &u32);
-        if (nRead == 1)
-            deviceID = (mfxU32)u32;
-        fclose(devFile);
-    }
+    deviceID = read_device_file(devPath);
 
     if (deviceID == 0)
         return MFX_ERR_UNSUPPORTED;

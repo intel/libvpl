@@ -364,22 +364,45 @@ void PrintHelp(char* strAppName, const char* strErrorMessage, ...) {
     printf("\n");
 }
 
+size_t split(const std::string& source, std::vector<std::string>& dest, char delim = char(' ')) {
+    size_t items = 0;
+    std::string item;
+    std::stringstream source_stream(source);
+    while (getline(source_stream, item, delim)) {
+        items += 1;
+        dest.push_back(item);
+    }
+    return items;
+}
+
 mfxStatus ParseAdditionalParams(char* strInput[], mfxU8 nArgNum, mfxU8& i, sInputParams* pParams) {
     if (0 == strcmp(strInput[i], "-AvcTemporalLayers")) {
         pParams->nTemp = 1;
         VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
         mfxU16 arr[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
         int j;
-        sscanf(strInput[i + 1],
-               "%hu %hu %hu %hu %hu %hu %hu %hu",
-               &arr[0],
-               &arr[1],
-               &arr[2],
-               &arr[3],
-               &arr[4],
-               &arr[5],
-               &arr[6],
-               &arr[7]);
+        size_t k;
+        std::vector<std::string> args;
+        k = split(strInput[i + 1], args);
+        if (k != 8) {
+            PrintHelp(strInput[0], "Invalid number of layers for AvcTemporalLayers");
+            return MFX_ERR_UNSUPPORTED;
+        }
+
+        for (int j = 0; j < 8; j++) {
+            try {
+                arr[j] = (mfxU16)std::stoul(args[j]);
+            }
+            catch (const std::invalid_argument&) {
+                PrintHelp(strInput[0], "AvcTemporalLayers setting invalid.\n");
+                return MFX_ERR_UNSUPPORTED;
+            }
+            catch (const std::out_of_range&) {
+                PrintHelp(strInput[0], "AvcTemporalLayers setting out of bounds.\n");
+                return MFX_ERR_UNSUPPORTED;
+            }
+        }
+
         for (j = 0; j < 8; j++) {
             pParams->nTemporalLayers[j] = arr[j];
         }
