@@ -561,7 +561,7 @@ mfxStatus GetFreeSurface(mfxFrameSurfaceWrap* pSurfacesPool,
 const char* IOpattern2Str(mfxU32 IOpattern);
 
 mfxStatus vppParseInputString(char* strInput[],
-                              mfxU8 nArgNum,
+                              mfxU32 nArgNum,
                               sInputParams* pParams,
                               sFiltersParam* pDefaultFiltersParam);
 

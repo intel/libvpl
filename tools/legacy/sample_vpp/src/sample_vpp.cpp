@@ -386,7 +386,7 @@ int main(int argc, char* argv[]) {
     vppDefaultInitParams(&Params, &defaultFiltersParam);
 
     //parse input string
-    sts = vppParseInputString(argv, (mfxU8)argc, &Params, &defaultFiltersParam);
+    sts = vppParseInputString(argv, (mfxU32)argc, &Params, &defaultFiltersParam);
     if (MFX_ERR_NONE != sts) {
         vppPrintHelp(argv[0], "Parameters parsing error");
         return 1;

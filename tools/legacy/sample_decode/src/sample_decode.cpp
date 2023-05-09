@@ -169,7 +169,7 @@ void PrintHelp(char* strAppName, const char* strErrorMessage) {
     printf("  %s h265 -i in.bit -o out.yuv -p 15dd936825ad475ea34e35f3f54217a6\n", strAppName);
 }
 
-mfxStatus ParseInputString(char* strInput[], mfxU8 nArgNum, sInputParams* pParams) {
+mfxStatus ParseInputString(char* strInput[], mfxU32 nArgNum, sInputParams* pParams) {
     if (1 == nArgNum) {
         PrintHelp(strInput[0], NULL);
         return MFX_ERR_UNSUPPORTED;
@@ -189,7 +189,7 @@ mfxStatus ParseInputString(char* strInput[], mfxU8 nArgNum, sInputParams* pParam
     pParams->libvaBackend = MFX_LIBVA_DRM;
 #endif
 
-    for (mfxU8 i = 1; i < nArgNum; i++) {
+    for (mfxU32 i = 1; i < nArgNum; i++) {
         if ('-' != strInput[i][0]) {
             mfxStatus sts = StrFormatToCodecFormatFourCC(strInput[i], pParams->videoType);
             if (sts != MFX_ERR_NONE) {

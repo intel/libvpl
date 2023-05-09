@@ -529,49 +529,61 @@ size_t split(const std::string& source, std::vector<std::string>& dest, char del
     return items;
 }
 
+void ParseMCTFParamsByValue(const std::string& argument, sInputParams* pParams, mfxU32 paramID);
+
 void ParseMCTFParams(char* strInput[],
-                     mfxU8 nArgNum,
-                     mfxU8& curArg,
+                     mfxU32 nArgNum,
+                     mfxU32& curArg,
                      sInputParams* pParams,
                      mfxU32 paramID) {
-    mfxU8& i = curArg;
-    if (msdk_match(strInput[i], "-mctf")) {
-        pParams->mctfParam[paramID].mode                  = VPP_FILTER_ENABLED_DEFAULT;
-        pParams->mctfParam[paramID].params.FilterStrength = 0;
-
-        if (i + 1 < nArgNum) {
-            mfxU16 strength = 0;
-            std::vector<std::string> items;
-            pParams->mctfParam[paramID].params.FilterStrength = 0;
-            split(strInput[i + 1], items, ':');
-            if (items.size() > 0) {
-                pParams->mctfParam[paramID].mode = VPP_FILTER_ENABLED_CONFIGURED;
-
-                for (int j = 0; j < 8; j++) {
-                    try {
-                        strength = (mfxU16)std::stoul(items[j]);
-                        pParams->mctfParam[paramID].params.FilterStrength = strength;
-                    }
-                    catch (const std::invalid_argument&) {
-                        printf(strInput[0], "MCTF strength setting invalid.\n");
-                    }
-                    catch (const std::out_of_range&) {
-                        printf(strInput[0], "MCTF strength setting out of bounds.\n");
-                    }
-                }
-                i++;
-            }
-        }
-        else {
-            printf("MCTF works in default mode; no parameters are passed.\n");
-        }
+    if (!msdk_match(strInput[curArg], "-mctf")) {
+        printf("MCTF options should start with -mcft.\n");
+        return;
     }
+
+    pParams->mctfParam[paramID].mode                  = VPP_FILTER_ENABLED_DEFAULT;
+    pParams->mctfParam[paramID].params.FilterStrength = 0;
+
+    if (curArg + 1 >= nArgNum) {
+        printf("MCTF option should have at least one value. Enabling default settings\n");
+        return;
+    }
+    curArg++;
+
+    std::string argument = std::string(strInput[curArg]);
+
+    if (argument.empty()) {
+        printf("MCTF option should have at least one non-empty value. Enabling default settings\n");
+        return;
+    }
+
+    ParseMCTFParamsByValue(argument, pParams, paramID);
+}
+
+void ParseMCTFParamsByValue(const std::string& argument, sInputParams* pParams, mfxU32 paramID) {
+    std::vector<std::string> mctf_param_parts;
+    std::stringstream mctf_param_stream(argument);
+    std::string temp_str;
+    split(argument, mctf_param_parts, char(':'));
+
+    mfxU16 _strength = 0;
+    try {
+        _strength = std::stoi(mctf_param_parts[0]);
+    }
+    catch (const std::invalid_argument&) {
+        printf("Error reading MCTF strength setting.\n");
+    }
+    catch (const std::out_of_range&) {
+        printf("MCTF strength out of bounds.\n");
+    }
+    pParams->mctfParam[paramID].mode                  = VPP_FILTER_ENABLED_CONFIGURED;
+    pParams->mctfParam[paramID].params.FilterStrength = _strength;
 }
 #endif
 
 mfxStatus vppParseResetPar(char* strInput[],
-                           mfxU8 nArgNum,
-                           mfxU8& curArg,
+                           mfxU32 nArgNum,
+                           mfxU32& curArg,
                            sInputParams* pParams,
                            mfxU32 paramID,
                            sFiltersParam* pDefaultFiltersParam) {
@@ -605,7 +617,7 @@ mfxStatus vppParseResetPar(char* strInput[],
     mfxU32 readData;
     mfxU32 ioStatus;
 
-    for (mfxU8& i = curArg; i < nArgNum; i++) {
+    for (mfxU32& i = curArg; i < nArgNum; i++) {
         MSDK_CHECK_POINTER(strInput[i], MFX_ERR_NULL_PTR);
         {
             if (msdk_match(strInput[i], "-o")) {
@@ -972,7 +984,7 @@ void AdjustBitDepth(sInputParams& params) {
 }
 
 mfxStatus vppParseInputString(char* strInput[],
-                              mfxU8 nArgNum,
+                              mfxU32 nArgNum,
                               sInputParams* pParams,
                               sFiltersParam* pDefaultFiltersParam) {
     MSDK_CHECK_POINTER(pParams, MFX_ERR_NULL_PTR);
@@ -997,7 +1009,7 @@ mfxStatus vppParseInputString(char* strInput[],
     pParams->frameInfoOut.back().CropH = NOT_INIT_VALUE;
     pParams->numStreams                = 1;
 
-    for (mfxU8 i = 1; i < nArgNum; i++) {
+    for (mfxU32 i = 1; i < nArgNum; i++) {
         MSDK_CHECK_POINTER(strInput[i], MFX_ERR_NULL_PTR);
         {
             if (msdk_match(strInput[i], "-ssinr")) {

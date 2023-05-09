@@ -375,7 +375,10 @@ size_t split(const std::string& source, std::vector<std::string>& dest, char del
     return items;
 }
 
-mfxStatus ParseAdditionalParams(char* strInput[], mfxU8 nArgNum, mfxU8& i, sInputParams* pParams) {
+mfxStatus ParseAdditionalParams(char* strInput[],
+                                mfxU32 nArgNum,
+                                mfxU32& i,
+                                sInputParams* pParams) {
     if (msdk_match(strInput[i], "-AvcTemporalLayers")) {
         pParams->nTemp = 1;
         VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
@@ -745,7 +748,7 @@ mfxStatus ParseAdditionalParams(char* strInput[], mfxU8 nArgNum, mfxU8& i, sInpu
     return MFX_ERR_NONE;
 }
 
-mfxStatus ParseInputString(char* strInput[], mfxU8 nArgNum, sInputParams* pParams) {
+mfxStatus ParseInputString(char* strInput[], mfxU32 nArgNum, sInputParams* pParams) {
     if (1 == nArgNum) {
         PrintHelp(strInput[0], NULL);
         return MFX_ERR_UNSUPPORTED;
@@ -777,7 +780,7 @@ mfxStatus ParseInputString(char* strInput[], mfxU8 nArgNum, sInputParams* pParam
 #endif
 
     // parse command line parameters
-    for (mfxU8 i = 1; i < nArgNum; i++) {
+    for (mfxU32 i = 1; i < nArgNum; i++) {
         MSDK_CHECK_POINTER(strInput[i], MFX_ERR_NULL_PTR);
 
         if ('-' != strInput[i][0]) {
