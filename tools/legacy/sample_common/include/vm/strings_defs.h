@@ -7,18 +7,31 @@
 #ifndef __STRING_DEFS_H__
 #define __STRING_DEFS_H__
 
+#ifndef __STDC_WANT_LIB_EXT1__
+    #define __STDC_WANT_LIB_EXT1__
+#endif
+
 #include <memory.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <cctype>
 #include <cstdarg>
 #ifdef __cplusplus
     #include <string>
 #endif
 
+#ifndef __STDC_LIB_EXT1__
+inline int strncpy_s(char* dest, size_t destsz, const char* src, size_t count) {
+    if (!src || !dest || destsz == 0 || (count >= destsz && destsz <= strnlen(src, count))) {
+        return 1;
+    }
+    strncpy(dest, src, count);
+    return 0;
+}
+#endif
+
 #if defined(_WIN32) || defined(_WIN64)
-    #define msdk_stricmp              _stricmp
-    #define msdk_strnlen(str, lenmax) strnlen_s(str, lenmax)
-    #define msdk_strncopy_s           strncpy_s
+    #define msdk_strncopy_s strncpy_s
 
     #define MSDK_MEMCPY_BITSTREAM(bitstream, offset, src, count) \
         memcpy_s((bitstream).Data + (offset), (bitstream).MaxLength - (offset), (src), (count))
@@ -29,13 +42,10 @@
     #define MSDK_MEMCPY_VAR(dstVarName, src, count) \
         memcpy_s(&(dstVarName), sizeof(dstVarName), (src), (count))
 
-    #define MSDK_MEMCPY(dst, src, count) memcpy_s(dst, (count), (src), (count))
+    #define MSDK_MEMCPY(dst, dest_sz, src, src_sz) memcpy_s((dst), (dest_sz), (src), (src_sz))
 
 #else // #if defined(_WIN32) || defined(_WIN64)
-    #define msdk_stricmp              strcasecmp
-    #define msdk_strnlen(str, maxlen) strlen(str)
-
-    #define msdk_strncopy_s(dst, num_dst, src, count) strncpy(dst, src, count)
+    #define msdk_strncopy_s strncpy_s
 
     #define MSDK_MEMCPY_BITSTREAM(bitstream, offset, src, count) \
         memcpy((bitstream).Data + (offset), (src), (count))
@@ -45,7 +55,7 @@
 
     #define MSDK_MEMCPY_VAR(dstVarName, src, count) memcpy(&(dstVarName), (src), (count))
 
-    #define MSDK_MEMCPY(dst, src, count) memcpy(dst, (src), (count))
+    #define MSDK_MEMCPY(dst, dest_sz, src, src_sz) memcpy((dst), (src), (src_sz))
 
 #endif // #if defined(_WIN32) || defined(_WIN64)
 
@@ -53,6 +63,17 @@
 inline bool msdk_match(const std::string& left, const std::string& right) {
     return left == std::string(right.begin(), right.end());
 }
+
+inline bool msdk_match_ch_i(char a, char b) {
+    return std::tolower(a) == std::tolower(b);
+}
+inline bool msdk_match_i(const std::string& left, const std::string& right) {
+    if (left.length() != right.length()) {
+        return false;
+    }
+    return std::equal(left.begin(), left.end(), right.begin(), msdk_match_ch_i);
+}
+
 inline bool msdk_starts_with(const std::string& left, const std::string& right) {
     return left.find(std::string(right.begin(), right.end())) == 0;
 }

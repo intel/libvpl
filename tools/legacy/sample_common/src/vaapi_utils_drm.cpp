@@ -60,7 +60,7 @@ int open_first_intel_adapter(int type) {
             continue;
 
         if (!get_drm_driver_name(fd, driverName, MFX_DRM_DRIVER_NAME_LEN) &&
-            !strcmp(driverName, MFX_DRM_INTEL_DRIVER_NAME)) {
+            msdk_match(driverName, MFX_DRM_INTEL_DRIVER_NAME)) {
             return fd;
         }
         close(fd);
@@ -82,7 +82,7 @@ int open_intel_adapter(const std::string& devicePath, int type) {
 
     char driverName[MFX_DRM_DRIVER_NAME_LEN + 1] = {};
     if (!get_drm_driver_name(fd, driverName, MFX_DRM_DRIVER_NAME_LEN) &&
-        !strcmp(driverName, MFX_DRM_INTEL_DRIVER_NAME)) {
+        msdk_match(driverName, MFX_DRM_INTEL_DRIVER_NAME)) {
         return fd;
     }
     else {
@@ -249,7 +249,7 @@ uint32_t drmRenderer::getCRTCPropertyId(const char* propNameToFind) {
     uint32_t i, id = 0;
     for (i = 0; i < m_crtcProperties->count_props; i++) {
         property = m_drmlib.drmModeGetProperty(m_fd, m_crtcProperties->props[i]);
-        if (!strcmp(property->name, propNameToFind))
+        if (msdk_match(property->name, propNameToFind))
             id = property->prop_id;
 
         m_drmlib.drmModeFreeProperty(property);
@@ -550,7 +550,7 @@ uint32_t drmRenderer::getConnectorPropertyId(const char* propNameToFind) {
         property = m_drmlib.drmModeGetProperty(m_fd, m_connectorProperties->props[i]);
         if (!property)
             continue;
-        if (!strcmp(property->name, propNameToFind))
+        if (msdk_match(property->name, propNameToFind))
             id = property->prop_id;
 
         m_drmlib.drmModeFreeProperty(property);
@@ -577,7 +577,7 @@ uint32_t drmRenderer::getConnectorPropertyValue(const char* propNameToFind) {
         property = m_drmlib.drmModeGetProperty(m_fd, m_connectorProperties->props[i]);
         if (!property)
             continue;
-        if (!strcmp(property->name, propNameToFind))
+        if (msdk_match(property->name, propNameToFind))
             value = m_connectorProperties->prop_values[i];
 
         m_drmlib.drmModeFreeProperty(property);

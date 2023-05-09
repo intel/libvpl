@@ -274,24 +274,21 @@ mfxStatus msdk_setrlimit_vmem(mfxU64 size) {
 }
 
 mfxStatus msdk_thread_get_schedtype(const char* str, mfxI32& type) {
-    if (!strcmp(str, "fifo")) {
+    if (msdk_match(str, "fifo")) {
         type = SCHED_FIFO;
     }
-    else if (!strcmp(str, "rr")) {
+    else if (msdk_match(str, "rr")) {
         type = SCHED_RR;
     }
-    else if (!strcmp(str, "other")) {
+    else if (msdk_match(str, "other")) {
         type = SCHED_OTHER;
     }
-    else if (!strcmp(str, "batch")) {
+    else if (msdk_match(str, "batch")) {
         type = SCHED_BATCH;
     }
-    else if (!strcmp(str, "idle")) {
+    else if (msdk_match(str, "idle")) {
         type = SCHED_IDLE;
     }
-    //    else if (!strcmp(str, "deadline")) {
-    //        type = SCHED_DEADLINE;
-    //    }
     else {
         return MFX_ERR_UNSUPPORTED;
     }

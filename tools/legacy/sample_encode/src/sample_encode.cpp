@@ -376,7 +376,7 @@ size_t split(const std::string& source, std::vector<std::string>& dest, char del
 }
 
 mfxStatus ParseAdditionalParams(char* strInput[], mfxU8 nArgNum, mfxU8& i, sInputParams* pParams) {
-    if (0 == strcmp(strInput[i], "-AvcTemporalLayers")) {
+    if (msdk_match(strInput[i], "-AvcTemporalLayers")) {
         pParams->nTemp = 1;
         VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
         mfxU16 arr[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -409,14 +409,14 @@ mfxStatus ParseAdditionalParams(char* strInput[], mfxU8 nArgNum, mfxU8& i, sInpu
         i += 1;
     }
 
-    else if (0 == strcmp(strInput[i], "-tcbrctestfile")) {
+    else if (msdk_match(strInput[i], "-tcbrctestfile")) {
         VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
         pParams->TCBRCFileMode    = true;
         pParams->strTCBRCFilePath = strInput[++i];
         i += 1;
     }
 
-    else if (0 == strcmp(strInput[i], "-BaseLayerPID")) {
+    else if (msdk_match(strInput[i], "-BaseLayerPID")) {
         VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
         if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->nBaseLayerPID)) {
             PrintHelp(strInput[0], "BaseLayerPID is invalid");
@@ -424,151 +424,151 @@ mfxStatus ParseAdditionalParams(char* strInput[], mfxU8 nArgNum, mfxU8& i, sInpu
         }
     }
 
-    else if (0 == strcmp(strInput[i], "-SPSId")) {
+    else if (msdk_match(strInput[i], "-SPSId")) {
         VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
         if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->nSPSId)) {
             PrintHelp(strInput[0], "SPSId is invalid");
             return MFX_ERR_UNSUPPORTED;
         }
     }
-    else if (0 == strcmp(strInput[i], "-PPSId")) {
+    else if (msdk_match(strInput[i], "-PPSId")) {
         VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
         if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->nPPSId)) {
             PrintHelp(strInput[0], "PPSId is invalid");
             return MFX_ERR_UNSUPPORTED;
         }
     }
-    else if (0 == strcmp(strInput[i], "-PicTimingSEI:on")) {
+    else if (msdk_match(strInput[i], "-PicTimingSEI:on")) {
         pParams->nPicTimingSEI = MFX_CODINGOPTION_ON;
     }
-    else if (0 == strcmp(strInput[i], "-PicTimingSEI:off")) {
+    else if (msdk_match(strInput[i], "-PicTimingSEI:off")) {
         pParams->nPicTimingSEI = MFX_CODINGOPTION_OFF;
     }
-    else if (0 == strcmp(strInput[i], "-NalHrdConformance:on")) {
+    else if (msdk_match(strInput[i], "-NalHrdConformance:on")) {
         pParams->nNalHrdConformance = MFX_CODINGOPTION_ON;
     }
-    else if (0 == strcmp(strInput[i], "-NalHrdConformance:off")) {
+    else if (msdk_match(strInput[i], "-NalHrdConformance:off")) {
         pParams->nNalHrdConformance = MFX_CODINGOPTION_OFF;
     }
-    else if (0 == strcmp(strInput[i], "-VuiNalHrdParameters:on")) {
+    else if (msdk_match(strInput[i], "-VuiNalHrdParameters:on")) {
         pParams->nVuiNalHrdParameters = MFX_CODINGOPTION_ON;
     }
-    else if (0 == strcmp(strInput[i], "-VuiNalHrdParameters:off")) {
+    else if (msdk_match(strInput[i], "-VuiNalHrdParameters:off")) {
         pParams->nVuiNalHrdParameters = MFX_CODINGOPTION_OFF;
     }
-    else if (0 == strcmp(strInput[i], "-encTools")) {
+    else if (msdk_match(strInput[i], "-encTools")) {
         pParams->bEncTools = true;
     }
-    else if (0 == strcmp(strInput[i], "-et:adaptiveI:on")) {
+    else if (msdk_match(strInput[i], "-et:adaptiveI:on")) {
         pParams->etAdaptiveI = MFX_CODINGOPTION_ON;
     }
-    else if (0 == strcmp(strInput[i], "-et:adaptiveB:on")) {
+    else if (msdk_match(strInput[i], "-et:adaptiveB:on")) {
         pParams->etAdaptiveB = MFX_CODINGOPTION_ON;
     }
-    else if (0 == strcmp(strInput[i], "-et:arefP:on")) {
+    else if (msdk_match(strInput[i], "-et:arefP:on")) {
         pParams->etArefP = MFX_CODINGOPTION_ON;
     }
-    else if (0 == strcmp(strInput[i], "-et:arefB:on")) {
+    else if (msdk_match(strInput[i], "-et:arefB:on")) {
         pParams->etArefB = MFX_CODINGOPTION_ON;
     }
-    else if (0 == strcmp(strInput[i], "-et:sc:on")) {
+    else if (msdk_match(strInput[i], "-et:sc:on")) {
         pParams->etSceneChange = MFX_CODINGOPTION_ON;
     }
-    else if (0 == strcmp(strInput[i], "-et:aLTR:on")) {
+    else if (msdk_match(strInput[i], "-et:aLTR:on")) {
         pParams->etALTR = MFX_CODINGOPTION_ON;
     }
-    else if (0 == strcmp(strInput[i], "-et:apyrQP:on")) {
+    else if (msdk_match(strInput[i], "-et:apyrQP:on")) {
         pParams->etApyrQP = MFX_CODINGOPTION_ON;
     }
-    else if (0 == strcmp(strInput[i], "-et:apyrQB:on")) {
+    else if (msdk_match(strInput[i], "-et:apyrQB:on")) {
         pParams->etApyrQB = MFX_CODINGOPTION_ON;
     }
-    else if (0 == strcmp(strInput[i], "-et:brchints:on")) {
+    else if (msdk_match(strInput[i], "-et:brchints:on")) {
         pParams->etBRCHints = MFX_CODINGOPTION_ON;
     }
-    else if (0 == strcmp(strInput[i], "-et:brc:on")) {
+    else if (msdk_match(strInput[i], "-et:brc:on")) {
         pParams->etBRC = MFX_CODINGOPTION_ON;
     }
-    else if (0 == strcmp(strInput[i], "-et:adaptiveI:off")) {
+    else if (msdk_match(strInput[i], "-et:adaptiveI:off")) {
         pParams->etAdaptiveI = MFX_CODINGOPTION_OFF;
     }
-    else if (0 == strcmp(strInput[i], "-et:adaptiveB:off")) {
+    else if (msdk_match(strInput[i], "-et:adaptiveB:off")) {
         pParams->etAdaptiveB = MFX_CODINGOPTION_OFF;
     }
-    else if (0 == strcmp(strInput[i], "-et:arefP:off")) {
+    else if (msdk_match(strInput[i], "-et:arefP:off")) {
         pParams->etArefP = MFX_CODINGOPTION_OFF;
     }
-    else if (0 == strcmp(strInput[i], "-et:arefB:off")) {
+    else if (msdk_match(strInput[i], "-et:arefB:off")) {
         pParams->etArefB = MFX_CODINGOPTION_OFF;
     }
-    else if (0 == strcmp(strInput[i], "-et:sc:off")) {
+    else if (msdk_match(strInput[i], "-et:sc:off")) {
         pParams->etSceneChange = MFX_CODINGOPTION_OFF;
     }
-    else if (0 == strcmp(strInput[i], "-et:aLTR:off")) {
+    else if (msdk_match(strInput[i], "-et:aLTR:off")) {
         pParams->etALTR = MFX_CODINGOPTION_OFF;
     }
-    else if (0 == strcmp(strInput[i], "-et:apyrQP:off")) {
+    else if (msdk_match(strInput[i], "-et:apyrQP:off")) {
         pParams->etApyrQP = MFX_CODINGOPTION_OFF;
     }
-    else if (0 == strcmp(strInput[i], "-et:apyrQB:off")) {
+    else if (msdk_match(strInput[i], "-et:apyrQB:off")) {
         pParams->etApyrQB = MFX_CODINGOPTION_OFF;
     }
-    else if (0 == strcmp(strInput[i], "-et:brchints:off")) {
+    else if (msdk_match(strInput[i], "-et:brchints:off")) {
         pParams->etBRCHints = MFX_CODINGOPTION_OFF;
     }
-    else if (0 == strcmp(strInput[i], "-et:brc:off")) {
+    else if (msdk_match(strInput[i], "-et:brc:off")) {
         pParams->etBRC = MFX_CODINGOPTION_OFF;
     }
-    else if (0 == strcmp(strInput[i], "-ScenarioInfo")) {
+    else if (msdk_match(strInput[i], "-ScenarioInfo")) {
         VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
         if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->ScenarioInfo)) {
             PrintHelp(strInput[0], "Scenario info is invalid");
             return MFX_ERR_UNSUPPORTED;
         }
     }
-    else if (0 == strcmp(strInput[i], "-p210")) {
+    else if (msdk_match(strInput[i], "-p210")) {
         pParams->FileInputFourCC = MFX_FOURCC_P210;
     }
-    else if (0 == strcmp(strInput[i], "-nv16")) {
+    else if (msdk_match(strInput[i], "-nv16")) {
         pParams->FileInputFourCC = MFX_FOURCC_NV16;
     }
-    else if (0 == strcmp(strInput[i], "-p016")) {
+    else if (msdk_match(strInput[i], "-p016")) {
         pParams->FileInputFourCC = MFX_FOURCC_P016;
     }
-    else if (0 == strcmp(strInput[i], "-y216")) {
+    else if (msdk_match(strInput[i], "-y216")) {
         pParams->FileInputFourCC = MFX_FOURCC_Y216;
     }
-    else if (0 == strcmp(strInput[i], "-ec::yuy2")) {
+    else if (msdk_match(strInput[i], "-ec::yuy2")) {
         pParams->EncodeFourCC = MFX_FOURCC_YUY2;
     }
-    else if (0 == strcmp(strInput[i], "-ec::nv12")) {
+    else if (msdk_match(strInput[i], "-ec::nv12")) {
         pParams->EncodeFourCC = MFX_FOURCC_NV12;
     }
-    else if (0 == strcmp(strInput[i], "-ec::rgb4")) {
+    else if (msdk_match(strInput[i], "-ec::rgb4")) {
         pParams->EncodeFourCC = MFX_FOURCC_RGB4;
     }
-    else if (0 == strcmp(strInput[i], "-ec::ayuv")) {
+    else if (msdk_match(strInput[i], "-ec::ayuv")) {
         pParams->EncodeFourCC = MFX_FOURCC_AYUV;
     }
-    else if (0 == strcmp(strInput[i], "-ec::uyvy")) {
+    else if (msdk_match(strInput[i], "-ec::uyvy")) {
         pParams->EncodeFourCC = MFX_FOURCC_UYVY;
     }
-    else if (0 == strcmp(strInput[i], "-ec::nv16")) {
+    else if (msdk_match(strInput[i], "-ec::nv16")) {
         pParams->EncodeFourCC = MFX_FOURCC_NV16;
     }
-    else if (0 == strcmp(strInput[i], "-ec::y210")) {
+    else if (msdk_match(strInput[i], "-ec::y210")) {
         pParams->EncodeFourCC = MFX_FOURCC_Y210;
     }
-    else if (0 == strcmp(strInput[i], "-ec::y410")) {
+    else if (msdk_match(strInput[i], "-ec::y410")) {
         pParams->EncodeFourCC = MFX_FOURCC_Y410;
     }
-    else if (0 == strcmp(strInput[i], "-ec::p016")) {
+    else if (msdk_match(strInput[i], "-ec::p016")) {
         pParams->EncodeFourCC = MFX_FOURCC_P016;
     }
-    else if (0 == strcmp(strInput[i], "-ec::y216")) {
+    else if (msdk_match(strInput[i], "-ec::y216")) {
         pParams->EncodeFourCC = MFX_FOURCC_Y216;
     }
-    else if (0 == strcmp(strInput[i], "-fps")) {
+    else if (msdk_match(strInput[i], "-fps")) {
         VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
 
         if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->nMaxFPS)) {
@@ -576,7 +576,7 @@ mfxStatus ParseAdditionalParams(char* strInput[], mfxU8 nArgNum, mfxU8& i, sInpu
             return MFX_ERR_UNSUPPORTED;
         }
     }
-    else if (0 == strcmp(strInput[i], "-TargetBitDepthLuma")) {
+    else if (msdk_match(strInput[i], "-TargetBitDepthLuma")) {
         VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
 
         if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->TargetBitDepthLuma)) {
@@ -584,7 +584,7 @@ mfxStatus ParseAdditionalParams(char* strInput[], mfxU8 nArgNum, mfxU8& i, sInpu
             return MFX_ERR_UNSUPPORTED;
         }
     }
-    else if (0 == strcmp(strInput[i], "-TargetBitDepthChroma")) {
+    else if (msdk_match(strInput[i], "-TargetBitDepthChroma")) {
         VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
 
         if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->TargetBitDepthChroma)) {
@@ -593,20 +593,20 @@ mfxStatus ParseAdditionalParams(char* strInput[], mfxU8 nArgNum, mfxU8& i, sInpu
         }
     }
 #if (defined(_WIN64) || defined(_WIN32))
-    else if (0 == strcmp(strInput[i], "-dual_gfx::on")) {
+    else if (msdk_match(strInput[i], "-dual_gfx::on")) {
         pParams->isDualMode = true;
         pParams->hyperMode  = MFX_HYPERMODE_ON;
     }
-    else if (0 == strcmp(strInput[i], "-dual_gfx::off")) {
+    else if (msdk_match(strInput[i], "-dual_gfx::off")) {
         pParams->isDualMode = true;
         pParams->hyperMode  = MFX_HYPERMODE_OFF;
     }
-    else if (0 == strcmp(strInput[i], "-dual_gfx::adaptive")) {
+    else if (msdk_match(strInput[i], "-dual_gfx::adaptive")) {
         pParams->isDualMode = true;
         pParams->hyperMode  = MFX_HYPERMODE_ADAPTIVE;
     }
 #endif
-    else if (0 == strcmp(strInput[i], "-icq")) {
+    else if (msdk_match(strInput[i], "-icq")) {
         pParams->nRateControlMethod = MFX_RATECONTROL_ICQ;
 
         VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
@@ -615,69 +615,69 @@ mfxStatus ParseAdditionalParams(char* strInput[], mfxU8 nArgNum, mfxU8& i, sInpu
             return MFX_ERR_UNSUPPORTED;
         }
     }
-    else if (0 == strcmp(strInput[i], "-cqp")) {
+    else if (msdk_match(strInput[i], "-cqp")) {
         pParams->nRateControlMethod = MFX_RATECONTROL_CQP;
     }
-    else if (0 == strcmp(strInput[i], "-qpi")) {
+    else if (msdk_match(strInput[i], "-qpi")) {
         VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
         if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->nQPI)) {
             PrintHelp(strInput[0], "Quantizer for I frames is invalid");
             return MFX_ERR_UNSUPPORTED;
         }
     }
-    else if (0 == strcmp(strInput[i], "-qpp")) {
+    else if (msdk_match(strInput[i], "-qpp")) {
         VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
         if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->nQPP)) {
             PrintHelp(strInput[0], "Quantizer for P frames is invalid");
             return MFX_ERR_UNSUPPORTED;
         }
     }
-    else if (0 == strcmp(strInput[i], "-qpb")) {
+    else if (msdk_match(strInput[i], "-qpb")) {
         VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
         if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->nQPB)) {
             PrintHelp(strInput[0], "Quantizer for B frames is invalid");
             return MFX_ERR_UNSUPPORTED;
         }
     }
-    else if (0 == strcmp(strInput[i], "-round_offset_in")) {
+    else if (msdk_match(strInput[i], "-round_offset_in")) {
         VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
         pParams->RoundingOffsetFile = strInput[++i];
     }
-    else if (0 == strcmp(strInput[i], "-gpb:on")) {
+    else if (msdk_match(strInput[i], "-gpb:on")) {
         pParams->nGPB = MFX_CODINGOPTION_ON;
     }
-    else if (0 == strcmp(strInput[i], "-gpb:off")) {
+    else if (msdk_match(strInput[i], "-gpb:off")) {
         pParams->nGPB = MFX_CODINGOPTION_OFF;
     }
-    else if (0 == strcmp(strInput[i], "-TransformSkip:on")) {
+    else if (msdk_match(strInput[i], "-TransformSkip:on")) {
         pParams->nTransformSkip = MFX_CODINGOPTION_ON;
     }
-    else if (0 == strcmp(strInput[i], "-TransformSkip:off")) {
+    else if (msdk_match(strInput[i], "-TransformSkip:off")) {
         pParams->nTransformSkip = MFX_CODINGOPTION_OFF;
     }
-    else if (0 == strcmp(strInput[i], "-ivf:on")) {
+    else if (msdk_match(strInput[i], "-ivf:on")) {
         pParams->nIVFHeader = MFX_CODINGOPTION_ON;
     }
-    else if (0 == strcmp(strInput[i], "-ivf:off")) {
+    else if (msdk_match(strInput[i], "-ivf:off")) {
         pParams->nIVFHeader = MFX_CODINGOPTION_OFF;
     }
-    else if (0 == strcmp(strInput[i], "-dispatcher:fullSearch")) {
+    else if (msdk_match(strInput[i], "-dispatcher:fullSearch")) {
         pParams->dispFullSearch = true;
     }
-    else if (0 == strcmp(strInput[i], "-dispatcher:lowLatency")) {
+    else if (msdk_match(strInput[i], "-dispatcher:lowLatency")) {
         pParams->dispFullSearch = false;
     }
-    else if (0 == strcmp(strInput[i], "-api_ver_init::1x")) {
+    else if (msdk_match(strInput[i], "-api_ver_init::1x")) {
         pParams->verSessionInit = API_1X;
     }
-    else if (0 == strcmp(strInput[i], "-api_ver_init::2x")) {
+    else if (msdk_match(strInput[i], "-api_ver_init::2x")) {
         pParams->verSessionInit = API_2X;
     }
-    else if (0 == strcmp(strInput[i], "-rbf")) {
+    else if (msdk_match(strInput[i], "-rbf")) {
         pParams->bReadByFrame = true;
     }
 #ifdef ONEVPL_EXPERIMENTAL
-    else if (0 == strcmp(strInput[i], "-pci")) {
+    else if (msdk_match(strInput[i], "-pci")) {
         char deviceInfo[MSDK_MAX_FILENAME_LEN];
         VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
         i++;
@@ -711,7 +711,7 @@ mfxStatus ParseAdditionalParams(char* strInput[], mfxU8 nArgNum, mfxU8& i, sInpu
         }
     }
     #if defined(_WIN32)
-    else if (0 == strcmp(strInput[i], "-luid")) {
+    else if (msdk_match(strInput[i], "-luid")) {
         // <HighPart:LowPart>
         char luid[MSDK_MAX_FILENAME_LEN];
         VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
@@ -798,14 +798,14 @@ mfxStatus ParseInputString(char* strInput[], mfxU8 nArgNum, sInputParams* pParam
         }
 
         // process multi-character options
-        if (0 == strcmp(strInput[i], "-dstw")) {
+        if (msdk_match(strInput[i], "-dstw")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->nDstWidth)) {
                 PrintHelp(strInput[0], "Destination picture Width is invalid");
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-dsth")) {
+        else if (msdk_match(strInput[i], "-dsth")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->nDstHeight)) {
                 PrintHelp(strInput[0], "Destination picture Height is invalid");
@@ -813,7 +813,7 @@ mfxStatus ParseInputString(char* strInput[], mfxU8 nArgNum, sInputParams* pParam
             }
         }
 #if (defined(LINUX32) || defined(LINUX64))
-        else if (0 == strcmp(strInput[i], "-device")) {
+        else if (msdk_match(strInput[i], "-device")) {
             if (!pParams->strDevicePath.empty()) {
                 printf("error: you can specify only one device\n");
                 return MFX_ERR_UNSUPPORTED;
@@ -827,7 +827,7 @@ mfxStatus ParseInputString(char* strInput[], mfxU8 nArgNum, sInputParams* pParam
             }
         }
 #endif
-        else if (0 == strcmp(strInput[i], "-dGfx")) {
+        else if (msdk_match(strInput[i], "-dGfx")) {
             pParams->adapterType = mfxMediaAdapterType::MFX_MEDIA_DISCRETE;
             if (i + 1 < nArgNum && isdigit(*strInput[1 + i])) {
                 if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->dGfxIdx)) {
@@ -839,122 +839,122 @@ mfxStatus ParseInputString(char* strInput[], mfxU8 nArgNum, sInputParams* pParam
             pParams->bPreferdGfx = true;
 #endif
         }
-        else if (0 == strcmp(strInput[i], "-iGfx")) {
+        else if (msdk_match(strInput[i], "-iGfx")) {
             pParams->adapterType = mfxMediaAdapterType::MFX_MEDIA_INTEGRATED;
 #if (defined(_WIN64) || defined(_WIN32)) && (MFX_VERSION >= 1031)
             pParams->bPreferiGfx = true;
 #endif
         }
-        else if (0 == strcmp(strInput[i], "-AdapterNum")) {
+        else if (msdk_match(strInput[i], "-AdapterNum")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->adapterNum)) {
                 PrintHelp(strInput[0], "Value of -AdapterNum is invalid");
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-trows")) {
+        else if (msdk_match(strInput[i], "-trows")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->nEncTileRows)) {
                 PrintHelp(strInput[0], "Encoding tile row count is invalid");
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-tcols")) {
+        else if (msdk_match(strInput[i], "-tcols")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->nEncTileCols)) {
                 PrintHelp(strInput[0], "Encoding tile column count is invalid");
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-sw")) {
+        else if (msdk_match(strInput[i], "-sw")) {
             pParams->bUseHWLib = false;
             pParams->libType   = MFX_IMPL_SOFTWARE;
         }
-        else if (0 == strcmp(strInput[i], "-hw")) {
+        else if (msdk_match(strInput[i], "-hw")) {
             pParams->bUseHWLib = true;
             pParams->libType   = MFX_IMPL_HARDWARE;
         }
-        else if (0 == strcmp(strInput[i], "-yuy2")) {
+        else if (msdk_match(strInput[i], "-yuy2")) {
 #if defined(ENABLE_V4L2_SUPPORT)
             pParams->v4l2Format = YUY2;
 #endif
             pParams->FileInputFourCC = MFX_FOURCC_YUY2;
         }
-        else if (0 == strcmp(strInput[i], "-nv12")) {
+        else if (msdk_match(strInput[i], "-nv12")) {
             pParams->FileInputFourCC = MFX_FOURCC_NV12;
         }
-        else if (0 == strcmp(strInput[i], "-i420")) {
+        else if (msdk_match(strInput[i], "-i420")) {
             pParams->FileInputFourCC = MFX_FOURCC_I420;
         }
-        else if (0 == strcmp(strInput[i], "-i010")) {
+        else if (msdk_match(strInput[i], "-i010")) {
             pParams->FileInputFourCC = MFX_FOURCC_I010;
         }
-        else if (0 == strcmp(strInput[i], "-rgb4")) {
+        else if (msdk_match(strInput[i], "-rgb4")) {
             pParams->FileInputFourCC = MFX_FOURCC_RGB4;
         }
-        else if (0 == strcmp(strInput[i], "-p010")) {
+        else if (msdk_match(strInput[i], "-p010")) {
             pParams->FileInputFourCC = MFX_FOURCC_P010;
         }
-        else if (0 == strcmp(strInput[i], "-ayuv")) {
+        else if (msdk_match(strInput[i], "-ayuv")) {
             pParams->FileInputFourCC = MFX_FOURCC_AYUV;
         }
-        else if (0 == strcmp(strInput[i], "-uyvy")) {
+        else if (msdk_match(strInput[i], "-uyvy")) {
             pParams->FileInputFourCC = MFX_FOURCC_UYVY;
         }
-        else if (0 == strcmp(strInput[i], "-y210")) {
+        else if (msdk_match(strInput[i], "-y210")) {
             pParams->FileInputFourCC = MFX_FOURCC_Y210;
         }
-        else if (0 == strcmp(strInput[i], "-y410")) {
+        else if (msdk_match(strInput[i], "-y410")) {
             pParams->FileInputFourCC = MFX_FOURCC_Y410;
         }
 #if (defined(_WIN64) || defined(_WIN32))
-        else if (0 == strcmp(strInput[i], "-yuv400")) {
+        else if (msdk_match(strInput[i], "-yuv400")) {
             pParams->FileInputFourCC = MFX_FOURCC_YUV400;
         }
 #endif
-        else if (0 == strcmp(strInput[i], "-ec::p010")) {
+        else if (msdk_match(strInput[i], "-ec::p010")) {
             pParams->EncodeFourCC = MFX_FOURCC_P010;
         }
-        else if (0 == strcmp(strInput[i], "-ec::i420")) {
+        else if (msdk_match(strInput[i], "-ec::i420")) {
             pParams->FileInputFourCC = MFX_FOURCC_I420;
         }
-        else if (0 == strcmp(strInput[i], "-ec::i010")) {
+        else if (msdk_match(strInput[i], "-ec::i010")) {
             pParams->FileInputFourCC = MFX_FOURCC_I010;
         }
-        else if (0 == strcmp(strInput[i], "-tff")) {
+        else if (msdk_match(strInput[i], "-tff")) {
             pParams->nPicStruct = MFX_PICSTRUCT_FIELD_TFF;
         }
-        else if (0 == strcmp(strInput[i], "-bff")) {
+        else if (msdk_match(strInput[i], "-bff")) {
             pParams->nPicStruct = MFX_PICSTRUCT_FIELD_BFF;
         }
-        else if (0 == strcmp(strInput[i], "-bref")) {
+        else if (msdk_match(strInput[i], "-bref")) {
             pParams->nBRefType = MFX_B_REF_PYRAMID;
         }
-        else if (0 == strcmp(strInput[i], "-nobref")) {
+        else if (msdk_match(strInput[i], "-nobref")) {
             pParams->nBRefType = MFX_B_REF_OFF;
         }
-        else if (0 == strcmp(strInput[i], "-idr_interval")) {
+        else if (msdk_match(strInput[i], "-idr_interval")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->nIdrInterval)) {
                 PrintHelp(strInput[0], "IdrInterval is invalid");
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-msb10")) {
+        else if (msdk_match(strInput[i], "-msb10")) {
             pParams->IsSourceMSB = true;
         }
-        else if (0 == strcmp(strInput[i], "-angle")) {
+        else if (msdk_match(strInput[i], "-angle")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->nRotationAngle)) {
                 PrintHelp(strInput[0], "Rotation Angle is invalid");
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-opencl")) {
+        else if (msdk_match(strInput[i], "-opencl")) {
             msdk_opt_read(MSDK_OCL_ROTATE_PLUGIN, pParams->strPluginDLLPath);
             pParams->nRotationAngle = 180;
         }
-        else if (0 == strcmp(strInput[i], "-viewoutput")) {
+        else if (msdk_match(strInput[i], "-viewoutput")) {
             if (!(MVC_ENABLED & pParams->MVC_flags)) {
                 PrintHelp(strInput[0],
                           "-viewoutput option is supported only when mvc codec specified");
@@ -962,7 +962,7 @@ mfxStatus ParseInputString(char* strInput[], mfxU8 nArgNum, sInputParams* pParam
             }
             pParams->MVC_flags |= MVC_VIEWOUTPUT;
         }
-        else if (0 == strcmp(strInput[i], "-la")) {
+        else if (msdk_match(strInput[i], "-la")) {
             if (!pParams->nRateControlMethod) {
                 pParams->nRateControlMethod = MFX_RATECONTROL_LA;
             }
@@ -977,7 +977,7 @@ mfxStatus ParseInputString(char* strInput[], mfxU8 nArgNum, sInputParams* pParam
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-lad")) {
+        else if (msdk_match(strInput[i], "-lad")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             if (!pParams->nRateControlMethod) {
                 pParams->nRateControlMethod = MFX_RATECONTROL_LA;
@@ -998,19 +998,19 @@ mfxStatus ParseInputString(char* strInput[], mfxU8 nArgNum, sInputParams* pParam
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-vbr")) {
+        else if (msdk_match(strInput[i], "-vbr")) {
             pParams->nRateControlMethod = MFX_RATECONTROL_VBR;
         }
-        else if (0 == strcmp(strInput[i], "-cbr")) {
+        else if (msdk_match(strInput[i], "-cbr")) {
             pParams->nRateControlMethod = MFX_RATECONTROL_CBR;
         }
-        else if (0 == strcmp(strInput[i], "-vcm")) {
+        else if (msdk_match(strInput[i], "-vcm")) {
             pParams->nRateControlMethod = MFX_RATECONTROL_VCM;
         }
-        else if (0 == strcmp(strInput[i], "-single_texture_d3d11")) {
+        else if (msdk_match(strInput[i], "-single_texture_d3d11")) {
             pParams->bSingleTexture = true;
         }
-        else if (0 == strcmp(strInput[i], "-qvbr")) {
+        else if (msdk_match(strInput[i], "-qvbr")) {
             pParams->nRateControlMethod = MFX_RATECONTROL_QVBR;
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
 
@@ -1019,66 +1019,66 @@ mfxStatus ParseInputString(char* strInput[], mfxU8 nArgNum, sInputParams* pParam
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-avbr")) {
+        else if (msdk_match(strInput[i], "-avbr")) {
             pParams->nRateControlMethod = MFX_RATECONTROL_AVBR;
         }
-        else if (0 == strcmp(strInput[i], "-convergence")) {
+        else if (msdk_match(strInput[i], "-convergence")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->Convergence)) {
                 PrintHelp(strInput[0], "convergence is invalid");
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-accuracy")) {
+        else if (msdk_match(strInput[i], "-accuracy")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->Accuracy)) {
                 PrintHelp(strInput[0], "accuracy is invalid");
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-mss")) {
+        else if (msdk_match(strInput[i], "-mss")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->nMaxSliceSize)) {
                 PrintHelp(strInput[0], "MaxSliceSize is invalid");
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-mfs")) {
+        else if (msdk_match(strInput[i], "-mfs")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->nMaxFrameSize)) {
                 PrintHelp(strInput[0], "MaxFrameSize is invalid");
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-BitrateLimit:on")) {
+        else if (msdk_match(strInput[i], "-BitrateLimit:on")) {
             pParams->BitrateLimit = MFX_CODINGOPTION_ON;
         }
-        else if (0 == strcmp(strInput[i], "-BitrateLimit:off")) {
+        else if (msdk_match(strInput[i], "-BitrateLimit:off")) {
             pParams->BitrateLimit = MFX_CODINGOPTION_OFF;
         }
-        else if (0 == strcmp(strInput[i], "-qpfile")) {
+        else if (msdk_match(strInput[i], "-qpfile")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             MSDK_CHECK_ERROR(strlen(strInput[i + 1]), 0, MFX_ERR_NOT_INITIALIZED);
             pParams->QPFileMode    = true;
             pParams->strQPFilePath = strInput[++i];
         }
 #if D3D_SURFACES_SUPPORT
-        else if (0 == strcmp(strInput[i], "-d3d")) {
+        else if (msdk_match(strInput[i], "-d3d")) {
             pParams->memType          = D3D9_MEMORY;
             pParams->accelerationMode = MFX_ACCEL_MODE_VIA_D3D9;
         }
-        else if (0 == strcmp(strInput[i], "-d3d11")) {
+        else if (msdk_match(strInput[i], "-d3d11")) {
             pParams->memType          = D3D11_MEMORY;
             pParams->accelerationMode = MFX_ACCEL_MODE_VIA_D3D11;
         }
 #endif
 #ifdef LIBVA_SUPPORT
-        else if (0 == strcmp(strInput[i], "-vaapi")) {
+        else if (msdk_match(strInput[i], "-vaapi")) {
             pParams->memType          = D3D9_MEMORY;
             pParams->accelerationMode = MFX_ACCEL_MODE_VIA_VAAPI;
         }
 #endif
-        else if (0 == strcmp(strInput[i], "-async")) {
+        else if (msdk_match(strInput[i], "-async")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
 
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->nAsyncDepth)) {
@@ -1086,77 +1086,77 @@ mfxStatus ParseInputString(char* strInput[], mfxU8 nArgNum, sInputParams* pParam
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-CodecLevel")) {
+        else if (msdk_match(strInput[i], "-CodecLevel")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->CodecLevel)) {
                 PrintHelp(strInput[0], "CodecLevel is invalid");
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-CodecProfile")) {
+        else if (msdk_match(strInput[i], "-CodecProfile")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->CodecProfile)) {
                 PrintHelp(strInput[0], "CodecProfile is invalid");
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-GopOptFlag:closed")) {
+        else if (msdk_match(strInput[i], "-GopOptFlag:closed")) {
             pParams->GopOptFlag = MFX_GOP_CLOSED;
         }
-        else if (0 == strcmp(strInput[i], "-GopOptFlag:strict")) {
+        else if (msdk_match(strInput[i], "-GopOptFlag:strict")) {
             pParams->GopOptFlag = MFX_GOP_STRICT;
         }
-        else if (0 == strcmp(strInput[i], "-AdaptiveI:on")) {
+        else if (msdk_match(strInput[i], "-AdaptiveI:on")) {
             pParams->AdaptiveI = MFX_CODINGOPTION_ON;
         }
-        else if (0 == strcmp(strInput[i], "-AdaptiveI:off")) {
+        else if (msdk_match(strInput[i], "-AdaptiveI:off")) {
             pParams->AdaptiveI = MFX_CODINGOPTION_OFF;
         }
-        else if (0 == strcmp(strInput[i], "-AdaptiveB:on")) {
+        else if (msdk_match(strInput[i], "-AdaptiveB:on")) {
             pParams->AdaptiveB = MFX_CODINGOPTION_ON;
         }
-        else if (0 == strcmp(strInput[i], "-AdaptiveB:off")) {
+        else if (msdk_match(strInput[i], "-AdaptiveB:off")) {
             pParams->AdaptiveB = MFX_CODINGOPTION_OFF;
         }
-        else if (0 == strcmp(strInput[i], "-InitialDelayInKB")) {
+        else if (msdk_match(strInput[i], "-InitialDelayInKB")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->InitialDelayInKB)) {
                 PrintHelp(strInput[0], "InitialDelayInKB is invalid");
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-MaxKbps")) {
+        else if (msdk_match(strInput[i], "-MaxKbps")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->MaxKbps)) {
                 PrintHelp(strInput[0], "MaxKbps is invalid");
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-LowDelayBRC")) {
+        else if (msdk_match(strInput[i], "-LowDelayBRC")) {
             pParams->LowDelayBRC = MFX_CODINGOPTION_ON;
         }
-        else if (0 == strcmp(strInput[i], "-BufferSizeInKB")) {
+        else if (msdk_match(strInput[i], "-BufferSizeInKB")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->BufferSizeInKB)) {
                 PrintHelp(strInput[0], "BufferSizeInKB is invalid");
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-ws")) {
+        else if (msdk_match(strInput[i], "-ws")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->WinBRCSize)) {
                 PrintHelp(strInput[0], "Sliding window size is invalid");
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-wb")) {
+        else if (msdk_match(strInput[i], "-wb")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->WinBRCMaxAvgKbps)) {
                 PrintHelp(strInput[0], "Sliding window bitrate is invalid");
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-timeout")) {
+        else if (msdk_match(strInput[i], "-timeout")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
 
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->nTimeout)) {
@@ -1164,7 +1164,7 @@ mfxStatus ParseInputString(char* strInput[], mfxU8 nArgNum, sInputParams* pParam
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-syncop_timeout")) {
+        else if (msdk_match(strInput[i], "-syncop_timeout")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
 
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->nSyncOpTimeout)) {
@@ -1172,7 +1172,7 @@ mfxStatus ParseInputString(char* strInput[], mfxU8 nArgNum, sInputParams* pParam
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-signal:tm")) {
+        else if (msdk_match(strInput[i], "-signal:tm")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
 
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->TransferMatrix)) {
@@ -1180,7 +1180,7 @@ mfxStatus ParseInputString(char* strInput[], mfxU8 nArgNum, sInputParams* pParam
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-ir_type")) {
+        else if (msdk_match(strInput[i], "-ir_type")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
 
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->IntRefType)) {
@@ -1188,7 +1188,7 @@ mfxStatus ParseInputString(char* strInput[], mfxU8 nArgNum, sInputParams* pParam
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-ir_cycle_size")) {
+        else if (msdk_match(strInput[i], "-ir_cycle_size")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
 
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->IntRefCycleSize)) {
@@ -1196,7 +1196,7 @@ mfxStatus ParseInputString(char* strInput[], mfxU8 nArgNum, sInputParams* pParam
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-ir_qp_delta")) {
+        else if (msdk_match(strInput[i], "-ir_qp_delta")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
 
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->IntRefQPDelta)) {
@@ -1204,7 +1204,7 @@ mfxStatus ParseInputString(char* strInput[], mfxU8 nArgNum, sInputParams* pParam
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-ir_cycle_dist")) {
+        else if (msdk_match(strInput[i], "-ir_cycle_dist")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
 
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->IntRefCycleDist)) {
@@ -1212,7 +1212,7 @@ mfxStatus ParseInputString(char* strInput[], mfxU8 nArgNum, sInputParams* pParam
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-perf_opt")) {
+        else if (msdk_match(strInput[i], "-perf_opt")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
 
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->nPerfOpt)) {
@@ -1220,28 +1220,28 @@ mfxStatus ParseInputString(char* strInput[], mfxU8 nArgNum, sInputParams* pParam
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-WeightedPred:default")) {
+        else if (msdk_match(strInput[i], "-WeightedPred:default")) {
             pParams->WeightedPred = MFX_WEIGHTED_PRED_DEFAULT;
         }
-        else if (0 == strcmp(strInput[i], "-WeightedPred:implicit")) {
+        else if (msdk_match(strInput[i], "-WeightedPred:implicit")) {
             pParams->WeightedPred = MFX_WEIGHTED_PRED_IMPLICIT;
         }
-        else if (0 == strcmp(strInput[i], "-WeightedBiPred:default")) {
+        else if (msdk_match(strInput[i], "-WeightedBiPred:default")) {
             pParams->WeightedBiPred = MFX_WEIGHTED_PRED_DEFAULT;
         }
-        else if (0 == strcmp(strInput[i], "-WeightedBiPred:implicit")) {
+        else if (msdk_match(strInput[i], "-WeightedBiPred:implicit")) {
             pParams->WeightedBiPred = MFX_WEIGHTED_PRED_IMPLICIT;
         }
-        else if (0 == strcmp(strInput[i], "-uncut")) {
+        else if (msdk_match(strInput[i], "-uncut")) {
             pParams->bUncut = true;
         }
-        else if (0 == strcmp(strInput[i], "-gpucopy::on")) {
+        else if (msdk_match(strInput[i], "-gpucopy::on")) {
             pParams->gpuCopy = MFX_GPUCOPY_ON;
         }
-        else if (0 == strcmp(strInput[i], "-gpucopy::off")) {
+        else if (msdk_match(strInput[i], "-gpucopy::off")) {
             pParams->gpuCopy = MFX_GPUCOPY_OFF;
         }
-        else if (0 == strcmp(strInput[i], "-dump")) {
+        else if (msdk_match(strInput[i], "-dump")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->DumpFileName)) {
                 PrintHelp(strInput[0],
@@ -1249,7 +1249,7 @@ mfxStatus ParseInputString(char* strInput[], mfxU8 nArgNum, sInputParams* pParam
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-usei")) {
+        else if (msdk_match(strInput[i], "-usei")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             if (strlen(strInput[i + 1]) > MSDK_MAX_USER_DATA_UNREG_SEI_LEN) {
                 PrintHelp(strInput[0], "error: '-usei' arguments is too long\n");
@@ -1264,58 +1264,58 @@ mfxStatus ParseInputString(char* strInput[], mfxU8 nArgNum, sInputParams* pParam
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-ppyr:on")) {
+        else if (msdk_match(strInput[i], "-ppyr:on")) {
             pParams->nPRefType = MFX_P_REF_PYRAMID;
         }
-        else if (0 == strcmp(strInput[i], "-ppyr:off")) {
+        else if (msdk_match(strInput[i], "-ppyr:off")) {
             pParams->nPRefType = MFX_P_REF_SIMPLE;
         }
-        else if (0 == strcmp(strInput[i], "-num_active_P")) {
+        else if (msdk_match(strInput[i], "-num_active_P")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->nNumRefActiveP)) {
                 PrintHelp(strInput[0], "Number of active reference for P frames is invalid");
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-num_active_BL0")) {
+        else if (msdk_match(strInput[i], "-num_active_BL0")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->nNumRefActiveBL0)) {
                 PrintHelp(strInput[0], "Number of active reference for B frames (L0) is invalid");
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-num_active_BL1")) {
+        else if (msdk_match(strInput[i], "-num_active_BL1")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->nNumRefActiveBL1)) {
                 PrintHelp(strInput[0], "Number of active reference for B frames (L1) is invalid");
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-extbrc:on")) {
+        else if (msdk_match(strInput[i], "-extbrc:on")) {
             pParams->nExtBRC = EXTBRC_ON;
         }
-        else if (0 == strcmp(strInput[i], "-extbrc:off")) {
+        else if (msdk_match(strInput[i], "-extbrc:off")) {
             pParams->nExtBRC = EXTBRC_OFF;
         }
-        else if (0 == strcmp(strInput[i], "-extbrc:implicit")) {
+        else if (msdk_match(strInput[i], "-extbrc:implicit")) {
             pParams->nExtBRC = EXTBRC_IMPLICIT;
         }
-        else if (0 == strcmp(strInput[i], "-ExtBrcAdaptiveLTR:on")) {
+        else if (msdk_match(strInput[i], "-ExtBrcAdaptiveLTR:on")) {
             pParams->ExtBrcAdaptiveLTR = MFX_CODINGOPTION_ON;
         }
-        else if (0 == strcmp(strInput[i], "-ExtBrcAdaptiveLTR:off")) {
+        else if (msdk_match(strInput[i], "-ExtBrcAdaptiveLTR:off")) {
             pParams->ExtBrcAdaptiveLTR = MFX_CODINGOPTION_OFF;
             ;
         }
 #if (MFX_VERSION >= MFX_VERSION_NEXT)
-        else if (0 == strcmp(strInput[i], "-dblk_alpha")) {
+        else if (msdk_match(strInput[i], "-dblk_alpha")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->DeblockingAlphaTcOffset)) {
                 PrintHelp(strInput[0], "Alpha deblocking parameter is invalid");
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-dblk_beta")) {
+        else if (msdk_match(strInput[i], "-dblk_beta")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->DeblockingBetaOffset)) {
                 PrintHelp(strInput[0], "Beta deblocking parameter is invalid");
@@ -1323,10 +1323,10 @@ mfxStatus ParseInputString(char* strInput[], mfxU8 nArgNum, sInputParams* pParam
             }
         }
 #endif
-        else if (0 == strcmp(strInput[i], "-pp")) {
+        else if (msdk_match(strInput[i], "-pp")) {
             pParams->shouldPrintPresets = true;
         }
-        else if (0 == strcmp(strInput[i], "-preset")) {
+        else if (msdk_match(strInput[i], "-preset")) {
             char presetName[MSDK_MAX_FILENAME_LEN];
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], presetName)) {
@@ -1340,96 +1340,96 @@ mfxStatus ParseInputString(char* strInput[], mfxU8 nArgNum, sInputParams* pParam
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-amfs:on")) {
+        else if (msdk_match(strInput[i], "-amfs:on")) {
             pParams->nAdaptiveMaxFrameSize = MFX_CODINGOPTION_ON;
         }
-        else if (0 == strcmp(strInput[i], "-amfs:off")) {
+        else if (msdk_match(strInput[i], "-amfs:off")) {
             pParams->nAdaptiveMaxFrameSize = MFX_CODINGOPTION_OFF;
         }
-        else if (0 == strcmp(strInput[i], "-qsv-ff")) {
+        else if (msdk_match(strInput[i], "-qsv-ff")) {
             pParams->enableQSVFF = true;
         }
-        else if (0 == strcmp(strInput[i], "-lowpower:on")) {
+        else if (msdk_match(strInput[i], "-lowpower:on")) {
             pParams->enableQSVFF = true;
         }
-        else if (0 == strcmp(strInput[i], "-lowpower:off")) {
+        else if (msdk_match(strInput[i], "-lowpower:off")) {
             pParams->enableQSVFF = false;
         }
-        else if (0 == strcmp(strInput[i], "-robust:soft")) {
+        else if (msdk_match(strInput[i], "-robust:soft")) {
             pParams->bSoftRobustFlag = true;
         }
-        else if (0 == strcmp(strInput[i], "-num_slice")) {
+        else if (msdk_match(strInput[i], "-num_slice")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->nNumSlice)) {
                 PrintHelp(strInput[0], "Number of slices is invalid");
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-n")) {
+        else if (msdk_match(strInput[i], "-n")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->nNumFrames)) {
                 PrintHelp(strInput[0], "Number of frames is invalid");
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-w")) {
+        else if (msdk_match(strInput[i], "-w")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->nWidth)) {
                 PrintHelp(strInput[0], "Width is invalid");
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-h")) {
+        else if (msdk_match(strInput[i], "-h")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->nHeight)) {
                 PrintHelp(strInput[0], "Height of frames is invalid");
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-b")) {
+        else if (msdk_match(strInput[i], "-b")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->nBitRate)) {
                 PrintHelp(strInput[0], "Bitrate is invalid");
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-f")) {
+        else if (msdk_match(strInput[i], "-f")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->dFrameRate)) {
                 PrintHelp(strInput[0], "Framerate is invalid");
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-x")) {
+        else if (msdk_match(strInput[i], "-x")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->nNumRefFrame)) {
                 PrintHelp(strInput[0], "NumRefFrames is invalid");
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-g")) {
+        else if (msdk_match(strInput[i], "-g")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->nGopPicSize)) {
                 PrintHelp(strInput[0], "GopSize is invalid");
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-r")) {
+        else if (msdk_match(strInput[i], "-r")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->nGopRefDist)) {
                 PrintHelp(strInput[0], "GopRefDist is invalid");
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-i")) {
+        else if (msdk_match(strInput[i], "-i")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             pParams->InputFiles.push_back(strInput[++i]);
         }
-        else if (0 == strcmp(strInput[i], "-o")) {
+        else if (msdk_match(strInput[i], "-o")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             pParams->dstFileBuff.push_back(strInput[++i]);
         }
-        else if (0 == strcmp(strInput[i], "-p")) {
+        else if (msdk_match(strInput[i], "-p")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             pParams->pluginParams = ParsePluginGuid(strInput[++i]);
             if (AreGuidsEqual(pParams->pluginParams.pluginGuid, MSDK_PLUGINGUID_NULL)) {
@@ -1437,27 +1437,27 @@ mfxStatus ParseInputString(char* strInput[], mfxU8 nArgNum, sInputParams* pParam
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-q")) {
+        else if (msdk_match(strInput[i], "-q")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->nQuality)) {
                 PrintHelp(strInput[0], "Quality is invalid");
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-?")) {
+        else if (msdk_match(strInput[i], "-?")) {
             PrintHelp(strInput[0], NULL);
             return MFX_ERR_UNSUPPORTED;
         }
-        else if (0 == strcmp(strInput[i], "-path")) {
+        else if (msdk_match(strInput[i], "-path")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             i++;
             pParams->pluginParams = ParsePluginPath(strInput[i]);
         }
-        else if (0 == strcmp(strInput[i], "-re")) {
+        else if (msdk_match(strInput[i], "-re")) {
             pParams->UseRegionEncode = true;
         }
 #if defined(_WIN64) || defined(_WIN32)
-        else if (0 == strcmp(strInput[i], "-PartialOutput")) {
+        else if (msdk_match(strInput[i], "-PartialOutput")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->PartialOutputMode)) {
                 PrintHelp(strInput[0], "PartialOuput mode is not specified");
@@ -1479,24 +1479,24 @@ mfxStatus ParseInputString(char* strInput[], mfxU8 nArgNum, sInputParams* pParam
         MOD_ENC_PARSE_INPUT
 #endif
 #if defined(ENABLE_V4L2_SUPPORT)
-        else if (0 == strcmp(strInput[i], "-d")) {
+        else if (msdk_match(strInput[i], "-d")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->DeviceName)) {
                 PrintHelp(strInput[0], "Device name is invalid");
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-uyvy")) {
+        else if (msdk_match(strInput[i], "-uyvy")) {
             pParams->v4l2Format = UYVY;
         }
-        else if (0 == strcmp(strInput[i], "-p")) {
+        else if (msdk_match(strInput[i], "-p")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->MipiPort)) {
                 PrintHelp(strInput[0], "Mipi-port is invalid");
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-        else if (0 == strcmp(strInput[i], "-m")) {
+        else if (msdk_match(strInput[i], "-m")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->MipiModeName)) {
                 PrintHelp(strInput[0], "Device name is invalid");
@@ -1514,11 +1514,11 @@ mfxStatus ParseInputString(char* strInput[], mfxU8 nArgNum, sInputParams* pParam
             else
                 pParams->MipiMode = NONE;
         }
-        else if (0 == strcmp(strInput[i], "-i::v4l2")) {
+        else if (msdk_match(strInput[i], "-i::v4l2")) {
             pParams->isV4L2InputEnabled = true;
         }
 #endif
-        else if (0 == strcmp(strInput[i], "-u")) {
+        else if (msdk_match(strInput[i], "-u")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             pParams->nTargetUsage = StrToTargetUsage(strInput[++i]);
             if (!pParams->nTargetUsage) {

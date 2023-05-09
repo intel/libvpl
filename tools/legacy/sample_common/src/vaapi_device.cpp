@@ -91,7 +91,7 @@ mfxStatus CVAAPIDeviceX11::Init(mfxHDL hWindow, mfxU16 nViews, mfxU32 nAdapterNu
         version.name                                    = driverName;
 
         if (!ioctl(m_dri_fd, DRM_IOWR(0, drm_version), &version) &&
-            !strcmp(driverName, MFX_DEVICE_DRIVER_NAME)) {
+            msdk_match(driverName, MFX_DEVICE_DRIVER_NAME)) {
             break;
         }
         close(m_dri_fd);

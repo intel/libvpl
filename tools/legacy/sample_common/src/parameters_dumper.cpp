@@ -83,7 +83,7 @@ void CParametersDumper::SerializeFrameInfoStruct(std::ostream& sstr,
 
     SERIALIZE_INFO(prefix, FourCC);
     char strFourCC[5] = {};
-    MSDK_MEMCPY(strFourCC, &info.FourCC, 4);
+    MSDK_MEMCPY(strFourCC, sizeof(strFourCC), &info.FourCC, 4);
     sstr << prefix << "FourCC(string)"
          << ":" << strFourCC << std::endl;
 
@@ -121,7 +121,7 @@ void CParametersDumper::SerializeMfxInfoMFXStruct(std::ostream& sstr,
     SerializeFrameInfoStruct(sstr, frameinfo_prefix.str().c_str(), info.FrameInfo);
     SERIALIZE_INFO(prefix, CodecId);
     char strID[5] = {};
-    MSDK_MEMCPY(strID, &info.CodecId, 4);
+    MSDK_MEMCPY(strID, sizeof(strID), &info.CodecId, 4);
     sstr << prefix << "CodecID(string)"
          << ":" << strID << std::endl;
 
@@ -182,7 +182,7 @@ void CParametersDumper::SerializeExtensionBuffer(std::ostream& sstr,
                                                  const char* prefix,
                                                  mfxExtBuffer* pExtBuffer) {
     char name[6] = "    .";
-    MSDK_MEMCPY(name, &pExtBuffer->BufferId, 4);
+    MSDK_MEMCPY(name, sizeof(name), &pExtBuffer->BufferId, 4);
     std::string strName(name);
     std::string name_prefix(prefix);
     name_prefix += strName;

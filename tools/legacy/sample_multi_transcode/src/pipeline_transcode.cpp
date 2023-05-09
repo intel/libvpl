@@ -2249,7 +2249,7 @@ mfxStatus CTranscodingPipeline::I420toBS(mfxFrameSurface1* pSurface, mfxBitstrea
     mfxU16 h     = info.CropH;
 
     for (mfxU16 i = 0; i < h; i++) {
-        MSDK_MEMCPY(pBS->Data + pBS->DataLength, data.Y + i * pitch, w);
+        MSDK_MEMCPY(pBS->Data + pBS->DataLength, w, data.Y + i * pitch, w);
         pBS->DataLength += w;
     }
 
@@ -2258,12 +2258,12 @@ mfxStatus CTranscodingPipeline::I420toBS(mfxFrameSurface1* pSurface, mfxBitstrea
     h /= 2;
 
     for (mfxU16 i = 0; i < h; i++) {
-        MSDK_MEMCPY(pBS->Data + pBS->DataLength, data.U + i * pitch, w);
+        MSDK_MEMCPY(pBS->Data + pBS->DataLength, w, data.U + i * pitch, w);
         pBS->DataLength += w;
     }
 
     for (mfxU16 i = 0; i < h; i++) {
-        MSDK_MEMCPY(pBS->Data + pBS->DataLength, data.V + i * pitch, w);
+        MSDK_MEMCPY(pBS->Data + pBS->DataLength, w, data.V + i * pitch, w);
         pBS->DataLength += w;
     }
 
@@ -2280,6 +2280,7 @@ mfxStatus CTranscodingPipeline::NV12asI420toBS(mfxFrameSurface1* pSurface,
 
     for (mfxU16 i = 0; i < info.CropH; i++) {
         MSDK_MEMCPY(pBS->Data + pBS->DataLength,
+                    info.CropW,
                     data.Y + (info.CropY * data.Pitch + info.CropX) + i * data.Pitch,
                     info.CropW);
         pBS->DataLength += info.CropW;
@@ -2310,6 +2311,7 @@ mfxStatus CTranscodingPipeline::NV12toBS(mfxFrameSurface1* pSurface, mfxBitstrea
 
     for (mfxU16 i = 0; i < info.CropH; i++) {
         MSDK_MEMCPY(pBS->Data + pBS->DataLength,
+                    info.CropW,
                     data.Y + (info.CropY * data.Pitch + info.CropX) + i * data.Pitch,
                     info.CropW);
         pBS->DataLength += info.CropW;
@@ -2317,6 +2319,7 @@ mfxStatus CTranscodingPipeline::NV12toBS(mfxFrameSurface1* pSurface, mfxBitstrea
 
     for (mfxU16 i = 0; i < info.CropH / 2; i++) {
         MSDK_MEMCPY(pBS->Data + pBS->DataLength,
+                    info.CropW,
                     data.UV + (info.CropY * data.Pitch + info.CropX) + i * data.Pitch,
                     info.CropW);
         pBS->DataLength += info.CropW;
@@ -2334,6 +2337,7 @@ mfxStatus CTranscodingPipeline::RGB4toBS(mfxFrameSurface1* pSurface, mfxBitstrea
 
     for (mfxU16 i = 0; i < info.CropH; i++) {
         MSDK_MEMCPY(pBS->Data + pBS->DataLength,
+                    info.CropW * 4,
                     data.B + (info.CropY * data.Pitch + info.CropX * 4) + i * data.Pitch,
                     info.CropW * 4);
         pBS->DataLength += info.CropW * 4;
@@ -2351,6 +2355,7 @@ mfxStatus CTranscodingPipeline::YUY2toBS(mfxFrameSurface1* pSurface, mfxBitstrea
 
     for (mfxU16 i = 0; i < info.CropH; i++) {
         MSDK_MEMCPY(pBS->Data + pBS->DataLength,
+                    info.CropW * 2,
                     data.Y + (info.CropY * data.Pitch + info.CropX / 2 * 4) + i * data.Pitch,
                     info.CropW * 2);
         pBS->DataLength += info.CropW * 2;
@@ -4851,6 +4856,7 @@ mfxStatus CTranscodingPipeline::AllocAndInitVppDoNotUse(MfxVideoParamsWrapper& p
             doNotUse->NumAlg  = (mfxU32)filtersDisabled.size();
             doNotUse->AlgList = new mfxU32[doNotUse->NumAlg];
             MSDK_MEMCPY(doNotUse->AlgList,
+                        sizeof(mfxU32) * filtersDisabled.size(),
                         filtersDisabled.data(),
                         sizeof(mfxU32) * filtersDisabled.size());
         }

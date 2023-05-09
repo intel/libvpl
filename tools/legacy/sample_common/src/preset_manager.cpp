@@ -6,6 +6,7 @@
 
 #include "preset_manager.h"
 #include "brc_routines.h"
+#include "vm/strings_defs.h"
 #include "vpl/mfxvideo.h"
 
 CPresetManager CPresetManager::Inst;
@@ -251,7 +252,7 @@ CDependentPresetParameters CPresetManager::GetDependentPresetParameters(EPresetM
 
 EPresetModes CPresetManager::PresetNameToMode(const char* name) {
     for (int i = 0; i < PRESET_MAX_MODES; i++) {
-        if (!msdk_stricmp(modesName[i], name)) {
+        if (msdk_match_i(modesName[i], name)) {
             return (EPresetModes)i;
         }
     }
@@ -260,7 +261,7 @@ EPresetModes CPresetManager::PresetNameToMode(const char* name) {
 
 EPresetModes CPresetManager::PresetNameToMode(const std::string& name) {
     for (int i = 0; i < PRESET_MAX_MODES; i++) {
-        if (!msdk_stricmp(modesName[i], name.c_str())) {
+        if (msdk_match_i(modesName[i], name)) {
             return (EPresetModes)i;
         }
     }

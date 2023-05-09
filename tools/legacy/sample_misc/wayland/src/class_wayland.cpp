@@ -432,15 +432,15 @@ void Wayland::RegistryGlobal(struct wl_registry* registry,
                              uint32_t name,
                              const char* interface,
                              uint32_t version) {
-    if (0 == strcmp(interface, "wl_compositor"))
+    if (msdk_match(interface, "wl_compositor"))
         m_compositor = static_cast<wl_compositor*>(
             wl_registry_bind(registry, name, &wl_compositor_interface, version));
-    else if (0 == strcmp(interface, "wl_shell")) {
+    else if (msdk_match(interface, "wl_shell")) {
         m_shell =
             static_cast<wl_shell*>(wl_registry_bind(registry, name, &wl_shell_interface, version));
     }
 #if defined(WAYLAND_LINUX_XDG_SHELL_SUPPORT)
-    else if (0 == strcmp(interface, "xdg_wm_base")) {
+    else if (msdk_match(interface, "xdg_wm_base")) {
         static const struct xdg_wm_base_listener xdg_wm_base_listener = { xdg_wm_base_ping };
         m_xdg_wm_base =
             static_cast<xdg_wm_base*>(wl_registry_bind(registry, name, &xdg_wm_base_interface, 1));
@@ -448,7 +448,7 @@ void Wayland::RegistryGlobal(struct wl_registry* registry,
         xdg_wm_base_add_listener(m_xdg_wm_base, &xdg_wm_base_listener, this);
     }
 #endif
-    else if (0 == strcmp(interface, "wl_drm")) {
+    else if (msdk_match(interface, "wl_drm")) {
         static const struct wl_drm_listener drm_listener = { drm_handle_device,
                                                              drm_handle_format,
                                                              drm_handle_authenticated,
@@ -457,7 +457,7 @@ void Wayland::RegistryGlobal(struct wl_registry* registry,
         wl_drm_add_listener(m_drm, &drm_listener, this);
     }
 #if defined(WAYLAND_LINUX_DMABUF_SUPPORT)
-    else if (0 == strcmp(interface, "zwp_linux_dmabuf_v1"))
+    else if (msdk_match(interface, "zwp_linux_dmabuf_v1"))
         m_dmabuf = static_cast<zwp_linux_dmabuf_v1*>(
             wl_registry_bind(registry, name, &zwp_linux_dmabuf_v1_interface, version));
 #endif

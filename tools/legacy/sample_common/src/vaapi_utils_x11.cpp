@@ -52,7 +52,7 @@ X11LibVA::X11LibVA(void)
         version.name                                 = driverName;
 
         if (!ioctl(fd, DRM_IOWR(0, drm_version), &version) &&
-            !strcmp(driverName, MFX_X11_DRIVER_NAME)) {
+            msdk_match(driverName, MFX_X11_DRIVER_NAME)) {
             break;
         }
         close(fd);

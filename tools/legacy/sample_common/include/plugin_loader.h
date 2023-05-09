@@ -98,7 +98,7 @@ public:
         mfxStatus sts = MFX_ERR_NONE;
         std::stringstream strStream;
 
-        MSDK_MEMCPY(&m_uid, &uid, sizeof(mfxPluginUID));
+        MSDK_MEMCPY(&m_uid, sizeof(m_uid), &uid, sizeof(uid));
         for (size_t i = 0; i != sizeof(mfxPluginUID); i++) {
             strStream << "0x" << std::setfill('0') << std::setw(2) << std::hex
                       << (int)m_uid.Data[i];
@@ -133,7 +133,7 @@ public:
         mfxStatus sts = MFX_ERR_NONE;
         std::stringstream strStream;
 
-        MSDK_MEMCPY(&m_uid, &uid, sizeof(mfxPluginUID));
+        MSDK_MEMCPY(&m_uid, sizeof(m_uid), &uid, sizeof(uid));
         for (size_t i = 0; i != sizeof(mfxPluginUID); i++) {
             strStream << "0x" << std::setfill('0') << std::setw(2) << std::hex
                       << (int)m_uid.Data[i];

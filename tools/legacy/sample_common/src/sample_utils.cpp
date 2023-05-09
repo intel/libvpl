@@ -2503,49 +2503,49 @@ mfxStatus StrFormatToCodecFormatFourCC(char* strInput, mfxU32& codecFormat) {
         sts = MFX_ERR_NULL_PTR;
 
     if (sts == MFX_ERR_NONE) {
-        if (0 == strcmp(strInput, "mpeg2")) {
+        if (msdk_match(strInput, "mpeg2")) {
             codecFormat = MFX_CODEC_MPEG2;
         }
-        else if (0 == strcmp(strInput, "h264")) {
+        else if (msdk_match(strInput, "h264")) {
             codecFormat = MFX_CODEC_AVC;
         }
-        else if (0 == strcmp(strInput, "h265")) {
+        else if (msdk_match(strInput, "h265")) {
             codecFormat = MFX_CODEC_HEVC;
         }
-        else if (0 == strcmp(strInput, "vc1")) {
+        else if (msdk_match(strInput, "vc1")) {
             codecFormat = MFX_CODEC_VC1;
         }
-        else if (0 == strcmp(strInput, "mvc")) {
+        else if (msdk_match(strInput, "mvc")) {
             codecFormat = CODEC_MVC;
         }
-        else if (0 == strcmp(strInput, "jpeg")) {
+        else if (msdk_match(strInput, "jpeg")) {
             codecFormat = MFX_CODEC_JPEG;
         }
-        else if (0 == strcmp(strInput, "vp8")) {
+        else if (msdk_match(strInput, "vp8")) {
             codecFormat = MFX_CODEC_VP8;
         }
-        else if (0 == strcmp(strInput, "vp9")) {
+        else if (msdk_match(strInput, "vp9")) {
             codecFormat = MFX_CODEC_VP9;
         }
-        else if (0 == strcmp(strInput, "av1")) {
+        else if (msdk_match(strInput, "av1")) {
             codecFormat = MFX_CODEC_AV1;
         }
-        else if ((0 == strcmp(strInput, "raw"))) {
+        else if ((msdk_match(strInput, "raw"))) {
             codecFormat = MFX_CODEC_DUMP;
         }
-        else if ((0 == strcmp(strInput, "rgb4_frame"))) {
+        else if ((msdk_match(strInput, "rgb4_frame"))) {
             codecFormat = MFX_CODEC_RGB4;
         }
-        else if ((0 == strcmp(strInput, "nv12"))) {
+        else if ((msdk_match(strInput, "nv12"))) {
             codecFormat = MFX_CODEC_NV12;
         }
-        else if ((0 == strcmp(strInput, "i420"))) {
+        else if ((msdk_match(strInput, "i420"))) {
             codecFormat = MFX_CODEC_I420;
         }
-        else if ((0 == strcmp(strInput, "i422"))) {
+        else if ((msdk_match(strInput, "i422"))) {
             codecFormat = MFX_CODEC_I422;
         }
-        else if ((0 == strcmp(strInput, "p010"))) {
+        else if ((msdk_match(strInput, "p010"))) {
             codecFormat = MFX_CODEC_P010;
         }
         else
@@ -2656,7 +2656,7 @@ mfxI32 getMonitorType(char* str) {
 #undef __DECLARE
     };
     for (unsigned int i = 0; i < sizeof(table) / sizeof(table[0]); ++i) {
-        if (0 == strcmp(str, table[i].str)) {
+        if (msdk_match(str, table[i].str)) {
             return table[i].mfx_type;
         }
     }
