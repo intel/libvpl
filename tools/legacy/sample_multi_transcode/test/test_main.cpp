@@ -663,7 +663,8 @@ TEST(Transcode_CLI, OptionPerfFileNoValue) {
 }
 
 TEST(Transcode_CLI, OptionPerfFileMultiple) {
-    const char* name = tmpnam(NULL); // Get temp name
+    const char* name = "temp_perf_file.txt";
+    remove(name);
     do {
         TranscodingSample::CmdProcessor cmd;
         auto result = init_session({ "-p", name, "-p", name }, &cmd);
@@ -674,7 +675,8 @@ TEST(Transcode_CLI, OptionPerfFileMultiple) {
 }
 
 TEST(Transcode_CLI, OptionPerfFile) {
-    const char* name = tmpnam(NULL); // Get temp name
+    const char* name = "temp_perf_file.txt";
+    remove(name);
     do {
         TranscodingSample::CmdProcessor cmd;
         auto result = init_session({ "-p", name }, &cmd);
