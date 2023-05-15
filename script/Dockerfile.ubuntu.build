@@ -1,0 +1,18 @@
+# ==============================================================================
+# Copyright (C) Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+# ==============================================================================
+
+ARG DOCKER_REGISTRY
+
+FROM ${DOCKER_REGISTRY}ubuntu:22.04
+
+COPY bootstrap bootstrap
+
+ARG DEBIAN_FRONTEND=noninteractive
+ENV PIP_ROOT_USER_ACTION=ignore
+
+RUN ./bootstrap && rm -rf /var/lib/apt/lists/*
+
+RUN git config --global safe.directory '*'

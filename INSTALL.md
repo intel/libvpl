@@ -110,7 +110,7 @@ not the absolute minimum versions that can be made to work.
 To build this project you will need:
 
 - A compiler with C++11 support
-- CMake 3.18 or newer
+- CMake 3.22.1 or newer
 
 On Windows, you will also need:
 
