@@ -49,7 +49,7 @@ elif [ "$ID_LIKE" == "rhel fedora" ]; then
   cd /tmp
   rm -rf cmake-3.*
   curl -O -L --retry 5 \
-    https://github.com/Kitware/CMake/releases/download/v3.18.4/cmake-3.18.4.tar.gz
+    https://github.com/Kitware/CMake/releases/download/v3.22.1/cmake-3.22.1.tar.gz
   tar zxvf cmake-3.*
   cd cmake-3.*
   source /opt/rh/devtoolset-9/enable
