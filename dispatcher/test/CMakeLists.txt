@@ -3,7 +3,7 @@
 #
 # SPDX-License-Identifier: MIT
 # ##############################################################################
-cmake_minimum_required(VERSION 3.10.2)
+cmake_minimum_required(VERSION 3.13.0)
 
 add_subdirectory(runtimes/stub)
 add_subdirectory(runtimes/stub1x)

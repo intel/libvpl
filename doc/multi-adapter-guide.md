@@ -296,7 +296,7 @@ The CMakeLists.txt:
 #
 # SPDX-License-Identifier: MIT
 # ##############################################################################
-cmake_minimum_required(VERSION 3.10.2)
+cmake_minimum_required(VERSION 3.13.0)
 project(hello-multiadapter)
 
 # Default install places 64 bit runtimes in the environment, so we want to do a

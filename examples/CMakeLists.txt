@@ -5,7 +5,7 @@
 # ##############################################################################
 # oneAPI Video Processing Library (oneVPL) examples
 
-cmake_minimum_required(VERSION 3.10.2)
+cmake_minimum_required(VERSION 3.13.0)
 
 if(BUILD_EXAMPLES)
   add_subdirectory(api1x_core/legacy-decode)

@@ -3,7 +3,7 @@
 #
 # SPDX-License-Identifier: MIT
 # ##############################################################################
-cmake_minimum_required(VERSION 3.10.2)
+cmake_minimum_required(VERSION 3.13.0)
 set(DLL_PREFIX "lib")
 file(STRINGS "version.txt" version_txt)
 project(vplstubrt VERSION ${version_txt})

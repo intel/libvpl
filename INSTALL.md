@@ -102,7 +102,10 @@ gcc program.cpp `pkg-config --cflags --libs vpl`
 You can also build the project directly with CMake for more control over the
 build.
 
-### Prerequisites
+### Recommended Prerequisites
+
+The following recommendations represent tools used regularly for testing,
+not the absolute minimum versions that can be made to work.
 
 To build this project you will need:
 

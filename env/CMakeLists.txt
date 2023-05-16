@@ -3,7 +3,7 @@
 #
 # SPDX-License-Identifier: MIT
 # ##############################################################################
-cmake_minimum_required(VERSION 3.10.2)
+cmake_minimum_required(VERSION 3.13.0)
 
 file(RELATIVE_PATH env_rel_prefix "${VPL_INSTALL_FULL_ENVDIR}"
      "${CMAKE_INSTALL_PREFIX}")
