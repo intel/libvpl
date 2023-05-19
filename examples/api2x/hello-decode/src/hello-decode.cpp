@@ -163,9 +163,14 @@ int main(int argc, char *argv[]) {
                     if (MFX_ERR_NONE == sts) {
                         sts = WriteRawFrame_InternalMem(decSurfaceOut, sink);
                         VERIFY(MFX_ERR_NONE == sts, "Could not write decode output");
-
                         framenum++;
                     }
+
+                    if (sts != MFX_WRN_IN_EXECUTION) {
+                        sts = decSurfaceOut->FrameInterface->Release(decSurfaceOut);
+                        VERIFY(MFX_ERR_NONE == sts, "Could not release decode output surface");
+                    }
+
                 } while (sts == MFX_WRN_IN_EXECUTION);
                 break;
             case MFX_ERR_MORE_DATA:

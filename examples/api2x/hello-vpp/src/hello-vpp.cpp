@@ -160,9 +160,14 @@ int main(int argc, char *argv[]) {
                     if (MFX_ERR_NONE == sts) {
                         sts = WriteRawFrame_InternalMem(vppOutSurface, sink);
                         VERIFY(MFX_ERR_NONE == sts, "Could not write vpp output");
-
                         framenum++;
                     }
+
+                    if (sts != MFX_WRN_IN_EXECUTION) {
+                        sts = vppOutSurface->FrameInterface->Release(vppOutSurface);
+                        VERIFY(MFX_ERR_NONE == sts, "Could not release vpp output surface");
+                    }
+
                 } while (sts == MFX_WRN_IN_EXECUTION);
                 break;
             case MFX_ERR_MORE_DATA:

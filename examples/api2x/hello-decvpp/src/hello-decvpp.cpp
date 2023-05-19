@@ -251,6 +251,9 @@ int main(int argc, char *argv[]) {
                         sts = WriteRawFrame_InternalMem(aSurf, (i == 1) ? sinkVPP1 : sinkVPP2);
                         VERIFY(MFX_ERR_NONE == sts, "ERROR - Could not write vpp output");
                     }
+
+                    sts = aSurf->FrameInterface->Release(aSurf);
+                    VERIFY(MFX_ERR_NONE == sts, "Could not release output surface");
                 }
 
                 framenum++;

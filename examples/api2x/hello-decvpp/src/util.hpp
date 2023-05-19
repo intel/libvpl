@@ -624,12 +624,6 @@ mfxStatus WriteRawFrame_InternalMem(mfxFrameSurface1 *surface, FILE *f) {
         return sts;
     }
 
-    sts = surface->FrameInterface->Release(surface);
-    if (sts != MFX_ERR_NONE) {
-        printf("mfxFrameSurfaceInterface->Release failed (%d)\n", sts);
-        return sts;
-    }
-
     return sts;
 }
 #endif
