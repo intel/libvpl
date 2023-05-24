@@ -10,6 +10,9 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 
 ## [Unreleased]
 
+### Fixed
+- Sample_multi_transcode intermittent segfault on wayland
+
 ### Removed 
 - USE_ONEAPI_INSTALL_LAYOUT build shortcut
 - '-sw' option from examples 

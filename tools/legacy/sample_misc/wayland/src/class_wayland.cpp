@@ -152,8 +152,10 @@ void Wayland::FreeSurface() {
         while (!m_buffers_list.empty()) {
             wl_surface_attach(m_surface, NULL, 0, 0);
             wl_surface_commit(m_surface);
-            if (wl_display_dispatch_queue(m_display, m_event_queue) < 1)
+            if (wl_display_dispatch_queue(m_display, m_event_queue) < 1) {
+                DestroyBufferList();
                 break;
+            }
         }
 
         wl_surface_destroy(m_surface);
