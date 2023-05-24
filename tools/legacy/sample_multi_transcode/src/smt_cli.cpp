@@ -1360,7 +1360,7 @@ mfxStatus ParseAdditionalParams(char* argv[],
     if (msdk_match(argv[i], "-AvcTemporalLayers")) {
         InputParams.nAvcTemp = 1;
         VAL_CHECK(i + 1 >= argc, i, argv[i]);
-        mfxU16 arr[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+        mfxU16 arr[8] = {};
         int j;
         size_t k;
         std::vector<std::string> args;
@@ -1393,7 +1393,7 @@ mfxStatus ParseAdditionalParams(char* argv[],
     else if (msdk_match(argv[i], "-TemporalLayers")) {
         InputParams.bTemporalLayers = true;
         VAL_CHECK(i + 1 >= argc, i, argv[i]);
-        mfxU16 arr[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+        mfxU16 arr[8] = {};
         int j;
         size_t k;
 
@@ -1541,7 +1541,7 @@ mfxStatus ParseAdditionalParams(char* argv[],
         InputParams.bEnableMDCV = true;
         auto pInMDCV            = &(InputParams.SEIMetaMDCV);
         VAL_CHECK(i + 1 >= argc, i, argv[i]);
-        mfxU32 arr[10] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+        mfxU32 arr[10] = {};
         size_t k;
         std::vector<std::string> args;
         k = split(argv[i + 1], args, char(','));
@@ -1550,7 +1550,7 @@ mfxStatus ParseAdditionalParams(char* argv[],
             return MFX_ERR_UNSUPPORTED;
         }
 
-        for (int j = 0; j < 8; j++) {
+        for (int j = 0; j < (int)k; j++) {
             try {
                 arr[j] = (mfxU32)std::stoul(args[j]);
             }
