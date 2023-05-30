@@ -10,21 +10,21 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 
 ## [Unreleased]
 
-### Fixed
-- Sample_multi_transcode intermittent segfault on wayland
+## [2023.3.0] - 2023-05-31
 
-### Removed 
+### Removed
 - USE_ONEAPI_INSTALL_LAYOUT build shortcut
-- '-sw' option from examples 
+- '-sw' option from examples
 
 ### Added
-- New MFXSetConfigFilterProperty property: `mfxExtendedDeviceId.RevisionID` 
+- New MFXSetConfigFilterProperty property: `mfxExtendedDeviceId.RevisionID`
 
 ### Fixed
 - Fix HDR luminance value
 - Handling of special cases of CMAKE_INSTALL_PREFIX
 - X11 rendering corruption issue
 - Intel® Distribution of OpenVINO™ Toolkit installation steps in vpl-infer README
+- Intermittent Sample_multi_transcode segfault on wayland
 
 ### Changed
 - quick-start scripts to be more simple and easy to use
@@ -304,8 +304,9 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 - hello-transcode sample
 
 
-[Unreleased]: https://github.com/oneapi-src/oneVPL/compare/v2023.2.1...HEAD
-[2023.2.0]: https://github.com/oneapi-src/oneVPL/compare/v2023.2.0...v2023.2.1
+[Unreleased]: https://github.com/oneapi-src/oneVPL/compare/v2023.3.0...HEAD
+[2023.3.0]: https://github.com/oneapi-src/oneVPL/compare/v2023.2.1...v2023.3.0
+[2023.2.1]: https://github.com/oneapi-src/oneVPL/compare/v2023.2.0...v2023.2.1
 [2023.2.0]: https://github.com/oneapi-src/oneVPL/compare/v2023.1.3...v2023.2.0
 [2023.1.3]: https://github.com/oneapi-src/oneVPL/compare/v2023.1.2...v2023.1.3
 [2023.1.2]: https://github.com/oneapi-src/oneVPL/compare/v2023.1.1...v2023.1.2
