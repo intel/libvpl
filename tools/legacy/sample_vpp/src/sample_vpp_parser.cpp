@@ -339,8 +339,8 @@ void vppPrintHelp(const char* strAppName, const char* strErrorMessage) {
     printf("   [-rbf] - read frame-by-frame from the input (sw lib only)\n\n");
 
     printf("   [-3dlut] path to 3dlut table file\n");
-    printf("   [-3dlutMemType] specify 3dLut memory type, 0: video, 1: sys. Default value is 0\n");
-    printf("   [-3dlutMemType] specify 3dlut mode for HDR 3Dlut, allowwed values:17|33|65\n");
+    printf("   [-3dlutMemType] specify 3dlut memory type, 0: video, 1: sys. Default value is 0\n");
+    printf("   [-3dlutMode] specify 3dlut mode for HDR 3Dlut, allowwed values:17|33|65\n");
 
     printf("\n");
 
