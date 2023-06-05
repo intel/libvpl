@@ -10,6 +10,9 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 
 ## [Unreleased]
 
+### Removed
+- Outdated docker files
+
 ## [2023.3.0] - 2023-05-31
 
 ### Removed
