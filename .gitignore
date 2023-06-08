@@ -1,6 +1,6 @@
 # build dirs
-/.*/
 _*/
+~*/
 /build
 
 # auto-generated files

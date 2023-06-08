@@ -1,0 +1,125 @@
+name: IP Leak Scan
+run-name: IP Leak Scan (Triggered by ${{ github.event_name }} by @${{ github.actor }})
+on:
+  workflow_dispatch:
+    inputs:
+      IPLDB_TOOL_URL:
+        description: 'IPLDB_TOOL_URL'
+        required: false
+        type: string
+  workflow_call:
+    inputs:
+      IPLDB_TOOL_URL:
+        description: 'IPLDB_TOOL_URL'
+        required: false
+        type: string
+
+jobs:
+  ip-leak-scan:
+    runs-on: [self-hosted, Linux, docker]
+    steps:
+      - name: Check Out Code
+        uses: actions/checkout@v3
+        with:
+          path: source
+      - name: Check Out Dispositions
+        uses: actions/checkout@v3
+        with:
+          path: db
+          ref: ipldt
+      - name: Write Docker File
+        run: |
+          USER_ID=$(id -u ${USER})
+          GROUP_ID=$(id -g ${USER})
+          IPLDB_TOOL_URL=${{ inputs.IPLDB_TOOL_URL }}
+          # Dockerfile will contain everything between <<EOL and EOL
+          cat <<'EOL' > Dockerfile
+          FROM ubuntu:20.04
+          ARG IPLDB_TOOL_URL
+          ARG http_proxy
+          ARG https_proxy
+          ARG no_proxy
+          ARG USER_ID
+          ARG GROUP_ID
+          # Suppress oddball issues with interactive apps
+          ARG DEBIAN_FRONTEND=noninteractive
+          # map in any proxy settings from the environment
+          USER root
+          ENV http_proxy ${http_proxy}
+          ENV https_proxy ${https_proxy}
+          ENV no_proxy ${no_proxy}
+          ENV DEBIAN_FRONTEND=noninteractive
+
+          RUN apt-get update && \
+              apt-get install -y -q --no-install-recommends \
+                  curl \
+              && apt-get clean \
+              && rm -rf /var/lib/apt/lists/*
+          # Main environment configuration
+          RUN apt-get update && apt-get install -y --no-install-recommends curl \
+              && addgroup --gid $GROUP_ID user \
+              && adduser --disabled-password --gecos '' --uid $USER_ID --gid $GROUP_ID user
+          RUN mkdir -p /tmp
+          RUN mkdir -p /opt
+          RUN curl -s -o /tmp/ipldt3_lin_intel64.tgz -k $IPLDB_TOOL_URL
+          RUN tar -xzvf /tmp/ipldt3_lin_intel64.tgz -C /opt
+          RUN ls /opt
+          RUN ls /opt/ipldt3_lin_intel64
+          RUN rm -rf /tmp/ipldt3_lin_intel64.tgz
+          USER user
+          EOL
+          docker build -t ipldt:github_runner . \
+            --build-arg "IPLDB_TOOL_URL=$IPLDB_TOOL_URL" \
+            --build-arg "USER_ID=${USER_ID}" \
+            --build-arg "GROUP_ID=${GROUP_ID}" \
+            --build-arg "http_proxy=${http_proxy}" \
+            --build-arg "https_proxy=${https_proxy}" \
+            --build-arg "no_proxy=${no_proxy}"
+      - name: Package Source
+        run: |
+          pushd source
+          git archive HEAD -o ../source.zip
+          popd
+      - name: Write Script
+        run: |
+          cat <<'EOL' > action.sh
+          #!/bin/bash
+          set -x
+          mkdir -p _logs/ip-leak-scan
+          set +o errexit
+          set -o pipefail
+          /opt/ipldt3_lin_intel64/ipldt3_lin_intel64 \
+              -i source.zip \
+              -c 37 \
+              --usedb db/ipldt_results.ip.db \
+              --usedb db/ipldt_results.ipevt.db \
+              --usedb db/ipldt_results.tm.db \
+              --db-rel-path \
+              --gendb _logs/ip-leak-scan/hits-linux.db \
+              --r-overwrite --r _logs/ip-leak-scan | tee /working/_logs/ipldt.txt
+          ret=$?
+          set +o pipefail
+          exit $ret
+          EOL
+          chmod +x action.sh
+      - name: Run Test
+        run: |
+          docker run --rm -v $PWD:/working -w/working ipldt:github_runner ./action.sh
+      - name: Report
+        if: success() || failure()
+        run: |
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            cat _logs/ipldt.txt >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+      - name: Record Artifacts
+        uses: actions/upload-artifact@v3
+        if: success() || failure()
+        with:
+          name: ip-leak-scan-artifacts
+          path: _logs/ip-leak-scan
+      - name: Cleanup
+        if: always()
+        run: |
+          rm -rf ./source
+          rm -rf ./_logs
+          rm action.sh Dockerfile
