@@ -1,0 +1,62 @@
+name: Windows Build
+run-name: Windows Build (Triggered by ${{ github.event_name }} by @${{ github.actor }})
+on:
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  build:
+    runs-on: [self-hosted, Windows, CMake, vs2022]
+    steps:
+      - name: Check Out Code
+        uses: actions/checkout@v3
+        with:
+          path: source
+      - name: Build
+        run: |
+          pushd source
+          cmake -B _build -DENABLE_WARNING_AS_ERROR=ON -DBUILD_TESTS=ON -DBUILD_PYTHON_BINDING=OFF
+          if($LASTEXITCODE -ne 0)
+          {
+              Exit $LASTEXITCODE
+          }
+          cmake --build _build --verbose --config Release
+          if($LASTEXITCODE -ne 0)
+          {
+              Exit $LASTEXITCODE
+          }
+          popd
+      - name: Test
+        run: |
+          pushd source
+          ctest --test-dir _build -C Release --output-on-failure -T test
+          if($LASTEXITCODE -ne 0)
+          {
+              Exit $LASTEXITCODE
+          }
+          popd
+      - name: Package
+        run: |
+          pushd source
+          # cmake cpack conflicts with choco cpack, at least until next choco release
+          cmake --build _build --config Release --target package
+          if($LASTEXITCODE -ne 0)
+          {
+              Exit $LASTEXITCODE
+          }
+          # cmake --install _build --prefix _install --config Release
+          # if($LASTEXITCODE -ne 0)
+          # {
+          #     Exit $LASTEXITCODE
+          # }
+          popd
+      - name: Record Artifacts
+        uses: actions/upload-artifact@v3
+        if: success() || failure()
+        with:
+          name: windows-build
+          path: source/_build/*-all.zip
+      - name: Cleanup
+        if: always()
+        run: |
+          Remove-Item -Recurse -Force source

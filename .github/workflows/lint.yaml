@@ -72,5 +72,6 @@ jobs:
       - name: Cleanup
         if: always()
         run: |
+          rm -rf ./source
           rm -rf _logs
           rm action.sh Dockerfile
