@@ -1,0 +1,33 @@
+name: Windows
+run-name: Windows (Triggered by ${{ github.event_name }} by @${{ github.actor }})
+on:
+  workflow_dispatch:
+    inputs:
+      TEST_REPO:
+        description: 'Test repository'
+        required: true
+        type: string
+  workflow_call:
+    inputs:
+      TEST_REPO:
+        description: 'Test repository'
+        required: true
+        type: string
+
+jobs:
+  build:
+    name: Build
+    uses: ./.github/workflows/build-windows.yaml
+    secrets: inherit
+  acceptance:
+    strategy:
+      fail-fast: false
+      matrix:
+          accelerator: [gen12.5, gen9.5]
+    name: Acceptance Test on ${{ matrix.accelerator }}
+    needs: build
+    uses: ./.github/workflows/acceptance-test-windows.yaml
+    secrets: inherit
+    with:
+      TEST_REPO: ${{ inputs.TEST_REPO }}
+      GPU_FAMILY: ${{ matrix.accelerator }}

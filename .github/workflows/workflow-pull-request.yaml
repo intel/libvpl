@@ -18,12 +18,13 @@ jobs:
     secrets: inherit
     with:
         IPLDB_TOOL_URL: '${{ vars.IPLDB_TOOL_URL }}'
-  build-windows:
-    name: Windows Build
-    uses: ./.github/workflows/build-windows.yaml
+  windows:
+    name: Windows
+    uses: ./.github/workflows/windows.yaml
     secrets: inherit
+    with:
+      TEST_REPO: ${{ vars.TEST_REPO }}
   build-linux:
     name: Linux Build
     uses: ./.github/workflows/build-linux.yaml
     secrets: inherit
-  
