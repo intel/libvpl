@@ -19,6 +19,11 @@ jobs:
     with:
         IPLDB_TOOL_URL: '${{ vars.IPLDB_TOOL_URL }}'
   build-windows:
-    name: Build Windows Package
+    name: Windows Build
     uses: ./.github/workflows/build-windows.yaml
     secrets: inherit
+  build-linux:
+    name: Linux Build
+    uses: ./.github/workflows/build-linux.yaml
+    secrets: inherit
+  
