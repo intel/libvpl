@@ -1,11 +1,37 @@
-name: Windows Build
-run-name: Windows Build (Triggered by ${{ github.event_name }} by @${{ github.actor }})
+name: Build
+run-name: Build (Triggered by ${{ github.event_name }} by @${{ github.actor }})
 on:
   workflow_dispatch:
+    inputs:
+      BUILD_CONFIG:
+        description: Build configuration
+        required: false
+        default: Release
+        type: choice
+        options: 
+          - Release
+          - Debug
+      PACKAGE_NAME:
+        description: Package artifact name
+        required: false
+        default: windows-build
+        type: string
   workflow_call:
+    inputs:
+      BUILD_CONFIG:
+        description: Build configuration
+        required: false
+        default: Release
+        type: string
+      PACKAGE_NAME:
+        description: Package artifact name
+        required: false
+        default: windows-build
+        type: string
 
 jobs:
   build:
+    name: ${{ inputs.BUILD_CONFIG }} Config
     runs-on: [self-hosted, Windows, CMake, vs2022]
     steps:
       - name: Check Out Code
@@ -20,7 +46,7 @@ jobs:
           {
               Exit $LASTEXITCODE
           }
-          cmake --build _build --verbose --config Release
+          cmake --build _build --verbose --config ${{ inputs.BUILD_CONFIG }}
           if($LASTEXITCODE -ne 0)
           {
               Exit $LASTEXITCODE
@@ -29,7 +55,7 @@ jobs:
       - name: Test
         run: |
           pushd source
-          ctest --test-dir _build -C Release --output-on-failure -T test
+          ctest --test-dir _build -C ${{ inputs.BUILD_CONFIG }} --output-on-failure -T test
           if($LASTEXITCODE -ne 0)
           {
               Exit $LASTEXITCODE
@@ -39,12 +65,12 @@ jobs:
         run: |
           pushd source
           # cmake cpack conflicts with choco cpack, at least until next choco release
-          cmake --build _build --config Release --target package
+          cmake --build _build --config ${{ inputs.BUILD_CONFIG }} --target package
           if($LASTEXITCODE -ne 0)
           {
               Exit $LASTEXITCODE
           }
-          # cmake --install _build --prefix _install --config Release
+          # cmake --install _build --prefix _install --config ${{ inputs.BUILD_CONFIG }}
           # if($LASTEXITCODE -ne 0)
           # {
           #     Exit $LASTEXITCODE
@@ -54,7 +80,7 @@ jobs:
         uses: actions/upload-artifact@v3
         if: success() || failure()
         with:
-          name: windows-build
+          name: ${{ inputs.PACKAGE_NAME }}
           path: source/_build/*-all.zip
       - name: Cleanup
         if: always()

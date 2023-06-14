@@ -1,11 +1,37 @@
-name: Build Linux
-run-name: Build Linux (Triggered by ${{ github.event_name }} by @${{ github.actor }})
-on: 
+name: Build
+run-name: Build (Triggered by ${{ github.event_name }} by @${{ github.actor }})
+on:
   workflow_dispatch:
+    inputs:
+      BUILD_CONFIG:
+        description: Build configuration
+        required: false
+        default: Release
+        type: choice
+        options: 
+          - Release
+          - Debug
+      PACKAGE_NAME:
+        description: Package artifact name
+        required: false
+        default: linux-build
+        type: string
   workflow_call:
+    inputs:
+      BUILD_CONFIG:
+        description: Build configuration
+        required: false
+        default: Release
+        type: string
+      PACKAGE_NAME:
+        description: Package artifact name
+        required: false
+        default: linux-build
+        type: string
   
 jobs:
   build:
+    name: ${{ inputs.BUILD_CONFIG }} Config
     runs-on: [self-hosted, Linux, docker]
     steps:
       - name: Clean
@@ -124,18 +150,18 @@ jobs:
           set -o errexit ; set -o nounset
           cmake -B _build -S /working -DENABLE_WARNING_AS_ERROR=ON \
           -DCMAKE_INSTALL_LIBDIR=lib \
-          -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_BUILD_TYPE=${{ inputs.BUILD_CONFIG }} \
           -DBUILD_TESTS=ON \
           -DBUILD_PYTHON_BINDING=ON \
           -DENABLE_VA=ON -DENABLE_DRM=ON -DENABLE_WAYLAND=ON \
           -DENABLE_X11=ON -DENABLE_DRI3=ON
           cmake --build _build --verbose
-          #ctest --test-dir _build --config Release --output-on-failure -T test
+          #ctest --test-dir _build --config ${{ inputs.BUILD_CONFIG }} --output-on-failure -T test
           pushd _build
-            ctest --C Release --output-on-failure -T test
+            ctest --C ${{ inputs.BUILD_CONFIG }} --output-on-failure -T test
             cpack . 
           popd
-          cmake --install _build --prefix _install --config Release
+          cmake --install _build --prefix _install --config ${{ inputs.BUILD_CONFIG }}
           EOL
           chmod +x action.sh
 
@@ -147,7 +173,7 @@ jobs:
         uses: actions/upload-artifact@v3
         if: success() || failure()
         with:
-          name: linux-build
+          name: ${{ inputs.PACKAGE_NAME }}
           path: _build/*-all.zip
 
       - name: Clean

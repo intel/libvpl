@@ -11,6 +11,20 @@ on:
         description: 'Test repository'
         required: true
         type: string
+      PACKAGE:
+        description: 'Built package'
+        required: true
+        type: string
+      DEBUG:
+        description: 'Is debug build'
+        required: false
+        default: false
+        type: boolean
+      NONFATAL:
+        description: 'Errors are nonfatal'
+        required: false
+        default: false
+        type: boolean
   workflow_call:
     inputs:
       GPU_FAMILY:
@@ -21,9 +35,25 @@ on:
         description: 'Test repository'
         required: true
         type: string
-  
+      PACKAGE:
+        description: 'Built package'
+        required: true
+        type: string
+      DEBUG:
+        description: 'Built package'
+        required: false
+        default: false
+        type: boolean
+      NONFATAL:
+        description: 'Errors are nonfatal'
+        required: false
+        default: false
+        type: boolean
+        
 jobs:
   acceptance:
+    continue-on-error: ${{ inputs.NONFATAL }}
+    name: Acceptance Test for ${{ inputs.PACKAGE }} on ${{ inputs.GPU_FAMILY }}
     runs-on: [self-hosted, Windows, CMake, vs2022, "${{ inputs.GPU_FAMILY }}"]
     steps:
       - name: Check Out Tests
@@ -35,7 +65,7 @@ jobs:
       - name: Dowload build
         uses: actions/download-artifact@v3
         with:
-          name: windows-build
+          name: ${{ inputs.PACKAGE }}
           path: package
       - name: Install
         run: |
@@ -48,6 +78,7 @@ jobs:
             Remove-Item -Recurse -Force package
           }
       - name: Test
+        continue-on-error: ${{ inputs.NONFATAL }}
         run: |
           $env_script=""
           if (Test-Path -Path install\share\oneVPL\env\vars.bat) {
@@ -65,7 +96,7 @@ jobs:
           }
           $Env:DASHBOARD_INSTALL_ONEVPLCPU_LICENSE = "gpl"
           $Env:DASHBOARD_INSTALL_ONEVPL32 = "0"
-          $Env:DASHBOARD_INSTALL_ONEVPLDEBUG = "0"
+          $Env:DASHBOARD_INSTALL_ONEVPLDEBUG = "${{ fromJSON('[0, 1]')[inputs.DEBUG] }}"
           $Env:DASHBOARD_PLATFORM_HW_CPU_MICROARCHITECTURE = "whl"
           $Env:DASHBOARD_PLATFORM_HW_INTEGRATED_GPU = "${{ inputs.GPU_FAMILY }}"
           $Env:DASHBOARD_PLATFORM_OS_FAMILY = "windows"
@@ -78,7 +109,7 @@ jobs:
         uses: actions/upload-artifact@v3
         if: success() || failure()
         with:
-          name: acceptance-windows-${{ inputs.GPU_FAMILY }}
+          name: acceptance-${{ inputs.PACKAGE }}-${{ inputs.GPU_FAMILY }}
           path: oneVPL-tests/logs
       - name: Cleanup
         if: always()

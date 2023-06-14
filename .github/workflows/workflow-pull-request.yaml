@@ -24,13 +24,13 @@ jobs:
     secrets: inherit
     with:
       TEST_REPO: ${{ vars.TEST_REPO }}
-  build-linux:
-    name: Linux Build
-    uses: ./.github/workflows/build-linux.yaml
+  linux:
+    name: Linux
+    uses: ./.github/workflows/linux.yaml
     secrets: inherit
   linux-acceptance:
     name: Linux Acceptance
-    needs: build-linux
+    needs: linux
     strategy:
       fail-fast: false
       matrix:
