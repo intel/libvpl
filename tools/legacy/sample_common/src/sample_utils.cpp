@@ -2548,6 +2548,12 @@ mfxStatus StrFormatToCodecFormatFourCC(char* strInput, mfxU32& codecFormat) {
         else if ((msdk_match(strInput, "p010"))) {
             codecFormat = MFX_CODEC_P010;
         }
+        else if ((msdk_match(strInput, "yuy2"))) {
+            codecFormat = MFX_CODEC_YUY2;
+        }
+        else if ((msdk_match(strInput, "y210"))) {
+            codecFormat = MFX_CODEC_Y210;
+        }
         else
             sts = MFX_ERR_UNSUPPORTED;
     }

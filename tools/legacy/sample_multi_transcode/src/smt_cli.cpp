@@ -3132,13 +3132,15 @@ mfxStatus CmdProcessor::VerifyAndCorrectInputParams(TranscodingSample::sInputPar
         MFX_CODEC_VP8 != InputParams.DecodeId && MFX_CODEC_AV1 != InputParams.DecodeId &&
         MFX_CODEC_RGB4 != InputParams.DecodeId && MFX_CODEC_NV12 != InputParams.DecodeId &&
         MFX_CODEC_I420 != InputParams.DecodeId && MFX_CODEC_P010 != InputParams.DecodeId &&
+        MFX_CODEC_YUY2 != InputParams.DecodeId && MFX_CODEC_Y210 != InputParams.DecodeId &&
         InputParams.eMode != Source) {
         PrintError("Unknown decoder\n");
         return MFX_ERR_UNSUPPORTED;
     }
 
     if (MFX_CODEC_I420 == InputParams.DecodeId || MFX_CODEC_NV12 == InputParams.DecodeId ||
-        MFX_CODEC_P010 == InputParams.DecodeId) {
+        MFX_CODEC_P010 == InputParams.DecodeId || MFX_CODEC_YUY2 == InputParams.DecodeId ||
+        MFX_CODEC_Y210 == InputParams.DecodeId) {
         if (InputParams.nMemoryModel == VISIBLE_INT_ALLOC ||
             InputParams.nMemoryModel == HIDDEN_INT_ALLOC) {
             PrintError("raw input is not supported with memory model 2.0\n");

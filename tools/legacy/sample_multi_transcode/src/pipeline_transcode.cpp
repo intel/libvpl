@@ -4172,7 +4172,8 @@ mfxStatus CTranscodingPipeline::Init(sInputParams* pParams,
     else {
         m_mfxDecParams.mfx.FrameInfo.PicStruct = MFX_PICSTRUCT_PROGRESSIVE;
         if (MFX_CODEC_I420 == pParams->DecodeId || MFX_CODEC_NV12 == pParams->DecodeId ||
-            MFX_CODEC_P010 == pParams->DecodeId) {
+            MFX_CODEC_P010 == pParams->DecodeId || MFX_CODEC_YUY2 == pParams->DecodeId ||
+            MFX_CODEC_Y210 == pParams->DecodeId) {
             m_mfxDecParams.mfx.FrameInfo.FourCC       = FileFourCC2EncFourCC(pParams->DecodeId);
             m_mfxDecParams.mfx.FrameInfo.ChromaFormat = FourCCToChroma(pParams->DecoderFourCC);
         }
