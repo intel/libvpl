@@ -48,3 +48,8 @@ repos:
     rev: 1.7.0
     hooks:
     - id: bandit
+  - repo: https://github.com/python-jsonschema/check-jsonschema
+    rev: 0.23.2
+    hooks:
+    - id: check-github-actions
+    - id: check-github-workflows
