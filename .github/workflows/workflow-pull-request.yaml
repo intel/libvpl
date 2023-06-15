@@ -28,3 +28,15 @@ jobs:
     name: Linux Build
     uses: ./.github/workflows/build-linux.yaml
     secrets: inherit
+  linux-acceptance:
+    name: Linux Acceptance
+    needs: build-linux
+    strategy:
+      fail-fast: false
+      matrix:
+          accelerator: [gen12.5, gen9.5]
+    uses: ./.github/workflows/acceptance-test-linux.yaml
+    secrets: inherit
+    with:
+      TEST_REPO: ${{ vars.TEST_REPO }}
+      GPU_FAMILY: ${{ matrix.accelerator }}
