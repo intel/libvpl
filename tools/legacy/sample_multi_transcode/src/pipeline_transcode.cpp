@@ -2990,6 +2990,23 @@ mfxStatus CTranscodingPipeline::InitEncMfxParams(sInputParams* pInParams) {
         clli->MaxPicAverageLightLevel = pInCLLI->MaxPicAverageLightLevel;
     }
 
+#ifdef ONEVPL_EXPERIMENTAL
+    if (pInParams->TuneEncodeQuality) {
+        auto tuneVQ         = m_mfxEncParams.AddExtBuffer<mfxExtTuneEncodeQuality>();
+        tuneVQ->TuneQuality = pInParams->TuneEncodeQuality;
+    }
+#endif
+
+    if (pInParams->ScenarioInfo) {
+        auto co3          = m_mfxEncParams.AddExtBuffer<mfxExtCodingOption3>();
+        co3->ScenarioInfo = pInParams->ScenarioInfo;
+    }
+
+    if (pInParams->ContentInfo) {
+        auto co3         = m_mfxEncParams.AddExtBuffer<mfxExtCodingOption3>();
+        co3->ContentInfo = pInParams->ContentInfo;
+    }
+
     return MFX_ERR_NONE;
 } // mfxStatus CTranscodingPipeline::InitEncMfxParams(sInputParams *pInParams)
 

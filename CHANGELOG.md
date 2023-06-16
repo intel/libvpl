@@ -10,6 +10,10 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 
 ## [Unreleased]
 
+### Added
+- Three new command line parameters to the sample_multi_transcode tool to enable
+  video quality tuning for different use cases.
+
 ### Removed
 - Outdated docker files
 

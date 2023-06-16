@@ -404,7 +404,10 @@ typedef struct sInputParams {
 #endif
 #ifdef ONEVPL_EXPERIMENTAL
     bool PercEncPrefilter;
+    mfxU32 TuneEncodeQuality;
 #endif
+    mfxU16 ScenarioInfo;
+    mfxU16 ContentInfo;
     eAPIVersion verSessionInit;
 
     // set structure to define values
@@ -621,7 +624,10 @@ typedef struct sInputParams {
 #endif
 #ifdef ONEVPL_EXPERIMENTAL
               PercEncPrefilter(false),
+              TuneEncodeQuality(0),
 #endif
+              ScenarioInfo(0),
+              ContentInfo(0),
               verSessionInit(API_2X) {
 #ifdef ENABLE_MCTF
         mctfParam.mode                  = VPP_FILTER_DISABLED;

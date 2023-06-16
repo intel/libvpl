@@ -848,7 +848,16 @@ void PrintHelp() {
     HELP_LINE("");
     HELP_LINE("  -perc_enc_filter            ");
     HELP_LINE("                Enable perceptual encoding prefilter in VPP");
+    HELP_LINE("");
+    HELP_LINE("  -tune_enc <value>");
+    HELP_LINE("                Tune encoding quality using specific metric");
+    HELP_LINE("                See mfxExtTuneEncodeQuality::TuneQuality for supported <value>");
 #endif
+    HELP_LINE("  -ContentInfo <value>");
+    HELP_LINE("  -ScenarioInfo <value>");
+    HELP_LINE("                Tune encoding quality for specific content and usage scenario");
+    HELP_LINE(
+        "                See mfxExtCodingOption3::ContentInfo/ScenarioInfo for supported <value>.");
     HELP_LINE("");
     HELP_LINE("ParFile format:");
     HELP_LINE("  ParFile is extension of what can be achieved by setting pipeline in the command");
@@ -1941,7 +1950,28 @@ mfxStatus ParseAdditionalParams(char* argv[],
     else if (msdk_match(argv[i], "-perc_enc_filter")) {
         InputParams.PercEncPrefilter = true;
     }
+    else if (msdk_match(argv[i], "-tune_enc")) {
+        VAL_CHECK(i + 1 == argc, i, argv[i]);
+        if (MFX_ERR_NONE != msdk_opt_read(argv[++i], InputParams.TuneEncodeQuality)) {
+            PrintError("-tune_enc is invalid");
+            return MFX_ERR_UNSUPPORTED;
+        }
+    }
 #endif
+    else if (msdk_match(argv[i], "-ScenarioInfo")) {
+        VAL_CHECK(i + 1 == argc, i, argv[i]);
+        if (MFX_ERR_NONE != msdk_opt_read(argv[++i], InputParams.ScenarioInfo)) {
+            PrintError("-ScenarioInfo option is invalid");
+            return MFX_ERR_UNSUPPORTED;
+        }
+    }
+    else if (msdk_match(argv[i], "-ContentInfo")) {
+        VAL_CHECK(i + 1 == argc, i, argv[i]);
+        if (MFX_ERR_NONE != msdk_opt_read(argv[++i], InputParams.ContentInfo)) {
+            PrintError("-ContentInfo option is invalid");
+            return MFX_ERR_UNSUPPORTED;
+        }
+    }
     else {
         // no matching argument was found
         return MFX_ERR_NOT_FOUND;

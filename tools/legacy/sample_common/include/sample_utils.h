@@ -484,6 +484,10 @@ template <>
 struct mfx_ext_buffer_id<mfxExtVPPPercEncPrefilter> {
     enum { id = MFX_EXTBUFF_VPP_PERC_ENC_PREFILTER };
 };
+template <>
+struct mfx_ext_buffer_id<mfxExtTuneEncodeQuality> {
+    enum { id = MFX_EXTBUFF_TUNE_ENCODE_QUALITY };
+};
 #endif
 
 constexpr uint16_t max_num_ext_buffers =
