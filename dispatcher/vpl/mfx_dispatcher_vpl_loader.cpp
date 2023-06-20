@@ -169,10 +169,6 @@ mfxStatus LoaderCtxVPL::SearchDirForLibs(STRING_TYPE searchDir,
     #endif
     };
 
-    CHAR_TYPE currDir[MAX_VPL_SEARCH_PATH] = L"";
-    if (GetCurrentDirectoryW(MAX_VPL_SEARCH_PATH, currDir))
-        SetCurrentDirectoryW(searchDir.c_str());
-
     // skip search for MSDK runtime (last entry) if bLoadVPLOnly is set
     mfxU32 numLibPrefixes = NUM_LIB_PREFIXES;
     if (bLoadVPLOnly)
@@ -192,7 +188,11 @@ mfxStatus LoaderCtxVPL::SearchDirForLibs(STRING_TYPE searchDir,
                     wcsstr(testFileData.cFileName, L"libvpld.dll"))
                     continue;
 
-                err = GetFullPathNameW(testFileData.cFileName,
+                STRING_TYPE testFileFull = searchDir;
+                testFileFull += MAKE_STRING("/");
+                testFileFull += testFileData.cFileName;
+
+                err = GetFullPathNameW(testFileFull.c_str(),
                                        MAX_VPL_SEARCH_PATH,
                                        libNameFull,
                                        &libNameBase);
@@ -222,11 +222,6 @@ mfxStatus LoaderCtxVPL::SearchDirForLibs(STRING_TYPE searchDir,
             FindClose(hTestFile);
         }
     }
-
-    // restore current directory
-    if (currDir[0])
-        SetCurrentDirectoryW(currDir);
-
 #else
     DIR *pSearchDir;
     struct dirent *currFile;
