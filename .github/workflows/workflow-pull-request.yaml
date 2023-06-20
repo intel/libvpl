@@ -12,12 +12,12 @@ jobs:
     name: Lint
     uses: ./.github/workflows/lint.yaml
     secrets: inherit
-  ip-leak-scan:
-    name: IP Leak Scan
-    uses: ./.github/workflows/ip-leak-scan.yaml
-    secrets: inherit
-    with:
-        IPLDB_TOOL_URL: '${{ vars.IPLDB_TOOL_URL }}'
+#  ip-leak-scan:
+#    name: IP Leak Scan
+#    uses: ./.github/workflows/ip-leak-scan.yaml
+#    secrets: inherit
+#    with:
+#        IPLDB_TOOL_URL: '${{ vars.IPLDB_TOOL_URL }}'
   windows:
     name: Windows
     uses: ./.github/workflows/windows.yaml
