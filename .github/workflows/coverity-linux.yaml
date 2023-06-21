@@ -1,0 +1,274 @@
+name: Build Linux
+run-name: Build Linux (Triggered by ${{ github.event_name }} by @${{ github.actor }})
+on: 
+  workflow_dispatch:
+    inputs:
+      COV_DIST_URL:
+        description: 'COV_DIST_URL'
+        required: true
+        type: string
+      COV_VERSION:
+        description: 'COV_VERSION'
+        required: true
+        type: string
+      COVERITY_HOST:
+        description: 'COVERITY_HOST'
+        required: true
+        type: string
+      AD_USR:
+        description: 'AD_USR'
+        required: true
+        type: string
+      AD_USR_EMAIL:
+        description: 'AD_USR_EMAIL'
+        required: true
+        type: string
+      COVERITY_STREAM:
+        description: 'COVERITY_STREAM'
+        required: true
+        type: string
+      COVERITY_PROJECT:
+        description: 'COVERITY_PROJECT'
+        required: true
+        type: string
+      COVERITY_OPTS:
+        description: 'COVERITY_OPTS'
+        required: false
+        default: ''
+        type: string
+  workflow_call:
+    inputs:
+      COV_DIST_URL:
+        description: 'COV_DIST_URL'
+        required: true
+        type: string
+      COV_VERSION:
+        description: 'COV_VERSION'
+        required: true
+        type: string
+      COVERITY_HOST:
+        description: 'COVERITY_HOST'
+        required: true
+        type: string
+      AD_USR:
+        description: 'AD_USR'
+        required: true
+        type: string
+      AD_USR_EMAIL:
+        description: 'AD_USR_EMAIL'
+        required: true
+        type: string
+      COVERITY_STREAM:
+        description: 'COVERITY_STREAM'
+        required: true
+        type: string
+      COVERITY_PROJECT:
+        description: 'COVERITY_PROJECT'
+        required: true
+        type: string
+      COVERITY_OPTS:
+        description: 'COVERITY_OPTS'
+        required: false
+        default: ''
+        type: string
+
+jobs:
+  scan:
+    runs-on: [self-hosted, Linux, docker]
+    steps:
+      - name: Clean
+        if: always()
+        run: |
+          docker run --rm -v $PWD:/working -w/working ubuntu:20.04 rm -rf ./*
+          rm -f Dockerfile action.sh
+          rm -rf _build _install
+
+      - name: Check Out Code
+        uses: actions/checkout@v3
+
+      - name: Write Docker File
+        run: |
+          USER_ID=$(id -u ${USER})
+          GROUP_ID=$(id -g ${USER})
+          # Dockerfile will contain everything between <<EOL and EOL
+          cat >Dockerfile <<EOL
+          FROM public.ecr.aws/docker/library/centos:7 AS buildenv
+
+          ARG http_proxy
+          ARG https_proxy
+          ARG no_proxy
+          ENV http_proxy \${http_proxy}
+          ENV https_proxy \${https_proxy}
+          ENV no_proxy \${no_proxy}
+
+          # basic build tools
+          RUN yum install -y \
+              centos-release-scl \
+              && yum-config-manager --enable rhel-server-rhscl-7-rpms \
+              && yum install -y \
+              devtoolset-9
+
+          # cmake
+          RUN yum install -y \
+              openssl-devel \
+              && cd /tmp \
+              && curl -O -L --retry 5 \
+              https://github.com/Kitware/CMake/releases/download/v3.18.4/cmake-3.18.4.tar.gz \
+              && tar zxvf cmake-3.* \
+              && cd cmake-3.* \
+              && source /opt/rh/devtoolset-9/enable \
+              && ./bootstrap --prefix=/usr/local --parallel=\$(nproc) \
+              && make -j\$(nproc) \
+              && make install
+
+          #install xcb and wayland
+          RUN yum -y update \
+              && yum -y install wayland-devel libX11-devel libXext-devel libXfixes-devel libpciaccess-devel \
+              && cd /tmp \
+              && curl -O -L --retry 5 \
+              https://wayland.freedesktop.org/releases/wayland-protocols-1.15.tar.xz \
+              && tar -xJf wayland-protocols-1.15.tar.xz \
+              && cd wayland-protocols-1.15 \
+              && ./configure --prefix="/usr" --bindir="/usr/bin" --libdir="/usr/lib64" \
+              && make install
+
+          # libva
+          RUN yum install -y \
+              bzip2 \
+              libdrm-devel \
+              && cd /tmp \
+              && curl -O -L --retry 5 \
+              https://github.com/intel/libva/releases/download/2.10.0/libva-2.10.0.tar.bz2 \
+              && tar xjf libva-2.10.0.tar.bz2 \
+              && source /opt/rh/devtoolset-9/enable \
+              && cd libva-2.10.0 \
+              && ./configure --prefix="/usr" --enable-wayland --enable-x11 --bindir="/usr/bin" --libdir="/usr/lib64" \
+              && make \
+              && make install
+
+          # install python 3.7.9
+          RUN yum -y update \
+              && yum install openssl-devel libffi-devel bzip2-devel -y \
+              && yum install wget -y \
+              && wget https://www.python.org/ftp/python/3.7.9/Python-3.7.9.tgz \
+              && tar xzf Python-3.7.9.tgz \
+              && cd Python-3.7.9 \
+              && ./configure --enable-optimizations \
+              && make install
+
+          # install pybind11
+          RUN yum -y update && yum install wget -y \
+              && cd /usr/local/src \
+              && wget https://github.com/pybind/pybind11/archive/refs/tags/v2.6.2.tar.gz \
+              && tar xzf v2.6.2.tar.gz \
+              && cd pybind11-2.6.2 \
+              && source /opt/rh/devtoolset-9/enable \
+              && mkdir build \
+              && cd build \
+              && cmake .. \
+              && make \
+              && make install  
+
+          # create devtoolset-9 entrypoint script since we can't source
+          RUN echo "#!/bin/sh" > /etc/profile.d/entrypoint.sh \
+              && echo ". /opt/rh/devtoolset-9/enable" >> /etc/profile.d/entrypoint.sh \
+          # && echo "exec \"\$@\"" >> /tmp/entrypoint.sh \
+              && chmod 755 /etc/profile.d/entrypoint.sh
+
+          ENV BASH_ENV /etc/profile.d/entrypoint.sh
+
+          # Enable dev tools when using this image
+          #ENTRYPOINT ["/tmp/entrypoint.sh"]
+          RUN groupadd -g \$GROUP_ID user || true
+          RUN useradd --disabled-password --gecos "" --uid \$USER_ID --gid \$GROUP_ID user || true
+
+          FROM maven:3-jdk-11 AS coverity_install
+          SHELL ["/bin/bash", "-xo", "pipefail", "-c"]
+          ARG COV_VERSION
+          ARG COV_DIST_URL
+          RUN mkdir /opt/coverity
+          RUN curl --silent --show-error -o /tmp/cov-analysis-linux64-\$COV_VERSION.sh -k \${COV_DIST_URL}cov-analysis-linux64-\$COV_VERSION.sh
+          RUN curl --silent --show-error -o /tmp/cov-reports-linux64-\$COV_VERSION.sh -k \${COV_DIST_URL}cov-reports-linux64-\$COV_VERSION.sh
+          RUN curl --silent --show-error -o /opt/coverity/license.dat -k \${COV_DIST_URL}license.dat
+          run chmod 777 /tmp/*.sh
+          RUN /tmp/cov-reports-linux64-\$COV_VERSION.sh -q \
+                  --installation.dir=/opt/coverity/reports/\$COV_VERSION
+          RUN /tmp/cov-analysis-linux64-\$COV_VERSION.sh -q \
+                  --installation.dir=/opt/coverity/analysis/\$COV_VERSION \
+                  --license.agreement=agree --license.region=0 --license.type.choice=0 --license.cov.path=/opt/coverity/license.dat \
+                  --component.sdk=false --component.skip.documentation=true
+          
+          FROM buildenv
+          RUN yum install -y fontconfig
+          ARG COV_VERSION
+          ENV PATH="/opt/coverity/analysis/\$COV_VERSION/bin:/opt/coverity/reports/\$COV_VERSION/bin:\${PATH}"
+          COPY --from=coverity_install /opt/coverity /opt/coverity
+
+          EOL
+          docker build -t vplcoverity:github_runner . \
+            --build-arg http_proxy=$http_proxy \
+            --build-arg https_proxy=$https_proxy \
+            --build-arg no_proxy=$no_proxy \
+            --build-arg COV_DIST_URL=${{ inputs.COV_DIST_URL }} \
+            --build-arg COV_VERSION=${{ inputs.COV_VERSION }}
+
+      - uses: actions/checkout@v3
+      - name: Bash Script
+        run: |
+          cat > action.sh <<EOL
+          #!/bin/bash
+          set -o errexit ; set -o nounset
+          set -x
+          export VERBOSE=1
+          cmake -B _build \
+            -DENABLE_WARNING_AS_ERROR=ON \
+            -DCMAKE_INSTALL_LIBDIR=lib \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_TESTS=ON \
+            -DBUILD_PYTHON_BINDING=ON \
+            -DENABLE_VA=ON \
+            -DENABLE_DRM=ON \
+            -DENABLE_WAYLAND=ON \
+            -DENABLE_X11=ON \
+            -DENABLE_DRI3=ON
+          mkdir _reports
+          REPORT_DIR="\$(realpath _reports)"
+          BUILD_DIR="\$(realpath _build)"
+          STRIP_DIR="\$(realpath .)"
+          script/coverity-scan \
+            --url "${{ inputs.COVERITY_HOST}}" \
+            --user "${{ inputs.AD_USR }}" \
+            --password "${{ secrets.AD_PW }}" \
+            --email "${{ inputs.AD_USR_EMAIL }}" \
+            --stream "${{ inputs.COVERITY_STREAM }}" \
+            --project "${{ inputs.COVERITY_PROJECT }}" \
+            --project-name "oneVPL" \
+            --dir "int_dir" \
+            --report-dir "\${REPORT_DIR}" \
+            --strip-path "\${STRIP_DIR}" \
+            --code-version "${{ github.sha }}" \
+            --bu "AXG" \
+            --description "${{ github.ref_name }}" \
+            ${{ inputs.COVERITY_OPTS}} \
+            cmake --build "\${BUILD_DIR}" --verbose
+          EOL
+          chmod +x action.sh
+
+      - name: Run Scan
+        run: |
+          docker run --rm -v $PWD:/working -w/working vplcoverity:github_runner ./action.sh
+
+      - name: Record Artifacts
+        uses: actions/upload-artifact@v3
+        if: success() || failure()
+        with:
+          name: linux-coverity-scan
+          path: _reports/*
+  
+      - name: Clean
+        if: always()
+        run: |
+          docker run --rm -v $PWD:/working -w/working ubuntu:20.04 rm -rf ./*
+          rm -f Dockerfile action.sh
+          rm -rf _build _install
+  
