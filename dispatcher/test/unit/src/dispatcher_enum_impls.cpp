@@ -6,6 +6,8 @@
 
 #include <gtest/gtest.h>
 
+#include <regex>
+
 #include "src/dispatcher_common.h"
 
 typedef enum {
@@ -184,4 +186,288 @@ TEST(Dispatcher_EnumImpls, VPLInspectFindsRTFromPriorityPath) {
     // check that the stub implementation was found
     CheckOutputLog(priorityLibPath.c_str());
     CleanupOutputLog();
+}
+
+// priorityPath = what we set ONEVPL_PRIORITY_PATH to, i.e. what dispatcher will use in search
+// expectedPath = what we expect vpl-inspect to report with "Library Path: ...", i.e. the canonicalized full path which is used to open the lib
+// bExpectPass = set to true if test expected to pass (default), false if priorityPath is something invalid
+static mfxStatus CheckExpectedPath(const std::string &priorityPath,
+                                   const std::string &expectedPath,
+                                   bool bExpectPass = true) {
+    // capture output of vpl-inspect
+    CaptureOutputLog(CAPTURE_LOG_FILE);
+
+#if defined(_WIN32) || defined(_WIN64)
+    SetEnvironmentVariable("ONEVPL_PRIORITY_PATH", priorityPath.c_str());
+#else
+    setenv("ONEVPL_PRIORITY_PATH", priorityPath.c_str(), 1);
+#endif
+
+    int err = ExecuteShellTestCmd(TEST_CMD_VPLINSPECT);
+
+#if defined(_WIN32) || defined(_WIN64)
+    SetEnvironmentVariable("ONEVPL_PRIORITY_PATH", NULL);
+#else
+    unsetenv("ONEVPL_PRIORITY_PATH");
+#endif
+
+    EXPECT_EQ(err, 0);
+
+    // check that the stub implementation was found and reports the expected path
+    CheckOutputLog(expectedPath.c_str(), bExpectPass);
+    CleanupOutputLog();
+
+    return MFX_ERR_NONE;
+}
+
+TEST(Dispatcher_EnumImpls, VPLInspectReportsExpectedPath_01) {
+    SKIP_IF_DISP_STUB_DISABLED();
+    SKIP_IF_DISP_ENUM_IMPL_DISABLED();
+
+    if (!g_bWorkDirAvailable) {
+        GTEST_SKIP();
+    }
+
+    std::string workDirPath;
+    GetWorkingDirectoryPath(workDirPath);
+
+    int err = ExecuteShellTestCmd(TEST_CMD_COPY_STUB_TO_WORKDIR);
+    EXPECT_EQ(err, 0);
+
+    // search path has no trailing slashes, should be correctly added in dispatcher
+    std::string priorityPath = workDirPath;
+
+    std::string expectedPath = "Library path: ";
+    expectedPath += workDirPath;
+    expectedPath += PATH_SEPARATOR;
+    expectedPath += STUB_RT;
+
+    CheckExpectedPath(priorityPath, expectedPath);
+}
+
+TEST(Dispatcher_EnumImpls, VPLInspectReportsExpectedPath_02) {
+    SKIP_IF_DISP_STUB_DISABLED();
+    SKIP_IF_DISP_ENUM_IMPL_DISABLED();
+
+    if (!g_bWorkDirAvailable) {
+        GTEST_SKIP();
+    }
+
+    std::string workDirPath;
+    GetWorkingDirectoryPath(workDirPath);
+
+    int err = ExecuteShellTestCmd(TEST_CMD_COPY_STUB_TO_WORKDIR);
+    EXPECT_EQ(err, 0);
+
+    // modify search path with trailing fwd-slash
+    std::string priorityPath = workDirPath;
+    priorityPath += "/";
+
+    std::string expectedPath = "Library path: ";
+    expectedPath += workDirPath;
+    expectedPath += PATH_SEPARATOR;
+    expectedPath += STUB_RT;
+
+    CheckExpectedPath(priorityPath, expectedPath);
+}
+
+TEST(Dispatcher_EnumImpls, VPLInspectReportsExpectedPath_03) {
+    SKIP_IF_DISP_STUB_DISABLED();
+    SKIP_IF_DISP_ENUM_IMPL_DISABLED();
+
+    if (!g_bWorkDirAvailable) {
+        GTEST_SKIP();
+    }
+
+    std::string workDirPath;
+    GetWorkingDirectoryPath(workDirPath);
+
+    int err = ExecuteShellTestCmd(TEST_CMD_COPY_STUB_TO_WORKDIR);
+    EXPECT_EQ(err, 0);
+
+    // modify search path with trailing back-slash
+    std::string priorityPath = workDirPath;
+    priorityPath += "\\";
+
+    std::string expectedPath = "Library path: ";
+    expectedPath += workDirPath;
+    expectedPath += PATH_SEPARATOR;
+    expectedPath += STUB_RT;
+
+    // Windows can handle both fwd and back-slash, Linux requires fwd-slash only
+#if defined(_WIN32) || defined(_WIN64)
+    CheckExpectedPath(priorityPath, expectedPath);
+#else
+    CheckExpectedPath(priorityPath, expectedPath, false);
+#endif
+}
+
+TEST(Dispatcher_EnumImpls, VPLInspectReportsExpectedPath_04) {
+    SKIP_IF_DISP_STUB_DISABLED();
+    SKIP_IF_DISP_ENUM_IMPL_DISABLED();
+
+    if (!g_bWorkDirAvailable) {
+        GTEST_SKIP();
+    }
+
+    std::string workDirPath;
+    GetWorkingDirectoryPath(workDirPath);
+
+    int err = ExecuteShellTestCmd(TEST_CMD_COPY_STUB_TO_WORKDIR);
+    EXPECT_EQ(err, 0);
+
+    // modify search path with two trailing fwd-slashes
+    std::string priorityPath = workDirPath;
+    priorityPath += "//";
+
+    std::string expectedPath = "Library path: ";
+    expectedPath += workDirPath;
+    expectedPath += PATH_SEPARATOR;
+    expectedPath += STUB_RT;
+
+    CheckExpectedPath(priorityPath, expectedPath);
+}
+
+TEST(Dispatcher_EnumImpls, VPLInspectReportsExpectedPath_05) {
+    SKIP_IF_DISP_STUB_DISABLED();
+    SKIP_IF_DISP_ENUM_IMPL_DISABLED();
+
+    if (!g_bWorkDirAvailable) {
+        GTEST_SKIP();
+    }
+
+    std::string workDirPath;
+    GetWorkingDirectoryPath(workDirPath);
+
+    int err = ExecuteShellTestCmd(TEST_CMD_COPY_STUB_TO_WORKDIR);
+    EXPECT_EQ(err, 0);
+
+    // modify search path with two trailing back-slashes
+    std::string priorityPath = workDirPath;
+    priorityPath += "\\\\";
+
+    std::string expectedPath = "Library path: ";
+    expectedPath += workDirPath;
+    expectedPath += PATH_SEPARATOR;
+    expectedPath += STUB_RT;
+
+    // Windows can handle both fwd and back-slash, Linux requires fwd-slash only
+#if defined(_WIN32) || defined(_WIN64)
+    CheckExpectedPath(priorityPath, expectedPath);
+#else
+    CheckExpectedPath(priorityPath, expectedPath, false);
+#endif
+}
+
+TEST(Dispatcher_EnumImpls, VPLInspectReportsExpectedPath_06) {
+    SKIP_IF_DISP_STUB_DISABLED();
+    SKIP_IF_DISP_ENUM_IMPL_DISABLED();
+
+    if (!g_bWorkDirAvailable) {
+        GTEST_SKIP();
+    }
+
+    std::string workDirPath;
+    GetWorkingDirectoryPath(workDirPath);
+
+    int err = ExecuteShellTestCmd(TEST_CMD_COPY_STUB_TO_WORKDIR);
+    EXPECT_EQ(err, 0);
+
+    // modify search path with fwd and back-slashes
+    std::string priorityPath = workDirPath;
+    priorityPath += "/\\";
+
+    std::string expectedPath = "Library path: ";
+    expectedPath += workDirPath;
+    expectedPath += PATH_SEPARATOR;
+    expectedPath += STUB_RT;
+
+    // Windows can handle both fwd and back-slash, Linux requires fwd-slash only
+#if defined(_WIN32) || defined(_WIN64)
+    CheckExpectedPath(priorityPath, expectedPath);
+#else
+    CheckExpectedPath(priorityPath, expectedPath, false);
+#endif
+}
+
+TEST(Dispatcher_EnumImpls, VPLInspectReportsExpectedPath_07) {
+    SKIP_IF_DISP_STUB_DISABLED();
+    SKIP_IF_DISP_ENUM_IMPL_DISABLED();
+
+    if (!g_bWorkDirAvailable) {
+        GTEST_SKIP();
+    }
+
+    std::string workDirPath;
+    GetWorkingDirectoryPath(workDirPath);
+
+    int err = ExecuteShellTestCmd(TEST_CMD_COPY_STUB_TO_WORKDIR);
+    EXPECT_EQ(err, 0);
+
+    // modify search path with back and fwd-slashes
+    std::string priorityPath = workDirPath;
+    priorityPath += "\\/";
+
+    std::string expectedPath = "Library path: ";
+    expectedPath += workDirPath;
+    expectedPath += PATH_SEPARATOR;
+    expectedPath += STUB_RT;
+
+    // Windows can handle both fwd and back-slash, Linux requires fwd-slash only
+#if defined(_WIN32) || defined(_WIN64)
+    CheckExpectedPath(priorityPath, expectedPath);
+#else
+    CheckExpectedPath(priorityPath, expectedPath, false);
+#endif
+}
+
+TEST(Dispatcher_EnumImpls, VPLInspectReportsExpectedPath_08) {
+    SKIP_IF_DISP_STUB_DISABLED();
+    SKIP_IF_DISP_ENUM_IMPL_DISABLED();
+
+    if (!g_bWorkDirAvailable) {
+        GTEST_SKIP();
+    }
+
+    std::string workDirPath;
+    GetWorkingDirectoryPath(workDirPath);
+
+    int err = ExecuteShellTestCmd(TEST_CMD_COPY_STUB_TO_WORKDIR);
+    EXPECT_EQ(err, 0);
+
+    // modify search path with invalid separator - expect to fail
+    std::string priorityPath = workDirPath;
+    priorityPath += "+";
+
+    std::string expectedPath = "Library path: ";
+    expectedPath += workDirPath;
+    expectedPath += PATH_SEPARATOR;
+    expectedPath += STUB_RT;
+
+    CheckExpectedPath(priorityPath, expectedPath, false);
+}
+
+TEST(Dispatcher_EnumImpls, VPLInspectReportsExpectedPath_09) {
+    SKIP_IF_DISP_STUB_DISABLED();
+    SKIP_IF_DISP_ENUM_IMPL_DISABLED();
+
+    if (!g_bWorkDirAvailable) {
+        GTEST_SKIP();
+    }
+
+    std::string workDirPath;
+    GetWorkingDirectoryPath(workDirPath);
+
+    int err = ExecuteShellTestCmd(TEST_CMD_COPY_STUB_TO_WORKDIR);
+    EXPECT_EQ(err, 0);
+
+    // convert all back-slash (default on Windows) to fwd-slash
+    std::string priorityPath = std::regex_replace(workDirPath, std::regex("\\\\"), "/");
+
+    std::string expectedPath = "Library path: ";
+    expectedPath += workDirPath;
+    expectedPath += PATH_SEPARATOR;
+    expectedPath += STUB_RT;
+
+    CheckExpectedPath(priorityPath, expectedPath);
 }

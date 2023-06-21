@@ -13,6 +13,9 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 ### Removed
 - Outdated docker files
 
+### Fixed
+- Remove SetCurrentDirectory call during runtime search 
+
 ## [2023.3.0] - 2023-05-31
 
 ### Removed
