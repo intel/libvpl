@@ -74,3 +74,10 @@ jobs:
     name: Complier settings
     uses: ./.github/workflows/complier-settings-windows.yaml
     secrets: inherit
+  dynamic-analysis:
+    name: Dynamic Analysis
+    needs: linux
+    uses: ./.github/workflows/dynamic-analysis.yaml
+    secrets: inherit
+    with:
+      ARTIFACT: linux-build

@@ -1,0 +1,107 @@
+{
+    <suppression rule>
+    Memcheck:Addr1
+    ...
+    fun:va*
+}
+{
+    <suppression rule>
+    Memcheck:Addr1
+    ...
+    fun:main
+}
+{
+   <suppression rule>
+   Memcheck:Addr2
+   ...
+   fun:va*
+}
+{
+   <suppression rule>
+   Memcheck:Addr4
+   ...
+   fun:va*
+}
+{
+   <suppression rule>
+   Memcheck:Addr8
+   ...
+   fun:va*
+}
+{
+   <suppression rule>
+   Memcheck:Addr16
+   ...
+   fun:va*
+}
+
+
+{
+   <suppression rule>
+   Memcheck:Addr1
+   ...
+   obj:*/libmfx*
+}
+{
+   <suppression rule>
+   Memcheck:Addr2
+   ...
+   obj:*/libmfx*
+}
+{
+   <suppression rule>
+   Memcheck:Addr4
+   ...
+   obj:*/libmfx*
+}
+{
+   <suppression rule>
+   Memcheck:Addr8
+   ...
+   obj:*/libmfx*
+}
+{
+   <suppression rule>
+   Memcheck:Addr16
+   ...
+   obj:*/libmfx*
+}
+
+{
+   <suppression rule>
+   Memcheck:Addr1
+   ...
+   obj:*/iHD*
+}
+{
+   <suppression rule>
+   Memcheck:Addr2
+   ...
+   obj:*/iHD*
+}
+{
+   <suppression rule>
+   Memcheck:Addr4
+   ...
+   obj:*/iHD*
+}
+{
+   <suppression rule>
+   Memcheck:Addr8
+   ...
+   obj:*/iHD*
+}
+{
+   <suppression rule>
+   Memcheck:Addr16
+   ...
+   obj:*/iHD*
+}
+
+{
+   <suppression rule>
+   Memcheck:Cond
+   ...
+   obj:*/libmfx*
+}
+

@@ -1,0 +1,10 @@
+vpl-inspect
+sample_decode h265 -i $CONTENT/cars_320x240.h265 -hw
+sample_decode h265 -i $CONTENT/cars_320x240.h265 -hw -vaapi
+sample_decode h265 -i $CONTENT/cars_320x240.h265 -hw -vaapi -AdapterNum 0
+sample_encode h265 -i $CONTENT/cars_320x240.i420 -hw -w 320 -h 240
+sample_encode h265 -i $CONTENT/cars_320x240.i420 -hw -w 320 -h 240 -vaapi
+sample_encode h265 -i $CONTENT/cars_320x240.i420 -hw -w 320 -h 240 -vaapi -AdapterNum 0
+sample_vpp -sw 320 -sh 240 -scc i420 -dw 640 -dh 480 -dcc rgb4 -i $CONTENT/cars_320x240.i420 -o out.rgb4 -lib hw
+sample_vpp -sw 320 -sh 240 -scc i420 -dw 640 -dh 480 -dcc rgb4 -i $CONTENT/cars_320x240.i420 -o out.rgb4 -lib hw -vaapi
+sample_vpp -sw 320 -sh 240 -scc i420 -dw 640 -dh 480 -dcc rgb4 -i $CONTENT/cars_320x240.i420 -o out.rgb4 -lib hw -vaapi -AdapterNum 0
