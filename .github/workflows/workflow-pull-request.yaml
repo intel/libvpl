@@ -64,3 +64,13 @@ jobs:
       AD_USR_EMAIL: ${{ vars.AD_USR_EMAIL }}
       COVERITY_STREAM: ${{ vars.COVERITY_STREAM }}
       COVERITY_PROJECT: ${{ vars.COVERITY_PROJECT }}
+  complier-settings-linux:
+    needs: [linux]
+    name: Complier settings
+    uses: ./.github/workflows/complier-settings-linux.yaml
+    secrets: inherit
+  complier-settings-windows:
+    needs: [windows]
+    name: Complier settings
+    uses: ./.github/workflows/complier-settings-windows.yaml
+    secrets: inherit
