@@ -1,0 +1,120 @@
+name: Release Summary
+run-name: Release Summary (Triggered by ${{ github.event_name }} by @${{ github.actor }})
+on:
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  summary:
+    runs-on: [self-hosted, Linux, docker]
+    steps:
+      - name: Cleanup
+        run: |
+          sudo rm -rf -- ..?* .[!.]* *
+      - name: Create High Level Structure
+        run: |
+          mkdir -p summary
+          mkdir -p summary/bom
+          mkdir -p summary/legal/ip_leaks
+          mkdir -p summary/quality/acceptance/Linux/gen9.5
+          mkdir -p summary/quality/acceptance/Linux/gen12.5
+          mkdir -p summary/quality/acceptance/Windows/gen9.5
+          mkdir -p summary/quality/acceptance/Windows/gen12.5
+          mkdir -p summary/quality/operating_systems
+          mkdir -p summary/quality/unit/Linux
+          mkdir -p summary/quality/unit/Windows
+          mkdir -p summary/security/CT7-KnownVulnerabilities
+          mkdir -p summary/security/CT36-3rdPartyComponents
+          mkdir -p summary/security/CT39-StaticAnalysis
+          mkdir -p summary/security/T256-CompilerSettings
+
+      # - name: Download IP Leak Scan Results
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: ip-leak-scan
+      #     path: summary/legal/ip_leaks
+
+      - name: Download Windows Gen12.5 Acceptance Test Results
+        uses: actions/download-artifact@v3
+        with:
+          name: windows-acceptance-gen12.5
+          path: summary/quality/acceptance/Windows/gen12.5
+      - name: Download Windows Gen9.5 Acceptance Test Results
+        uses: actions/download-artifact@v3
+        with:
+          name: windows-acceptance-gen9.5
+          path: summary/quality/acceptance/Windows/gen9.5
+      - name: Download Linux Gen12.5 Acceptance Test Results
+        uses: actions/download-artifact@v3
+        with:
+          name: linux-acceptance-gen12.5
+          path: summary/quality/acceptance/Linux/gen12.5
+      - name: Download Linux Gen9.5 Acceptance Test Results
+        uses: actions/download-artifact@v3
+        with:
+          name: linux-acceptance-gen9.5
+          path: summary/quality/acceptance/Linux/gen9.5
+
+      - name: Download Linux OS Support Testing Results
+        uses: actions/download-artifact@v3
+        with:
+          name: operating_systems
+          path: summary/quality/operating_systems
+
+      - name: Download Windows Release Build Unit Tests
+        uses: actions/download-artifact@v3
+        with:
+          name: windows-release-build-unit-tests
+          path: summary/quality/unit/Windows
+      - name: Download Linux Release Build Unit Tests
+        uses: actions/download-artifact@v3
+        with:
+          name: linux-release-build-unit-tests
+          path: summary/quality/unit/Linux
+
+      - name: Download Windows Compiler Settings Testing Results
+        uses: actions/download-artifact@v3
+        with:
+          name: windows-complier_settings
+          path: summary/security/T256-CompilerSettings
+      - name: Download Linux Compiler Settings Testing Results
+        uses: actions/download-artifact@v3
+        with:
+          name: linux-complier_settings
+          path: summary/security/T256-CompilerSettings
+
+      - name: Download Vulneribility Scan  Testing Results
+        uses: actions/download-artifact@v3
+        with:
+          name: vpl-vulnerability-scan
+          path: vpl-vulnerability-scan
+
+      - name: Download Windows Coverity Testing Results
+        uses: actions/download-artifact@v3
+        with:
+          name: windows-coverity-scan
+          path: windows-coverity-scan
+      - name: Download Linux Coverity Testing Results
+        uses: actions/download-artifact@v3
+        with:
+          name: linux-coverity-scan
+          path: linux-coverity-scan
+
+      - name: Copy and Rename Files
+        run: |
+          cp linux-coverity-scan/json/errors_v9_full.json summary/security/CT39-StaticAnalysis/linux-coverity.json
+          cp windows-coverity-scan/json/errors_v9_full.json summary/security/CT39-StaticAnalysis/windows-coverity.json
+          cp vpl-vulnerability-scan/vulns.csv summary/security/CT7-KnownVulnerabilities/vulns.csv
+          cp vpl-vulnerability-scan/components.csv summary/security/CT36-3rdPartyComponents/components.csv
+
+      - name: Upload Summary
+        uses: actions/upload-artifact@v3
+        if: success() || failure()
+        with:
+          name: source-code-release-summary
+          path: summary/*
+
+      - name: Cleanup
+        if: always()
+        run: |
+          sudo rm -rf -- ..?* .[!.]* *

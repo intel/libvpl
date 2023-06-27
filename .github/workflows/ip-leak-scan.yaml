@@ -18,6 +18,10 @@ jobs:
   ip-leak-scan:
     runs-on: [self-hosted, Linux, docker]
     steps:
+      - name: Cleanup
+        run: >
+          cd ${{github.workspace}} &&
+          sudo rm -rf ..?* .[!.]* *
       - name: Check Out Code
         uses: actions/checkout@v3
         with:
@@ -103,6 +107,7 @@ jobs:
           EOL
           chmod +x action.sh
       - name: Run Test
+        continue-on-error: true
         run: |
           docker run --rm -v $PWD:/working -w/working ipldt:github_runner ./action.sh
       - name: Report
@@ -115,11 +120,9 @@ jobs:
         uses: actions/upload-artifact@v3
         if: success() || failure()
         with:
-          name: ip-leak-scan-artifacts
+          name: ip-leak-scan
           path: _logs/ip-leak-scan
       - name: Cleanup
-        if: always()
-        run: |
-          rm -rf ./source
-          rm -rf ./_logs
-          rm action.sh Dockerfile
+        run: >
+          cd ${{github.workspace}} &&
+          sudo rm -rf ..?* .[!.]* *

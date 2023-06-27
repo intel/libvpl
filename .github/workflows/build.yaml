@@ -128,3 +128,10 @@ jobs:
         with:
           name: ${{ inputs.ARTIFACT }}
           path: source/_build/*-all.zip
+
+      - name: Upload Unit Test Results
+        uses: actions/upload-artifact@v3
+        if: success() || failure()
+        with:
+          name: ${{ inputs.ARTIFACT }}-unit-tests
+          path: source/_build/Testing/*/Test.xml

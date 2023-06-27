@@ -101,12 +101,12 @@ jobs:
       ARTIFACT: ${{ matrix.os }}-${{ matrix.config }}-build
       NONFATAL: ${{ matrix.CONFIG == 'debug' && true || false }}
 
-#  ip-leak-scan:
-#    name: IP Leak Scan
-#    uses: ./.github/workflows/ip-leak-scan.yaml
-#    secrets: inherit
-#    with:
-#        IPLDB_TOOL_URL: '${{ vars.IPLDB_TOOL_URL }}'
+  ip-leak-scan:
+    name: IP Leak Scan
+    uses: ./.github/workflows/ip-leak-scan.yaml
+    secrets: inherit
+    with:
+      IPLDB_TOOL_URL: '${{ vars.IPLDB_TOOL_URL }}'
 
   vulnerability-scan:
     name: combined release
@@ -146,3 +146,9 @@ jobs:
     secrets: inherit
     with:
       ARTIFACT: linux-release-build
+
+  summary:
+    name: Summary
+    needs: [ip-leak-scan, build, package-test, compiler-settings, coverity-linux, coverity-windows, vulnerability-scan, Supported-linux-OSs]
+    uses: ./.github/workflows/release-summary.yaml
+    secrets: inherit
