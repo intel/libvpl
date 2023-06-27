@@ -1,0 +1,133 @@
+name: Check
+run-name: Check (Triggered by ${{ github.event_name }} by @${{ github.actor }})
+on:
+  push:
+    branches:
+      - "test/**"
+  workflow_call:
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: [self-hosted, linux, docker]
+    steps:
+      - name: Cleanup workspace
+        run: >
+          cd ${{github.workspace}} &&
+          sudo rm -rf ..?* .[!.]* *
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          path: source
+      - name: Create Docker Image
+        run: >
+          docker build "source/script"
+          -f "source/script/Dockerfile.ubuntu.build"
+          -t vpl_build:ubuntu
+      - name: Lint source in container
+        run: |
+          cat <<'EOL' > lint.sh
+          #!/bin/bash
+          set -x
+          set -o pipefail
+          source/script/test lint | tee lint.log
+          ret=$?
+          set +o pipefail
+          exit $ret
+          EOL
+          chmod +x lint.sh
+
+          docker run --rm -v $(pwd):/tmp/work -w /tmp/work \
+          vpl_build:ubuntu ./lint.sh
+      - name: Report
+        if: success() || failure()
+        run: |
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            cat lint.log >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+  build:
+    name: ${{ matrix.os }} ${{ matrix.config }}
+    strategy:
+      fail-fast: false
+      matrix:
+          os: [windows, linux]
+          config: [release, debug]
+    uses: ./.github/workflows/build.yaml
+    secrets: inherit
+    with:
+      OS: ${{ matrix.os }}
+      CONFIG: ${{ matrix.config }}
+      ARTIFACT: ${{ matrix.os }}-${{ matrix.config }}-build
+
+  package-test:
+    name: ${{ matrix.os }} ${{ matrix.config }}, ${{ matrix.accelerator }}
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+          os: [windows, linux]
+          config: [release, debug]
+          accelerator: [gen12.5, gen9.5]
+    uses: ./.github/workflows/acceptance.yaml
+    secrets: inherit
+    with:
+      OS: ${{ matrix.os }}
+      CONFIG: ${{ matrix.config }}
+      GPU_FAMILY: ${{ matrix.accelerator }}
+      ARTIFACT: ${{ matrix.os }}-${{ matrix.config }}-build
+      NONFATAL: ${{ matrix.CONFIG == 'debug' && true || false }}
+
+  compiler-settings:
+    name: ${{ matrix.os }} ${{ matrix.config }}
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+          os: [windows, linux]
+          config: [release]
+    uses: ./.github/workflows/compiler-settings.yaml
+    secrets: inherit
+    with:
+      OS: ${{ matrix.os }}
+      ARTIFACT: ${{ matrix.os }}-${{ matrix.config }}-build
+      NONFATAL: ${{ matrix.CONFIG == 'debug' && true || false }}
+    
+#  ip-leak-scan:
+#    name: IP Leak Scan
+#    uses: ./.github/workflows/ip-leak-scan.yaml
+#    secrets: inherit
+#    with:
+#        IPLDB_TOOL_URL: '${{ vars.IPLDB_TOOL_URL }}'
+
+  coverity-linux:
+    name: Linux Coverity Scan
+    uses: ./.github/workflows/coverity-linux.yaml
+    secrets: inherit
+    with:
+      COV_DIST_URL: ${{ vars.COV_DIST_URL }}
+      COV_VERSION: ${{ vars.COV_VERSION }}
+      COVERITY_HOST: ${{ vars.COVERITY_HOST }}
+      AD_USR: ${{ vars.AD_USR }}
+      AD_USR_EMAIL: ${{ vars.AD_USR_EMAIL }}
+      COVERITY_STREAM: ${{ vars.COVERITY_STREAM }}
+      COVERITY_PROJECT: ${{ vars.COVERITY_PROJECT }}
+  coverity-windows:
+    name: Windows Coverity Scan
+    uses: ./.github/workflows/coverity-windows.yaml
+    secrets: inherit
+    with:
+      COV_DIST_URL: ${{ vars.COV_DIST_URL }}
+      COV_VERSION: ${{ vars.COV_VERSION }}
+      COVERITY_HOST: ${{ vars.COVERITY_HOST }}
+      AD_USR: ${{ vars.AD_USR }}
+      AD_USR_EMAIL: ${{ vars.AD_USR_EMAIL }}
+      COVERITY_STREAM: ${{ vars.COVERITY_STREAM }}
+      COVERITY_PROJECT: ${{ vars.COVERITY_PROJECT }}
+
+  dynamic-analysis:
+    name: Dynamic Analysis
+    needs: build
+    uses: ./.github/workflows/dynamic-analysis.yaml
+    secrets: inherit
+    with:
+      ARTIFACT: linux-release-build

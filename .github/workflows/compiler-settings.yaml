@@ -1,0 +1,126 @@
+name: Complier Settings
+on:       
+  workflow_call:
+     inputs:
+      OS:
+        description: 'Operating system'
+        required: true
+        type: string
+      ARTIFACT:
+        description: 'name of artifact containing package to test'
+        required: true
+        type: string
+      NONFATAL:
+        description: 'Errors are nonfatal'
+        required: false
+        default: false
+        type: boolean
+        
+jobs:
+  compiler-settings:
+    runs-on: [self-hosted, "${{ inputs.OS }}"]
+    steps:
+      - name: Cleanup workspace (Linux)
+        if: success() && inputs.OS == 'linux'
+        run: >
+          cd ${{github.workspace}} &&
+          sudo rm -rf ..?* .[!.]* *
+
+      - name: Cleanup workspace (Windows)
+        if: success() && inputs.OS == 'windows'
+        run: Remove-Item -Recurse -Force ${{github.workspace}}\*
+
+      - name: Download package
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.ARTIFACT }}
+          path: package
+
+      - name: Extract package (Linux)
+        if: success() && inputs.OS == 'linux'
+        run: unzip package/*.zip -d _install
+
+      - name: Extract package (Windows)
+        if: success() && inputs.OS == 'windows'
+        run: Expand-Archive -Force -Path package\*.zip -DestinationPath _install
+        
+      - name: Build Docker image (Linux)
+        if: success() && inputs.OS == 'linux'
+        run: |
+          USER_ID=$(id -u ${USER})
+          GROUP_ID=$(id -g ${USER})
+          # Dockerfile will contain everything between <<EOL and EOL
+          cat >Dockerfile <<EOL
+          FROM ubuntu:22.04
+
+          # Install python
+          RUN apt-get update && apt-get install -y --no-install-recommends \
+              python3 \
+              python3-pip \
+              python3-venv \
+              && \
+            rm -rf /var/lib/apt/lists/*
+
+          # Install sscp prerequisites
+          RUN apt-get update && apt-get install -y --no-install-recommends \
+              binutils \
+              file \
+              && \
+            rm -rf /var/lib/apt/lists/* 
+          RUN  python3 -m pip install setuptools \
+            && python3 -m pip install wheel \
+            && python3 -m pip install ${{ vars.COMPILER_SETTINGS_TOOL_URL }}
+          RUN groupadd -g $GROUP_ID user || true
+          RUN useradd --disabled-password --gecos "" --uid $USER_ID --gid $GROUP_ID user || true
+          EOL
+          docker build -t vplcompiler_settings:github_runner .
+
+      - name: Check compiler settings in container (Linux)
+        if: success() && inputs.OS == 'linux'
+        run: |
+          cat >action.sh <<EOL 
+          #!/bin/bash
+          set -x
+          set -o errexit ; set -o nounset
+          sscb run --path _install --outpath _logs --report_name Linux
+          EOL
+          chmod +x action.sh
+
+          docker run --rm -v $PWD:/working -w/working vplcompiler_settings:github_runner /working/action.sh
+
+      - name: Run Compiler Settings Check (Windows)
+        if: success() && inputs.OS == 'windows'
+        run: |
+          py -m venv venv
+          venv\Scripts\activate
+          py -m pip install --upgrade pip
+          py -m pip install ${{ vars.COMPILER_SETTINGS_TOOL_URL }} --use-pep517
+          sscb run --path "_install" --outpath "_logs" --report_name Windows
+
+      - name: Check Security Scan Results (Linux)
+        if: success() && inputs.OS == 'linux'
+        run: |
+          if grep -q "Total Issues Identified *: *0" _logs/SSCB_SCAN_results-Linux.html ; then
+            echo "No security gaps identified in compiled binaries"
+          else
+            echo "Potential security gaps identified in compiled binaries"
+            exit 1
+          fi
+          
+      - name: Check Security Scan Results (Windows)
+        continue-on-error: true
+        run: |
+          $result = Select-String -Path "_logs/SSCB_SCAN_results-Windows.html" -Pattern "Total Issues Identified *: 0"
+          if ($result -eq $null) {
+          echo "Potential security gaps identified in compiled binaries"
+          exit 1
+          } else{
+          echo "No security gaps identified in compiled binaries"
+          }
+          
+      - name: Record Artifacts
+        uses: actions/upload-artifact@v3
+        if: success() || failure()
+        with:
+            name: ${{ inputs.OS }}-complier_settings
+            path: _logs/*

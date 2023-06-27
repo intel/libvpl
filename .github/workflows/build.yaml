@@ -1,0 +1,130 @@
+name: Build package
+on:
+   workflow_call:
+    inputs:
+      OS:
+        description: 'Operating system'
+        required: true
+        type: string
+      CONFIG:
+        description: 'Build configuration'
+        required: true
+        type: string
+      ARTIFACT:
+        description: 'name of artifact containing package to test'
+        required: true
+        type: string
+
+jobs:
+  build:
+    name: Build
+    runs-on: [self-hosted, "${{ inputs.OS }}"]
+    steps:
+      - name: Cleanup workspace (Linux)
+        if: success() && inputs.OS == 'linux'
+        run: >
+          cd ${{github.workspace}} &&
+          sudo rm -rf * .[!.]*
+
+      - name: Cleanup workspace (Windows)
+        if: success() && inputs.OS == 'windows'
+        run: Remove-Item -Recurse -Force ${{github.workspace}}\*
+
+      - name: Checkout dispatcher
+        uses: actions/checkout@v3
+        with:
+          path: source
+
+      - name: Install dependencies (Windows)
+        if: success() && inputs.OS == 'windows'
+        shell: cmd
+        run: |
+          echo on
+
+          call source\script\bootstrap.bat
+          if %errorlevel% neq 0 exit /b %errorlevel%
+
+      - name: Build package (Windows, Release)
+        if: success() && inputs.OS == 'windows' && inputs.CONFIG == 'release'
+        shell: cmd
+        run: |
+          echo on
+
+          call source\script\build.bat
+          if %errorlevel% neq 0 exit /b %errorlevel%
+
+      - name: Build package (Windows, Debug)
+        if: success() && inputs.OS == 'windows' && inputs.CONFIG == 'debug'
+        shell: cmd
+        run: |
+          echo on
+
+          cmake -B "source\_build" -S "source" -DBUILD_TESTS=ON -DENABLE_WARNING_AS_ERROR=ON
+          if %errorlevel% neq 0 exit /b %errorlevel%
+
+          cmake --build "source\_build" --verbose --config Release
+          if %errorlevel% neq 0 exit /b %errorlevel%
+
+          cmake --build "source\_build" --config Debug --target package
+          if %errorlevel% neq 0 exit /b %errorlevel%
+
+      - name: Build Docker image for building (Linux)
+        if: success() && inputs.OS == 'linux'
+        run: >
+          docker build "source/script"
+          -f "source/script/Dockerfile.centos7.build"
+          -t vpl_build:centos
+
+      - name: Build package (Linux, Release)
+        if: success() && inputs.OS == 'linux' && inputs.CONFIG == 'release'
+        run: |
+          docker run --rm -v $(pwd):/tmp/work -w /tmp/work vpl_build:centos source/script/build
+
+      - name: Build package (Linux, Debug)
+        if: success() && inputs.OS == 'linux' && inputs.CONFIG == 'debug'
+        run: |
+          cat <<'EOL' > build.sh
+          #!/bin/bash
+          set -o errexit
+          cmake -B "source/_build" -S "source" \
+          -DBUILD_TESTS=ON \
+          -DCMAKE_BUILD_TYPE=Debug \
+          -DCMAKE_INSTALL_LIBDIR=lib \
+          -DENABLE_DRI3=ON \
+          -DENABLE_DRM=ON \
+          -DENABLE_VA=ON \
+          -DENABLE_WAYLAND=ON \
+          -DENABLE_X11=ON \
+          -DENABLE_WARNING_AS_ERROR=ON
+
+          cmake --build "source/_build" --verbose
+
+          pushd "source/_build"
+          cpack .
+          popd
+          EOL
+          chmod +x build.sh
+
+          docker run --rm -v $(pwd):/tmp/work -w /tmp/work vpl_build:centos ./build.sh
+      - name: Run unit tests (Linux)
+        if: success() && inputs.OS == 'linux'
+        run: >-
+          docker run --rm -v $(pwd):/tmp/work -w /tmp/work
+          vpl_build:centos
+          source/script/test unit
+
+      - name: Run unit tests (Windows)
+        if: success() && inputs.OS == 'windows'
+        shell: cmd
+        run: |
+          echo on
+
+          call source\script\test.bat unit
+          if %errorlevel% neq 0 exit /b %errorlevel%
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        if: success() || failure()
+        with:
+          name: ${{ inputs.ARTIFACT }}
+          path: source/_build/*-all.zip

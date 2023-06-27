@@ -1,0 +1,126 @@
+name: Test package
+on:
+   workflow_call:
+    inputs:
+      OS:
+        description: 'Operating system'
+        required: true
+        type: string
+      CONFIG:
+        description: 'Build configuration'
+        required: true
+        type: string
+      GPU_FAMILY:
+        description: 'GPU Family'
+        required: true
+        type: string
+      ARTIFACT:
+        description: 'name of artifact containing package to test'
+        required: true
+        type: string
+      NONFATAL:
+        description: 'Errors are nonfatal'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  acceptance:
+    runs-on: [self-hosted, "${{ inputs.OS }}", "${{ inputs.GPU_FAMILY }}"]
+    continue-on-error: ${{ inputs.NONFATAL }}
+    steps:
+      - name: Cleanup workspace (Linux)
+        if: success() && inputs.OS == 'linux'
+        run: >
+          cd ${{github.workspace}} &&
+          sudo rm -rf ..?* .[!.]* *
+
+      - name: Cleanup workspace (Windows)
+        if: success() && inputs.OS == 'windows'
+        run: Remove-Item -Recurse -Force ${{github.workspace}}\*
+
+      - name: Checkout tests
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ vars.TEST_REPO }}
+          token: ${{ secrets.TEST_REPO_TOKEN }}
+          path: tests
+          ref: main
+
+      - name: Download package
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.ARTIFACT }}
+          path: package
+
+      - name: Extract package (Linux)
+        if: success() && inputs.OS == 'linux'
+        run: unzip package/*.zip -d _install
+
+      - name: Extract package (Windows)
+        if: success() && inputs.OS == 'windows'
+        run: Expand-Archive -Force -Path package\*.zip -DestinationPath _install
+
+      - name: Build Docker image for GPU testing (Linux)
+        if: success() && inputs.OS == 'linux'
+        run: >
+          docker build "tests/environments"
+          -f "tests/environments/Dockerfile.ubuntu.gputest"
+          -t vpl_gputestenv:ubuntu
+
+      - name: Test package in container (Linux)
+        if: success() && inputs.OS == 'linux'
+        continue-on-error: ${{ inputs.NONFATAL }}
+        run: |
+          cat >test.sh <<EOL
+          #!/bin/bash
+          set -o errexit
+          if [[ "\$DASHBOARD_PLATFORM_SW_OPENVINO_INSTALLED" == 1 ]]; then
+          . /opt/intel/openvino_2022/setupvars.sh
+          fi
+          set -o nounset
+          . _install/etc/vpl/vars.sh
+
+          DASHBOARD_INSTALL_ONEVPLCPU_LICENSE=
+          export DASHBOARD_INSTALL_ONEVPLCPU_LICENSE
+          DASHBOARD_INSTALL_ONEVPL32=0
+          export DASHBOARD_INSTALL_ONEVPL32
+          DASHBOARD_INSTALL_ONEVPLDEBUG=${{ inputs.CONFIG == 'debug' && 1 || 0 }}
+          export DASHBOARD_INSTALL_ONEVPLDEBUG
+          DASHBOARD_PLATFORM_HW_INTEGRATED_GPU="${{ inputs.GPU_FAMILY }}"
+          export DASHBOARD_PLATFORM_HW_INTEGRATED_GPU
+          pushd tests
+          ./run.sh gen
+
+          EOL
+          chmod a+x test.sh
+          docker run --rm -v $(pwd):/tmp/work -w /tmp/work --privileged vpl_gputestenv:ubuntu ./test.sh
+
+      - name: Test package (Windows)
+        if: success() && inputs.OS == 'windows'
+        continue-on-error: ${{ inputs.NONFATAL }}
+        shell: cmd
+        run: |
+          echo on
+          set DASHBOARD_INSTALL_ONEVPLCPU_LICENSE=
+          set DASHBOARD_INSTALL_ONEVPL32=0
+          set DASHBOARD_INSTALL_ONEVPLDEBUG=${{ inputs.CONFIG == 'debug' && 1 || 0 }}
+          set DASHBOARD_PLATFORM_HW_CPU_MICROARCHITECTURE=
+          set DASHBOARD_PLATFORM_HW_INTEGRATED_GPU=${{ inputs.GPU_FAMILY }}
+          set DASHBOARD_PLATFORM_OS_FAMILY=windows
+          set DASHBOARD_PLATFORM_OS_VERSION=11
+          set DASHBOARD_PLATFORM_SW_CMAKE_INSTALLED=1
+          set DASHBOARD_PLATFORM_SW_VISUAL_STUDIO_INSTALLED=1
+
+          call _install\etc\vpl\vars.bat
+          if %errorlevel% neq 0 exit /b %errorlevel%
+
+          cd tests
+          run.bat gen
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        if: success() || failure()
+        with:
+          name: ${{ inputs.OS }}-acceptance-${{ inputs.GPU_FAMILY }}
+          path: tests/logs/*
