@@ -1,0 +1,53 @@
+name: Test on Supported Linux OSs
+run-name: Test on Supported Linux OSs (Triggered by ${{ github.event_name }} by @${{ github.actor }})
+on:
+  workflow_call:
+    inputs:
+      TEST_REPO:
+        description: 'Test repository'
+        required: true
+        type: string
+      ARTIFACT:
+        description: 'name of artifact containing package to test'
+        required: true
+        type: string
+
+jobs:
+  test:
+    runs-on: [self-hosted, Linux, docker, gen12.5]
+    steps:
+      - name: Cleanup workspace
+        run: |
+          sudo rm -rf ${{github.workspace}}/*
+          sudo rm -rf sudo rm -rf ${{github.workspace}}/.[!.]* ${{github.workspace}}/..?*
+      - name: Check out tests
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ vars.TEST_REPO }}
+          token: ${{ secrets.TEST_REPO_TOKEN }}
+          path: tests
+          ref: main
+      - name: Download package
+        uses: actions/download-artifact@v3
+        with:
+          name: linux-release-build
+          path: package
+      - name: Extract package
+        run: unzip package/*.zip -d _install
+      - name: Build and Run Docker image
+        run: |
+          cd ${{ github.workspace }}/tests/platform/
+          python3 ./build_platform_dockers.py config.json --target     
+          
+      - name: Run tests
+        continue-on-error: true
+        run: |
+          export DASHBOARD_PLATFORM_HW_DISCRETE_GPU=gen12.5
+          python3 ./tests/platform/run_platform_tests.py ./tests/platform/config.json  --vpl _install --tests ./tests --results operating_systems
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        if: success() || failure()
+        with:
+          name: operating_systems
+          path: operating_systems

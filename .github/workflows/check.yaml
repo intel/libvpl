@@ -59,6 +59,15 @@ jobs:
       CONFIG: ${{ matrix.config }}
       ARTIFACT: ${{ matrix.os }}-${{ matrix.config }}-build
 
+  Supported-linux-OSs:
+    name: Supported-linux-OSs
+    needs: build 
+    uses: ./.github/workflows/Supported-Linux-OSs.yaml
+    secrets: inherit
+    with:
+      TEST_REPO: ${{ inputs.TEST_REPO }}  
+      ARTIFACT: operating_systems
+
   package-test:
     name: ${{ matrix.os }} ${{ matrix.config }}, ${{ matrix.accelerator }}
     needs: build
