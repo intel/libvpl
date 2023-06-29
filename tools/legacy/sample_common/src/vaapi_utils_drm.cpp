@@ -22,6 +22,7 @@ constexpr mfxU32 MFX_DRI_RENDER_START_INDEX = 128;
 constexpr mfxU32 MFX_DRI_CARD_START_INDEX   = 0;
 constexpr mfxU32 MFX_DRM_DRIVER_NAME_LEN    = 4;
 const char* MFX_DRM_INTEL_DRIVER_NAME       = "i915";
+const char* MFX_DRM_INTEL_DRIVER_XE_NAME    = "xe";
 const char* MFX_DRI_PATH                    = "/dev/dri/";
 const char* MFX_DRI_NODE_RENDER             = "renderD";
 const char* MFX_DRI_NODE_CARD               = "card";
@@ -60,7 +61,8 @@ int open_first_intel_adapter(int type) {
             continue;
 
         if (!get_drm_driver_name(fd, driverName, MFX_DRM_DRIVER_NAME_LEN) &&
-            msdk_match(driverName, MFX_DRM_INTEL_DRIVER_NAME)) {
+            (msdk_match(driverName, MFX_DRM_INTEL_DRIVER_NAME) ||
+             msdk_match(driverName, MFX_DRM_INTEL_DRIVER_XE_NAME))) {
             return fd;
         }
         close(fd);
@@ -82,7 +84,8 @@ int open_intel_adapter(const std::string& devicePath, int type) {
 
     char driverName[MFX_DRM_DRIVER_NAME_LEN + 1] = {};
     if (!get_drm_driver_name(fd, driverName, MFX_DRM_DRIVER_NAME_LEN) &&
-        msdk_match(driverName, MFX_DRM_INTEL_DRIVER_NAME)) {
+        (msdk_match(driverName, MFX_DRM_INTEL_DRIVER_NAME) ||
+         msdk_match(driverName, MFX_DRM_INTEL_DRIVER_XE_NAME))) {
         return fd;
     }
     else {
