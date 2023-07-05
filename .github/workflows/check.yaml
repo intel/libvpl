@@ -2,8 +2,6 @@ name: Check
 run-name: Check (Triggered by ${{ github.event_name }} by @${{ github.actor }})
 on:
   push:
-    branches:
-      - "test/**"
   workflow_call:
 
 jobs:
@@ -152,3 +150,21 @@ jobs:
     needs: [ip-leak-scan, build, package-test, compiler-settings, coverity-linux, coverity-windows, vulnerability-scan, Supported-linux-OSs]
     uses: ./.github/workflows/release-summary.yaml
     secrets: inherit
+
+  required:
+    needs:
+      - lint
+      - build
+      - Supported-linux-OSs
+      - package-test
+      - compiler-settings
+      - ip-leak-scan
+      - vulnerability-scan
+      - coverity-linux
+      - coverity-windows
+      - dynamic-analysis
+      - summary
+    runs-on: [self-hosted]
+    steps:
+      - name: Dummy step
+        run: cd ${{github.workspace}}
