@@ -1,8 +1,9 @@
 name: Check
 run-name: Check (Triggered by ${{ github.event_name }} by @${{ github.actor }})
 on:
-  push:
+  pull_request:
   workflow_call:
+  workflow_dispatch:
 
 jobs:
   lint:
@@ -17,6 +18,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           path: source
+          ref: '${{ github.event.pull_request.head.sha }}'
       - name: Create Docker Image
         run: >
           docker build "source/script"
