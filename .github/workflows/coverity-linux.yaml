@@ -76,12 +76,10 @@ jobs:
   scan:
     runs-on: [self-hosted, Linux, docker]
     steps:
-      - name: Clean
-        if: always()
-        run: |
-          docker run --rm -v $PWD:/working -w/working ubuntu:20.04 rm -rf ./*
-          rm -f Dockerfile action.sh
-          rm -rf _build _install
+      - name: Cleanup workspace
+        run: >
+          cd ${{github.workspace}} &&
+          sudo rm -rf * .[!.]*
 
       - name: Check Out Code
         uses: actions/checkout@v3

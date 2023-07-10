@@ -6,6 +6,32 @@ on:
   workflow_dispatch:
 
 jobs:
+  vars:
+    name: Configure Variables
+    runs-on: [self-hosted, linux]
+    outputs:
+      refrence_ref: ${{ steps.run.outputs.refrence_ref }}
+    steps:
+      - name: Cleanup workspace
+        run: >
+          cd ${{github.workspace}} &&
+          sudo rm -rf ..?* .[!.]* *
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          path: source
+          fetch-depth: 0
+          ref: '${{ github.event.pull_request.head.sha }}'
+      - name: Build variables
+        id: run
+        run: |
+          cd source
+          echo "refrence_ref=$(git describe --abbrev=0 --tags --match=v*)"
+          echo "refrence_ref=$(git describe --abbrev=0 --tags --match=v*)" >> $GITHUB_OUTPUT
+      - name: Cleanup workspace
+        run: >
+          cd ${{github.workspace}} &&
+          sudo rm -rf ..?* .[!.]* *
   lint:
     name: Lint
     runs-on: [self-hosted, linux, docker]
@@ -45,6 +71,7 @@ jobs:
             echo '```' >> $GITHUB_STEP_SUMMARY
             cat lint.log >> $GITHUB_STEP_SUMMARY
             echo '```' >> $GITHUB_STEP_SUMMARY
+
   build:
     name: ${{ matrix.os }} ${{ matrix.config }}
     strategy:
@@ -58,6 +85,35 @@ jobs:
       OS: ${{ matrix.os }}
       CONFIG: ${{ matrix.config }}
       ARTIFACT: ${{ matrix.os }}-${{ matrix.config }}-build
+
+  ref-build:
+    name: ${{ needs.vars.outputs.refrence_ref }} ${{ matrix.os }} release
+    needs: [vars]
+    strategy:
+      fail-fast: false
+      matrix:
+          os: [windows, linux]
+    uses: ./.github/workflows/build.yaml
+    secrets: inherit
+    with:
+      OS: ${{ matrix.os }}
+      CONFIG: release
+      ARTIFACT: ref-${{ matrix.os }}-release-build
+      REF: ${{ needs.vars.outputs.refrence_ref }}
+
+  diff-report:
+    name: ${{ matrix.os }} diff-report
+    needs: [vars, ref-build, build]
+    strategy:
+      fail-fast: false
+      matrix:
+          os: [windows, linux]
+    uses: ./.github/workflows/diff-report.yaml
+    secrets: inherit
+    with:
+      ARTIFACT: ${{ matrix.os }}-diff-report
+      LEFT: ref-${{ matrix.os }}-release-build
+      RIGHT: ${{ matrix.os }}-release-build
 
   Supported-linux-OSs:
     name: Supported-linux-OSs
@@ -149,7 +205,7 @@ jobs:
 
   summary:
     name: Summary
-    needs: [ip-leak-scan, build, package-test, compiler-settings, coverity-linux, coverity-windows, vulnerability-scan, Supported-linux-OSs]
+    needs: [ip-leak-scan, build, package-test, compiler-settings, coverity-linux, coverity-windows, vulnerability-scan, Supported-linux-OSs, diff-report]
     uses: ./.github/workflows/release-summary.yaml
     secrets: inherit
 

@@ -16,6 +16,8 @@ jobs:
           mkdir -p summary
           mkdir -p summary/bom
           mkdir -p summary/legal/ip_leaks
+          mkdir -p summary/legal/bom_diff/linux
+          mkdir -p summary/legal/bom_diff/windows
           mkdir -p summary/quality/acceptance/Linux/gen9.5
           mkdir -p summary/quality/acceptance/Linux/gen12.5
           mkdir -p summary/quality/acceptance/Windows/gen9.5
@@ -28,11 +30,23 @@ jobs:
           mkdir -p summary/security/CT39-StaticAnalysis
           mkdir -p summary/security/T256-CompilerSettings
 
-      # - name: Download IP Leak Scan Results
-      #   uses: actions/download-artifact@v3
-      #   with:
-      #     name: ip-leak-scan
-      #     path: summary/legal/ip_leaks
+      - name: Download IP Leak Scan Results
+        uses: actions/download-artifact@v3
+        with:
+          name: ip-leak-scan
+          path: summary/legal/ip_leaks
+
+      - name: Download Linux Diff Report
+        uses: actions/download-artifact@v3
+        with:
+          name: linux-diff-report
+          path: summary/legal/bom_diff/linux
+
+      - name: Download Windows Diff Report
+        uses: actions/download-artifact@v3
+        with:
+          name: windows-diff-report
+          path: summary/legal/bom_diff/windows
 
       - name: Download Windows Gen12.5 Acceptance Test Results
         uses: actions/download-artifact@v3

@@ -1,0 +1,83 @@
+name: Diff Report
+on:
+  workflow_call:
+    inputs:
+      ARTIFACT:
+        description: 'name of artifact to store the diff'
+        required: true
+        type: string
+      LEFT:
+        description: 'name of reference artifact'
+        required: true
+        type: string
+      RIGHT:
+        description: 'name of test artifact'
+        required: true
+        type: string
+
+jobs:
+  diff-report:
+    name: Diff Report
+    runs-on: [self-hosted, linux]
+    steps:
+      - name: Cleanup workspace
+        run: >
+          cd ${{github.workspace}} &&
+          sudo rm -rf * .[!.]*
+
+      - name: Checkout source
+        uses: actions/checkout@v3
+        with:
+          path: source
+
+      - name: Download package
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.LEFT }}
+          path: gold
+
+      - name: Extract package
+        run: unzip gold/*.zip -d ${{ inputs.LEFT }}
+
+      - name: Download package
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.RIGHT }}
+          path: test
+
+      - name: Extract package
+        run: unzip test/*.zip -d ${{ inputs.RIGHT }}
+
+      - name: Run Diff
+        run: |
+          mkdir report
+          python3 source/.github/workflows/bom_diff/bom_diff.py \
+            "${{ inputs.LEFT }}" \
+            "${{ inputs.RIGHT }}" \
+            --mode All \
+            --title "Bom Report (Full)" \
+            --output report/FULL_BOM.html 
+          python3 source/.github/workflows/bom_diff/bom_diff.py \
+            "${{ inputs.LEFT }}" \
+            "${{ inputs.RIGHT }}" \
+            --mode Diff \
+            --title "Bom Report (Diff)" \
+            --output report/DIFF_BOM.html 
+          python3 source/.github/workflows/bom_diff/bom_diff.py \
+            "${{ inputs.LEFT }}" \
+            "${{ inputs.RIGHT }}" \
+            --mode Orphan \
+            --title "Bom Report (Orphan)" \
+            --output report/ORPHAN_BOM.html 
+    
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        if: success() || failure()
+        with:
+          name: ${{ inputs.ARTIFACT }}
+          path: ./report/
+
+      - name: Cleanup workspace
+        run: >
+          cd ${{github.workspace}} &&
+          sudo rm -rf * .[!.]*
