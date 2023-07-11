@@ -14,10 +14,9 @@ jobs:
       - name: Create High Level Structure
         run: |
           mkdir -p summary
-          mkdir -p summary/bom
+          mkdir -p summary/bom/linux
+          mkdir -p summary/bom/windows
           mkdir -p summary/legal/ip_leaks
-          mkdir -p summary/legal/bom_diff/linux
-          mkdir -p summary/legal/bom_diff/windows
           mkdir -p summary/quality/acceptance/Linux/gen9.5
           mkdir -p summary/quality/acceptance/Linux/gen12.5
           mkdir -p summary/quality/acceptance/Windows/gen9.5
@@ -28,6 +27,7 @@ jobs:
           mkdir -p summary/security/CT7-KnownVulnerabilities
           mkdir -p summary/security/CT36-3rdPartyComponents
           mkdir -p summary/security/CT39-StaticAnalysis
+          mkdir -p summary/security/CT40-Custom
           mkdir -p summary/security/T256-CompilerSettings
 
       - name: Download IP Leak Scan Results
@@ -40,13 +40,13 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: linux-diff-report
-          path: summary/legal/bom_diff/linux
+          path: summary/bom/linux
 
       - name: Download Windows Diff Report
         uses: actions/download-artifact@v3
         with:
           name: windows-diff-report
-          path: summary/legal/bom_diff/windows
+          path: summary/bom/windows
 
       - name: Download Windows Gen12.5 Acceptance Test Results
         uses: actions/download-artifact@v3
@@ -108,11 +108,18 @@ jobs:
         with:
           name: windows-coverity-scan
           path: windows-coverity-scan
+
       - name: Download Linux Coverity Testing Results
         uses: actions/download-artifact@v3
         with:
           name: linux-coverity-scan
           path: linux-coverity-scan
+
+      - name: Download Linux Dynamic Analysis Results
+        uses: actions/download-artifact@v3
+        with:
+          name: dynamic-analysis-linux-release-build
+          path: dynamic-analysis-linux-release-build
 
       - name: Copy and Rename Files
         run: |
@@ -120,6 +127,7 @@ jobs:
           cp windows-coverity-scan/json/errors_v9_full.json summary/security/CT39-StaticAnalysis/windows-coverity.json
           cp vpl-vulnerability-scan/vulns.csv summary/security/CT7-KnownVulnerabilities/vulns.csv
           cp vpl-vulnerability-scan/components.csv summary/security/CT36-3rdPartyComponents/components.csv
+          cp dynamic-analysis-linux-release-build/* summary/security/CT40-Custom/
 
       - name: Upload Summary
         uses: actions/upload-artifact@v3

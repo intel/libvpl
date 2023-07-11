@@ -115,10 +115,10 @@ jobs:
       LEFT: ref-${{ matrix.os }}-release-build
       RIGHT: ${{ matrix.os }}-release-build
 
-  Supported-linux-OSs:
-    name: Supported-linux-OSs
+  linux-distro-support:
+    name: Linux Distro Support
     needs: build 
-    uses: ./.github/workflows/Supported-Linux-OSs.yaml
+    uses: ./.github/workflows/linux-distro-support.yaml
     secrets: inherit
     with:
       TEST_REPO: ${{ inputs.TEST_REPO }}  
@@ -205,7 +205,17 @@ jobs:
 
   summary:
     name: Summary
-    needs: [ip-leak-scan, build, package-test, compiler-settings, coverity-linux, coverity-windows, vulnerability-scan, Supported-linux-OSs, diff-report]
+    needs: 
+      - ip-leak-scan
+      - build
+      - package-test
+      - compiler-settings
+      - coverity-linux
+      - coverity-windows
+      - vulnerability-scan
+      - linux-distro-support
+      - diff-report
+      - dynamic-analysis
     uses: ./.github/workflows/release-summary.yaml
     secrets: inherit
 
@@ -213,7 +223,7 @@ jobs:
     needs:
       - lint
       - build
-      - Supported-linux-OSs
+      - linux-distro-support
       - package-test
       - compiler-settings
       - ip-leak-scan
