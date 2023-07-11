@@ -9,6 +9,7 @@ set(SOURCES "")
 list(
   APPEND
   SOURCES
+  src/main.cpp
   src/sample_vpp.cpp
   src/sample_vpp_config.cpp
   src/sample_vpp_frc.cpp
@@ -32,3 +33,52 @@ endif()
 
 install(TARGETS ${TARGET} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
                                   COMPONENT dev)
+
+if(BUILD_TESTS)
+  set(BUILD_SHARED_LIBS OFF)
+
+  set(BUILD_GMOCK
+      OFF
+      CACHE BOOL "" FORCE)
+  set(INSTALL_GTEST
+      OFF
+      CACHE BOOL "" FORCE)
+  set(gtest_disable_pthreads
+      OFF
+      CACHE BOOL "" FORCE)
+  set(gtest_force_shared_crt
+      ON
+      CACHE BOOL "" FORCE)
+  set(gtest_hide_internal_symbols
+      OFF
+      CACHE BOOL "" FORCE)
+
+  add_executable(sample_vpp_test)
+
+  target_sources(
+    sample_vpp_test
+    PRIVATE test/test_main.cpp
+            src/sample_vpp.cpp
+            src/sample_vpp_config.cpp
+            src/sample_vpp_frc.cpp
+            src/sample_vpp_frc_adv.cpp
+            src/sample_vpp_parser.cpp
+            src/sample_vpp_pts.cpp
+            src/sample_vpp_roi.cpp
+            src/sample_vpp_utils.cpp)
+
+  target_link_libraries(sample_vpp_test PUBLIC GTest::gtest)
+  target_link_libraries(sample_vpp_test PRIVATE sample_common)
+  target_include_directories(
+    sample_vpp_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include
+                            ${CMAKE_SOURCE_DIR}/api/vpl)
+
+  if(BUILD_TOOLS_ONEVPL_EXPERIMENTAL)
+    target_compile_definitions(sample_vpp_test PRIVATE -DONEVPL_EXPERIMENTAL)
+    target_compile_definitions(sample_vpp_test PRIVATE MFX_ONEVPL)
+  endif()
+
+  include(GoogleTest)
+  gtest_discover_tests(sample_vpp_test)
+
+endif()

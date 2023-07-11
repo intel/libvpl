@@ -272,7 +272,7 @@ mfxU32 GetSurfaceSize(mfxU32 FourCC, mfxU32 width, mfxU32 height) {
     return nbytes;
 }
 
-int main(int argc, char* argv[]) {
+int sample_vpp_main(int argc, char* argv[]) {
     mfxStatus sts       = MFX_ERR_NONE;
     mfxU32 nFrames      = 0;
     mfxU16 nInStreamInd = 0;
