@@ -18,7 +18,8 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 - Outdated docker files
 
 ### Fixed
-- Remove SetCurrentDirectory call during runtime search 
+- Remove SetCurrentDirectory call during runtime search
+- Parameter parsing in sample_vpp tool
 
 ## [2023.3.0] - 2023-05-31
 

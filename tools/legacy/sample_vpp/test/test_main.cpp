@@ -255,3 +255,21 @@ TEST(VPP_CLI, OptionHelp) {
     EXPECT_CONTAINS(result.out, "Usage:");
     EXPECT_CONTAINS(result.out, "Options:");
 }
+
+TEST(VPP_CLI, Escape1) {
+    auto result =
+        init({ "-i",      "build\\win_x64\\output\\sample_vpp_detail\\0001.blur.nv12",
+               "-o",      "build\\win_x64\\output\\sample_vpp_detail\\0001.blur.nv12.test",
+               "-lib",    "hw",
+               "-sw",     "176",
+               "-sh",     "144",
+               "-dw",     "176",
+               "-dh",     "144",
+               "-scc",    "nv12",
+               "-dcc",    "nv12",
+               "-spic",   "1",
+               "-dpic",   "1",
+               "-detail", "2",
+               "-n",      "100" });
+    EXPECT_EQ(result.status, MFX_ERR_NONE);
+}

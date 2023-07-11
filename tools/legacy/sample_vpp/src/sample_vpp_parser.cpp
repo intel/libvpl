@@ -615,7 +615,6 @@ mfxStatus vppParseResetPar(char* strInput[],
     pParams->colorfillParam.push_back(*pDefaultFiltersParam->pColorfillParam);
 
     mfxU32 readData;
-    mfxU32 ioStatus;
 
     for (mfxU32& i = curArg; i < nArgNum; i++) {
         MSDK_CHECK_POINTER(strInput[i], MFX_ERR_NULL_PTR);
@@ -696,14 +695,18 @@ mfxStatus vppParseResetPar(char* strInput[],
                 pParams->denoiseParam[paramID].mode = VPP_FILTER_ENABLED_DEFAULT;
 
                 if (i + 1 < nArgNum) {
-                    ioStatus = msdk_opt_read(strInput[i + 1], readData);
-                    if (ioStatus > 0) {
+                    if (MFX_ERR_NONE != msdk_opt_read(strInput[i + 1], readData)) {
+                        return MFX_ERR_UNSUPPORTED;
+                    }
+                    else {
                         pParams->denoiseParam[paramID].factor = (mfxU16)readData;
                         pParams->denoiseParam[paramID].mode   = VPP_FILTER_ENABLED_CONFIGURED;
                         i++;
                     }
-                    ioStatus = msdk_opt_read(strInput[i + 1], readData);
-                    if (ioStatus > 0) {
+                    if (MFX_ERR_NONE != msdk_opt_read(strInput[i + 1], readData)) {
+                        return MFX_ERR_UNSUPPORTED;
+                    }
+                    else {
                         pParams->denoiseParam[paramID].config = (mfxU16)readData;
                         pParams->denoiseParam[paramID].mode   = VPP_FILTER_ENABLED_CONFIGURED;
                         i++;
@@ -720,8 +723,10 @@ mfxStatus vppParseResetPar(char* strInput[],
                 pParams->deinterlaceParam[paramID].mode = VPP_FILTER_ENABLED_DEFAULT;
 
                 if (i + 1 < nArgNum) {
-                    ioStatus = msdk_opt_read(strInput[i + 1], readData);
-                    if (ioStatus > 0) {
+                    if (MFX_ERR_NONE != msdk_opt_read(strInput[i + 1], readData)) {
+                        return MFX_ERR_UNSUPPORTED;
+                    }
+                    else {
                         pParams->deinterlaceParam[paramID].algorithm = (mfxU16)readData;
                         pParams->deinterlaceParam[paramID].mode = VPP_FILTER_ENABLED_CONFIGURED;
                         i++;
@@ -730,8 +735,10 @@ mfxStatus vppParseResetPar(char* strInput[],
             }
             else if (msdk_match(strInput[i], "-tc_pattern")) {
                 if (i + 1 < nArgNum) {
-                    ioStatus = msdk_opt_read(strInput[i + 1], readData);
-                    if (ioStatus > 0) {
+                    if (MFX_ERR_NONE != msdk_opt_read(strInput[i + 1], readData)) {
+                        return MFX_ERR_UNSUPPORTED;
+                    }
+                    else {
                         pParams->deinterlaceParam[paramID].tc_pattern = (mfxU16)readData;
                         i++;
                     }
@@ -741,8 +748,10 @@ mfxStatus vppParseResetPar(char* strInput[],
                 //pParams->deinterlaceParam.mode = VPP_FILTER_ENABLED_DEFAULT;
 
                 if (i + 1 < nArgNum) {
-                    ioStatus = msdk_opt_read(strInput[i + 1], readData);
-                    if (ioStatus > 0) {
+                    if (MFX_ERR_NONE != msdk_opt_read(strInput[i + 1], readData)) {
+                        return MFX_ERR_UNSUPPORTED;
+                    }
+                    else {
                         pParams->deinterlaceParam[paramID].tc_pos = (mfxU16)readData;
                         i++;
                     }
@@ -752,8 +761,10 @@ mfxStatus vppParseResetPar(char* strInput[],
                 pParams->detailParam[paramID].mode = VPP_FILTER_ENABLED_DEFAULT;
 
                 if (i + 1 < nArgNum) {
-                    ioStatus = msdk_opt_read(strInput[i + 1], readData);
-                    if (ioStatus > 0) {
+                    if (MFX_ERR_NONE != msdk_opt_read(strInput[i + 1], readData)) {
+                        return MFX_ERR_UNSUPPORTED;
+                    }
+                    else {
                         pParams->detailParam[paramID].factor = (mfxU16)readData;
                         pParams->detailParam[paramID].mode   = VPP_FILTER_ENABLED_CONFIGURED;
                         i++;
@@ -869,8 +880,10 @@ mfxStatus vppParseResetPar(char* strInput[],
                 pParams->istabParam[paramID].mode = VPP_FILTER_ENABLED_DEFAULT;
 
                 if (i + 1 < nArgNum) {
-                    ioStatus = msdk_opt_read(strInput[i + 1], readData);
-                    if (ioStatus > 0) {
+                    if (MFX_ERR_NONE != msdk_opt_read(strInput[i + 1], readData)) {
+                        return MFX_ERR_UNSUPPORTED;
+                    }
+                    else {
                         pParams->istabParam[paramID].istabMode = (mfxU8)readData;
                         pParams->istabParam[paramID].mode      = VPP_FILTER_ENABLED_CONFIGURED;
                         i++;
@@ -892,8 +905,10 @@ mfxStatus vppParseResetPar(char* strInput[],
                 pParams->steParam[paramID].mode = VPP_FILTER_ENABLED_DEFAULT;
 
                 if (i + 1 < nArgNum) {
-                    ioStatus = msdk_opt_read(strInput[i + 1], readData);
-                    if (ioStatus > 0) {
+                    if (MFX_ERR_NONE != msdk_opt_read(strInput[i + 1], readData)) {
+                        return MFX_ERR_UNSUPPORTED;
+                    }
+                    else {
                         pParams->steParam[paramID].SkinToneFactor = (mfxU8)readData;
                         pParams->steParam[paramID].mode           = VPP_FILTER_ENABLED_CONFIGURED;
                         i++;
@@ -991,7 +1006,6 @@ mfxStatus vppParseInputString(char* strInput[],
     MSDK_CHECK_POINTER(strInput, MFX_ERR_NULL_PTR);
 
     mfxU32 readData;
-    mfxU32 ioStatus;
     if (nArgNum < 4) {
         vppPrintHelp(strInput[0], "Not enough parameters");
 
@@ -1143,14 +1157,18 @@ mfxStatus vppParseInputString(char* strInput[],
                 pParams->denoiseParam[0].mode = VPP_FILTER_ENABLED_DEFAULT;
 
                 if (i + 1 < nArgNum) {
-                    ioStatus = msdk_opt_read(strInput[i + 1], readData);
-                    if (ioStatus > 0) {
+                    if (MFX_ERR_NONE != msdk_opt_read(strInput[i + 1], readData)) {
+                        return MFX_ERR_UNSUPPORTED;
+                    }
+                    else {
                         pParams->denoiseParam[0].factor = (mfxU16)readData;
                         pParams->denoiseParam[0].mode   = VPP_FILTER_ENABLED_CONFIGURED;
                         i++;
                     }
-                    ioStatus = msdk_opt_read(strInput[i + 1], readData);
-                    if (ioStatus > 0) {
+                    if (MFX_ERR_NONE != msdk_opt_read(strInput[i + 1], readData)) {
+                        return MFX_ERR_UNSUPPORTED;
+                    }
+                    else {
                         pParams->denoiseParam[0].config = (mfxU16)readData;
                         pParams->denoiseParam[0].mode   = VPP_FILTER_ENABLED_CONFIGURED;
                         i++;
@@ -1179,8 +1197,10 @@ mfxStatus vppParseInputString(char* strInput[],
                 pParams->deinterlaceParam[0].mode = VPP_FILTER_ENABLED_DEFAULT;
 
                 if (i + 1 < nArgNum) {
-                    ioStatus = msdk_opt_read(strInput[i + 1], readData);
-                    if (ioStatus > 0) {
+                    if (MFX_ERR_NONE != msdk_opt_read(strInput[i + 1], readData)) {
+                        return MFX_ERR_UNSUPPORTED;
+                    }
+                    else {
                         pParams->deinterlaceParam[0].algorithm = (mfxU16)readData;
                         pParams->deinterlaceParam[0].mode      = VPP_FILTER_ENABLED_CONFIGURED;
                         i++;
@@ -1189,8 +1209,10 @@ mfxStatus vppParseInputString(char* strInput[],
             }
             else if (msdk_match(strInput[i], "-tc_pattern")) {
                 if (i + 1 < nArgNum) {
-                    ioStatus = msdk_opt_read(strInput[i + 1], readData);
-                    if (ioStatus > 0) {
+                    if (MFX_ERR_NONE != msdk_opt_read(strInput[i + 1], readData)) {
+                        return MFX_ERR_UNSUPPORTED;
+                    }
+                    else {
                         pParams->deinterlaceParam[0].tc_pattern = (mfxU16)readData;
                         i++;
                     }
@@ -1200,8 +1222,10 @@ mfxStatus vppParseInputString(char* strInput[],
                 //pParams->deinterlaceParam.mode = VPP_FILTER_ENABLED_DEFAULT;
 
                 if (i + 1 < nArgNum) {
-                    ioStatus = msdk_opt_read(strInput[i + 1], readData);
-                    if (ioStatus > 0) {
+                    if (MFX_ERR_NONE != msdk_opt_read(strInput[i + 1], readData)) {
+                        return MFX_ERR_UNSUPPORTED;
+                    }
+                    else {
                         pParams->deinterlaceParam[0].tc_pos = (mfxU16)readData;
                         i++;
                     }
@@ -1211,8 +1235,10 @@ mfxStatus vppParseInputString(char* strInput[],
                 pParams->detailParam[0].mode = VPP_FILTER_ENABLED_DEFAULT;
 
                 if (i + 1 < nArgNum) {
-                    ioStatus = msdk_opt_read(strInput[i + 1], readData);
-                    if (ioStatus > 0) {
+                    if (MFX_ERR_NONE != msdk_opt_read(strInput[i + 1], readData)) {
+                        return MFX_ERR_UNSUPPORTED;
+                    }
+                    else {
                         pParams->detailParam[0].factor = (mfxU16)readData;
                         pParams->detailParam[0].mode   = VPP_FILTER_ENABLED_CONFIGURED;
                         i++;
@@ -1390,8 +1416,10 @@ mfxStatus vppParseInputString(char* strInput[],
                 pParams->istabParam[0].mode = VPP_FILTER_ENABLED_DEFAULT;
 
                 if (i + 1 < nArgNum) {
-                    ioStatus = msdk_opt_read(strInput[i + 1], readData);
-                    if (ioStatus > 0) {
+                    if (MFX_ERR_NONE != msdk_opt_read(strInput[i + 1], readData)) {
+                        return MFX_ERR_UNSUPPORTED;
+                    }
+                    else {
                         pParams->istabParam[0].istabMode = (mfxU8)readData;
                         pParams->istabParam[0].mode      = VPP_FILTER_ENABLED_CONFIGURED;
                         i++;
@@ -1413,8 +1441,10 @@ mfxStatus vppParseInputString(char* strInput[],
                 pParams->steParam[0].mode = VPP_FILTER_ENABLED_DEFAULT;
 
                 if (i + 1 < nArgNum) {
-                    ioStatus = msdk_opt_read(strInput[i + 1], readData);
-                    if (ioStatus > 0) {
+                    if (MFX_ERR_NONE != msdk_opt_read(strInput[i + 1], readData)) {
+                        return MFX_ERR_UNSUPPORTED;
+                    }
+                    else {
                         pParams->steParam[0].SkinToneFactor = (mfxU8)readData;
                         pParams->steParam[0].mode           = VPP_FILTER_ENABLED_CONFIGURED;
                         i++;
