@@ -2864,6 +2864,12 @@ mfxStatus CTranscodingPipeline::InitEncMfxParams(sInputParams* pInParams) {
         auto co3               = m_mfxEncParams.AddExtBuffer<mfxExtCodingOption3>();
         co3->ExtBrcAdaptiveLTR = pInParams->ExtBrcAdaptiveLTR;
     }
+
+    if (pInParams->AdaptiveCQM) {
+        auto co3         = m_mfxEncParams.AddExtBuffer<mfxExtCodingOption3>();
+        co3->AdaptiveCQM = pInParams->AdaptiveCQM;
+    }
+
     if (pInParams->RepartitionCheckMode) {
         auto co3                    = m_mfxEncParams.AddExtBuffer<mfxExtCodingOption3>();
         co3->RepartitionCheckEnable = pInParams->RepartitionCheckMode;

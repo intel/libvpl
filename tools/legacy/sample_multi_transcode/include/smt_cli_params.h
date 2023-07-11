@@ -247,6 +247,7 @@ typedef struct sInputParams {
     mfxU16 GopOptFlag;
     mfxU16 AdaptiveI;
     mfxU16 AdaptiveB;
+    mfxU16 AdaptiveCQM;
 
     mfxU16 WeightedPred;
     mfxU16 WeightedBiPred;
@@ -509,6 +510,7 @@ typedef struct sInputParams {
               GopOptFlag(0),
               AdaptiveI(0),
               AdaptiveB(0),
+              AdaptiveCQM(0),
               WeightedPred(0),
               WeightedBiPred(0),
               ExtBrcAdaptiveLTR(0),

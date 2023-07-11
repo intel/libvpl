@@ -509,6 +509,9 @@ void PrintHelp() {
     HELP_LINE("  -AdaptiveB:<on|off>");
     HELP_LINE("                Turn Adaptive B frames on/off");
     HELP_LINE("");
+    HELP_LINE("  -AdaptiveCQM:<on|off>");
+    HELP_LINE("                Turn Adaptive CQM on/off");
+    HELP_LINE("");
     HELP_LINE("  -InitialDelayInKB");
     HELP_LINE("                The decoder starts decoding after the buffer reaches the");
     HELP_LINE("                initial size InitialDelayInKB, which is equivalent to reaching");
@@ -1502,6 +1505,12 @@ mfxStatus ParseAdditionalParams(char* argv[],
     }
     else if (msdk_match(argv[i], "-AdaptiveB:off")) {
         InputParams.AdaptiveB = MFX_CODINGOPTION_OFF;
+    }
+    else if (msdk_match(argv[i], "-AdaptiveCQM:on")) {
+        InputParams.AdaptiveCQM = MFX_CODINGOPTION_ON;
+    }
+    else if (msdk_match(argv[i], "-AdaptiveCQM:off")) {
+        InputParams.AdaptiveCQM = MFX_CODINGOPTION_OFF;
     }
     else if (msdk_match(argv[i], "-iGfx")) {
         InputParams.adapterType = mfxMediaAdapterType::MFX_MEDIA_INTEGRATED;
