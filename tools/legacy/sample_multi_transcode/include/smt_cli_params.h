@@ -222,6 +222,7 @@ typedef struct sInputParams {
 
     mfxU32 FrameNumberPreference; // how many surfaces user wants
     mfxU32 MaxFrameNumber; // maximum frames for transcoding
+    mfxU16 prolonged;
     mfxU32 numSurf4Comp;
     mfxU16 numTiles4Comp;
 

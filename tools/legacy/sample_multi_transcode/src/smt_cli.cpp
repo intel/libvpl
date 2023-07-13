@@ -781,6 +781,9 @@ void PrintHelp() {
     HELP_LINE("                Disabling rendering after VPP Composition.");
     HELP_LINE("                This is for performance measurements");
     HELP_LINE("");
+    HELP_LINE("  -prolong 1");
+    HELP_LINE("                Prolonged the short video with black frame.");
+    HELP_LINE("");
     HELP_LINE("  -dec_postproc Resize after decoder using direct pipe");
     HELP_LINE("                (should be used in decoder session)");
     HELP_LINE("");
@@ -2801,6 +2804,14 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, char* argv[]) {
             i++;
             if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.MaxFrameNumber)) {
                 PrintError("-n %s is invalid", argv[i]);
+                return MFX_ERR_UNSUPPORTED;
+            }
+        }
+        else if (msdk_match(argv[i], "-prolong")) {
+            VAL_CHECK(i + 1 == argc, i, argv[i]);
+            i++;
+            if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.prolonged)) {
+                PrintError("-prolong %s is invalid", argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }
         }

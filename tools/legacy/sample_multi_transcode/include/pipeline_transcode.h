@@ -64,6 +64,9 @@ const mfxF64 MCTF_LOSSLESS_BPP        = 0.0;
 #endif
 
 namespace TranscodingSample {
+
+enum ProlongStatus { NormalFrame = 0x5F, BlackFrame = 0xBF, AllBlack = 0xAB };
+
 enum VppCompDumpMode { NULL_RENDER_VPP_COMP = 1, DUMP_FILE_VPP_COMP = 2 };
 
 enum MemoryModel {
@@ -146,6 +149,7 @@ struct PreEncAuxBuffer {
 
 struct ExtendedSurface {
     mfxU32 TargetID;
+    mfxU8 FrameAttrib;
 
     mfxFrameSurface1* pSurface;
     PreEncAuxBuffer* pAuxCtrl;
@@ -291,7 +295,8 @@ class CTranscodingPipeline;
 class SafetySurfaceBuffer {
 public:
     //this is used only for sanity check
-    mfxU32 TargetID = 0;
+    mfxU32 TargetID       = 0;
+    ProlongStatus Prolong = NormalFrame;
 
     struct SurfaceDescriptor {
         SurfaceDescriptor() : ExtSurface(), Locked(false) {}
@@ -468,6 +473,7 @@ protected:
     virtual mfxStatus Encode();
     virtual mfxStatus Transcode();
     virtual mfxStatus DecodeOneFrame(ExtendedSurface* pExtSurface);
+    virtual mfxStatus CreateBlackFrame(ExtendedSurface* pExtSurface);
     virtual mfxStatus DecodeLastFrame(ExtendedSurface* pExtSurface);
     virtual mfxStatus VPPOneFrame(ExtendedSurface* pSurfaceIn,
                                   ExtendedSurface* pExtSurface,
@@ -525,6 +531,7 @@ protected:
     mfxStatus PutBS();
 
     mfxStatus DumpSurface2File(mfxFrameSurface1* pSurface);
+    mfxStatus ReplaceBlackSurface(mfxFrameSurface1* pSurface);
     mfxStatus Surface2BS(ExtendedSurface* pSurf, mfxBitstreamWrapper* pBS, mfxU32 fourCC);
     mfxStatus NV12toBS(mfxFrameSurface1* pSurface, mfxBitstreamWrapper* pBS);
     mfxStatus I420toBS(mfxFrameSurface1* pSurface, mfxBitstreamWrapper* pBS);
@@ -676,6 +683,8 @@ protected:
     mfxU32 m_FrameNumberPreference;
     mfxU32 m_MaxFramesForTranscode;
     mfxU32 m_MaxFramesForEncode;
+
+    mfxU16 m_Prolonged;
 
     // pointer to already extended bs processor
     FileBitstreamProcessor* m_pBSProcessor;
