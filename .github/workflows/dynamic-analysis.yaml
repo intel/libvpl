@@ -154,7 +154,7 @@ jobs:
         uses: actions/upload-artifact@v3
         if: success() || failure()
         with:
-          name: dynamic-analysis-${{ inputs.ARTIFACT }}
+          name: ${{ inputs.ARTIFACT }}-dynamic-analysis
           path: results_*
       - name: Clean
         if: always()

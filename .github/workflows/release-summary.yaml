@@ -26,6 +26,7 @@ jobs:
           mkdir -p summary/quality/unit/Windows
           mkdir -p summary/security/CT7-KnownVulnerabilities
           mkdir -p summary/security/CT36-3rdPartyComponents
+          mkdir -p summary/security/CT37-MalwareScan
           mkdir -p summary/security/CT39-StaticAnalysis
           mkdir -p summary/security/CT40-Custom
           mkdir -p summary/security/T256-CompilerSettings
@@ -118,8 +119,26 @@ jobs:
       - name: Download Linux Dynamic Analysis Results
         uses: actions/download-artifact@v3
         with:
-          name: dynamic-analysis-linux-release-build
-          path: dynamic-analysis-linux-release-build
+          name: linux-release-build-dynamic-analysis
+          path: linux-release-build-dynamic-analysis
+
+      - name: Download Linux Malware Scan Results
+        uses: actions/download-artifact@v3
+        with:
+          name: linux-release-build-malware-scan
+          path: linux-release-build-malware-scan
+
+      - name: Download Windows Malware Scan Results
+        uses: actions/download-artifact@v3
+        with:
+          name: windows-release-build-malware-scan
+          path: windows-release-build-malware-scan
+
+      - name: Download Source Malware Scan Results
+        uses: actions/download-artifact@v3
+        with:
+          name: source-malware-scan
+          path: source-malware-scan
 
       - name: Copy and Rename Files
         run: |
@@ -127,7 +146,10 @@ jobs:
           cp windows-coverity-scan/json/errors_v9_full.json summary/security/CT39-StaticAnalysis/windows-coverity.json
           cp vpl-vulnerability-scan/vulns.csv summary/security/CT7-KnownVulnerabilities/vulns.csv
           cp vpl-vulnerability-scan/components.csv summary/security/CT36-3rdPartyComponents/components.csv
-          cp dynamic-analysis-linux-release-build/* summary/security/CT40-Custom/
+          cp source-malware-scan/report.txt summary/security/CT37-MalwareScan/source-report.txt
+          cp windows-release-build-malware-scan/report.txt summary/security/CT37-MalwareScan/windows-build-report.txt
+          cp linux-release-build-malware-scan/report.txt summary/security/CT37-MalwareScan/linux-build-report.txt
+          cp linux-release-build-dynamic-analysis/* summary/security/CT40-Custom/
 
       - name: Upload Summary
         uses: actions/upload-artifact@v3

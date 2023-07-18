@@ -166,6 +166,24 @@ jobs:
     uses: ./.github/workflows/ip-leak-scan.yaml
     secrets: inherit
 
+  binary-malware-scan:
+    name: Malware Scan ${{ matrix.os }} ${{ matrix.config }}
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+          os: [windows, linux]
+          config: [release]
+    uses: ./.github/workflows/malware-scan.yaml
+    secrets: inherit
+    with:
+      ARTIFACT: ${{ matrix.os }}-${{ matrix.config }}-build
+
+  source-malware-scan:
+    name: Malware Scan Source
+    uses: ./.github/workflows/malware-scan.yaml
+    secrets: inherit
+
   vulnerability-scan:
     name: combined release
     needs: build
@@ -215,6 +233,8 @@ jobs:
       - linux-distro-support
       - diff-report
       - dynamic-analysis
+      - binary-malware-scan
+      - source-malware-scan
     uses: ./.github/workflows/release-summary.yaml
     secrets: inherit
 
@@ -230,6 +250,8 @@ jobs:
       - coverity-linux
       - coverity-windows
       - dynamic-analysis
+      - binary-malware-scan
+      - source-malware-scan
       - summary
     runs-on: [self-hosted]
     steps:
