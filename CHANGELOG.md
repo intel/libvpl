@@ -10,6 +10,8 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 
 ## [Unreleased]
 
+## [2023.3.1] - 2023-07-21
+
 ### Added
 - Three new command line parameters to the sample_multi_transcode tool to enable
   video quality tuning for different use cases.
@@ -20,7 +22,7 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 - Outdated docker files
 
 ### Fixed
-- Remove SetCurrentDirectory call during runtime search
+- Unsafe calling of SetCurrentDirectory during MFXEnumImplementations
 - Parameter parsing in sample_vpp tool
 
 ## [2023.3.0] - 2023-05-31
@@ -318,6 +320,7 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 
 
 [Unreleased]: https://github.com/oneapi-src/oneVPL/compare/v2023.3.0...HEAD
+[2023.3.1]: https://github.com/oneapi-src/oneVPL/compare/v2023.3.0...v2023.3.1
 [2023.3.0]: https://github.com/oneapi-src/oneVPL/compare/v2023.2.1...v2023.3.0
 [2023.2.1]: https://github.com/oneapi-src/oneVPL/compare/v2023.2.0...v2023.2.1
 [2023.2.0]: https://github.com/oneapi-src/oneVPL/compare/v2023.1.3...v2023.2.0
