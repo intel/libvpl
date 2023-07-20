@@ -3,14 +3,6 @@ run-name: Windows Build (Triggered by ${{ github.event_name }} by @${{ github.ac
 on: 
   workflow_dispatch:
     inputs:
-      COV_DIST_URL:
-        description: 'COV_DIST_URL'
-        required: true
-        type: string
-      COV_VERSION:
-        description: 'COV_VERSION'
-        required: true
-        type: string
       COVERITY_HOST:
         description: 'COVERITY_HOST'
         required: true
@@ -38,14 +30,6 @@ on:
         type: string
   workflow_call:
     inputs:
-      COV_DIST_URL:
-        description: 'COV_DIST_URL'
-        required: true
-        type: string
-      COV_VERSION:
-        description: 'COV_VERSION'
-        required: true
-        type: string
       COVERITY_HOST:
         description: 'COVERITY_HOST'
         required: true

@@ -177,20 +177,17 @@ jobs:
     uses: ./.github/workflows/coverity-linux.yaml
     secrets: inherit
     with:
-      COV_DIST_URL: ${{ vars.COV_DIST_URL }}
-      COV_VERSION: ${{ vars.COV_VERSION }}
       COVERITY_HOST: ${{ vars.COVERITY_HOST }}
       AD_USR: ${{ vars.AD_USR }}
       AD_USR_EMAIL: ${{ vars.AD_USR_EMAIL }}
       COVERITY_STREAM: ${{ vars.COVERITY_STREAM }}
       COVERITY_PROJECT: ${{ vars.COVERITY_PROJECT }}
+
   coverity-windows:
     name: Windows Coverity Scan
     uses: ./.github/workflows/coverity-windows.yaml
     secrets: inherit
     with:
-      COV_DIST_URL: ${{ vars.COV_DIST_URL }}
-      COV_VERSION: ${{ vars.COV_VERSION }}
       COVERITY_HOST: ${{ vars.COVERITY_HOST }}
       AD_USR: ${{ vars.AD_USR }}
       AD_USR_EMAIL: ${{ vars.AD_USR_EMAIL }}
