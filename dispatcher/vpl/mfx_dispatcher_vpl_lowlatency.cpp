@@ -94,17 +94,14 @@ mfxStatus LoaderCtxVPL::LoadLibsFromDriverStore(mfxU32 numAdapters,
 
     mfxI32 storageID         = MFX::MFX_UNKNOWN_KEY;
     const CHAR_TYPE *libName = nullptr;
-    const char *reqFunc      = nullptr;
 
     if (libType == LibTypeVPL) {
         storageID = MFX::MFX_DRIVER_STORE_ONEVPL;
         libName   = libNameVPL;
-        reqFunc   = reqFuncVPL;
     }
     else if (libType == LibTypeMSDK) {
         storageID = MFX::MFX_DRIVER_STORE;
         libName   = libNameMSDK;
-        reqFunc   = reqFuncMSDK;
     }
     else {
         return MFX_ERR_UNSUPPORTED;
@@ -143,18 +140,13 @@ mfxStatus LoaderCtxVPL::LoadLibsFromDriverStore(mfxU32 numAdapters,
 
 mfxStatus LoaderCtxVPL::LoadLibsFromSystemDir(LibType libType) {
 #if defined(_WIN32) || defined(_WIN64)
-    mfxStatus sts = MFX_ERR_NONE;
-
     const CHAR_TYPE *libName = nullptr;
-    const char *reqFunc      = nullptr;
 
     if (libType == LibTypeVPL) {
         libName = libNameVPL;
-        reqFunc = reqFuncVPL;
     }
     else if (libType == LibTypeMSDK) {
         libName = libNameMSDK;
-        reqFunc = reqFuncMSDK;
     }
     else {
         return MFX_ERR_UNSUPPORTED;

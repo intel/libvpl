@@ -97,6 +97,7 @@ static const mfxImplementedFunctions msdkImplFuncs = {
     (mfxChar**)msdkImplFuncsNames
 };
 
+#ifdef __linux__
 // optional extBuf to limit threads created in MSDK session creation
 // to enable, set vplParam.NumExtParam and vplParam.ExtParam before calling MFXInitEx2()
 static const mfxExtThreadsParam extThreadParam = {
@@ -110,6 +111,7 @@ static const mfxExtThreadsParam extThreadParam = {
 static const mfxExtBuffer* extParams[1] = { 
     (mfxExtBuffer *)&extThreadParam,
 };
+#endif
 
 // end table formatting
 // clang-format on
