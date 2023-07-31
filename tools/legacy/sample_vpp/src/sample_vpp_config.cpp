@@ -251,6 +251,8 @@ mfxStatus Config3dlut(sInputParams* pParams, sAppResources* pResources) {
         rewind(file);
 
         pParams->lutTbl.resize(lutTblSize);
+        if (!pParams->lutTbl.data())
+            return MFX_ERR_NULL_PTR;
         fread(pParams->lutTbl.data(), 1, lutTblSize, file);
         fclose(file);
         file = NULL;
@@ -308,6 +310,8 @@ mfxStatus Config3dlut(sInputParams* pParams, sAppResources* pResources) {
         else {
             mfxU32 size  = dim[0] * dim[1] * dim[2];
             mfxU16* data = (mfxU16*)pParams->lutTbl.data();
+            if (!data)
+                return MFX_ERR_NULL_PTR;
             mfxU32 index = 0;
             pParams->RGB[0].reset(new mfxU16[size]);
             pParams->RGB[1].reset(new mfxU16[size]);
