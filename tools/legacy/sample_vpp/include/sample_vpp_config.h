@@ -222,5 +222,12 @@ private:
     mfxU16 m_viewCount;
 };
 
+typedef struct {
+    FilterConfig mode;
+    mfxU16 VideoFullRange;
+    mfxU16 ColourPrimaries;
+    mfxU16 TransferCharacteristics;
+} sVideoSignalInfo;
+
 #endif /* __SAMPLE_VPP_CONFIG_H */
 /* EOF */

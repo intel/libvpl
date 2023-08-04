@@ -138,6 +138,11 @@ static void vppDefaultInitParams(sInputParams* pParams, sFiltersParam* pDefaultF
     pParams->colorfillParam.clear();
     pParams->colorfillParam.push_back(*pDefaultFiltersParam->pColorfillParam);
 
+    pParams->videoSignalInfoIn.clear();
+    pParams->videoSignalInfoIn.push_back(*pDefaultFiltersParam->pVideoSignalInfoIn);
+    pParams->videoSignalInfoOut.clear();
+    pParams->videoSignalInfoOut.push_back(*pDefaultFiltersParam->pVideoSignalInfoOut);
+
     // ROI check
     pParams->roiCheckParam.mode    = ROI_FIX_TO_FIX; // ROI check is disabled
     pParams->roiCheckParam.srcSeed = 0;
@@ -345,6 +350,8 @@ int sample_vpp_main(int argc, char* argv[]) {
     sVideoSignalInfoParam defaultVideoSignalInfoParam;
     sMirroringParam defaultMirroringParam;
     sColorFillParam defaultColorfillParam;
+    sVideoSignalInfo defaultInVideoSignalInfoParam  = {};
+    sVideoSignalInfo defaultOutVideoSignalInfoParam = {};
 
     sFiltersParam defaultFiltersParam = { &defaultOwnFrameInfo,
                                           &defaultDIParam,
@@ -366,7 +373,9 @@ int sample_vpp_main(int argc, char* argv[]) {
                                           &defaultSVCParam,
                                           &defaultVideoSignalInfoParam,
                                           &defaultMirroringParam,
-                                          &defaultColorfillParam };
+                                          &defaultColorfillParam,
+                                          &defaultInVideoSignalInfoParam,
+                                          &defaultOutVideoSignalInfoParam };
 
     //reset pointers to the all internal resources
     MSDK_ZERO_MEMORY(Resources);

@@ -342,6 +342,21 @@ void vppPrintHelp(const char* strAppName, const char* strErrorMessage) {
     printf("   [-3dlutMemType] specify 3dlut memory type, 0: video, 1: sys. Default value is 0\n");
     printf("   [-3dlutMode] specify 3dlut mode for HDR 3Dlut, allowwed values:17|33|65\n");
 
+    printf(
+        "   [-SignalInfoIn fullrange colorprimary transfer_characteristic]    - set input video signal info\n");
+    printf("             fullrange - 1 is full, 0 is limited\n");
+    printf(
+        "             colorprimary - BT709 value 1, BT2020 value 9, refer to video spec(e.g. HEVC Table E.3) for more\n");
+    printf(
+        "             transfer_characteristic - BT709 value 1, ST2084 value 16, refer to video spec(e.g. HEVC Table E.4) for more\n");
+    printf(
+        "   [-SignalInfoOut fullrange colorprimary transfer_characteristic]   - set output video signal info\n");
+    printf("             fullrange - 1 is full, 0 is limited\n");
+    printf(
+        "             colorprimary - BT709 value 1, BT2020 value 9, refer to video spec(e.g. HEVC Table E.3) for more\n");
+    printf(
+        "             transfer_characteristic - BT709 value 1, ST2084 value 16, refer to video spec(e.g. HEVC Table E.4) for more\n");
+
     printf("\n");
 
     printf(
@@ -952,6 +967,32 @@ mfxStatus vppParseResetPar(char* strInput[],
                 pParams->colorfillParam[paramID].mode   = VPP_FILTER_ENABLED_CONFIGURED;
                 pParams->colorfillParam[paramID].Enable = MFX_CODINGOPTION_OFF;
             }
+            else if (msdk_match(strInput[i], "-SignalInfoIn")) {
+                VAL_CHECK(1 + i == nArgNum);
+                i++;
+                msdk_opt_read(strInput[i], pParams->videoSignalInfoIn[paramID].VideoFullRange);
+                VAL_CHECK(1 + i == nArgNum);
+                i++;
+                msdk_opt_read(strInput[i], pParams->videoSignalInfoIn[paramID].ColourPrimaries);
+                VAL_CHECK(1 + i == nArgNum);
+                i++;
+                msdk_opt_read(strInput[i],
+                              pParams->videoSignalInfoIn[paramID].TransferCharacteristics);
+                pParams->videoSignalInfoIn[paramID].mode = VPP_FILTER_ENABLED_CONFIGURED;
+            }
+            else if (msdk_match(strInput[i], "-SignalInfoOut")) {
+                VAL_CHECK(1 + i == nArgNum);
+                i++;
+                msdk_opt_read(strInput[i], pParams->videoSignalInfoOut[paramID].VideoFullRange);
+                VAL_CHECK(1 + i == nArgNum);
+                i++;
+                msdk_opt_read(strInput[i], pParams->videoSignalInfoOut[paramID].ColourPrimaries);
+                VAL_CHECK(1 + i == nArgNum);
+                i++;
+                msdk_opt_read(strInput[i],
+                              pParams->videoSignalInfoOut[paramID].TransferCharacteristics);
+                pParams->videoSignalInfoOut[paramID].mode = VPP_FILTER_ENABLED_CONFIGURED;
+            }
             else {
                 printf("Unknow reset option: %s\n", strInput[i]);
 
@@ -1298,6 +1339,30 @@ mfxStatus vppParseInputString(char* strInput[],
                     return MFX_ERR_UNSUPPORTED;
                 }
                 i++;
+            }
+            else if (msdk_match(strInput[i], "-SignalInfoIn")) {
+                VAL_CHECK(1 + i == nArgNum);
+                i++;
+                msdk_opt_read(strInput[i], pParams->videoSignalInfoIn[0].VideoFullRange);
+                VAL_CHECK(1 + i == nArgNum);
+                i++;
+                msdk_opt_read(strInput[i], pParams->videoSignalInfoIn[0].ColourPrimaries);
+                VAL_CHECK(1 + i == nArgNum);
+                i++;
+                msdk_opt_read(strInput[i], pParams->videoSignalInfoIn[0].TransferCharacteristics);
+                pParams->videoSignalInfoIn[0].mode = VPP_FILTER_ENABLED_CONFIGURED;
+            }
+            else if (msdk_match(strInput[i], "-SignalInfoOut")) {
+                VAL_CHECK(1 + i == nArgNum);
+                i++;
+                msdk_opt_read(strInput[i], pParams->videoSignalInfoOut[0].VideoFullRange);
+                VAL_CHECK(1 + i == nArgNum);
+                i++;
+                msdk_opt_read(strInput[i], pParams->videoSignalInfoOut[0].ColourPrimaries);
+                VAL_CHECK(1 + i == nArgNum);
+                i++;
+                msdk_opt_read(strInput[i], pParams->videoSignalInfoOut[0].TransferCharacteristics);
+                pParams->videoSignalInfoOut[0].mode = VPP_FILTER_ENABLED_CONFIGURED;
             }
             else if (msdk_match(strInput[i], "-composite")) {
                 if (i + 1 < nArgNum) {

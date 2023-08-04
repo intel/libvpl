@@ -48,6 +48,14 @@ mfxStatus ConfigVideoEnhancementFilters(sInputParams* pParams,
         pResources->tabDoUseAlg[enhFilterCount++] = MFX_EXTBUFF_VPP_COLOR_SATURATION_LEVEL;
     }*/
 
+    if (VPP_FILTER_DISABLED != pParams->videoSignalInfoIn[paramID].mode) {
+        pResources->tabDoUseAlg[enhFilterCount++] = MFX_EXTBUFF_VIDEO_SIGNAL_INFO_IN;
+    }
+
+    if (VPP_FILTER_DISABLED != pParams->videoSignalInfoOut[paramID].mode) {
+        pResources->tabDoUseAlg[enhFilterCount++] = MFX_EXTBUFF_VIDEO_SIGNAL_INFO_OUT;
+    }
+
     if (enhFilterCount > 0) {
         auto doUse     = pVppParam->AddExtBuffer<mfxExtVPPDoUse>();
         doUse->NumAlg  = enhFilterCount;
@@ -91,6 +99,30 @@ mfxStatus ConfigVideoEnhancementFilters(sInputParams* pParams,
         auto colorfillConfig = pVppParam->AddExtBuffer<mfxExtVPPColorFill>();
         colorfillConfig      = &pParams->colorfillParam[paramID];
         std::ignore          = colorfillConfig;
+    }
+
+    if (VPP_FILTER_ENABLED_CONFIGURED == pParams->videoSignalInfoIn[paramID].mode) {
+        auto videoSignalInfoInConfig             = pVppParam->AddExtBuffer<mfxExtVideoSignalInfo>();
+        videoSignalInfoInConfig->Header.BufferId = MFX_EXTBUFF_VIDEO_SIGNAL_INFO_IN;
+        videoSignalInfoInConfig->Header.BufferSz = sizeof(mfxExtVideoSignalInfo);
+        videoSignalInfoInConfig->VideoFullRange =
+            pParams->videoSignalInfoIn[paramID].VideoFullRange;
+        videoSignalInfoInConfig->ColourPrimaries =
+            pParams->videoSignalInfoIn[paramID].ColourPrimaries;
+        videoSignalInfoInConfig->TransferCharacteristics =
+            pParams->videoSignalInfoIn[paramID].TransferCharacteristics;
+    }
+
+    if (VPP_FILTER_ENABLED_CONFIGURED == pParams->videoSignalInfoOut[paramID].mode) {
+        auto videoSignalInfoOutConfig = pVppParam->AddExtBuffer<mfxExtVideoSignalInfo>();
+        videoSignalInfoOutConfig->Header.BufferId = MFX_EXTBUFF_VIDEO_SIGNAL_INFO_OUT;
+        videoSignalInfoOutConfig->Header.BufferSz = sizeof(mfxExtVideoSignalInfo);
+        videoSignalInfoOutConfig->VideoFullRange =
+            pParams->videoSignalInfoOut[paramID].VideoFullRange;
+        videoSignalInfoOutConfig->ColourPrimaries =
+            pParams->videoSignalInfoOut[paramID].ColourPrimaries;
+        videoSignalInfoOutConfig->TransferCharacteristics =
+            pParams->videoSignalInfoOut[paramID].TransferCharacteristics;
     }
 
     if (VPP_FILTER_ENABLED_CONFIGURED == pParams->procampParam[paramID].mode) {

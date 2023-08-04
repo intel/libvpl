@@ -129,6 +129,8 @@ typedef struct _filtersParam {
     sVideoSignalInfoParam* pVideoSignalInfo;
     sMirroringParam* pMirroringParam;
     sColorFillParam* pColorfillParam;
+    sVideoSignalInfo* pVideoSignalInfoIn;
+    sVideoSignalInfo* pVideoSignalInfoOut;
 } sFiltersParam;
 
 struct sInputParams {
@@ -266,6 +268,9 @@ struct sInputParams {
     std::unique_ptr<mfxU16[]> RGB[3];
     bool bIs3dLutVideoMem;
 
+    std::vector<sVideoSignalInfo> videoSignalInfoIn;
+    std::vector<sVideoSignalInfo> videoSignalInfoOut;
+
     sInputParams()
             : frameInfoIn(),
               frameInfoOut(),
@@ -351,7 +356,9 @@ struct sInputParams {
               b3dLut(false),
               lutSize(0),
               lutTbl(),
-              bIs3dLutVideoMem(false) {
+              bIs3dLutVideoMem(false),
+              videoSignalInfoIn(),
+              videoSignalInfoOut() {
         MSDK_ZERO_MEMORY(strSrcFile);
         MSDK_ZERO_MEMORY(strPerfFile);
         MSDK_ZERO_MEMORY(inFrameInfo);
