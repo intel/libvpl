@@ -176,6 +176,16 @@ if(CMAKE_SYSTEM_NAME MATCHES Linux)
           target_include_directories(${TARGET}
                                      PUBLIC ${PKG_LIBDRM_INCLUDE_DIRS})
 
+          if("${PKG_LIBDRM_VERSION}" VERSION_GREATER 2.4.113)
+            target_compile_definitions(${TARGET}
+                                       PUBLIC DRM_LINUX_MODIFIER_TILED4_SUPPORT)
+          else()
+            message(
+              STATUS
+                "libdrm version ${PKG_LIBDRM_VERSION} does not support I915_FORMAT_MOD_4_TILED"
+            )
+          endif()
+
           if("${PKG_LIBDRM_VERSION}" VERSION_GREATER 2.4.104)
             target_compile_definitions(${TARGET} PUBLIC DRM_LINUX_HDR_SUPPORT)
           else()

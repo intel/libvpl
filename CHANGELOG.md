@@ -9,6 +9,7 @@ programming interface for video decoding, encoding, and processing to build
 portable media pipelines on CPUs, GPUs, and other accelerators.
 
 ## [Unreleased]
+### Fixed - rdrm NV12 and P010 render for MTL
 
 ## [2023.3.1] - 2023-07-21
 

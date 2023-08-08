@@ -123,7 +123,9 @@ DRM_Proxy::DRM_Proxy()
           SIMPLE_LOADER_FUNCTION(drmModeSetCrtc),
           SIMPLE_LOADER_FUNCTION(drmSetMaster),
           SIMPLE_LOADER_FUNCTION(drmDropMaster),
-          SIMPLE_LOADER_FUNCTION(drmModeSetPlane) {}
+          SIMPLE_LOADER_FUNCTION(drmModeSetPlane),
+          SIMPLE_LOADER_FUNCTION(drmGetDevices2),
+          SIMPLE_LOADER_FUNCTION(drmFreeDevices) {}
 
 DrmIntel_Proxy::~DrmIntel_Proxy() {}
 

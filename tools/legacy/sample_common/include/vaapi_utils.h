@@ -221,6 +221,8 @@ public:
                                         uint32_t src_y,
                                         uint32_t src_w,
                                         uint32_t src_h);
+    typedef int (*drmGetDevices2_type)(uint32_t flags, drmDevicePtr devices[], int max_devices);
+    typedef void (*drmFreeDevices_type)(drmDevicePtr devices[], int count);
 
     DRM_Proxy();
     ~DRM_Proxy();
@@ -260,6 +262,8 @@ public:
     __DECLARE(drmSetMaster);
     __DECLARE(drmDropMaster);
     __DECLARE(drmModeSetPlane);
+    __DECLARE(drmGetDevices2);
+    __DECLARE(drmFreeDevices);
         #undef __DECLARE
 };
 

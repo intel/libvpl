@@ -188,8 +188,26 @@ drmRenderer::drmRenderer(int fd, mfxI32 monitorType)
     #if defined(DRM_LINUX_HDR_SUPPORT)
           m_hdrMetaData({}),
     #endif
+          m_bRequiredTiled4(false),
           m_pCurrentRenderTargetSurface(NULL) {
     bool res = false;
+    int ret  = -1, maxDevices;
+
+    maxDevices = m_drmlib.drmGetDevices2(0, NULL, 0);
+    if (maxDevices < 0)
+        throw std::invalid_argument("No devices found");
+
+    auto devices = std::unique_ptr<drmDevicePtr, freeDevices>{ reinterpret_cast<drmDevicePtr*>(
+        malloc(sizeof(drmDevicePtr) * maxDevices)) };
+
+    ret = m_drmlib.drmGetDevices2(0, devices.get(), maxDevices);
+    if (ret < 0)
+        throw std::invalid_argument("drmGetDevices2() returned error");
+
+    if (IS_GEN13((devices.get())[0]->deviceinfo.pci->device_id))
+        m_bRequiredTiled4 = true;
+
+    m_drmlib.drmFreeDevices(devices.get(), maxDevices);
 
     if (m_drmlib.drmSetClientCap(m_fd, DRM_CLIENT_CAP_ATOMIC, 1) != 0)
         throw std::invalid_argument("Failed to set atomic");
@@ -745,29 +763,36 @@ void* drmRenderer::acquire(mfxMemId mid) {
             || VA_FOURCC_P010 == vmid->m_fourcc
     #endif
         ) {
-            struct drm_i915_gem_set_tiling set_tiling;
-
             pixel_format = DRM_FORMAT_NV12;
     #if defined(DRM_LINUX_P010_SUPPORT)
             if (VA_FOURCC_P010 == vmid->m_fourcc)
                 pixel_format = DRM_FORMAT_P010;
     #endif
-
-            memset(&set_tiling, 0, sizeof(set_tiling));
-            set_tiling.handle      = flink_open.handle;
-            set_tiling.tiling_mode = I915_TILING_Y;
-            set_tiling.stride      = vmid->m_image.pitches[0];
-            ret = m_drmlib.drmIoctl(m_fd, DRM_IOCTL_I915_GEM_SET_TILING, &set_tiling);
-            if (ret) {
-                printf("DRM_IOCTL_I915_GEM_SET_TILING Failed ret = %d\n", ret);
-                return NULL;
-            }
-
             handles[1]   = flink_open.handle;
             pitches[1]   = vmid->m_image.pitches[1];
             offsets[1]   = vmid->m_image.offsets[1];
             modifiers[0] = modifiers[1] = I915_FORMAT_MOD_Y_TILED;
-            flags = 2; // DRM_MODE_FB_MODIFIERS   (1<<1) /* enables ->modifer[]
+            flags                       = DRM_MODE_FB_MODIFIERS;
+
+            if (m_bRequiredTiled4) {
+    #if defined(DRM_LINUX_MODIFIER_TILED4_SUPPORT)
+                modifiers[0] = modifiers[1] = I915_FORMAT_MOD_4_TILED;
+    #endif
+            }
+            else {
+                modifiers[0] = modifiers[1] = I915_FORMAT_MOD_Y_TILED;
+
+                struct drm_i915_gem_set_tiling set_tiling;
+                memset(&set_tiling, 0, sizeof(set_tiling));
+                set_tiling.handle      = flink_open.handle;
+                set_tiling.tiling_mode = I915_TILING_Y;
+                set_tiling.stride      = vmid->m_image.pitches[0];
+                ret = m_drmlib.drmIoctl(m_fd, DRM_IOCTL_I915_GEM_SET_TILING, &set_tiling);
+                if (ret) {
+                    printf("DRM_IOCTL_I915_GEM_SET_TILING Failed ret = %d\n", ret);
+                    return NULL;
+                }
+            }
         }
         else {
             pixel_format = DRM_FORMAT_XRGB8888;
