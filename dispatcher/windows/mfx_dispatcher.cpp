@@ -76,7 +76,7 @@ mfxStatus MFX_DISP_HANDLE::LoadSelectedDLL(const wchar_t *pPath,
     // check error(s)
     if ((MFX_LIB_SOFTWARE != reqImplType) && (MFX_LIB_HARDWARE != reqImplType)) {
         DISPATCHER_LOG_ERROR(
-            (("implType == %s, should be either MFX_LIB_SOFTWARE ot MFX_LIB_HARDWARE\n"),
+            (("implType == %s, should be either MFX_LIB_SOFTWARE or MFX_LIB_HARDWARE\n"),
              DispatcherLog_GetMFXImplString(reqImplType).c_str()));
         loadStatus = MFX_ERR_ABORTED;
         return loadStatus;
@@ -236,7 +236,7 @@ mfxStatus MFX_DISP_HANDLE::LoadSelectedDLL(const wchar_t *pPath,
 
             if (MFX_ERR_NONE != mfxRes) {
                 DISPATCHER_LOG_ERROR(
-                    (("MFXQueryVersion returned: %d, skiped this library\n"), mfxRes))
+                    (("MFXQueryVersion returned: %d, skipped this library\n"), mfxRes))
             }
             else {
                 DISPATCHER_LOG_INFO((("MFXQueryVersion returned API: %d.%d\n"),
@@ -244,7 +244,7 @@ mfxStatus MFX_DISP_HANDLE::LoadSelectedDLL(const wchar_t *pPath,
                                      actualApiVersion.Minor))
                 //special hook for applications that uses sink api to get loaded library path
                 DISPATCHER_LOG_LIBRARY(("%p", hModule));
-                DISPATCHER_LOG_INFO(("library loaded succesfully\n"))
+                DISPATCHER_LOG_INFO(("library loaded successfully\n"))
             }
         }
     }
