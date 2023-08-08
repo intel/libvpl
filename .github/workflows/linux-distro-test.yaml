@@ -1,0 +1,109 @@
+name: Test on Supported Linux OSs
+run-name: Test on Supported Linux OSs (Triggered by ${{ github.event_name }} by @${{ github.actor }})
+on:
+  workflow_call:
+    inputs:
+      TEST_REF:
+        description: 'The branch, tag or SHA to find tests on'
+        required: false
+        default: ''
+        type: string
+      DISTRO_FAMILY:
+        description: 'Distribution family'
+        required: true
+        type: string
+      DISTRO_VERSION:
+        description: 'Distribution version'
+        required: true
+        type: string
+      NONFATAL:
+        description: 'Errors are nonfatal'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  test:
+    runs-on: [self-hosted, Linux, docker, gen12.5]
+    continue-on-error: ${{ inputs.NONFATAL }}
+    steps:
+      - name: Cleanup workspace (Linux)
+        if: always() && runner.os == 'Linux'
+        run: sudo rm -rf ..?* .[!.]* *
+
+      - name: Load runtime overrides
+        uses: actions/cache/restore@v3
+        with:
+          path: runtimes
+          key: runtimes
+
+      - name: Checkout tests
+        uses: actions/checkout@v3
+        id: checkout-tests-from-same-branch
+        continue-on-error: true
+        with:
+          repository: ${{ vars.TEST_REPO }}
+          token: ${{ secrets.TEST_REPO_TOKEN }}
+          path: tests
+          ref: ${{ inputs.TEST_REF }}
+
+      - name: Download package
+        uses: actions/download-artifact@v3
+        with:
+          name: linux-release-build
+          path: package
+      - name: Extract package
+        run: unzip package/*.zip -d _install
+
+      - name: Build and Run Docker image
+        run: |
+          cd tests/platform/docker
+          DISTRO=${{ inputs.DISTRO_FAMILY }}${{ inputs.DISTRO_VERSION }}
+          docker build -f Dockerfile-$DISTRO -t vpl_distro:$DISTRO .
+
+      - name: Run tests
+        continue-on-error: ${{ inputs.NONFATAL }}
+        run: |
+          DISTRO=${{ inputs.DISTRO_FAMILY }}${{ inputs.DISTRO_VERSION }}
+
+          cat >test.sh <<EOL
+          #!/bin/bash
+          set -o errexit
+          set -o nounset
+          . _install/etc/vpl/vars.sh
+
+          export DASHBOARD_INSTALL_ONEVPLCPU_LICENSE=
+          export DASHBOARD_INSTALL_ONEVPL32=0
+          export DASHBOARD_INSTALL_ONEVPLDEBUG=0
+          export DASHBOARD_PLATFORM_HW_INTEGRATED_GPU=gen12.5
+          export DASHBOARD_PLATFORM_HW_DISCRETE_GPU=gen12.5
+          export DASHBOARD_PLATFORM_OS_FAMILY=${{ inputs.DISTRO_FAMILY }}
+          export DASHBOARD_PLATFORM_OS_BITNESS=64
+          export DASHBOARD_PLATFORM_OS_VERSION=${{ inputs.DISTRO_VERSION }}
+          pushd tests
+          ./run.sh gen
+          EOL
+          chmod a+x test.sh
+          rm -rf tests/logs
+          docker run --rm \
+            -v $(pwd):/tmp/work \
+            -e ONEVPL_PRIORITY_PATH=/tmp/work/runtimes \
+            -w /tmp/work --privileged vpl_distro:$DISTRO ./test.sh
+
+      - name: Package Report
+        if: success() || failure()
+        run: |
+          DISTRO=${{ inputs.DISTRO_FAMILY }}${{ inputs.DISTRO_VERSION }}
+          mkdir $DISTRO
+          sudo cp -r tests/logs/. $DISTRO
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        if: success() || failure()
+        with:
+          name: distro-${{ inputs.DISTRO_FAMILY }}${{ inputs.DISTRO_VERSION }}
+          path: ${{ inputs.DISTRO_FAMILY }}${{ inputs.DISTRO_VERSION }}
+
+      - name: Cleanup workspace (Linux)
+        if: always() && runner.os == 'Linux'
+        run: sudo rm -rf ..?* .[!.]* *

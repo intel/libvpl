@@ -2,6 +2,11 @@ name: Test package
 on:
    workflow_call:
     inputs:
+      TEST_REF:
+        description: 'The branch, tag or SHA to find tests on'
+        required: false
+        default: ''
+        type: string
       OS:
         description: 'Operating system'
         required: true
@@ -15,7 +20,7 @@ on:
         required: true
         type: string
       ARTIFACT:
-        description: 'name of artifact containing package to test'
+        description: 'Artifact to test'
         required: true
         type: string
       NONFATAL:
@@ -30,22 +35,28 @@ jobs:
     continue-on-error: ${{ inputs.NONFATAL }}
     steps:
       - name: Cleanup workspace (Linux)
-        if: success() && inputs.OS == 'linux'
-        run: >
-          cd ${{github.workspace}} &&
-          sudo rm -rf ..?* .[!.]* *
+        if: always() && runner.os == 'Linux'
+        run: sudo rm -rf ..?* .[!.]* *
 
       - name: Cleanup workspace (Windows)
-        if: success() && inputs.OS == 'windows'
-        run: Remove-Item -Recurse -Force ${{github.workspace}}\*
+        if: always() && runner.os == 'Windows'
+        run: Remove-Item -Recurse -Force .\*
+
+      - name: Load runtime overrides
+        uses: actions/cache/restore@v3
+        with:
+          path: runtimes
+          key: runtimes
 
       - name: Checkout tests
         uses: actions/checkout@v3
+        id: checkout-tests-from-same-branch
+        continue-on-error: true
         with:
           repository: ${{ vars.TEST_REPO }}
           token: ${{ secrets.TEST_REPO_TOKEN }}
           path: tests
-          ref: main
+          ref: ${{ inputs.TEST_REF }}
 
       - name: Download package
         uses: actions/download-artifact@v3
@@ -54,22 +65,22 @@ jobs:
           path: package
 
       - name: Extract package (Linux)
-        if: success() && inputs.OS == 'linux'
+        if: success() && runner.os == 'Linux'
         run: unzip package/*.zip -d _install
 
       - name: Extract package (Windows)
-        if: success() && inputs.OS == 'windows'
+        if: success() && runner.os == 'Windows'
         run: Expand-Archive -Force -Path package\*.zip -DestinationPath _install
 
       - name: Build Docker image for GPU testing (Linux)
-        if: success() && inputs.OS == 'linux'
+        if: success() && runner.os == 'Linux'
         run: >
           docker build "tests/environments"
           -f "tests/environments/Dockerfile.ubuntu.gputest"
           -t vpl_gputestenv:ubuntu
 
       - name: Test package in container (Linux)
-        if: success() && inputs.OS == 'linux'
+        if: success() && runner.os == 'Linux'
         continue-on-error: ${{ inputs.NONFATAL }}
         run: |
           cat >test.sh <<EOL
@@ -94,10 +105,14 @@ jobs:
 
           EOL
           chmod a+x test.sh
-          docker run --rm -v $(pwd):/tmp/work -w /tmp/work --privileged vpl_gputestenv:ubuntu ./test.sh
+
+          docker run --rm \
+            -v $(pwd):/tmp/work \
+            -e ONEVPL_PRIORITY_PATH=/tmp/work/runtimes \
+            -w /tmp/work --privileged vpl_gputestenv:ubuntu ./test.sh
 
       - name: Test package (Windows)
-        if: success() && inputs.OS == 'windows'
+        if: success() && runner.os == 'Windows'
         continue-on-error: ${{ inputs.NONFATAL }}
         shell: cmd
         run: |
@@ -124,3 +139,11 @@ jobs:
         with:
           name: ${{ inputs.OS }}-acceptance-${{ inputs.GPU_FAMILY }}
           path: tests/logs/*
+
+      - name: Cleanup workspace (Linux)
+        if: always() && runner.os == 'Linux'
+        run: sudo rm -rf ..?* .[!.]* *
+
+      - name: Cleanup workspace (Windows)
+        if: always() && runner.os == 'Windows'
+        run: Remove-Item -Recurse -Force .\*

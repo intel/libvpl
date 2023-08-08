@@ -7,7 +7,7 @@ on:
         required: true
         type: string
       ARTIFACT:
-        description: 'name of artifact containing package to test'
+        description: 'Artifact to test'
         required: true
         type: string
       NONFATAL:
@@ -21,14 +21,12 @@ jobs:
     runs-on: [self-hosted, "${{ inputs.OS }}"]
     steps:
       - name: Cleanup workspace (Linux)
-        if: success() && inputs.OS == 'linux'
-        run: >
-          cd ${{github.workspace}} &&
-          sudo rm -rf ..?* .[!.]* *
+        if: always() && runner.os == 'Linux'
+        run: sudo rm -rf ..?* .[!.]* *
 
       - name: Cleanup workspace (Windows)
-        if: success() && inputs.OS == 'windows'
-        run: Remove-Item -Recurse -Force ${{github.workspace}}\*
+        if: always() && runner.os == 'Windows'
+        run: Remove-Item -Recurse -Force .\*
 
       - name: Download package
         uses: actions/download-artifact@v3
@@ -37,15 +35,15 @@ jobs:
           path: package
 
       - name: Extract package (Linux)
-        if: success() && inputs.OS == 'linux'
+        if: success() && runner.os == 'Linux'
         run: unzip package/*.zip -d _install
 
       - name: Extract package (Windows)
-        if: success() && inputs.OS == 'windows'
+        if: success() && runner.os == 'Windows'
         run: Expand-Archive -Force -Path package\*.zip -DestinationPath _install
         
       - name: Build Docker image (Linux)
-        if: success() && inputs.OS == 'linux'
+        if: success() && runner.os == 'Linux'
         run: |
           USER_ID=$(id -u ${USER})
           GROUP_ID=$(id -g ${USER})
@@ -76,7 +74,7 @@ jobs:
           docker build -t vplcompiler_settings:github_runner .
 
       - name: Check compiler settings in container (Linux)
-        if: success() && inputs.OS == 'linux'
+        if: success() && runner.os == 'Linux'
         run: |
           cat >action.sh <<EOL 
           #!/bin/bash
@@ -89,7 +87,7 @@ jobs:
           docker run --rm -v $PWD:/working -w/working vplcompiler_settings:github_runner /working/action.sh
 
       - name: Run Compiler Settings Check (Windows)
-        if: success() && inputs.OS == 'windows'
+        if: success() && runner.os == 'Windows'
         run: |
           py -m venv venv
           venv\Scripts\activate
@@ -98,7 +96,7 @@ jobs:
           sscb run --path "_install" --outpath "_logs" --report_name Windows
 
       - name: Check Security Scan Results (Linux)
-        if: success() && inputs.OS == 'linux'
+        if: success() && runner.os == 'Linux'
         run: |
           if grep -q "Total Issues Identified *: *0" _logs/SSCB_SCAN_results-Linux.html ; then
             echo "No security gaps identified in compiled binaries"
@@ -124,3 +122,11 @@ jobs:
         with:
             name: ${{ inputs.OS }}-complier_settings
             path: _logs/*
+
+      - name: Cleanup workspace (Linux)
+        if: always() && runner.os == 'Linux'
+        run: sudo rm -rf ..?* .[!.]* *
+
+      - name: Cleanup workspace (Windows)
+        if: always() && runner.os == 'Windows'
+        run: Remove-Item -Recurse -Force .\*

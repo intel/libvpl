@@ -2,37 +2,27 @@ name: IP Leak Scan
 run-name: IP Leak Scan (Triggered by ${{ github.event_name }} by @${{ github.actor }})
 on:
   workflow_dispatch:
+    # allow direct call to support testing updates to disposition DB
     inputs:
-      IPLDB_TOOL_URL:
-        description: 'IPLDB_TOOL_URL'
-        required: false
-        type: string
       DB_REF:
         description: 'The branch, tag or SHA to get DB from'
         default: ipldt
         type: string
   workflow_call:
     inputs:
-      IPLDB_TOOL_URL:
-        description: 'IPLDB_TOOL_URL'
-        required: false
-        type: string
       DB_REF:
         description: 'The branch, tag or SHA to get DB from'
         required: false
         type: string
-env:
-  IPLDB_TOOL_URL: ${{ inputs.IPLDB_TOOL_URL || vars.IPLDB_TOOL_URL }}
-  DB_REF: ${{ inputs.IPLDB_TOOL_URL || 'ipldt' }}
+
 jobs:
   ip-leak-scan:
     runs-on: [self-hosted, Linux, docker]
     steps:
-      - name: Cleanup
-        run: >
-          cd ${{github.workspace}} &&
-          sudo rm -rf ..?* .[!.]* *
-      - name: Check Out Code
+      - name: Cleanup workspace (Linux)
+        if: always() && runner.os == 'Linux'
+        run: sudo rm -rf ..?* .[!.]* *
+      - name: Checkout dispatcher source
         uses: actions/checkout@v3
         with:
           path: source
@@ -40,12 +30,12 @@ jobs:
         uses: actions/checkout@v3
         with:
           path: db
-          ref: ${{ env.DB_REF }}
+          ref: ${{ inputs.DB_REF || 'ipldt' }}
       - name: Write Docker File
         run: |
           USER_ID=$(id -u ${USER})
           GROUP_ID=$(id -g ${USER})
-          IPLDB_TOOL_URL=${{ env.IPLDB_TOOL_URL }}
+          IPLDB_TOOL_URL=${{ vars.IPLDB_TOOL_URL }}
           # Dockerfile will contain everything between <<EOL and EOL
           cat <<'EOL' > Dockerfile
           FROM ubuntu:20.04
@@ -124,7 +114,7 @@ jobs:
         if: success() || failure()
         run: |
             echo '```' >> $GITHUB_STEP_SUMMARY
-            cat _logs/ipldt.txt >> $GITHUB_STEP_SUMMARY
+            cat _logs/ip-leak-scan/ipldt_results.txt >> $GITHUB_STEP_SUMMARY
             echo '```' >> $GITHUB_STEP_SUMMARY
       - name: Record Artifacts
         uses: actions/upload-artifact@v3
@@ -132,7 +122,6 @@ jobs:
         with:
           name: ip-leak-scan
           path: _logs/ip-leak-scan
-      - name: Cleanup
-        run: >
-          cd ${{github.workspace}} &&
-          sudo rm -rf ..?* .[!.]* *
+      - name: Cleanup workspace (Linux)
+        if: always() && runner.os == 'Linux'
+        run: sudo rm -rf ..?* .[!.]* *

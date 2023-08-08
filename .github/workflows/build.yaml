@@ -16,7 +16,7 @@ on:
         default: ''
         type: string
       ARTIFACT:
-        description: 'name of artifact containing package to test'
+        description: 'Artifact to test'
         required: true
         type: string
 
@@ -26,23 +26,21 @@ jobs:
     runs-on: [self-hosted, "${{ inputs.OS }}"]
     steps:
       - name: Cleanup workspace (Linux)
-        if: success() && inputs.OS == 'linux'
-        run: >
-          cd ${{github.workspace}} &&
-          sudo rm -rf * .[!.]*
+        if: always() && runner.os == 'Linux'
+        run: sudo rm -rf ..?* .[!.]* *
 
       - name: Cleanup workspace (Windows)
-        if: success() && inputs.OS == 'windows'
-        run: Remove-Item -Recurse -Force ${{github.workspace}}\*
+        if: always() && runner.os == 'Windows'
+        run: Remove-Item -Recurse -Force .\*
 
-      - name: Checkout dispatcher
+      - name: Checkout dispatcher source
         uses: actions/checkout@v3
         with:
           path: source
           ref: ${{ inputs.REF }}
 
       - name: Install dependencies (Windows)
-        if: success() && inputs.OS == 'windows'
+        if: success() && runner.os == 'Windows'
         shell: cmd
         run: |
           echo on
@@ -51,7 +49,7 @@ jobs:
           if %errorlevel% neq 0 exit /b %errorlevel%
 
       - name: Build package (Windows, Release)
-        if: success() && inputs.OS == 'windows' && inputs.CONFIG == 'release'
+        if: success() && runner.os == 'Windows' && inputs.CONFIG == 'release'
         shell: cmd
         run: |
           echo on
@@ -60,7 +58,7 @@ jobs:
           if %errorlevel% neq 0 exit /b %errorlevel%
 
       - name: Build package (Windows, Debug)
-        if: success() && inputs.OS == 'windows' && inputs.CONFIG == 'debug'
+        if: success() && runner.os == 'Windows' && inputs.CONFIG == 'debug'
         shell: cmd
         run: |
           echo on
@@ -75,19 +73,19 @@ jobs:
           if %errorlevel% neq 0 exit /b %errorlevel%
 
       - name: Build Docker image for building (Linux)
-        if: success() && inputs.OS == 'linux'
+        if: success() && runner.os == 'Linux'
         run: >
           docker build "source/script"
           -f "source/script/Dockerfile.centos7.build"
           -t vpl_build:centos
 
       - name: Build package (Linux, Release)
-        if: success() && inputs.OS == 'linux' && inputs.CONFIG == 'release'
+        if: success() && runner.os == 'Linux' && inputs.CONFIG == 'release'
         run: |
           docker run --rm -v $(pwd):/tmp/work -w /tmp/work vpl_build:centos source/script/build
 
       - name: Build package (Linux, Debug)
-        if: success() && inputs.OS == 'linux' && inputs.CONFIG == 'debug'
+        if: success() && runner.os == 'Linux' && inputs.CONFIG == 'debug'
         run: |
           cat <<'EOL' > build.sh
           #!/bin/bash
@@ -113,18 +111,17 @@ jobs:
 
           docker run --rm -v $(pwd):/tmp/work -w /tmp/work vpl_build:centos ./build.sh
       - name: Run unit tests (Linux)
-        if: success() && inputs.OS == 'linux'
+        if: success() && runner.os == 'Linux'
         run: >-
           docker run --rm -v $(pwd):/tmp/work -w /tmp/work
           vpl_build:centos
           source/script/test unit
 
       - name: Run unit tests (Windows)
-        if: success() && inputs.OS == 'windows'
+        if: success() && runner.os == 'Windows'
         shell: cmd
         run: |
           echo on
-
           call source\script\test.bat unit
           if %errorlevel% neq 0 exit /b %errorlevel%
 
@@ -141,3 +138,11 @@ jobs:
         with:
           name: ${{ inputs.ARTIFACT }}-unit-tests
           path: source/_build/Testing/*/Test.xml
+
+      - name: Cleanup workspace (Linux)
+        if: always() && runner.os == 'Linux'
+        run: sudo rm -rf ..?* .[!.]* *
+
+      - name: Cleanup workspace (Windows)
+        if: always() && runner.os == 'Windows'
+        run: Remove-Item -Recurse -Force .\*

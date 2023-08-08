@@ -1,16 +1,15 @@
 name: Release Summary
 run-name: Release Summary (Triggered by ${{ github.event_name }} by @${{ github.actor }})
 on:
-  workflow_dispatch:
   workflow_call:
 
 jobs:
   summary:
     runs-on: [self-hosted, Linux, docker]
     steps:
-      - name: Cleanup
-        run: |
-          sudo rm -rf -- ..?* .[!.]* *
+      - name: Cleanup workspace (Linux)
+        if: always() && runner.os == 'Linux'
+        run: sudo rm -rf ..?* .[!.]* *
       - name: Create High Level Structure
         run: |
           mkdir -p summary
@@ -31,125 +30,34 @@ jobs:
           mkdir -p summary/security/CT40-Custom
           mkdir -p summary/security/T256-CompilerSettings
 
-      - name: Download IP Leak Scan Results
+      - name: Download All Artifacts
         uses: actions/download-artifact@v3
         with:
-          name: ip-leak-scan
-          path: summary/legal/ip_leaks
-
-      - name: Download Linux Diff Report
-        uses: actions/download-artifact@v3
-        with:
-          name: linux-diff-report
-          path: summary/bom/linux
-
-      - name: Download Windows Diff Report
-        uses: actions/download-artifact@v3
-        with:
-          name: windows-diff-report
-          path: summary/bom/windows
-
-      - name: Download Windows Gen12.5 Acceptance Test Results
-        uses: actions/download-artifact@v3
-        with:
-          name: windows-acceptance-gen12.5
-          path: summary/quality/acceptance/Windows/gen12.5
-      - name: Download Windows Gen9.5 Acceptance Test Results
-        uses: actions/download-artifact@v3
-        with:
-          name: windows-acceptance-gen9.5
-          path: summary/quality/acceptance/Windows/gen9.5
-      - name: Download Linux Gen12.5 Acceptance Test Results
-        uses: actions/download-artifact@v3
-        with:
-          name: linux-acceptance-gen12.5
-          path: summary/quality/acceptance/Linux/gen12.5
-      - name: Download Linux Gen9.5 Acceptance Test Results
-        uses: actions/download-artifact@v3
-        with:
-          name: linux-acceptance-gen9.5
-          path: summary/quality/acceptance/Linux/gen9.5
-
-      - name: Download Linux OS Support Testing Results
-        uses: actions/download-artifact@v3
-        with:
-          name: operating_systems
-          path: summary/quality/operating_systems
-
-      - name: Download Windows Release Build Unit Tests
-        uses: actions/download-artifact@v3
-        with:
-          name: windows-release-build-unit-tests
-          path: summary/quality/unit/Windows
-      - name: Download Linux Release Build Unit Tests
-        uses: actions/download-artifact@v3
-        with:
-          name: linux-release-build-unit-tests
-          path: summary/quality/unit/Linux
-
-      - name: Download Windows Compiler Settings Testing Results
-        uses: actions/download-artifact@v3
-        with:
-          name: windows-complier_settings
-          path: summary/security/T256-CompilerSettings
-      - name: Download Linux Compiler Settings Testing Results
-        uses: actions/download-artifact@v3
-        with:
-          name: linux-complier_settings
-          path: summary/security/T256-CompilerSettings
-
-      - name: Download Vulneribility Scan  Testing Results
-        uses: actions/download-artifact@v3
-        with:
-          name: vpl-vulnerability-scan
-          path: vpl-vulnerability-scan
-
-      - name: Download Windows Coverity Testing Results
-        uses: actions/download-artifact@v3
-        with:
-          name: windows-coverity-scan
-          path: windows-coverity-scan
-
-      - name: Download Linux Coverity Testing Results
-        uses: actions/download-artifact@v3
-        with:
-          name: linux-coverity-scan
-          path: linux-coverity-scan
-
-      - name: Download Linux Dynamic Analysis Results
-        uses: actions/download-artifact@v3
-        with:
-          name: linux-release-build-dynamic-analysis
-          path: linux-release-build-dynamic-analysis
-
-      - name: Download Linux Malware Scan Results
-        uses: actions/download-artifact@v3
-        with:
-          name: linux-release-build-malware-scan
-          path: linux-release-build-malware-scan
-
-      - name: Download Windows Malware Scan Results
-        uses: actions/download-artifact@v3
-        with:
-          name: windows-release-build-malware-scan
-          path: windows-release-build-malware-scan
-
-      - name: Download Source Malware Scan Results
-        uses: actions/download-artifact@v3
-        with:
-          name: source-malware-scan
-          path: source-malware-scan
-
+            path: artifacts
+  
       - name: Copy and Rename Files
         run: |
-          cp linux-coverity-scan/json/errors_v9_full.json summary/security/CT39-StaticAnalysis/linux-coverity.json
-          cp windows-coverity-scan/json/errors_v9_full.json summary/security/CT39-StaticAnalysis/windows-coverity.json
-          cp vpl-vulnerability-scan/vulns.csv summary/security/CT7-KnownVulnerabilities/vulns.csv
-          cp vpl-vulnerability-scan/components.csv summary/security/CT36-3rdPartyComponents/components.csv
-          cp source-malware-scan/report.txt summary/security/CT37-MalwareScan/source-report.txt
-          cp windows-release-build-malware-scan/report.txt summary/security/CT37-MalwareScan/windows-build-report.txt
-          cp linux-release-build-malware-scan/report.txt summary/security/CT37-MalwareScan/linux-build-report.txt
-          cp linux-release-build-dynamic-analysis/* summary/security/CT40-Custom/
+          cp -r artifacts/ip-leak-scan/. summary/legal/ip_leaks/
+          cp -r artifacts/linux-diff-report/. summary/bom/linux/
+          cp -r artifacts/windows-diff-report/. summary/bom/windows/
+          cp -r artifacts/windows-acceptance-gen12.5/. summary/quality/acceptance/Windows/gen12.5/
+          cp -r artifacts/windows-acceptance-gen9.5/. summary/quality/acceptance/Windows/gen9.5/
+          cp -r artifacts/linux-acceptance-gen12.5/. summary/quality/acceptance/Linux/gen12.5/
+          cp -r artifacts/linux-acceptance-gen9.5/. summary/quality/acceptance/Linux/gen9.5/
+          cp -r artifacts/windows-release-build-unit-tests/. summary/quality/unit/Windows/
+          cp -r artifacts/linux-release-build-unit-tests/. summary/quality/unit/Linux/
+          cp -r artifacts/windows-complier_settings/. summary/security/T256-CompilerSettings/
+          cp -r artifacts/linux-complier_settings/. summary/security/T256-CompilerSettings/
+          cp -r artifacts/distro-*/. summary/quality/operating_systems/
+          cp -r artifacts/linux-release-build-dynamic-analysis/. summary/security/CT40-Custom/
+
+          cp artifacts/linux-coverity-scan/json/errors_v9_full.json summary/security/CT39-StaticAnalysis/linux-coverity.json
+          cp artifacts/windows-coverity-scan/json/errors_v9_full.json summary/security/CT39-StaticAnalysis/windows-coverity.json
+          cp artifacts/vpl-vulnerability-scan/vulns.csv summary/security/CT7-KnownVulnerabilities/vulns.csv
+          cp artifacts/vpl-vulnerability-scan/components.csv summary/security/CT36-3rdPartyComponents/components.csv
+          cp artifacts/source-malware-scan/report.txt summary/security/CT37-MalwareScan/source-report.txt
+          cp artifacts/windows-release-build-malware-scan/report.txt summary/security/CT37-MalwareScan/windows-build-report.txt
+          cp artifacts/linux-release-build-malware-scan/report.txt summary/security/CT37-MalwareScan/linux-build-report.txt
 
       - name: Upload Summary
         uses: actions/upload-artifact@v3
@@ -158,7 +66,6 @@ jobs:
           name: source-code-release-summary
           path: summary/*
 
-      - name: Cleanup
-        if: always()
-        run: |
-          sudo rm -rf -- ..?* .[!.]* *
+      - name: Cleanup workspace (Linux)
+        if: always() && runner.os == 'Linux'
+        run: sudo rm -rf ..?* .[!.]* *

@@ -2,7 +2,7 @@ name: Diff Report
 on:
   workflow_call:
     inputs:
-      ARTIFACT:
+      DEST:
         description: 'name of artifact to store the diff'
         required: true
         type: string
@@ -20,12 +20,11 @@ jobs:
     name: Diff Report
     runs-on: [self-hosted, linux]
     steps:
-      - name: Cleanup workspace
-        run: >
-          cd ${{github.workspace}} &&
-          sudo rm -rf * .[!.]*
+      - name: Cleanup workspace (Linux)
+        if: always() && runner.os == 'Linux'
+        run: sudo rm -rf ..?* .[!.]* *
 
-      - name: Checkout source
+      - name: Checkout dispatcher source
         uses: actions/checkout@v3
         with:
           path: source
@@ -72,12 +71,11 @@ jobs:
     
       - name: Upload artifact
         uses: actions/upload-artifact@v3
-        if: success() || failure()
+        if: (success() || failure()) && inputs.DEST
         with:
-          name: ${{ inputs.ARTIFACT }}
+          name: ${{ inputs.DEST }}
           path: ./report/
 
-      - name: Cleanup workspace
-        run: >
-          cd ${{github.workspace}} &&
-          sudo rm -rf * .[!.]*
+      - name: Cleanup workspace (Linux)
+        if: always() && runner.os == 'Linux'
+        run: sudo rm -rf ..?* .[!.]* *

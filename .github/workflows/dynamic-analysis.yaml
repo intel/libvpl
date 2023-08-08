@@ -1,16 +1,10 @@
 name: Dynamic Analysis Test
 run-name: Dynamic Analysis Test (Triggered by ${{ github.event_name }} by @${{ github.actor }})
 on:
-  workflow_dispatch:
-    inputs:
-      ARTIFACT:
-        description: 'name of artifact containing package to test'
-        required: true
-        type: string
   workflow_call:
     inputs:
       ARTIFACT:
-        description: 'name of artifact containing package to test'
+        description: 'Artifact to test'
         required: true
         type: string
 
@@ -18,14 +12,18 @@ jobs:
   test:
     runs-on: [self-hosted, Linux, docker]
     steps:
-      - name: Clean
-        if: always()
-        run: |
-          docker run --rm -v $PWD:/working -w/working public.ecr.aws/lts/ubuntu:22.04 rm -rf ./*
-      - name: Check Out Code
+      - name: Cleanup workspace (Linux)
+        if: always() && runner.os == 'Linux'
+        run: sudo rm -rf ..?* .[!.]* *
+      - name: Checkout dispatcher source
         uses: actions/checkout@v3
         with:
           path: source
+      - name: Load runtime overrides
+        uses: actions/cache/restore@v3
+        with:
+          path: runtimes
+          key: runtimes
       - name: Download package
         uses: actions/download-artifact@v3
         with:
@@ -148,7 +146,9 @@ jobs:
           EOL
           chmod a+x ./source/.github/workflows/dynamic_analysis/test.sh
           chmod a+x ./test.sh
-          docker run --rm -v $(pwd):/tmp/work -w /tmp/work --privileged vplgputestenv:github_runner /tmp/work/test.sh
+          docker run --rm -v $(pwd):/tmp/work \
+            -e ONEVPL_PRIORITY_PATH=/tmp/work/runtimes \
+            -w /tmp/work --privileged vplgputestenv:github_runner /tmp/work/test.sh
 
       - name: Upload test results
         uses: actions/upload-artifact@v3
@@ -156,8 +156,7 @@ jobs:
         with:
           name: ${{ inputs.ARTIFACT }}-dynamic-analysis
           path: results_*
-      - name: Clean
-        if: always()
-        run: |
-          docker run --rm -v $PWD:/working -w/working public.ecr.aws/lts/ubuntu:22.04 rm -rf ./*
+      - name: Cleanup workspace (Linux)
+        if: always() && runner.os == 'Linux'
+        run: sudo rm -rf ..?* .[!.]* *
   

@@ -2,25 +2,32 @@ name: Check
 run-name: Check (Triggered by ${{ github.event_name }} by @${{ github.actor }})
 on:
   pull_request:
-  workflow_call:
+    # Run on pull requests
   workflow_dispatch:
+    # Run on user request
 
 concurrency:
+  # Cancel any exisitng jobs related to the target branch
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  vars:
-    name: Configure Variables
+  setup:
+    name: Setup Testing
     runs-on: [self-hosted, linux]
     outputs:
-      refrence_ref: ${{ steps.run.outputs.refrence_ref }}
+      refrence_ref: ${{ env.refrence_ref }}
+      test_ref: ${{ env.test_ref }}
+    env:
+      test_ref: ''
+      refrence_ref: ''
     steps:
-      - name: Cleanup workspace
-        run: >
-          cd ${{github.workspace}} &&
-          sudo rm -rf ..?* .[!.]* *
-      - name: Checkout code
+      - name: Cleanup workspace (Linux)
+        if: always() && runner.os == 'Linux'
+        run: sudo rm -rf ..?* .[!.]* *
+
+      # Get ref of code to be used as reference
+      - name: Checkout dispatcher source
         uses: actions/checkout@v3
         with:
           path: source
@@ -30,21 +37,95 @@ jobs:
         id: run
         run: |
           cd source
-          echo "refrence_ref=$(git describe --abbrev=0 --tags --match=v*)"
-          echo "refrence_ref=$(git describe --abbrev=0 --tags --match=v*)" >> $GITHUB_OUTPUT
-      - name: Cleanup workspace
-        run: >
-          cd ${{github.workspace}} &&
-          sudo rm -rf ..?* .[!.]* *
+          echo "refrence_ref=$(git describe --abbrev=0 --tags --match=v*)" >> $GITHUB_ENV
+
+      # Get ref of test to be used
+      # If this is a pull request prefer a branch of the same name as the branch being merged into
+      # Otherwise try to use a branch of the same name
+      # Otherwise use main
+      - name: Checkout tests from base_ref
+        if: github.base_ref
+        id: check-tests-from-base_ref
+        uses: actions/checkout@v3
+        continue-on-error: true
+        with:
+          repository: ${{ vars.TEST_REPO }}
+          token: ${{ secrets.TEST_REPO_TOKEN }}
+          path: tests
+          fetch-depth: 0
+          ref: ${{ github.base_ref }}
+      - name: Use tests from base_ref
+        if: steps.check-tests-from-base_ref.outcome == 'success'
+        id: use-tests-from-base_ref
+        run: |
+          echo "test_ref=${{ github.base_ref }}" >> $GITHUB_ENV
+
+      - name: Checkout tests from ref_name
+        if: steps.check-tests-from-base_ref.outcome != 'success'
+        id: check-tests-from-ref_name
+        uses: actions/checkout@v3
+        continue-on-error: true
+        with:
+          repository: ${{ vars.TEST_REPO }}
+          token: ${{ secrets.TEST_REPO_TOKEN }}
+          path: tests
+          fetch-depth: 0
+          ref: ${{ github.ref_name }}
+      - name: Use tests from ref_name
+        if: steps.check-tests-from-ref_name.outcome == 'success'
+        id: use-tests-from-ref_name
+        run: |
+          echo "test_ref=${{ github.ref_name }}" >> $GITHUB_ENV
+
+      - name: Use tests from default
+        if: steps.check-tests-from-base_ref.outcome != 'success' && steps.check-tests-from-ref_name.outcome != 'success'
+        run: |
+          echo "test_ref=main" >> $GITHUB_ENV
+
+      - name: Report
+        if: always()
+        run: |
+          echo "test_ref=${{ env.test_ref }}"
+          echo "refrence_ref=${{ env.refrence_ref }}"
+  
+      - name: Cleanup workspace (Linux)
+        if: always() && runner.os == 'Linux'
+        run: sudo rm -rf ..?* .[!.]* *
+
+      - name: Checkout tests
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ vars.TEST_REPO }}
+          token: ${{ secrets.TEST_REPO_TOKEN }}
+          path: tests
+          ref: ${{ needs.setup.outputs.test_ref }}
+
+      # To allow override of runtimes we look for a "runtimes"
+      # folder in the test repo.
+      - name: load runtimes
+        run: |
+          mkdir runtimes
+          if [ -d tests/runtimes ]
+          then
+            cp tests/runtimes/. ./runtimes/
+          fi
+      # Other methods may be used to override runtimes, whatever
+      # method is used should result in the runtimes being stored in
+      # the "runtimes" 
+      - name: Cache Runtimes
+        uses: actions/cache@v3
+        with:
+          path: runtimes
+          key: runtimes
+
   lint:
     name: Lint
     runs-on: [self-hosted, linux, docker]
     steps:
-      - name: Cleanup workspace
-        run: >
-          cd ${{github.workspace}} &&
-          sudo rm -rf ..?* .[!.]* *
-      - name: Checkout code
+      - name: Cleanup workspace (Linux)
+        if: always() && runner.os == 'Linux'
+        run: sudo rm -rf ..?* .[!.]* *
+      - name: Checkout dispatcher source
         uses: actions/checkout@v3
         with:
           path: source
@@ -75,9 +156,12 @@ jobs:
             echo '```' >> $GITHUB_STEP_SUMMARY
             cat lint.log >> $GITHUB_STEP_SUMMARY
             echo '```' >> $GITHUB_STEP_SUMMARY
+      - name: Cleanup workspace (Linux)
+        if: always() && runner.os == 'Linux'
+        run: sudo rm -rf ..?* .[!.]* *
 
   build:
-    name: ${{ matrix.os }} ${{ matrix.config }}
+    name: Build
     strategy:
       fail-fast: false
       matrix:
@@ -91,23 +175,25 @@ jobs:
       ARTIFACT: ${{ matrix.os }}-${{ matrix.config }}-build
 
   ref-build:
-    name: ${{ needs.vars.outputs.refrence_ref }} ${{ matrix.os }} release
-    needs: [vars]
+    name: Build Reference
+    needs: [setup]
     strategy:
       fail-fast: false
       matrix:
           os: [windows, linux]
+          config: [release]
+          reference: ['${{ needs.setup.outputs.refrence_ref }}']
     uses: ./.github/workflows/build.yaml
     secrets: inherit
     with:
       OS: ${{ matrix.os }}
-      CONFIG: release
-      ARTIFACT: ref-${{ matrix.os }}-release-build
-      REF: ${{ needs.vars.outputs.refrence_ref }}
+      CONFIG: ${{ matrix.config }}
+      ARTIFACT: ref-${{ matrix.os }}-${{ matrix.config }}-build
+      REF: ${{ matrix.reference }}
 
   diff-report:
-    name: ${{ matrix.os }} diff-report
-    needs: [vars, ref-build, build]
+    name: Diff Report
+    needs: [setup, ref-build, build]
     strategy:
       fail-fast: false
       matrix:
@@ -115,22 +201,46 @@ jobs:
     uses: ./.github/workflows/diff-report.yaml
     secrets: inherit
     with:
-      ARTIFACT: ${{ matrix.os }}-diff-report
+      DEST: ${{ matrix.os }}-diff-report
       LEFT: ref-${{ matrix.os }}-release-build
       RIGHT: ${{ matrix.os }}-release-build
 
   linux-distro-support:
-    name: Linux Distro Support
-    needs: build 
-    uses: ./.github/workflows/linux-distro-support.yaml
+    name: Linux Distro Test
+    needs: [setup, build]
+    strategy:
+      fail-fast: false
+      matrix:
+          include:
+            - distro: rhel
+              version: 8
+              fatal: true
+            - distro: rhel
+              version: 9
+              fatal: true
+            - distro: centos
+              version: 9
+              fatal: true
+            - distro: sles
+              version: 15.4
+              fatal: true
+            - distro: ubuntu
+              version: 20.04
+              fatal: false
+            - distro: ubuntu
+              version: 22.04
+              fatal: false
+    uses: ./.github/workflows/linux-distro-test.yaml
     secrets: inherit
     with:
-      TEST_REPO: ${{ inputs.TEST_REPO }}  
-      ARTIFACT: operating_systems
+      DISTRO_FAMILY: ${{ matrix.distro }}
+      DISTRO_VERSION: ${{ matrix.version }}
+      TEST_REF: ${{ needs.setup.outputs.test_ref }}
+      NONFATAL: ${{ !matrix.fatal }}
 
-  package-test:
-    name: ${{ matrix.os }} ${{ matrix.config }}, ${{ matrix.accelerator }}
-    needs: build
+  acceptance-test:
+    name: Acceptance Test
+    needs: [setup, build]
     strategy:
       fail-fast: false
       matrix:
@@ -140,6 +250,7 @@ jobs:
     uses: ./.github/workflows/acceptance.yaml
     secrets: inherit
     with:
+      TEST_REF: ${{ needs.setup.outputs.test_ref }}
       OS: ${{ matrix.os }}
       CONFIG: ${{ matrix.config }}
       GPU_FAMILY: ${{ matrix.accelerator }}
@@ -147,7 +258,7 @@ jobs:
       NONFATAL: ${{ matrix.CONFIG == 'debug' && true || false }}
 
   compiler-settings:
-    name: ${{ matrix.os }} ${{ matrix.config }}
+    name: Compiler Settings Test
     needs: build
     strategy:
       fail-fast: false
@@ -167,7 +278,7 @@ jobs:
     secrets: inherit
 
   binary-malware-scan:
-    name: Malware Scan ${{ matrix.os }} ${{ matrix.config }}
+    name: Malware Scan
     needs: build
     strategy:
       fail-fast: false
@@ -185,36 +296,25 @@ jobs:
     secrets: inherit
 
   vulnerability-scan:
-    name: combined release
+    name: Vulnerability Scan
     needs: build
     uses: ./.github/workflows/vulnerability-scan.yaml
     secrets: inherit
 
-  coverity-linux:
-    name: Linux Coverity Scan
-    uses: ./.github/workflows/coverity-linux.yaml
+  coverity:
+    name: Coverity Scan
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows, linux]
+    uses: ./.github/workflows/coverity.yaml
     secrets: inherit
     with:
-      COVERITY_HOST: ${{ vars.COVERITY_HOST }}
-      AD_USR: ${{ vars.AD_USR }}
-      AD_USR_EMAIL: ${{ vars.AD_USR_EMAIL }}
-      COVERITY_STREAM: ${{ vars.COVERITY_STREAM }}
-      COVERITY_PROJECT: ${{ vars.COVERITY_PROJECT }}
-
-  coverity-windows:
-    name: Windows Coverity Scan
-    uses: ./.github/workflows/coverity-windows.yaml
-    secrets: inherit
-    with:
-      COVERITY_HOST: ${{ vars.COVERITY_HOST }}
-      AD_USR: ${{ vars.AD_USR }}
-      AD_USR_EMAIL: ${{ vars.AD_USR_EMAIL }}
-      COVERITY_STREAM: ${{ vars.COVERITY_STREAM }}
-      COVERITY_PROJECT: ${{ vars.COVERITY_PROJECT }}
+      OS: ${{ matrix.os }}
 
   dynamic-analysis:
     name: Dynamic Analysis
-    needs: build
+    needs: [setup, build]
     uses: ./.github/workflows/dynamic-analysis.yaml
     secrets: inherit
     with:
@@ -225,10 +325,9 @@ jobs:
     needs: 
       - ip-leak-scan
       - build
-      - package-test
+      - acceptance-test
       - compiler-settings
-      - coverity-linux
-      - coverity-windows
+      - coverity
       - vulnerability-scan
       - linux-distro-support
       - diff-report
@@ -239,21 +338,20 @@ jobs:
     secrets: inherit
 
   required:
+    name: required
     needs:
       - lint
       - build
       - linux-distro-support
-      - package-test
+      - acceptance-test
       - compiler-settings
       - ip-leak-scan
       - vulnerability-scan
-      - coverity-linux
-      - coverity-windows
+      - coverity
       - dynamic-analysis
       - binary-malware-scan
       - source-malware-scan
-      - summary
     runs-on: [self-hosted]
     steps:
-      - name: Dummy step
-        run: cd ${{github.workspace}}
+      - name: Required Checks
+        run: echo Done
