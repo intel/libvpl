@@ -107,7 +107,7 @@ jobs:
           mkdir runtimes
           if [ -d tests/runtimes ]
           then
-            cp tests/runtimes/. ./runtimes/
+            cp -r tests/runtimes/. ./runtimes/
           fi
       # Other methods may be used to override runtimes, whatever
       # method is used should result in the runtimes being stored in

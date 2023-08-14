@@ -126,6 +126,9 @@ jobs:
           set DASHBOARD_PLATFORM_OS_VERSION=11
           set DASHBOARD_PLATFORM_SW_CMAKE_INSTALLED=1
           set DASHBOARD_PLATFORM_SW_VISUAL_STUDIO_INSTALLED=1
+          if exist ${{ github.workspace}}\runtimes\ (
+            set ONEVPL_PRIORITY_PATH=${{ github.workspace}}\runtimes
+          )
 
           call _install\etc\vpl\vars.bat
           if %errorlevel% neq 0 exit /b %errorlevel%
