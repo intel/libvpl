@@ -54,6 +54,8 @@ static mfxU16 FoundSuitableAdapter() {
 
         if (desc.VendorId == 0x8086)
             return i;
+
+        pAdapter = nullptr;
     }
     return -1;
 }
