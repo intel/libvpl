@@ -9,10 +9,16 @@ programming interface for video decoding, encoding, and processing to build
 portable media pipelines on CPUs, GPUs, and other accelerators.
 
 ## [Unreleased]
-### Fixed - rdrm NV12 and P010 render for MTL
 
 ### Added
-- New command line parameters to the sample_vpp tool to enable video signal information.
+- New command line parameters to the sample_vpp tool to enable video signal
+  information.
+
+### Removed 
+- Unused files and folders
+
+### Fixed 
+- rdrm NV12 and P010 render for MTL
 
 ## [2023.3.1] - 2023-07-21
 
