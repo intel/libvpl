@@ -307,6 +307,9 @@ jobs:
       fail-fast: false
       matrix:
         os: [windows, linux]
+    # WA - not really a dependency, but force this scan to run later in the workflow
+    #      so that other tests can run (and fail) earlier in the CI checks
+    needs: diff-report
     uses: ./.github/workflows/coverity.yaml
     secrets: inherit
     with:
