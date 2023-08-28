@@ -299,7 +299,9 @@ TEST(Transcode_CLI, TrivialSessionOptions) {
     EXPECT_EQ(result.parsed[0].nMaxQPB, 0);
     EXPECT_EQ(result.parsed[0].nAvcTemp, 0);
     EXPECT_EQ(result.parsed[0].nBaseLayerPID, 0);
-    EXPECT_EQ(result.parsed[0].nAvcTemporalLayers[8], 0);
+    for (int i = 0; i < 8; ++i) {
+        EXPECT_EQ(result.parsed[0].nAvcTemporalLayers[i], 0);
+    }
 #if defined(_WIN32) || defined(_WIN64)
     EXPECT_EQ(result.parsed[0].bTemporalLayers, 0);
     for (int i = 0; i < 8; ++i) {
