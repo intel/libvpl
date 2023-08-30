@@ -118,7 +118,7 @@ if(BUILD_TESTS)
 endif()
 
 add_subdirectory(api)
-add_subdirectory(dispatcher)
+add_subdirectory(libvpl)
 if(BUILD_TOOLS)
   add_subdirectory(tools)
 endif()

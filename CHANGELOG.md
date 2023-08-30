@@ -18,10 +18,15 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
   information.
 
 ### Removed 
+- Environment module support
 - Unused files and folders
 
 ### Fixed 
 - rdrm NV12 and P010 render for MTL
+
+### Changed
+- Directory layout and name of dispatcher directory
+- Location of image files used by documentation
 
 ## [2023.3.1] - 2023-07-21
 
