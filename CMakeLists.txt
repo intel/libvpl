@@ -124,7 +124,6 @@ if(BUILD_TOOLS)
 endif()
 if(BUILD_DEV)
   add_subdirectory(env)
-  add_subdirectory(modulefiles)
   add_subdirectory(examples)
 endif()
 
