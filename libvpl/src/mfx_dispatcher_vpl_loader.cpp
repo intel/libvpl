@@ -477,17 +477,7 @@ mfxStatus LoaderCtxVPL::BuildListOfCandidateLibs() {
         it++;
     }
 
-    // third priority: current working directory
-    searchDirList.clear();
-    GetSearchPathsCurrentDir(searchDirList);
-    it = searchDirList.begin();
-    while (it != searchDirList.end()) {
-        STRING_TYPE nextDir = (*it);
-        sts                 = SearchDirForLibs(nextDir, m_libInfoList, LIB_PRIORITY_03);
-        it++;
-    }
-
-    // fourth priority: PATH environment variable
+    // third priority: PATH environment variable
     searchDirList.clear();
     ParseEnvSearchPaths(L"PATH", searchDirList);
     it = searchDirList.begin();
@@ -497,7 +487,7 @@ mfxStatus LoaderCtxVPL::BuildListOfCandidateLibs() {
         it++;
     }
 
-    // fifth priority: ONEVPL_SEARCH_PATH environment variable
+    // fourth priority: ONEVPL_SEARCH_PATH environment variable
     searchDirList.clear();
     ParseEnvSearchPaths(L"ONEVPL_SEARCH_PATH", searchDirList);
     it = searchDirList.begin();
@@ -547,17 +537,7 @@ mfxStatus LoaderCtxVPL::BuildListOfCandidateLibs() {
         it++;
     }
 
-    // third priority: current working directory
-    searchDirList.clear();
-    GetSearchPathsCurrentDir(searchDirList);
-    it = searchDirList.begin();
-    while (it != searchDirList.end()) {
-        STRING_TYPE nextDir = (*it);
-        sts                 = SearchDirForLibs(nextDir, m_libInfoList, LIB_PRIORITY_04);
-        it++;
-    }
-
-    // fourth priority: ONEVPL_SEARCH_PATH environment variable
+    // third priority: ONEVPL_SEARCH_PATH environment variable
     searchDirList.clear();
     ParseEnvSearchPaths("ONEVPL_SEARCH_PATH", searchDirList);
     it = searchDirList.begin();
