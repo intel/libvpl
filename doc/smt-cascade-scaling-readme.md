@@ -4,12 +4,12 @@ Some transcoding pipelines can greatly benefit from so called cascade scaling. S
 
 Let’s look at the transcoding case showed on the diagram below. Here one decoder feeds 8 encoders with different resolutions, frame rates and picture structures.
 
-![original pipeline](./pic/cs_org_pipeline.jpg)
+![original pipeline](./images/cs_org_pipeline.jpg)
  
 
 As can be seen, deinterlacing and downscaling from original HD resolution is performed 6 times. Because deinterlacing is slow operation and downscaling from original resolution consumes a lot of memory bandwidth, this pipeline may be bottlenecked by VPP performance. To remove this bottleneck cascade scaling may be used as shown on the next diagram.
 
-![CS pipeline](./pic/cs_cs_pipeline.jpg)
+![CS pipeline](./images/cs_cs_pipeline.jpg)
  
 
 Here, number of deinterlacing operations was reduce to two and just three downscaling operations are performed on original HD resolution. With growing number of channels and growing resolution ratio between decoder and encoder channels, benefits of cascade scaling will also grow.

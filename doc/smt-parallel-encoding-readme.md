@@ -8,7 +8,7 @@ Sometimes, e.g., for very high resolutions, transcoding couldn’t be handled by
 
 Picture below shows pipeline configuration for 2x2 mode, numbers are for 60 fps transcoding case. This is the most powerful mode that can give up to 2x transcoding speed up. We use two GPUs here. Each one runs decode / encode pair. Because performance is usually limited by encoder, each GPU decodes all frames in input bitstream but encodes only half of them. That means that decoder runs at 60 fps, and encoder at 30 fps, reducing encoder workload twice in comparison to sequential transcoding. After two GOPs have been transcoded, we mux them back to single bitstream and write to file.
 
-![CS pipeline](./pic/par_enc_2x2.jpg)
+![CS pipeline](./images/par_enc_2x2.jpg)
  
 
 To run such pipeline, use this command line:
@@ -32,7 +32,7 @@ Also note, that performance significantly depends on async depth value. It speci
 
 We use just one GPU here and performance gain comes from better distribution of workloads among available HW units of the same GPU. This mode gives much less performance gain in comparison to 2x2 mode. Depending on workload, it may be in 20-30% range. This mode uses one decoder that feeds two encoders. Each one encodes complete GOP. The rest of pipeline is similar to 2x2 mode.
 
-![CS pipeline](./pic/par_enc_1x2.jpg)
+![CS pipeline](./images/par_enc_1x2.jpg)
  
 
 To run such pipeline, use this command line:

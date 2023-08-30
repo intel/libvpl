@@ -1,4 +1,4 @@
-# ![oneAPI](assets/oneapi-logo.png "oneAPI") Video Processing Library
+# ![oneAPI](doc/images/oneapi-logo.png "oneAPI") Video Processing Library
 
 Intel® oneAPI Video Processing Library (oneVPL) supports AI visual inference, media delivery, 
 cloud gaming, and virtual desktop infrastructure use cases by providing access to hardware 
