@@ -122,6 +122,9 @@ public:
     void SetDMABuf(struct zwp_linux_dmabuf_v1* dmabuf) {
         m_dmabuf = dmabuf;
     }
+    void SetReqiredTiled4() {
+        m_requiredTiled4 = true;
+    }
     #endif
     void DrmHandleDevice(const char* device);
     void DrmHandleAuthenticated();
@@ -173,6 +176,7 @@ private:
     char* m_device_name;
     int m_x, m_y;
     bool m_perf_mode;
+    bool m_requiredTiled4;
 
 protected:
     std::list<wld_buffer*> m_buffers_list;

@@ -88,3 +88,27 @@ void xdg_toplevel_close(void* data, struct xdg_toplevel* xdg_toplevel) {
     /* NOT IMPLEMENTED */
 }
 #endif
+
+#if defined(WAYLAND_LINUX_DMABUF_SUPPORT)
+/* dmabuf listener */
+void dmabuf_format(void* data, struct zwp_linux_dmabuf_v1* zwp_linux_dmabuf, uint32_t format) {
+    /* NOT IMPLEMENTED */
+}
+
+void dmabuf_modifier(void* data,
+                     struct zwp_linux_dmabuf_v1* zwp_linux_dmabuf,
+                     uint32_t format,
+                     uint32_t modifier_hi,
+                     uint32_t modifier_lo) {
+    uint64_t modifier = (uint64_t)modifier_hi << 32 | modifier_lo;
+
+    if (modifier == DRM_FORMAT_MOD_INVALID)
+        return;
+
+    #if defined(DRM_LINUX_MODIFIER_TILED4_SUPPORT)
+    Wayland* wayland = static_cast<Wayland*>(data);
+    if (format == WL_DRM_FORMAT_NV12 && modifier == I915_FORMAT_MOD_4_TILED)
+        wayland->SetReqiredTiled4();
+    #endif
+}
+#endif

@@ -7,6 +7,7 @@
 #ifndef LISTENER_WAYLAND_H
 #define LISTENER_WAYLAND_H
 
+#include <drm_fourcc.h>
 #include <stdint.h>
 #include "class_wayland.h"
 
@@ -54,6 +55,17 @@ void xdg_toplevel_configure(void* data,
                             struct wl_array* states);
 
 void xdg_toplevel_close(void* data, struct xdg_toplevel* xdg_toplevel);
+#endif
+
+#if defined(WAYLAND_LINUX_DMABUF_SUPPORT)
+/* dmabuf listener */
+void dmabuf_format(void* data, struct zwp_linux_dmabuf_v1* zwp_linux_dmabuf, uint32_t format);
+
+void dmabuf_modifier(void* data,
+                     struct zwp_linux_dmabuf_v1* zwp_linux_dmabuf,
+                     uint32_t format,
+                     uint32_t modifier_hi,
+                     uint32_t modifier_lo);
 #endif
 
 #endif /* LISTENER_WAYLAND_H */

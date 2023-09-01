@@ -10,6 +10,9 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 
 ## [Unreleased]
 
+### Fixed
+- Fix NV12 wayland render for MTL
+
 ### Added
 - New command line parameters to the sample_vpp tool to enable video signal
   information.
