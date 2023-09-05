@@ -72,6 +72,20 @@ jobs:
           cmake --build "source\_build" --config Debug --target package
           if %errorlevel% neq 0 exit /b %errorlevel%
 
+      - name: Build package (Windows, Disable Experimental APIs)
+        if: success() && runner.os == 'Windows' && inputs.CONFIG == 'experimental-off'
+        shell: cmd
+        run: |
+          echo on
+
+          cmake -B "source\_build" -S "source" -DBUILD_TESTS=ON -DENABLE_WARNING_AS_ERROR=ON ^
+          -DBUILD_DISPATCHER_ONEVPL_EXPERIMENTAL=OFF  -DBUILD_TOOLS_ONEVPL_EXPERIMENTAL=OFF
+
+          if %errorlevel% neq 0 exit /b %errorlevel%
+
+          cmake --build "source\_build" --verbose --config Release
+          if %errorlevel% neq 0 exit /b %errorlevel%
+
       - name: Build Docker image for building (Linux)
         if: success() && runner.os == 'Linux'
         run: >
@@ -110,6 +124,36 @@ jobs:
           chmod +x build.sh
 
           docker run --rm -v $(pwd):/tmp/work -w /tmp/work vpl_build:centos ./build.sh
+
+      - name: Build package (Linux, Disable Experimental APIs)
+        if: success() && runner.os == 'Linux' && inputs.CONFIG == 'experimental-off'
+        run: |
+          cat <<'EOL' > build.sh
+          #!/bin/bash
+          set -o errexit
+          cmake -B "source/_build" -S "source" \
+          -DBUILD_TESTS=ON \
+          -DCMAKE_BUILD_TYPE=Debug \
+          -DCMAKE_INSTALL_LIBDIR=lib \
+          -DENABLE_DRI3=ON \
+          -DENABLE_DRM=ON \
+          -DENABLE_VA=ON \
+          -DENABLE_WAYLAND=ON \
+          -DENABLE_X11=ON \
+          -DENABLE_WARNING_AS_ERROR=ON \
+          -DBUILD_DISPATCHER_ONEVPL_EXPERIMENTAL=OFF \
+          -DBUILD_TOOLS_ONEVPL_EXPERIMENTAL=OFF
+
+          cmake --build "source/_build" --verbose
+
+          pushd "source/_build"
+          cpack .
+          popd
+          EOL
+          chmod +x build.sh
+
+          docker run --rm -v $(pwd):/tmp/work -w /tmp/work vpl_build:centos ./build.sh
+
       - name: Run unit tests (Linux)
         if: success() && runner.os == 'Linux'
         run: >-

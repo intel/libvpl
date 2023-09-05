@@ -63,8 +63,9 @@ if(BUILD_TESTS)
   if(BUILD_TOOLS_ONEVPL_EXPERIMENTAL)
     target_compile_definitions(sample_multi_transcode_test
                                PRIVATE -DONEVPL_EXPERIMENTAL)
-    target_compile_definitions(sample_multi_transcode_test PRIVATE MFX_ONEVPL)
   endif()
+
+  target_compile_definitions(sample_multi_transcode_test PRIVATE MFX_ONEVPL)
 
   include(GoogleTest)
   gtest_discover_tests(sample_multi_transcode_test)

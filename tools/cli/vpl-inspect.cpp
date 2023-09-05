@@ -257,8 +257,11 @@ int main(int argc, char *argv[]) {
 
     bool bPrintImplementedFunctions = false;
     bool bFullInfo                  = true;
-    bool bPrintExtendedDeviceID     = false;
     bool bRequireD3D9               = false;
+
+#ifdef ONEVPL_EXPERIMENTAL
+    bool bPrintExtendedDeviceID = false;
+#endif
 
     for (int argIdx = 1; argIdx < argc; argIdx++) {
         std::string nextArg(argv[argIdx]);

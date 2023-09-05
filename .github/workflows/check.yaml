@@ -166,7 +166,7 @@ jobs:
       fail-fast: false
       matrix:
           os: [windows, linux]
-          config: [release, debug]
+          config: [release, debug, experimental-off]
     uses: ./.github/workflows/build.yaml
     secrets: inherit
     with:
