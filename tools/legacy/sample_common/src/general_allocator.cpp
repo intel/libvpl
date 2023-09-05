@@ -23,7 +23,11 @@
 
 // Wrapper on standard allocator for concurrent allocation of
 // D3D and system surfaces
-GeneralAllocator::GeneralAllocator() : m_Mids(), m_D3DAllocator(), m_SYSAllocator(){};
+GeneralAllocator::GeneralAllocator()
+        : m_MidsGuard(),
+          m_Mids(),
+          m_D3DAllocator(),
+          m_SYSAllocator(){};
 GeneralAllocator::~GeneralAllocator(){};
 mfxStatus GeneralAllocator::Init(mfxAllocatorParams* pParams) {
     mfxStatus sts = MFX_ERR_NONE;
@@ -136,10 +140,12 @@ mfxStatus GeneralAllocator::AllocImpl(mfxFrameAllocRequest* request,
     return sts;
 }
 void GeneralAllocator::StoreFrameMids(bool isD3DFrames, mfxFrameAllocResponse* response) {
+    std::lock_guard<std::mutex> midsGuard(m_MidsGuard);
     for (mfxU32 i = 0; i < response->NumFrameActual; i++)
         m_Mids.insert(std::pair<mfxHDL, bool>(response->mids[i], isD3DFrames));
 }
 bool GeneralAllocator::isD3DMid(mfxHDL mid) {
+    std::lock_guard<std::mutex> midsGuard(m_MidsGuard);
     std::map<mfxHDL, bool>::iterator it;
     it = m_Mids.find(mid);
     if (it == m_Mids.end())

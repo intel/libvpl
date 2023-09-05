@@ -42,6 +42,7 @@ protected:
     void StoreFrameMids(bool isD3DFrames, mfxFrameAllocResponse* response);
     bool isD3DMid(mfxHDL mid);
 
+    std::mutex m_MidsGuard;
     std::map<mfxHDL, bool> m_Mids;
     std::unique_ptr<BaseFrameAllocator> m_D3DAllocator;
     std::unique_ptr<SysMemFrameAllocator> m_SYSAllocator;
