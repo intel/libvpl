@@ -327,6 +327,7 @@ mfxStatus CDecodingPipeline::Init(sInputParams* pParams) {
         m_memType = pParams->memType;
     else {
         switch (pParams->mode) {
+            case MODE_FILE_DUMP:
             case MODE_PERFORMANCE:
 #if defined(_WIN32) || defined(_WIN64)
                 m_memType = pParams->bUseHWLib ? D3D11_MEMORY : SYSTEM_MEMORY;
@@ -335,10 +336,11 @@ mfxStatus CDecodingPipeline::Init(sInputParams* pParams) {
 #endif
                 break;
             case MODE_RENDERING:
-                m_memType = D3D9_MEMORY;
-                break;
-            case MODE_FILE_DUMP:
-                m_memType = SYSTEM_MEMORY;
+                m_memType =
+#if MFX_D3D11_SUPPORT
+                    D3D11_MEMORY;
+#endif
+                D3D9_MEMORY;
                 break;
             default:
                 assert(0);
