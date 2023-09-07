@@ -7,7 +7,7 @@
 #ifndef __MFX_MULTI_VPP_H
 #define __MFX_MULTI_VPP_H
 
-#include "mfxvideo++.h"
+#include "vpl/mfxvideo++.h"
 // An interface for a pipeline consisting of multiple (maximum 3) VPP-like components. Base implementation - for single VPP.
 // The application should use this interface to be able to seamlessly switch from MFXVideoVPP to MFXVideoVPPPlugin in the pipeline.
 

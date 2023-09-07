@@ -12,7 +12,8 @@ endif()
 add_subdirectory(system_analyzer)
 
 add_executable(vpl-inspect vpl-inspect.cpp)
-target_link_libraries(vpl-inspect VPL)
+find_package(VPL REQUIRED)
+target_link_libraries(vpl-inspect PUBLIC VPL::dispatcher)
 target_include_directories(vpl-inspect PRIVATE ${ONEVPL_API_HEADER_DIRECTORY})
 
 if(BUILD_TOOLS_ONEVPL_EXPERIMENTAL)

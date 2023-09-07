@@ -9,7 +9,7 @@
 
 #include "vpl/mfxdefs.h"
 #if defined(_WIN32) || defined(_WIN64)
-    #include "mfxadapter.h"
+    #include "vpl/mfxadapter.h"
 #endif
 
 #include "pipeline_transcode.h"
