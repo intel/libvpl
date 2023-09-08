@@ -291,6 +291,7 @@ TEST(Transcode_CLI, TrivialSessionOptions) {
     EXPECT_EQ(result.parsed[0].nQPP, 0);
     EXPECT_EQ(result.parsed[0].nQPB, 0);
     EXPECT_EQ(result.parsed[0].bDisableQPOffset, false);
+    EXPECT_EQ(result.parsed[0].bSetQPOffset, false);
     EXPECT_EQ(result.parsed[0].nMinQPI, 0);
     EXPECT_EQ(result.parsed[0].nMaxQPI, 0);
     EXPECT_EQ(result.parsed[0].nMinQPP, 0);

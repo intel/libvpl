@@ -545,6 +545,8 @@ void PrintHelp() {
     HELP_LINE("");
     HELP_LINE("  -DisableQPOffset");
     HELP_LINE("                Disable QP adjustment for GOP pyramid-level frames");
+    HELP_LINE("  -QPOffset \"Level1Offset Level2Offset ... Level8Offset\"");
+    HELP_LINE("                QP adjustment offset for GOP pyramid-level [1-8]");
     HELP_LINE("");
     HELP_LINE("  -MinQPI <QP>  min QP for I frames. In range [1,51]. 0 by default i.e. no limits");
     HELP_LINE("");
@@ -1983,6 +1985,39 @@ mfxStatus ParseAdditionalParams(char* argv[],
             PrintError("-ContentInfo option is invalid");
             return MFX_ERR_UNSUPPORTED;
         }
+    }
+    else if (msdk_match(argv[i], "-QPOffset")) {
+        InputParams.bSetQPOffset = true;
+        VAL_CHECK(i + 1 >= argc, i, argv[i]);
+        mfxU16 arr[8] = {};
+        int j;
+        size_t k;
+
+        std::vector<std::string> args;
+        k = split(argv[i + 1], args);
+        if (k != 8) {
+            PrintError("Invalid number of QP Offsets, %d", k);
+            return MFX_ERR_UNSUPPORTED;
+        }
+
+        for (int j = 0; j < 8; j++) {
+            try {
+                arr[j] = (mfxU16)std::stoul(args[j]);
+            }
+            catch (const std::invalid_argument&) {
+                printf("QP Offset setting invalid.\n");
+                return MFX_ERR_UNSUPPORTED;
+            }
+            catch (const std::out_of_range&) {
+                printf("QP Offset setting out of bounds.\n");
+                return MFX_ERR_UNSUPPORTED;
+            }
+        }
+
+        for (j = 0; j < 8; j++) {
+            InputParams.QPOffset[j] = arr[j];
+        }
+        i += 1;
     }
     else {
         // no matching argument was found

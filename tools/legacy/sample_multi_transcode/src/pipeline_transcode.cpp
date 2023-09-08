@@ -3071,6 +3071,13 @@ mfxStatus CTranscodingPipeline::InitEncMfxParams(sInputParams* pInParams) {
         auto co3            = m_mfxEncParams.AddExtBuffer<mfxExtCodingOption3>();
         co3->EnableQPOffset = MFX_CODINGOPTION_OFF;
     }
+    else if (pInParams->bSetQPOffset) {
+        auto co3            = m_mfxEncParams.AddExtBuffer<mfxExtCodingOption3>();
+        co3->EnableQPOffset = MFX_CODINGOPTION_ON;
+        for (int i = 0; i < 8; i++) {
+            co3->QPOffset[i] = pInParams->QPOffset[i];
+        }
+    }
 
     if (pInParams->bIsMVC)
         m_mfxEncParams.AddExtBuffer<mfxExtMVCSeqDesc>();

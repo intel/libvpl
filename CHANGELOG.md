@@ -14,6 +14,8 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 - Fix NV12 wayland render for MTL
 
 ### Added
+- New command line parameters to sample_multi_transcode for setting
+  B Frame QP Offsets based on Pyramid Level.
 - New command line parameters to the sample_vpp tool to enable video signal
   information.
 

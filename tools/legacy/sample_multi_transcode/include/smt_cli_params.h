@@ -281,6 +281,8 @@ typedef struct sInputParams {
     mfxU16 nQPP;
     mfxU16 nQPB;
     bool bDisableQPOffset;
+    bool bSetQPOffset;
+    mfxU16 QPOffset[8];
     mfxU8 nMinQPI;
     mfxU8 nMaxQPI;
     mfxU8 nMinQPP;
@@ -535,6 +537,8 @@ typedef struct sInputParams {
               nQPP(0),
               nQPB(0),
               bDisableQPOffset(false),
+              bSetQPOffset(false),
+              QPOffset{ 0 },
               nMinQPI(0),
               nMaxQPI(0),
               nMinQPP(0),
