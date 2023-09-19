@@ -509,17 +509,21 @@ void Wayland::AddBufferToList(wld_buffer* buffer) {
 }
 
 void Wayland::RemoveBufferFromList(struct wl_buffer* buffer) {
-    wld_buffer* m_buffer = NULL;
-    m_buffer             = m_buffers_list.front();
-    if (NULL != m_buffer && (m_buffer->buffer == buffer)) {
-        if (m_buffer->pInSurface) {
-            msdkFrameSurface* surface = FindUsedSurface(m_buffer->pInSurface);
-            msdk_atomic_dec16(&(surface->render_lock));
+    if (buffer == NULL)
+        return;
+
+    for (auto m_buffer : m_buffers_list) {
+        if (m_buffer->buffer == buffer) {
+            if (m_buffer->pInSurface) {
+                msdkFrameSurface* surface = FindUsedSurface(m_buffer->pInSurface);
+                msdk_atomic_dec16(&(surface->render_lock));
+            }
+            m_buffer->buffer     = NULL;
+            m_buffer->pInSurface = NULL;
+            m_buffers_list.remove(m_buffer);
+            delete m_buffer;
+            break;
         }
-        m_buffer->buffer     = NULL;
-        m_buffer->pInSurface = NULL;
-        m_buffers_list.pop_front();
-        delete m_buffer;
     }
 }
 
