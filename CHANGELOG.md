@@ -10,6 +10,9 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 
 ## [Unreleased]
 
+### Added
+- oneVPL specification and associated build scripts
+
 ## [2023.4.0] - 2023-12-01
 
 ### Added

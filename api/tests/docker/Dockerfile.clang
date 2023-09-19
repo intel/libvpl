@@ -1,0 +1,22 @@
+FROM ubuntu:20.04
+
+ARG CLANG_VER=12
+
+RUN apt-get update \
+ && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    clang-${CLANG_VER} \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
+
+RUN clang-${CLANG_VER} -v
+
+RUN apt-get update \
+ && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    python3-pip \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
+
+RUN pip3 install --no-cache-dir clang libclang
+
+WORKDIR /data
+VOLUME ["/data"]

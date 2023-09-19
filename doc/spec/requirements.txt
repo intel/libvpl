@@ -1,0 +1,25 @@
+# SPDX-FileCopyrightText: 2019-2020 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+
+# This is the minimal set of components required and using the latest
+#  versions
+
+breathe
+pre-commit
+sphinx==6.1.3
+# waiting for pypi release for fix for parallel read
+git+https://github.com/readthedocs/sphinx-notfound-page.git
+# Waiting for release of: https://github.com/executablebooks/sphinx-book-theme/commit/0bdacc0a5e0a01ca5b4476651d1a80821b9b5d67
+git+https://github.com/executablebooks/sphinx-book-theme.git@v1.0.1
+docutils==0.19
+sphinx-prompt==1.6.0
+sphinx_substitution_extensions
+sphinx_tabs
+sphinxcontrib-spelling
+sphinxcontrib-svg2pdfconverter
+sphinxmark
+graphviz
+lxml
+sphinxcontrib.plantuml
+

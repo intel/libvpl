@@ -1,0 +1,455 @@
+name: Specification
+
+on:
+  pull_request:
+    # Run on pull requests
+    # TO DO: add filter to trigger only when spec files have changed
+  workflow_dispatch:
+    # Run on user request
+
+jobs:
+  linux_check_structure_pack:
+    name: Linux Check Structure Pack
+    runs-on: [self-hosted, linux]
+    steps: 
+      - name: Cleanup workspace (Linux)
+        if: always() && runner.os == 'Linux'
+        run: sudo rm -rf ..?* .[!.]* *
+      - name: Checkout source
+        uses: actions/checkout@v2
+      - name: Run check
+        run: python3 ./api/tests/abi/check_pack.py -i ./api/vpl
+
+  linux_missed_tests:
+    name: Linux Missed tests
+    runs-on: [self-hosted, linux]
+    steps:
+      - name: Cleanup workspace (Linux)
+        if: always() && runner.os == 'Linux'
+        run: sudo rm -rf ..?* .[!.]* *
+      - name: Checkout source
+        uses: actions/checkout@v2
+      - name: Docker build 
+        run: >
+          docker build -f ./api/tests/docker/Dockerfile.clang 
+          --build-arg http_proxy=$http_proxy 
+          --build-arg https_proxy=$https_proxy 
+          -t clang_img .
+      - name: Docker run
+        run: >
+          docker run --rm 
+          -e http_proxy=$http_proxy 
+          -e https_proxy=$https_proxy 
+          --volume=$(pwd):/data 
+          --user $(id -u):$(id -g)
+          clang_img python3 api/tests/abi/check_missing_structs.py 
+          -i api/vpl 
+          -t api/tests/abi/mfx_static_assert_structs.cpp
+
+  linux_compile_c:
+    name: Linux Compile C
+    runs-on: [self-hosted, linux]
+    steps:
+      - name: Cleanup workspace (Linux)
+        if: always() && runner.os == 'Linux'
+        run: sudo rm -rf ..?* .[!.]* *
+      - name: Checkout source
+        uses: actions/checkout@v2
+      - name: Run ls
+        run: ls
+      - name: Docker build
+        run: >
+          docker build -f ./api/tests/docker/Dockerfile.gcc 
+          --build-arg http_proxy=$http_proxy 
+          --build-arg https_proxy=$https_proxy 
+          -t gcc_img .
+      - name: Docker run
+        run: >
+          docker run --rm 
+          -e http_proxy=$http_proxy 
+          -e https_proxy=$https_proxy 
+          --volume=$(pwd):/data 
+          --user $(id -u):$(id -g)
+          gcc_img gcc -I./api/vpl ./api/tests/compile_headers/test.c
+
+  linux_compile_c_exp:
+    name: Linux Compile C Experimental
+    runs-on: [self-hosted, linux]
+    steps:
+      - name: Cleanup workspace (Linux)
+        if: always() && runner.os == 'Linux'
+        run: sudo rm -rf ..?* .[!.]* *
+      - name: Checkout source
+        uses: actions/checkout@v2
+      - name: Run ls
+        run: ls
+      - name: Docker build
+        run: >
+          docker build -f ./api/tests/docker/Dockerfile.gcc 
+          --build-arg http_proxy=$http_proxy 
+          --build-arg https_proxy=$https_proxy 
+          -t gcc_img .
+      - name: Docker run
+        run: >
+          docker run --rm 
+          -e http_proxy=$http_proxy 
+          -e https_proxy=$https_proxy 
+          --volume=$(pwd):/data 
+          --user $(id -u):$(id -g)
+          gcc_img gcc -I./api/vpl -DONEVPL_EXPERIMENTAL ./api/tests/compile_headers/test.c -o ./api/tests/abi/abi_test
+
+  linux_compile_cpp:
+    name: Linux Compile C++
+    runs-on: [self-hosted, linux]
+    steps:
+      - name: Cleanup workspace (Linux)
+        if: always() && runner.os == 'Linux'
+        run: sudo rm -rf ..?* .[!.]* *
+      - name: Checkout source
+        uses: actions/checkout@v2
+      - name: Run ls
+        run: ls
+      - name: Docker build
+        run: >
+          docker build -f ./api/tests/docker/Dockerfile.gcc 
+          --build-arg http_proxy=$http_proxy 
+          --build-arg https_proxy=$https_proxy 
+          -t gcc_img .
+      - name: Docker run
+        run: >
+          docker run --rm 
+          -e http_proxy=$http_proxy 
+          -e https_proxy=$https_proxy 
+          --volume=$(pwd):/data 
+          --user $(id -u):$(id -g)
+          gcc_img gcc -I./api/vpl ./api/tests/compile_headers/test.cpp
+
+  linux_compile_cpp_exp:
+    name: Linux Compile C++ Experimental
+    runs-on: [self-hosted, linux]
+    steps:
+      - name: Cleanup workspace (Linux)
+        if: always() && runner.os == 'Linux'
+        run: sudo rm -rf ..?* .[!.]* *
+      - name: Checkout source
+        uses: actions/checkout@v2
+      - name: Run ls
+        run: ls
+      - name: Docker build
+        run: >
+          docker build -f ./api/tests/docker/Dockerfile.gcc 
+          --build-arg http_proxy=$http_proxy 
+          --build-arg https_proxy=$https_proxy 
+          -t gcc_img .
+      - name: Docker run
+        run: >
+          docker run --rm 
+          -e http_proxy=$http_proxy 
+          -e https_proxy=$https_proxy 
+          --volume=$(pwd):/data 
+          --user $(id -u):$(id -g) 
+          gcc_img gcc -I./api/vpl -DONEVPL_EXPERIMENTAL ./api/tests/compile_headers/test.cpp
+
+  linux_compile_abi_64:
+    name: Linux Static Assert Test
+    runs-on: [self-hosted, linux]
+    steps:
+      - name: Cleanup workspace (Linux)
+        if: always() && runner.os == 'Linux'
+        run: sudo rm -rf ..?* .[!.]* *
+      - name: Checkout source
+        uses: actions/checkout@v2
+      - name: Docker build
+        run: >
+          docker build -f ./api/tests/docker/Dockerfile.gcc 
+          --build-arg http_proxy=$http_proxy 
+          --build-arg https_proxy=$https_proxy 
+          -t gcc_img .
+      - name: Docker run
+        run: >
+          docker run --rm 
+          -e http_proxy=$http_proxy 
+          -e https_proxy=$https_proxy 
+          --volume=$(pwd):/data 
+          --user $(id -u):$(id -g)
+          gcc_img gcc -D _x86_64 -m64 -I./api/vpl ./api/tests/abi/mfx_static_assert_structs.cpp
+      - name: Execute
+        run: ./a.out
+
+  linux_compile_abi_64_exp:
+    name: Linux Static Assert Test Experimental
+    runs-on: [self-hosted, linux]
+    steps:
+      - name: Cleanup workspace (Linux)
+        if: always() && runner.os == 'Linux'
+        run: sudo rm -rf ..?* .[!.]* *
+      - name: Checkout source
+        uses: actions/checkout@v2
+      - name: Docker build
+        run: >
+          docker build -f ./api/tests/docker/Dockerfile.gcc 
+          --build-arg http_proxy=$http_proxy 
+          --build-arg https_proxy=$https_proxy 
+          -t gcc_img .
+      - name: Docker run
+        run: >
+          docker run --rm 
+          -e http_proxy=$http_proxy 
+          -e https_proxy=$https_proxy 
+          --volume=$(pwd):/data 
+          --user $(id -u):$(id -g)
+          gcc_img gcc -D _x86_64 -m64 -I./api/vpl -DONEVPL_EXPERIMENTAL ./api/tests/abi/mfx_static_assert_structs.cpp
+      - name: Execute
+        run: ./a.out
+
+  linux_compile_snippets_c:
+    name: Linux Compile Snippets C
+    runs-on: [self-hosted, linux]
+    steps:
+      - name: Cleanup workspace (Linux)
+        if: always() && runner.os == 'Linux'
+        run: sudo rm -rf ..?* .[!.]* *
+      - name: Checkout source
+        uses: actions/checkout@v2
+      - name: Docker build
+        run: >
+          docker build -f ./api/tests/docker/Dockerfile.gcc 
+          --build-arg http_proxy=$http_proxy 
+          --build-arg https_proxy=$https_proxy 
+          -t gcc_img .
+      - name: Docker run
+        run: >
+          docker run --rm 
+          -e http_proxy=$http_proxy 
+          -e https_proxy=$https_proxy 
+          --volume=$(pwd):/data 
+          --user $(id -u):$(id -g)
+          gcc_img gcc -Wall  -Wextra -Wno-unused-function -Werror -I./api/vpl -DONEVPL_EXPERIMENTAL
+          ./api/tests/doc_examples/dummy_impl.c 
+          ./doc/spec/source/snippets/appnd_b.c ./doc/spec/source/snippets/prg_decoding.c 
+          ./doc/spec/source/snippets/prg_encoding.c ./doc/spec/source/snippets/prg_err.c 
+          ./doc/spec/source/snippets/prg_mem.c ./doc/spec/source/snippets/prg_transcoding.c 
+          ./doc/spec/source/snippets/prg_vpp.c ./doc/spec/source/snippets/appnd_e.c 
+          ./api/tests/doc_examples/main.c
+          ./doc/spec/source/snippets/prg_decoding_vpp.c
+          ./doc/spec/source/snippets/prg_disp.c
+          -ldl -lva -lva-drm
+
+  linux_compile_snippets_cpp:
+    name: Linux Compile Snippets C++
+    runs-on: [self-hosted, linux]
+    steps:
+      - name: Cleanup workspace (Linux)
+        if: always() && runner.os == 'Linux'
+        run: sudo rm -rf ..?* .[!.]* *
+      - name: Checkout source
+        uses: actions/checkout@v2
+      - name: Docker build
+        run: >
+          docker build -f ./api/tests/docker/Dockerfile.gcc 
+          --build-arg http_proxy=$http_proxy 
+          --build-arg https_proxy=$https_proxy 
+          -t gcc_img .
+      - name: Docker run
+        run: >
+          docker run --rm 
+          -e http_proxy=$http_proxy 
+          -e https_proxy=$https_proxy 
+          --volume=$(pwd):/data 
+          --user $(id -u):$(id -g)
+          gcc_img g++ -Wall -Wextra -Wno-unused-function -Werror -I./api/vpl -DONEVPL_EXPERIMENTAL -DMFX_DEPRECATED_OFF
+          ./api/tests/doc_examples/dummy_impl.c 
+          ./doc/spec/source/snippets/prg_hw.cpp ./doc/spec/source/snippets/prg_session.cpp
+          ./doc/spec/source/snippets/prg_surface_sharing.cpp 
+          ./doc/spec/source/snippets/prg_config.cpp
+          ./api/tests/doc_examples/main.c
+  
+  windows_compile_c:
+    name: Windows Compile C
+    runs-on: [self-hosted, windows]
+    steps:
+      - name: Cleanup workspace (Windows)
+        if: always() && runner.os == 'Windows'
+        run: Remove-Item -Recurse -Force .\*
+      - name: Checkout source code
+        uses: actions/checkout@v1
+      - name: Setup VisualStudio build enviroment
+        uses: intel-innersource/frameworks.actions.thirdparty.msvc-dev-cmd@v1
+      - name: Build with VisualStudio
+        run: >
+          cl.exe /EHsc /I .\api\vpl 
+          /D ONEVPL_EXPERIMENTAL 
+          .\api\tests\compile_headers\test.c
+          
+  windows_compile_cpp:
+    name: Windows Compile CPP
+    runs-on: [self-hosted, windows]
+    steps:
+      - name: Cleanup workspace (Windows)
+        if: always() && runner.os == 'Windows'
+        run: Remove-Item -Recurse -Force .\*
+      - name: Checkout source code
+        uses: actions/checkout@v1
+      - name: Setup VisualStudio build enviroment
+        uses: intel-innersource/frameworks.actions.thirdparty.msvc-dev-cmd@v1
+      - name: Build with VisualStudio
+        run: >
+          cl.exe /EHsc /I .\api\vpl 
+          /D ONEVPL_EXPERIMENTAL 
+          .\api\tests\compile_headers\test.cpp
+
+  windows_compile_abi_64:
+    name: Windows Static Assert Test (64-bit)
+    runs-on: [self-hosted, windows]
+    steps:
+      - name: Cleanup workspace (Windows)
+        if: always() && runner.os == 'Windows'
+        run: Remove-Item -Recurse -Force .\*
+      - name: Checkout source code
+        uses: actions/checkout@v1
+      - name: Setup VisualStudio build enviroment
+        uses: intel-innersource/frameworks.actions.thirdparty.msvc-dev-cmd@v1
+      - name: Build with experimental (x64)
+        run: >
+          cl.exe /EHsc /I .\api\vpl 
+          /D ONEVPL_EXPERIMENTAL /D _x86_64 
+          .\api\tests\abi\mfx_static_assert_structs.cpp
+      - name: Execute
+        run: .\mfx_static_assert_structs.exe
+      - name: Build without experimental (x64)
+        run: >
+          cl.exe /EHsc /I .\api\vpl 
+          /D _x86_64 
+          .\api\tests\abi\mfx_static_assert_structs.cpp
+      - name: Execute
+        run: .\mfx_static_assert_structs.exe
+
+  windows_compile_abi_32:
+    name: Windows Static Assert Test (32-bit)
+    runs-on: [self-hosted, windows]
+    steps:
+      - name: Cleanup workspace (Windows)
+        if: always() && runner.os == 'Windows'
+        run: Remove-Item -Recurse -Force .\*
+      - name: Checkout source code
+        uses: actions/checkout@v1
+      - name: Setup VisualStudio build enviroment
+        uses: intel-innersource/frameworks.actions.thirdparty.msvc-dev-cmd@v1
+        with:
+          arch: x86
+      - name: Build with experimental (x86)
+        run: >
+          cl.exe /EHsc /I .\api\vpl /D _x86 
+          /D ONEVPL_EXPERIMENTAL 
+          .\api\tests\abi\mfx_static_assert_structs.cpp
+      - name: Execute
+        run: .\mfx_static_assert_structs.exe
+      - name: Build without experimental (x86)
+        run: >
+          cl.exe /EHsc /I .\api\vpl /D _x86 
+          .\api\tests\abi\mfx_static_assert_structs.cpp
+      - name: Execute
+        run: .\mfx_static_assert_structs.exe
+    
+  required_checks:
+    name: Verify Required Checks
+    needs:
+      - linux_check_structure_pack
+      - linux_missed_tests
+      - linux_compile_c
+      - linux_compile_c_exp
+      - linux_compile_cpp
+      - linux_compile_cpp_exp
+      - linux_compile_abi_64
+      - linux_compile_abi_64_exp
+      - linux_compile_snippets_c
+      - linux_compile_snippets_cpp
+      - windows_compile_abi_64
+      - windows_compile_abi_32
+      - windows_compile_c
+      - windows_compile_cpp
+    runs-on: [self-hosted]
+    steps:
+      - name: Required Checks
+        run: echo Done
+
+  html:
+    name: HTML
+    needs:
+      - required_checks
+    runs-on: [self-hosted, linux]
+    steps:
+      - name: Cleanup workspace (Linux)
+        if: always() && runner.os == 'Linux'
+        run: sudo rm -rf ..?* .[!.]* *
+      - name: Checkout source
+        uses: actions/checkout@v2
+      - name: Docker build
+        run: python3 ./doc/spec/build-spec.py dockerbuild
+      - name: Build spec - HTML
+        run: >
+          docker run --rm 
+          -e http_proxy=$http_proxy 
+          -e https_proxy=$https_proxy 
+          --volume=$(pwd):/build 
+          --workdir=/build 
+          --user $(id -u):$(id -g)
+          vpl-spec 
+          python3 ./doc/spec/build-spec.py -W html ./doc/spec
+      - name: Archive HTML
+        uses: actions/upload-artifact@v2
+        with:
+          name: HTML
+          path: ./doc/spec/build/html/
+          retention-days: 28
+
+  pdf:
+    name: PDF
+    needs:
+      - required_checks
+    runs-on: [self-hosted, linux]
+    steps:
+      - name: Cleanup workspace (Linux)
+        if: always() && runner.os == 'Linux'
+        run: sudo rm -rf ..?* .[!.]* *
+      - name: Checkout source
+        uses: actions/checkout@v2
+      - name: Docker build
+        run: python3 ./doc/spec/build-spec.py dockerbuild
+      - name: Build spec - PDF
+        run: >
+          docker run --rm 
+          -e http_proxy=$http_proxy 
+          -e https_proxy=$https_proxy 
+          --volume=$(pwd):/build 
+          --workdir=/build 
+          --user $(id -u):$(id -g)
+          vpl-spec 
+          python3 ./doc/spec/build-spec.py -W latexpdf ./doc/spec
+      - name: Archive pdf
+        uses: actions/upload-artifact@v2
+        with:
+          name: pdf
+          path: ./doc/spec/build/latex/
+          retention-days: 28
+
+  pages:
+    name: Deploy HTML
+    needs:
+      - html
+      - pdf
+    if: github.ref == 'refs/heads/main'
+    runs-on: [self-hosted, linux]
+    steps:
+      - name: Download HTML
+        uses: actions/download-artifact@v2
+        with:
+          name: HTML
+          path: ./html_files
+      - name: Move html files to public
+        run: mv ./html_files ./public
+      - name: Deploy
+        uses: intel-innersource/frameworks.actions.thirdparty.actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public

@@ -4,7 +4,7 @@ Intel® oneAPI Video Processing Library (oneVPL) supports AI visual inference, m
 cloud gaming, and virtual desktop infrastructure use cases by providing access to hardware 
 accelerated video decode, encode, and frame processing capabilities on Intel® GPUs.  
 
-See the [oneVPL Specification](https://spec.oneapi.io/versions/latest/elements/oneVPL/source/index.html) for additional information. This is part of the [oneAPI specification](https://www.oneapi.io/spec/).
+See the [oneVPL Specification](https://intel.github.io/libvpl) for additional information.
 
 This repository contains the following components:
 
