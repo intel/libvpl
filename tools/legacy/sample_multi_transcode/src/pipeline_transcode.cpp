@@ -1131,9 +1131,6 @@ mfxStatus CTranscodingPipeline::Decode() {
     bool bLastCycle                  = false;
     time_t start                     = time(0);
 
-    if (m_MaxFramesForEncode > 0 && m_MaxFramesForEncode < m_MaxFramesForTranscode)
-        m_MaxFramesForTranscode = m_MaxFramesForEncode; // don't need to decode all frames
-
     sts = CheckStopCondition();
     if (sts != MFX_ERR_NONE)
         return sts;
