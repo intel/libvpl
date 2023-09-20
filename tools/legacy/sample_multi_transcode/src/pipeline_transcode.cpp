@@ -1131,6 +1131,10 @@ mfxStatus CTranscodingPipeline::Decode() {
     bool bLastCycle                  = false;
     time_t start                     = time(0);
 
+    if (!m_ExactNframe && m_MaxFramesForEncode > 0 &&
+        m_MaxFramesForEncode < m_MaxFramesForTranscode)
+        m_MaxFramesForTranscode = m_MaxFramesForEncode; // don't need to decode all frames
+
     sts = CheckStopCondition();
     if (sts != MFX_ERR_NONE)
         return sts;
@@ -4126,6 +4130,7 @@ mfxStatus CTranscodingPipeline::Init(sInputParams* pParams,
     TargetID       = pParams->TargetID;
 
     m_MaxFramesForTranscode = pParams->MaxFrameNumber;
+    m_ExactNframe           = pParams->ExactNframe;
     m_Prolonged             = pParams->prolonged;
     // if no number of frames for a particular session is undefined, default
     // value is 0xFFFFFFFF. Thus, use it as a marker to assign parent

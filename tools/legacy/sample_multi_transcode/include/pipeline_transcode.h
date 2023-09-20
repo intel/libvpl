@@ -684,6 +684,7 @@ protected:
     mfxU32 m_MaxFramesForTranscode;
     mfxU32 m_MaxFramesForEncode;
 
+    mfxU16 m_ExactNframe;
     mfxU16 m_Prolonged;
 
     // pointer to already extended bs processor

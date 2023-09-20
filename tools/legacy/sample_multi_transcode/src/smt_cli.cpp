@@ -326,6 +326,11 @@ void PrintHelp() {
     HELP_LINE("                In encoding sessions (-o::source) and transcoding sessions");
     HELP_LINE("                this parameter limits number of frames sent to encoder.");
     HELP_LINE("");
+    HELP_LINE("  -exactNframe <0|1>");
+    HELP_LINE("                0 - default");
+    HELP_LINE("                1 - Generate exact number of encode frame during transcode,");
+    HELP_LINE("                    use together with -n option");
+    HELP_LINE("");
     HELP_LINE("  -MemType::video");
     HELP_LINE("                Force usage of external video allocator (default)");
     HELP_LINE("");
@@ -2018,6 +2023,14 @@ mfxStatus ParseAdditionalParams(char* argv[],
             InputParams.QPOffset[j] = arr[j];
         }
         i += 1;
+    }
+    else if (msdk_match(argv[i], "-exactNframe")) {
+        VAL_CHECK(i + 1 == argc, i, argv[i]);
+        i++;
+        if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.ExactNframe)) {
+            PrintError("-exactNframe %s is invalid", argv[i]);
+            return MFX_ERR_UNSUPPORTED;
+        }
     }
     else {
         // no matching argument was found
