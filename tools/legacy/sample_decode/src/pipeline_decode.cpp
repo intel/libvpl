@@ -1136,6 +1136,10 @@ mfxStatus CDecodingPipeline::CreateHWDevice() {
     defined(LIBVA_ANDROID_SUPPORT) || defined(LIBVA_WAYLAND_SUPPORT)
     mfxStatus sts = MFX_ERR_NONE;
 
+    if (m_strDevicePath.empty()) {
+        m_strDevicePath = "/dev/dri/renderD" + std::to_string(m_pLoader->GetDRMRenderNodeNumUsed());
+    }
+
     m_hwdev = CreateVAAPIDevice(m_strDevicePath, m_libvaBackend);
 
     if (NULL == m_hwdev) {

@@ -958,6 +958,9 @@ mfxStatus CEncodingPipeline::CreateHWDevice() {
     MSDK_CHECK_STATUS(sts, "m_hwdev->Init failed");
 
 #elif LIBVA_SUPPORT
+    if (m_strDevicePath.empty()) {
+        m_strDevicePath = "/dev/dri/renderD" + std::to_string(m_pLoader->GetDRMRenderNodeNumUsed());
+    }
 
     m_hwdev = CreateVAAPIDevice(m_strDevicePath);
 
