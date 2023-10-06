@@ -704,6 +704,14 @@ mfxStatus InitMemoryAllocator(sFrameProcessor* pProcessor,
         }
         else if ((pInParams->ImpLib & IMPL_VIA_MASK) == MFX_IMPL_VIA_VAAPI) {
 #ifdef LIBVA_SUPPORT
+    #ifdef ONEVPL_EXPERIMENTAL
+            if (pInParams->strDevicePath.empty() && pInParams->verSessionInit == API_2X) {
+                pInParams->strDevicePath =
+                    "/dev/dri/renderD" +
+                    std::to_string(pProcessor->pLoader->GetDRMRenderNodeNumUsed());
+            }
+    #endif
+
             pAllocator->pDevice = CreateVAAPIDevice(pInParams->strDevicePath);
             MSDK_CHECK_POINTER(pAllocator->pDevice, MFX_ERR_NULL_PTR);
 
@@ -742,6 +750,14 @@ mfxStatus InitMemoryAllocator(sFrameProcessor* pProcessor,
         pProcessor->mfxSession.QueryIMPL(&impl);
 
         if (MFX_IMPL_HARDWARE == MFX_IMPL_BASETYPE(impl)) {
+    #ifdef ONEVPL_EXPERIMENTAL
+            if (pInParams->strDevicePath.empty() && pInParams->verSessionInit == API_2X) {
+                pInParams->strDevicePath =
+                    "/dev/dri/renderD" +
+                    std::to_string(pProcessor->pLoader->GetDRMRenderNodeNumUsed());
+            }
+    #endif
+
             pAllocator->pDevice = CreateVAAPIDevice(pInParams->strDevicePath);
             if (!pAllocator->pDevice)
                 sts = MFX_ERR_MEMORY_ALLOC;

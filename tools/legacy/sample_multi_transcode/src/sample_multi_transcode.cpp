@@ -352,6 +352,14 @@ mfxStatus Launcher::Init(int argc, char* argv[]) {
                     libvaBackend         = params.libvaBackend;
 
                     /* Rendering case */
+    #ifdef ONEVPL_EXPERIMENTAL
+                    if (InputParams.strDevicePath.empty() && InputParams.verSessionInit == API_2X) {
+                        InputParams.strDevicePath =
+                            "/dev/dri/renderD" +
+                            std::to_string(m_pLoader->GetDRMRenderNodeNumUsed());
+                    }
+    #endif
+
                     hwdev.reset(CreateVAAPIDevice(InputParams.strDevicePath, params.libvaBackend));
                     if (!hwdev.get()) {
                         printf("error: failed to initialize VAAPI device\n");
@@ -405,6 +413,15 @@ mfxStatus Launcher::Init(int argc, char* argv[]) {
                 }
                 else /* NO RENDERING*/
                 {
+    #ifdef ONEVPL_EXPERIMENTAL
+                    if (m_InputParamsArray[i].strDevicePath.empty() &&
+                        m_InputParamsArray[i].verSessionInit == API_2X) {
+                        m_InputParamsArray[i].strDevicePath =
+                            "/dev/dri/renderD" +
+                            std::to_string(m_pLoader->GetDRMRenderNodeNumUsed());
+                    }
+    #endif
+
                     hwdev.reset(CreateVAAPIDevice(m_InputParamsArray[i].strDevicePath));
 
                     if (!hwdev.get()) {
