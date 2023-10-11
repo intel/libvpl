@@ -159,11 +159,15 @@ int main(int argc, char *argv[]) {
                 // MFX_ERR_NONE and syncp indicate output is available
                 if (syncp) {
                     // Encode output is not available on CPU until sync operation completes
-                    sts = MFXVideoCORE_SyncOperation(session, syncp, WAIT_100_MILLISECONDS);
-                    VERIFY(MFX_ERR_NONE == sts, "MFXVideoCORE_SyncOperation error");
+                    do {
+                        sts = MFXVideoCORE_SyncOperation(session, syncp, WAIT_100_MILLISECONDS);
+                        if (MFX_ERR_NONE == sts) {
+                            WriteEncodedStream(bitstream, sink);
+                            framenum++;
+                        }
+                    } while (sts == MFX_WRN_IN_EXECUTION);
 
-                    WriteEncodedStream(bitstream, sink);
-                    framenum++;
+                    VERIFY(MFX_ERR_NONE == sts, "MFXVideoCORE_SyncOperation error");
                 }
                 break;
             case MFX_ERR_NOT_ENOUGH_BUFFER:
