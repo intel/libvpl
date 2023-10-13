@@ -935,6 +935,7 @@ CmdProcessor::CmdProcessor()
           statisticsLogFile(nullptr),
           DumpLogFileName(),
           m_nTimeout(0),
+          m_surface_wait_interval(MSDK_SURFACE_WAIT_INTERVAL),
           bRobustFlag(false),
           bSoftRobustFlag(false),
           shouldUseGreedyFormula(false),
@@ -968,6 +969,17 @@ mfxStatus CmdProcessor::ParseCmdLine(int argc, char* argv[]) {
                 printf("error: no argument given for '-par' option\n");
             }
             parameter_file_name = std::string(argv[0]);
+        }
+        else if (msdk_match(argv[0], "-surface_wait_interval")) {
+            --argc;
+            ++argv;
+            if (!argv[0]) {
+                printf("error: no argument given for '-surface_wait_interval'\n");
+            }
+            if (MFX_ERR_NONE != msdk_opt_read(argv[0], m_surface_wait_interval)) {
+                printf("error: -surface_wait_interval \"%s\" is invalid", argv[0]);
+                return MFX_ERR_UNSUPPORTED;
+            }
         }
         else if (msdk_match(argv[0], "-timeout")) {
             --argc;

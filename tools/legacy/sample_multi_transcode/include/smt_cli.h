@@ -61,6 +61,10 @@ public:
         return session_descriptions;
     };
 
+    mfxU32 GetParameterSurfaceWaitInterval() {
+        return m_surface_wait_interval;
+    };
+
 protected:
     mfxStatus ParseParFile(const std::string& filename);
     mfxStatus TokenizeLine(const std::string& line);
@@ -84,6 +88,7 @@ protected:
     //store a name of a Logfile
     std::string DumpLogFileName;
     mfxU32 m_nTimeout;
+    mfxU32 m_surface_wait_interval;
     bool bRobustFlag;
     bool bSoftRobustFlag;
     bool shouldUseGreedyFormula;

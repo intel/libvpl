@@ -431,6 +431,10 @@ public:
     void SetAdapterNum(mfxU32 adapterNum = 0) {
         m_adapterNum = adapterNum;
     };
+    void SetSurfaceWaitInterval(mfxU32 surface_wait_interval = MSDK_SURFACE_WAIT_INTERVAL) {
+        m_surface_wait_interval =
+            surface_wait_interval > 0 ? surface_wait_interval : MSDK_SURFACE_WAIT_INTERVAL;
+    };
     void SetSyncOpTimeout(mfxU32 syncOpTimeout = MSDK_WAIT_INTERVAL) {
         m_nSyncOpTimeout = syncOpTimeout;
     };
@@ -443,6 +447,9 @@ public:
     };
     mfxI32 GetAdapterNum() const {
         return m_adapterNum;
+    };
+    mfxU32 GetSurfaceWaitInterval() const {
+        return m_surface_wait_interval;
     };
     mfxU32 GetSyncOpTimeout() const {
         return m_nSyncOpTimeout;
@@ -741,6 +748,8 @@ protected:
 
     CascadeScalerConfig m_ScalerConfig;
 
+    mfxU32 m_surface_wait_interval =
+        MSDK_SURFACE_WAIT_INTERVAL; // Surface wait when getting free surface from pool
     mfxU32 m_nSyncOpTimeout = MSDK_WAIT_INTERVAL; // SyncOperation timeout in msec
 
 #if (defined(_WIN32) || defined(_WIN64))

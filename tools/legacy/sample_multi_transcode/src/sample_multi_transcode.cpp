@@ -78,6 +78,7 @@ Launcher::Launcher()
         : performance_file_name(),
           parameter_file_name(),
           session_descriptions(),
+          surface_wait_interval(MSDK_SURFACE_WAIT_INTERVAL),
           m_pThreadContextArray(),
           m_pAllocArray(),
           m_InputParamsArray(),
@@ -149,6 +150,7 @@ mfxStatus Launcher::Init(int argc, char* argv[]) {
     performance_file_name = parser.GetPerformanceFile();
     parameter_file_name   = parser.GetParameterFile();
     session_descriptions  = parser.GetSessionDescriptions();
+    surface_wait_interval = parser.GetParameterSurfaceWaitInterval();
 
     m_CSConfig.Tracer = &m_Tracer;
 
@@ -511,6 +513,8 @@ mfxStatus Launcher::Init(int argc, char* argv[]) {
             pThreadPipeline->pPipeline->SetPreferdGfx(m_InputParamsArray[i].dGfxIdx);
             pThreadPipeline->pPipeline->SetAdapterNum(m_pLoader->GetDeviceIDAndAdapter().second);
         }
+
+        pThreadPipeline->pPipeline->SetSurfaceWaitInterval(surface_wait_interval);
 
         pThreadPipeline->pPipeline->SetSyncOpTimeout(m_InputParamsArray[i].nSyncOpTimeout);
 

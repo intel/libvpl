@@ -517,7 +517,7 @@ mfxStatus CTranscodingPipeline::CreateBlackFrame(ExtendedSurface* pExtSurface) {
                                               SMTTracer::EventName::SURF_WAIT,
                                               nullptr,
                                               nullptr);
-            pExtSurface->pSurface = GetFreeSurface(false, MSDK_SURFACE_WAIT_INTERVAL);
+            pExtSurface->pSurface = GetFreeSurface(false, GetSurfaceWaitInterval());
             m_ScalerConfig.Tracer->EndEvent(SMTTracer::ThreadType::DEC,
                                             TargetID,
                                             SMTTracer::EventName::SURF_WAIT,
@@ -548,7 +548,7 @@ mfxStatus CTranscodingPipeline::CreateBlackFrame(ExtendedSurface* pExtSurface) {
                                                   SMTTracer::EventName::SURF_WAIT,
                                                   nullptr,
                                                   nullptr);
-                pmfxSurface = GetFreeSurface(true, MSDK_SURFACE_WAIT_INTERVAL);
+                pmfxSurface = GetFreeSurface(true, GetSurfaceWaitInterval());
                 m_ScalerConfig.Tracer->EndEvent(SMTTracer::ThreadType::DEC,
                                                 TargetID,
                                                 SMTTracer::EventName::SURF_WAIT,
@@ -786,7 +786,7 @@ mfxStatus CTranscodingPipeline::DecodeLastFrame(ExtendedSurface* pExtSurface) {
     // retrieve the buffered decoded frames
     while (MFX_ERR_MORE_SURFACE == sts || MFX_WRN_DEVICE_BUSY == sts) {
         if (m_rawInput) {
-            pExtSurface->pSurface = GetFreeSurface(false, MSDK_SURFACE_WAIT_INTERVAL);
+            pExtSurface->pSurface = GetFreeSurface(false, GetSurfaceWaitInterval());
             sts                   = m_pBSProcessor->GetInputFrame(pExtSurface->pSurface);
         }
         else if (MFX_WRN_DEVICE_BUSY == sts) {
@@ -796,7 +796,7 @@ mfxStatus CTranscodingPipeline::DecodeLastFrame(ExtendedSurface* pExtSurface) {
         if (!m_rawInput) {
             if (m_MemoryModel == GENERAL_ALLOC) {
                 // find new working surface
-                pmfxSurface = GetFreeSurface(true, MSDK_SURFACE_WAIT_INTERVAL);
+                pmfxSurface = GetFreeSurface(true, GetSurfaceWaitInterval());
                 MSDK_CHECK_POINTER_SAFE(
                     pmfxSurface,
                     MFX_ERR_MEMORY_ALLOC,
@@ -851,7 +851,7 @@ mfxStatus CTranscodingPipeline::VPPOneFrame(ExtendedSurface* pSurfaceIn,
     if (m_MemoryModel == GENERAL_ALLOC || m_MemoryModel == VISIBLE_INT_ALLOC) {
         if (m_MemoryModel == GENERAL_ALLOC) {
             // find/wait for a free working surface
-            out_surface = GetFreeSurfaceForCS(false, MSDK_SURFACE_WAIT_INTERVAL, ID);
+            out_surface = GetFreeSurfaceForCS(false, GetSurfaceWaitInterval(), ID);
             MSDK_CHECK_POINTER_SAFE(
                 out_surface,
                 MFX_ERR_MEMORY_ALLOC,
@@ -1495,12 +1495,12 @@ mfxStatus CTranscodingPipeline::Encode() {
                 while (MFX_ERR_MORE_SURFACE == curBuffer->GetSurface(DecExtSurface)) {
                     mfxU32 tempTimestamp        = 0;
                     mfxStatus StsWaitForSurface = MFX_ERR_UNKNOWN;
-                    while (tempTimestamp < MSDK_SURFACE_WAIT_INTERVAL &&
+                    while (tempTimestamp < GetSurfaceWaitInterval() &&
                            StsWaitForSurface != MFX_ERR_NONE) {
                         StsWaitForSurface =
-                            curBuffer->WaitForSurfaceInsertion(MSDK_SURFACE_WAIT_INTERVAL / 1000);
+                            curBuffer->WaitForSurfaceInsertion(GetSurfaceWaitInterval() / 1000);
                         if (MFX_ERR_NONE != StsWaitForSurface) {
-                            tempTimestamp += MSDK_SURFACE_WAIT_INTERVAL / 1000;
+                            tempTimestamp += GetSurfaceWaitInterval() / 1000;
                             // in case of cross-session synchronization is on, app can be here bacause Decoder is stopped and
                             // all available surfaces from Decoder was taken to work by Encoders, but encoding is not complete
                             // so let's check for appearing of free surfaces here until some encoder finishes work and releases suitable surface
@@ -2589,7 +2589,7 @@ mfxStatus CTranscodingPipeline::InitDecMfxParams(sInputParams* pInParams) {
     if (pInParams->useAllocHints) {
         auto hints              = m_mfxDecParams.AddExtBuffer<mfxExtAllocationHints>();
         hints->AllocationPolicy = pInParams->AllocPolicy;
-        hints->Wait             = MSDK_SURFACE_WAIT_INTERVAL;
+        hints->Wait             = GetSurfaceWaitInterval();
     }
 
     if (!m_bUseOverlay) {
@@ -3468,7 +3468,7 @@ mfxStatus CTranscodingPipeline::InitVppMfxParams(MfxVideoParamsWrapper& par,
     if (pInParams->useAllocHints) {
         auto hints              = par.AddExtBuffer<mfxExtAllocationHints>();
         hints->AllocationPolicy = pInParams->AllocPolicy;
-        hints->Wait             = MSDK_SURFACE_WAIT_INTERVAL;
+        hints->Wait             = GetSurfaceWaitInterval();
         hints->VPPPoolType      = MFX_VPP_POOL_OUT;
     }
 
