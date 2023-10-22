@@ -48,6 +48,8 @@ target_link_libraries(${TARGET} VPL::dispatcher)
 target_compile_definitions(${TARGET} PUBLIC -DUSE_VPL_INCLUDE)
 if(USE_VPL2X_INIT)
   target_compile_definitions(${TARGET} PUBLIC -DUSE_VPL2X_INIT)
+else()
+  target_compile_definitions(${TARGET} PUBLIC -DMFX_DEPRECATED_OFF)
 endif()
 
 install(TARGETS ${TARGET} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
