@@ -177,6 +177,16 @@ int main(int argc, char *argv[]) {
 
     encodeParams.IOPattern = MFX_IOPATTERN_IN_SYSTEM_MEMORY;
 
+    // Validate video encode parameters
+    // - In this example the validation result is written to same structure
+    // - MFX_WRN_INCOMPATIBLE_VIDEO_PARAM is returned if some of the video parameters are not supported,
+    //   instead the encoder will select suitable parameters closest matching the requested configuration,
+    //   and it's ignorable.
+    sts = MFXVideoENCODE_Query(session, &encodeParams, &encodeParams);
+    if (sts == MFX_WRN_INCOMPATIBLE_VIDEO_PARAM)
+        sts = MFX_ERR_NONE;
+    VERIFY(MFX_ERR_NONE == sts, "Encode query failed");
+
     // Initialize the encoder
     sts = MFXVideoENCODE_Init(session, &encodeParams);
     VERIFY(MFX_ERR_NONE == sts, "Could not initialize Encode");
