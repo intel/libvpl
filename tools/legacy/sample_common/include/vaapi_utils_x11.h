@@ -14,7 +14,7 @@
 
 class X11LibVA : public CLibVA {
 public:
-    X11LibVA(void);
+    X11LibVA(const std::string& devicePath = "");
     virtual ~X11LibVA(void);
 
     void* GetXDisplay(void) {
@@ -66,6 +66,10 @@ private:
 
     DISALLOW_COPY_AND_ASSIGN(X11LibVA);
 };
+
+    #if defined(X11_DRI3_SUPPORT)
+int open_intel_adapter(const std::string& devicePath);
+    #endif
 
 #endif // #if defined(LIBVA_X11_SUPPORT)
 

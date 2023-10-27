@@ -23,7 +23,32 @@ constexpr mfxU32 MFX_X11_DRIVER_NAME_LEN = 4;
 constexpr mfxU32 MFX_X11_NODE_INDEX      = 128;
 constexpr mfxU32 MFX_X11_MAX_NODES       = 16;
 
-X11LibVA::X11LibVA(void)
+    #if defined(X11_DRI3_SUPPORT)
+int open_intel_adapter(const std::string& devicePath) {
+    int fd = open(devicePath.c_str(), O_RDWR);
+
+    if (fd < 0) {
+        printf("Failed to open device: %s\n", devicePath.c_str());
+        return -1;
+    }
+
+    char driverName[MFX_X11_DRIVER_NAME_LEN + 1] = {};
+    drm_version_t version                        = {};
+    version.name_len                             = MFX_X11_DRIVER_NAME_LEN;
+    version.name                                 = driverName;
+
+    if (!ioctl(fd, DRM_IOWR(0, drm_version), &version) &&
+        msdk_match(driverName, MFX_X11_DRIVER_NAME)) {
+        return fd;
+    }
+
+    close(fd);
+    printf("%s is not Intel device\n", devicePath.c_str());
+    return -1;
+}
+    #endif
+
+X11LibVA::X11LibVA(const std::string& devicePath)
         : CLibVA(MFX_LIBVA_X11),
           m_display(0),
           m_configID(VA_INVALID_ID),
@@ -40,23 +65,18 @@ X11LibVA::X11LibVA(void)
     }
 
     #if defined(X11_DRI3_SUPPORT)
-    for (mfxU32 i = 0; i < MFX_X11_MAX_NODES; ++i) {
-        std::string devPath = MFX_X11_NODE_RENDER + std::to_string(MFX_X11_NODE_INDEX + i);
-        fd                  = open(devPath.c_str(), O_RDWR);
-        if (fd < 0)
-            continue;
-
-        char driverName[MFX_X11_DRIVER_NAME_LEN + 1] = {};
-        drm_version_t version                        = {};
-        version.name_len                             = MFX_X11_DRIVER_NAME_LEN;
-        version.name                                 = driverName;
-
-        if (!ioctl(fd, DRM_IOWR(0, drm_version), &version) &&
-            msdk_match(driverName, MFX_X11_DRIVER_NAME)) {
-            break;
+    if (devicePath.empty()) {
+        for (mfxU32 i = 0; i < MFX_X11_MAX_NODES; ++i) {
+            std::string devPath = MFX_X11_NODE_RENDER + std::to_string(MFX_X11_NODE_INDEX + i);
+            fd                  = open_intel_adapter(devPath);
+            if (fd < 0)
+                continue;
+            else
+                break;
         }
-        close(fd);
-        fd = -1;
+    }
+    else {
+        fd = open_intel_adapter(devicePath);
     }
 
     if (fd < 0) {

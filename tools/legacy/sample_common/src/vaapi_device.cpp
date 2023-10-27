@@ -77,24 +77,21 @@ mfxStatus CVAAPIDeviceX11::Init(mfxHDL hWindow, mfxU16 nViews, mfxU32 nAdapterNu
 
     m_xcbconn = x11xcblib.XGetXCBConnection(VAAPI_GET_X_DISPLAY(m_X11LibVA.GetXDisplay()));
 
-    // it's enough to pass render node, because we only request
-    // information from kernel via m_dri_fd
-    for (mfxU32 i = 0; i < MFX_DEVICE_MAX_NODES; ++i) {
-        std::string devPath = MFX_DEVICE_NODE_RENDER + std::to_string(MFX_DEVICE_NODE_INDEX + i);
-        m_dri_fd            = open(devPath.c_str(), O_RDWR);
-        if (m_dri_fd < 0)
-            continue;
-
-        char driverName[MFX_DEVICE_DRIVER_NAME_LEN + 1] = {};
-        drm_version_t version                           = {};
-        version.name_len                                = MFX_DEVICE_DRIVER_NAME_LEN;
-        version.name                                    = driverName;
-
-        if (!ioctl(m_dri_fd, DRM_IOWR(0, drm_version), &version) &&
-            msdk_match(driverName, MFX_DEVICE_DRIVER_NAME)) {
-            break;
+    if (m_device_path.empty()) {
+        // it's enough to pass render node, because we only request
+        // information from kernel via m_dri_fd
+        for (mfxU32 i = 0; i < MFX_DEVICE_MAX_NODES; ++i) {
+            std::string devPath =
+                MFX_DEVICE_NODE_RENDER + std::to_string(MFX_DEVICE_NODE_INDEX + i);
+            m_dri_fd = open_intel_adapter(devPath);
+            if (m_dri_fd < 0)
+                continue;
+            else
+                break;
         }
-        close(m_dri_fd);
+    }
+    else {
+        m_dri_fd = open_intel_adapter(m_device_path);
     }
 
     if (m_dri_fd < 0) {
@@ -493,7 +490,7 @@ CHWDevice* CreateVAAPIDevice(const std::string& devicePath, int type) {
         case MFX_LIBVA_X11:
         #if defined(LIBVA_X11_SUPPORT)
             try {
-                device = new CVAAPIDeviceX11;
+                device = new CVAAPIDeviceX11(devicePath);
             }
             catch (std::exception&) {
             }
@@ -507,7 +504,7 @@ CHWDevice* CreateVAAPIDevice(const std::string& devicePath, int type) {
         case MFX_LIBVA_AUTO:
         #if defined(LIBVA_X11_SUPPORT)
             try {
-                device = new CVAAPIDeviceX11;
+                device = new CVAAPIDeviceX11(devicePath);
             }
             catch (std::exception&) {
             }
