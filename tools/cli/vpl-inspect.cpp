@@ -146,6 +146,8 @@ const char *_print_ProfileType(mfxU32 fourcc, mfxU32 type) {
                 STRING_OPTION(MFX_PROFILE_AVC_CONSTRAINED_BASELINE);
                 STRING_OPTION(MFX_PROFILE_AVC_CONSTRAINED_HIGH);
                 STRING_OPTION(MFX_PROFILE_AVC_PROGRESSIVE_HIGH);
+                STRING_OPTION(MFX_PROFILE_AVC_MULTIVIEW_HIGH);
+                STRING_OPTION(MFX_PROFILE_AVC_STEREO_HIGH);
 
                 default:
                     return "<unknown MFX_CODEC_AVC profile>";
@@ -171,6 +173,7 @@ const char *_print_ProfileType(mfxU32 fourcc, mfxU32 type) {
                 STRING_OPTION(MFX_PROFILE_UNKNOWN);
                 STRING_OPTION(MFX_PROFILE_MPEG2_SIMPLE);
                 STRING_OPTION(MFX_PROFILE_MPEG2_MAIN);
+                STRING_OPTION(MFX_PROFILE_MPEG2_HIGH);
                 STRING_OPTION(MFX_LEVEL_MPEG2_HIGH);
                 STRING_OPTION(MFX_LEVEL_MPEG2_HIGH1440);
 

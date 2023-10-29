@@ -13,6 +13,7 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 ### Fixed
 - Fix NV12 wayland render for MTL
 - Fix buffer starvation when wayland window is moved
+- Fix missing profile strings in vpl-inspect tool
 
 ### Added
 - New command line parameters to sample_multi_transcode for setting
