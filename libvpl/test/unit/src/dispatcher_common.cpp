@@ -1055,9 +1055,8 @@ void Dispatcher_CreateSession_RequestCurrentAPIVersionCreatesSession(mfxImplType
 
     mfxVersion ver = {};
     if (implType == MFX_IMPL_TYPE_SOFTWARE) {
-        // assume CPU RT is built with same API
-        ver.Major = MFX_VERSION_MAJOR;
-        ver.Minor = MFX_VERSION_MINOR;
+        ver.Major = CPU_VERSION_MAJOR;
+        ver.Minor = CPU_VERSION_MINOR;
     }
     else {
         // MSDK may have 1.x API
@@ -1088,8 +1087,8 @@ void Dispatcher_CreateSession_RequestLowerAPIVersionCreatesSession(mfxImplType i
     // request version (API - 0.1), which should pass
     mfxVersion ver = {};
     if (implType == MFX_IMPL_TYPE_SOFTWARE) {
-        ver.Major = MFX_VERSION_MAJOR;
-        ver.Minor = MFX_VERSION_MINOR - 1;
+        ver.Major = CPU_VERSION_MAJOR;
+        ver.Minor = CPU_VERSION_MINOR - 1;
     }
     else {
         // MSDK may have 1.x API
@@ -1119,8 +1118,14 @@ void Dispatcher_CreateSession_RequestHigherAPIVersionReturnsNotFound(mfxImplType
 
     // request version (API + 0.5), which should fail
     mfxVersion ver = {};
-    ver.Major      = MFX_VERSION_MAJOR;
-    ver.Minor      = MFX_VERSION_MINOR + 5;
+    if (implType == MFX_IMPL_TYPE_SOFTWARE) {
+        ver.Major = CPU_VERSION_MAJOR;
+        ver.Minor = CPU_VERSION_MINOR + 5;
+    }
+    else {
+        ver.Major = MFX_VERSION_MAJOR;
+        ver.Minor = MFX_VERSION_MINOR + 5;
+    }
 
     SetConfigFilterProperty<mfxU32>(loader, "mfxImplDescription.ApiVersion.Version", ver.Version);
 
@@ -1186,9 +1191,8 @@ void Dispatcher_CreateSession_RequestCurrentAPIMajorMinorCreatesSession(mfxImplT
 
     mfxVersion ver = {};
     if (implType == MFX_IMPL_TYPE_SOFTWARE) {
-        // assume CPU RT is built with same API
-        ver.Major = MFX_VERSION_MAJOR;
-        ver.Minor = MFX_VERSION_MINOR;
+        ver.Major = CPU_VERSION_MAJOR;
+        ver.Minor = CPU_VERSION_MINOR;
     }
     else {
         // MSDK may have 1.x API
@@ -1220,15 +1224,21 @@ void Dispatcher_CreateSession_RequestHigherAPIMajorReturnsNotFound(mfxImplType i
     mfxStatus sts = SetConfigImpl(loader, implType);
     EXPECT_EQ(sts, MFX_ERR_NONE);
 
+    mfxVersion ver = {};
+    if (implType == MFX_IMPL_TYPE_SOFTWARE) {
+        ver.Major = CPU_VERSION_MAJOR;
+        ver.Minor = CPU_VERSION_MINOR;
+    }
+    else {
+        ver.Major = MFX_VERSION_MAJOR;
+        ver.Minor = MFX_VERSION_MINOR;
+    }
+
     // set major value = MFX_VERSION_MAJOR + 1, which should fail
-    SetConfigFilterProperty<mfxU16>(loader,
-                                    "mfxImplDescription.ApiVersion.Major",
-                                    MFX_VERSION_MAJOR + 1);
+    SetConfigFilterProperty<mfxU16>(loader, "mfxImplDescription.ApiVersion.Major", ver.Major + 1);
 
     // set minor value
-    SetConfigFilterProperty<mfxU16>(loader,
-                                    "mfxImplDescription.ApiVersion.Minor",
-                                    MFX_VERSION_MINOR);
+    SetConfigFilterProperty<mfxU16>(loader, "mfxImplDescription.ApiVersion.Minor", ver.Minor);
 
     // create session with first implementation
     mfxSession session = nullptr;
@@ -1246,15 +1256,21 @@ void Dispatcher_CreateSession_RequestHigherAPIMinorReturnsNotFound(mfxImplType i
     mfxStatus sts = SetConfigImpl(loader, implType);
     EXPECT_EQ(sts, MFX_ERR_NONE);
 
+    mfxVersion ver = {};
+    if (implType == MFX_IMPL_TYPE_SOFTWARE) {
+        ver.Major = CPU_VERSION_MAJOR;
+        ver.Minor = CPU_VERSION_MINOR;
+    }
+    else {
+        ver.Major = MFX_VERSION_MAJOR;
+        ver.Minor = MFX_VERSION_MINOR;
+    }
+
     // set major value
-    SetConfigFilterProperty<mfxU16>(loader,
-                                    "mfxImplDescription.ApiVersion.Major",
-                                    MFX_VERSION_MAJOR);
+    SetConfigFilterProperty<mfxU16>(loader, "mfxImplDescription.ApiVersion.Major", ver.Major);
 
     // set minor value = MFX_VERSION_MINOR + 5, which should fail
-    SetConfigFilterProperty<mfxU16>(loader,
-                                    "mfxImplDescription.ApiVersion.Minor",
-                                    MFX_VERSION_MINOR + 5);
+    SetConfigFilterProperty<mfxU16>(loader, "mfxImplDescription.ApiVersion.Minor", ver.Minor + 5);
 
     // create session with first implementation
     mfxSession session = nullptr;

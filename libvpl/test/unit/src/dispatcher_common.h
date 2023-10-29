@@ -30,6 +30,10 @@
 
 #include "src/unit_api.h"
 
+// define expected API version used to build CPU runtime used in with unit tests
+#define CPU_VERSION_MAJOR 2
+#define CPU_VERSION_MINOR 9
+
 // define special stub impl types for testing only
 #define MFX_IMPL_TYPE_STUB    ((mfxImplType)0xFFFF)
 #define MFX_IMPL_TYPE_STUB_1X ((mfxImplType)0xAAAA)

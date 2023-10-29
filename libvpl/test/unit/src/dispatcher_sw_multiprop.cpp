@@ -23,7 +23,7 @@ struct TestPropVal {
 static const TestPropVal TestPropIntTab[] = {
     { MFX_VARIANT_TYPE_U32, "mfxImplDescription.Impl",                                                              MFX_IMPL_TYPE_SOFTWARE, 0xffffffff },
     { MFX_VARIANT_TYPE_U32, "mfxImplDescription.AccelerationMode",                                                  MFX_ACCEL_MODE_NA, 0xffffffff },
-    { MFX_VARIANT_TYPE_U32, "mfxImplDescription.ApiVersion.Version",                                                (MFX_VERSION_MAJOR << 16) | (MFX_VERSION_MINOR), (99 << 16) | (0) },
+    { MFX_VARIANT_TYPE_U32, "mfxImplDescription.ApiVersion.Version",                                                (CPU_VERSION_MAJOR << 16) | (CPU_VERSION_MINOR), (99 << 16) | (0) },
     { MFX_VARIANT_TYPE_U32, "mfxImplDescription.VendorID",                                                          0x8086, 0xefefefef },
     { MFX_VARIANT_TYPE_U32, "mfxImplDescription.VendorImplID",                                                      0, 0xffffffff },
     { MFX_VARIANT_TYPE_U32, "mfxImplDescription.mfxSurfacePoolMode",                                                MFX_ALLOCATION_UNLIMITED, 0xefefefef },

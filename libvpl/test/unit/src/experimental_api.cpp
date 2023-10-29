@@ -19,7 +19,7 @@
 #include "vpl/mfx.h"
 
 #define MIN_VERSION_EXPECTED_MAJOR 2
-#define MIN_VERSION_EXPECTED_MINOR 7
+#define MIN_VERSION_EXPECTED_MINOR 10
 
 TEST(Experimental_API, CheckMinimumAPI) {
     if ((MFX_VERSION_MAJOR < MIN_VERSION_EXPECTED_MAJOR) ||
@@ -30,12 +30,12 @@ TEST(Experimental_API, CheckMinimumAPI) {
         FAIL();
     }
 }
+// clang-format on
 
 // confirm that the following enumerated types are available for API >= 2.7
 //   and resolve to the expected values without defining ONEVPL_EXPERIMENTAL
 // if unavailable in headers, this should fail at compile time
 TEST(Experimental_API, PromotedEnumsAvailable_2_7) {
-
     // mfxstructures.h
     mfxHandleType t_mfxHandleType = MFX_HANDLE_PXP_CONTEXT;
     EXPECT_EQ(t_mfxHandleType, 10);
@@ -106,4 +106,85 @@ TEST(Experimental_API, PromotedEnumsAvailable_2_7) {
     EXPECT_EQ(t_mfxExtDecodeErrorReport.ErrorTypes, (1 << 25));
 }
 
-// clang-format on
+// if unavailable in headers, this should fail at compile time
+TEST(Experimental_API, PromotedEnumsAvailable_2_8) {
+    // mfxcommon.h
+    mfxExtRefListCtrl t_mfxExtRefListCtrl = {};
+    t_mfxExtRefListCtrl.Header.BufferId   = MFX_EXTBUFF_UNIVERSAL_REFLIST_CTRL;
+    EXPECT_EQ(t_mfxExtRefListCtrl.Header.BufferId, MFX_EXTBUFF_UNIVERSAL_REFLIST_CTRL);
+}
+
+// NOTE: no APIs were moved to production in API 2.9
+
+#include "vpl/mfxcamera.h"
+
+// if unavailable in headers, this should fail at compile time
+TEST(Experimental_API, PromotedEnumsAvailable_2_10) {
+    // mfxcommon.h
+    mfxExtendedDeviceId t_mfxExtendedDeviceId = {};
+    t_mfxExtendedDeviceId.DeviceID            = 40;
+    EXPECT_EQ(t_mfxExtendedDeviceId.DeviceID, 40);
+
+    t_mfxExtendedDeviceId.RevisionID = 60;
+    EXPECT_EQ(t_mfxExtendedDeviceId.RevisionID, 60);
+
+    mfxU32 t_u32;
+    mfxRefInterface t_mfxRefInterface = {};
+    t_mfxRefInterface.Context         = (mfxHDL)(&t_u32);
+    EXPECT_EQ(t_mfxRefInterface.Context, (mfxHDL)(&t_u32));
+
+    extDeviceUUID t_extDeviceUUID = {};
+    t_extDeviceUUID.device_id     = 70;
+    EXPECT_EQ(t_extDeviceUUID.device_id, 70);
+
+    t_u32 = MFX_GPUCOPY_SAFE;
+    EXPECT_EQ(t_u32, MFX_GPUCOPY_SAFE);
+
+    mfxImplCapsDeliveryFormat t_capsFormat = MFX_IMPLCAPS_DEVICE_ID_EXTENDED;
+    EXPECT_EQ(t_capsFormat, MFX_IMPLCAPS_DEVICE_ID_EXTENDED);
+
+    // mfxdispatcher.h
+    MFX_UUID_COMPUTE_DEVICE_ID(&t_mfxExtendedDeviceId, 5, &t_extDeviceUUID); // macro
+    EXPECT_EQ(t_extDeviceUUID.sub_device_id, 5);
+
+    // mfxstructures.h
+    t_u32 = MFX_FOURCC_ABGR16F;
+    EXPECT_EQ(t_u32, MFX_FOURCC_ABGR16F);
+
+    t_u32 = MFX_CONTENT_NOISY_VIDEO;
+    EXPECT_EQ(t_u32, MFX_CONTENT_NOISY_VIDEO);
+
+    t_u32 = MFX_FOURCC_XYUV;
+    EXPECT_EQ(t_u32, MFX_FOURCC_XYUV);
+
+    mfxExtMBQP t_mfxExtMBQP = {};
+    t_mfxExtMBQP.Pitch      = 20;
+    EXPECT_EQ(t_mfxExtMBQP.Pitch, 20);
+
+    mfxABGR16FP t_mfxABGR16FP = {};
+    t_mfxABGR16FP.R           = 5;
+    EXPECT_EQ(t_mfxABGR16FP.R, 5);
+
+    mfxFrameData t_mfxFrameData = {};
+    t_mfxFrameData.ABGRFP16     = &t_mfxABGR16FP;
+    EXPECT_EQ(t_mfxFrameData.ABGRFP16, &t_mfxABGR16FP);
+
+    // mfxdefs.h
+    mfxFP16 t_fp16 = 3;
+    EXPECT_EQ(t_fp16, 3);
+
+    mfxVariant t_variant = {};
+    t_variant.Type       = MFX_VARIANT_TYPE_FP16;
+    EXPECT_EQ(t_variant.Type, MFX_VARIANT_TYPE_FP16);
+
+    t_variant.Type = (mfxVariantType)MFX_DATA_TYPE_FP16;
+    EXPECT_EQ(t_variant.Type, MFX_DATA_TYPE_FP16);
+
+    t_variant.Data.FP16 = 4;
+    EXPECT_EQ(t_variant.Data.FP16, 4);
+
+    // mfxcamera.h
+    mfxExtCamWhiteBalance t_mfxExtCamWhiteBalance = {};
+    t_mfxExtCamWhiteBalance.R                     = 6;
+    EXPECT_EQ(t_mfxExtCamWhiteBalance.R, 6);
+}

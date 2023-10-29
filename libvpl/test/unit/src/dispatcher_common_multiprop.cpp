@@ -93,9 +93,8 @@ void Dispatcher_MultiProp_APIMajorMinorValid(mfxImplType implType) {
 
     mfxVersion ver = {};
     if (implType == MFX_IMPL_TYPE_SOFTWARE) {
-        // assume CPU RT is built with same API
-        ver.Major = MFX_VERSION_MAJOR;
-        ver.Minor = MFX_VERSION_MINOR;
+        ver.Major = CPU_VERSION_MAJOR;
+        ver.Minor = CPU_VERSION_MINOR;
     }
     else {
         // MSDK may have 1.x API
@@ -120,9 +119,8 @@ void Dispatcher_MultiProp_APIMajorInvalid(mfxImplType implType) {
 
     mfxVersion ver = {};
     if (implType == MFX_IMPL_TYPE_SOFTWARE) {
-        // assume CPU RT is built with same API
-        ver.Major = MFX_VERSION_MAJOR + 1;
-        ver.Minor = MFX_VERSION_MINOR;
+        ver.Major = CPU_VERSION_MAJOR + 1;
+        ver.Minor = CPU_VERSION_MINOR;
     }
     else {
         // MSDK may have 1.x API
@@ -147,9 +145,8 @@ void Dispatcher_MultiProp_APIMinorInvalid(mfxImplType implType) {
 
     mfxVersion ver = {};
     if (implType == MFX_IMPL_TYPE_SOFTWARE) {
-        // assume CPU RT is built with same API
-        ver.Major = MFX_VERSION_MAJOR;
-        ver.Minor = MFX_VERSION_MINOR + 1;
+        ver.Major = CPU_VERSION_MAJOR;
+        ver.Minor = CPU_VERSION_MINOR + 1;
     }
     else {
         ver.Major = MFX_VERSION_MAJOR;
@@ -172,7 +169,11 @@ void Dispatcher_MultiProp_APIPartialValid(mfxImplType implType) {
     EXPECT_EQ(sts, MFX_ERR_NONE);
 
     // if we set only major or minor (not both) the filter will not be applied
-    SetConfigFilterProperty<mfxU16>(loader, cfg, "mfxImplDescription.ApiVersion.Major", MFX_VERSION_MAJOR + 1);
+    if (implType == MFX_IMPL_TYPE_SOFTWARE) {
+        SetConfigFilterProperty<mfxU16>(loader, cfg, "mfxImplDescription.ApiVersion.Major", CPU_VERSION_MAJOR + 1);
+    } else {
+        SetConfigFilterProperty<mfxU16>(loader, cfg, "mfxImplDescription.ApiVersion.Major", MFX_VERSION_MAJOR + 1);
+    }
 
     // expect to pass
     MultiPropTest(loader, MFX_ERR_NONE);
