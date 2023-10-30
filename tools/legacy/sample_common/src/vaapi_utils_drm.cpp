@@ -72,10 +72,40 @@ int open_first_intel_adapter(int type) {
 }
 
 int open_intel_adapter(const std::string& devicePath, int type) {
+    int fd = -1;
+
     if (devicePath.empty())
         return open_first_intel_adapter(type);
 
-    int fd = open(devicePath.c_str(), O_RDWR);
+    switch (type) {
+        case MFX_LIBVA_DRM:
+        case MFX_LIBVA_AUTO:
+            fd = open(devicePath.c_str(), O_RDWR);
+            break;
+        case MFX_LIBVA_DRM_MODESET:
+            // convert corresponsing render node to card node
+            if (devicePath.find(MFX_DRI_NODE_RENDER) != std::string::npos) {
+                std::string newDevicePath, renderNum;
+                newDevicePath = renderNum = devicePath;
+
+                newDevicePath.replace(
+                    devicePath.find(MFX_DRI_NODE_RENDER),
+                    devicePath.length(),
+                    "card" + std::to_string(
+                                 std::stoi(renderNum.erase(0,
+                                                           devicePath.find(MFX_DRI_NODE_RENDER) +
+                                                               sizeof(MFX_DRI_NODE_RENDER) - 1)) -
+                                 128));
+
+                fd = open(newDevicePath.c_str(), O_RDWR);
+            }
+            else if (devicePath.find(MFX_DRI_NODE_CARD) != std::string::npos) {
+                fd = open(devicePath.c_str(), O_RDWR);
+            }
+            break;
+        default:
+            throw std::invalid_argument("Wrong libVA backend type");
+    }
 
     if (fd < 0) {
         printf("Failed to open specified device\n");
