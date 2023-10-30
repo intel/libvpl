@@ -1565,10 +1565,14 @@ mfxStatus LoaderCtxVPL::CreateSession(mfxU32 idx, mfxSession *session) {
 
             // in low latency mode implDesc is not available, but application may set adapter number via DXGIAdapterIndex filter
             if (m_bLowLatency) {
-                if (m_specialConfig.bIsSet_dxgiAdapterIdx && libInfo->libType == LibTypeVPL)
+                if (m_specialConfig.bIsSet_dxgiAdapterIdx && libInfo->libType == LibTypeVPL) {
                     implInfo->vplParam.VendorImplID = m_specialConfig.dxgiAdapterIdx;
-                else if (m_specialConfig.bIsSet_dxgiAdapterIdx && libInfo->libType == LibTypeMSDK)
+                }
+                else if (m_specialConfig.bIsSet_dxgiAdapterIdx && libInfo->libType == LibTypeMSDK) {
+                    if (m_specialConfig.dxgiAdapterIdx >= MAX_NUM_IMPL_MSDK)
+                        return MFX_ERR_NOT_FOUND; // MSDK adapter index out of range
                     msdkImpl = msdkImplTab[m_specialConfig.dxgiAdapterIdx];
+                }
             }
 
             // add any extension buffers set via special filter properties
