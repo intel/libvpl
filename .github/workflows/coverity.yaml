@@ -15,7 +15,7 @@ on:
 
 jobs:
   scan:
-    runs-on: [self-hosted, "${{ inputs.OS }}"]
+    runs-on: [self-hosted, "${{ inputs.OS }}", "${{ inputs.OS == 'Windows' && 'Coverity' || 'docker' }}"]
     steps:
       - name: Cleanup workspace (Linux)
         if: always() && runner.os == 'Linux'
