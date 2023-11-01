@@ -10,13 +10,6 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 
 ## [Unreleased]
 
-### Fixed
-- Fix NV12 wayland render for MTL
-- Fix buffer starvation when wayland window is moved
-- Fix missing profile strings in vpl-inspect tool
-- Fix rdrm to use card node instead of render node
-- Fix rdrm tile4 selection based DRM/KMS query
-
 ### Added
 - New command line parameters to sample_multi_transcode for setting
   B Frame QP Offsets based on Pyramid Level.
@@ -28,11 +21,17 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 - Unused files and folders
 
 ### Fixed 
+- Fix NV12 wayland render for MTL
+- Fix buffer starvation when wayland window is moved
+- Fix missing profile strings in vpl-inspect tool
+- Fix rdrm to use card node instead of render node
+- Fix rdrm tile4 selection based DRM/KMS query
 - rdrm NV12 and P010 render for MTL
 
 ### Changed
 - Directory layout and name of dispatcher directory
 - Location of image files used by documentation
+- Current working directory removed from runtime library search
 
 ## [2023.3.1] - 2023-07-21
 
