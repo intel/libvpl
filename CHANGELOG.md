@@ -15,6 +15,7 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 - Fix buffer starvation when wayland window is moved
 - Fix missing profile strings in vpl-inspect tool
 - Fix rdrm to use card node instead of render node
+- Fix rdrm tile4 selection based DRM/KMS query
 
 ### Added
 - New command line parameters to sample_multi_transcode for setting

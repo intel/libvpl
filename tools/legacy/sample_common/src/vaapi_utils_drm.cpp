@@ -221,23 +221,6 @@ drmRenderer::drmRenderer(int fd, mfxI32 monitorType)
           m_bRequiredTiled4(false),
           m_pCurrentRenderTargetSurface(NULL) {
     bool res = false;
-    int ret  = -1, maxDevices;
-
-    maxDevices = m_drmlib.drmGetDevices2(0, NULL, 0);
-    if (maxDevices < 0)
-        throw std::invalid_argument("No devices found");
-
-    auto devices = std::unique_ptr<drmDevicePtr, freeDevices>{ reinterpret_cast<drmDevicePtr*>(
-        malloc(sizeof(drmDevicePtr) * maxDevices)) };
-
-    ret = m_drmlib.drmGetDevices2(0, devices.get(), maxDevices);
-    if (ret < 0)
-        throw std::invalid_argument("drmGetDevices2() returned error");
-
-    if (IS_GEN13((devices.get())[0]->deviceinfo.pci->device_id))
-        m_bRequiredTiled4 = true;
-
-    m_drmlib.drmFreeDevices(devices.get(), maxDevices);
 
     if (m_drmlib.drmSetClientCap(m_fd, DRM_CLIENT_CAP_ATOMIC, 1) != 0)
         throw std::invalid_argument("Failed to set atomic");
@@ -538,6 +521,10 @@ bool drmRenderer::getPlane() {
     #endif
                         (plane->formats[j] == DRM_FORMAT_NV12)) {
                         m_planeID = plane->plane_id;
+
+                        if (!getAllFormatsAndModifiers())
+                            printf("drmrender: failed to obtain plane properties\n");
+
                         m_drmlib.drmModeFreePlane(plane);
                         m_drmlib.drmModeFreePlaneResources(planes);
                         return true;
@@ -549,6 +536,62 @@ bool drmRenderer::getPlane() {
     }
     m_drmlib.drmModeFreePlaneResources(planes);
     return false;
+}
+
+bool drmRenderer::getAllFormatsAndModifiers() {
+    drmModeObjectProperties* planeProps = NULL;
+    drmModePropertyRes** planePropsInfo = NULL;
+    drmModePropertyBlobPtr blob;
+    #if defined(DRM_LINUX_FORMAT_MODIFIER_BLOB_SUPPORT)
+    drmModeFormatModifierIterator iter = { 0 };
+    #endif
+    uint32_t i;
+
+    planeProps = m_drmlib.drmModeObjectGetProperties(m_fd, m_planeID, DRM_MODE_OBJECT_PLANE);
+    if (!planeProps)
+        return false;
+
+    planePropsInfo =
+        (drmModePropertyRes**)malloc(planeProps->count_props * sizeof(drmModePropertyRes*));
+
+    for (i = 0; i < planeProps->count_props; i++)
+        planePropsInfo[i] = m_drmlib.drmModeGetProperty(m_fd, planeProps->props[i]);
+
+    for (i = 0; i < planeProps->count_props; i++) {
+        if (strcmp(planePropsInfo[i]->name, "IN_FORMATS"))
+            continue;
+
+        blob = m_drmlib.drmModeGetPropertyBlob(m_fd, planeProps->prop_values[i]);
+        if (!blob)
+            continue;
+
+    #if defined(DRM_LINUX_FORMAT_MODIFIER_BLOB_SUPPORT)
+        while (m_drmlib.drmModeFormatModifierBlobIterNext(blob, &iter)) {
+            if (iter.mod == DRM_FORMAT_MOD_INVALID)
+                break;
+
+        #if defined(DRM_LINUX_MODIFIER_TILED4_SUPPORT)
+            if ((iter.fmt == DRM_FORMAT_NV12 || iter.fmt == DRM_FORMAT_P010) &&
+                (iter.mod == I915_FORMAT_MOD_4_TILED)) {
+                m_bRequiredTiled4 = true;
+                break;
+            }
+        #endif
+        }
+    #endif
+        m_drmlib.drmModeFreePropertyBlob(blob);
+    }
+
+    if (planePropsInfo) {
+        for (i = 0; i < planeProps->count_props; i++) {
+            if (planePropsInfo[i])
+                m_drmlib.drmModeFreeProperty(planePropsInfo[i]);
+        }
+        free(planePropsInfo);
+    }
+
+    m_drmlib.drmModeFreeObjectProperties(planeProps);
+    return true;
 }
 
 bool drmRenderer::setMaster() {

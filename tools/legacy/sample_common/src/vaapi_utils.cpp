@@ -93,6 +93,9 @@ DRM_Proxy::DRM_Proxy()
           SIMPLE_LOADER_FUNCTION(drmIoctl),
           SIMPLE_LOADER_FUNCTION(drmModeAddFB),
           SIMPLE_LOADER_FUNCTION(drmModeAddFB2WithModifiers),
+        #if defined(DRM_LINUX_FORMAT_MODIFIER_BLOB_SUPPORT)
+          SIMPLE_LOADER_FUNCTION(drmModeFormatModifierBlobIterNext),
+        #endif
           SIMPLE_LOADER_FUNCTION(drmSetClientCap),
           SIMPLE_LOADER_FUNCTION(drmModeObjectGetProperties),
           SIMPLE_LOADER_FUNCTION(drmModeFreeObjectProperties),
@@ -123,9 +126,8 @@ DRM_Proxy::DRM_Proxy()
           SIMPLE_LOADER_FUNCTION(drmModeSetCrtc),
           SIMPLE_LOADER_FUNCTION(drmSetMaster),
           SIMPLE_LOADER_FUNCTION(drmDropMaster),
-          SIMPLE_LOADER_FUNCTION(drmModeSetPlane),
-          SIMPLE_LOADER_FUNCTION(drmGetDevices2),
-          SIMPLE_LOADER_FUNCTION(drmFreeDevices) {}
+          SIMPLE_LOADER_FUNCTION(drmModeSetPlane) {
+}
 
 DrmIntel_Proxy::~DrmIntel_Proxy() {}
 

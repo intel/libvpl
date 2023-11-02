@@ -58,10 +58,6 @@ enum drm_static_metadata_id { DRM_STATIC_METADATA_TYPE1 = 0 };
 #define EDID_CEA_EXT_TAG_STATIC_METADATA  0x6
 #define EDID_CEA_EXT_TAG_DYNAMIC_METADATA 0x7
 
-#define IS_GEN13(devId)                                                                  \
-    ((devId) == 0x7D40 || (devId) == 0x7D60 || (devId) == 0x7D45 || (devId) == 0x7D55 || \
-     (devId) == 0x7DD5)
-
 #if defined(LIBVA_DRM_SUPPORT)
 
     #include <va/va_drm.h>
@@ -114,6 +110,7 @@ private:
     bool getConnector(drmModeRes* resource, uint32_t connector_type);
     bool setupConnection(drmModeRes* resource, drmModeConnector* connector);
     bool getPlane();
+    bool getAllFormatsAndModifiers();
 
     bool getConnectorProperties(int fd, int connectorId);
     bool getCRTCProperties(int fd, int crtcId);
@@ -134,11 +131,6 @@ private:
     int drmSendHdrMetaData(mfxExtMasteringDisplayColourVolume* displayColor,
                            mfxExtContentLightLevelInfo* contentLight,
                            bool enableHDR);
-    struct freeDevices {
-        void operator()(drmDevicePtr* p) {
-            free(p);
-        }
-    };
 
     const MfxLoader::DRM_Proxy m_drmlib;
     const MfxLoader::DrmIntel_Proxy m_drmintellib;
