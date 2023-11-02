@@ -268,32 +268,6 @@ drmModeObjectPropertiesPtr drmRenderer::getProperties(int fd, int objectId, int3
     return m_drmlib.drmModeObjectGetProperties(fd, objectId, objectTypeId);
 }
 
-bool drmRenderer::getCRTCProperties(int fd, int crtcId) {
-    if (m_crtcProperties == NULL)
-        m_crtcProperties = getProperties(fd, crtcId, DRM_MODE_OBJECT_CRTC);
-    return m_crtcProperties != NULL;
-}
-
-uint32_t drmRenderer::getCRTCPropertyId(const char* propNameToFind) {
-    if (!getCRTCProperties(m_fd, m_crtcID)) {
-        return 0;
-    }
-
-    drmModePropertyPtr property;
-    uint32_t i, id = 0;
-    for (i = 0; i < m_crtcProperties->count_props; i++) {
-        property = m_drmlib.drmModeGetProperty(m_fd, m_crtcProperties->props[i]);
-        if (msdk_match(property->name, propNameToFind))
-            id = property->prop_id;
-
-        m_drmlib.drmModeFreeProperty(property);
-
-        if (id)
-            break;
-    }
-    return id;
-}
-
 bool drmRenderer::getConnectorProperties(int fd, int connectorId) {
     if (m_connectorProperties == NULL)
         m_connectorProperties = getProperties(fd, connectorId, DRM_MODE_OBJECT_CONNECTOR);

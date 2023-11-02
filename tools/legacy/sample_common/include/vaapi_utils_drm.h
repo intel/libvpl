@@ -113,7 +113,6 @@ private:
     bool getAllFormatsAndModifiers();
 
     bool getConnectorProperties(int fd, int connectorId);
-    bool getCRTCProperties(int fd, int crtcId);
 
     bool setMaster();
     void dropMaster();
@@ -126,7 +125,6 @@ private:
     const uint8_t* edidFindCeaExtensionBlock(const uint8_t* edid);
     uint32_t getConnectorPropertyId(const char* propNameToFind);
     uint32_t getConnectorPropertyValue(const char* propNameToFind);
-    uint32_t getCRTCPropertyId(const char* propNameToFind);
     int drmSetColorSpace(bool enableBT2020);
     int drmSendHdrMetaData(mfxExtMasteringDisplayColourVolume* displayColor,
                            mfxExtContentLightLevelInfo* contentLight,
