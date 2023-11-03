@@ -61,9 +61,7 @@ mfxConfig MFX_CDECL MFXCreateConfig(mfxLoader loader);
 
 /*!
    @brief Adds additional filter properties (any fields of the mfxImplDescription structure) to the configuration of the loader object.
-          One mfxConfig properties can hold only single filter property.
           @note Each new call with the same parameter name will overwrite the previously set value. This may invalidate other properties.
-          @note Each new call with another parameter name will delete the previous property and create a new property based on new name's value.
 
    @param[in] config Config handle.
    @param[in] name Name of the parameter (see mfxImplDescription structure and example).
@@ -149,31 +147,29 @@ mfxStatus MFX_CDECL MFXCreateSession(mfxLoader loader, mfxU32 i, mfxSession* ses
 */
 mfxStatus MFX_CDECL MFXDispReleaseImplDescription(mfxLoader loader, mfxHDL hdl);
 
-#ifdef ONEVPL_EXPERIMENTAL
 /*!
    @brief
       Macro help to return UUID in the common oneAPI format. 
 
    @param[in]  devinfo Handle to mfxExtendedDeviceId.
-   @param[in]  sub_device_id SubDevice number. Can be obtained from mfxDeviceDescription::SubDevices::Index. Set to zero if no SubDevices.
+   @param[in]  sub_dev_num SubDevice number. Can be obtained from mfxDeviceDescription::SubDevices::Index. Set to zero if no SubDevices.
    @param[out] uuid    Pointer to UUID.
 
 */
-#define MFX_UUID_COMPUTE_DEVICE_ID(devinfo, sub_device_id, uuid)              \
+#define MFX_UUID_COMPUTE_DEVICE_ID(devinfo, sub_dev_num, uuid)                \
 {                                                                             \
    extDeviceUUID t_uuid = { 0 };                                              \
-   extDeviceUUID* shared_uuid = (extDeviceUUID*)uuid;                         \
-   t_uuid.vendor_id   = devinfo->VendorID;                                    \
-   t_uuid.device_id   = devinfo->DeviceID;                                    \
-   t_uuid.revision_id = devinfo->RevisionID;                                  \
-   t_uuid.pci_domain  = devinfo->PCIDomain;                                   \
-   t_uuid.pci_bus     = (mfxU8)devinfo->PCIBus;                               \
-   t_uuid.pci_dev     = (mfxU8)devinfo->PCIDevice;                            \
-   t_uuid.pci_func    = (mfxU8)devinfo->PCIFunction;                          \
-   t_uuid.sub_device_id = (mfxU8)sub_device_id;                               \
+   extDeviceUUID* shared_uuid = (extDeviceUUID*)(uuid);                       \
+   t_uuid.vendor_id   = (devinfo)->VendorID;                                  \
+   t_uuid.device_id   = (devinfo)->DeviceID;                                  \
+   t_uuid.revision_id = (devinfo)->RevisionID;                                \
+   t_uuid.pci_domain  = (devinfo)->PCIDomain;                                 \
+   t_uuid.pci_bus     = (mfxU8)(devinfo)->PCIBus;                             \
+   t_uuid.pci_dev     = (mfxU8)(devinfo)->PCIDevice;                          \
+   t_uuid.pci_func    = (mfxU8)(devinfo)->PCIFunction;                        \
+   t_uuid.sub_device_id = (mfxU8)(sub_dev_num);                               \
    *shared_uuid = t_uuid;                                                     \
 }                                                                             
-#endif
 
 /* Helper macro definitions to add config filter properties. */
 

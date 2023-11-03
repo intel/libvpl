@@ -63,16 +63,28 @@ typedef struct {
     mfxU32  FourCC;     /*!< FourCC code of the color format. See the ColorFourCC enumerator for details. */
     union {
         struct { /* Frame parameters */
-            mfxU16  Width;  /*!< Width of the video frame in pixels. Must be a multiple of 16. */
-            mfxU16  Height; /*!< Height of the video frame in pixels. Must be a multiple of 16 for progressive frame sequence and a multiple of 32 otherwise. */
+            /*! Width of the video frame in pixels. Must be a multiple of 16. 
+                In case of fused operation of decode plus VPP it can be set to zero to signalize that scaling operation is not requested. */
+            mfxU16  Width;  
+            /*! Height of the video frame in pixels. Must be a multiple of 16 for progressive frame sequence and a multiple of 32 otherwise. 
+                In case of fused operation of decode plus VPP it can be set to zero to signalize that scaling operation is not requested. */
+            mfxU16  Height; 
 
             /*! @{
              @name ROI
              The region of interest of the frame. Specify the display width and height in mfxVideoParam. */
-            mfxU16  CropX; /*!< X coordinate. */
-            mfxU16  CropY; /*!< Y coordinate. */
-            mfxU16  CropW; /*!< Width in pixels. */
-            mfxU16  CropH; /*!< Height in pixels. */
+            /*! X coordinate.
+                In case of fused operation of decode plus VPP it can be set to zero to signalize that cropping operation is not requested. */
+            mfxU16  CropX; 
+            /*! Y coordinate.
+                In case of fused operation of decode plus VPP it can be set to zero to signalize that cropping operation is not requested. */
+            mfxU16  CropY; 
+            /*! Width in pixels. 
+                In case of fused operation of decode plus VPP it can be set to zero to signalize that cropping operation is not requested. */
+            mfxU16  CropW; 
+            /*! Height in pixels. 
+                In case of fused operation of decode plus VPP it can be set to zero to signalize that cropping operation is not requested. */
+            mfxU16  CropH; 
             /*! @} */
         };
         struct { /* Buffer parameters (for plain formats like P8) */
@@ -170,13 +182,9 @@ enum {
     MFX_FOURCC_BGRA         = MFX_FOURCC_RGB4,                 /*!< Alias for the RGB4 color format. */
     /*! BGR 24 bit planar layout (3 separate channels, 8-bits per sample each). This format should be mapped to VA_FOURCC_BGRP. */
     MFX_FOURCC_BGRP         = MFX_MAKEFOURCC('B','G','R','P'),
-#ifdef ONEVPL_EXPERIMENTAL
     /*! 8bit per sample 4:4:4 format packed in 32 bits, X=unused/undefined, 'X' channel is 8 MSBs, then 'Y', then 'U', and then 'V' channels. This format should be mapped to VA_FOURCC_XYUV. */
     MFX_FOURCC_XYUV         = MFX_MAKEFOURCC('X','Y','U','V'),
-#endif
-#ifdef ONEVPL_EXPERIMENTAL
     MFX_FOURCC_ABGR16F      = MFX_MAKEFOURCC('B', 'G', 'R', 'F'),  /*!< 16 bits float point ABGR color format packed in 64 bits. 'A' channel is 16 MSBs, then 'B', then 'G' and then 'R' channels. This format should be mapped to DXGI_FORMAT_R16G16B16A16_FLOAT or D3DFMT_A16B16G16R16F formats.. */
-#endif
 };
 
 /* PicStruct */
@@ -234,8 +242,11 @@ enum {
     MFX_CORRUPTION_REFERENCE_FRAME = 0x0010, /*!< Decoding used a corrupted reference frame. A corrupted reference frame was used for decoding this
                                                 frame. For example, if the frame uses a reference frame that was decoded with minor/major corruption flag, then this
                                                 frame is also marked with a reference corruption flag. */
-    MFX_CORRUPTION_REFERENCE_LIST  = 0x0020  /*!< The reference list information of this frame does not match what is specified in the Reference Picture Marking
+    MFX_CORRUPTION_REFERENCE_LIST  = 0x0020, /*!< The reference list information of this frame does not match what is specified in the Reference Picture Marking
                                                   Repetition SEI message. (ITU-T H.264 D.1.8 dec_ref_pic_marking_repetition) */
+#ifdef ONEVPL_EXPERIMENTAL
+    MFX_CORRUPTION_HW_RESET        = 0x0040  /*!< The hardware reset is reported from media driver. */
+#endif
 };
 
 MFX_PACK_BEGIN_USUAL_STRUCT()
@@ -271,7 +282,6 @@ typedef struct
 } mfxA2RGB10;
 MFX_PACK_END()
 
-#ifdef ONEVPL_EXPERIMENTAL
 MFX_PACK_BEGIN_USUAL_STRUCT()
 /*! Specifies "pixel" in ABGR 16 bit half float point color format */
 typedef struct
@@ -282,7 +292,6 @@ typedef struct
     mfxFP16 A; /*!< A component. */
 } mfxABGR16FP;
 MFX_PACK_END()
-#endif
 
 /*! Describes frame buffer pointers. */
 MFX_PACK_BEGIN_STRUCT_W_L_TYPE()
@@ -346,9 +355,7 @@ typedef struct {
         mfxU16  *V16;   /*!< V16 channel. */
         mfxU8   *B;     /*!< B channel. */
         mfxA2RGB10 *A2RGB10; /*!< A2RGB10 channel for A2RGB10 format (merged ARGB). */
-#ifdef ONEVPL_EXPERIMENTAL
         mfxABGR16FP* ABGRFP16; /*!< ABGRFP16 channel for half float ARGB format (use this merged one due to no separate FP16 Alpha Channel). */
-#endif
     };
     mfxU8       *A;     /*!< A channel. */
     mfxMemId    MemId;  /*!< Memory ID of the data buffers. Ignored if any of the preceding data pointers is non-zero. */
@@ -366,17 +373,22 @@ MFX_PACK_END()
 
 /*! The mfxHandleType enumerator itemizes system handle types that implementations might use. */
 typedef enum {
-    MFX_HANDLE_DIRECT3D_DEVICE_MANAGER9         =1,      /*!< Pointer to the IDirect3DDeviceManager9 interface. See Working with Microsoft* DirectX* Applications for more details on how to use this handle. */
+    MFX_HANDLE_DIRECT3D_DEVICE_MANAGER9         = 1,  /*!< Pointer to the IDirect3DDeviceManager9 interface. See Working with Microsoft* DirectX* Applications for more details on how to use this handle. */
     MFX_HANDLE_D3D9_DEVICE_MANAGER              = MFX_HANDLE_DIRECT3D_DEVICE_MANAGER9, /*!< Pointer to the IDirect3DDeviceManager9 interface. See Working with Microsoft* DirectX* Applications for more details on how to use this handle. */
-    MFX_HANDLE_RESERVED1                        = 2, /* Reserved.  */
-    MFX_HANDLE_D3D11_DEVICE                     = 3, /*!< Pointer to the ID3D11Device interface. See Working with Microsoft* DirectX* Applications for more details on how to use this handle. */
-    MFX_HANDLE_VA_DISPLAY                       = 4, /*!< Pointer to VADisplay interface. See Working with VA-API Applications for more details on how to use this handle. */
-    MFX_HANDLE_RESERVED3                        = 5, /* Reserved.  */
-    MFX_HANDLE_VA_CONFIG_ID                     = 6, /*!< Pointer to VAConfigID interface. It represents external VA config for Common Encryption usage model. */
-    MFX_HANDLE_VA_CONTEXT_ID                    = 7, /*!< Pointer to VAContextID interface. It represents external VA context for Common Encryption usage model. */
+    MFX_HANDLE_RESERVED1                        = 2,  /* Reserved.  */
+    MFX_HANDLE_D3D11_DEVICE                     = 3,  /*!< Pointer to the ID3D11Device interface. See Working with Microsoft* DirectX* Applications for more details on how to use this handle. */
+    MFX_HANDLE_VA_DISPLAY                       = 4,  /*!< VADisplay interface. See Working with VA-API Applications for more details on how to use this handle. */
+    MFX_HANDLE_RESERVED3                        = 5,  /* Reserved.  */
+    MFX_HANDLE_VA_CONFIG_ID                     = 6,  /*!< Pointer to VAConfigID interface. It represents external VA config for Common Encryption usage model. */
+    MFX_HANDLE_VA_CONTEXT_ID                    = 7,  /*!< Pointer to VAContextID interface. It represents external VA context for Common Encryption usage model. */
     MFX_HANDLE_CM_DEVICE                        = 8,  /*!< Pointer to CmDevice interface ( Intel(r) C for Metal Runtime ). */
     MFX_HANDLE_HDDLUNITE_WORKLOADCONTEXT        = 9,  /*!< Pointer to HddlUnite::WorkloadContext interface. */
     MFX_HANDLE_PXP_CONTEXT                      = 10, /*!< Pointer to PXP context for protected content support. */
+
+#ifdef ONEVPL_EXPERIMENTAL
+    MFX_HANDLE_CONFIG_INTERFACE                 = 1000,  /*!< Pointer to interface of type mfxConfigInterface. */
+    MFX_HANDLE_MEMORY_INTERFACE                 = 1001,  /*!< Pointer to interface of type mfxMemoryInterface. */
+#endif
 } mfxHandleType;
 
 /*! The mfxMemoryFlags enumerator specifies memory access mode. */
@@ -413,8 +425,140 @@ typedef struct {
 } mfxFrameSurface1;
 MFX_PACK_END()
 
+#ifdef ONEVPL_EXPERIMENTAL
 
+/*! The mfxSurfaceType enumerator specifies the surface type described by mfxSurfaceHeader. */
+typedef enum {
+    MFX_SURFACE_TYPE_UNKNOWN               = 0,      /*!< Unknown surface type. */
+
+    MFX_SURFACE_TYPE_D3D11_TEX2D           = 2,      /*!< D3D11 surface of type ID3D11Texture2D. */
+    MFX_SURFACE_TYPE_VAAPI                 = 3,      /*!< VA-API surface. */
+    MFX_SURFACE_TYPE_OPENCL_IMG2D          = 4,      /*!< OpenCL 2D image (cl_mem). */
+} mfxSurfaceType;
+
+/*! This enumerator specifies the sharing modes which are allowed for importing or exporting shared surfaces. */
+enum {
+    MFX_SURFACE_FLAG_DEFAULT          = 0x0000,      /*!< Default is SHARED import or export. */
+
+    MFX_SURFACE_FLAG_IMPORT_SHARED    = 0x0010,      /*!< Import frames directly by mapping a shared native handle from an application-provided surface to an internally-allocated VPL surface. */
+    MFX_SURFACE_FLAG_IMPORT_COPY      = 0x0020,      /*!< Import frames by copying data from an application-provided surface to an internally-allocated VPL surface. */
+
+    MFX_SURFACE_FLAG_EXPORT_SHARED    = 0x0100,      /*!< Export frames directly by mapping a shared native handle from an internally-allocated VPL surface to an application-provided surface. */
+    MFX_SURFACE_FLAG_EXPORT_COPY      = 0x0200,      /*!< Export frames by copying data from an internally-allocated VPL surface to an application-provided surface. */
+};
+
+MFX_PACK_BEGIN_STRUCT_W_PTR()
+typedef struct {
+    mfxSurfaceType SurfaceType;     /*!< Set to the MFX_SURFACE_TYPE enum corresponding to the specific structure. */
+    mfxU32         SurfaceFlags;    /*!< Set to the MFX_SURFACE_FLAG enum (or combination) corresponding to the allowed import / export mode(s). Multiple flags may be combined with OR. 
+                                         Upon a successful Import or Export operation, this field will indicate the actual mode used.*/
+
+    mfxU32         StructSize;      /*!< Size in bytes of the complete mfxSurfaceXXX structure. */
+
+    mfxU16         NumExtParam;     /*!< The number of extra configuration structures attached to the structure. */
+    mfxExtBuffer** ExtParam;        /*!< Points to an array of pointers to the extra configuration structures; see the ExtendedBufferID enumerator for a list of extended configurations. */
+
+    mfxU32 reserved[6];
+} mfxSurfaceHeader;
+MFX_PACK_END()
+
+
+#define MFX_SURFACEINTERFACE_VERSION MFX_STRUCT_VERSION(1, 0)
+
+/*!
+   Contains mfxSurfaceHeader and the callback functions AddRef, Release and GetRefCounter
+   that the application may use to manage access to exported surfaces.
+   These interfaces are only valid for surfaces obtained by mfxFrameSurfaceInterface::Export.
+   They are not used for surface descriptions passed to function mfxMemoryInterface::ImportFrameSurface.
+*/
+MFX_PACK_BEGIN_STRUCT_W_PTR()
+typedef struct mfxSurfaceInterface {
+    mfxSurfaceHeader Header;  /*!< Exported surface header. Contains description of current surface. */
+
+    mfxStructVersion Version; /*!< The version of the structure. */
+
+    mfxHDL           Context; /*!< The context of the exported surface interface. User should not touch (change, set, null) this pointer. */
+
+    /*! @brief
+    Increments the internal reference counter of the surface. The surface is not destroyed until the surface is released using the mfxSurfaceInterface::Release function.
+    mfxSurfaceInterface::AddRef should be used each time a new link to the surface is created (for example, copy structure) for proper surface management.
+
+    @param[in]  surface  Valid surface.
+
+    @return
+     MFX_ERR_NONE              If no error. \n
+     MFX_ERR_NULL_PTR          If surface is NULL. \n
+     MFX_ERR_INVALID_HANDLE    If mfxSurfaceInterface->Context is invalid (for example NULL). \n
+     MFX_ERR_UNKNOWN           Any internal error.
+
+    */
+    mfxStatus           (MFX_CDECL *AddRef)(struct mfxSurfaceInterface* surface);
+
+    /*! @brief
+    Decrements the internal reference counter of the surface. mfxSurfaceInterface::Release should be called after using the
+    mfxSurfaceInterface::AddRef function to add a surface or when allocation logic requires it. For example, call
+    mfxSurfaceInterface::Release to release a surface obtained with the mfxFrameSurfaceInterface::Export function.
+
+    @param[in]  surface  Valid surface.
+
+    @return
+     MFX_ERR_NONE               If no error. \n
+     MFX_ERR_NULL_PTR           If surface is NULL. \n
+     MFX_ERR_INVALID_HANDLE     If mfxSurfaceInterface->Context is invalid (for example NULL). \n
+     MFX_ERR_UNDEFINED_BEHAVIOR If Reference Counter of surface is zero before call. \n
+     MFX_ERR_UNKNOWN            Any internal error.
+    */
+    mfxStatus           (MFX_CDECL *Release)(struct mfxSurfaceInterface* surface);
+
+    /*! @brief
+    Returns current reference counter of exported surface.
+
+    @param[in]   surface  Valid surface.
+    @param[out]  counter  Sets counter to the current reference counter value.
+
+    @return
+     MFX_ERR_NONE               If no error. \n
+     MFX_ERR_NULL_PTR           If surface or counter is NULL. \n
+     MFX_ERR_INVALID_HANDLE     If mfxSurfaceInterface->Context is invalid (for example NULL). \n
+     MFX_ERR_UNKNOWN            Any internal error.
+    */
+    mfxStatus           (MFX_CDECL *GetRefCounter)(struct mfxSurfaceInterface* surface, mfxU32* counter);
+
+    /*! @brief
+    This function is only valuable for surfaces which were exported in sharing mode (without a copy).
+    Guarantees readiness of both the data (pixels) and any original mfxFrameSurface1 frame's meta information (for example corruption flags) after a function completes.
+
+    Instead of MFXVideoCORE_SyncOperation, users may directly call the mfxSurfaceInterface::Synchronize function after the corresponding
+    Decode or VPP function calls (MFXVideoDECODE_DecodeFrameAsync or MFXVideoVPP_RunFrameVPPAsync).
+    The prerequisites to call the functions are:
+
+    @li The main processing functions return MFX_ERR_NONE.
+    @li A valid surface object.
+
+    @param[in]   surface  Valid surface.
+    @param[out]  wait  Wait time in milliseconds.
+
+    @return
+     MFX_ERR_NONE               If no error. \n
+     MFX_ERR_NULL_PTR           If surface is NULL. \n
+     MFX_ERR_INVALID_HANDLE     If any of surface is not valid object . \n
+     MFX_WRN_IN_EXECUTION       If the given timeout is expired and the surface is not ready. \n
+     MFX_ERR_ABORTED            If the specified asynchronous function aborted due to data dependency on a previous asynchronous function that did not complete. \n
+     MFX_ERR_UNKNOWN            Any internal error.
+    */
+    mfxStatus           (MFX_CDECL *Synchronize)(struct mfxSurfaceInterface* surface, mfxU32 wait);
+
+    mfxHDL reserved[11];
+} mfxSurfaceInterface;
+MFX_PACK_END()
+
+#endif
+
+#ifdef ONEVPL_EXPERIMENTAL
+#define MFX_FRAMESURFACEINTERFACE_VERSION MFX_STRUCT_VERSION(1, 1)
+#else
 #define MFX_FRAMESURFACEINTERFACE_VERSION MFX_STRUCT_VERSION(1, 0)
+#endif
 
 MFX_PACK_BEGIN_STRUCT_W_L_TYPE()
 /* Specifies frame surface interface. */
@@ -422,6 +566,7 @@ typedef struct mfxFrameSurfaceInterface {
     mfxHDL              Context; /*!< The context of the memory interface. User should not touch (change, set, null) this pointer. */
     mfxStructVersion    Version; /*!< The version of the structure. */
     mfxU16              reserved1[3];
+
     /*! @brief
     Increments the internal reference counter of the surface. The surface is not destroyed until the surface is released using the mfxFrameSurfaceInterface::Release function.
     mfxFrameSurfaceInterface::AddRef should be used each time a new link to the surface is created (for example, copy structure) for proper surface management.
@@ -436,6 +581,7 @@ typedef struct mfxFrameSurfaceInterface {
 
     */
     mfxStatus           (MFX_CDECL *AddRef)(mfxFrameSurface1* surface);
+
     /*! @brief
     Decrements the internal reference counter of the surface. mfxFrameSurfaceInterface::Release should be called after using the
     mfxFrameSurfaceInterface::AddRef function to add a surface or when allocation logic requires it. For example, call
@@ -592,7 +738,7 @@ typedef struct mfxFrameSurfaceInterface {
 
     @attention This is callback function and intended to be called by
                the library only.
-    
+
     @note The library calls this callback only when this surface is used as the output surface. 
 
     It is expected that the function is low-intrusive designed otherwise it may
@@ -602,7 +748,7 @@ typedef struct mfxFrameSurfaceInterface {
 
     */
     void               (MFX_CDECL *OnComplete)(mfxStatus sts);
-    
+
    /*! @brief
     Returns an interface defined by the GUID. If the returned interface is a reference 
     counted object the caller should release the obtained interface to avoid memory leaks.
@@ -620,9 +766,35 @@ typedef struct mfxFrameSurfaceInterface {
      MFX_ERR_NOT_INITIALIZED    If requested interface is not available (not created or already deleted). \n
      MFX_ERR_UNKNOWN            Any internal error.
     */
-    mfxStatus           (MFX_CDECL *QueryInterface)(mfxFrameSurface1* surface, mfxGUID guid, mfxHDL* iface); 
+    mfxStatus           (MFX_CDECL *QueryInterface)(mfxFrameSurface1* surface, mfxGUID guid, mfxHDL* iface);
 
+#ifdef ONEVPL_EXPERIMENTAL
+    /*! @brief
+     If successful returns an exported surface, which is a refcounted object allocated by runtime. It could be exported with or without copy, depending
+     on export flags and the possibility of such export. Exported surface is valid throughout the session, as long as the original mfxFrameSurface1 
+     object is not closed and the refcount of exported surface is not zero.
+
+     @param[in]  surface              Valid surface.
+     @param[in]  export_header        Description of export: caller should fill in SurfaceType (type to export to) and SurfaceFlags (allowed export modes).
+     @param[out] exported_surface     Exported surface, allocated by runtime, user needs to decrement refcount after usage for object release.
+                                      After successful export, the value of mfxSurfaceHeader::SurfaceFlags will contain the actual export mode.
+
+
+     @return
+      MFX_ERR_NONE               If no error. \n
+      MFX_ERR_NULL_PTR           If export surface or surface is NULL. \n
+      MFX_ERR_UNSUPPORTED        If requested export is not supported. \n
+      MFX_ERR_NOT_IMPLEMENTED    If requested export is not implemented. \n
+      MFX_ERR_UNKNOWN            Any internal error.
+     */
+
+     /* For reference with Import flow please search for mfxMemoryInterface::ImportFrameSurface. */
+    mfxStatus           (MFX_CDECL *Export)(mfxFrameSurface1* surface, mfxSurfaceHeader export_header, mfxSurfaceHeader** exported_surface);
+
+    mfxHDL              reserved2[1];
+#else
     mfxHDL              reserved2[2];
+#endif
 } mfxFrameSurfaceInterface;
 MFX_PACK_END()
 
@@ -861,13 +1033,13 @@ typedef struct {
         This parameter is a mandated input for QueryIOSurf and Init API functions. The output pattern must be specified for DECODE.
         The input pattern must be specified for ENCODE. Both input and output pattern must be specified for VPP. */
     mfxU16  IOPattern;
-    mfxExtBuffer** ExtParam; /*!< The number of extra configuration structures attached to this structure. */
-    mfxU16  NumExtParam;     /*!< Points to an array of pointers to the extra configuration structures. See the ExtendedBufferID enumerator
+    mfxExtBuffer** ExtParam; /*!< Points to an array of pointers to the extra configuration structures. See the ExtendedBufferID enumerator
                                   for a list of extended configurations.
                                   The list of extended buffers should not contain duplicated entries, such as entries of the same type.
                                   If the  mfxVideoParam structure is used to query library capability, then the list of extended buffers attached to the input
                                   and output mfxVideoParam structure should be equal, that is, it should contain the same number of extended
                                   buffers of the same type. */
+    mfxU16  NumExtParam;     /*!< The number of extra configuration structures attached to this structure. */
     mfxU16  reserved2;
 } mfxVideoParam;
 MFX_PACK_END()
@@ -1509,9 +1681,7 @@ enum {
     MFX_CONTENT_UNKNOWN              = 0,
     MFX_CONTENT_FULL_SCREEN_VIDEO    = 1,
     MFX_CONTENT_NON_VIDEO_SCREEN     = 2,
-#ifdef ONEVPL_EXPERIMENTAL
     MFX_CONTENT_NOISY_VIDEO          = 3
-#endif
 };
 
 /*! The PRefType enumerator itemizes models of reference list construction and DPB management when GopRefDist=1. */
@@ -1755,18 +1925,8 @@ typedef struct {
        If this flag is set to OFF, regular reference frames are used for encoding.
     */
     mfxU16      AdaptiveRef;
-  
-#ifdef ONEVPL_EXPERIMENTAL
-    /*!
-       The tri-state option specifies hint for the library to execute encoding tools processing on CPU. 
-       It may give better encoding quality, but leads to higher CPU utilization. 
-       The library can ignore MFX_CODINGOPTION_ON if processing on CPU is not supported.
-    */
-    mfxU16      CPUEncToolsProcessing;
-    mfxU16      reserved[160];
-#else
+ 
     mfxU16      reserved[161];
-#endif     
   
 } mfxExtCodingOption3;
 MFX_PACK_END()
@@ -2198,7 +2358,7 @@ enum {
     */
     MFX_EXTBUFF_ALLOCATION_HINTS = MFX_MAKEFOURCC('A','L','C','H'),
     
-#ifdef ONEVPL_EXPERIMENTAL    
+#ifdef ONEVPL_EXPERIMENTAL
     /*!
        See the mfxExtSyncSubmission structure for more details.
     */
@@ -2212,6 +2372,10 @@ enum {
        See the mfxExtTuneEncodeQuality structure for details.
     */
     MFX_EXTBUFF_TUNE_ENCODE_QUALITY           = MFX_MAKEFOURCC('T','U','N','E'),
+    /*!
+    See the mfxExtSurfaceOpenCLImg2DExportDescription structure for more details.
+    */
+    MFX_EXTBUFF_EXPORT_SHARING_DESC_OCL = MFX_MAKEFOURCC('E', 'O', 'C', 'L'),
 #endif
 };
 
@@ -3556,12 +3720,8 @@ MFX_PACK_BEGIN_STRUCT_W_L_TYPE()
 typedef struct {
     mfxExtBuffer    Header; /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_MBQP. */
 
-#ifdef ONEVPL_EXPERIMENTAL
     mfxU32 reserved[9];
     mfxU32 Pitch;       /*!< Distance in bytes between the start of two consecutive rows in the QP array. */
-#else
-    mfxU32 reserved[10];
-#endif
     mfxU16 Mode;        /*!< Defines QP update mode. See MBQPMode enumerator for more details. */
     mfxU16 BlockSize;   /*!< QP block size, valid for HEVC only during Init and Runtime. */
     mfxU32 NumQPAlloc;  /*!< Size of allocated by application QP or DeltaQP array. */
@@ -4019,6 +4179,7 @@ typedef mfxExtAVCRefLists mfxExtHEVCRefLists;
 typedef mfxExtAvcTemporalLayers mfxExtHEVCTemporalLayers;
 
 typedef mfxExtAVCRefListCtrl mfxExtRefListCtrl;
+typedef mfxExtAVCEncodedFrameInfo mfxExtEncodedFrameInfo;
 
 /* The MirroringType enumerator itemizes mirroring types. */
 enum
@@ -4862,7 +5023,7 @@ MFX_PACK_END()
 #ifdef ONEVPL_EXPERIMENTAL
 /*! The TuneQuality enumerator specifies tuning option for encode. Multiple tuning options can be combined using bit mask. */
 enum {
-    MFX_ENCODE_TUNE_DEFAULT = 0,   /*!< The balanced option to keep quality balanced across all metrics.  */
+    MFX_ENCODE_TUNE_OFF = 0,  /*!< Tuning quality is disabled.  */
     MFX_ENCODE_TUNE_PSNR    = 0x1, /*!< The encoder optimizes quality according to Peak Signal-to-Noise Ratio (PSNR) metric. */
     MFX_ENCODE_TUNE_SSIM    = 0x2, /*!< The encoder optimizes quality according to Structural Similarity Index Measure (SSIM) metric. */
     MFX_ENCODE_TUNE_MS_SSIM = 0x4, /*!< The encoder optimizes quality according to Multi-Scale Structural Similarity Index Measure (MS-SSIM) metric. */
@@ -4905,6 +5066,8 @@ MFX_PACK_END()
 
 #ifdef __cplusplus
 } // extern "C"
+
 #endif
+
 
 #endif

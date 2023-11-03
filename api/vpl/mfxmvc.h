@@ -16,8 +16,8 @@ extern "C" {
 /* CodecProfile, CodecLevel */
 enum {
     /* MVC profiles */
-    MFX_PROFILE_AVC_MULTIVIEW_HIGH =118, /*!< Multi-view high profile. */
-    MFX_PROFILE_AVC_STEREO_HIGH    =128  /*!< Stereo high profile. */
+    MFX_PROFILE_AVC_MULTIVIEW_HIGH =118, /*!< Multi-view high profile. The encoding of VDEnc or LowPower ON is not supported. */
+    MFX_PROFILE_AVC_STEREO_HIGH    =128  /*!< Stereo high profile. The encoding of VDEnc or LowPower ON is not supported. */
 };
 
 /* Extended Buffer Ids */

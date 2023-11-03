@@ -146,5 +146,4 @@
 
 #define MFXVideoVPP_ProcessFrameAsync                disp_MFXVideoVPP_ProcessFrameAsync
 
-
 #endif 

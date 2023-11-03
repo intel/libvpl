@@ -8,6 +8,7 @@
 #define __MFXVIDEO_H__
 #include "mfxsession.h"
 #include "mfxstructures.h"
+#include "mfxmemory.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -190,112 +191,65 @@ mfxStatus MFX_CDECL MFXVideoCORE_QueryPlatform(mfxSession session, mfxPlatform* 
 */
 mfxStatus MFX_CDECL MFXVideoCORE_SyncOperation(mfxSession session, mfxSyncPoint syncp, mfxU32 wait);
 
-/* MFXMemory */
+#ifdef ONEVPL_EXPERIMENTAL
 
-/*!
-   @brief
-      Returns surface which can be used as input for VPP.
+/*! Maximum allowed length of parameter key and value strings, in bytes. */
+#define MAX_PARAM_STRING_LENGTH     4096
 
-      VPP should be initialized before this call.
-      Surface should be released with mfxFrameSurface1::FrameInterface.Release(...) after usage. The value of mfxFrameSurface1::Data.Locked for the returned surface is 0.
+/*! The mfxStructureType enumerator specifies the structure type for configuration with the string interface. */
+typedef enum {
+    MFX_STRUCTURE_TYPE_UNKNOWN = 0,         /*!< Unknown structure type. */
 
+    MFX_STRUCTURE_TYPE_VIDEO_PARAM = 1,     /*!< Structure of type mfxVideoParam. */
+} mfxStructureType;
 
-   @param[in]  session Session handle.
-   @param[out] surface   Pointer is set to valid mfxFrameSurface1 object.
+#define MFX_CONFIGINTERFACE_VERSION MFX_STRUCT_VERSION(1, 0)
 
-   @return
-   MFX_ERR_NONE The function completed successfully. \n
-   MFX_ERR_NULL_PTR If double-pointer to the @p surface is NULL. \n
-   MFX_ERR_INVALID_HANDLE If @p session was not initialized. \n
-   MFX_ERR_NOT_INITIALIZED If VPP was not initialized (allocator needs to know surface size from somewhere). \n
-   MFX_ERR_MEMORY_ALLOC In case of any other internal allocation error. \n
-   MFX_WRN_ALLOC_TIMEOUT_EXPIRED In case of waiting timeout expired (if set with mfxExtAllocationHints).
+MFX_PACK_BEGIN_STRUCT_W_PTR()
+/* Specifies config interface. */
+typedef struct mfxConfigInterface {
+    mfxHDL              Context; /*!< The context of the config interface. User should not touch (change, set, null) this pointer. */
+    mfxStructVersion    Version; /*!< The version of the structure. */
 
-   @since This function is available since API version 2.0.
+    /*! @brief
+       Sets a parameter to specified value in the current session. If a parameter already has a value, 
+       the new value will overwrite the existing value.
 
-*/
-mfxStatus MFX_CDECL MFXMemory_GetSurfaceForVPP(mfxSession session, mfxFrameSurface1** surface);
+       @param[in] config_interface     The valid interface returned by calling MFXQueryInterface().
+       @param[in] key                  Null-terminated string containing parameter to set. The string length must be < MAX_PARAM_STRING_LENGTH bytes.
+       @param[in] value                Null-terminated string containing value to which key should be set. The string length must be < MAX_PARAM_STRING_LENGTH bytes.
+                                       value will be converted from a string to the expected data type for the given key, or return an error if conversion fails.
+       @param[in] struct_type          Type of structure pointed to by structure.
+       @param[out] structure           If and only if SetParameter returns MFX_ERR_NONE, the contents of structure (including any attached extension
+                                       buffers) will be updated according to the provided key and value. If key modifies a field in an extension buffer 
+                                       which is not already attached, the function will return MFX_ERR_MORE_EXTBUFFER and fill ext_buffer with the header for
+                                       the required mfxExtBuffer type.
+       @param[out] ext_buffer          If and only if SetParameter returns MFX_ERR_MORE_EXTBUFFER, ext_buffer will contain the header for a buffer
+                                       of type mfxExtBuffer. The caller should allocate a buffer of the size ext_buffer.BufferSz, copy the header in ext_buffer
+                                       to the start of this new buffer, attach this buffer to videoParam, then call SetParameter again. Otherwise, the 
+                                       contents of ext_buffer will be cleared.
+       @return
+          MFX_ERR_NONE                 The function completed successfully.
+          MFX_ERR_NULL_PTR             If key, value, videoParam, and/or ext_buffer is NULL.
+          MFX_ERR_NOT_FOUND            If key contains an unknown parameter name.
+          MFX_ERR_UNSUPPORTED          If value is of the wrong format for key (for example, a string is provided where an integer is required)
+                                       or if value cannot be converted into any valid data type.
+          MFX_ERR_INVALID_VIDEO_PARAM  If length of key or value is >= MAX_PARAM_STRING_LENGTH or is zero (empty string).
+          MFX_ERR_MORE_EXTBUFFER       If key requires modifying a field in an mfxExtBuffer which is not attached. Caller must allocate and attach
+                                       the buffer type provided in ext_buffer then call the function again.
 
-/*!
-   @brief
-      Returns surface which can be used as output of VPP.
+       @since This function is available since API version 2.10.
+    */
+    mfxStatus (MFX_CDECL *SetParameter)(struct mfxConfigInterface *config_interface, const mfxU8* key, const mfxU8* value, mfxStructureType struct_type, mfxHDL structure, mfxExtBuffer *ext_buffer);
 
-      VPP should be initialized before this call.
-      Surface should be released with mfxFrameSurface1::FrameInterface.Release(...) after usage. The value of mfxFrameSurface1::Data.Locked for the returned surface is 0.
+    mfxHDL     reserved[16];
+} mfxConfigInterface;
+MFX_PACK_END()
 
+/*! Alias for returning interface of type mfxConfigInterface. */
+#define MFXGetConfigInterface(session, piface)  MFXVideoCORE_GetHandle((session), MFX_HANDLE_CONFIG_INTERFACE, (mfxHDL *)(piface))
 
-   @param[in]  session Session handle.
-   @param[out] surface   Pointer is set to valid mfxFrameSurface1 object.
-
-   @return
-   MFX_ERR_NONE The function completed successfully. \n
-   MFX_ERR_NULL_PTR If double-pointer to the @p surface is NULL. \n
-   MFX_ERR_INVALID_HANDLE If @p session was not initialized. \n
-   MFX_ERR_NOT_INITIALIZED If VPP was not initialized (allocator needs to know surface size from somewhere). \n
-   MFX_ERR_MEMORY_ALLOC In case of any other internal allocation error. \n
-   MFX_WRN_ALLOC_TIMEOUT_EXPIRED In case of waiting timeout expired (if set with mfxExtAllocationHints).
-
-   @since This function is available since API version 2.1.
-
-*/
-mfxStatus MFX_CDECL MFXMemory_GetSurfaceForVPPOut(mfxSession session, mfxFrameSurface1** surface);
-
-/*! Alias for MFXMemory_GetSurfaceForVPP function. */
-#define MFXMemory_GetSurfaceForVPPIn MFXMemory_GetSurfaceForVPP
-
-/*!
-   @brief
-    Returns a surface which can be used as input for the encoder.
-
-    Encoder should be initialized before this call.
-    Surface should be released with mfxFrameSurface1::FrameInterface.Release(...) after usage. The value of mfxFrameSurface1::Data.Locked for the returned surface is 0.
-
-
-
-   @param[in]  session Session handle.
-   @param[out] surface   Pointer is set to valid mfxFrameSurface1 object.
-
-   @return
-   MFX_ERR_NONE The function completed successfully.\n
-   MFX_ERR_NULL_PTR If surface is NULL.\n
-   MFX_ERR_INVALID_HANDLE If session was not initialized.\n
-   MFX_ERR_NOT_INITIALIZED If the encoder was not initialized (allocator needs to know surface size from somewhere).\n
-   MFX_ERR_MEMORY_ALLOC In case of any other internal allocation error. \n
-   MFX_WRN_ALLOC_TIMEOUT_EXPIRED In case of waiting timeout expired (if set with mfxExtAllocationHints).
-
-   @since This function is available since API version 2.0.
-
-*/
-mfxStatus MFX_CDECL MFXMemory_GetSurfaceForEncode(mfxSession session, mfxFrameSurface1** surface);
-
-/*!
-   @brief
-    Returns a surface which can be used as output of the decoder.
-
-    Decoder should be initialized before this call.
-    Surface should be released with mfxFrameSurface1::FrameInterface.Release(...) after usage. The value of mfxFrameSurface1::Data.Locked for the returned surface is 0.'
-
-    @note This function was added to simplify transition from legacy surface management to the proposed internal allocation approach.
-    Previously, the user allocated surfaces for the working pool and fed them to the decoder using DecodeFrameAsync calls. With MFXMemory_GetSurfaceForDecode
-    it is possible to change the existing pipeline by just changing the source of work surfaces.
-    Newly developed applications should prefer direct usage of DecodeFrameAsync with internal allocation.
-
-
-   @param[in]  session Session handle.
-   @param[out] surface   Pointer is set to valid mfxFrameSurface1 object.
-
-   @return
-   MFX_ERR_NONE The function completed successfully.\n
-   MFX_ERR_NULL_PTR If surface is NULL.\n
-   MFX_ERR_INVALID_HANDLE If session was not initialized.\n
-   MFX_ERR_NOT_INITIALIZED If the decoder was not initialized (allocator needs to know surface size from somewhere).\n
-   MFX_ERR_MEMORY_ALLOC Other internal allocation error. \n
-   MFX_WRN_ALLOC_TIMEOUT_EXPIRED In case of waiting timeout expired (if set with mfxExtAllocationHints).
-
-   @since This function is available since API version 2.0.
-
-*/
-mfxStatus MFX_CDECL MFXMemory_GetSurfaceForDecode(mfxSession session, mfxFrameSurface1** surface);
+#endif
 
 /* VideoENCODE */
 
@@ -475,7 +429,11 @@ mfxStatus MFX_CDECL MFXVideoENCODE_GetEncodeStat(mfxSession session, mfxEncodeSt
 
    @param[in] session Session handle.
    @param[in] ctrl  Pointer to the mfxEncodeCtrl structure for per-frame encoding control; this parameter is optional (it can be NULL) if the encoder works in the display order mode.
+                    ctrl can be freed right after successful MFXVideoENCODE_EncodeFrameAsync (it is copied inside), but not the ext buffers attached to this ctrl.
+                    If the ext buffers are allocated by the user, do not move, alter or delete unless surface.Data.Locked is zero.
    @param[in] surface  Pointer to the frame surface structure.
+                       For surfaces allocated by VPL RT it is safe to call mfxFrameSurface1::FrameInterface->Release after successful MFXVideoENCODE_EncodeFrameAsync.
+                       If it is allocated by user, do not move, alter or delete unless surface.Data.Locked is zero.
    @param[out] bs   Pointer to the output bitstream.
    @param[out] syncp  Pointer to the returned sync point associated with this operation.
 

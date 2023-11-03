@@ -29,7 +29,6 @@ typedef struct {
 } mfxExtBuffer;
 MFX_PACK_END()
 
-#ifdef ONEVPL_EXPERIMENTAL
 
 #define MFX_REFINTERFACE_VERSION MFX_STRUCT_VERSION(1, 0)
 
@@ -87,7 +86,6 @@ typedef struct mfxRefInterface {
 
 }mfxRefInterface;
 MFX_PACK_END()
-#endif
 
 /* Library initialization and deinitialization */
 /*!
@@ -191,10 +189,8 @@ enum {
     MFX_GPUCOPY_DEFAULT = 0, /*!< Use default mode for the legacy Intel(r) Media SDK implementation. */
     MFX_GPUCOPY_ON      = 1, /*!< The hint to enable GPU accelerated copying when it is supported by the library. 
                                   If the library doesn't support GPU accelerated copy the operation will be made by CPU. */
-    MFX_GPUCOPY_OFF     = 2,  /*!< Disable GPU accelerated copying. */
-#ifdef ONEVPL_EXPERIMENTAL
+    MFX_GPUCOPY_OFF     = 2, /*!< Disable GPU accelerated copying. */
     MFX_GPUCOPY_SAFE    = 3  /*!< The hint to disable buffer caching for GPU accelerated copying. Actual when GPU accelerated copying is supported by the library. */
-#endif
 };
 
 MFX_PACK_BEGIN_STRUCT_W_PTR()
@@ -293,9 +289,9 @@ typedef enum {
     MFX_RESOURCE_VA_SURFACE                      = MFX_RESOURCE_VA_SURFACE_PTR, /*!< Pointer to VA surface index. */
     MFX_RESOURCE_VA_BUFFER_PTR                   = 3, /*!< Pointer to VA buffer index. */
     MFX_RESOURCE_VA_BUFFER                       = MFX_RESOURCE_VA_BUFFER_PTR, /*!< Pointer to VA buffer index. */
-    MFX_RESOURCE_DX9_SURFACE                     = 4, /*!< IDirect3DSurface9. */
-    MFX_RESOURCE_DX11_TEXTURE                    = 5, /*!< ID3D11Texture2D. */
-    MFX_RESOURCE_DX12_RESOURCE                   = 6, /*!< ID3D12Resource. */
+    MFX_RESOURCE_DX9_SURFACE                     = 4, /*!< Pointer to IDirect3DSurface9. */
+    MFX_RESOURCE_DX11_TEXTURE                    = 5, /*!< Pointer to ID3D11Texture2D. */
+    MFX_RESOURCE_DX12_RESOURCE                   = 6, /*!< Pointer to ID3D12Resource. */
     MFX_RESOURCE_DMA_RESOURCE                    = 7, /*!< DMA resource. */
     MFX_RESOURCE_HDDLUNITE_REMOTE_MEMORY         = 8, /*!< HDDL Unite Remote memory handle. */
 } mfxResourceType;
@@ -531,7 +527,6 @@ typedef struct {
 } mfxImplementedFunctions;
 MFX_PACK_END()
 
-#ifdef ONEVPL_EXPERIMENTAL
 
 #define MFX_EXTENDEDDEVICEID_VERSION MFX_STRUCT_VERSION(1, 0)
 
@@ -579,7 +574,6 @@ typedef struct {
 } extDeviceUUID;
 MFX_PACK_END()
 
-#endif
 
 /* The mfxImplCapsDeliveryFormat enumerator specifies delivery format of the implementation capability. */
 typedef enum {
@@ -588,9 +582,10 @@ typedef enum {
     MFX_IMPLCAPS_IMPLPATH                = 3,  /*!< Deliver pointer to the null-terminated string with the path to the
                                                     implementation. String is delivered in a form of buffer of
                                                     mfxChar type. */
-#ifdef ONEVPL_EXPERIMENTAL
-    MFX_IMPLCAPS_DEVICE_ID_EXTENDED      = 4   /*!< Deliver extended device ID information as mfxExtendedDeviceId
+    MFX_IMPLCAPS_DEVICE_ID_EXTENDED      = 4,  /*!< Deliver extended device ID information as mfxExtendedDeviceId
                                                     structure.*/
+#ifdef ONEVPL_EXPERIMENTAL
+    MFX_IMPLCAPS_SURFACE_TYPES           = 5,  /*!< Deliver capabilities as mfxSurfaceTypesSupported structure. */
 #endif
 } mfxImplCapsDeliveryFormat;
 

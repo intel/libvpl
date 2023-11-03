@@ -8,7 +8,6 @@
 
 #include "mfxcommon.h"
 
-#ifdef ONEVPL_EXPERIMENTAL
 
 #if !defined(__GNUC__)
     #pragma warning(disable : 4201)
@@ -402,5 +401,4 @@ MFX_PACK_END()
 } // extern "C"
 #endif
 
-#endif // ONEVPL_EXPERIMENTAL
 #endif // __MFXCAMERA_H__
