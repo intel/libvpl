@@ -770,13 +770,12 @@ mfxStatus LoaderCtxVPL::UnloadSingleImplementation(ImplInfo *implInfo) {
                 (*(mfxStatus(MFX_CDECL *)(mfxHDL))pFunc)(implInfo->implFuncs);
                 implInfo->implFuncs = nullptr;
             }
-#ifdef ONEVPL_EXPERIMENTAL
+
             if (implInfo->implExtDeviceID) {
                 // MFX_IMPLCAPS_DEVICE_ID_EXTENDED;
                 (*(mfxStatus(MFX_CDECL *)(mfxHDL))pFunc)(implInfo->implExtDeviceID);
                 implInfo->implExtDeviceID = nullptr;
             }
-#endif
 
             // nothing to do if (capsFormat == MFX_IMPLCAPS_IMPLPATH) since no new memory was allocated
         }
@@ -886,10 +885,8 @@ mfxStatus LoaderCtxVPL::QueryLibraryCaps() {
             mfxHDL *hImpl   = nullptr;
             mfxU32 numImpls = 0;
 
-#ifdef ONEVPL_EXPERIMENTAL
             mfxHDL *hImplExtDeviceID   = nullptr;
             mfxU32 numImplsExtDeviceID = 0;
-#endif
 
             if (m_bLowLatency == false) {
                 // call MFXQueryImplsDescription() for this implementation
@@ -919,11 +916,9 @@ mfxStatus LoaderCtxVPL::QueryLibraryCaps() {
                     continue;
                 }
 
-#ifdef ONEVPL_EXPERIMENTAL
                 hImplExtDeviceID =
                     (*(mfxHDL * (MFX_CDECL *)(mfxImplCapsDeliveryFormat, mfxU32 *))
                          pFunc)(MFX_IMPLCAPS_DEVICE_ID_EXTENDED, &numImplsExtDeviceID);
-#endif
             }
 
             // query for list of implemented functions
@@ -950,10 +945,8 @@ mfxStatus LoaderCtxVPL::QueryLibraryCaps() {
                 // library which contains this implementation
                 implInfo->libInfo = libInfo;
 
-#ifdef ONEVPL_EXPERIMENTAL
                 if (hImplExtDeviceID && i < numImplsExtDeviceID)
                     implInfo->implExtDeviceID = hImplExtDeviceID[i];
-#endif
 
                 // implemented function description, if available
                 if (hImplFuncs && i < numImplsFuncs)
@@ -1034,11 +1027,9 @@ mfxStatus LoaderCtxVPL::QueryLibraryCaps() {
 
             mfxU32 numImplMSDK = 0;
             for (mfxU32 i = 0; i < maxImplMSDK; i++) {
-                mfxImplDescription *implDesc       = nullptr;
-                mfxImplementedFunctions *implFuncs = nullptr;
-#ifdef ONEVPL_EXPERIMENTAL
+                mfxImplDescription *implDesc         = nullptr;
+                mfxImplementedFunctions *implFuncs   = nullptr;
                 mfxExtendedDeviceId *implExtDeviceID = nullptr;
-#endif
 
                 LoaderCtxMSDK *msdkCtx = &(libInfo->msdkCtx[i]);
                 if (m_bLowLatency == false) {
@@ -1060,15 +1051,12 @@ mfxStatus LoaderCtxVPL::QueryLibraryCaps() {
                         continue;
                     }
 
-#ifdef ONEVPL_EXPERIMENTAL
                     sts = LoaderCtxMSDK::QueryExtDeviceID(&(msdkCtx->m_extDeviceID),
                                                           i,
                                                           msdkCtx->m_deviceID,
                                                           msdkCtx->m_luid);
                     if (sts == MFX_ERR_NONE)
                         implExtDeviceID = &(msdkCtx->m_extDeviceID);
-
-#endif
                 }
                 else {
                     // unknown API - unable to create session on any adapter
@@ -1091,10 +1079,9 @@ mfxStatus LoaderCtxVPL::QueryLibraryCaps() {
                 // implemented function description, if available
                 implInfo->implFuncs = implFuncs;
 
-#ifdef ONEVPL_EXPERIMENTAL
                 // extended device ID description, if available
                 implInfo->implExtDeviceID = implExtDeviceID;
-#endif
+
                 // fill out mfxInitializationParam for use in CreateSession (MFXInitialize path)
                 memset(&(implInfo->vplParam), 0, sizeof(mfxInitializationParam));
 
@@ -1265,11 +1252,9 @@ mfxStatus LoaderCtxVPL::QueryImpl(mfxU32 idx, mfxImplCapsDeliveryFormat format, 
             else if (format == MFX_IMPLCAPS_IMPLPATH) {
                 *idesc = implInfo->libInfo->implCapsPath;
             }
-#ifdef ONEVPL_EXPERIMENTAL
             else if (format == MFX_IMPLCAPS_DEVICE_ID_EXTENDED) {
                 *idesc = implInfo->implExtDeviceID;
             }
-#endif
 
             // implementation found, but requested query format is not supported
             if (*idesc == nullptr)
@@ -1315,11 +1300,9 @@ mfxStatus LoaderCtxVPL::ReleaseImpl(mfxHDL idesc) {
         else if (implInfo->libInfo->implCapsPath == idesc) {
             capsFormat = MFX_IMPLCAPS_IMPLPATH;
         }
-#ifdef ONEVPL_EXPERIMENTAL
         else if (implInfo->implExtDeviceID == idesc) {
             capsFormat = MFX_IMPLCAPS_DEVICE_ID_EXTENDED;
         }
-#endif
         else {
             // no match - try next implementation
             it++;
@@ -1346,12 +1329,10 @@ mfxStatus LoaderCtxVPL::ReleaseImpl(mfxHDL idesc) {
                 sts                 = (*(mfxStatus(MFX_CDECL *)(mfxHDL))pFunc)(implInfo->implFuncs);
                 implInfo->implFuncs = nullptr;
             }
-#ifdef ONEVPL_EXPERIMENTAL
             else if (capsFormat == MFX_IMPLCAPS_DEVICE_ID_EXTENDED) {
                 sts = (*(mfxStatus(MFX_CDECL *)(mfxHDL))pFunc)(implInfo->implExtDeviceID);
                 implInfo->implExtDeviceID = nullptr;
             }
-#endif
 
             // nothing to do if (capsFormat == MFX_IMPLCAPS_IMPLPATH) since no new memory was allocated
         }
@@ -1393,9 +1374,7 @@ mfxStatus LoaderCtxVPL::UpdateValidImplList(void) {
         // compare caps from this library vs. config filters
         sts = ConfigCtxVPL::ValidateConfig((mfxImplDescription *)implInfo->implDesc,
                                            (mfxImplementedFunctions *)implInfo->implFuncs,
-#ifdef ONEVPL_EXPERIMENTAL
                                            (mfxExtendedDeviceId *)implInfo->implExtDeviceID,
-#endif
                                            m_configCtxList,
                                            implInfo->libInfo->libType,
                                            &m_specialConfig);

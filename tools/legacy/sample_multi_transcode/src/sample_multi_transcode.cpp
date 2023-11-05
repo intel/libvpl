@@ -185,20 +185,18 @@ mfxStatus Launcher::Init(int argc, char* argv[]) {
 
         m_pLoader->SetAdapterType(m_InputParamsArray[0].adapterType);
 
-#ifdef ONEVPL_EXPERIMENTAL
         if (m_InputParamsArray[0].PCIDeviceSetup)
             m_pLoader->SetPCIDevice(m_InputParamsArray[0].PCIDomain,
                                     m_InputParamsArray[0].PCIBus,
                                     m_InputParamsArray[0].PCIDevice,
                                     m_InputParamsArray[0].PCIFunction);
 
-    #if defined(_WIN32)
+#if defined(_WIN32)
         if (m_InputParamsArray[0].luid.HighPart > 0 || m_InputParamsArray[0].luid.LowPart > 0)
             m_pLoader->SetupLUID(m_InputParamsArray[0].luid);
-    #else
+#else
         if (m_InputParamsArray[0].DRMRenderNodeNum > 0)
             m_pLoader->SetupDRMRenderNodeNum(m_InputParamsArray[0].DRMRenderNodeNum);
-    #endif
 #endif
 
         sts = m_pLoader->ConfigureAndEnumImplementations(m_InputParamsArray[0].libType,
@@ -352,13 +350,11 @@ mfxStatus Launcher::Init(int argc, char* argv[]) {
                     libvaBackend         = params.libvaBackend;
 
                     /* Rendering case */
-    #ifdef ONEVPL_EXPERIMENTAL
                     if (InputParams.strDevicePath.empty() && InputParams.verSessionInit == API_2X) {
                         InputParams.strDevicePath =
                             "/dev/dri/renderD" +
                             std::to_string(m_pLoader->GetDRMRenderNodeNumUsed());
                     }
-    #endif
 
                     hwdev.reset(CreateVAAPIDevice(InputParams.strDevicePath, params.libvaBackend));
                     if (!hwdev.get()) {
@@ -413,14 +409,12 @@ mfxStatus Launcher::Init(int argc, char* argv[]) {
                 }
                 else /* NO RENDERING*/
                 {
-    #ifdef ONEVPL_EXPERIMENTAL
                     if (m_InputParamsArray[i].strDevicePath.empty() &&
                         m_InputParamsArray[i].verSessionInit == API_2X) {
                         m_InputParamsArray[i].strDevicePath =
                             "/dev/dri/renderD" +
                             std::to_string(m_pLoader->GetDRMRenderNodeNumUsed());
                     }
-    #endif
 
                     hwdev.reset(CreateVAAPIDevice(m_InputParamsArray[i].strDevicePath));
 

@@ -23,8 +23,6 @@ TEST(Dispatcher_Stub_CreateSession, SetInvalidNumThreadTypeReturnsErrUnsupported
     Dispatcher_CreateSession_SetInvalidNumThreadTypeReturnsErrUnsupported(MFX_IMPL_TYPE_STUB);
 }
 
-#ifdef ONEVPL_EXPERIMENTAL
-
 // mfxExtendedDeviceId tests
 TEST(Dispatcher_Stub_CreateSession, ExtDeviceID_VendorID_Valid) {
     SKIP_IF_DISP_STUB_DISABLED();
@@ -145,8 +143,6 @@ TEST(Dispatcher_Stub_CreateSession, ExtDeviceID_DeviceName_Invalid) {
     SKIP_IF_DISP_STUB_DISABLED();
     Dispatcher_CreateSession_ExtDeviceID_DeviceName_Invalid(MFX_IMPL_TYPE_STUB);
 }
-
-#endif // ONEVPL_EXPERIMENTAL
 
 // test using NumThread filter property during initialization
 static void Dispatcher_CreateSession_RuntimeParsesExtBuf(mfxImplType implType) {
@@ -572,7 +568,6 @@ TEST(Dispatcher_Stub_CreateSession, UnsupportedExtBufReturnsUnsupported) {
     MFXUnload(loader);
 }
 
-#ifdef ONEVPL_EXPERIMENTAL
 TEST(Dispatcher_Stub_CreateSession, ExtDeviceID_EnumImpl_ValidStub) {
     SKIP_IF_DISP_STUB_DISABLED();
 
@@ -622,7 +617,6 @@ TEST(Dispatcher_Stub_CreateSession, ExtDeviceID_EnumImpl_InvalidStub) {
     MFXDispReleaseImplDescription(loader, idescDevice);
     MFXUnload(loader);
 }
-#endif // ONEVPL_EXPERIMENTAL
 
 TEST(Dispatcher_Stub_CloneSession, Basic_Clone_Succeeds) {
     SKIP_IF_DISP_STUB_DISABLED();

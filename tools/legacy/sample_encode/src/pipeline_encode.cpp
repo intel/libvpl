@@ -956,11 +956,9 @@ mfxStatus CEncodingPipeline::CreateHWDevice() {
     MSDK_CHECK_STATUS(sts, "m_hwdev->Init failed");
 
 #elif LIBVA_SUPPORT
-    #ifdef ONEVPL_EXPERIMENTAL
     if (m_strDevicePath.empty() && m_verSessionInit == API_2X) {
         m_strDevicePath = "/dev/dri/renderD" + std::to_string(m_pLoader->GetDRMRenderNodeNumUsed());
     }
-    #endif
 
     m_hwdev = CreateVAAPIDevice(m_strDevicePath);
 
@@ -1697,19 +1695,17 @@ mfxStatus CEncodingPipeline::Init(sInputParams* pParams) {
         if (pParams->adapterNum >= 0)
             m_pLoader->SetAdapterNum(pParams->adapterNum);
 
-#ifdef ONEVPL_EXPERIMENTAL
         if (pParams->PCIDeviceSetup)
             m_pLoader->SetPCIDevice(pParams->PCIDomain,
                                     pParams->PCIBus,
                                     pParams->PCIDevice,
                                     pParams->PCIFunction);
 
-    #if (defined(_WIN64) || defined(_WIN32))
+#if (defined(_WIN64) || defined(_WIN32))
         if (pParams->luid.HighPart > 0 || pParams->luid.LowPart > 0)
             m_pLoader->SetupLUID(pParams->luid);
-    #else
+#else
         m_pLoader->SetupDRMRenderNodeNum(pParams->DRMRenderNodeNum);
-    #endif
 #endif
 
         if (!pParams->accelerationMode && pParams->bUseHWLib) {

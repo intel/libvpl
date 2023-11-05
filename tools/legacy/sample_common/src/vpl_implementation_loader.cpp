@@ -197,8 +197,7 @@ mfxStatus VPLImplementationLoader::ConfigureVersion(mfxVersion const version) {
     return sts;
 }
 
-#ifdef ONEVPL_EXPERIMENTAL
-    #if defined(_WIN32)
+#if defined(_WIN32)
 mfxStatus VPLImplementationLoader::SetupLUID(LUID luid) {
     *((LUID*)&m_LUID) = luid;
 
@@ -206,7 +205,7 @@ mfxStatus VPLImplementationLoader::SetupLUID(LUID luid) {
 
     return MFX_ERR_NONE;
 }
-    #else
+#else
 
 mfxStatus VPLImplementationLoader::SetupDRMRenderNodeNum(mfxU32 DRMRenderNodeNum) {
     m_DRMRenderNodeNum = DRMRenderNodeNum;
@@ -217,7 +216,7 @@ mfxU32 VPLImplementationLoader::GetDRMRenderNodeNumUsed() {
     return m_DRMRenderNodeNumUsed;
 }
 
-    #endif
+#endif
 
 mfxStatus VPLImplementationLoader::SetPCIDevice(mfxI32 domain,
                                                 mfxI32 bus,
@@ -236,7 +235,6 @@ mfxStatus VPLImplementationLoader::SetPCIDevice(mfxI32 domain,
 
     return MFX_ERR_NONE;
 }
-#endif
 
 void VPLImplementationLoader::SetAdapterType(mfxU16 adapterType) {
     if (m_adapterNum != -1 && adapterType != mfxMediaAdapterType::MFX_MEDIA_UNKNOWN) {
@@ -280,11 +278,9 @@ void VPLImplementationLoader::SetAdapterNum(mfxI32 adapterNum) {
 }
 
 mfxStatus VPLImplementationLoader::EnumImplementations() {
-    mfxImplDescription* idesc = nullptr;
-#ifdef ONEVPL_EXPERIMENTAL
+    mfxImplDescription* idesc        = nullptr;
     mfxExtendedDeviceId* idescDevice = nullptr;
-#endif
-    mfxStatus sts = MFX_ERR_NONE;
+    mfxStatus sts                    = MFX_ERR_NONE;
 
     std::vector<std::pair<mfxU32, mfxImplDescription*>> unique_devices;
 
@@ -301,7 +297,7 @@ mfxStatus VPLImplementationLoader::EnumImplementations() {
         else if (idesc->ApiVersion < m_MinVersion) {
             continue;
         }
-#ifdef ONEVPL_EXPERIMENTAL
+
         sts = MFXEnumImplementations(m_Loader,
                                      impl,
                                      MFX_IMPLCAPS_DEVICE_ID_EXTENDED,
@@ -314,7 +310,7 @@ mfxStatus VPLImplementationLoader::EnumImplementations() {
                 continue;
             }
 
-    #if defined(_WIN32)
+#if defined(_WIN32)
             if (m_LUID > 0) {
                 if (!idescDevice->LUIDValid)
                     continue;
@@ -330,24 +326,24 @@ mfxStatus VPLImplementationLoader::EnumImplementations() {
                 if (!luidEq)
                     continue;
             }
-    #else
+#else
             if (m_DRMRenderNodeNum > 0) {
                 if (idescDevice->DRMRenderNodeNum != m_DRMRenderNodeNum)
                     continue;
             }
-    #endif
+#endif
         }
         else {
             sts = MFX_ERR_NONE;
             if (m_PCIDeviceSetup
-    #if defined(_WIN32)
+#if defined(_WIN32)
                 || m_LUID > 0
-    #endif
+#endif
             ) {
                 continue;
             }
         }
-#endif
+
         // collect uniq devices, try to find if adapter already collected
         auto it = std::find_if(unique_devices.begin(),
                                unique_devices.end(),
@@ -403,17 +399,15 @@ mfxStatus VPLImplementationLoader::EnumImplementations() {
         sts = MFX_ERR_NOT_FOUND;
     }
 
-#ifdef ONEVPL_EXPERIMENTAL
     mfxStatus stsExt = MFXEnumImplementations(m_Loader,
                                               m_ImplIndex,
                                               MFX_IMPLCAPS_DEVICE_ID_EXTENDED,
                                               (mfxHDL*)&idescDevice);
-    #if !defined(_WIN32)
+#if !defined(_WIN32)
     if (stsExt == MFX_ERR_NONE && idescDevice) {
         m_DRMRenderNodeNumUsed = idescDevice->DRMRenderNodeNum;
         MFXDispReleaseImplDescription(m_Loader, idescDevice);
     }
-    #endif
 #endif
 
     return sts;
@@ -430,13 +424,10 @@ mfxStatus VPLImplementationLoader::ConfigureAndEnumImplementations(
 
     if (m_Impl != MFX_IMPL_TYPE_HARDWARE ||
         m_adapterType != mfxMediaAdapterType::MFX_MEDIA_UNKNOWN || !lowLatencyMode
-#ifdef ONEVPL_EXPERIMENTAL
-    #if defined(_WIN32)
+#if defined(_WIN32)
         || m_LUID > 0
-    #endif
-        || (m_PCIDeviceSetup)
 #endif
-    ) {
+        || (m_PCIDeviceSetup)) {
         sts = EnumImplementations();
         MSDK_CHECK_STATUS(sts, "EnumImplementations failed");
     }
@@ -583,9 +574,7 @@ mfxStatus MainVideoSession::PrintLibInfo(VPLImplementationLoader* Loader) {
 
     // Module Name
 #if (defined(LINUX32) || defined(LINUX64))
-    #ifdef ONEVPL_EXPERIMENTAL
     printf("    DRMRenderNodeNum: %d \n", Loader->GetDRMRenderNodeNumUsed());
-    #endif
     printf("Used implementation number: %d \n", Loader->GetImplIndex());
     printf("Loaded modules:\n");
     int numLoad = 0;

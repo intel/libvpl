@@ -200,19 +200,17 @@ mfxStatus CUserPipeline::Init(sInputParams* pParams) {
     else {
         m_pLoader.reset(new VPLImplementationLoader);
 
-#ifdef ONEVPL_EXPERIMENTAL
         if (pParams->PCIDeviceSetup)
             m_pLoader->SetPCIDevice(pParams->PCIDomain,
                                     pParams->PCIBus,
                                     pParams->PCIDevice,
                                     pParams->PCIFunction);
 
-    #if (defined(_WIN64) || defined(_WIN32))
+#if (defined(_WIN64) || defined(_WIN32))
         if (pParams->luid.HighPart > 0 || pParams->luid.LowPart > 0)
             m_pLoader->SetupLUID(pParams->luid);
-    #else
+#else
         m_pLoader->SetupDRMRenderNodeNum(pParams->DRMRenderNodeNum);
-    #endif
 #endif
 
         sts = m_pLoader->ConfigureImplementation(impl);

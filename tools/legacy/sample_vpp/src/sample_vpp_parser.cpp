@@ -41,14 +41,12 @@ void vppPrintHelp(const char* strAppName, const char* strErrorMessage) {
     printf(
         "                                  If not specified, defaults to the first Intel device found on the system\n\n");
 #endif
-#ifdef ONEVPL_EXPERIMENTAL
-    #if (defined(_WIN64) || defined(_WIN32))
+#if (defined(_WIN64) || defined(_WIN32))
     printf("   [-luid HighPart:LowPart] - setup adapter by LUID  \n");
     printf("                                 For example: \"0x0:0x8a46\"  \n");
-    #endif
+#endif
     printf("   [-pci domain:bus:device.function] - setup device with PCI \n");
     printf("                                 For example: \"0:3:0.0\"  \n");
-#endif
     printf(
         "   [-dGfx]                     - prefer processing on dGfx (by default system decides)\n");
     printf(
@@ -1703,17 +1701,14 @@ mfxStatus vppParseInputString(char* strInput[],
                 }
                 VAL_CHECK(i + 1 == nArgNum);
                 pParams->strDevicePath = strInput[++i];
-    #ifdef ONEVPL_EXPERIMENTAL
-                size_t pos = pParams->strDevicePath.find("renderD");
+                size_t pos             = pParams->strDevicePath.find("renderD");
                 if (pos != std::string::npos) {
                     pParams->DRMRenderNodeNum =
                         std::stoi(pParams->strDevicePath.substr(pos + 7, 3));
                 }
-    #endif
             }
 #endif
-#ifdef ONEVPL_EXPERIMENTAL
-    #if defined(_WIN32)
+#if defined(_WIN32)
             else if (msdk_match(strInput[i], "-luid")) {
                 // <HighPart:LowPart>
                 char luid[MSDK_MAX_FILENAME_LEN];
@@ -1742,7 +1737,7 @@ mfxStatus vppParseInputString(char* strInput[],
                     return MFX_ERR_UNSUPPORTED;
                 }
             }
-    #endif
+#endif
             else if (msdk_match(strInput[i], "-pci")) {
                 char deviceInfo[MSDK_MAX_FILENAME_LEN];
                 if (i + 1 >= nArgNum) {
@@ -1775,7 +1770,6 @@ mfxStatus vppParseInputString(char* strInput[],
                     return MFX_ERR_UNSUPPORTED;
                 }
             }
-#endif
             else if (msdk_match(strInput[i], "-dGfx")) {
                 pParams->adapterType = mfxMediaAdapterType::MFX_MEDIA_DISCRETE;
                 if (i + 1 < nArgNum && isdigit(*strInput[1 + i])) {

@@ -216,18 +216,16 @@ void PrintHelp() {
     HELP_LINE("  -dual_gfx::<on,off,adaptive>");
     HELP_LINE("                prefer encode processing on both iGfx and dGfx simultaneously");
 #endif
-#ifdef ONEVPL_EXPERIMENTAL
-    #if (defined(_WIN64) || defined(_WIN32))
+#if (defined(_WIN64) || defined(_WIN32))
     HELP_LINE("");
     HELP_LINE("  -luid <HighPart:LowPart>");
     HELP_LINE("                setup adapter by LUID");
     HELP_LINE("                For example: \"0x0:0x8a46\"");
-    #endif
+#endif
     HELP_LINE("");
     HELP_LINE("  -pci <domain:bus:device.function>");
     HELP_LINE("                setup device with PCI");
     HELP_LINE("                For example: \"0:3:0.0\"");
-#endif
     HELP_LINE("");
     HELP_LINE("  -dGfx         prefer processing on dGfx (by default system decides),");
     HELP_LINE("                also can be set with index,");
@@ -1887,7 +1885,6 @@ mfxStatus ParseAdditionalParams(char* argv[],
             return MFX_ERR_UNSUPPORTED;
         }
     }
-#ifdef ONEVPL_EXPERIMENTAL
     else if (msdk_match(argv[i], "-pci")) {
         std::string deviceInfo;
         VAL_CHECK(i + 1 == argc, i, argv[i]);
@@ -1916,7 +1913,7 @@ mfxStatus ParseAdditionalParams(char* argv[],
             return MFX_ERR_UNSUPPORTED;
         }
     }
-    #if defined(_WIN32)
+#if defined(_WIN32)
     else if (msdk_match(argv[i], "-LUID")) {
         // <HighPart:LowPart>
         std::string luid;
@@ -1941,7 +1938,6 @@ mfxStatus ParseAdditionalParams(char* argv[],
             return MFX_ERR_UNSUPPORTED;
         }
     }
-    #endif
 #endif
     else if (msdk_match(argv[i], "-ivf:on")) {
         InputParams.nIVFHeader = MFX_CODINGOPTION_ON;

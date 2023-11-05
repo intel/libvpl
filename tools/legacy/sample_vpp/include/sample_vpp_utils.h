@@ -174,18 +174,16 @@ struct sInputParams {
     std::string strDevicePath; // path to device for processing
     #endif
 
-    #ifdef ONEVPL_EXPERIMENTAL
-        #if defined(_WIN32)
+    #if defined(_WIN32)
     LUID luid;
-        #else
+    #else
     mfxU32 DRMRenderNodeNum;
-        #endif
+    #endif
     mfxU32 PCIDomain;
     mfxU32 PCIBus;
     mfxU32 PCIDevice;
     mfxU32 PCIFunction;
     bool PCIDeviceSetup;
-    #endif
 
     mfxU16 adapterType;
     mfxI32 dGfxIdx;
@@ -297,18 +295,16 @@ struct sInputParams {
     #if defined(LINUX32) || defined(LINUX64)
               strDevicePath(),
     #endif
-    #ifdef ONEVPL_EXPERIMENTAL
-        #if defined(_WIN32)
+    #if defined(_WIN32)
               luid({ 0 }),
-        #else
+    #else
               DRMRenderNodeNum(0),
-        #endif
+    #endif
               PCIDomain(0),
               PCIBus(0),
               PCIDevice(0),
               PCIFunction(0),
               PCIDeviceSetup(false),
-    #endif
               adapterType(mfxMediaAdapterType::MFX_MEDIA_UNKNOWN),
               dGfxIdx(-1),
               adapterNum(-1),

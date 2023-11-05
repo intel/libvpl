@@ -522,7 +522,6 @@ mfxStatus ConfigCtxVPL::SetFilterProperty(const mfxU8 *name, mfxVariant value) {
         return MFX_ERR_NOT_FOUND;
     }
 
-#ifdef ONEVPL_EXPERIMENTAL
     // extended device ID properties must begin with mfxExtendedDeviceId
     if (nextProp == "mfxExtendedDeviceId") {
         nextProp = GetNextProp(propParsedString);
@@ -564,7 +563,6 @@ mfxStatus ConfigCtxVPL::SetFilterProperty(const mfxU8 *name, mfxVariant value) {
         }
         return MFX_ERR_NOT_FOUND;
     }
-#endif
 
     // standard properties must begin with "mfxImplDescription"
     if (nextProp != "mfxImplDescription") {
@@ -1069,7 +1067,6 @@ mfxStatus ConfigCtxVPL::CheckPropsVPP(const mfxVariant cfgPropsAll[],
     return MFX_ERR_UNSUPPORTED;
 }
 
-#ifdef ONEVPL_EXPERIMENTAL
 mfxStatus ConfigCtxVPL::CheckPropsExtDevID(const mfxVariant cfgPropsAll[],
                                            const mfxExtendedDeviceId *libImplExtDevID) {
     bool isCompatible = true;
@@ -1144,7 +1141,6 @@ mfxStatus ConfigCtxVPL::CheckPropsExtDevID(const mfxVariant cfgPropsAll[],
 
     return MFX_ERR_UNSUPPORTED;
 }
-#endif
 
 // implString = string from implDesc - one or more comma-separated tokens
 // filtString = string user is looking for - one or more comma-separated tokens
@@ -1172,9 +1168,7 @@ mfxStatus ConfigCtxVPL::CheckPropString(const mfxChar *implString, const std::st
 
 mfxStatus ConfigCtxVPL::ValidateConfig(const mfxImplDescription *libImplDesc,
                                        const mfxImplementedFunctions *libImplFuncs,
-#ifdef ONEVPL_EXPERIMENTAL
                                        const mfxExtendedDeviceId *libImplExtDevID,
-#endif
                                        std::list<ConfigCtxVPL *> configCtxList,
                                        LibType libType,
                                        SpecialConfig *specialConfig) {
@@ -1256,16 +1250,11 @@ mfxStatus ConfigCtxVPL::ValidateConfig(const mfxImplDescription *libImplDesc,
             if (CheckPropsGeneral(cfgPropsAll, libImplDesc))
                 bImplValid = false;
 
-#ifdef ONEVPL_EXPERIMENTAL
             if (extDevRequested) {
                 // fail if extDevID is not available (null) or if prop is not supported
                 if (!libImplExtDevID || CheckPropsExtDevID(cfgPropsAll, libImplExtDevID))
                     bImplValid = false;
             }
-#else
-            if (extDevRequested)
-                bImplValid = false;
-#endif
 
             // MSDK RT compatibility mode (1.x) does not provide Dec/Enc/VPP caps
             // ignore these filters if set (do not use them to _exclude_ the library)

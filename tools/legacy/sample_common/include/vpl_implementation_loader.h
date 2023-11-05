@@ -76,14 +76,12 @@ public:
     std::pair<mfxI16, mfxI32> GetDeviceIDAndAdapter() const;
     mfxU16 GetAdapterType() const;
     void SetMinVersion(mfxVersion const& version);
-#ifdef ONEVPL_EXPERIMENTAL
     mfxStatus SetPCIDevice(mfxI32 domain, mfxI32 bus, mfxI32 device, mfxI32 function);
-    #if defined(_WIN32)
+#if defined(_WIN32)
     mfxStatus SetupLUID(LUID luid);
-    #else
+#else
     mfxStatus SetupDRMRenderNodeNum(mfxU32 DRMRenderNodeNum);
     mfxU32 GetDRMRenderNodeNumUsed();
-    #endif
 #endif
 };
 

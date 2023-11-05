@@ -405,7 +405,6 @@ static const mfxImplementedFunctions *minImplFuncsArray[NUM_CPU_IMPLS] = {
 };
 
 #ifndef ENABLE_STUB_1X
-#ifdef ONEVPL_EXPERIMENTAL
 static const mfxExtendedDeviceId minExtDeviceID = {
     {{0, 1}},       // Version
 
@@ -435,7 +434,6 @@ static const mfxExtendedDeviceId *minExtDeviceIDArray[NUM_CPU_IMPLS] = {
     &minExtDeviceID,
 };
 #endif
-#endif
 
 
 // end table formatting
@@ -452,15 +450,13 @@ mfxHDL *MFXQueryImplsDescription(mfxImplCapsDeliveryFormat format, mfxU32 *num_i
     else if (format == MFX_IMPLCAPS_IMPLEMENTEDFUNCTIONS) {
         return (mfxHDL *)(minImplFuncsArray);
     }
-#ifdef ONEVPL_EXPERIMENTAL
     else if (format == MFX_IMPLCAPS_DEVICE_ID_EXTENDED) {
-    #ifdef ENABLE_STUB_1X
+#ifdef ENABLE_STUB_1X
         return nullptr;
-    #else
+#else
         return (mfxHDL *)(minExtDeviceIDArray);
-    #endif
-    }
 #endif
+    }
     else {
         return nullptr;
     }

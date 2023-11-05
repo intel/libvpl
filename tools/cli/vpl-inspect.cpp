@@ -243,9 +243,7 @@ static void Usage(void) {
     printf("\nOptions:\n");
     printf("   -?, -help ...... print help message\n");
     printf("   -b ............. print brief output (do not print decoder, encoder, and VPP capabilities)\n");
-#ifdef ONEVPL_EXPERIMENTAL
     printf("   -ex ............ print extended device ID info (MFX_IMPLCAPS_DEVICE_ID_EXTENDED)\n");
-#endif
     printf("   -f ............. print list of implemented functions (MFX_IMPLCAPS_IMPLEMENTEDFUNCTIONS)\n");
     printf("   -d3d9 .......... only enumerate implementations supporting D3D9\n");
 }
@@ -261,10 +259,7 @@ int main(int argc, char *argv[]) {
     bool bPrintImplementedFunctions = false;
     bool bFullInfo                  = true;
     bool bRequireD3D9               = false;
-
-#ifdef ONEVPL_EXPERIMENTAL
-    bool bPrintExtendedDeviceID = false;
-#endif
+    bool bPrintExtendedDeviceID     = false;
 
     for (int argIdx = 1; argIdx < argc; argIdx++) {
         std::string nextArg(argv[argIdx]);
@@ -272,11 +267,9 @@ int main(int argc, char *argv[]) {
         if (nextArg == "-f") {
             bPrintImplementedFunctions = true;
         }
-#ifdef ONEVPL_EXPERIMENTAL
         else if (nextArg == "-ex") {
             bPrintExtendedDeviceID = true;
         }
-#endif
         else if (nextArg == "-b") {
             bFullInfo = false;
         }
@@ -608,7 +601,6 @@ int main(int argc, char *argv[]) {
             }
         }
 
-#ifdef ONEVPL_EXPERIMENTAL
         if (bPrintExtendedDeviceID) {
             mfxExtendedDeviceId *idescDevice;
 
@@ -650,7 +642,6 @@ int main(int argc, char *argv[]) {
                 printf("%2sWarning - MFX_IMPLCAPS_DEVICE_ID_EXTENDED not supported\n", "");
             }
         }
-#endif
 
         i++;
     }

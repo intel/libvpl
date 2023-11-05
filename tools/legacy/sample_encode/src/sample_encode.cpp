@@ -73,14 +73,12 @@ void PrintHelp(char* strAppName, const char* strErrorMessage, ...) {
     printf(
         "   [-dual_gfx::<on,off,adaptive>] - prefer processing on both iGfx and dGfx simultaneously\n");
 #endif
-#ifdef ONEVPL_EXPERIMENTAL
-    #if (defined(_WIN64) || defined(_WIN32))
+#if (defined(_WIN64) || defined(_WIN32))
     printf("   [-luid HighPart:LowPart] - setup adapter by LUID  \n");
     printf("                                 For example: \"0x0:0x8a46\"  \n");
-    #endif
+#endif
     printf("   [-pci domain:bus:device.function] - setup device with PCI \n");
     printf("                                 For example: \"0:3:0.0\"  \n");
-#endif
     printf(
         "   [-dGfx] - prefer processing on dGfx (by default system decides), also can be set with index, for example: '-dGfx 1' \n");
     printf("   [-iGfx] - prefer processing on iGfx (by default system decides)\n");
@@ -677,7 +675,6 @@ mfxStatus ParseAdditionalParams(char* strInput[],
     else if (msdk_match(strInput[i], "-rbf")) {
         pParams->bReadByFrame = true;
     }
-#ifdef ONEVPL_EXPERIMENTAL
     else if (msdk_match(strInput[i], "-pci")) {
         char deviceInfo[MSDK_MAX_FILENAME_LEN];
         VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
@@ -711,7 +708,7 @@ mfxStatus ParseAdditionalParams(char* strInput[],
             return MFX_ERR_UNSUPPORTED;
         }
     }
-    #if defined(_WIN32)
+#if defined(_WIN32)
     else if (msdk_match(strInput[i], "-luid")) {
         // <HighPart:LowPart>
         char luid[MSDK_MAX_FILENAME_LEN];
@@ -738,7 +735,6 @@ mfxStatus ParseAdditionalParams(char* strInput[],
             return MFX_ERR_UNSUPPORTED;
         }
     }
-    #endif
 #endif
     else {
         return MFX_ERR_NOT_FOUND;

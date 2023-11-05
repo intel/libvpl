@@ -266,9 +266,7 @@ public:
     // compare library caps vs. set of configuration filters
     static mfxStatus ValidateConfig(const mfxImplDescription *libImplDesc,
                                     const mfxImplementedFunctions *libImplFuncs,
-#ifdef ONEVPL_EXPERIMENTAL
                                     const mfxExtendedDeviceId *libImplExtDevID,
-#endif
                                     std::list<ConfigCtxVPL *> configCtxList,
                                     LibType libType,
                                     SpecialConfig *specialConfig);
@@ -318,11 +316,8 @@ private:
 
     static mfxStatus CheckPropString(const mfxChar *implString, const std::string filtString);
 
-#ifdef ONEVPL_EXPERIMENTAL
     static mfxStatus CheckPropsExtDevID(const mfxVariant cfgPropsAll[],
                                         const mfxExtendedDeviceId *libImplExtDevID);
-
-#endif
 
     mfxVariant m_propVar[NUM_TOTAL_FILTER_PROPS];
 
@@ -386,12 +381,10 @@ public:
 
     static mfxStatus QueryAPIVersion(STRING_TYPE libNameFull, mfxVersion *msdkVersion);
 
-#ifdef ONEVPL_EXPERIMENTAL
     static mfxStatus QueryExtDeviceID(mfxExtendedDeviceId *extDeviceID,
                                       mfxU32 adapterID,
                                       mfxU16 deviceID,
                                       mfxU64 luid);
-#endif
 
     // required by MFXCreateSession
     mfxIMPL m_msdkAdapter;
@@ -399,10 +392,7 @@ public:
 
     mfxU16 m_deviceID;
     mfxU64 m_luid;
-
-#ifdef ONEVPL_EXPERIMENTAL
     mfxExtendedDeviceId m_extDeviceID;
-#endif
 
 private:
     // session management
@@ -484,9 +474,7 @@ struct ImplInfo {
     // list of implemented functions
     mfxHDL implFuncs;
 
-#ifdef ONEVPL_EXPERIMENTAL
     mfxHDL implExtDeviceID;
-#endif
 
     // used for session initialization with this implementation
     mfxInitializationParam vplParam;
@@ -509,16 +497,13 @@ struct ImplInfo {
             : libInfo(nullptr),
               implDesc(nullptr),
               implFuncs(nullptr),
-#ifdef ONEVPL_EXPERIMENTAL
               implExtDeviceID(nullptr),
-#endif
               vplParam(),
               version(),
               msdkImplIdx(0),
               adapterIdx(ADAPTER_IDX_UNKNOWN),
               libImplIdx(0),
-              validImplIdx(-1) {
-    }
+              validImplIdx(-1) {}
 };
 
 // loader class implementation

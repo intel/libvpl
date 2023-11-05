@@ -73,14 +73,13 @@ void PrintHelp(char* strAppName, const char* strErrorMessage) {
     printf(
         "                                 If not specified, defaults to the first Intel device found on the system\n");
 #endif
-#ifdef ONEVPL_EXPERIMENTAL
-    #if (defined(_WIN64) || defined(_WIN32))
+#if (defined(_WIN64) || defined(_WIN32))
     printf("   [-luid HighPart:LowPart] - setup adapter by LUID  \n");
     printf("                                 For example: \"0x0:0x8a46\"  \n");
-    #endif
+#endif
     printf("   [-pci domain:bus:device.function] - setup device with PCI \n");
     printf("                                 For example: \"0:3:0.0\"  \n");
-#endif
+
     printf("   [-ignore_level_constrain] - ignore level constrain\n");
     printf("   [-disable_film_grain]     - disable film grain application(valid only for av1)\n");
     printf(
@@ -454,8 +453,8 @@ mfxStatus ParseInputString(char* strInput[], mfxU32 nArgNum, sInputParams* pPara
             }
         }
 #endif
-#ifdef ONEVPL_EXPERIMENTAL
-    #if (defined(_WIN64) || defined(_WIN32))
+
+#if (defined(_WIN64) || defined(_WIN32))
         else if (msdk_match(strInput[i], "-luid")) {
             // <HighPart:LowPart>
             char luid[MSDK_MAX_FILENAME_LEN];
@@ -484,7 +483,7 @@ mfxStatus ParseInputString(char* strInput[], mfxU32 nArgNum, sInputParams* pPara
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-    #endif
+#endif
         else if (msdk_match(strInput[i], "-pci")) {
             char deviceInfo[MSDK_MAX_FILENAME_LEN];
             if (i + 1 >= nArgNum) {
@@ -519,7 +518,7 @@ mfxStatus ParseInputString(char* strInput[], mfxU32 nArgNum, sInputParams* pPara
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-#endif
+
         else if (msdk_match(strInput[i], "-dGfx")) {
             pParams->adapterType = mfxMediaAdapterType::MFX_MEDIA_DISCRETE;
             if (i + 1 < nArgNum && isdigit(*strInput[1 + i])) {

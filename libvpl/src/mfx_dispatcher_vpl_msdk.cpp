@@ -121,14 +121,11 @@ LoaderCtxMSDK::LoaderCtxMSDK()
           m_msdkAdapterD3D9(),
           m_deviceID(0),
           m_luid(0),
-#ifdef ONEVPL_EXPERIMENTAL
           m_extDeviceID(),
-#endif
           m_libNameFull(),
           m_id(),
           m_accelMode(),
-          m_loaderDeviceID(0) {
-}
+          m_loaderDeviceID(0) {}
 
 LoaderCtxMSDK::~LoaderCtxMSDK() {}
 
@@ -539,8 +536,6 @@ mfxStatus LoaderCtxMSDK::GetRenderNodeDescription(mfxU32 adapterID,
 // avoid confusing #ifdef indentation
 // clang-format off
 
-#ifdef ONEVPL_EXPERIMENTAL
-
 mfxStatus LoaderCtxMSDK::QueryExtDeviceID(mfxExtendedDeviceId *extDeviceID,
                                           mfxU32 adapterID,
                                           mfxU16 deviceID,
@@ -595,6 +590,5 @@ mfxStatus LoaderCtxMSDK::QueryExtDeviceID(mfxExtendedDeviceId *extDeviceID,
 
     return MFX_ERR_NONE;
 }
-#endif // ONEVPL_EXPERIMENTAL
 
 // clang-format on
