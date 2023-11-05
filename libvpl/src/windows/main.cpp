@@ -640,9 +640,7 @@ mfxStatus MFXInitEx(mfxInitParam par, mfxSession *session) {
 
     switch (par.Implementation & 0xf) {
         case MFX_IMPL_SOFTWARE:
-        #if (MFX_VERSION >= MFX_VERSION_NEXT)
         case MFX_IMPL_SINGLE_THREAD:
-        #endif
             return MFX_ERR_UNSUPPORTED;
         case MFX_IMPL_AUTO:
         case MFX_IMPL_HARDWARE:

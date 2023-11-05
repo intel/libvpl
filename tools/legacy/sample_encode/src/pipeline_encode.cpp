@@ -533,13 +533,11 @@ mfxStatus CEncodingPipeline::InitMfxEncParams(sInputParams* pInParams) {
             hevcTiles->NumTileRows    = pInParams->nEncTileRows;
             hevcTiles->NumTileColumns = pInParams->nEncTileCols;
         }
-#if MFX_VERSION >= MFX_VERSION_NEXT
         else if (m_mfxEncParams.mfx.CodecId == MFX_CODEC_VP9) {
             auto vp9Param            = m_mfxEncParams.AddExtBuffer<mfxExtVP9Param>();
             vp9Param->NumTileRows    = pInParams->nEncTileRows;
             vp9Param->NumTileColumns = pInParams->nEncTileCols;
         }
-#endif
         else if (m_mfxEncParams.mfx.CodecId == MFX_CODEC_AV1) {
             auto av1Tilepar            = m_mfxEncParams.AddExtBuffer<mfxExtAV1TileParam>();
             av1Tilepar->NumTileRows    = pInParams->nEncTileRows;

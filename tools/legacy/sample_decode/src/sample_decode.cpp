@@ -81,9 +81,7 @@ void PrintHelp(char* strAppName, const char* strErrorMessage) {
     printf("   [-pci domain:bus:device.function] - setup device with PCI \n");
     printf("                                 For example: \"0:3:0.0\"  \n");
 #endif
-#if (MFX_VERSION >= MFX_VERSION_NEXT)
     printf("   [-ignore_level_constrain] - ignore level constrain\n");
-#endif
     printf("   [-disable_film_grain]     - disable film grain application(valid only for av1)\n");
     printf(
         "   [-api_ver_init::<1x,2x>]  - select the api version for the session initialization\n");

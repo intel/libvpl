@@ -48,14 +48,12 @@ unsigned int ConvertMfxFourccToVAFormat(mfxU32 fourcc) {
             return VA_FOURCC_Y210;
         case MFX_FOURCC_Y410:
             return VA_FOURCC_Y410;
-    #if (MFX_VERSION >= MFX_VERSION_NEXT)
         case MFX_FOURCC_P016:
             return VA_FOURCC_P016;
         case MFX_FOURCC_Y216:
             return VA_FOURCC_Y216;
         case MFX_FOURCC_Y416:
             return VA_FOURCC_Y416;
-    #endif
 
         default:
             assert(!"unsupported fourcc");
@@ -134,11 +132,8 @@ static mfxStatus GetVAFourcc(mfxU32 fourcc, unsigned int& va_fourcc) {
                        (VA_FOURCC_P010 != va_fourcc) && (VA_FOURCC_YUY2 != va_fourcc) &&
                        (VA_FOURCC_Y210 != va_fourcc) && (VA_FOURCC_Y410 != va_fourcc) &&
                        (VA_FOURCC_RGB565 != va_fourcc) && (VA_FOURCC_RGBP != va_fourcc) &&
-    #if (MFX_VERSION >= MFX_VERSION_NEXT)
                        (VA_FOURCC_P016 != va_fourcc) && (VA_FOURCC_Y216 != va_fourcc) &&
-                       (VA_FOURCC_Y416 != va_fourcc) &&
-    #endif
-                       (VA_FOURCC_AYUV != va_fourcc))) {
+                       (VA_FOURCC_Y416 != va_fourcc) && (VA_FOURCC_AYUV != va_fourcc))) {
         return MFX_ERR_MEMORY_ALLOC;
     }
 
@@ -584,9 +579,7 @@ mfxStatus vaapiFrameAllocator::LockFrame(mfxMemId mid, mfxFrameData* ptr) {
                         return MFX_ERR_LOCK_MEMORY;
                     break;
                 case VA_FOURCC_P010:
-    #if (MFX_VERSION >= MFX_VERSION_NEXT)
                 case VA_FOURCC_P016:
-    #endif
                     if (mfx_fourcc != vaapi_mid->m_image.format.fourcc)
                         return MFX_ERR_LOCK_MEMORY;
 
@@ -608,9 +601,7 @@ mfxStatus vaapiFrameAllocator::LockFrame(mfxMemId mid, mfxFrameData* ptr) {
                     }
                     break;
                 case VA_FOURCC_Y210:
-    #if (MFX_VERSION >= MFX_VERSION_NEXT)
                 case VA_FOURCC_Y216:
-    #endif
                     if (mfx_fourcc != vaapi_mid->m_image.format.fourcc)
                         return MFX_ERR_LOCK_MEMORY;
 
@@ -631,7 +622,6 @@ mfxStatus vaapiFrameAllocator::LockFrame(mfxMemId mid, mfxFrameData* ptr) {
                         ptr->A    = 0;
                     }
                     break;
-    #if (MFX_VERSION >= MFX_VERSION_NEXT)
                 case VA_FOURCC_Y416:
                     if (mfx_fourcc != vaapi_mid->m_image.format.fourcc)
                         return MFX_ERR_LOCK_MEMORY;
@@ -643,7 +633,6 @@ mfxStatus vaapiFrameAllocator::LockFrame(mfxMemId mid, mfxFrameData* ptr) {
                         ptr->A   = (mfxU8*)(ptr->V16 + 1);
                     }
                     break;
-    #endif
                 default:
                     return MFX_ERR_LOCK_MEMORY;
             }

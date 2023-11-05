@@ -271,12 +271,10 @@ void PrintHelp(char* strAppName, const char* strErrorMessage, ...) {
         "   [-usei]                  - insert user data unregistered SEI. eg: 7fc92488825d11e7bb31be2e44b06b34:0:MSDK (uuid:type<0-preifx/1-suffix>:message)\n");
     printf(
         "                              the suffix SEI for HEVCe can be inserted when CQP used or HRD disabled\n");
-#if (MFX_VERSION >= MFX_VERSION_NEXT)
     printf(
         "   [-dblk_alpha]            - alpha deblocking parameter. In range[-12,12]. 0 by default.\n");
     printf(
         "   [-dblk_beta]             - beta deblocking parameter. In range[-12,12]. 0 by default.\n");
-#endif
     printf("   [-extbrc:<on,off,implicit>] - External BRC for AVC and HEVC encoders\n");
     printf("   [-encTools]     - enables enctools for AVC encoder\n");
     printf(
@@ -1310,7 +1308,6 @@ mfxStatus ParseInputString(char* strInput[], mfxU32 nArgNum, sInputParams* pPara
             pParams->ExtBrcAdaptiveLTR = MFX_CODINGOPTION_OFF;
             ;
         }
-#if (MFX_VERSION >= MFX_VERSION_NEXT)
         else if (msdk_match(strInput[i], "-dblk_alpha")) {
             VAL_CHECK(i + 1 >= nArgNum, i, strInput[i]);
             if (MFX_ERR_NONE != msdk_opt_read(strInput[++i], pParams->DeblockingAlphaTcOffset)) {
@@ -1325,7 +1322,6 @@ mfxStatus ParseInputString(char* strInput[], mfxU32 nArgNum, sInputParams* pPara
                 return MFX_ERR_UNSUPPORTED;
             }
         }
-#endif
         else if (msdk_match(strInput[i], "-pp")) {
             pParams->shouldPrintPresets = true;
         }

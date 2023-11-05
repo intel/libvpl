@@ -1237,7 +1237,6 @@ mfxStatus CSmplYUVWriter::WriteNextFrame(mfxFrameSurface1* pSurface) {
             }
             return MFX_ERR_NONE;
         } break;
-#if (MFX_VERSION >= MFX_VERSION_NEXT)
         case MFX_FOURCC_Y416: // Luma and chroma will be filled below
         {
             for (i = 0; i < pInfo.CropH; i++) {
@@ -1263,7 +1262,6 @@ mfxStatus CSmplYUVWriter::WriteNextFrame(mfxFrameSurface1* pSurface) {
             }
             return MFX_ERR_NONE;
         } break;
-#endif
         case MFX_FOURCC_I010:
         case MFX_FOURCC_I210:
             for (i = 0; i < pInfo.CropH; i++) {
@@ -1275,9 +1273,7 @@ mfxStatus CSmplYUVWriter::WriteNextFrame(mfxFrameSurface1* pSurface) {
             }
             break;
         case MFX_FOURCC_P010:
-#if (MFX_VERSION >= MFX_VERSION_NEXT)
         case MFX_FOURCC_P016:
-#endif
         case MFX_FOURCC_P210: {
             for (i = 0; i < pInfo.CropH; i++) {
                 mfxU16* shortPtr = (mfxU16*)(pData.Y + (pInfo.CropY * pData.Pitch + pInfo.CropX) +
@@ -1408,9 +1404,7 @@ mfxStatus CSmplYUVWriter::WriteNextFrame(mfxFrameSurface1* pSurface) {
             break;
         }
         case MFX_FOURCC_P010:
-#if (MFX_VERSION >= MFX_VERSION_NEXT)
         case MFX_FOURCC_P016:
-#endif
         case MFX_FOURCC_P210: {
             for (i = 0; i < ChromaH; i++) {
                 mfxU16* shortPtr =
