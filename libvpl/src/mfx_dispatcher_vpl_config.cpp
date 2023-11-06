@@ -110,6 +110,11 @@ enum PropIdx {
     ePropExtDev_RevisionID,
     ePropExtDev_DeviceName,
 
+    // settable config properties for mfxSurfaceTypesSupported
+    ePropSurface_SurfaceType,
+    ePropSurface_SurfaceComponent,
+    ePropSurface_SurfaceFlags,
+
     // special properties not part of description struct
     ePropSpecial_HandleType,
     ePropSpecial_Handle,
@@ -185,6 +190,10 @@ static const PropVariant PropIdxTab[] = {
     { "ePropExtDev_DRMPrimaryNodeNum",      MFX_VARIANT_TYPE_U32 },
     { "ePropExtDev_RevisionID",             MFX_VARIANT_TYPE_U16 },
     { "ePropExtDev_DeviceName",             MFX_VARIANT_TYPE_PTR },
+
+    { "ePropSurface_SurfaceType",           MFX_VARIANT_TYPE_U32 },
+    { "ePropSurface_SurfaceComponent",      MFX_VARIANT_TYPE_U32 },
+    { "ePropSurface_SurfaceFlags",          MFX_VARIANT_TYPE_U32 },
 
     { "ePropSpecial_HandleType",            MFX_VARIANT_TYPE_U32 },
     { "ePropSpecial_Handle",                MFX_VARIANT_TYPE_PTR },
@@ -464,6 +473,38 @@ mfxStatus ConfigCtxVPL::SetFilterPropertyVPP(std::list<std::string> &propParsedS
     return MFX_ERR_NOT_FOUND;
 }
 
+mfxStatus ConfigCtxVPL::SetFilterPropertySurface(std::list<std::string> &propParsedString,
+                                                 mfxVariant value) {
+    std::string nextProp;
+
+    nextProp = GetNextProp(propParsedString);
+
+    // no settable top-level members
+    if (nextProp != "surftype")
+        return MFX_ERR_NOT_FOUND;
+
+    // parse 'surftype'
+    nextProp = GetNextProp(propParsedString);
+    if (nextProp == "SurfaceType") {
+        return ValidateAndSetProp(ePropSurface_SurfaceType, value);
+    }
+    else if (nextProp != "surfcomp") {
+        return MFX_ERR_NOT_FOUND;
+    }
+
+    // parse 'surfcomp'
+    nextProp = GetNextProp(propParsedString);
+    if (nextProp == "SurfaceComponent") {
+        return ValidateAndSetProp(ePropSurface_SurfaceComponent, value);
+    }
+    else if (nextProp == "SurfaceFlags") {
+        return ValidateAndSetProp(ePropSurface_SurfaceFlags, value);
+    }
+
+    // end of mfxSurfaceTypesSupported options
+    return MFX_ERR_NOT_FOUND;
+}
+
 // return codes (from spec):
 //   MFX_ERR_NOT_FOUND - name contains unknown parameter name
 //   MFX_ERR_UNSUPPORTED - value data type != parameter with provided name
@@ -564,6 +605,13 @@ mfxStatus ConfigCtxVPL::SetFilterProperty(const mfxU8 *name, mfxVariant value) {
         return MFX_ERR_NOT_FOUND;
     }
 
+#ifdef ONEVPL_EXPERIMENTAL
+    // property is a member of mfxSurfaceTypesSupported
+    if (nextProp == "mfxSurfaceTypesSupported") {
+        return SetFilterPropertySurface(propParsedString, value);
+    }
+#endif
+
     // standard properties must begin with "mfxImplDescription"
     if (nextProp != "mfxImplDescription") {
         return MFX_ERR_NOT_FOUND;
@@ -638,10 +686,12 @@ mfxStatus ConfigCtxVPL::SetFilterProperty(const mfxU8 *name, mfxVariant value) {
         return SetFilterPropertyDec(propParsedString, value);
     }
 
+    // property is a member of mfxEncoderDescription
     if (nextProp == "mfxEncoderDescription") {
         return SetFilterPropertyEnc(propParsedString, value);
     }
 
+    // property is a member of mfxVPPDescription
     if (nextProp == "mfxVPPDescription") {
         return SetFilterPropertyVPP(propParsedString, value);
     }
@@ -801,6 +851,44 @@ mfxStatus ConfigCtxVPL::GetFlatDescriptionsVPP(const mfxImplDescription *libImpl
 
     return MFX_ERR_NONE;
 }
+
+#ifdef ONEVPL_EXPERIMENTAL
+mfxStatus ConfigCtxVPL::GetFlatDescriptionsSurface(const mfxSurfaceTypesSupported *libSurfaceTypes,
+                                                   std::list<SurfaceConfig> &surfaceConfigList) {
+    if (!libSurfaceTypes) {
+        surfaceConfigList.clear();
+        return MFX_ERR_INVALID_VIDEO_PARAM;
+    }
+
+    mfxU32 typeIdx = 0;
+    mfxU32 compIdx = 0;
+
+    mfxSurfaceTypesSupported::surftype *surfaceType           = nullptr;
+    mfxSurfaceTypesSupported::surftype::surfcomp *surfaceComp = nullptr;
+
+    while (typeIdx < libSurfaceTypes->NumSurfaceTypes) {
+        SurfaceConfig sc = {};
+
+        surfaceType    = &(libSurfaceTypes->SurfaceTypes[typeIdx]);
+        sc.SurfaceType = surfaceType->SurfaceType;
+        CHECK_IDX(typeIdx, compIdx, surfaceType->NumSurfaceComponents);
+
+        surfaceComp         = &(surfaceType->SurfaceComponents[compIdx]);
+        sc.SurfaceComponent = surfaceComp->SurfaceComponent;
+        sc.SurfaceFlags     = surfaceComp->SurfaceFlags;
+
+        compIdx++;
+
+        // we have a valid, unique description - add to list
+        surfaceConfigList.push_back(sc);
+    }
+
+    if (surfaceConfigList.empty())
+        return MFX_ERR_INVALID_VIDEO_PARAM;
+
+    return MFX_ERR_NONE;
+}
+#endif
 
 #define CHECK_PROP(idx, type, val)                             \
     if ((cfgPropsAll[(idx)].Type != MFX_VARIANT_TYPE_UNSET) && \
@@ -1142,6 +1230,36 @@ mfxStatus ConfigCtxVPL::CheckPropsExtDevID(const mfxVariant cfgPropsAll[],
     return MFX_ERR_UNSUPPORTED;
 }
 
+#ifdef ONEVPL_EXPERIMENTAL
+mfxStatus ConfigCtxVPL::CheckPropsSurface(const mfxVariant cfgPropsAll[],
+                                          std::list<SurfaceConfig> surfaceConfigList) {
+    auto it = surfaceConfigList.begin();
+    while (it != surfaceConfigList.end()) {
+        SurfaceConfig sc  = (SurfaceConfig)(*it);
+        bool isCompatible = true;
+
+        // check if this filter description includes
+        //   all of the required surface properties
+        CHECK_PROP(ePropSurface_SurfaceType, U32, sc.SurfaceType);
+        CHECK_PROP(ePropSurface_SurfaceComponent, U32, sc.SurfaceComponent);
+
+        // require that supported surface flags (bitmask) includes all of the requested flags
+        if (cfgPropsAll[ePropSurface_SurfaceFlags].Type != MFX_VARIANT_TYPE_UNSET) {
+            mfxU32 requestedFlags = cfgPropsAll[ePropSurface_SurfaceFlags].Data.U32;
+            if ((sc.SurfaceFlags & requestedFlags) != requestedFlags)
+                isCompatible = false;
+        }
+
+        if (isCompatible == true)
+            return MFX_ERR_NONE;
+
+        it++;
+    }
+
+    return MFX_ERR_UNSUPPORTED;
+}
+#endif
+
 // implString = string from implDesc - one or more comma-separated tokens
 // filtString = string user is looking for - one or more comma-separated tokens
 // we parse filtString into tokens, then check if all of them are present in implString
@@ -1169,6 +1287,9 @@ mfxStatus ConfigCtxVPL::CheckPropString(const mfxChar *implString, const std::st
 mfxStatus ConfigCtxVPL::ValidateConfig(const mfxImplDescription *libImplDesc,
                                        const mfxImplementedFunctions *libImplFuncs,
                                        const mfxExtendedDeviceId *libImplExtDevID,
+#ifdef ONEVPL_EXPERIMENTAL
+                                       const mfxSurfaceTypesSupported *libImplSurfTypes,
+#endif
                                        std::list<ConfigCtxVPL *> configCtxList,
                                        LibType libType,
                                        SpecialConfig *specialConfig) {
@@ -1178,6 +1299,8 @@ mfxStatus ConfigCtxVPL::ValidateConfig(const mfxImplDescription *libImplDesc,
     bool vppRequested    = false;
     bool extDevRequested = false;
 
+    bool surfaceRequested = false;
+
     bool bImplValid = true;
 
     if (!libImplDesc)
@@ -1186,12 +1309,17 @@ mfxStatus ConfigCtxVPL::ValidateConfig(const mfxImplDescription *libImplDesc,
     std::list<DecConfig> decConfigList;
     std::list<EncConfig> encConfigList;
     std::list<VPPConfig> vppConfigList;
+    std::list<SurfaceConfig> surfaceConfigList;
 
     // generate "flat" descriptions of each combination
     //   (e.g. multiple profiles from the same codec)
     GetFlatDescriptionsDec(libImplDesc, decConfigList);
     GetFlatDescriptionsEnc(libImplDesc, encConfigList);
     GetFlatDescriptionsVPP(libImplDesc, vppConfigList);
+
+#ifdef ONEVPL_EXPERIMENTAL
+    GetFlatDescriptionsSurface(libImplSurfTypes, surfaceConfigList);
+#endif
 
     // list of functions required to be implemented
     std::list<std::string> implFunctionList;
@@ -1241,6 +1369,8 @@ mfxStatus ConfigCtxVPL::ValidateConfig(const mfxImplDescription *libImplDesc,
                 vppRequested = true;
             else if (idx >= ePropExtDev_VendorID && idx <= ePropExtDev_DeviceName)
                 extDevRequested = true;
+            else if (idx >= ePropSurface_SurfaceType && idx <= ePropSurface_SurfaceFlags)
+                surfaceRequested = true;
         }
 
         // if already marked invalid, no need to check props again
@@ -1255,6 +1385,15 @@ mfxStatus ConfigCtxVPL::ValidateConfig(const mfxImplDescription *libImplDesc,
                 if (!libImplExtDevID || CheckPropsExtDevID(cfgPropsAll, libImplExtDevID))
                     bImplValid = false;
             }
+#ifdef ONEVPL_EXPERIMENTAL
+            if (surfaceRequested) {
+                if (!libImplSurfTypes || CheckPropsSurface(cfgPropsAll, surfaceConfigList))
+                    bImplValid = false;
+            }
+#else
+            if (surfaceRequested)
+                bImplValid = false;
+#endif
 
             // MSDK RT compatibility mode (1.x) does not provide Dec/Enc/VPP caps
             // ignore these filters if set (do not use them to _exclude_ the library)

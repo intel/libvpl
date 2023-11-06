@@ -22,6 +22,8 @@
     #include "src/caps_enc.h"
 #endif
 
+#include "src/caps_surface.h"
+
 #define DEFAULT_SESSION_HANDLE_1X 0x01
 #define DEFAULT_SESSION_HANDLE_2X 0x02
 
@@ -392,7 +394,7 @@ static const mfxChar *minImplFuncsNames[] = {
     "MFXVideoDECODE_VPP_Reset",
     "MFXVideoDECODE_VPP_GetChannelParam",
     "MFXVideoDECODE_VPP_Close",
-    "MFXVideoVPP_ProcessFrameAsync", 
+    "MFXVideoVPP_ProcessFrameAsync",
 };
 
 static const mfxImplementedFunctions minImplFuncs = {
@@ -433,6 +435,13 @@ static const mfxExtendedDeviceId minExtDeviceID = {
 static const mfxExtendedDeviceId *minExtDeviceIDArray[NUM_CPU_IMPLS] = {
     &minExtDeviceID,
 };
+
+#ifdef ONEVPL_EXPERIMENTAL
+static const mfxSurfaceTypesSupported *minSurfTypesSupportedArray[NUM_CPU_IMPLS] = {
+    &minSurfTypesSupported,
+};
+#endif
+
 #endif
 
 
@@ -457,6 +466,15 @@ mfxHDL *MFXQueryImplsDescription(mfxImplCapsDeliveryFormat format, mfxU32 *num_i
         return (mfxHDL *)(minExtDeviceIDArray);
 #endif
     }
+#ifdef ONEVPL_EXPERIMENTAL
+    else if (format == MFX_IMPLCAPS_SURFACE_TYPES) {
+    #ifdef ENABLE_STUB_1X
+        return nullptr;
+    #else
+        return (mfxHDL *)(minSurfTypesSupportedArray);
+    #endif
+    }
+#endif
     else {
         return nullptr;
     }

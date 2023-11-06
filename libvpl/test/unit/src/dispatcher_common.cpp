@@ -546,6 +546,401 @@ void Dispatcher_CreateSession_ExtDeviceID_DeviceName_Invalid(mfxImplType implTyp
     MFXUnload(loader);
 }
 
+#ifdef ONEVPL_EXPERIMENTAL
+
+// mfxSurfaceTypesSupported tests
+void Dispatcher_CreateSession_SurfaceSupport_SurfaceType_Valid(mfxImplType implType) {
+    mfxLoader loader = MFXLoad();
+    EXPECT_FALSE(loader == nullptr);
+
+    mfxStatus sts = SetConfigImpl(loader, implType);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    mfxSurfaceType surfaceTypeValid = MFX_SURFACE_TYPE_UNKNOWN;
+    #if defined(_WIN32) || defined(_WIN64)
+    surfaceTypeValid = MFX_SURFACE_TYPE_D3D11_TEX2D;
+    #else
+    surfaceTypeValid   = MFX_SURFACE_TYPE_VAAPI;
+    #endif
+
+    SetConfigFilterProperty<mfxU32>(loader,
+                                    "mfxSurfaceTypesSupported.surftype.SurfaceType",
+                                    surfaceTypeValid);
+
+    // create session with first implementation
+    mfxSession session = nullptr;
+    sts                = MFXCreateSession(loader, 0, &session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // free internal resources
+    sts = MFXClose(session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+    MFXUnload(loader);
+}
+
+void Dispatcher_CreateSession_SurfaceSupport_SurfaceType_Invalid(mfxImplType implType) {
+    mfxLoader loader = MFXLoad();
+    EXPECT_FALSE(loader == nullptr);
+
+    mfxStatus sts = SetConfigImpl(loader, implType);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    mfxSurfaceType surfaceTypeInvalid = MFX_SURFACE_TYPE_UNKNOWN;
+    #if defined(_WIN32) || defined(_WIN64)
+    surfaceTypeInvalid = MFX_SURFACE_TYPE_VAAPI;
+    #else
+    surfaceTypeInvalid = MFX_SURFACE_TYPE_D3D11_TEX2D;
+    #endif
+
+    SetConfigFilterProperty<mfxU32>(loader,
+                                    "mfxSurfaceTypesSupported.surftype.SurfaceType",
+                                    surfaceTypeInvalid);
+
+    // create session with first implementation
+    mfxSession session = nullptr;
+    sts                = MFXCreateSession(loader, 0, &session);
+    EXPECT_EQ(sts, MFX_ERR_NOT_FOUND);
+
+    // free internal resources
+    MFXUnload(loader);
+}
+
+void Dispatcher_CreateSession_SurfaceSupport_SurfaceComponent_Valid(mfxImplType implType) {
+    mfxLoader loader = MFXLoad();
+    EXPECT_FALSE(loader == nullptr);
+
+    mfxStatus sts = SetConfigImpl(loader, implType);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    SetConfigFilterProperty<mfxU32>(loader,
+                                    "mfxSurfaceTypesSupported.surftype.surfcomp.SurfaceComponent",
+                                    MFX_SURFACE_COMPONENT_ENCODE);
+
+    // create session with first implementation
+    mfxSession session = nullptr;
+    sts                = MFXCreateSession(loader, 0, &session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // free internal resources
+    sts = MFXClose(session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+    MFXUnload(loader);
+}
+
+void Dispatcher_CreateSession_SurfaceSupport_SurfaceComponent_Invalid(mfxImplType implType) {
+    mfxLoader loader = MFXLoad();
+    EXPECT_FALSE(loader == nullptr);
+
+    mfxStatus sts = SetConfigImpl(loader, implType);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    SetConfigFilterProperty<mfxU32>(loader,
+                                    "mfxSurfaceTypesSupported.surftype.surfcomp.SurfaceComponent",
+                                    100);
+
+    // create session with first implementation
+    mfxSession session = nullptr;
+    sts                = MFXCreateSession(loader, 0, &session);
+    EXPECT_EQ(sts, MFX_ERR_NOT_FOUND);
+
+    // free internal resources
+    MFXUnload(loader);
+}
+
+void Dispatcher_CreateSession_SurfaceSupport_SurfaceFlags_Valid(mfxImplType implType) {
+    mfxLoader loader = MFXLoad();
+    EXPECT_FALSE(loader == nullptr);
+
+    mfxStatus sts = SetConfigImpl(loader, implType);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // in a real application, flags alone aren't very useful (need type and component). But test the logic regardless.
+    SetConfigFilterProperty<mfxU32>(
+        loader,
+        "mfxSurfaceTypesSupported.surftype.surfcomp.SurfaceFlags",
+        (MFX_SURFACE_FLAG_IMPORT_SHARED | MFX_SURFACE_FLAG_IMPORT_COPY));
+
+    // create session with first implementation
+    mfxSession session = nullptr;
+    sts                = MFXCreateSession(loader, 0, &session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // free internal resources
+    sts = MFXClose(session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+    MFXUnload(loader);
+}
+
+void Dispatcher_CreateSession_SurfaceSupport_SurfaceFlags_Invalid(mfxImplType implType) {
+    mfxLoader loader = MFXLoad();
+    EXPECT_FALSE(loader == nullptr);
+
+    mfxStatus sts = SetConfigImpl(loader, implType);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    SetConfigFilterProperty<mfxU32>(
+        loader,
+        "mfxSurfaceTypesSupported.surftype.surfcomp.SurfaceFlags",
+        (MFX_SURFACE_FLAG_IMPORT_SHARED | MFX_SURFACE_FLAG_EXPORT_COPY));
+
+    // create session with first implementation
+    mfxSession session = nullptr;
+    sts                = MFXCreateSession(loader, 0, &session);
+    EXPECT_EQ(sts, MFX_ERR_NOT_FOUND);
+
+    // free internal resources
+    MFXUnload(loader);
+}
+
+void Dispatcher_CreateSession_SurfaceSupport_InvalidProperty(mfxImplType implType) {
+    mfxLoader loader = MFXLoad();
+    EXPECT_FALSE(loader == nullptr);
+
+    mfxStatus sts = SetConfigImpl(loader, implType);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    mfxConfig cfg = MFXCreateConfig(loader);
+    EXPECT_FALSE(cfg == nullptr);
+
+    mfxVariant var;
+    var.Version.Version = (mfxU16)MFX_VARIANT_VERSION;
+    var.Type            = MFX_VARIANT_TYPE_U32;
+    var.Data.U32        = 1;
+
+    sts =
+        MFXSetConfigFilterProperty(cfg, (const mfxU8 *)"mfxSurfaceTypesSupported.InvalidProp", var);
+    EXPECT_EQ(sts, MFX_ERR_NOT_FOUND);
+
+    // free internal resources
+    MFXUnload(loader);
+}
+
+void Dispatcher_CreateSession_SurfaceSupport_SingleFramework_Valid(mfxImplType implType) {
+    mfxLoader loader = MFXLoad();
+    EXPECT_FALSE(loader == nullptr);
+
+    mfxStatus sts = SetConfigImpl(loader, implType);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // need to use same cfg object for multiple surface props
+    mfxConfig cfg = MFXCreateConfig(loader);
+    EXPECT_FALSE(cfg == nullptr);
+
+    // full description for a single framework + component + flags
+    mfxSurfaceType surfaceTypeValid = MFX_SURFACE_TYPE_UNKNOWN;
+    #if defined(_WIN32) || defined(_WIN64)
+    surfaceTypeValid = MFX_SURFACE_TYPE_D3D11_TEX2D;
+    #else
+    surfaceTypeValid   = MFX_SURFACE_TYPE_VAAPI;
+    #endif
+
+    SetConfigFilterProperty<mfxU32>(loader,
+                                    cfg,
+                                    "mfxSurfaceTypesSupported.surftype.SurfaceType",
+                                    surfaceTypeValid);
+
+    SetConfigFilterProperty<mfxU32>(loader,
+                                    cfg,
+                                    "mfxSurfaceTypesSupported.surftype.surfcomp.SurfaceComponent",
+                                    MFX_SURFACE_COMPONENT_ENCODE);
+
+    SetConfigFilterProperty<mfxU32>(
+        loader,
+        cfg,
+        "mfxSurfaceTypesSupported.surftype.surfcomp.SurfaceFlags",
+        (MFX_SURFACE_FLAG_IMPORT_SHARED | MFX_SURFACE_FLAG_IMPORT_COPY));
+
+    // create session with first implementation
+    mfxSession session = nullptr;
+    sts                = MFXCreateSession(loader, 0, &session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // free internal resources
+    sts = MFXClose(session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+    MFXUnload(loader);
+}
+
+void Dispatcher_CreateSession_SurfaceSupport_SingleFramework_Invalid(mfxImplType implType) {
+    mfxLoader loader = MFXLoad();
+    EXPECT_FALSE(loader == nullptr);
+
+    mfxStatus sts = SetConfigImpl(loader, implType);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // need to use same cfg object for multiple surface props
+    mfxConfig cfg = MFXCreateConfig(loader);
+    EXPECT_FALSE(cfg == nullptr);
+
+    // full description for a single framework + component + flags
+    mfxSurfaceType surfaceTypeValid = MFX_SURFACE_TYPE_UNKNOWN;
+    #if defined(_WIN32) || defined(_WIN64)
+    surfaceTypeValid = MFX_SURFACE_TYPE_D3D11_TEX2D;
+    #else
+    surfaceTypeValid   = MFX_SURFACE_TYPE_VAAPI;
+    #endif
+
+    SetConfigFilterProperty<mfxU32>(loader,
+                                    cfg,
+                                    "mfxSurfaceTypesSupported.surftype.SurfaceType",
+                                    surfaceTypeValid);
+
+    SetConfigFilterProperty<mfxU32>(loader,
+                                    cfg,
+                                    "mfxSurfaceTypesSupported.surftype.surfcomp.SurfaceComponent",
+                                    MFX_SURFACE_COMPONENT_VPP_INPUT);
+
+    // in the stub, VPP does not support IMPORT_SHARED
+    SetConfigFilterProperty<mfxU32>(
+        loader,
+        cfg,
+        "mfxSurfaceTypesSupported.surftype.surfcomp.SurfaceFlags",
+        (MFX_SURFACE_FLAG_IMPORT_SHARED | MFX_SURFACE_FLAG_IMPORT_COPY));
+
+    // create session with first implementation
+    mfxSession session = nullptr;
+    sts                = MFXCreateSession(loader, 0, &session);
+    EXPECT_EQ(sts, MFX_ERR_NOT_FOUND);
+
+    // free internal resources
+    MFXUnload(loader);
+}
+
+void Dispatcher_CreateSession_SurfaceSupport_TwoFrameworks_Valid(mfxImplType implType) {
+    mfxLoader loader = MFXLoad();
+    EXPECT_FALSE(loader == nullptr);
+
+    mfxStatus sts = SetConfigImpl(loader, implType);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // full description for a single framework + component + flags
+    mfxSurfaceType surfaceTypeValid = MFX_SURFACE_TYPE_UNKNOWN;
+    #if defined(_WIN32) || defined(_WIN64)
+    surfaceTypeValid = MFX_SURFACE_TYPE_D3D11_TEX2D;
+    #else
+    surfaceTypeValid   = MFX_SURFACE_TYPE_VAAPI;
+    #endif
+
+    // need to use same cfg object for multiple surface props
+    // DX11 Import for Encode
+    mfxConfig cfg = MFXCreateConfig(loader);
+    EXPECT_FALSE(cfg == nullptr);
+
+    SetConfigFilterProperty<mfxU32>(loader,
+                                    cfg,
+                                    "mfxSurfaceTypesSupported.surftype.SurfaceType",
+                                    surfaceTypeValid);
+
+    SetConfigFilterProperty<mfxU32>(loader,
+                                    cfg,
+                                    "mfxSurfaceTypesSupported.surftype.surfcomp.SurfaceComponent",
+                                    MFX_SURFACE_COMPONENT_ENCODE);
+
+    SetConfigFilterProperty<mfxU32>(
+        loader,
+        cfg,
+        "mfxSurfaceTypesSupported.surftype.surfcomp.SurfaceFlags",
+        (MFX_SURFACE_FLAG_IMPORT_SHARED | MFX_SURFACE_FLAG_IMPORT_COPY));
+
+    // create a new cfg object for the second framework
+    // OCL Export for Decode
+    mfxConfig cfg2 = MFXCreateConfig(loader);
+    EXPECT_FALSE(cfg2 == nullptr);
+
+    SetConfigFilterProperty<mfxU32>(loader,
+                                    cfg2,
+                                    "mfxSurfaceTypesSupported.surftype.SurfaceType",
+                                    MFX_SURFACE_TYPE_OPENCL_IMG2D);
+
+    SetConfigFilterProperty<mfxU32>(loader,
+                                    cfg2,
+                                    "mfxSurfaceTypesSupported.surftype.surfcomp.SurfaceComponent",
+                                    MFX_SURFACE_COMPONENT_DECODE);
+
+    SetConfigFilterProperty<mfxU32>(loader,
+                                    cfg2,
+                                    "mfxSurfaceTypesSupported.surftype.surfcomp.SurfaceFlags",
+                                    MFX_SURFACE_FLAG_EXPORT_SHARED);
+
+    // create session with first implementation
+    mfxSession session = nullptr;
+    sts                = MFXCreateSession(loader, 0, &session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // free internal resources
+    sts = MFXClose(session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+    MFXUnload(loader);
+}
+
+void Dispatcher_CreateSession_SurfaceSupport_TwoFrameworks_Invalid(mfxImplType implType) {
+    mfxLoader loader = MFXLoad();
+    EXPECT_FALSE(loader == nullptr);
+
+    mfxStatus sts = SetConfigImpl(loader, implType);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // full description for a single framework + component + flags
+    mfxSurfaceType surfaceTypeValid = MFX_SURFACE_TYPE_UNKNOWN;
+    #if defined(_WIN32) || defined(_WIN64)
+    surfaceTypeValid = MFX_SURFACE_TYPE_D3D11_TEX2D;
+    #else
+    surfaceTypeValid   = MFX_SURFACE_TYPE_VAAPI;
+    #endif
+
+    // need to use same cfg object for multiple surface props
+    // DX11 Import for Encode
+    mfxConfig cfg = MFXCreateConfig(loader);
+    EXPECT_FALSE(cfg == nullptr);
+
+    SetConfigFilterProperty<mfxU32>(loader,
+                                    cfg,
+                                    "mfxSurfaceTypesSupported.surftype.SurfaceType",
+                                    surfaceTypeValid);
+
+    SetConfigFilterProperty<mfxU32>(loader,
+                                    cfg,
+                                    "mfxSurfaceTypesSupported.surftype.surfcomp.SurfaceComponent",
+                                    MFX_SURFACE_COMPONENT_ENCODE);
+
+    SetConfigFilterProperty<mfxU32>(
+        loader,
+        cfg,
+        "mfxSurfaceTypesSupported.surftype.surfcomp.SurfaceFlags",
+        (MFX_SURFACE_FLAG_IMPORT_SHARED | MFX_SURFACE_FLAG_IMPORT_COPY));
+
+    // create a new cfg object for the second framework
+    // OCL Export for VPP (out)
+    mfxConfig cfg2 = MFXCreateConfig(loader);
+    EXPECT_FALSE(cfg2 == nullptr);
+
+    SetConfigFilterProperty<mfxU32>(loader,
+                                    cfg2,
+                                    "mfxSurfaceTypesSupported.surftype.SurfaceType",
+                                    MFX_SURFACE_TYPE_OPENCL_IMG2D);
+
+    // stub does not support VPP output
+    SetConfigFilterProperty<mfxU32>(loader,
+                                    cfg2,
+                                    "mfxSurfaceTypesSupported.surftype.surfcomp.SurfaceComponent",
+                                    MFX_SURFACE_COMPONENT_VPP_OUTPUT);
+
+    SetConfigFilterProperty<mfxU32>(loader,
+                                    cfg2,
+                                    "mfxSurfaceTypesSupported.surftype.surfcomp.SurfaceFlags",
+                                    MFX_SURFACE_FLAG_EXPORT_SHARED);
+
+    // create session with first implementation
+    mfxSession session = nullptr;
+    sts                = MFXCreateSession(loader, 0, &session);
+    EXPECT_EQ(sts, MFX_ERR_NOT_FOUND);
+
+    // free internal resources
+    MFXUnload(loader);
+}
+
+#endif // ONEVPL_EXPERIMENTAL
+
 // MFXEnumImplementations
 void Dispatcher_EnumImplementations_ValidInputsReturnValidDesc(mfxImplType implType) {
     mfxLoader loader = MFXLoad();

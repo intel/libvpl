@@ -16,6 +16,8 @@
 #include <string>
 #include <vector>
 
+#include "vpl/mfxvideo.h"
+
 enum eMFXHWType {
     MFX_HW_UNKNOWN = 0,
     MFX_HW_SNB     = 0x300000,

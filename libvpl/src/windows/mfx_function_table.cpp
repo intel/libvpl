@@ -18,11 +18,16 @@
     { #func_name, API_VERSION },
 
 const FUNCTION_DESCRIPTION APIFunc[eVideoFuncTotal] = {
-    { "MFXInit", { { 0, 1 } } },         { "MFXClose", { { 0, 1 } } },
-    { "MFXQueryIMPL", { { 0, 1 } } },    { "MFXQueryVersion", { { 0, 1 } } },
+    { "MFXInit", { { 0, 1 } } },
+    { "MFXClose", { { 0, 1 } } },
+    { "MFXQueryIMPL", { { 0, 1 } } },
+    { "MFXQueryVersion", { { 0, 1 } } },
+    { "MFXVideoCORE_GetHandle", { { 0, 1 } } },
 
-    { "MFXJoinSession", { { 1, 1 } } },  { "MFXDisjoinSession", { { 1, 1 } } },
-    { "MFXCloneSession", { { 1, 1 } } }, { "MFXSetPriority", { { 1, 1 } } },
+    { "MFXJoinSession", { { 1, 1 } } },
+    { "MFXDisjoinSession", { { 1, 1 } } },
+    { "MFXCloneSession", { { 1, 1 } } },
+    { "MFXSetPriority", { { 1, 1 } } },
     { "MFXGetPriority", { { 1, 1 } } },
 
     { "MFXInitEx", { { 14, 1 } } },

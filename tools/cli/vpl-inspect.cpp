@@ -106,6 +106,42 @@ const char *_print_EncodeStatsType(mfxU16 type) {
 }
 #endif
 
+#ifdef ONEVPL_EXPERIMENTAL
+const char *_print_SurfaceType(mfxSurfaceType type) {
+    switch (type) {
+        STRING_OPTION(MFX_SURFACE_TYPE_UNKNOWN);
+        STRING_OPTION(MFX_SURFACE_TYPE_D3D11_TEX2D);
+        STRING_OPTION(MFX_SURFACE_TYPE_VAAPI);
+        STRING_OPTION(MFX_SURFACE_TYPE_OPENCL_IMG2D);
+    }
+
+    return "<unknown surface type>";
+}
+
+const char *_print_SurfaceComponent(mfxSurfaceComponent type) {
+    switch (type) {
+        STRING_OPTION(MFX_SURFACE_COMPONENT_UNKNOWN);
+        STRING_OPTION(MFX_SURFACE_COMPONENT_ENCODE);
+        STRING_OPTION(MFX_SURFACE_COMPONENT_DECODE);
+        STRING_OPTION(MFX_SURFACE_COMPONENT_VPP_INPUT);
+        STRING_OPTION(MFX_SURFACE_COMPONENT_VPP_OUTPUT);
+    }
+
+    return "<unknown surface component>";
+}
+
+const char *_print_SurfaceFlags(mfxU32 type) {
+    switch (type) {
+        STRING_OPTION(MFX_SURFACE_FLAG_IMPORT_SHARED);
+        STRING_OPTION(MFX_SURFACE_FLAG_IMPORT_COPY);
+        STRING_OPTION(MFX_SURFACE_FLAG_EXPORT_SHARED);
+        STRING_OPTION(MFX_SURFACE_FLAG_EXPORT_COPY);
+    }
+
+    return "<unknown surface flag type>";
+}
+#endif
+
 const char *_print_ResourceType(mfxResourceType type) {
     switch (type) {
         STRING_OPTION(MFX_RESOURCE_SYSTEM_SURFACE);
@@ -244,6 +280,9 @@ static void Usage(void) {
     printf("   -?, -help ...... print help message\n");
     printf("   -b ............. print brief output (do not print decoder, encoder, and VPP capabilities)\n");
     printf("   -ex ............ print extended device ID info (MFX_IMPLCAPS_DEVICE_ID_EXTENDED)\n");
+#ifdef ONEVPL_EXPERIMENTAL
+    printf("   -surf .......... print surface sharing supported types (MFX_IMPLCAPS_SURFACE_TYPES)\n");
+#endif
     printf("   -f ............. print list of implemented functions (MFX_IMPLCAPS_IMPLEMENTEDFUNCTIONS)\n");
     printf("   -d3d9 .......... only enumerate implementations supporting D3D9\n");
 }
@@ -260,6 +299,9 @@ int main(int argc, char *argv[]) {
     bool bFullInfo                  = true;
     bool bRequireD3D9               = false;
     bool bPrintExtendedDeviceID     = false;
+#ifdef ONEVPL_EXPERIMENTAL
+    bool bPrintSurfaceTypes = false;
+#endif
 
     for (int argIdx = 1; argIdx < argc; argIdx++) {
         std::string nextArg(argv[argIdx]);
@@ -270,6 +312,11 @@ int main(int argc, char *argv[]) {
         else if (nextArg == "-ex") {
             bPrintExtendedDeviceID = true;
         }
+#ifdef ONEVPL_EXPERIMENTAL
+        else if (nextArg == "-surf") {
+            bPrintSurfaceTypes = true;
+        }
+#endif
         else if (nextArg == "-b") {
             bFullInfo = false;
         }
@@ -642,6 +689,50 @@ int main(int argc, char *argv[]) {
                 printf("%2sWarning - MFX_IMPLCAPS_DEVICE_ID_EXTENDED not supported\n", "");
             }
         }
+
+#ifdef ONEVPL_EXPERIMENTAL
+        if (bPrintSurfaceTypes) {
+            mfxSurfaceTypesSupported *surf;
+
+            mfxStatus sts = MFXEnumImplementations(loader,
+                                                   i,
+                                                   MFX_IMPLCAPS_SURFACE_TYPES,
+                                                   reinterpret_cast<mfxHDL *>(&surf));
+            if (sts == MFX_ERR_NONE) {
+                printf("%2smfxSurfaceTypesSupported:\n", "");
+                printf("%4sVersion: %hu.%hu\n", "", surf->Version.Major, surf->Version.Minor);
+                for (int surfIdx = 0; surfIdx < surf->NumSurfaceTypes; surfIdx++) {
+                    printf("%4sSurfaceType: %s\n",
+                           "",
+                           _print_SurfaceType(surf->SurfaceTypes[surfIdx].SurfaceType));
+                    for (int compIdx = 0;
+                         compIdx < surf->SurfaceTypes[surfIdx].NumSurfaceComponents;
+                         compIdx++) {
+                        printf("%6sSurfaceComponent: %s\n",
+                               "",
+                               _print_SurfaceComponent(surf->SurfaceTypes[surfIdx]
+                                                           .SurfaceComponents[compIdx]
+                                                           .SurfaceComponent));
+                        mfxU32 surfFlags =
+                            surf->SurfaceTypes[surfIdx].SurfaceComponents[compIdx].SurfaceFlags;
+                        if (surfFlags) {
+                            for (mfxU32 flagMask = 1; flagMask != 0; flagMask <<= 1) {
+                                if (surfFlags & flagMask) {
+                                    const char *flagStr = _print_SurfaceFlags(flagMask);
+                                    printf("%8sSurfaceFlags:     %s\n", "", flagStr);
+                                }
+                            }
+                        }
+                    }
+                }
+                MFXDispReleaseImplDescription(loader, surf);
+            }
+
+            else {
+                printf("%2sWarning - MFX_IMPLCAPS_SURFACE_TYPES not supported\n", "");
+            }
+        }
+#endif
 
         i++;
     }

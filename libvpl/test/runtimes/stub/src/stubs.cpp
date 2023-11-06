@@ -31,7 +31,8 @@ mfxStatus MFXVideoCORE_SetHandle(mfxSession session, mfxHandleType type, mfxHDL 
 }
 
 mfxStatus MFXVideoCORE_GetHandle(mfxSession session, mfxHandleType type, mfxHDL *hdl) {
-    return MFX_ERR_NOT_IMPLEMENTED;
+    // per spec, GetHandle returns UNDEFINED_BEHAVIOR for unknown handle type, which for stub RT is currently all types
+    return MFX_ERR_UNDEFINED_BEHAVIOR;
 }
 
 mfxStatus MFXVideoCORE_QueryPlatform(mfxSession session, mfxPlatform *platform) {

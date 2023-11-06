@@ -13,7 +13,7 @@
 #include <sstream>
 #include <string>
 
-#include "vpl/mfxdefs.h"
+#include "vpl/mfxvideo.h"
 
 inline bool operator<(const mfxVersion &lhs, const mfxVersion &rhs) {
     return (lhs.Major < rhs.Major || (lhs.Major == rhs.Major && lhs.Minor < rhs.Minor));

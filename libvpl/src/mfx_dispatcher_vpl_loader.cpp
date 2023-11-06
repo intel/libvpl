@@ -777,6 +777,14 @@ mfxStatus LoaderCtxVPL::UnloadSingleImplementation(ImplInfo *implInfo) {
                 implInfo->implExtDeviceID = nullptr;
             }
 
+#ifdef ONEVPL_EXPERIMENTAL
+            if (implInfo->implSurfTypes) {
+                // MFX_IMPLCAPS_SURFACE_TYPES;
+                (*(mfxStatus(MFX_CDECL *)(mfxHDL))pFunc)(implInfo->implSurfTypes);
+                implInfo->implSurfTypes = nullptr;
+            }
+#endif
+
             // nothing to do if (capsFormat == MFX_IMPLCAPS_IMPLPATH) since no new memory was allocated
         }
         delete implInfo;
@@ -888,6 +896,11 @@ mfxStatus LoaderCtxVPL::QueryLibraryCaps() {
             mfxHDL *hImplExtDeviceID   = nullptr;
             mfxU32 numImplsExtDeviceID = 0;
 
+#ifdef ONEVPL_EXPERIMENTAL
+            mfxHDL *hImplSurfTypes   = nullptr;
+            mfxU32 numImplsSurfTypes = 0;
+#endif
+
             if (m_bLowLatency == false) {
                 // call MFXQueryImplsDescription() for this implementation
                 // return handle to description in requested format
@@ -919,6 +932,11 @@ mfxStatus LoaderCtxVPL::QueryLibraryCaps() {
                 hImplExtDeviceID =
                     (*(mfxHDL * (MFX_CDECL *)(mfxImplCapsDeliveryFormat, mfxU32 *))
                          pFunc)(MFX_IMPLCAPS_DEVICE_ID_EXTENDED, &numImplsExtDeviceID);
+
+#ifdef ONEVPL_EXPERIMENTAL
+                hImplSurfTypes = (*(mfxHDL * (MFX_CDECL *)(mfxImplCapsDeliveryFormat, mfxU32 *))
+                                      pFunc)(MFX_IMPLCAPS_SURFACE_TYPES, &numImplsSurfTypes);
+#endif
             }
 
             // query for list of implemented functions
@@ -947,6 +965,11 @@ mfxStatus LoaderCtxVPL::QueryLibraryCaps() {
 
                 if (hImplExtDeviceID && i < numImplsExtDeviceID)
                     implInfo->implExtDeviceID = hImplExtDeviceID[i];
+
+#ifdef ONEVPL_EXPERIMENTAL
+                if (hImplSurfTypes && i < numImplsSurfTypes)
+                    implInfo->implSurfTypes = hImplSurfTypes[i];
+#endif
 
                 // implemented function description, if available
                 if (hImplFuncs && i < numImplsFuncs)
@@ -1081,6 +1104,11 @@ mfxStatus LoaderCtxVPL::QueryLibraryCaps() {
 
                 // extended device ID description, if available
                 implInfo->implExtDeviceID = implExtDeviceID;
+
+#ifdef ONEVPL_EXPERIMENTAL
+                // not supported
+                implInfo->implSurfTypes = nullptr;
+#endif
 
                 // fill out mfxInitializationParam for use in CreateSession (MFXInitialize path)
                 memset(&(implInfo->vplParam), 0, sizeof(mfxInitializationParam));
@@ -1255,6 +1283,11 @@ mfxStatus LoaderCtxVPL::QueryImpl(mfxU32 idx, mfxImplCapsDeliveryFormat format, 
             else if (format == MFX_IMPLCAPS_DEVICE_ID_EXTENDED) {
                 *idesc = implInfo->implExtDeviceID;
             }
+#ifdef ONEVPL_EXPERIMENTAL
+            else if (format == MFX_IMPLCAPS_SURFACE_TYPES) {
+                *idesc = implInfo->implSurfTypes;
+            }
+#endif
 
             // implementation found, but requested query format is not supported
             if (*idesc == nullptr)
@@ -1303,6 +1336,11 @@ mfxStatus LoaderCtxVPL::ReleaseImpl(mfxHDL idesc) {
         else if (implInfo->implExtDeviceID == idesc) {
             capsFormat = MFX_IMPLCAPS_DEVICE_ID_EXTENDED;
         }
+#ifdef ONEVPL_EXPERIMENTAL
+        else if (implInfo->implSurfTypes == idesc) {
+            capsFormat = MFX_IMPLCAPS_SURFACE_TYPES;
+        }
+#endif
         else {
             // no match - try next implementation
             it++;
@@ -1333,6 +1371,12 @@ mfxStatus LoaderCtxVPL::ReleaseImpl(mfxHDL idesc) {
                 sts = (*(mfxStatus(MFX_CDECL *)(mfxHDL))pFunc)(implInfo->implExtDeviceID);
                 implInfo->implExtDeviceID = nullptr;
             }
+#ifdef ONEVPL_EXPERIMENTAL
+            else if (capsFormat == MFX_IMPLCAPS_SURFACE_TYPES) {
+                sts = (*(mfxStatus(MFX_CDECL *)(mfxHDL))pFunc)(implInfo->implSurfTypes);
+                implInfo->implSurfTypes = nullptr;
+            }
+#endif
 
             // nothing to do if (capsFormat == MFX_IMPLCAPS_IMPLPATH) since no new memory was allocated
         }
@@ -1375,6 +1419,9 @@ mfxStatus LoaderCtxVPL::UpdateValidImplList(void) {
         sts = ConfigCtxVPL::ValidateConfig((mfxImplDescription *)implInfo->implDesc,
                                            (mfxImplementedFunctions *)implInfo->implFuncs,
                                            (mfxExtendedDeviceId *)implInfo->implExtDeviceID,
+#ifdef ONEVPL_EXPERIMENTAL
+                                           (mfxSurfaceTypesSupported *)implInfo->implSurfTypes,
+#endif
                                            m_configCtxList,
                                            implInfo->libInfo->libType,
                                            &m_specialConfig);

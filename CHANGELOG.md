@@ -13,9 +13,10 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 ### Added
 - oneVPL API 2.10 support
 - New command line parameters to sample_multi_transcode for setting
-  B Frame QP Offsets based on Pyramid Level.
+  B Frame QP Offsets based on Pyramid Level
 - New command line parameters to the sample_vpp tool to enable video signal
-  information.
+  information
+- New APIs for importing and exporting shared surfaces
 
 ### Removed 
 - Environment module support

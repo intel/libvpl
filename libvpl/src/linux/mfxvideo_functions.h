@@ -38,10 +38,6 @@ FUNCTION(mfxStatus,
          MFXVideoCORE_SetHandle,
          (mfxSession session, mfxHandleType type, mfxHDL hdl),
          (session, type, hdl))
-FUNCTION(mfxStatus,
-         MFXVideoCORE_GetHandle,
-         (mfxSession session, mfxHandleType type, mfxHDL *hdl),
-         (session, type, hdl))
 
 FUNCTION(mfxStatus,
          MFXVideoCORE_SyncOperation,

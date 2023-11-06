@@ -144,6 +144,66 @@ TEST(Dispatcher_Stub_CreateSession, ExtDeviceID_DeviceName_Invalid) {
     Dispatcher_CreateSession_ExtDeviceID_DeviceName_Invalid(MFX_IMPL_TYPE_STUB);
 }
 
+#ifdef ONEVPL_EXPERIMENTAL
+
+// mfxSurfaceTypesSupported tests
+TEST(Dispatcher_Stub_CreateSession, SurfaceSupport_SurfaceType_Valid) {
+    SKIP_IF_DISP_STUB_DISABLED();
+    Dispatcher_CreateSession_SurfaceSupport_SurfaceType_Valid(MFX_IMPL_TYPE_STUB);
+}
+
+TEST(Dispatcher_Stub_CreateSession, SurfaceSupport_SurfaceType_Invalid) {
+    SKIP_IF_DISP_STUB_DISABLED();
+    Dispatcher_CreateSession_SurfaceSupport_SurfaceType_Invalid(MFX_IMPL_TYPE_STUB);
+}
+
+TEST(Dispatcher_Stub_CreateSession, SurfaceSupport_SurfaceComponent_Valid) {
+    SKIP_IF_DISP_STUB_DISABLED();
+    Dispatcher_CreateSession_SurfaceSupport_SurfaceComponent_Valid(MFX_IMPL_TYPE_STUB);
+}
+
+TEST(Dispatcher_Stub_CreateSession, SurfaceSupport_SurfaceComponent_Invalid) {
+    SKIP_IF_DISP_STUB_DISABLED();
+    Dispatcher_CreateSession_SurfaceSupport_SurfaceComponent_Invalid(MFX_IMPL_TYPE_STUB);
+}
+
+TEST(Dispatcher_Stub_CreateSession, SurfaceSupport_SurfaceFlags_Valid) {
+    SKIP_IF_DISP_STUB_DISABLED();
+    Dispatcher_CreateSession_SurfaceSupport_SurfaceFlags_Valid(MFX_IMPL_TYPE_STUB);
+}
+
+TEST(Dispatcher_Stub_CreateSession, SurfaceSupport_SurfaceFlags_Invalid) {
+    SKIP_IF_DISP_STUB_DISABLED();
+    Dispatcher_CreateSession_SurfaceSupport_SurfaceFlags_Invalid(MFX_IMPL_TYPE_STUB);
+}
+
+TEST(Dispatcher_Stub_CreateSession, SurfaceSupport_InvalidProperty) {
+    SKIP_IF_DISP_STUB_DISABLED();
+    Dispatcher_CreateSession_SurfaceSupport_InvalidProperty(MFX_IMPL_TYPE_STUB);
+}
+
+TEST(Dispatcher_Stub_CreateSession, SurfaceSupport_SingleFramework_Valid) {
+    SKIP_IF_DISP_STUB_DISABLED();
+    Dispatcher_CreateSession_SurfaceSupport_SingleFramework_Valid(MFX_IMPL_TYPE_STUB);
+}
+
+TEST(Dispatcher_Stub_CreateSession, SurfaceSupport_SingleFramework_Invalid) {
+    SKIP_IF_DISP_STUB_DISABLED();
+    Dispatcher_CreateSession_SurfaceSupport_SingleFramework_Invalid(MFX_IMPL_TYPE_STUB);
+}
+
+TEST(Dispatcher_Stub_CreateSession, SurfaceSupport_TwoFrameworks_Valid) {
+    SKIP_IF_DISP_STUB_DISABLED();
+    Dispatcher_CreateSession_SurfaceSupport_TwoFrameworks_Valid(MFX_IMPL_TYPE_STUB);
+}
+
+TEST(Dispatcher_Stub_CreateSession, SurfaceSupport_TwoFrameworks_Invalid) {
+    SKIP_IF_DISP_STUB_DISABLED();
+    Dispatcher_CreateSession_SurfaceSupport_TwoFrameworks_Invalid(MFX_IMPL_TYPE_STUB);
+}
+
+#endif // ONEVPL_EXPERIMENTAL
+
 // test using NumThread filter property during initialization
 static void Dispatcher_CreateSession_RuntimeParsesExtBuf(mfxImplType implType) {
     // stub RT logs results from parsing extBuf
@@ -1110,4 +1170,47 @@ TEST(Dispatcher_Stub_CreateSession, EncodeStatsTwoCodecsInvalid) {
     MFXUnload(loader);
 }
 
+TEST(Dispatcher_Memory, ImportFrameSurfaceReturnsInvalidHandleOnNull) {
+    SKIP_IF_DISP_STUB_DISABLED();
+
+    mfxLoader loader = MFXLoad();
+    EXPECT_FALSE(loader == nullptr);
+
+    mfxStatus sts = SetConfigImpl(loader, MFX_IMPL_TYPE_STUB);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    mfxMemoryInterface *iface = nullptr;
+
+    // If no session is passed in dispatcher should return Invalid Handle
+    sts = MFXGetMemoryInterface(NULL, &iface);
+    EXPECT_EQ(sts, MFX_ERR_INVALID_HANDLE);
+
+    MFXUnload(loader);
+}
+
+TEST(Dispatcher_Memory, ImportFrameSurfaceReturnsUndefinedBehavior) {
+    SKIP_IF_DISP_STUB_DISABLED();
+
+    mfxLoader loader = MFXLoad();
+    EXPECT_FALSE(loader == nullptr);
+
+    mfxStatus sts = SetConfigImpl(loader, MFX_IMPL_TYPE_STUB);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // create session with first implementation
+    mfxSession session = nullptr;
+    sts                = MFXCreateSession(loader, 0, &session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    mfxMemoryInterface *iface = nullptr;
+
+    // Stub will return Undefined Behavior for unknown mfxHandleType
+    sts = MFXGetMemoryInterface(session, &iface);
+    EXPECT_EQ(sts, MFX_ERR_UNDEFINED_BEHAVIOR);
+
+    // free internal resources
+    sts = MFXClose(session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+    MFXUnload(loader);
+}
 #endif // ONEVPL_EXPERIMENTAL

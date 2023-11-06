@@ -47,6 +47,7 @@ enum Function {
     eMFXInitEx,
     eMFXClose,
     eMFXJoinSession,
+    eMFXVideoCORE_GetHandle,
 #include "src/linux/mfxvideo_functions.h"
     eFunctionsNum,
     eNoMoreFunctions = eFunctionsNum
@@ -100,6 +101,7 @@ static const FunctionsTable g_mfxFuncTable[] = {
     { eMFXInitEx, "MFXInitEx", VERSION(1, 14) },
     { eMFXClose, "MFXClose", VERSION(1, 0) },
     { eMFXJoinSession, "MFXJoinSession", VERSION(1, 1) },
+    { eMFXVideoCORE_GetHandle, "MFXVideoCORE_GetHandle", VERSION(1, 0) },
 #include "src/linux/mfxvideo_functions.h" // NOLINT(build/include)
     { eNoMoreFunctions }
 };
@@ -659,6 +661,23 @@ mfxStatus MFXVideoVPP_ProcessFrameAsync(mfxSession session,
     }
 
     return (*proc)(loader->getSession(), in, out);
+}
+
+// implement as a non-passthrough function so that we can catch dispatcher-level interface query requests
+mfxStatus MFXVideoCORE_GetHandle(mfxSession session, mfxHandleType type, mfxHDL *hdl) {
+    if (!session)
+        return MFX_ERR_INVALID_HANDLE;
+
+    MFX::LoaderCtx *loader = (MFX::LoaderCtx *)session;
+
+    // passthrough to runtime
+    auto proc =
+        (decltype(MFXVideoCORE_GetHandle) *)loader->getFunction(MFX::eMFXVideoCORE_GetHandle);
+    if (!proc) {
+        return MFX_ERR_INVALID_HANDLE;
+    }
+
+    return (*proc)(loader->getSession(), type, hdl);
 }
 
 mfxStatus MFXJoinSession(mfxSession session, mfxSession child_session) {

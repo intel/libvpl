@@ -172,7 +172,7 @@ enum PropRanges {
 
 // must match eProp_TotalProps, is checked with static_assert in _config.cpp
 //   (should throw error at compile time if !=)
-#define NUM_TOTAL_FILTER_PROPS 56
+#define NUM_TOTAL_FILTER_PROPS 59
 
 // typedef child structures for easier reading
 typedef struct mfxDecoderDescription::decoder DecCodec;
@@ -222,6 +222,12 @@ struct VPPConfig {
     mfxU32 OutFormat;
 };
 
+struct SurfaceConfig {
+    mfxU32 SurfaceType;
+    mfxU32 SurfaceComponent;
+    mfxU32 SurfaceFlags;
+};
+
 // special props which are passed in via MFXSetConfigProperty()
 // these are updated with every call to ValidateConfig() and may
 //   be used in MFXCreateSession()
@@ -267,6 +273,9 @@ public:
     static mfxStatus ValidateConfig(const mfxImplDescription *libImplDesc,
                                     const mfxImplementedFunctions *libImplFuncs,
                                     const mfxExtendedDeviceId *libImplExtDevID,
+#ifdef ONEVPL_EXPERIMENTAL
+                                    const mfxSurfaceTypesSupported *libImplSurfTypes,
+#endif
                                     std::list<ConfigCtxVPL *> configCtxList,
                                     LibType libType,
                                     SpecialConfig *specialConfig);
@@ -292,6 +301,7 @@ private:
     mfxStatus SetFilterPropertyDec(std::list<std::string> &propParsedString, mfxVariant value);
     mfxStatus SetFilterPropertyEnc(std::list<std::string> &propParsedString, mfxVariant value);
     mfxStatus SetFilterPropertyVPP(std::list<std::string> &propParsedString, mfxVariant value);
+    mfxStatus SetFilterPropertySurface(std::list<std::string> &propParsedString, mfxVariant value);
 
     static mfxStatus GetFlatDescriptionsDec(const mfxImplDescription *libImplDesc,
                                             std::list<DecConfig> &decConfigList);
@@ -301,6 +311,10 @@ private:
 
     static mfxStatus GetFlatDescriptionsVPP(const mfxImplDescription *libImplDesc,
                                             std::list<VPPConfig> &vppConfigList);
+#ifdef ONEVPL_EXPERIMENTAL
+    static mfxStatus GetFlatDescriptionsSurface(const mfxSurfaceTypesSupported *libSurfaceTypes,
+                                                std::list<SurfaceConfig> &surfaceConfigList);
+#endif
 
     static mfxStatus CheckPropsGeneral(const mfxVariant cfgPropsAll[],
                                        const mfxImplDescription *libImplDesc);
@@ -318,6 +332,11 @@ private:
 
     static mfxStatus CheckPropsExtDevID(const mfxVariant cfgPropsAll[],
                                         const mfxExtendedDeviceId *libImplExtDevID);
+
+#ifdef ONEVPL_EXPERIMENTAL
+    static mfxStatus CheckPropsSurface(const mfxVariant cfgPropsAll[],
+                                       std::list<SurfaceConfig> surfaceConfigList);
+#endif
 
     mfxVariant m_propVar[NUM_TOTAL_FILTER_PROPS];
 
@@ -476,6 +495,10 @@ struct ImplInfo {
 
     mfxHDL implExtDeviceID;
 
+#ifdef ONEVPL_EXPERIMENTAL
+    mfxHDL implSurfTypes;
+#endif
+
     // used for session initialization with this implementation
     mfxInitializationParam vplParam;
     mfxVersion version;
@@ -498,12 +521,16 @@ struct ImplInfo {
               implDesc(nullptr),
               implFuncs(nullptr),
               implExtDeviceID(nullptr),
+#ifdef ONEVPL_EXPERIMENTAL
+              implSurfTypes(nullptr),
+#endif
               vplParam(),
               version(),
               msdkImplIdx(0),
               adapterIdx(ADAPTER_IDX_UNKNOWN),
               libImplIdx(0),
-              validImplIdx(-1) {}
+              validImplIdx(-1) {
+    }
 };
 
 // loader class implementation

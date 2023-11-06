@@ -39,6 +39,7 @@ enum eFunc {
     eMFXClose,
     eMFXQueryIMPL,
     eMFXQueryVersion,
+    eMFXVideoCORE_GetHandle,
     eMFXJoinSession,
     eMFXDisjoinSession,
     eMFXCloneSession,
@@ -133,6 +134,11 @@ struct MFX_DISP_HANDLE : public _mfxSession {
     // NOTE: changing order of struct's members can make different version of
     // dispatchers incompatible. Think of different modules (e.g. MFT filters)
     // within a single application.
+    //
+    // FOR VPL: order should not matter. Dispatcher is now built as a DLL and installed
+    // in %WINDIR%\system32. Thus all applications on the system should use same dispatcher.
+    // Even if an app loads a different dispatcher version, initializing an mfxSession
+    // with one library then using it in a different library is not a supported use case.
 
     // Library's implementation type (hardware or software)
     eMfxImplType implType;

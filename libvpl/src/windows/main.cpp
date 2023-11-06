@@ -1109,6 +1109,25 @@ mfxStatus MFXVideoVPP_ProcessFrameAsync(mfxSession session,
     return sts;
 }
 
+// move GetHandle() into a non-passthrough function so that we can catch dispatcher-level QueryInterface requests
+mfxStatus MFXVideoCORE_GetHandle(mfxSession session, mfxHandleType type, mfxHDL *hdl) {
+    mfxStatus mfxRes         = MFX_ERR_INVALID_HANDLE;
+    MFX_DISP_HANDLE *pHandle = (MFX_DISP_HANDLE *)session;
+
+    if (!pHandle)
+        return MFX_ERR_INVALID_HANDLE;
+
+    // passthrough to runtime
+    mfxFunctionPointer pFunc = pHandle->callTable[eMFXVideoCORE_GetHandle];
+    if (pFunc) { /* get the real session pointer */
+        session = pHandle->session; /* pass down the call */
+        mfxRes  = (*(
+            mfxStatus(MFX_CDECL *)(mfxSession, mfxHandleType, mfxHDL *))pFunc)(session, type, hdl);
+    }
+
+    return mfxRes;
+}
+
 //
 //
 // implement all other calling functions.
