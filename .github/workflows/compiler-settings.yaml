@@ -86,6 +86,7 @@ jobs:
 
           docker run --rm -v $PWD:/working -w/working vplcompiler_settings:github_runner /working/action.sh
 
+
       - name: Run Compiler Settings Check (Windows)
         if: success() && runner.os == 'Windows'
         run: |
@@ -95,27 +96,45 @@ jobs:
           py -m pip install ${{ vars.COMPILER_SETTINGS_TOOL_URL }} --use-pep517
           sscb run --path "_install" --outpath "_logs" --report_name Windows
 
-      - name: Check Security Scan Results (Linux)
+      - name: Checkout dispatcher source
+        uses: actions/checkout@v3
+        with:
+          path: source
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Check Disposition issue (Linux)
         if: success() && runner.os == 'Linux'
         run: |
-          if grep -q "Total Issues Identified *: *0" _logs/SSCB_SCAN_results-Linux.html ; then
-            echo "No security gaps identified in compiled binaries"
+          output=$(python3 source/.github/workflows/Compiler-settings/tool.py _logs/SSCB_SCAN_results-Linux.json source/.github/workflows/Compiler-settings/config.yaml)
+          echo "$output"
+          if [[ "$output" == "Fail" ]]; then
+            echo "Failure detected."
+          exit 1
           else
-            echo "Potential security gaps identified in compiled binaries"
-            exit 1
+            echo "No failure detected."
           fi
           
-      - name: Check Security Scan Results (Windows)
-        continue-on-error: true
+      - name: Check Disposition issue (Windows)
+        if: success() && runner.os == 'Windows'
         run: |
-          $result = Select-String -Path "_logs/SSCB_SCAN_results-Windows.html" -Pattern "Total Issues Identified *: 0"
-          if ($result -eq $null) {
-          echo "Potential security gaps identified in compiled binaries"
-          exit 1
-          } else{
-          echo "No security gaps identified in compiled binaries"
+          py -m pip install pyyaml
+          $output = py source\.github\workflows\Compiler-settings\tool.py _logs\SSCB_SCAN_results-Windows.json source\.github\workflows\Compiler-settings\config.yaml
+          Write-Output $output
+          if ($output -like '*Status: Fail*') {
+            Write-Output "Failure detected."
+            exit 1
+          } else {
+            Write-Output "No failure detected."
           }
           
+      - name: Copy config.yaml to _logs (Linux)
+        if: success() && runner.os == 'Linux'
+        run: sudo cp source/.github/workflows/Compiler-settings/config.yaml _logs/
+
+      - name: Copy config.yaml to _logs (Windows)
+        if: success() && runner.os == 'Windows'
+        run: cp source\.github\workflows\Compiler-settings\config.yaml _logs\
+
       - name: Record Artifacts
         uses: actions/upload-artifact@v3
         if: success() || failure()
