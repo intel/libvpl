@@ -280,9 +280,6 @@ static void Usage(void) {
     printf("   -?, -help ...... print help message\n");
     printf("   -b ............. print brief output (do not print decoder, encoder, and VPP capabilities)\n");
     printf("   -ex ............ print extended device ID info (MFX_IMPLCAPS_DEVICE_ID_EXTENDED)\n");
-#ifdef ONEVPL_EXPERIMENTAL
-    printf("   -surf .......... print surface sharing supported types (MFX_IMPLCAPS_SURFACE_TYPES)\n");
-#endif
     printf("   -f ............. print list of implemented functions (MFX_IMPLCAPS_IMPLEMENTEDFUNCTIONS)\n");
     printf("   -d3d9 .......... only enumerate implementations supporting D3D9\n");
 }
@@ -300,7 +297,7 @@ int main(int argc, char *argv[]) {
     bool bRequireD3D9               = false;
     bool bPrintExtendedDeviceID     = false;
 #ifdef ONEVPL_EXPERIMENTAL
-    bool bPrintSurfaceTypes = false;
+    bool bPrintSurfaceTypes = true;
 #endif
 
     for (int argIdx = 1; argIdx < argc; argIdx++) {
@@ -312,11 +309,6 @@ int main(int argc, char *argv[]) {
         else if (nextArg == "-ex") {
             bPrintExtendedDeviceID = true;
         }
-#ifdef ONEVPL_EXPERIMENTAL
-        else if (nextArg == "-surf") {
-            bPrintSurfaceTypes = true;
-        }
-#endif
         else if (nextArg == "-b") {
             bFullInfo = false;
         }
