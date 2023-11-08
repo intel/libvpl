@@ -2149,9 +2149,16 @@ void CDecodingPipeline::PrintStreamInfo() {
                m_bOutI420 ? "I420(YUV)" : CodecIdToStr(m_mfxVppVideoParams.vpp.Out.FourCC).c_str());
     }
     else {
-        printf(
-            "Output format\t%s\n",
-            m_bOutI420 ? "I420(YUV)" : CodecIdToStr(m_mfxVideoParams.mfx.FrameInfo.FourCC).c_str());
+        mfxU32 fourcc = m_mfxVideoParams.mfx.FrameInfo.FourCC;
+
+        if (m_mfxVideoParams.mfx.CodecId == MFX_CODEC_AVC ||
+            m_mfxVideoParams.mfx.CodecId == MFX_CODEC_HEVC) {
+            auto decPostProcessing = m_mfxVideoParams.GetExtBuffer<mfxExtDecVideoProcessing>();
+            if (decPostProcessing)
+                fourcc = decPostProcessing->Out.FourCC;
+        }
+
+        printf("Output format\t%s\n", m_bOutI420 ? "I420(YUV)" : CodecIdToStr(fourcc).c_str());
     }
 
     mfxFrameInfo Info = m_mfxVideoParams.mfx.FrameInfo;
