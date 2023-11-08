@@ -9,10 +9,15 @@
 
 #include <stddef.h>
 
+#include <algorithm>
+
 #include "vpl/mfxdispatcher.h"
 #include "vpl/mfxvideo.h"
 
 #include "src/windows/mfx_dispatcher_defs.h"
+
+// internal implementation of mfxConfigInterface
+#include "src/mfx_config_interface/mfx_config_interface.h"
 
 #define INTEL_VENDOR_ID 0x8086
 
@@ -188,6 +193,10 @@ inline bool operator<(const mfxVersion &one, const mfxVersion &two) {
 
 inline bool operator<=(const mfxVersion &one, const mfxVersion &two) {
     return (one == two) || (one < two);
+}
+
+inline bool operator==(mfxGUID const &l, mfxGUID const &r) {
+    return std::equal(l.Data, l.Data + 16, r.Data);
 }
 
 //

@@ -254,7 +254,7 @@ struct sInputParams {
     char* RoundingOffsetFile;
     mfxU16 TargetBitDepthLuma;
     mfxU16 TargetBitDepthChroma;
-    char DumpFileName[MSDK_MAX_FILENAME_LEN];
+    std::string dump_file;
     char uSEI[MSDK_MAX_USER_DATA_UNREG_SEI_LEN];
 
     EPresetModes PresetMode;
@@ -272,6 +272,8 @@ struct sInputParams {
     mfxI16 DeblockingBetaOffset;
     eAPIVersion verSessionInit;
     bool bReadByFrame;
+    std::string m_encode_cfg;
+    std::string m_vpp_cfg;
 };
 
 struct sTask {

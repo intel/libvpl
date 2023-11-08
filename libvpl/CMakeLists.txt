@@ -48,7 +48,9 @@ list(
   src/mfx_dispatcher_vpl_config.cpp
   src/mfx_dispatcher_vpl_lowlatency.cpp
   src/mfx_dispatcher_vpl_log.cpp
-  src/mfx_dispatcher_vpl_msdk.cpp)
+  src/mfx_dispatcher_vpl_msdk.cpp
+  src/mfx_config_interface/mfx_config_interface.cpp
+  src/mfx_config_interface/mfx_config_interface_string_api.cpp)
 
 add_library(${TARGET} "")
 

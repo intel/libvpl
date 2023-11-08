@@ -136,6 +136,9 @@ struct sInputParams {
 
     bool bDisableFilmGrain;
     eAPIVersion verSessionInit;
+    std::string m_decode_cfg;
+    std::string m_vpp_cfg;
+    std::string dump_file;
 };
 
 struct CPipelineStatistics {

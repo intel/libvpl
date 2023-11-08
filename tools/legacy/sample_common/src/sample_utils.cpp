@@ -2907,3 +2907,74 @@ int PrintLibMFXPath(struct dl_phdr_info* info, size_t size, void* data) {
 }
 
 #endif // #if defined(_WIN32) || defined(_WIN64)
+
+#ifdef ONEVPL_EXPERIMENTAL
+
+mfxStatus SetParameter(mfxConfigInterface* config_interface,
+                       MfxVideoParamsWrapper& par,
+                       const std::string& param) {
+    if (param.empty()) {
+        return MFX_ERR_NONE;
+    }
+    mfxStatus sts;
+    mfxExtBuffer ext_buf;
+    std::string param_delim("=");
+    size_t delim_pos = param.find(param_delim);
+    if (delim_pos == std::string::npos) {
+        return MFX_ERR_INVALID_VIDEO_PARAM;
+    }
+    std::string name  = param.substr(0, delim_pos);
+    std::string value = param.substr(delim_pos + param_delim.length());
+    // printf("Set param: %s = %s\n", name.c_str(), value.c_str());
+    sts = config_interface->SetParameter(config_interface,
+                                         (const mfxU8*)name.c_str(),
+                                         (const mfxU8*)value.c_str(),
+                                         MFX_STRUCTURE_TYPE_VIDEO_PARAM,
+                                         &par,
+                                         &ext_buf);
+    if (sts == MFX_ERR_MORE_EXTBUFFER) {
+        // printf("Adding Ext Buffer: %x\n", ext_buf.BufferId);
+        par.AddExtBuffer(ext_buf.BufferId, ext_buf.BufferSz);
+        // printf("Set Ext Buffer: %s = %s\n", name.c_str(), value.c_str());
+        sts = config_interface->SetParameter(config_interface,
+                                             (const mfxU8*)name.c_str(),
+                                             (const mfxU8*)value.c_str(),
+                                             MFX_STRUCTURE_TYPE_VIDEO_PARAM,
+                                             &par,
+                                             &ext_buf);
+    }
+    return sts;
+}
+
+mfxStatus SetParameters(mfxSession session, MfxVideoParamsWrapper& par, const std::string& params) {
+    mfxConfigInterface* config_interface = nullptr;
+    mfxStatus sts;
+    std::string params_str(params.begin(), params.end());
+    std::string params_delim(":");
+    sts = MFXGetConfigInterface(session, &config_interface);
+    if (sts != MFX_ERR_NONE) {
+        // printf("!! %d\n", sts);
+        return sts;
+    }
+
+    size_t pos       = 0;
+    size_t delim_pos = params_str.find(params_delim, pos);
+    // SetParameter treats an empty string as a valid no-op so we don't have to detect it here.
+    while (delim_pos != std::string::npos) {
+        size_t delim = delim_pos - pos;
+        // std::cout << pos << ", " << delim_pos << " : " << params_str.substr(pos, delim)
+        //           << std::endl;
+        sts = SetParameter(config_interface, par, params_str.substr(pos, delim));
+        if (sts != MFX_ERR_NONE) {
+            return sts;
+        }
+        pos       = pos + delim + params_delim.length();
+        delim_pos = params_str.find(params_delim, pos);
+    }
+    if (pos < params_str.length()) {
+        sts = SetParameter(config_interface, par, params_str.substr(pos));
+    }
+    return sts;
+}
+
+#endif // ONEVPL_EXPERIMENTAL

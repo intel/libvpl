@@ -109,6 +109,43 @@ void CleanupOutputLog(void) {
     g_captureLogType = CAPTURE_LOG_DISABLED;
 }
 
+// C-style allocate and free of new ext buffers to illustrate how it might be done in FFmpeg
+mfxStatus AllocateExtBuf(mfxVideoParam &par,
+                         std::vector<mfxExtBuffer *> &extBufVector,
+                         mfxExtBuffer &extBuf) {
+    if (extBuf.BufferSz == 0)
+        return MFX_ERR_MEMORY_ALLOC;
+
+    mfxExtBuffer *extBufNew = (mfxExtBuffer *)calloc(extBuf.BufferSz, 1);
+    if (!extBufNew)
+        return MFX_ERR_MEMORY_ALLOC;
+
+    extBufNew->BufferId = extBuf.BufferId;
+    extBufNew->BufferSz = extBuf.BufferSz;
+
+    extBufVector.push_back(extBufNew);
+    par.NumExtParam = static_cast<mfxU16>(extBufVector.size());
+    par.ExtParam    = extBufVector.data();
+
+    return MFX_ERR_NONE;
+}
+
+void ReleaseExtBufs(std::vector<mfxExtBuffer *> &extBufVector) {
+    for (auto &eb : extBufVector) {
+        if (eb)
+            free(eb);
+    }
+}
+
+mfxExtBuffer *FindExtBuf(mfxVideoParam &par, mfxU32 BufferId) {
+    for (mfxU32 idx = 0; idx < par.NumExtParam; idx++) {
+        if (par.ExtParam[idx] && par.ExtParam[idx]->BufferId == BufferId)
+            return par.ExtParam[idx];
+    }
+
+    return nullptr;
+}
+
 // helper functions to get/set global string to working dir
 static std::string g_workDirPath; // NOLINT
 

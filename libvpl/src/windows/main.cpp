@@ -1117,6 +1117,18 @@ mfxStatus MFXVideoCORE_GetHandle(mfxSession session, mfxHandleType type, mfxHDL 
     if (!pHandle)
         return MFX_ERR_INVALID_HANDLE;
 
+#ifdef ONEVPL_EXPERIMENTAL
+    // first check if handle type points to an interface implemented inside the dispatcher
+    if (type == MFX_HANDLE_CONFIG_INTERFACE) {
+        if (!hdl)
+            return MFX_ERR_NULL_PTR;
+
+        *hdl = (mfxHDL)(&(MFX_CONFIG_INTERFACE::g_dispatcher_mfxConfigInterface));
+
+        return MFX_ERR_NONE;
+    }
+#endif
+
     // passthrough to runtime
     mfxFunctionPointer pFunc = pHandle->callTable[eMFXVideoCORE_GetHandle];
     if (pFunc) { /* get the real session pointer */

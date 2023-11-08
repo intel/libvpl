@@ -17,6 +17,7 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 - New command line parameters to the sample_vpp tool to enable video signal
   information
 - New APIs for importing and exporting shared surfaces
+- New APIs for string-based parameter configuration
 
 ### Removed 
 - Environment module support

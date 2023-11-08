@@ -21,6 +21,8 @@ set(test_sources
     src/dispatcher_sw.cpp
     src/dispatcher_sw_multiprop.cpp
     src/dispatcher_util.cpp
+    src/dispatcher_gpu_stringapi.cpp
+    src/dispatcher_stub_stringapi.cpp
     src/experimental_api.cpp)
 add_executable(${PROJECT_NAME} ${test_sources})
 

@@ -870,6 +870,21 @@ void PrintHelp() {
     HELP_LINE(
         "                See mfxExtCodingOption3::ContentInfo/ScenarioInfo for supported <value>.");
     HELP_LINE("");
+#ifdef ONEVPL_EXPERIMENTAL
+    HELP_LINE("  -cfg::enc <config string>   Set encoder options via string-api\n");
+    HELP_LINE("  -cfg::dec <config string>   Set decoder options via string-api\n");
+    HELP_LINE("  -cfg::vpp <config string>   Set VPP options via string-api\n");
+    HELP_LINE("\n");
+#endif
+    HELP_LINE("Config string forat:\n");
+    HELP_LINE("  name=value(:name=value)*\n");
+    HELP_LINE("  name=value:name2=value2:name3=value3\n");
+    HELP_LINE("\n");
+    HELP_LINE("  valid names and values are defined and checked at\n");
+    HELP_LINE("  runtime by the dispatcher and selected runtime library\n");
+    HELP_LINE("\n");
+
+    HELP_LINE("");
     HELP_LINE("ParFile format:");
     HELP_LINE("  ParFile is extension of what can be achieved by setting pipeline in the command");
     HELP_LINE("  line. For more information on ParFile format see readme-multi-transcode.pdf");
@@ -1120,59 +1135,129 @@ size_t CmdProcessor::GetStringLength(char* pTempLine, size_t length) {
 
     return i + 1;
 }
+#ifdef LOCAL_PARSER
 
-mfxStatus CmdProcessor::TokenizeLine(const std::string& line) {
-    return TokenizeLine(line.c_str(), line.size());
+// It would be preferable to use local OS command line parsing as
+// implemented here. However for backward compatibility a hand coded
+// parser is provided below.
+
+    #ifdef WIN32
+static void split_cmd(std::string const& cmd, std::vector<std::string>& args) {
+    std::wstring wcmd(cmd.begin(), cmd.end());
+    LPWSTR* arg_list;
+    int argc = 0;
+    int i;
+    arg_list = CommandLineToArgvW(wcmd.c_str(), &argc);
+    if (!arg_list) {
+        return;
+    }
+    for (i = 0; i < argc; i++) {
+        std::wstring arg(arg_list[i]);
+        args.push_back(std::string(arg.begin(), arg.end()));
+    }
+    LocalFree(arg_list);
+    return;
 }
 
-mfxStatus CmdProcessor::TokenizeLine(const char* pLine, size_t length) {
-    size_t i, strArgLen;
-    const mfxU8 maxArgNum = 255;
-    char* argv[maxArgNum + 1];
-    mfxU32 argc   = 0;
-    auto pMemLine = std::make_unique<char[]>(length + 2);
+    #else
+        #include <wordexp.h>
 
-    char* pTempLine = pMemLine.get();
-    pTempLine[0]    = ' ';
-    pTempLine++;
-
-    MSDK_MEMCPY_BUF(pTempLine, 0, length * sizeof(char), pLine, length * sizeof(char));
-
-    // parse into command streams
-    for (i = 0; i < length; i++) {
-        // check if separator
-        if (IS_SEPARATOR(pTempLine[-1]) && !IS_SEPARATOR(pTempLine[0])) {
-            argv[argc++] = pTempLine;
-            if (argc > maxArgNum) {
-                PrintError("Too many parameters (reached maximum of %d)", maxArgNum);
-                return MFX_ERR_UNSUPPORTED;
-            }
-        }
-
-        if (*pTempLine == '\"') {
-            strArgLen = GetStringLength(pTempLine, length - i);
-            if (!strArgLen) {
-                PrintError("Error parsing string literal");
-                return MFX_ERR_UNSUPPORTED;
-            }
-
-            // remove leading and trailing ", bump pointer ahead to next argument
-            pTempLine[0]             = ' ';
-            pTempLine[strArgLen - 1] = ' ';
-            pTempLine += strArgLen;
-            i += strArgLen;
-        }
-
-        if (*pTempLine == ' ' || *pTempLine == '\r' || *pTempLine == '\n') {
-            *pTempLine = 0;
-        }
-        pTempLine++;
+static void split_cmd(std::string const& cmd, std::vector<std::string>& args) {
+    if (cmd.empty()) {
+        return;
     }
+    wordexp_t w_exp;
+    if (0 != wordexp(cmd, &w_exp, WRDE_NOCMD)) {
+        return;
+    }
+    for (size_t i = 0; i < w_exp.we_wordc) {
+        args.append(w_exp.we_wordv[i])
+    }
+    return;
+}
 
-    // EOL for last parameter
-    pTempLine[0] = 0;
+    #endif
+#else
 
-    return ParseParamsForOneSession(argc, argv);
+/*
+Split a string like a command line.
+
+This function uses the algorithm used by CommandLineToArgvW, but runs on
+ASCII/UTF-8 input, and treats '=' as whitespace for word breaking purposes.
+
+The last is to maintain backward compatibility with the prior behavior of TokenizeLine.
+*/
+
+static void split_cmd(std::string const& cmd, std::vector<std::string>& args) {
+    if (cmd.empty()) {
+        return;
+    }
+    size_t i           = 0;
+    bool found_arg     = false;
+    bool in_quotes     = false;
+    size_t slash_count = 0;
+    bool use_char      = true;
+    std::stringstream arg;
+    while (i < cmd.size()) {
+        // remove leading whitespace
+        while ((i < cmd.size()) && (cmd[i] == ' ' || cmd[i] == '\t' || cmd[i] == '=')) {
+            i += 1;
+        }
+        if (i >= cmd.size()) {
+            break;
+        }
+        found_arg = false;
+        while (i < cmd.size()) {
+            slash_count = 0;
+            use_char    = true;
+            while ((i < cmd.size()) && cmd[i] == '\\') {
+                i += 1;
+                slash_count += 1;
+            }
+            if (cmd[i] == '"') {
+                found_arg = true;
+                if (slash_count % 2 == 0) {
+                    if (in_quotes && cmd[i + 1] == '"') {
+                        in_quotes = !in_quotes;
+                        i += 1;
+                    }
+                    else {
+                        use_char  = false;
+                        in_quotes = !in_quotes;
+                    }
+                }
+                slash_count /= 2;
+            }
+            while (slash_count--) {
+                arg << '\\';
+                found_arg = true;
+            }
+            if (!in_quotes && (cmd[i] == ' ' || cmd[i] == '\t' || cmd[i] == '=')) {
+                break;
+            }
+            if (use_char) {
+                arg << cmd[i];
+                found_arg = true;
+            }
+            i += 1;
+        }
+        if (found_arg) {
+            args.push_back(arg.str());
+        }
+        arg.str(std::string());
+    }
+}
+
+#endif
+
+mfxStatus CmdProcessor::TokenizeLine(const std::string& line) {
+    std::vector<std::string> args;
+    split_cmd(line, args);
+    std::vector<char*> argv;
+    for (auto& arg : args) {
+        argv.push_back(&arg[0]);
+    }
+    return ParseParamsForOneSession((mfxU32)argv.size(), &argv[0]);
 }
 
 bool CmdProcessor::isspace(char a) {
@@ -1987,6 +2072,23 @@ mfxStatus ParseAdditionalParams(char* argv[],
             return MFX_ERR_UNSUPPORTED;
         }
     }
+#ifdef ONEVPL_EXPERIMENTAL
+    else if (msdk_match(argv[i], "-cfg::dec")) {
+        VAL_CHECK(i + 1 == argc, i, argv[i]);
+        i++;
+        InputParams.m_decode_cfg = argv[i];
+    }
+    else if (msdk_match(argv[i], "-cfg::enc")) {
+        VAL_CHECK(i + 1 == argc, i, argv[i]);
+        i++;
+        InputParams.m_encode_cfg = argv[i];
+    }
+    else if (msdk_match(argv[i], "-cfg::vpp")) {
+        VAL_CHECK(i + 1 == argc, i, argv[i]);
+        i++;
+        InputParams.m_vpp_cfg = argv[i];
+    }
+#endif
     else if (msdk_match(argv[i], "-QPOffset")) {
         InputParams.bSetQPOffset = true;
         VAL_CHECK(i + 1 >= argc, i, argv[i]);
@@ -2906,7 +3008,7 @@ mfxStatus CmdProcessor::ParseParamsForOneSession(mfxU32 argc, char* argv[]) {
         else if (msdk_match(argv[i], "-dump")) {
             VAL_CHECK(i + 1 == argc, i, argv[i]);
             i++;
-            if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.strMfxParamsDumpFile)) {
+            if (MFX_ERR_NONE != msdk_opt_read(argv[i], InputParams.dump_file)) {
                 PrintError("Dump file name \"%s\" is invalid", argv[i]);
                 return MFX_ERR_UNSUPPORTED;
             }

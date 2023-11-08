@@ -178,7 +178,7 @@ CTranscodingPipeline::CTranscodingPipeline()
           m_QPforP(0),
           m_sGenericPluginPath(),
           m_nRotationAngle(0),
-          m_strMfxParamsDumpFile(),
+          dump_file(),
           m_bTCBRCFileMode(false),
 #ifdef ENABLE_MCTF
           m_MctfRTParams(),
@@ -402,6 +402,11 @@ mfxStatus CTranscodingPipeline::VPPPreInit(sInputParams* pParams) {
             }
         }
     }
+
+#ifdef ONEVPL_EXPERIMENTAL
+    sts = SetParameters((mfxSession)(*m_pmfxSession), m_mfxVppParams, pParams->m_vpp_cfg);
+    MSDK_CHECK_STATUS(sts, "SetParameters failed");
+#endif
 
     return sts;
 
@@ -2777,6 +2782,11 @@ mfxStatus CTranscodingPipeline::InitDecMfxParams(sInputParams* pInParams) {
         }
     }
 
+#ifdef ONEVPL_EXPERIMENTAL
+    sts = SetParameters((mfxSession)(*m_pmfxSession), m_mfxDecParams, pInParams->m_decode_cfg);
+    MSDK_CHECK_STATUS(sts, "SetParameters failed");
+#endif
+
     return MFX_ERR_NONE;
 } // mfxStatus CTranscodingPipeline::InitDecMfxParams()
 
@@ -3204,6 +3214,12 @@ mfxStatus CTranscodingPipeline::InitEncMfxParams(sInputParams* pInParams) {
         auto co3         = m_mfxEncParams.AddExtBuffer<mfxExtCodingOption3>();
         co3->ContentInfo = pInParams->ContentInfo;
     }
+
+#ifdef ONEVPL_EXPERIMENTAL
+    mfxStatus sts =
+        SetParameters((mfxSession)(*m_pmfxSession), m_mfxEncParams, pInParams->m_encode_cfg);
+    MSDK_CHECK_STATUS(sts, "SetParameters failed");
+#endif
 
     return MFX_ERR_NONE;
 } // mfxStatus CTranscodingPipeline::InitEncMfxParams(sInputParams *pInParams)
@@ -3645,6 +3661,11 @@ mfxStatus CTranscodingPipeline::InitVppMfxParams(MfxVideoParamsWrapper& par,
     }
 #endif
 
+#ifdef ONEVPL_EXPERIMENTAL
+    sts = SetParameters((mfxSession)(*m_pmfxSession), m_mfxVppParams, pInParams->m_vpp_cfg);
+    MSDK_CHECK_STATUS(sts, "SetParameters failed");
+#endif
+
     return MFX_ERR_NONE;
 
 } //mfxStatus CTranscodingPipeline::InitMfxVppParams(sInputParams *pInParams)
@@ -3681,7 +3702,7 @@ mfxStatus CTranscodingPipeline::InitPluginMfxParams(sInputParams* pInParams) {
 
     return MFX_ERR_NONE;
 
-} //mfxStatus CTranscodingPipeline::InitMfxVppParams(sInputParams *pInParams)
+} //mfxStatus CTranscodingPipeline::InitPluginMfxParams(sInputParams *pInParams)
 
 mfxStatus CTranscodingPipeline::AllocFrames(mfxFrameAllocRequest* pRequest, bool isDecAlloc) {
     mfxStatus sts = MFX_ERR_NONE;
@@ -4180,7 +4201,7 @@ mfxStatus CTranscodingPipeline::Init(sInputParams* pParams,
     if (statisticsWindowSize > m_MaxFramesForTranscode)
         statisticsWindowSize = m_MaxFramesForTranscode;
 
-    m_strMfxParamsDumpFile.assign(pParams->strMfxParamsDumpFile);
+    dump_file = pParams->dump_file;
 
     if (pParams->statisticsLogFile) {
         //same log file for intput/output
@@ -4520,8 +4541,8 @@ mfxStatus CTranscodingPipeline::Init(sInputParams* pParams,
     }
 
     // Dumping components configuration if required
-    if (m_strMfxParamsDumpFile.size()) {
-        CParametersDumper::DumpLibraryConfiguration(m_strMfxParamsDumpFile,
+    if (!dump_file.empty()) {
+        CParametersDumper::DumpLibraryConfiguration(dump_file,
                                                     m_pmfxDEC.get(),
                                                     m_pmfxVPP.get(),
                                                     m_pmfxENC.get(),

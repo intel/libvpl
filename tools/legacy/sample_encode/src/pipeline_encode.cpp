@@ -792,6 +792,11 @@ mfxStatus CEncodingPipeline::InitMfxEncParams(sInputParams* pInParams) {
     }
 #endif
 
+#ifdef ONEVPL_EXPERIMENTAL
+    mfxStatus sts =
+        SetParameters((mfxSession)(m_mfxSession), m_mfxEncParams, pInParams->m_encode_cfg);
+    MSDK_CHECK_STATUS(sts, "SetParameters failed");
+#endif
     return MFX_ERR_NONE;
 }
 
@@ -932,7 +937,10 @@ mfxStatus CEncodingPipeline::InitMfxVppParams(sInputParams* pInParams) {
     InitVppFilters();
 
     m_mfxVppParams.AsyncDepth = pInParams->nAsyncDepth;
-
+#ifdef ONEVPL_EXPERIMENTAL
+    mfxStatus sts = SetParameters((mfxSession)(m_mfxSession), m_mfxVppParams, pInParams->m_vpp_cfg);
+    MSDK_CHECK_STATUS(sts, "SetParameters failed");
+#endif
     return MFX_ERR_NONE;
 }
 
@@ -1869,8 +1877,8 @@ mfxStatus CEncodingPipeline::Init(sInputParams* pParams) {
     m_bCutOutput = pParams->dstFileBuff.size() ? !pParams->bUncut : false;
 
     // Dumping components configuration if required
-    if (*pParams->DumpFileName) {
-        CParametersDumper::DumpLibraryConfiguration(pParams->DumpFileName,
+    if (!pParams->dump_file.empty()) {
+        CParametersDumper::DumpLibraryConfiguration(pParams->dump_file,
                                                     NULL,
                                                     m_pmfxVPP,
                                                     m_pmfxENC,

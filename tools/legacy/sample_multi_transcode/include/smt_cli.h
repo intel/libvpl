@@ -64,7 +64,6 @@ public:
 protected:
     mfxStatus ParseParFile(const std::string& filename);
     mfxStatus TokenizeLine(const std::string& line);
-    mfxStatus TokenizeLine(const char* pLine, size_t length);
     size_t GetStringLength(char* pTempLine, size_t length);
 
     static bool isspace(char a);

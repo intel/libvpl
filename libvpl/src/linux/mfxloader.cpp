@@ -18,6 +18,9 @@
 
 #include "vpl/mfxvideo.h"
 
+// internal implementation of mfxConfigInterface
+#include "src/mfx_config_interface/mfx_config_interface.h"
+
 #include "src/linux/device_ids.h"
 #include "src/linux/mfxloader.h"
 
@@ -669,6 +672,18 @@ mfxStatus MFXVideoCORE_GetHandle(mfxSession session, mfxHandleType type, mfxHDL 
         return MFX_ERR_INVALID_HANDLE;
 
     MFX::LoaderCtx *loader = (MFX::LoaderCtx *)session;
+
+#ifdef ONEVPL_EXPERIMENTAL
+    // first check if handle type points to an interface implemented inside the dispatcher
+    if (type == MFX_HANDLE_CONFIG_INTERFACE) {
+        if (!hdl)
+            return MFX_ERR_NULL_PTR;
+
+        *hdl = (mfxHDL)(&(MFX_CONFIG_INTERFACE::g_dispatcher_mfxConfigInterface));
+
+        return MFX_ERR_NONE;
+    }
+#endif
 
     // passthrough to runtime
     auto proc =

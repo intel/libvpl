@@ -180,9 +180,13 @@ typedef struct sInputParams {
     std::string strSrcFile; // source bitstream file
     std::string strDstFile; // destination bitstream file
     std::string strDumpVppCompFile; // VPP composition output dump file
-    std::string strMfxParamsDumpFile;
+    std::string dump_file;
 
     std::string strTCBRCFilePath;
+
+    std::string m_encode_cfg;
+    std::string m_decode_cfg;
+    std::string m_vpp_cfg;
 
     // specific encode parameters
     mfxU16 nTargetUsage;
@@ -461,8 +465,11 @@ typedef struct sInputParams {
               strSrcFile(),
               strDstFile(),
               strDumpVppCompFile(),
-              strMfxParamsDumpFile(),
+              dump_file(),
               strTCBRCFilePath(),
+              m_encode_cfg(),
+              m_decode_cfg(),
+              m_vpp_cfg(),
               nTargetUsage(0),
               dDecoderFrameRateOverride(0.0),
               dEncoderFrameRateOverride(0.0),

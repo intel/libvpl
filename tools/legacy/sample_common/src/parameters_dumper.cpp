@@ -25,6 +25,11 @@
     #error MFX_VERSION not defined
 #endif
 
+std::ostream& operator<<(std::ostream& stream, const mfxU8 byte) {
+    stream << static_cast<unsigned int>(byte);
+    return stream;
+}
+
 #define START_PROC_ARRAY(arrName)                                                            \
     for (unsigned int arrIdx = 0; arrIdx < (sizeof(info.arrName) / sizeof(info.arrName[0])); \
          arrIdx++) {

@@ -156,6 +156,12 @@ void PrintHelp(char* strAppName, const char* strErrorMessage) {
     printf("   [-jpeg_rotate n]          - rotate jpeg frame n degrees \n");
     printf("       n(90,180,270)         - number of degrees \n");
 #endif
+#ifdef ONEVPL_EXPERIMENTAL
+    printf("   [-cfg::dec config]    - Set decoder options via string-api\n");
+    printf("   [-cfg::vpp config]    - Set VPP options via string-api\n");
+#endif
+    printf(
+        "   [-dump fileName]         - dump MSDK components configuration to the file in text form\n");
 
 #if defined(_WIN32) || defined(_WIN64)
     printf("\nFeatures: \n");
@@ -716,6 +722,33 @@ mfxStatus ParseInputString(char* strInput[], mfxU32 nArgNum, sInputParams* pPara
         }
         else if (msdk_match(strInput[i], "-api_ver_init::2x")) {
             pParams->verSessionInit = API_2X;
+        }
+#ifdef ONEVPL_EXPERIMENTAL
+        else if (msdk_match(strInput[i], "-cfg::dec")) {
+            if (i + 1 >= nArgNum) {
+                PrintHelp(strInput[0], "Not enough parameters for -cfg::dec");
+                return MFX_ERR_UNSUPPORTED;
+            }
+            i++;
+            pParams->m_decode_cfg = strInput[i];
+        }
+        else if (msdk_match(strInput[i], "-cfg::vpp")) {
+            if (i + 1 >= nArgNum) {
+                PrintHelp(strInput[0], "Not enough parameters for -cfg::vpp");
+                return MFX_ERR_UNSUPPORTED;
+            }
+            i++;
+            pParams->m_vpp_cfg = strInput[i];
+        }
+#endif
+        else if (msdk_match(strInput[i], "-dump")) {
+            if (i + 1 >= nArgNum) {
+                PrintHelp(strInput[0],
+                          "File Name for dumping MSDK library configuration should be provided");
+                return MFX_ERR_UNSUPPORTED;
+            }
+            i++;
+            pParams->dump_file = strInput[i];
         }
         else // 1-character options
         {

@@ -601,6 +601,10 @@ public:
     ExtBufHolder(ExtBufHolder&&)            = default;
     ExtBufHolder& operator=(ExtBufHolder&&) = default;
 
+    mfxExtBuffer* AddExtBuffer(mfxU32 id, mfxU32 size) {
+        return AddExtBuffer(id, size, false);
+    }
+
     // Always returns a valid pointer or throws an exception
     template <typename TB>
     TB* AddExtBuffer() {
@@ -1582,5 +1586,7 @@ private:
     std::map<mfxU32, mfxU32> m_FirstFrameInBuffer{}; //key is target ID
     std::map<mfxU32, mfxU32> m_LastFrameInBuffer{}; //key is target ID
 };
+
+mfxStatus SetParameters(mfxSession session, MfxVideoParamsWrapper& par, const std::string& params);
 
 #endif //__SAMPLE_UTILS_H__

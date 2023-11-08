@@ -23,4 +23,8 @@ inline bool operator<=(const mfxVersion &lhs, const mfxVersion &rhs) {
     return (lhs < rhs || (lhs.Major == rhs.Major && lhs.Minor == rhs.Minor));
 }
 
+inline bool operator==(mfxGUID const &l, mfxGUID const &r) {
+    return std::equal(l.Data, l.Data + 16, r.Data);
+}
+
 #endif // LIBVPL_SRC_LINUX_MFXLOADER_H_

@@ -9,9 +9,11 @@
 
 /* ************************************************************************* */
 
-    #if defined(_WIN32) || defined(_WIN64)
-        #define D3D_SURFACES_SUPPORT
-    #endif // #if defined(_WIN32) || defined(_WIN64)
+    #ifndef D3D_SURFACES_SUPPORT
+        #if defined(_WIN32) || defined(_WIN64)
+            #define D3D_SURFACES_SUPPORT
+        #endif // #if defined(_WIN32) || defined(_WIN64)
+    #endif // #ifndef D3D_SURFACES_SUPPORT
 
     #ifdef D3D_SURFACES_SUPPORT
         #pragma warning(disable : 4201)
@@ -269,6 +271,9 @@ struct sInputParams {
     std::vector<sVideoSignalInfo> videoSignalInfoIn;
     std::vector<sVideoSignalInfo> videoSignalInfoOut;
 
+    std::string m_vpp_cfg;
+    std::string dump_file;
+
     sInputParams()
             : frameInfoIn(),
               frameInfoOut(),
@@ -354,7 +359,9 @@ struct sInputParams {
               lutTbl(),
               bIs3dLutVideoMem(false),
               videoSignalInfoIn(),
-              videoSignalInfoOut() {
+              videoSignalInfoOut(),
+              m_vpp_cfg(),
+              dump_file() {
         MSDK_ZERO_MEMORY(strSrcFile);
         MSDK_ZERO_MEMORY(strPerfFile);
         MSDK_ZERO_MEMORY(inFrameInfo);

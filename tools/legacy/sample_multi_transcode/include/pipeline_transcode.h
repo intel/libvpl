@@ -721,7 +721,7 @@ protected:
     std::string m_sGenericPluginPath;
     mfxU16 m_nRotationAngle;
 
-    std::string m_strMfxParamsDumpFile;
+    std::string dump_file;
 
     void FillMBQPBuffer(mfxExtMBQP& qpMap, mfxU16 pictStruct);
 

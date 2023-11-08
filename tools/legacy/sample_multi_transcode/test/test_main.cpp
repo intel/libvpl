@@ -204,11 +204,11 @@ TEST(Transcode_CLI, TrivialSessionOptions) {
     EXPECT_EQ(result.parsed[0].bSoftRobustFlag, false);
     EXPECT_EQ(result.parsed[0].EncodeId, MFX_CODEC_HEVC);
     EXPECT_EQ(result.parsed[0].DecodeId, MFX_CODEC_AVC);
-    EXPECT_EQ(std::string(result.parsed[0].strSrcFile), std::string("in_file"));
-    EXPECT_EQ(std::string(result.parsed[0].strDstFile), std::string("out_file"));
-    EXPECT_TRUE(std::string(result.parsed[0].strDumpVppCompFile).empty());
-    EXPECT_TRUE(std::string(result.parsed[0].strMfxParamsDumpFile).empty());
-    EXPECT_TRUE(std::string(result.parsed[0].strTCBRCFilePath).empty());
+    EXPECT_EQ(result.parsed[0].strSrcFile, std::string("in_file"));
+    EXPECT_EQ(result.parsed[0].strDstFile, std::string("out_file"));
+    EXPECT_TRUE(result.parsed[0].strDumpVppCompFile.empty());
+    EXPECT_TRUE(result.parsed[0].dump_file.empty());
+    EXPECT_TRUE(result.parsed[0].strTCBRCFilePath.empty());
     EXPECT_EQ(result.parsed[0].nTargetUsage, 0);
     EXPECT_EQ(result.parsed[0].dDecoderFrameRateOverride, 0.0);
     EXPECT_EQ(result.parsed[0].dEncoderFrameRateOverride, 0.0);

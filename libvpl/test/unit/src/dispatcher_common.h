@@ -25,6 +25,7 @@
 #include <iostream>
 #include <list>
 #include <string>
+#include <vector>
 
 #include "vpl/mfx.h"
 
@@ -60,6 +61,13 @@ void CheckOutputLog(const char *expectedString, bool expectMatch = true);
 
 // delete log files, reset log type, reset cout
 void CleanupOutputLog(void);
+
+// helper functions for testing string API, C-style alloc/free to illustrate possible FFmpeg integration
+mfxStatus AllocateExtBuf(mfxVideoParam &par,
+                         std::vector<mfxExtBuffer *> &extBufVector,
+                         mfxExtBuffer &extBuf);
+void ReleaseExtBufs(std::vector<mfxExtBuffer *> &extBufVector);
+mfxExtBuffer *FindExtBuf(mfxVideoParam &par, mfxU32 BufferId);
 
 int CreateWorkingDirectory(const char *dirPath);
 

@@ -4,6 +4,7 @@
   # SPDX-License-Identifier: MIT
   ############################################################################*/
 
+#include "parameters_dumper.h"
 #include "sample_vpp_pts.h"
 #include "sample_vpp_roi.h"
 #include "sample_vpp_utils.h"
@@ -551,6 +552,13 @@ int sample_vpp_main(int argc, char* argv[]) {
         Params.bPartialAccel = false;
     }
 
+#ifdef ONEVPL_EXPERIMENTAL
+    sts = SetParameters((mfxSession)Resources.pProcessor->mfxSession,
+                        mfxParamsVideo,
+                        Params.m_vpp_cfg);
+    MSDK_CHECK_STATUS(sts, "SetParameters failed");
+#endif
+
     if (Params.bPerf) {
         for (int i = 0; i < Resources.numSrcFiles; i++) {
             sts = yuvReaders[i].PreAllocateFrameChunk(&mfxParamsVideo,
@@ -623,6 +631,17 @@ int sample_vpp_main(int argc, char* argv[]) {
         buf_read.resize(frame_size);
     }
 
+    // Dumping components configuration if required
+    if (!Params.dump_file.empty()) {
+        CParametersDumper::DumpLibraryConfiguration(Params.dump_file,
+                                                    NULL,
+                                                    frameProcessor.pmfxVPP,
+                                                    NULL,
+                                                    NULL,
+                                                    &mfxParamsVideo,
+                                                    NULL);
+    }
+
     //---------------------------------------------------------
     do {
         if (bNeedReset) {
@@ -637,6 +656,10 @@ int sample_vpp_main(int argc, char* argv[]) {
                 WipeResources(&Resources);
                 WipeParams(&Params);
             });
+#ifdef ONEVPL_EXPERIMENTAL
+            sts = SetParameters(Resources.pProcessor->mfxSession, mfxParamsVideo, Params.m_vpp_cfg);
+            MSDK_CHECK_STATUS(sts, "SetParameters failed");
+#endif
 
             sts = ConfigVideoEnhancementFilters(&Params, &Resources, paramID);
             MSDK_CHECK_STATUS_SAFE(sts, "ConfigVideoEnchancementFilters failed", {
