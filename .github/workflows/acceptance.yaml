@@ -76,8 +76,8 @@ jobs:
         if: success() && runner.os == 'Linux'
         run: >
           docker build "tests/environments"
-          -f "tests/environments/Dockerfile.ubuntu.gputest"
-          -t vpl_gputestenv:ubuntu
+          -f "tests/environments/Dockerfile.ubuntu.15070.gputest"
+          -t vpl_gputestenv:ubuntu15070
 
       - name: Test package in container (Linux)
         if: success() && runner.os == 'Linux'
@@ -109,7 +109,7 @@ jobs:
           docker run --rm \
             -v $(pwd):/tmp/work \
             -e ONEVPL_PRIORITY_PATH=/tmp/work/runtimes \
-            -w /tmp/work --privileged vpl_gputestenv:ubuntu ./test.sh
+            -w /tmp/work --privileged vpl_gputestenv:ubuntu15070 ./test.sh
 
       - name: Test package (Windows)
         if: success() && runner.os == 'Windows'
