@@ -24,5 +24,6 @@ winget list Git.Git >NUL || winget install -e --id=Git.Git
 if %errorlevel% neq 0 exit /b %errorlevel%
 
 python -m pip install pre-commit --proxy=%HTTP_PROXY%
+python -m pip install virtualenv==v20.24.5 --proxy=%HTTP_PROXY%
 
 endlocal

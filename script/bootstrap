@@ -120,3 +120,4 @@ fi
 
 # lint dependencies
 pip3 install pre-commit
+pip3 install virtualenv==v20.24.5
