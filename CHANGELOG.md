@@ -18,6 +18,7 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
   information
 - New APIs for importing and exporting shared surfaces
 - New APIs for string-based parameter configuration
+- oneVPL specification added to docs directory
 
 ### Removed 
 - Environment module support
