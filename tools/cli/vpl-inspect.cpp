@@ -4,6 +4,17 @@
   # SPDX-License-Identifier: MIT
   ############################################################################*/
 
+#if defined(_WIN32) || defined(_WIN64)
+    #include <windows.h>
+
+    #if defined _DEBUG
+        #define DISPATCHER_DLL_NAME "libvpld.dll"
+    #else
+        #define DISPATCHER_DLL_NAME "libvpl.dll"
+    #endif
+
+#endif
+
 #include <assert.h>
 #include <stdio.h>
 
@@ -20,9 +31,6 @@
     s[2] = ch >> 16 & 0xff;    \
     s[3] = ch >> 24 & 0xff;
 
-#define MAKEFOURCC(ch0, ch1, ch2, ch3)                                                   \
-    ((mfxU32)(mfxU8)(ch0) | ((mfxU32)(mfxU8)(ch1) << 8) | ((mfxU32)(mfxU8)(ch2) << 16) | \
-     ((mfxU32)(mfxU8)(ch3) << 24))
 #define STRING_OPTION(x) \
     case x:              \
         return #x
@@ -282,6 +290,9 @@ static void Usage(void) {
     printf("   -ex ............ print extended device ID info (MFX_IMPLCAPS_DEVICE_ID_EXTENDED)\n");
     printf("   -f ............. print list of implemented functions (MFX_IMPLCAPS_IMPLEMENTEDFUNCTIONS)\n");
     printf("   -d3d9 .......... only enumerate implementations supporting D3D9\n");
+#if defined(_WIN32) || defined(_WIN64)
+    printf("   -disp .......... print path to loaded dispatcher library\n");
+#endif
 }
 // clang-format on
 
@@ -296,6 +307,7 @@ int main(int argc, char *argv[]) {
     bool bFullInfo                  = true;
     bool bRequireD3D9               = false;
     bool bPrintExtendedDeviceID     = false;
+    bool bPrintDispInfo             = false;
 #ifdef ONEVPL_EXPERIMENTAL
     bool bPrintSurfaceTypes = true;
 #endif
@@ -319,11 +331,38 @@ int main(int argc, char *argv[]) {
             Usage();
             return -1;
         }
+#if defined(_WIN32) || defined(_WIN64)
+        else if (nextArg == "-disp") {
+            bPrintDispInfo = true;
+        }
+#endif
         else {
             printf("Error - unknown option %s\n", nextArg.c_str());
             Usage();
             return -1;
         }
+    }
+
+    if (bPrintDispInfo) {
+#if defined(_WIN32) || defined(_WIN64)
+        HMODULE handle = GetModuleHandleA(DISPATCHER_DLL_NAME);
+        if (!handle) {
+            printf("Error - Failed to get dispatcher handle\n");
+            return -1;
+        }
+
+        char dispatcherPath[1024] = {};
+        DWORD pathLen = GetModuleFileNameA(handle, dispatcherPath, sizeof(dispatcherPath));
+        if (pathLen == 0 || pathLen >= sizeof(dispatcherPath)) {
+            printf("Error - Failed to get dispatcher path\n");
+            return -1;
+        }
+
+        // print full path to dispatcher DLL loaded by vpl-inspect, then exit
+        // this is primarily for scripting and debugging
+        printf("%s\n", dispatcherPath);
+        return 0;
+#endif
     }
 
     if (bRequireD3D9) {
