@@ -868,7 +868,15 @@ bool LoaderCtxVPL::IsValidX86GPU(ImplInfo *implInfo, mfxU32 &deviceID, mfxU32 &a
         implDesc->Impl == MFX_IMPL_TYPE_HARDWARE) {
         // verify that DeviceID is a valid format for x86 GPU
         // either "DeviceID" (hex) or "DeviceID/AdapterIdx" (hex/dec)
-        return ConfigCtxVPL::ParseDeviceIDx86(implDesc->Dev.DeviceID, deviceID, adapterIdx);
+        bool is_valid = false;
+        try {
+            is_valid = ConfigCtxVPL::ParseDeviceIDx86(implDesc->Dev.DeviceID, deviceID, adapterIdx);
+        }
+        catch (...) {
+            return false;
+        }
+
+        return is_valid;
     }
 
     return false;
