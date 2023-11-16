@@ -93,7 +93,7 @@ void PrintHelp(char* strAppName, const char* strErrorMessage, ...) {
     MOD_ENC_PRINT_HELP;
 #endif
     printf(
-        "   [-nv12|nv16|yuy2|uyvy|ayuv|rgb4|p010|y210|y410|a2rgb10|p016|p210|y216|i010|i420] - input color format (by default YUV420 is expected).\n");
+        "   [-nv12|nv16|yuy2|uyvy|ayuv|rgb4|bgr4|p010|y210|y410|a2rgb10|p016|p210|y216|i010|i420] - input color format (by default YUV420 is expected).\n");
 #if (defined(_WIN64) || defined(_WIN32))
     printf(
         "   [-yuv400] -  input color format is YUV400 (grayscale) and will be converted to NV12 for encoding (JPEG only).\n");
@@ -101,7 +101,7 @@ void PrintHelp(char* strAppName, const char* strErrorMessage, ...) {
     printf(
         "   [-msb10] - 10-bit color format is expected to have data in Most Significant Bits of words.\n                 (LSB data placement is expected by default).\n                 This option also disables data shifting during file reading.\n");
     printf(
-        "   [-ec::p010|yuy2|nv12|nv16|rgb4|ayuv|uyvy|y210|y410|p016|y216|i010|i420] - force output color format for encoder (conversion will be made if necessary). Default value: input color format\n");
+        "   [-ec::p010|yuy2|nv12|nv16|rgb4|bgr4|ayuv|uyvy|y210|y410|p016|y216|i010|i420] - force output color format for encoder (conversion will be made if necessary). Default value: input color format\n");
     printf(
         "   [-tff|bff] - input stream is interlaced, top|bottom fielf first, if not specified progressive is expected\n");
     printf("   [-bref] - arrange B frames in B pyramid reference structure\n");
@@ -543,6 +543,9 @@ mfxStatus ParseAdditionalParams(char* strInput[],
     else if (msdk_match(strInput[i], "-y216")) {
         pParams->FileInputFourCC = MFX_FOURCC_Y216;
     }
+    else if (msdk_match(strInput[i], "-bgr4")) {
+        pParams->FileInputFourCC = MFX_FOURCC_BGR4;
+    }
     else if (msdk_match(strInput[i], "-ec::yuy2")) {
         pParams->EncodeFourCC = MFX_FOURCC_YUY2;
     }
@@ -551,6 +554,9 @@ mfxStatus ParseAdditionalParams(char* strInput[],
     }
     else if (msdk_match(strInput[i], "-ec::rgb4")) {
         pParams->EncodeFourCC = MFX_FOURCC_RGB4;
+    }
+    else if (msdk_match(strInput[i], "-ec::bgr4")) {
+        pParams->EncodeFourCC = MFX_FOURCC_BGR4;
     }
     else if (msdk_match(strInput[i], "-ec::ayuv")) {
         pParams->EncodeFourCC = MFX_FOURCC_AYUV;
@@ -1606,6 +1612,11 @@ mfxStatus ParseInputString(char* strInput[], mfxU32 nArgNum, sInputParams* pPara
     if (MFX_CODEC_JPEG != pParams->CodecId && MFX_CODEC_HEVC != pParams->CodecId &&
         pParams->FileInputFourCC == MFX_FOURCC_YUY2 && !pParams->isV4L2InputEnabled) {
         PrintHelp(strInput[0], "-yuy2 option is supported only for JPEG or HEVC encoder");
+        return MFX_ERR_UNSUPPORTED;
+    }
+
+    if (MFX_CODEC_JPEG != pParams->CodecId && pParams->EncodeFourCC == MFX_FOURCC_BGR4) {
+        PrintHelp(strInput[0], "-ec::bgr4 option is supported only for JPEG encoder");
         return MFX_ERR_UNSUPPORTED;
     }
 

@@ -49,6 +49,8 @@ D3DFORMAT ConvertMfxFourccToD3dFormat(mfxU32 fourcc) {
             return D3DFMT_R8G8B8;
         case MFX_FOURCC_RGB4:
             return D3DFMT_A8R8G8B8;
+        case MFX_FOURCC_BGR4:
+            return D3DFMT_A8B8G8R8;
         case MFX_FOURCC_P8:
             return D3DFMT_P8;
         case MFX_FOURCC_P010:
@@ -137,8 +139,8 @@ mfxStatus D3DFrameAllocator::LockFrame(mfxMemId mid, mfxFrameData* ptr) {
         return MFX_ERR_LOCK_MEMORY;
 
     if (desc.Format != D3DFMT_NV12 && desc.Format != D3DFMT_YV12 && desc.Format != D3DFMT_YUY2 &&
-        desc.Format != D3DFMT_R8G8B8 && desc.Format != D3DFMT_A8R8G8B8 &&
-        desc.Format != D3DFMT_P8 && desc.Format != D3DFMT_P010 &&
+        desc.Format != D3DFMT_A8B8G8R8 && desc.Format != D3DFMT_R8G8B8 &&
+        desc.Format != D3DFMT_A8R8G8B8 && desc.Format != D3DFMT_P8 && desc.Format != D3DFMT_P010 &&
         desc.Format != D3DFMT_A2R10G10B10 && desc.Format != D3DFMT_A16B16G16R16 &&
         desc.Format != D3DFMT_IMC3 && desc.Format != D3DFMT_AYUV && desc.Format != D3DFMT_Y210 &&
         desc.Format != D3DFMT_P016 && desc.Format != D3DFMT_Y216 && desc.Format != D3DFMT_Y410 &&
@@ -177,6 +179,13 @@ mfxStatus D3DFrameAllocator::LockFrame(mfxMemId mid, mfxFrameData* ptr) {
             ptr->B     = (mfxU8*)locked.pBits;
             ptr->G     = ptr->B + 1;
             ptr->R     = ptr->B + 2;
+            break;
+        case D3DFMT_A8B8G8R8:
+            ptr->Pitch = (mfxU16)locked.Pitch;
+            ptr->R     = (mfxU8*)locked.pBits;
+            ptr->G     = ptr->R + 1;
+            ptr->B     = ptr->R + 2;
+            ptr->A     = ptr->R + 3;
             break;
         case D3DFMT_A8R8G8B8:
         case D3DFMT_A2R10G10B10:

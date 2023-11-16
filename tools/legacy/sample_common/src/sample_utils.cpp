@@ -2014,6 +2014,8 @@ const char* ColorFormatToStr(mfxU32 format) {
             return "I422";
         case MFX_FOURCC_RGB4:
             return "RGB4";
+        case MFX_FOURCC_BGR4:
+            return "BGR4";
         case MFX_FOURCC_YUY2:
             return "YUY2";
         case MFX_FOURCC_UYVY:
@@ -2835,6 +2837,7 @@ mfxU16 FourCCToChroma(mfxU32 fourCC) {
         case MFX_FOURCC_A2RGB10:
         case MFX_FOURCC_AYUV:
         case MFX_FOURCC_RGB4:
+        case MFX_FOURCC_BGR4:
             return MFX_CHROMAFORMAT_YUV444;
     }
 
