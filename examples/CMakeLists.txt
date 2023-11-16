@@ -12,6 +12,12 @@ if(BUILD_EXAMPLES)
   add_subdirectory(api1x_core/legacy-vpp)
   add_subdirectory(api1x_core/legacy-encode)
   add_subdirectory(api2x/hello-decode)
+  if(WIN32)
+    add_subdirectory(api2x/hello-sharing-dx11)
+    add_subdirectory(api2x/hello-sharing-ocl)
+  else()
+    add_subdirectory(api2x/hello-sharing-vaapi)
+  endif()
   add_subdirectory(api2x/hello-decvpp)
   add_subdirectory(api2x/hello-encode)
   add_subdirectory(api2x/hello-transcode)
@@ -46,4 +52,16 @@ if(INSTALL_EXAMPLE_CODE)
     DIRECTORY tutorials/01_transition
     DESTINATION ${VPL_INSTALL_EXAMPLEDIR}/tutorials
     COMPONENT dev)
+
+  if(WIN32)
+    install(
+      DIRECTORY api2x/hello-sharing-dx11 api2x/hello-sharing-ocl
+      DESTINATION ${VPL_INSTALL_EXAMPLEDIR}/api2x
+      COMPONENT dev)
+  else()
+    install(
+      DIRECTORY api2x/hello-sharing-vaapi
+      DESTINATION ${VPL_INSTALL_EXAMPLEDIR}/api2x
+      COMPONENT dev)
+  endif()
 endif()
