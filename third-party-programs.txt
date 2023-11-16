@@ -1,10 +1,11 @@
-﻿oneAPI Video Processing Library (oneVPL)
+oneAPI Video Processing Library (oneVPL)
 
 This file contains the list of third party software (“third party programs”) contained in the Intel software and their required notices and/or license terms. This third party software, even if included with the distribution of the Intel software, may be governed by separate license terms, including without limitation, third party license terms, other Intel software license terms, and open source software license terms. These separate license terms govern your use of the third party programs as set forth in the “third-party-programs.txt” or other similarly-named text file.
 
 Third party programs and their corresponding required notices and/or license terms are listed below. 
 
 ----------------------------------------------------------------------------------------------- 
+
 1. Googletest
    Copyright 2008, Google Inc.
    All rights reserved.
@@ -37,17 +38,12 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
------------------------------------------------------------------------------------------------  
-
-The following component is only relevant when building on Windows using
-Microsoft Visual Studio. In this case the Visual C++ Redistributable is
-installed under this license.
-
+----------------------------------------------------------------------------------------------
 2. Visual C++ Redistributable for Visual Studio
    Copyright Microsoft Corp.
 
-Terms for Microsoft “Distributable Code” provided as part of Microsoft’s Visual Studio Enterprise and Professional software under the terms of the MICROSOFT VISUAL STUDIO ENTERPRISE, VISUAL STUDIO PROFESSIONAL,  VISUAL STUDIO TEST PROFESSIONAL AND TRIAL EDITION AGREEMENT
-1.	License. This software package from Intel (the “Software Package”) contains code from Microsoft (the “Distributable Code”).  You are provided a non-transferable, non-exclusive, non-sublicensable, limited right and license only to use the Distributable Code as part of this Software Package.  You are not allowed to copy, modify, remove the Distributable Code from the Software Package or redistribute the Distributable Code.
+Terms for Microsoft “Distributable Code”
+1.	License. This software package from Intel (the “Software Package”) contains code from Microsoft (the “Distributable Code”).  You are provided a non-transferable, non-exclusive, non-sublicensable, limited right and license only to use and redistribute the Distributable Code as part of this Software Package.  You are not allowed to copy, modify, remove the Distributable Code from the Software Package or redistribute the Distributable Code on a stand-alone basis.
 2.	Restrictions. The Distributable Code is licensed, not sold. You are only provided the above rights to use the Distributable Code.  Intel and Microsoft reserve all other rights. Unless applicable law gives you more rights, you may use the Distributable Code only as expressly permitted in these terms. In using the Distributable Code, you must comply with any technical limitations in the Distributable Code that only allow you to use it in certain ways. You may not:
 •	work around any technical limitations in the Distributable Code; 
 •	reverse engineer, decompile or disassemble the software, or otherwise attempt to derive the source code for the Distributable Code, except and to the extent required by third party licensing terms governing use of certain open source components that may be included in the Distributable Code; 
@@ -59,24 +55,12 @@ Terms for Microsoft “Distributable Code” provided as part of Microsoft’s V
 This limitation applies to (a) anything related to the Distributable Code; and (b) claims for breach of contract, breach of warranty, guarantee or condition, strict liability, negligence, or other tort to the extent permitted by applicable law.  It also applies even if Intel or Microsoft knew or should have known about the possibility of the damages. The above limitation or exclusion may not apply to you because your state or country may not allow the exclusion or limitation of incidental, consequential or other damages. 
 5.	Export Restrictions. You must comply with all domestic and international export laws and regulations that apply to the software, which include restrictions on destinations, end users, and end use. For further information on export restrictions, visit www.microsoft.com/exporting.
 
+ 
 ----------------------------------------------------------------------------------------------- 
 3. Intel(R) Media SDK
    Copyright (c) 2017 Intel Corporation
 
-   libva-utils
-   Copyright (C) 2009-2016 Intel Corporation. All Rights Reserved.
-
    libva
-
-   libxcb
-   Copyright (C) 2001-2006 Bart Massey, Jamey Sharp, and Josh Triplett.
-   All Rights Reserved.
-
-   MinGW
-   Copyright (c) 2012 MinGW.org project
-
-   sphinx_rtd_theme
-   Copyright (c) 2013-2018 Dave Snider, Read the Docs, Inc. & contributors
 
    wayland
    Copyright © 2008-2012 Kristian Høgsberg
@@ -262,91 +246,5 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ----------------------------------------------------------------------------------------------- 
-6. Simple DirectMedia Layer (SDL2.0)
-    Copyright (C) 1997-2021 Sam Lantinga <slouken@libsdl.org>
-  
-This software is provided 'as-is', without any express or implied
-warranty.  In no event will the authors be held liable for any damages
-arising from the use of this software.
 
-Permission is granted to anyone to use this software for any purpose,
-including commercial applications, and to alter it and redistribute it
-freely, subject to the following restrictions:
-  
-1. The origin of this software must not be misrepresented; you must not
-   claim that you wrote the original software. If you use this software
-   in a product, an acknowledgment in the product documentation would be
-   appreciated but is not required. 
-2. Altered source versions must be plainly marked as such, and must not be
-   misrepresented as being the original software.
-3. This notice may not be removed or altered from any source distribution.
-
------------------------------------------------------------------------------------------------ 
-7.  Wayland
-
-Copyright © 2008-2012 Kristian Høgsberg
-Copyright © 2010-2012 Intel Corporation
-Copyright © 2010-2011 Benjamin Franzke
-Copyright © 2011-2012 Collabora, Ltd.
-Copyright © 2010 Red Hat <mjg@redhat.com>
- 
-Permission is hereby granted, free of charge, to any person obtaining a
-copy of this software and associated documentation files (the "Software"),
-to deal in the Software without restriction, including without limitation
-the rights to use, copy, modify, merge, publish, distribute, sublicense,
-and/or sell copies of the Software, and to permit persons to whom the
-Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice (including the next
-paragraph) shall be included in all copies or substantial portions of the
-Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
-THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-DEALINGS IN THE SOFTWARE.
-
----
-
-The above is the version of the MIT "Expat" License used by X.org:
-
-    http://cgit.freedesktop.org/xorg/xserver/tree/COPYING
-
------------------------------------------------------------------------------------------------ 
-8.  libxcd
-
-Copyright (C) 2001-2006 Bart Massey, Jamey Sharp, and Josh Triplett.
-All Rights Reserved.
-
-Permission is hereby granted, free of charge, to any person
-obtaining a copy of this software and associated
-documentation files (the "Software"), to deal in the
-Software without restriction, including without limitation
-the rights to use, copy, modify, merge, publish, distribute,
-sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so,
-subject to the following conditions:
-
-The above copyright notice and this permission notice shall
-be included in all copies or substantial portions of the
-Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
-KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
-PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS
-BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-OTHER DEALINGS IN THE SOFTWARE.
-
-Except as contained in this notice, the names of the authors
-or their institutions shall not be used in advertising or
-otherwise to promote the sale, use or other dealings in this
-Software without prior written authorization from the
-authors.
------------------------------------------------------------------------------------------------ 
-Other names and brands may be claimed as the property of others.
+Other names and brands may be claimed as the property of others. 
