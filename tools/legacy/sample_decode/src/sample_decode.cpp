@@ -15,6 +15,8 @@
     #error MFX_VERSION not defined
 #endif
 
+//oneAPI Video Processing Library (oneVPL)
+
 void PrintHelp(char* strAppName, const char* strErrorMessage) {
     printf("Decoding Sample Version %s\n\n", GetMSDKSampleVersion().c_str());
 
@@ -755,7 +757,7 @@ mfxStatus ParseInputString(char* strInput[], mfxU32 nArgNum, sInputParams* pPara
             switch (strInput[i][1]) {
                 case 'p':
                     ++i;
-                    printf("WARNING: plugins are deprecated and not supported by VPL RT \n");
+                    printf("WARNING: plugins are deprecated and not supported by oneVPL RT \n");
                     break;
                 case 'i':
                     if (++i < nArgNum) {
@@ -809,7 +811,7 @@ mfxStatus ParseInputString(char* strInput[], mfxU32 nArgNum, sInputParams* pPara
         pParams->nAsyncDepth = 4; //set by default;
     }
 
-    if (!pParams->bUseHWLib) { // vpl cpu plugin
+    if (!pParams->bUseHWLib) { // oneVPL cpu plugin
         pParams->nAsyncDepth = 1;
     }
 
@@ -837,8 +839,8 @@ int main(int argc, char* argv[]) {
     }
     MSDK_CHECK_PARSE_RESULT(sts, MFX_ERR_NONE, 1);
 
-    // if version is >= 2000, sw lib is vpl
-    // if outI420 is true, it means sample will convert decode output to I420, which is useless in vpl.
+    // if version is >= 2000, sw lib is oneVPL
+    // if outI420 is true, it means sample will convert decode output to I420, which is useless in oneVPL.
     // we set foucc to I420 back and set outI420 to false
     if (Params.bUseHWLib == false && Params.outI420 == true) {
         Params.fourcc  = MFX_FOURCC_I420;

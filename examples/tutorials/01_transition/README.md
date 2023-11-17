@@ -314,7 +314,7 @@ int main() {
     implValue.Data.U32 = MFX_IMPL_TYPE_HARDWARE;
     MFXSetConfigFilterProperty(cfg, (mfxU8 *)"mfxImplDescription.Impl", implValue);
 
-    printf("Hello from unconstrained VPL\n");
+    printf("Hello from unconstrained oneVPL\n");
     mfxSession session = {};
     sts                = MFXCreateSession(loader, 0, &session);
     printf("VPL 2.x API init MFXCreateSession %s\n",

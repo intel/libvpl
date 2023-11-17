@@ -176,7 +176,7 @@ These instructions assume that Docker is already set up on your system.
 3. Build and run the program in the container:
 
 
-    Build steps: if not installed to system directories, source VPL vars.sh then 
+    Build steps: if not installed to system directories, source oneVPL vars.sh then 
 
 
     ```

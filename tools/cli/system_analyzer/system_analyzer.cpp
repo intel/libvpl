@@ -23,6 +23,7 @@
     #include "va/va_drm.h"
 #endif
 
+// oneAPI Video Processing Library (oneVPL)
 typedef struct gpuinfo {
     unsigned int deviceid;
     std::array<char, 128> name;
@@ -33,8 +34,8 @@ typedef struct gpuinfo {
 gpuinfo get_gpuinfo(unsigned int deviceid) {
     gpuinfo result;
     gpuinfo gpunames[] = {
-        { 0x56C0, { "Intel® Data Center GPU Flex 170" }, { "Xe HPG" }, { "ATS-M150" } },
-        { 0x56C1, { "Intel® Data Center GPU Flex 140" }, { "Xe HPG" }, { "ATS-M75" } },
+        { 0x56C0, { "Intel® Data Center GPU Flex Series 170" }, { "Xe HPG" }, { "ATS-M150" } },
+        { 0x56C1, { "Intel® Data Center GPU Flex Series 140" }, { "Xe HPG" }, { "ATS-M75" } },
         { 0x5694, { "Intel® Arc(TM) A350M graphics" }, { "Xe HPG" }, { "DG2" } },
         { 0x5693, { "Intel® Arc(TM) A370M graphics" }, { "Xe HPG" }, { "DG2" } },
         { 0x5692, { "Intel® Arc(TM) A550M graphics" }, { "Xe HPG" }, { "DG2" } },

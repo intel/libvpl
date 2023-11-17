@@ -47,10 +47,10 @@ target_link_libraries(${TARGET} VPL::dispatcher)
 
 find_package(OpenVINO COMPONENTS Runtime)
 if(OpenVINO_FOUND)
-  message(STATUS "OpenVINO found")
+  message(STATUS "Intel® Distribution of OpenVINO™ toolkit found")
   target_link_libraries(${TARGET} openvino::runtime)
 else()
-  message(FATAL_ERROR "OpenVINO not found")
+  message(FATAL_ERROR "Intel® Distribution of OpenVINO™ toolkit not found")
 endif()
 
 if(UNIX)

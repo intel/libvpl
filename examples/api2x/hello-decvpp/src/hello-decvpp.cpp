@@ -86,7 +86,7 @@ int main(int argc, char *argv[]) {
     sinkVPP2 = fopen(VPP2_OUTPUT_FILE, "wb");
     VERIFY(sinkVPP2, "Could not create vpp2 output file");
 
-    // Initialize VPL session
+    // Initialize session
     loader = MFXLoad();
     VERIFY(NULL != loader, "MFXLoad failed -- is implementation in path?");
 

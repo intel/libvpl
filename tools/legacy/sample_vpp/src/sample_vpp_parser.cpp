@@ -24,6 +24,8 @@
     #error MFX_VERSION not defined
 #endif
 
+// oneAPI Video Processing Library (oneVPL)
+
 void vppPrintHelp(const char* strAppName, const char* strErrorMessage) {
     printf("Intel(R) Media SDK VPP Sample version %s\n", GetMSDKSampleVersion().c_str());
     if (strErrorMessage) {

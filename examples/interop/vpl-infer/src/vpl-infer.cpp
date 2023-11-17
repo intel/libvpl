@@ -43,8 +43,7 @@ void Usage(void) {
     printf("     -i          input file name (HEVC elementary stream)\n");
     printf("     -m          input model name (object detection)\n");
 #ifdef ZEROCOPY
-    printf(
-        "     -zerocopy   process without copying data between oneVPL and OpenVINO(TM) toolkit in hardware implemenation mode\n");
+    printf("     -zerocopy   process without creating an additional copy of the data\n");
 #endif
     printf("     -legacy     run sample in legacy gen (ex: gen 9.x - SKL, KBL, CFL, etc)\n\n");
     printf("   Example  :    vpl-infer -i in.h265 -m mobilenet-ssd.xml\n\n");
@@ -78,7 +77,7 @@ int main(int argc, char **argv) {
     Params cliParams = {};
     FILE *source     = NULL;
 
-    //-- Params for oneVPL decode/vpp session
+    //-- Params for decode/vpp session
     mfxLoader loader                    = NULL;
     mfxSession session                  = NULL;
     mfxBitstream bitstream              = {};
@@ -140,13 +139,13 @@ int main(int argc, char **argv) {
         ov::InferRequest inferRequest;
         ov::CompiledModel compiledModel;
 
-        //-- [OpenVINO] Get OpenVINO runtime version
+        //-- Get runtime version
         std::cout << ov::get_openvino_version() << std::endl;
 
-        //-- [OpenVINO] Initialize OpenVINO Runtime Core
+        //-- Initialize Runtime Core
         ov::Core core;
 
-        //-- [OpenVINO] Read a network model
+        //-- Read a network model
         const std::string modelPath = TSTRING2STRING(cliParams.inmodelName);
 
         std::cout << "Loading network model files: " << modelPath << std::endl;
@@ -170,11 +169,11 @@ int main(int argc, char **argv) {
         ov::Shape inputShape   = input.get_shape();
         ov::Layout inputLayout = ov::layout::get_layout(input);
 
-        // Stores output layer dimension for oneVPL vpp output configuration
+        // Store output layer dimension for vpp output configuration
         inputDimWidth  = static_cast<mfxU16>(inputShape[ov::layout::width_idx(inputLayout)]);
         inputDimHeight = static_cast<mfxU16>(inputShape[ov::layout::height_idx(inputLayout)]);
 
-        //-- [OpenVINO] Configure preprocessing
+        //-- Configure preprocessing
         PrePostProcessor ppp(model);
         InputInfo &inputInfo = ppp.input(inputTensorName);
 
@@ -194,14 +193,14 @@ int main(int argc, char **argv) {
                 .set_color_format(ColorFormat::NV12_TWO_PLANES, { "y", "uv" });
         }
 
-        // Convert oneVPL vpp output to BGR plannar in OpenVINO
+        // Convert vpp output to BGR plannar
         inputInfo.preprocess().convert_color(ov::preprocess::ColorFormat::BGR);
 
         inputInfo.model().set_layout("NCHW");
 
         model = ppp.build();
 
-        //-- [oneVPL] Create VPL session
+        //-- Create session
         session = CreateVPLSession(&loader, &cliParams);
         VERIFY(session != NULL, "ERROR: not able to create VPL session");
 
@@ -212,7 +211,7 @@ int main(int argc, char **argv) {
         }
 #endif
 
-        //-- [oneVPL] Initialize oneVPL decoder
+        //-- Initialize decoder
         // Prepare input bitstream
         bitstream.MaxLength = BITSTREAM_BUFFER_SIZE;
         bitstream.Data      = (mfxU8 *)calloc(bitstream.MaxLength, sizeof(mfxU8));
@@ -237,7 +236,7 @@ int main(int argc, char **argv) {
         oriImgWidth  = mfxDecParams.mfx.FrameInfo.Width;
         oriImgHeight = mfxDecParams.mfx.FrameInfo.Height;
 
-        //-- [oneVPL] Initialize oneVPL VPP for resizing and color space conversion
+        //-- Initialize VPP for resizing and color space conversion
         // Prepare vpp in/out params
         // vpp in:  decode output image size
         // vpp out: network model input size
@@ -336,7 +335,7 @@ int main(int argc, char **argv) {
                                "ERROR: no more available surface for decode out and vpp in");
                     }
                 }
-                //-- [oneVPL] Decode a frame
+                //-- Decode a frame
                 sts = MFXVideoDECODE_DecodeFrameAsync(
                     session,
                     (isDrainingDec) ? NULL : &bitstream,
@@ -357,7 +356,7 @@ int main(int argc, char **argv) {
                 case MFX_ERR_NONE:
                     pmfxVPPOutSurface = NULL;
 
-                    //-- [oneVPL] Resize and convert color space of decoded surface
+                    //-- Resize and convert color space of decoded surface
                     if (cliParams.bLegacyGen) {
                         if (MFX_ERR_MORE_SURFACE == sts || MFX_ERR_NONE == sts) {
                             nIndex2 = GetFreeSurfaceIndex(pmfxVPPSurfPool, nSurfNumVPPOut);
@@ -419,7 +418,7 @@ int main(int argc, char **argv) {
                                     VERIFY(MFX_ERR_NONE == sts,
                                            "ERROR: mfxFrameInterface.GetDeviceHandle error");
 
-                                    //-- [OpenVINO] Create inference request from shared context object
+                                    //-- Create inference request from shared context object
                                     auto sharedD3D11Context =
                                         ov::intel_gpu::ocl::D3DContext(core, pD3D11Device);
 
@@ -434,7 +433,7 @@ int main(int argc, char **argv) {
                                     VERIFY(MFX_ERR_NONE == sts,
                                            "ERROR: mfxFrameInterface.GetDeviceHandle error");
 
-                                    //-- [OpenVINO] Create inference request from shared context object
+                                    //-- Create inference request from shared context object
                                     auto sharedVAContext =
                                         ov::intel_gpu::ocl::VAContext(core, lvaDisplay);
 
@@ -446,7 +445,7 @@ int main(int argc, char **argv) {
                                     bIsSharedContextReady = true;
                                 }
 
-                                //-- [OpenVINO] Infer from shared context and va surface
+                                //-- Infer from shared context and va surface
                                 auto context = compiledModel.get_context();
     #if defined(_WIN32) || defined(_WIN64)
                                 auto &sharedContext =
@@ -627,7 +626,7 @@ mfxStatus InferFrame(ov::intel_gpu::ocl::VAContext context,
     inferRequest.set_input_tensor(0, nv12Tensor.first);
     inferRequest.set_input_tensor(1, nv12Tensor.second);
 
-    //-- [OpenVINO] Infers specified input(s) in synchronous mode
+    //-- Infers specified input(s) in synchronous mode
     inferRequest.infer();
 
     auto outputTensor = inferRequest.get_tensor(outputName);
@@ -725,7 +724,7 @@ void InferFrame(mfxFrameSurface1 *surface,
         inferRequest.set_input_tensor(1, inputTensorUV);
     }
 
-    //-- [OpenVINO] Infers specified input(s) in synchronous mode
+    //-- Infers specified input(s) in synchronous mode
     inferRequest.infer();
 
     auto outputTensor = inferRequest.get_tensor(outputName);

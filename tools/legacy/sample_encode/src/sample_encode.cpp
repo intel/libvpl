@@ -40,6 +40,8 @@
     #error MFX_VERSION not defined
 #endif
 
+// oneAPI Video Processing Library (oneVPL)
+
 void PrintHelp(char* strAppName, const char* strErrorMessage, ...) {
     printf("Encoding Sample Version %s\n\n", GetMSDKSampleVersion().c_str());
 

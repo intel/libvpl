@@ -6,7 +6,7 @@
 
 ///
 /// Minimal session creation application to illustrate the transition from Media
-/// SDK to VPL.  For more information see
+/// SDK to oneAPI Video Processing Library (oneVPL).  For more information see
 /// https://software.intel.com/content/www/us/en/develop/articles/upgrading-from-msdk-to-onevpl.html
 /// https://oneapi-src.github.io/oneAPI-spec/elements/oneVPL/source/index.html
 /// @file
@@ -32,10 +32,10 @@ int main() {
     implValue.Data.U32 = MFX_IMPL_TYPE_HARDWARE;
     MFXSetConfigFilterProperty(cfg, (mfxU8 *)"mfxImplDescription.Impl", implValue);
 
-    printf("Hello from unconstrained VPL\n");
+    printf("Hello from unconstrained oneVPL\n");
     mfxSession session = {};
     sts                = MFXCreateSession(loader, 0, &session);
-    printf("VPL 2.x API init MFXCreateSession %s\n",
+    printf("oneVPL 2.x API init MFXCreateSession %s\n",
            (sts == MFX_ERR_NONE) ? "succeeded" : "failed");
 #else
     printf("Hello from Media SDK\n");

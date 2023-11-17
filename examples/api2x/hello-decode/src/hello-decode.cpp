@@ -65,7 +65,7 @@ int main(int argc, char *argv[]) {
     sink = fopen(OUTPUT_FILE, "wb");
     VERIFY(sink, "Could not create output file");
 
-    // Initialize VPL session
+    // Initialize session
     loader = MFXLoad();
     VERIFY(NULL != loader, "MFXLoad failed -- is implementation in path?");
 

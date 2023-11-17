@@ -55,7 +55,7 @@ if(WIN32)
 endif()
 
 find_package(VPL 2.2 REQUIRED COMPONENTS api)
-message(STATUS "Found VPL (version ${VPL_VERSION})")
+message(STATUS "Found oneVPL (version ${VPL_VERSION})")
 target_link_libraries(${PROJECT_NAME} PUBLIC VPL::api)
 
 target_include_directories(${PROJECT_NAME} PRIVATE ../stub

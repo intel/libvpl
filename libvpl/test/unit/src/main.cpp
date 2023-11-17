@@ -11,6 +11,7 @@
 #include "src/dispatcher_common.h"
 
 // clang-format off
+//oneAPI Video Processing Library (oneVPL) legacy cpp session test
 
 #define SET_UTEST_PARAMETER(param, val)                               \
 {                                                                 \

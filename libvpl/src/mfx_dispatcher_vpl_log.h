@@ -7,7 +7,7 @@
 #ifndef LIBVPL_SRC_MFX_DISPATCHER_VPL_LOG_H_
 #define LIBVPL_SRC_MFX_DISPATCHER_VPL_LOG_H_
 
-/* oneVPL Dispatcher Debug Log
+/* oneAPI Video Processing Library (oneVPL) Dispatcher Debug Log
  * The debug output of the dispatcher is controlled with the ONEVPL_DISPATCHER_LOG environment variable.
  * To enable log output, set the ONEVPL_DISPATCHER_LOG environment variable value equals to "ON".
  * 

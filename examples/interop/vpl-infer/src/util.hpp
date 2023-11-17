@@ -222,7 +222,7 @@ void FreeAcceleratorHandle(void *accelHandle, int fd) {
 #endif
 }
 
-// Shows implementation info with oneVPL
+// Shows implementation info with oneAPI Video Processing Library (oneVPL)
 void ShowImplementationInfo(mfxLoader loader, mfxU32 implnum) {
     mfxImplDescription *idesc = nullptr;
     mfxStatus sts;

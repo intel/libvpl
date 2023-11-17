@@ -461,7 +461,7 @@ TEST_CUSTOM(LegacycppCreateSession, LEGACY_TEST_VER, InitExReturns1xAPI) {
 
     // expect initialization via MFXInitEx to return API of 1.x
     // for legacy HW, will be the actual MSDK API version (ex. 1.35)
-    // for oneVPL HW, will always be 1.255
+    // for oneAPI Video Processing Library (oneVPL) HW, will always be 1.255
     mfxVersion actualVersion = {};
     session.QueryVersion(&actualVersion);
     ASSERT_EQ(actualVersion.Major, 1)

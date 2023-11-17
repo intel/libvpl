@@ -390,7 +390,7 @@ public:
     LoaderCtxMSDK();
     ~LoaderCtxMSDK();
 
-    // public function to be called by VPL dispatcher
+    // public function to be called the dispatcher
     // do not allocate any new memory here, so no need for a matching Release functions
     mfxStatus QueryMSDKCaps(STRING_TYPE libNameFull,
                             mfxImplDescription **implDesc,

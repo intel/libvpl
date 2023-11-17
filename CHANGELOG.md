@@ -98,7 +98,7 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 ## [2023.1.3] - 2023-03-03
 
 ### Added
- - New tutorial on transitioning from Media SDK to VPL replaces hello-createsession
+ - New tutorial on transitioning from Media SDK to oneVPL replaces hello-createsession
  - More logs in sample tools to inform correct parameters for hyper encode mode
 
 ### Fixed

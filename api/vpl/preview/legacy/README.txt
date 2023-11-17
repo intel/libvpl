@@ -1,5 +1,5 @@
 The file preview/legacy/mfxvideo++.h is a preview implementation of "class MFXVideoSession"
-which takes advantage of oneVPL API 2.0 functions for implementation selection and session creation.
+which takes advantage of oneAPI Video Processing Library (oneVPL) API 2.0 functions for implementation selection and session creation.
 
 Known limitations:
 - The parameter mfxInitParam.ExternalThreads is not supported.

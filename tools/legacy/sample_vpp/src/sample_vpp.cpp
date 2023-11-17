@@ -407,7 +407,7 @@ int sample_vpp_main(int argc, char* argv[]) {
     // change Params.frameInfoOut[0].FourCC to nv12 for processing in gen lib.
     // So, when it writes vpp output, it refers forceOutputFourcc to convert nv12 to -dcc format.
     //
-    // In case of vpl, ignore these steps and use original format (i420)
+    // In case of oneVPL, ignore these steps and use original format (i420)
     if (Params.ImpLib == MFX_IMPL_SOFTWARE && Params.forcedOutputFourcc != 0) {
         Params.frameInfoOut[0].FourCC = Params.forcedOutputFourcc;
         Params.forcedOutputFourcc     = 0;

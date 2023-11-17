@@ -23,6 +23,8 @@
 #include <iomanip>
 #include <memory>
 
+// oneAPI Video Processing Library (oneVPL)
+
 using namespace std;
 using namespace TranscodingSample;
 

@@ -247,7 +247,7 @@ mfxStatus MFXLibraryIterator::Init(eMfxImplType implType,
         return MFX_ERR_UNSUPPORTED;
     }
 
-    // only need the path for oneVPL loader
+    // only need the path for oneAPI Video Processing Library (oneVPL) loader
     if (storageID == MFX_DRIVER_STORE_ONEVPL || storageID == MFX_CURRENT_USER_KEY_ONEVPL ||
         storageID == MFX_LOCAL_MACHINE_KEY_ONEVPL) {
         return MFX_ERR_NONE;

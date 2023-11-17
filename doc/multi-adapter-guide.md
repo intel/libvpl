@@ -60,7 +60,7 @@ Media SDK and oneVPL GPU hardware can be targeted.
 
 ## Known limitations
 
-Media SDK only reports a subset of the info available from the VPL implementation, so it may not be possible to use all of the 
+Media SDK only reports a subset of the info available from the oneVPL implementation, so it may not be possible to use all of the 
 parameters available in mfxExtendedDeviceId for devices supported by Media SDK.
 
 
@@ -224,7 +224,7 @@ hello-multiadapter accepts a render node number as an argument in Linux.  For ex
 ```
 
 
-Expected output (Linux, VPL implementation):
+Expected output (Linux, oneVPL implementation):
 
 ```
 $ ./hello-multiadapter 128

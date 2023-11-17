@@ -202,7 +202,7 @@ mfxStatus LoaderCtx::Init(mfxInitParam &par,
 
     // query graphics device_id
     // if it is found on list of legacy devices, load MSDK RT
-    // otherwise load oneVPL RT
+    // otherwise load oneAPI Video Processing Library (oneVPL) RT
     mfxU16 deviceID = 0;
     mfx_res         = get_devices(devices);
     if (mfx_res == MFX_ERR_NOT_FOUND) {
