@@ -90,6 +90,23 @@ foreach(target IN LISTS OCL_TARGETS)
 
   install(TARGETS ${target} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
                                     COMPONENT dev)
+  # copy dependent dlls to target location
+  if(WIN32)
+    if(${CMAKE_VERSION} VERSION_LESS "3.26")
+      message(
+        STATUS
+          "CMake Version less than 3.26, unable to copy dependent DLLs to target location"
+      )
+    else()
+
+      add_custom_command(
+        TARGET ${TARGET}
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy -t $<TARGET_FILE_DIR:${TARGET}>
+                $<TARGET_RUNTIME_DLLS:${TARGET}>
+        COMMAND_EXPAND_LISTS)
+    endif()
+  endif()
 endforeach()
 
 include(CTest)
@@ -100,24 +117,18 @@ set(OCL_CONTENT_DIR
     ${CMAKE_CURRENT_SOURCE_DIR}/../../../libvpl/test/vpl-import-export/ocl_kernels
     CACHE PATH "Path to OCL content.")
 
-if(DEFINED ENV{VPL_EXAMPLES_PATH})
-  set(BIN_DIR "$ENV{VPL_EXAMPLES_PATH}/../../../bin/")
-endif()
-
-set(ocl_import_bin "${BIN_DIR}hello-sharing-ocl-import")
-set(ocl_export_bin "${BIN_DIR}hello-sharing-ocl-export")
-
 # Import test
 add_test(NAME hello-sharing-ocl-import-test
-         COMMAND ${ocl_import_bin} -i "${VPL_CONTENT_DIR}/cars_320x240.nv12" -w
-                 320 -h 240)
+         COMMAND hello-sharing-ocl-import -i
+                 "${VPL_CONTENT_DIR}/cars_320x240.nv12" -w 320 -h 240)
 set(passRegex "Encoded 30 frames" "^All ok")
 set_property(TEST hello-sharing-ocl-import-test PROPERTY PASS_REGULAR_EXPRESSION
                                                          "${passRegex}")
 
 # Export test
 add_test(NAME hello-sharing-ocl-export-test
-         COMMAND ${ocl_export_bin} -i "${VPL_CONTENT_DIR}/cars_320x240.h265")
+         COMMAND hello-sharing-ocl-export -i
+                 "${VPL_CONTENT_DIR}/cars_320x240.h265")
 set(passRegex "Decoded 30 frames" "^All ok")
 set_property(TEST hello-sharing-ocl-export-test PROPERTY PASS_REGULAR_EXPRESSION
                                                          "${passRegex}")

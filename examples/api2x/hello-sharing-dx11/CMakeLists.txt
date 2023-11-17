@@ -84,6 +84,22 @@ foreach(target IN LISTS DX11_TARGETS)
 
   install(TARGETS ${target} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
                                     COMPONENT dev)
+  # copy dependent dlls to target location
+  if(WIN32)
+    if(${CMAKE_VERSION} VERSION_LESS "3.26")
+      message(
+        STATUS
+          "CMake Version less than 3.26, unable to copy dependent DLLs to target location"
+      )
+    else()
+      add_custom_command(
+        TARGET ${TARGET}
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy -t $<TARGET_FILE_DIR:${TARGET}>
+                $<TARGET_RUNTIME_DLLS:${TARGET}>
+        COMMAND_EXPAND_LISTS)
+    endif()
+  endif()
 endforeach()
 
 include(CTest)
@@ -91,23 +107,17 @@ set(VPL_CONTENT_DIR
     ${CMAKE_CURRENT_SOURCE_DIR}/../../content
     CACHE PATH "Path to content.")
 
-if(DEFINED ENV{VPL_EXAMPLES_PATH})
-  set(BIN_DIR "$ENV{VPL_EXAMPLES_PATH}/../../../bin/")
-endif()
-
-set(dx11_import_bin "${BIN_DIR}hello-sharing-dx11-import")
-set(dx11_export_bin "${BIN_DIR}hello-sharing-dx11-export")
-
 # Import test
 add_test(NAME hello-sharing-dx11-import-test
-         COMMAND ${dx11_import_bin} -i "${VPL_CONTENT_DIR}/cars_320x240.nv12"
-                 -w 320 -h 240)
+         COMMAND hello-sharing-dx11-import -i
+                 "${VPL_CONTENT_DIR}/cars_320x240.nv12" -w 320 -h 240)
 set(passRegex "Encoded 30 frames" "^All ok")
 set_property(TEST hello-sharing-dx11-import-test
              PROPERTY PASS_REGULAR_EXPRESSION "${passRegex}")
 # Export test
 add_test(NAME hello-sharing-dx11-export-test
-         COMMAND ${dx11_export_bin} -i "${VPL_CONTENT_DIR}/cars_320x240.h265")
+         COMMAND hello-sharing-dx11-export -i
+                 "${VPL_CONTENT_DIR}/cars_320x240.h265")
 set(passRegex "Decoded 30 frames" "^All ok")
 set_property(TEST hello-sharing-dx11-export-test
              PROPERTY PASS_REGULAR_EXPRESSION "${passRegex}")
