@@ -96,7 +96,8 @@ typedef struct mfxSurfacePoolInterface
     */
     mfxStatus           (MFX_CDECL *GetRefCounter)(struct mfxSurfacePoolInterface *pool, mfxU32* counter);
     /*! @brief
-    The function should be called by oneVPL components or application to specify how many surfaces it will use concurrently.
+    The function should be called by oneAPI Video Processing Library (oneVPL) components or application to specify how many surfaces 
+    it will use concurrently.
     Internally, oneVPL allocates surfaces in the shared pool according to the component's policy set by mfxPoolAllocationPolicy.
     The exact moment of surfaces allocation is defined by the component and generally independent from that call. 
 

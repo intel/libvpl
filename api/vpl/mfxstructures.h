@@ -440,11 +440,11 @@ typedef enum {
 enum {
     MFX_SURFACE_FLAG_DEFAULT          = 0x0000,      /*!< Default is SHARED import or export. */
 
-    MFX_SURFACE_FLAG_IMPORT_SHARED    = 0x0010,      /*!< Import frames directly by mapping a shared native handle from an application-provided surface to an internally-allocated VPL surface. */
-    MFX_SURFACE_FLAG_IMPORT_COPY      = 0x0020,      /*!< Import frames by copying data from an application-provided surface to an internally-allocated VPL surface. */
+    MFX_SURFACE_FLAG_IMPORT_SHARED    = 0x0010,      /*!< Import frames directly by mapping a shared native handle from an application-provided surface to an internally-allocated surface. */
+    MFX_SURFACE_FLAG_IMPORT_COPY      = 0x0020,      /*!< Import frames by copying data from an application-provided surface to an internally-allocated surface. */
 
-    MFX_SURFACE_FLAG_EXPORT_SHARED    = 0x0100,      /*!< Export frames directly by mapping a shared native handle from an internally-allocated VPL surface to an application-provided surface. */
-    MFX_SURFACE_FLAG_EXPORT_COPY      = 0x0200,      /*!< Export frames by copying data from an internally-allocated VPL surface to an application-provided surface. */
+    MFX_SURFACE_FLAG_EXPORT_SHARED    = 0x0100,      /*!< Export frames directly by mapping a shared native handle from an internally-allocated surface to an application-provided surface. */
+    MFX_SURFACE_FLAG_EXPORT_COPY      = 0x0200,      /*!< Export frames by copying data from an internally-allocated surface to an application-provided surface. */
 };
 
 MFX_PACK_BEGIN_STRUCT_W_PTR()
@@ -3070,7 +3070,8 @@ MFX_PACK_BEGIN_USUAL_STRUCT()
    the decoder will parse the HDR SEI message if the bitstream include HDR SEI message per frame.
    The parsed HDR SEI will be attached to the ExtendBuffer of surface_out parameter of MFXVideoDECODE_DecodeFrameAsync()
    with flag `InsertPayloadToggle` to indicate if there is valid HDR SEI message in the clip.
-   `InsertPayloadToggle` will be set to `MFX_PAYLOAD_IDR` if oneVPL gets valid HDR SEI, otherwise it will be set to `MFX_PAYLOAD_OFF`.
+   `InsertPayloadToggle` will be set to `MFX_PAYLOAD_IDR` if oneAPI Video Processing Library (oneVPL) gets valid HDR SEI, otherwise it will be set 
+   to `MFX_PAYLOAD_OFF`.
    This function is support for HEVC only now.
 
    Encoding or Decoding, Field semantics are defined in ITU-T* H.265 Annex D, AV1 6.7.4 Metadata OBU semantics.
@@ -4147,7 +4148,7 @@ enum {
     MFX_SCALING_MODE_QUALITY    = 2, /*!< The best quality scaling mode. */
     MFX_SCALING_MODE_VENDOR = 1000, /*!< The enumeration to separate common scaling controls above and vendor specific. */ 
     MFX_SCALING_MODE_INTEL_GEN_COMPUTE  = MFX_SCALING_MODE_VENDOR + 1, /*! The mode to run scaling operation on Execution Units (EUs). */
-    MFX_SCALING_MODE_INTEL_GEN_VDBOX = MFX_SCALING_MODE_VENDOR + 2, /*! The special optimization mode where scaling operation running on SFC (Scaler & Format Converter) is coupled with VDBOX (also known as Multi-Format Codec fixed-function engine). This mode is applicable for DECODE_VPP domain functions. */ 
+    MFX_SCALING_MODE_INTEL_GEN_VDBOX = MFX_SCALING_MODE_VENDOR + 2, /*! The special optimization mode where scaling operation running on SFC (Scaler & Format Converter) is coupled with VDBOX (also known as Multi-Format Codec Engines). This mode is applicable for DECODE_VPP domain functions. */ 
     MFX_SCALING_MODE_INTEL_GEN_VEBOX = MFX_SCALING_MODE_VENDOR + 3 /*! The special optimization mode where scaling operation running on SFC is coupled with VEBOX (HW video processing pipe). */ 
 };
 

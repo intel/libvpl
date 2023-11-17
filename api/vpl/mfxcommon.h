@@ -531,7 +531,7 @@ MFX_PACK_END()
 #define MFX_EXTENDEDDEVICEID_VERSION MFX_STRUCT_VERSION(1, 0)
 
 MFX_PACK_BEGIN_USUAL_STRUCT()
-/*! Specifies various physical device properties for device matching and identification outside of oneVPL. */
+/*! Specifies various physical device properties for device matching and identification outside of oneAPI Video Processing Library (oneVPL). */
 typedef struct {
     mfxStructVersion Version;                       /*!< Version of the structure. */
     mfxU16           VendorID;                      /*!< PCI vendor ID. */
