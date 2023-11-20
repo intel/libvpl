@@ -147,7 +147,7 @@ MFX_PACK_BEGIN_STRUCT_W_PTR()
    Optional extension buffer, which can be attached to mfxSurfaceHeader::ExtParam
    (second parameter of mfxFrameSurfaceInterface::Export) in order to pass OCL parameters
    during mfxFrameSurface1 exporting to OCL surface.
-   If buffer is not provided all resources will be created by VPL RT internally.
+   If buffer is not provided all resources will be created by oneAPI Video Processing Library (oneVPL) RT internally.
 */
 typedef struct {
     mfxExtBuffer    Header;                     /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_EXPORT_SHARING_DESC_OCL. */
@@ -223,7 +223,7 @@ typedef struct mfxMemoryInterface {
        @param[in]      surf_component    Surface component type. Required for allocating new surfaces from the appropriate pool.
        @param[in,out]  external_surface  Pointer to the mfxSurfaceXXX object describing the surface to be imported. All fields in
                                          mfxSurfaceHeader must be set by the application. mfxSurfaceHeader::SurfaceType is
-                                         read by VPL runtime to determine which particular mfxSurfaceXXX structure is supplied.
+                                         read by oneVPL runtime to determine which particular mfxSurfaceXXX structure is supplied.
                                          For example, if mfxSurfaceXXX::SurfaceType == MFX_SURFACE_TYPE_D3D11_TEX2D, then the handle
                                          will be interpreted as an object of type mfxSurfaceD3D11Tex2D. The application should
                                          set or clear other fields as specified in the corresponding structure description.
@@ -239,7 +239,7 @@ typedef struct mfxMemoryInterface {
        MFX_ERR_NULL_PTR If ext_surface or imported_surface are NULL.\n
        MFX_ERR_INVALID_HANDLE If the corresponding session was not initialized.\n
        MFX_ERR_UNSUPPORTED If surf_component is not one of [MFX_SURFACE_COMPONENT_ENCODE, MFX_SURFACE_COMPONENT_VPP_INPUT], or if
-                           mfxSurfaceHeader::SurfaceType is not supported by VPL runtime for this operation.\n
+                           mfxSurfaceHeader::SurfaceType is not supported by oneVPL runtime for this operation.\n
 
        @since This function is available since API version 2.10.
     */

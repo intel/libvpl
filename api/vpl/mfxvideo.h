@@ -432,7 +432,7 @@ mfxStatus MFX_CDECL MFXVideoENCODE_GetEncodeStat(mfxSession session, mfxEncodeSt
                     ctrl can be freed right after successful MFXVideoENCODE_EncodeFrameAsync (it is copied inside), but not the ext buffers attached to this ctrl.
                     If the ext buffers are allocated by the user, do not move, alter or delete unless surface.Data.Locked is zero.
    @param[in] surface  Pointer to the frame surface structure.
-                       For surfaces allocated by VPL RT it is safe to call mfxFrameSurface1::FrameInterface->Release after successful MFXVideoENCODE_EncodeFrameAsync.
+                       For surfaces allocated by oneAPI Video Processing Library (oneVPL) RT it is safe to call mfxFrameSurface1::FrameInterface->Release after successful MFXVideoENCODE_EncodeFrameAsync.
                        If it is allocated by user, do not move, alter or delete unless surface.Data.Locked is zero.
    @param[out] bs   Pointer to the output bitstream.
    @param[out] syncp  Pointer to the returned sync point associated with this operation.
