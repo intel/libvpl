@@ -38,39 +38,20 @@ else()
   target_sources(${TARGET} PRIVATE src/hw-device-vaapi.cpp)
 endif()
 
-# if toolchain environment is not configured, disable it and print warning
+# if OpenCL is not configured, disable use of it in this tool and print warning
+find_package(OpenCL CONFIG)
+if(NOT OpenCL_FOUND)
+  message(
+    WARNING "*** OpenCL not found. OpenCL surface sharing will be disabled.")
+  set(TOOLS_ENABLE_OPENCL OFF)
+endif()
+
+# OpenCL is currently supported on Windows only for this tool
 if(TOOLS_ENABLE_OPENCL)
-  set(OPENCL_IS_READY TRUE)
-
-  if(DEFINED ENV{OPENCL_INCLUDE_DIR})
-    set(OPENCL_INCLUDE_DIR $ENV{OPENCL_INCLUDE_DIR})
-  else()
-    message(
-      WARNING
-        "*** OPENCL_INCLUDE_DIR not set - OpenCL surface sharing will be disabled."
-    )
-    set(OPENCL_IS_READY FALSE)
-  endif()
-
-  if(OPENCL_IS_READY AND DEFINED ENV{OPENCL_LIB_DIR})
-    set(OPENCL_LIB_DIR $ENV{OPENCL_LIB_DIR})
-  else()
-    message(
-      WARNING
-        "*** OPENCL_LIB_DIR not set - OpenCL surface sharing will be disabled.")
-    set(OPENCL_IS_READY FALSE)
-  endif()
-
-  if(OPENCL_IS_READY)
+  if(WIN32)
     target_compile_definitions(${TARGET} PRIVATE -DTOOLS_ENABLE_OPENCL)
-
-    if(WIN32)
-      target_sources(${TARGET} PRIVATE src/ src/process-frames-ocl-d3d11.cpp)
-    endif()
-
-    target_include_directories(${TARGET} PUBLIC ${OPENCL_INCLUDE_DIR})
-    target_link_directories(${TARGET} PUBLIC ${OPENCL_LIB_DIR})
-    target_link_libraries(${TARGET} PRIVATE OpenCL)
+    target_sources(${TARGET} PRIVATE src/process-frames-ocl-d3d11.cpp)
+    target_link_libraries(${TARGET} PRIVATE OpenCL::OpenCL)
   endif()
 endif()
 
