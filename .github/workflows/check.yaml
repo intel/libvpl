@@ -221,9 +221,6 @@ jobs:
             - distro: centos
               version: 9
               fatal: true
-            - distro: sles
-              version: 15.4
-              fatal: true
             - distro: ubuntu
               version: 20.04
               fatal: false
