@@ -314,6 +314,9 @@ int main(int argc, char *argv[]) {
 end:
     printf("Decode and VPP processed %d frames\n", framenum);
 
+    MFXVideoDECODE_VPP_Close(session);
+    MFXClose(session);
+
     // Clean up resources - It is recommended to close components first, before
     // releasing allocated surfaces, since some surfaces may still be locked by
     // internal resources.
