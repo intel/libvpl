@@ -154,7 +154,7 @@ if VPL_EXAMPLES_PATH:
     VAL_APP = r"val-surface-sharing"
     print(INPUT_CONTENT)
 else:
-    raise SystemExit("VPL env is not ready!")
+    raise SystemExit("environment is not ready!")
 
 
 def display_adapters():

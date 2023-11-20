@@ -167,7 +167,7 @@ mfxStatus CDecodeTest::Init(int tIndex, Options *opts, std::vector<mfxU32> *adap
     sts       = m_pDevCtx->InitDevice(0, &handleType, &handle);
     VERIFY((MFX_ERR_NONE == sts) && (handle != nullptr), "ERROR: InitDevice", sts);
 
-    // pass device handle to VPL RT
+    // pass device handle to runtime
     sts = MFXVideoCORE_SetHandle(m_session, handleType, handle);
     VERIFY(MFX_ERR_NONE == sts, "ERROR: SetHandle", sts);
 

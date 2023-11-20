@@ -214,7 +214,7 @@ static int ProcessStreamDecodeVPP(mfxSession session, FileInfo *fileInfo, Decode
 #endif
                                 VPL_TOTAL_TIME_START(totalExportTime);
 
-                                // export mfxFrameSurface1 from VPL to a D3D11 or VAAPI surface
+                                // export mfxFrameSurface1 from oneVPL to a D3D11 or VAAPI surface
                                 sts = pmfxVPPOutSurface->FrameInterface->Export(pmfxVPPOutSurface, export_header, (mfxSurfaceHeader **)&extSurf);
                                 VERIFY(MFX_ERR_NONE == sts, "ERROR: Export");
 
@@ -267,7 +267,7 @@ static int ProcessStreamDecodeVPP(mfxSession session, FileInfo *fileInfo, Decode
 
                                 VPL_TOTAL_TIME_START(totalExportTime);
 
-                                // export surface from VPL runtime (output of VPP) as an OCL surface (input to OCL kernel)
+                                // export surface from oneVPL runtime (output of VPP) as an OCL surface (input to OCL kernel)
                                 mfxSurfaceOpenCLImg2D *extSurfOCL = nullptr;
                                 sts = pmfxVPPOutSurface->FrameInterface->Export(pmfxVPPOutSurface, export_header, (mfxSurfaceHeader **)&extSurfOCL);
                                 VERIFY(MFX_ERR_NONE == sts, "ERROR: Export (OpenCL)");
@@ -420,7 +420,7 @@ int RunDecodeVPP(Params *params, FileInfo *fileInfo) {
         decCtx.surfaceFlags = MFX_SURFACE_FLAG_EXPORT_COPY;
 
     // create HW device context
-    // automatically released when devCtx goes out of scope (make sure this happens after closing VPL session)
+    // automatically released when devCtx goes out of scope (make sure this happens after closing session)
     DevCtx devCtx            = {};
     mfxHandleType handleType = {};
     mfxHDL handle            = nullptr;
@@ -429,7 +429,7 @@ int RunDecodeVPP(Params *params, FileInfo *fileInfo) {
     VERIFY((MFX_ERR_NONE == sts) && (handle != nullptr), "ERROR: InitDevice");
     decCtx.devCtx = &devCtx;
 
-    // specify required capabilities for VPL session creation
+    // specify required capabilities for session creation
     std::list<SurfaceCaps> surfaceCapsList;
 
     // VPP output - native type
@@ -453,12 +453,12 @@ int RunDecodeVPP(Params *params, FileInfo *fileInfo) {
         surfaceCapsList.push_back(scOCL);
     }
 
-    // initalize VPL session
+    // initialize session
     VPLSession vplSession = {};
     sts                   = vplSession.Open(surfaceCapsList);
-    VERIFY(MFX_ERR_NONE == sts, "ERROR: not able to create VPL session");
+    VERIFY(MFX_ERR_NONE == sts, "ERROR: unable to create session");
 
-    // pass device handle to VPL RT
+    // pass device handle to runtime
     sts = MFXVideoCORE_SetHandle(vplSession.GetSession(), handleType, handle);
     VERIFY(MFX_ERR_NONE == sts, "ERROR: SetHandle");
 

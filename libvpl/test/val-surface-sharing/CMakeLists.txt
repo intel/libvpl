@@ -73,7 +73,7 @@ if(MSVC)
   endif()
 endif()
 
-# link VPL import library
+# link import library
 find_package(VPL REQUIRED)
 target_link_libraries(${TARGET} PRIVATE VPL::dispatcher)
 

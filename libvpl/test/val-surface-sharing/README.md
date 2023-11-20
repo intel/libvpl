@@ -73,7 +73,7 @@ This is automation script utilizing `val-surface-sharing` tool and validates Sur
 All the test list is defined in the script which is composing the command line options.
 
 ## Preparation
-You need to prepare VPL environment from install directory, for example:
+You need to prepare the environment from install directory, for example:
 
 On Windows
 ```

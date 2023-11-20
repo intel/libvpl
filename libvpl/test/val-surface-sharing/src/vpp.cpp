@@ -168,7 +168,7 @@ mfxStatus CVPPTest::Init(int tIndex, Options *opts, std::vector<mfxU32> *adapter
     sts       = m_pDevCtx->InitDevice(0, &handleType, &handle);
     VERIFY((MFX_ERR_NONE == sts) && (handle != nullptr), "ERROR: InitDevice", sts);
 
-    // pass device handle to VPL RT
+    // pass device handle to runtime
     sts = MFXVideoCORE_SetHandle(m_session, handleType, handle);
     VERIFY(MFX_ERR_NONE == sts, "ERROR: SetHandle", sts);
 
@@ -405,7 +405,7 @@ mfxStatus CVPPTest::ProcessStreamVPP() {
                                 descOfExport.SurfaceType  = m_pOpts->surfaceType;
                                 descOfExport.SurfaceFlags = m_pOpts->surfaceFlag;
 
-                                // export mfxFrameSurface1 from VPL to a D3D11 texture
+                                // export mfxFrameSurface1 to a D3D11 texture
                                 mfxSurfaceHeader *exportedSurfaceGeneral = nullptr;
                                 mfxStatus stsSurf = pmfxVPPOutSurface->FrameInterface->Export(
                                     pmfxVPPOutSurface,

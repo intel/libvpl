@@ -89,7 +89,7 @@ static int ProcessStreamEncode(mfxSession session, FrameInfo *frameInfo, FileInf
                 sts = cc->CaptureFrame(pTex2D);
                 VERIFY(sts == MFX_ERR_NONE, "ERROR: CaptureFrame");
 
-                // import D3D11 surface into mfxFrameSurface1 for VPL
+                // import D3D11 surface into mfxFrameSurface1
                 // set header.surfaceType, device, and texture2D, all other fields should be empty
                 mfxSurfaceD3D11Tex2D extSurfD3D11                 = {};
                 extSurfD3D11.SurfaceInterface.Header.SurfaceType  = MFX_SURFACE_TYPE_D3D11_TEX2D;
@@ -355,7 +355,7 @@ int RunEncode(Params *params, FileInfo *fileInfo) {
         encCtx.surfaceFlags = MFX_SURFACE_FLAG_IMPORT_COPY;
 
     // create HW device context
-    // automatically released when devCtx goes out of scope (make sure this happens after closing VPL session)
+    // automatically released when devCtx goes out of scope (make sure this happens after closing session)
     DevCtx devCtx            = {};
     mfxHandleType handleType = {};
     mfxHDL handle            = nullptr;
@@ -364,7 +364,7 @@ int RunEncode(Params *params, FileInfo *fileInfo) {
     VERIFY((MFX_ERR_NONE == sts) && (handle != nullptr), "ERROR: InitDevice");
     encCtx.devCtx = &devCtx;
 
-    // specify required capabilities for VPL session creation
+    // specify required capabilities for session creation
     std::list<SurfaceCaps> surfaceCapsList;
 
     // encode - native type
@@ -388,12 +388,12 @@ int RunEncode(Params *params, FileInfo *fileInfo) {
         surfaceCapsList.push_back(scOCL);
     }
 
-    // initialize VPL session
+    // initialize session
     VPLSession vplSession = {};
     sts                   = vplSession.Open(surfaceCapsList);
-    VERIFY(MFX_ERR_NONE == sts, "ERROR: not able to create VPL session");
+    VERIFY(MFX_ERR_NONE == sts, "ERROR: unable to create session");
 
-    // pass device handle to VPL RT
+    // pass device handle to runtime
     sts = MFXVideoCORE_SetHandle(vplSession.GetSession(), handleType, handle);
     VERIFY(MFX_ERR_NONE == sts, "ERROR: SetHandle");
 

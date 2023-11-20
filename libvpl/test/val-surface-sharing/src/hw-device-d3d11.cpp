@@ -57,7 +57,7 @@ mfxStatus DevCtxD3D11::InitDevice(mfxU32 nAdapterNum, mfxHandleType *pHandleType
 }
 
 ID3D11Device *DevCtxD3D11::GetVideoDeviceFromFrameSurface(mfxFrameSurface1 *pSrf) {
-    // get handle of internal device created by VPL RT, use same device for rendering
+    // get handle of internal device created by runtime, use same device for rendering
     mfxHDL device_handle      = nullptr;
     mfxHandleType device_type = {};
 
@@ -69,7 +69,7 @@ ID3D11Device *DevCtxD3D11::GetVideoDeviceFromFrameSurface(mfxFrameSurface1 *pSrf
 }
 
 ID3D11Texture2D *DevCtxD3D11::GetVideoTextureFromFrameSurface(mfxFrameSurface1 *pSrf) {
-    // get native handle of texture created by VPL RT
+    // get native handle of texture created by runtime
     mfxHDL frame_handle      = nullptr;
     mfxResourceType res_type = {};
 
