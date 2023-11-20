@@ -202,7 +202,7 @@ int main(int argc, char **argv) {
 
         //-- Create session
         session = CreateVPLSession(&loader, &cliParams);
-        VERIFY(session != NULL, "ERROR: not able to create VPL session");
+        VERIFY(session != NULL, "ERROR: unable to create session");
 
 #ifdef __linux__
         if (cliParams.bLegacyGen) {

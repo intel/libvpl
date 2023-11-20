@@ -317,7 +317,7 @@ int main() {
     printf("Hello from unconstrained oneVPL\n");
     mfxSession session = {};
     sts                = MFXCreateSession(loader, 0, &session);
-    printf("VPL 2.x API init MFXCreateSession %s\n",
+    printf("oneVPL 2.x API init MFXCreateSession %s\n",
            (sts == MFX_ERR_NONE) ? "succeeded" : "failed");
 
     if (sts == MFX_ERR_NONE) {
@@ -345,8 +345,8 @@ supported by the oneVPL Intel GPU implementation.
 
 ```mermaid
 graph TD;
-    VPL[VPL dispatcher with full 2.x API]-->impl1[Media SDK implementation];
-    VPL[VPL dispatcher with full 2.x API]-->impl2[VPL-intel-gpu implementation];
+    oneVPL[oneVPL dispatcher with full 2.x API]-->impl1[Media SDK implementation];
+    oneVPL[oneVPL dispatcher with full 2.x API]-->impl2[oneVPL-intel-gpu implementation];
 ```
 
 ### Build:
@@ -379,8 +379,8 @@ application.  They are not constrained by 1.x session initialization so the
 true API level of the implementation is reported.
 
 ```shell
-Hello from unconstrained VPL
-VPL 2.x API init MFXCreateSession succeeded
+Hello from unconstrained oneVPL
+oneVPL 2.x API init MFXCreateSession succeeded
 Session loaded: ApiVersion = 2.7
 ```
 

@@ -2,7 +2,7 @@
 
 This sample shows how to use the oneAPI Video Processing Library (oneVPL) 2.X common API to :
 - Perform video encode for a Direct3D 11 2D texture with surface sharing.
-- Perform video decode and export mfxFrameSurface1 from VPL to a D3D11 texture with surface sharing.
+- Perform video decode and export mfxFrameSurface1 from oneVPL to a D3D11 texture with surface sharing.
 
 | Optimized for    | Description
 |----------------- | ----------------------------------------

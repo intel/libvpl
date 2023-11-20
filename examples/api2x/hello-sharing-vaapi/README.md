@@ -2,7 +2,7 @@
 
 This sample shows how to use the oneAPI Video Processing Library (oneVPL) 2.X common API to :
 - Perform video encode for a VA-API surface with surface sharing.
-- Perform video decode and export mfxFrameSurface1 from VPL to a VA-API surface with surface sharing.
+- Perform video decode and export mfxFrameSurface1 from oneVPL to a VA-API surface with surface sharing.
 
 | Optimized for    | Description
 |----------------- | ----------------------------------------

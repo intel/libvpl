@@ -75,7 +75,7 @@ int main(int argc, char *argv[]) {
     sink = fopen(OUTPUT_FILE, "wb");
     VERIFY(sink, "Could not create output file");
 
-    // Initialize VPL session
+    // Initialize session
     loader = MFXLoad();
     VERIFY(NULL != loader, "MFXLoad failed -- is implementation in path?");
 
@@ -175,7 +175,7 @@ int main(int argc, char *argv[]) {
     sts = devCtx.InitDevice(0, &handleType, &handle);
     VERIFY((MFX_ERR_NONE == sts) && (handle != nullptr), "ERROR: InitDevice");
 
-    // pass device handle to VPL RT
+    // pass device handle to runtime
     sts = MFXVideoCORE_SetHandle(session, handleType, handle);
     VERIFY(MFX_ERR_NONE == sts, "ERROR: MFXVideoCORE_SetHandle failed");
 

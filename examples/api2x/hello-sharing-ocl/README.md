@@ -2,7 +2,7 @@
 
 This sample shows how to use the oneAPI Video Processing Library (oneVPL) 2.X common API to :
 - Perform video encode for a 2D OpenCL image with OpenCL surface sharing.
-- Perform video decode and export mfxFrameSurface1 from VPL to a 2D OpenCL image with surface sharing.
+- Perform video decode and export mfxFrameSurface1 from oneVPL to a 2D OpenCL image with surface sharing.
 
 | Optimized for    | Description
 |----------------- | ----------------------------------------

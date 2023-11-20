@@ -67,7 +67,7 @@ int main(int argc, char *argv[]) {
     sink = fopen(OUTPUT_FILE, "wb");
     VERIFY(sink, "Could not create output file");
 
-    // Initialize VPL session
+    // Initialize session
     loader = MFXLoad();
     VERIFY(NULL != loader, "MFXLoad failed -- is implementation in path?");
 
@@ -170,7 +170,7 @@ int main(int argc, char *argv[]) {
     auto pD3D11Device = reinterpret_cast<ID3D11Device *>(handle);
     VERIFY((MFX_ERR_NONE == sts) && (handle != nullptr), "ERROR: InitDevice");
 
-    // Pass device handle to VPL RT
+    // Pass device handle to runtime
     sts = MFXVideoCORE_SetHandle(session, handleType, handle);
     VERIFY(MFX_ERR_NONE == sts, "ERROR: MFXVideoCORE_SetHandle failed");
     // input parameters finished, now initialize decode
