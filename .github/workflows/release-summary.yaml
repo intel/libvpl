@@ -40,10 +40,10 @@ jobs:
           cp -r artifacts/ip-leak-scan/. summary/legal/ip_leaks/
           cp -r artifacts/linux-diff-report/. summary/bom/linux/
           cp -r artifacts/windows-diff-report/. summary/bom/windows/
-          cp -r artifacts/windows-acceptance-gen12.5/. summary/quality/acceptance/Windows/gen12.5/
-          cp -r artifacts/windows-acceptance-gen9.5/. summary/quality/acceptance/Windows/gen9.5/
-          cp -r artifacts/linux-acceptance-gen12.5/. summary/quality/acceptance/Linux/gen12.5/
-          cp -r artifacts/linux-acceptance-gen9.5/. summary/quality/acceptance/Linux/gen9.5/
+          cp -r artifacts/windows-release-acceptance-gen12.5/. summary/quality/acceptance/Windows/gen12.5/
+          cp -r artifacts/windows-release-acceptance-gen9.5/. summary/quality/acceptance/Windows/gen9.5/
+          cp -r artifacts/linux-release-acceptance-gen12.5/. summary/quality/acceptance/Linux/gen12.5/
+          cp -r artifacts/linux-release-acceptance-gen9.5/. summary/quality/acceptance/Linux/gen9.5/
           cp -r artifacts/windows-release-build-unit-tests/. summary/quality/unit/Windows/
           cp -r artifacts/linux-release-build-unit-tests/. summary/quality/unit/Linux/
           cp -r artifacts/windows-complier_settings/. summary/security/T256-CompilerSettings/

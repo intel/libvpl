@@ -140,7 +140,7 @@ jobs:
         uses: actions/upload-artifact@v3
         if: success() || failure()
         with:
-          name: ${{ inputs.OS }}-acceptance-${{ inputs.GPU_FAMILY }}
+          name: ${{ inputs.OS }}-${{ inputs.CONFIG }}-acceptance-${{ inputs.GPU_FAMILY }}
           path: tests/logs/*
 
       - name: Cleanup workspace (Linux)
