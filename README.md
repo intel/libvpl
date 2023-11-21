@@ -40,7 +40,7 @@ Runtime loaded by oneVPL Dispatcher and their Microsoft* DirectX* support:
 | EHL (Elkhart Lake)                         |:heavy_check_mark:|                  | DX9/DX11                    |
 | SG1                                        |:heavy_check_mark:|                  | DX9/DX11                    |
 | TGL (Tiger Lake)                           |:heavy_check_mark:|:heavy_check_mark:| DX9/DX11*                   |
-| DG1 (Intel® Iris® Xe MAX)                         |:heavy_check_mark:|:heavy_check_mark:| DX11*                       |
+| DG1 (Intel® Iris® Xe MAX graphics)         |:heavy_check_mark:|:heavy_check_mark:| DX11*                       |
 | RKL (Rocket Lake)                          |                  |:heavy_check_mark:| DX11                        |
 | ADL-S (Alder Lake S)                       |                  |:heavy_check_mark:| DX11                        |
 | ADL-P (Alder Lake P)                       |                  |:heavy_check_mark:| DX11                        |
