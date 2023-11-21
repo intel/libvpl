@@ -10,6 +10,8 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 
 ## [Unreleased]
 
+## [2023.4.0] - 2023-12-01
+
 ### Added
 - oneVPL API 2.10 support
 - New command line parameters to sample_multi_transcode for setting
@@ -18,24 +20,23 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
   information
 - New APIs for importing and exporting shared surfaces
 - New APIs for string-based parameter configuration
-- oneVPL specification added to docs directory
 
-### Removed 
+### Removed
 - Environment module support
 - Unused files and folders
 
-### Fixed 
-- Fix NV12 wayland render for MTL
-- Fix buffer starvation when wayland window is moved
-- Fix missing profile strings in vpl-inspect tool
-- Fix rdrm to use card node instead of render node
-- Fix rdrm tile4 selection based DRM/KMS query
-- rdrm NV12 and P010 render for MTL
+### Fixed
+- NV12 wayland render for MTL
+- Buffer starvation when wayland window is moved
+- Missing profile strings in vpl-inspect tool
+- Rdrm to use card node instead of render node
+- Rdrm tile4 selection based DRM/KMS query
+- Rdrm NV12 and P010 render for MTL
 
 ### Changed
 - Directory layout and name of dispatcher directory
 - Location of image files used by documentation
-- Current working directory removed from runtime library search
+- Runtime library search path to remove current directory
 
 ## [2023.3.1] - 2023-07-21
 
@@ -346,7 +347,8 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 - hello-transcode sample
 
 
-[Unreleased]: https://github.com/oneapi-src/oneVPL/compare/v2023.3.0...HEAD
+[Unreleased]: https://github.com/oneapi-src/oneVPL/compare/v2023.4.0...HEAD
+[2023.4.0]: https://github.com/oneapi-src/oneVPL/compare/v2023.3.1...v2023.4.0
 [2023.3.1]: https://github.com/oneapi-src/oneVPL/compare/v2023.3.0...v2023.3.1
 [2023.3.0]: https://github.com/oneapi-src/oneVPL/compare/v2023.2.1...v2023.3.0
 [2023.2.1]: https://github.com/oneapi-src/oneVPL/compare/v2023.2.0...v2023.2.1
