@@ -1,6 +1,5 @@
 # `vpl-infer` Sample
 
-
 ## Intro
 
 This sample shows how to use the oneAPI Video Processing Library (oneVPL) 
@@ -199,6 +198,7 @@ These instructions assume that Docker is already set up on your system.
     ```
 
 ### On a Windows* System
+> [ **Note** ] Current version of vpl-infer will not work with Intel® Distribution of OpenVINO™ toolkit version greater than 2022.3.0
 
 1. Install the prerequisite software:
 
