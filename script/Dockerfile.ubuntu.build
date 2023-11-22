@@ -8,6 +8,7 @@ ARG DOCKER_REGISTRY
 
 FROM ${DOCKER_REGISTRY}ubuntu:22.04
 
+WORKDIR /setup
 COPY bootstrap bootstrap
 
 ARG DEBIAN_FRONTEND=noninteractive

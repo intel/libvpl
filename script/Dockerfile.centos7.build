@@ -8,6 +8,7 @@ ARG DOCKER_REGISTRY
 
 FROM ${DOCKER_REGISTRY}centos:centos7
 
+WORKDIR /setup
 COPY bootstrap bootstrap
 
 ENV PIP_ROOT_USER_ACTION=ignore

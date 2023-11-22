@@ -1,0 +1,55 @@
+name: Trivy
+run-name: Trivy (Triggered by ${{ github.event_name }} by @${{ github.actor }})
+on: 
+  workflow_call:
+
+jobs:
+  scan:
+    runs-on: [self-hosted, linux, docker]
+    steps:
+      - name: Cleanup workspace
+        run: sudo rm -rf ..?* .[!.]* *
+
+      - name: Checkout dispatcher source
+        uses: actions/checkout@v3
+        with:
+          path: source
+
+      - name: Pull docker image
+        run: docker pull aquasec/trivy:0.47.0
+
+      - name: Scan
+        run: |
+          mkdir artifact
+          echo "Trivy Report" > artifact/trivy.txt
+          docker run \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            -v $HOME/Library/Caches:/root/.cache/ \
+            -v $(pwd):/work \
+            -w /work \
+            --attach stderr --attach stdout \
+            aquasec/trivy:0.47.0 \
+            fs . 2>&1 >> artifact/trivy.txt
+
+      - name: Summarize
+        if: (failure())
+        run: |
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          cat artifact/trivy.txt >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Report
+        if: (success() || failure())
+        run: |
+          cat artifact/trivy.txt
+    
+      - name: Record Artifacts
+        uses: actions/upload-artifact@v3
+        if: (success() || failure())
+        with:
+          name: Trivy
+          path: artifact/*
+  
+      - name: Cleanup workspace
+        if: always() && runner.os == 'Linux'
+        run: sudo rm -rf ..?* .[!.]* *

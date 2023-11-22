@@ -1,0 +1,78 @@
+name: Hadolint
+run-name: Hadolint (Triggered by ${{ github.event_name }} by @${{ github.actor }})
+on: 
+  workflow_call:
+
+jobs:
+  scan:
+    runs-on: [self-hosted, linux, docker]
+    steps:
+      - name: Cleanup workspace
+        run: sudo rm -rf ..?* .[!.]* *
+
+      - name: Checkout dispatcher source
+        uses: actions/checkout@v3
+        with:
+          path: source
+
+      - name: Pull docker image
+        run: docker pull hadolint/hadolint
+
+      - name: Lint
+        run: |
+          mkdir artifact
+          echo "Hadolint Report" > artifact/hadolint.txt
+          walk_dir () {
+            shopt -s nullglob dotglob
+       
+            for pathname in "$1"/*; do
+              retVal=0
+              if [ -d "$pathname" ]; then
+                walk_dir "$pathname" || retVal=$?
+                if [ $retVal -ne 0 ]; then
+                  RC=$retVal
+                fi
+              else
+                case "$pathname" in
+                  *Dockerfile*|*dockerfile*)
+                    echo "Checking $pathname"
+                    echo "" >> artifact/hadolint.txt
+                    echo "  $pathname" >> artifact/hadolint.txt
+                    echo "----------" >> artifact/hadolint.txt
+                    docker run --rm \
+                      -i --attach stderr --attach stdout \
+                      -v $(pwd)/source:/source \
+                      -w /source \
+                      hadolint/hadolint < $pathname 2>&1 >> artifact/hadolint.txt || retVal=$?
+                    if [ $retVal -ne 0 ]; then
+                      RC=$retVal
+                    fi
+                esac
+              fi
+            done
+            return $RC
+          }
+          walk_dir "$(pwd)/source"
+
+      - name: Summarize
+        if: (failure())
+        run: |
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          cat artifact/hadolint.txt >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Report
+        if: (success() || failure())
+        run: |
+          cat artifact/hadolint.txt
+
+      - name: Record Artifacts
+        uses: actions/upload-artifact@v3
+        if: (success() || failure())
+        with:
+          name: hadolint
+          path: artifact/*
+  
+      - name: Cleanup workspace
+        if: always() && runner.os == 'Linux'
+        run: sudo rm -rf ..?* .[!.]* *

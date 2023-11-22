@@ -160,6 +160,16 @@ jobs:
         if: always() && runner.os == 'Linux'
         run: sudo rm -rf ..?* .[!.]* *
 
+  hadolint:
+    name: Hadolint
+    uses: ./.github/workflows/hadolint.yaml
+    secrets: inherit
+
+  trivy:
+    name: Trivy
+    uses: ./.github/workflows/trivy.yaml
+    secrets: inherit
+  
   build:
     name: Build
     strategy:
@@ -340,6 +350,8 @@ jobs:
   required:
     name: required
     needs:
+      - trivy
+      - hadolint
       - lint
       - build
       - linux-distro-support

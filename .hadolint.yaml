@@ -1,0 +1,11 @@
+ignored:
+  - DL3006
+  - DL3008
+  - DL3013
+  - DL3016
+  - DL3018
+  - DL3028
+
+trustedRegistries:
+  - docker.io
+  - gcr.io

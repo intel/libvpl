@@ -94,15 +94,15 @@ jobs:
         if: success() || failure()
         run: |
           DISTRO=${{ inputs.DISTRO_FAMILY }}${{ inputs.DISTRO_VERSION }}
-          mkdir $DISTRO
-          sudo cp -r tests/logs/. $DISTRO
+          mkdir -p artifact/distro-$DISTRO
+          sudo cp -r tests/logs/. artifact/distro-$DISTRO
 
       - name: Upload test results
         uses: actions/upload-artifact@v3
         if: success() || failure()
         with:
           name: distro-${{ inputs.DISTRO_FAMILY }}${{ inputs.DISTRO_VERSION }}
-          path: ${{ inputs.DISTRO_FAMILY }}${{ inputs.DISTRO_VERSION }}
+          path: artifact
 
       - name: Cleanup workspace (Linux)
         if: always() && runner.os == 'Linux'
