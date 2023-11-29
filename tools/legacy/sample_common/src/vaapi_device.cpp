@@ -498,7 +498,7 @@ CHWDevice* CreateVAAPIDevice(const std::string& devicePath, int type) {
             break;
         case MFX_LIBVA_WAYLAND:
         #if defined(LIBVA_WAYLAND_SUPPORT)
-            device = new CVAAPIDeviceWayland;
+            device = new CVAAPIDeviceWayland(devicePath);
         #endif
             break;
         case MFX_LIBVA_AUTO:

@@ -124,7 +124,7 @@ class Wayland;
 
 class CVAAPIDeviceWayland : public CHWDevice {
 public:
-    CVAAPIDeviceWayland() {
+    CVAAPIDeviceWayland(const std::string& devicePath = "") : m_DRMLibVA(devicePath) {
         m_nRenderWinX            = 0;
         m_nRenderWinY            = 0;
         m_nRenderWinW            = 0;
