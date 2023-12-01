@@ -1,0 +1,99 @@
+---
+name: Malware scan
+
+on:
+
+  workflow_call:
+    inputs:
+      artifact_name:
+        description: 'Artifact to test'
+        type: string
+      caas:
+        description: 'CaaS Image'
+        type: string
+      write_test_file:
+        description: 'Write EICAR test file (see https://www.eicar.org/)'
+        type: boolean
+
+jobs:
+  scan:
+    runs-on: [self-hosted, linux, docker]
+    steps:
+
+      - name: Cleanup workspace
+        run: sudo rm -rf ..?* .[!.]* *
+
+        # get files to scan
+      - name: Checkout dispatcher source
+        if: success() && !inputs.artifact_name
+        uses: actions/checkout@v4
+        with:
+          path: product
+
+      - name: Download package
+        if: success() && inputs.artifact_name
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.artifact_name }}
+          path: product
+
+      - name: Extract package
+        if: success() && inputs.artifact_name
+        run: |
+          if compgen -G "product/*.zip" > /dev/null; then
+            unzip product/*.zip -d product
+          fi
+
+      # Write test file if requested
+      - name: Write EICAR test file
+        if: success() && inputs.write_test_file
+        run: >
+          echo
+          'X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*'
+          > product/eicar-com.com
+
+      # CaaS based testing
+      - name: Pull CaaS docker image
+        if: success() && inputs.caas
+        run: |
+          docker pull ${{ inputs.caas }}
+      - name: Run Test using CaaS image
+        if: success() && inputs.caas
+        run: >
+          docker run -v $(realpath product):/scanme
+                     --rm ${{ inputs.caas }} >> report.txt
+
+      # Local image based testing
+      - name: Checkout av scanning tool
+        if: success() && !inputs.caas
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ vars.AV_TOOL_REPO }}
+          token: ${{ secrets.TEST_REPO_TOKEN }}
+          path: av-scanning
+          ref: master
+
+      - name: Create docker image
+        if: success() && !inputs.caas
+        run: |
+          pushd av-scanning
+          sed -i 's|FROM.*ubuntu:latest|FROM public.ecr.aws/lts/ubuntu:22.04|' \
+                 Dockerfile
+          docker build -t mcafee:latest .
+          popd
+      - name: Run Test
+        if: success() && !inputs.caas
+        run: |
+          docker run --rm -v $(realpath product):/scanme \
+                 mcafee:latest >> report.txt
+
+      # Publish
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: success() || failure()
+        with:
+          name: ${{ inputs.artifact_name || 'source' }}-malware-scan
+          path: report.txt
+
+      - name: Cleanup workspace
+        run: sudo rm -rf ..?* .[!.]* *

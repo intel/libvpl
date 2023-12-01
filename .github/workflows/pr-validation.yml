@@ -1,0 +1,400 @@
+---
+name: Check
+
+on:
+  pull_request:
+  # Run on pull requests
+  workflow_dispatch:
+  # Run on user request
+
+concurrency:
+  # Cancel any exisitng jobs related to the target branch
+  group: ci-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+
+  lint:
+    if: true
+    uses: ./.github/workflows/lint.yml
+
+  hadolint:
+    if: true
+    uses: ./.github/workflows/hadolint.yml
+
+  trivy:
+    if: true
+    uses: ./.github/workflows/trivy.yml
+
+  ip-leak-scan:
+    if: true
+    name: IP Leak Scan
+    uses: ./.github/workflows/ipldt.yml
+    secrets: inherit
+
+  source-malware-scan:
+    if: true
+    uses: ./.github/workflows/mcafee.yml
+    secrets: inherit
+
+  coverity:
+    if: true
+    strategy:
+      fail-fast: true
+      matrix:
+        os:
+          - windows
+          - linux
+    uses: ./.github/workflows/coverity.yml
+    secrets: inherit
+    with:
+      os: ${{ matrix.os }}
+
+  linux-build:
+    if: true
+    uses: ./.github/workflows/cmake.yml
+    with:
+      os: linux
+      build_type: release
+      artifact_name: linux-release-build
+      run_tests: true
+      no_artifacts: false
+
+  windows-build:
+    if: true
+    uses: ./.github/workflows/cmake.yml
+    with:
+      os: windows
+      build_type: release
+      artifact_name: windows-release-build
+      run_tests: true
+      no_artifacts: false
+
+  windows-malware-scan:
+    if: true
+    needs: [windows-build]
+    uses: ./.github/workflows/mcafee.yml
+    secrets: inherit
+    with:
+      artifact_name: windows-release-build
+
+  linux-malware-scan:
+    if: true
+    needs: [linux-build]
+    uses: ./.github/workflows/mcafee.yml
+    secrets: inherit
+    with:
+      artifact_name: linux-release-build
+
+  windows-sscb:
+    if: true
+    needs: [windows-build]
+    uses: ./.github/workflows/sscb.yml
+    with:
+      os: windows
+      artifact_name: windows-release-build
+
+  linux-sscb:
+    if: true
+    needs: [linux-build]
+    uses: ./.github/workflows/sscb.yml
+    with:
+      os: linux
+      artifact_name: linux-release-build
+
+  bdba:
+    if: true
+    needs:
+      - linux-build
+      - windows-build
+    uses: ./.github/workflows/bdba.yml
+    secrets: inherit
+
+  # This job configures variables that are useful for other jobs. Other jobs
+  # that depend on this one can access the variables via
+  # needs.setup-variables.outputs.<variable-name>
+  setup-variables:
+    if: true
+    runs-on: [self-hosted, linux]
+    outputs:
+      last_release_ref: ${{ env.last_release_ref }}
+      test_ref: ${{ env.test_ref }}
+    env:
+      last_release_ref: ''
+      test_ref: ''
+    steps:
+
+      - name: Cleanup workspace (Linux)
+        if: always() && runner.os == 'Linux'
+        run: sudo rm -rf ..?* .[!.]* *
+
+      # Get ref of last release.
+
+      - name: Checkout PR branch and all history
+        uses: actions/checkout@v4
+        with:
+          path: source
+          fetch-depth: 0
+          ref: '${{ github.event.pull_request.head.sha }}'
+
+      - name: Get ref of last release
+        id: run
+        run: |
+          cd source
+          echo "last_release_ref=$(git describe --abbrev=0 --tags --match=v*)" \
+               >> $GITHUB_ENV
+
+      # Get ref of test to be used.  If this is a pull request prefer a branch
+      # of the same name as the branch being merged into otherwise try to use a
+      # branch of the same name otherwise use main
+
+      - name: Checkout tests from base_ref
+        if: github.base_ref
+        id: check-tests-from-base_ref
+        uses: actions/checkout@v4
+        continue-on-error: true
+        with:
+          repository: ${{ vars.TEST_REPO }}
+          token: ${{ secrets.TEST_REPO_TOKEN }}
+          path: tests
+          fetch-depth: 0
+          ref: ${{ github.base_ref }}
+
+      - name: Use tests from base_ref
+        if: steps.check-tests-from-base_ref.outcome == 'success'
+        id: use-tests-from-base_ref
+        run: |
+          echo "test_ref=${{ github.base_ref }}" >> $GITHUB_ENV
+
+      - name: Checkout tests from ref_name
+        if: steps.check-tests-from-base_ref.outcome != 'success'
+        id: check-tests-from-ref_name
+        uses: actions/checkout@v4
+        continue-on-error: true
+        with:
+          repository: ${{ vars.TEST_REPO }}
+          token: ${{ secrets.TEST_REPO_TOKEN }}
+          path: tests
+          fetch-depth: 0
+          ref: ${{ github.ref_name }}
+
+      - name: Use tests from ref_name
+        if: steps.check-tests-from-ref_name.outcome == 'success'
+        id: use-tests-from-ref_name
+        run: |
+          echo "test_ref=${{ github.ref_name }}" >> $GITHUB_ENV
+
+      - name: Use tests from default
+        if: >
+          steps.check-tests-from-base_ref.outcome != 'success'
+          && steps.check-tests-from-ref_name.outcome != 'success'
+        run: |
+          echo "test_ref=main" >> $GITHUB_ENV
+
+      - name: Report
+        if: always()
+        run: |
+          echo "last_release_ref=${{ env.last_release_ref }}"
+          echo "test_ref=${{ env.test_ref }}"
+
+  ref-build:
+    if: true
+    needs: setup-variables
+    strategy:
+      fail-fast: true
+      matrix:
+        os:
+          - windows
+          - linux
+    uses: ./.github/workflows/cmake.yml
+    with:
+      os: ${{ matrix.os }}
+      build_type: release
+      artifact_name: ${{ matrix.os }}-ref-build
+      run_tests: false
+      no_artifacts: false
+      ref: ${{ needs.setup-variables.outputs.last_release_ref }}
+
+  diff-report:
+    if: true
+    needs: [linux-build, windows-build, ref-build]
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows, linux]
+    uses: ./.github/workflows/diff.yml
+    with:
+      report_name: ${{ matrix.os }}-diff-report
+      left: ${{ matrix.os }}-ref-build
+      right: ${{ matrix.os }}-release-build
+
+  windows-acceptance:
+    if: true
+    needs: [windows-build, setup-variables]
+    strategy:
+      fail-fast: true
+      matrix:
+        gpu:
+          - gen12.5
+          - gen9.5
+        config:
+          - release
+        os:
+          - windows
+    uses: ./.github/workflows/acceptance.yml
+    secrets: inherit
+    with:
+      os: ${{ matrix.os }}
+      build_type: ${{ matrix.config }}
+      artifact_name: ${{ matrix.os }}-${{ matrix.config }}-build
+      gpu: ${{ matrix.gpu }}
+      distro_family: windows
+      distro_version: 11
+      test_ref: ${{ needs.setup-variables.outputs.test_ref }}
+
+  linux-acceptance:
+    if: true
+    needs: [linux-build, setup-variables]
+    strategy:
+      fail-fast: true
+      matrix:
+        gpu:
+          - gen12.5
+          - gen9.5
+        distro:
+          - family: ubuntu
+            version: 22.04
+        config:
+          - release
+        os:
+          - linux
+    uses: ./.github/workflows/acceptance.yml
+    secrets: inherit
+    with:
+      os: ${{ matrix.os }}
+      build_type: ${{ matrix.config }}
+      artifact_name: ${{ matrix.os }}-${{ matrix.config }}-build
+      gpu: ${{ matrix.gpu }}
+      distro_family: ${{ matrix.distro.family }}
+      distro_version: ${{ matrix.distro.version }}
+      test_ref: ${{ needs.setup-variables.outputs.test_ref }}
+
+  distro-tests:
+    if: true
+    needs: [linux-build, setup-variables]
+    strategy:
+      fail-fast: true
+      matrix:
+        distro:
+          - family: rhel
+            version: 8.5
+          - family: sles
+            version: 15.3
+          - family: ubuntu
+            version: 20.04
+        gpu:
+          - gen12.5
+        os:
+          - linux
+        config:
+          - release
+    uses: ./.github/workflows/acceptance.yml
+    secrets: inherit
+    with:
+      os: ${{ matrix.os }}
+      build_type: ${{ matrix.config }}
+      artifact_name: ${{ matrix.os }}-${{ matrix.config }}-build
+      gpu: ${{ matrix.gpu }}
+      distro_family: ${{ matrix.distro.family }}
+      distro_version: ${{ matrix.distro.version }}
+      test_ref: ${{ needs.setup-variables.outputs.test_ref }}
+
+  debug-build:
+    if: true
+    strategy:
+      fail-fast: true
+      matrix:
+        os:
+          - windows
+          - linux
+        config:
+          - debug
+    uses: ./.github/workflows/cmake.yml
+    with:
+      os: ${{ matrix.os }}
+      build_type: ${{ matrix.config }}
+      artifact_name: ${{ matrix.os }}-${{ matrix.config }}-build
+      run_tests: true
+
+  debug-acceptance:
+    if: true
+    needs: [setup-variables, debug-build]
+    strategy:
+      fail-fast: true
+      matrix:
+        os:
+          - windows
+          - linux
+        gpu:
+          - gen12.5
+        config:
+          - debug
+    uses: ./.github/workflows/acceptance.yml
+    secrets: inherit
+    with:
+      os: ${{ matrix.os }}
+      build_type: debug
+      artifact_name: ${{ matrix.os }}-${{ matrix.config }}-build
+      gpu: ${{ matrix.gpu }}
+      distro_family: ${{ matrix.os == 'linux' && 'ubuntu' || 'windows' }}
+      distro_version: ${{ matrix.os == 'linux' && '22.04' || '11'}}
+      test_ref: ${{ needs.setup-variables.outputs.test_ref }}
+
+  experimental-off:
+    if: true
+    uses: ./.github/workflows/cmake.yml
+    strategy:
+      fail-fast: true
+      matrix:
+        os:
+          - windows
+          - linux
+    with:
+      os: ${{ matrix.os }}
+      build_type: release
+      run_tests: true
+      no_artifacts: true
+      configure_options: >
+        -DBUILD_DISPATCHER_ONEVPL_EXPERIMENTAL=OFF
+        -DBUILD_TOOLS_ONEVPL_EXPERIMENTAL=OFF
+
+  summary:
+    if: true
+    needs:
+      - hadolint
+      - trivy
+      - ip-leak-scan
+      - source-malware-scan
+      - coverity
+      - windows-malware-scan
+      - linux-malware-scan
+      - windows-sscb
+      - linux-sscb
+      - bdba
+      - diff-report
+      - windows-acceptance
+      - linux-acceptance
+      - distro-tests
+    uses: ./.github/workflows/summary.yml
+
+  required:
+    if: true
+    needs:
+      - lint
+      - summary
+      - debug-acceptance
+      - experimental-off
+    runs-on: [self-hosted]
+    steps:
+      - name: Required Checks
+        run: cd .

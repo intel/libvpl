@@ -405,7 +405,7 @@ jobs:
           vpl-spec
           python3 ./doc/spec/build-spec.py -W html ./doc/spec
       - name: Archive HTML
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: HTML
           path: ./doc/spec/build/html/
@@ -435,7 +435,7 @@ jobs:
           vpl-spec
           python3 ./doc/spec/build-spec.py -W latexpdf ./doc/spec
       - name: Archive pdf
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: pdf
           path: ./doc/spec/build/latex/
@@ -476,7 +476,7 @@ jobs:
     runs-on: [self-hosted, linux]
     steps:
       - name: Download HTML
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: HTML
           path: ./html_files

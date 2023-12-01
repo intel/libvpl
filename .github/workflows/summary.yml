@@ -1,0 +1,129 @@
+---
+name: Release Summary
+
+on:
+  workflow_call:
+
+env:
+  BDBA: all-bdba-scan
+  HADOLINT: all-hadolint
+  IPLEAKS: all-ip-leak-scan
+  TRIVY: all-trivy
+  COVERITY_L: linux-coverity-scan
+  COVERITY_W: windows-coverity-scan
+  DIFF_L: linux-diff-report
+  DIFF_W: windows-diff-report
+  AV_S: source-malware-scan
+  AV_L: linux-release-build-malware-scan
+  AV_W: windows-release-build-malware-scan
+  UTEST_L: linux-release-utests
+  UTEST_W: windows-release-utests
+  SSCB_L: linux-sscb
+  SSCB_W: windows-sscb
+  RHEL85: rhel8.5-release-gen12.5-acceptance
+  SLES153: sles15.3-release-gen12.5-acceptance
+  U2004: ubuntu20.04-release-gen12.5-acceptance
+  U2204: ubuntu22.04-release-gen12.5-acceptance
+  U2204_GEN95: ubuntu22.04-release-gen9.5-acceptance
+  WIN11: windows11-release-gen12.5-acceptance
+  WIN11_GEN95: windows11-release-gen9.5-acceptance
+
+
+jobs:
+  report:
+    runs-on: [self-hosted, Linux, docker]
+    steps:
+
+      - name: Cleanup workspace
+        run: sudo rm -rf ..?* .[!.]* *
+
+      - name: Download All Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: BOM artifacts
+        if: >
+          !cancelled()
+        run: |
+          mkdir -p summary/bom/Linux
+          mkdir -p summary/bom/Windows
+
+          cp -r artifacts/$DIFF_L/. summary/bom/Linux/
+          cp -r artifacts/$DIFF_W/. summary/bom/Windows/
+
+      - name: SDL artifacts
+        if: >
+          !cancelled()
+        run: |
+          mkdir -p summary/sdl/CT7-KnownVulnerabilities
+          mkdir -p summary/sdl/CT37-MalwareScan
+          mkdir -p summary/sdl/CT39-StaticAnalysis
+          mkdir -p summary/sdl/CT151-CompilerFlags
+          mkdir -p summary/sdl/CT222-Hadolint
+          mkdir -p summary/sdl/CT247-Trivy
+
+          cp artifacts/$BDBA/vulns.csv \
+             summary/sdl/CT7-KnownVulnerabilities/vulns.csv
+          cp artifacts/$AV_S/report.txt \
+             summary/sdl/CT37-MalwareScan/source-report.txt
+          cp artifacts/$AV_L/report.txt \
+             summary/sdl/CT37-MalwareScan/linux-report.txt
+          cp artifacts/$AV_W/report.txt \
+             summary/sdl/CT37-MalwareScan/windows-report.txt
+          cp artifacts/$COVERITY_L/json/errors_v9_full.json \
+             summary/sdl/CT39-StaticAnalysis/linux-coverity.json
+          cp artifacts/$COVERITY_W/json/errors_v9_full.json \
+             summary/sdl/CT39-StaticAnalysis/windows-coverity.json
+          cp -r artifacts/$SSCB_L/. summary/sdl/CT151-CompilerFlags/
+          cp -r artifacts/$SSCB_W/. summary/sdl/CT151-CompilerFlags/
+          cp -r artifacts/$HADOLINT/. summary/sdl/CT222-Hadolint/
+          cp -r artifacts/$TRIVY/. summary/sdl/CT247-Trivy/
+
+      - name: SWLC artifacts
+        run: |
+          mkdir -p summary/swlc/ip_leaks
+
+          cp -r artifacts/$IPLEAKS/. summary/swlc/ip_leaks/
+
+      - name: Quality artifacts
+        if: >
+          !cancelled()
+        run: |
+          mkdir -p summary/quality/acceptance/Ubuntu22.04/gen9.5
+          mkdir -p summary/quality/acceptance/Ubuntu22.04/gen12.5
+          mkdir -p summary/quality/acceptance/Win11/gen9.5
+          mkdir -p summary/quality/acceptance/Win11/gen12.5
+          mkdir -p summary/quality/acceptance/Ubuntu20.04/gen12.5
+          mkdir -p summary/quality/acceptance/SLES15.3/gen12.5
+          mkdir -p summary/quality/acceptance/RHEL8.5/gen12.5
+          mkdir -p summary/quality/unit
+
+          cp artifacts/$UTEST_L/*/Test.xml \
+             summary/quality/unit/linux.xml
+          cp artifacts/$UTEST_W/*/Test.xml \
+             summary/quality/unit/windows.xml
+          cp -r artifacts/$U2204_GEN95/. \
+             summary/quality/acceptance/Ubuntu22.04/gen9.5/
+          cp -r artifacts/$U2204/. \
+            summary/quality/acceptance/Ubuntu22.04/gen12.5/
+          cp -r artifacts/$WIN11_GEN95/. \
+             summary/quality/acceptance/Win11/gen9.5/
+          cp -r artifacts/$WIN11/. \
+             summary/quality/acceptance/Win11/gen12.5/
+          cp -r artifacts/$U2004/. \
+             summary/quality/acceptance/Ubuntu20.04/gen12.5/
+          cp -r artifacts/$SLES153/. \
+             summary/quality/acceptance/SLES15.3/gen12.5/
+          cp -r artifacts/$RHEL85/. \
+             summary/quality/acceptance/RHEL8.5/gen12.5/
+
+      - name: Upload Summary
+        if: success() || failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: source-code-release-summary
+          path: summary/*
+
+      - name: Cleanup workspace
+        run: sudo rm -rf ..?* .[!.]* *

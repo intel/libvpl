@@ -1,0 +1,49 @@
+# ==============================================================================
+# Copyright (C) Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+# ==============================================================================
+
+ARG DOCKER_REGISTRY
+
+FROM ${DOCKER_REGISTRY}maven:3-jdk-11 AS coverity_install
+
+SHELL ["/bin/bash", "-xo", "pipefail", "-c"]
+
+ARG COV_ANALYSIS_LINUX_URL
+ARG COV_REPORTS_LINUX_URL
+ARG COV_LICENSE_URL
+
+RUN mkdir /opt/coverity \
+&&  curl --silent --show-error -o /tmp/cov-analysis-linux64.sh \
+      -k ${COV_ANALYSIS_LINUX_URL} \
+&&  curl --silent --show-error -o /tmp/cov-reports-linux64.sh \
+      -k ${COV_REPORTS_LINUX_URL} \
+&&  curl --silent --show-error -o /opt/coverity/license.dat \
+      -k ${COV_LICENSE_URL} \
+&&  chmod 777 /tmp/*.sh \
+&&  /tmp/cov-reports-linux64.sh -q \
+      --installation.dir=/opt/coverity/reports/ \
+&&  /tmp/cov-analysis-linux64.sh -q \
+      --installation.dir=/opt/coverity/analysis/ \
+      --license.agreement=agree \
+      --license.region=0 \
+      --license.type.choice=0 \
+      --license.cov.path=/opt/coverity/license.dat \
+      --component.sdk=false \
+      --component.skip.documentation=true
+
+ARG DOCKER_REGISTRY
+
+FROM ${DOCKER_REGISTRY}vpl_build:ubuntu
+
+WORKDIR /setup
+COPY packages.txt packages.txt
+
+ARG DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update \
+ && xargs -a packages.txt apt-get install -y --no-install-recommends \
+ && rm -rf /var/lib/apt/lists/*
+ENV PATH="/opt/coverity/analysis/bin:/opt/coverity/reports/bin:${PATH}"
+COPY --from=coverity_install /opt/coverity /opt/coverity

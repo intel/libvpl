@@ -1,0 +1,175 @@
+---
+name: Coverity Scan
+
+on:
+
+  workflow_dispatch:
+    inputs:
+      os:
+        description: 'Operating system'
+        required: false
+        default: 'linux'
+        type: string
+      extra_opts:
+        description: 'Extra Coverity options'
+        required: false
+        default: ''
+        type: string
+
+  workflow_call:
+    inputs:
+      os:
+        description: 'Operating system'
+        required: false
+        default: 'linux'
+        type: string
+      extra_opts:
+        description: 'Extra Coverity options'
+        required: false
+        default: ''
+        type: string
+
+
+jobs:
+  scan:
+    runs-on:
+      - self-hosted
+      - "${{ inputs.os }}"
+      - "${{ inputs.os == 'Windows' && 'Coverity' || 'docker' }}"
+
+    steps:
+
+      - name: Cleanup workspace (Linux)
+        if: always() && runner.os == 'Linux'
+        run: sudo rm -rf ..?* .[!.]* *
+
+      - name: Cleanup workspace (Windows)
+        if: always() && runner.os == 'Windows'
+        run: Remove-Item -Recurse -Force .\*
+
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          path: source
+
+      - name: Install dependencies (Windows)
+        if: always() && runner.os == 'Windows'
+        shell: cmd
+        run: |
+          echo on
+
+          call source\script\bootstrap.bat
+          if %errorlevel% neq 0 exit /b %errorlevel%
+
+      - name: Build vpl_build:ubuntu Docker image (Linux)
+        if: success() && runner.os == 'Linux'
+        run: |
+          docker build "source/script" \
+          -f "source/script/Dockerfile.ubuntu.build" \
+          -t vpl_build:ubuntu
+
+      - name: Build Docker image (Linux)
+        if: success() && runner.os == 'Linux'
+        run: |
+          docker build "source/.github/workflows/coverity" \
+          -f "source/.github/workflows/coverity/Dockerfile.ubuntu.coverity" \
+          -t vpl_coverity:ubuntu \
+          --build-arg \
+          "COV_ANALYSIS_LINUX_URL=${{ vars.COV_ANALYSIS_LINUX_URL }}" \
+          --build-arg \
+          "COV_REPORTS_LINUX_URL=${{ vars.COV_REPORTS_LINUX_URL }}" \
+          --build-arg "COV_LICENSE_URL=${{ vars.COV_LICENSE_URL }}"
+
+
+      - name: Run Scan (Linux)
+        if: success() && runner.os == 'Linux'
+        run: |
+          cat > action.sh <<EOL
+          #!/bin/bash
+          set -o errexit ; set -o nounset
+          set -x
+          pushd source
+          export VERBOSE=1
+          cmake -B _build \
+            -DBUILD_TESTS=OFF \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_TOOLS=ON \
+            -DCMAKE_INSTALL_LIBDIR=lib \
+            -DENABLE_VA=ON \
+            -DENABLE_DRM=ON \
+            -DENABLE_WAYLAND=ON \
+            -DENABLE_X11=ON \
+            -DENABLE_DRI3=ON
+          mkdir _reports
+          REPORT_DIR="\$(realpath _reports)"
+          BUILD_DIR="\$(realpath _build)"
+          STRIP_DIR="\$(realpath .)"
+          script/coverity-scan \
+            --url "${{ vars.COVERITY_HOST}}" \
+            --user "${{ vars.AD_USR }}" \
+            --password "${{ secrets.AD_PW }}" \
+            --email "${{ vars.AD_USR_EMAIL }}" \
+            --stream "${{ vars.COVERITY_STREAM }}" \
+            --project "${{ vars.COVERITY_PROJECT }}" \
+            --project-name "oneVPL" \
+            --dir "int_dir" \
+            --report-dir "\${REPORT_DIR}" \
+            --strip-path "\${STRIP_DIR}" \
+            --code-version "${{ github.sha }}" \
+            --bu "AXG" \
+            --description "${{ github.ref_name }}" \
+            ${{ inputs.COVERITY_OPTS}} \
+            cmake --build "\${BUILD_DIR}" --parallel $(nproc) --verbose
+          EOL
+          chmod +x action.sh
+
+          docker run --rm -v $PWD:/working -w /working \
+            vpl_coverity:ubuntu ./action.sh
+
+      - name: Run Scan (Windows)
+        if: success() && runner.os == 'Windows'
+        run: |
+          pushd source
+          cmake -B _build
+          if($LASTEXITCODE -ne 0)
+          {
+              Exit $LASTEXITCODE
+          }
+          mkdir _reports
+          & script\coverity-scan.bat `
+            --url "${{ vars.COVERITY_HOST }}" `
+            --user "${{ vars.AD_USR }}" `
+            --password "${{ secrets.AD_PW }}" `
+            --email "${{ vars.AD_USR_EMAIL }}" `
+            --stream "${{ vars.COVERITY_STREAM }}" `
+            --project "${{ vars.COVERITY_PROJECT }}" `
+            --project-name "oneVPL" `
+            --dir "int_dir" `
+            --report-dir "_reports" `
+            --strip-path "." `
+            --code-version "${{ github.sha }}" `
+            --bu "AXG" `
+            --description "${{ github.ref_name }}" `
+            ${{ inputs.COVERITY_OPTS}} `
+            cmake --build _build --parallel %NUMBER_OF_PROCESSORS% `
+                  --verbose --config Release
+          if($LASTEXITCODE -ne 0)
+          {
+            Exit $LASTEXITCODE
+          }
+          popd
+
+      - name: Record Artifacts
+        uses: actions/upload-artifact@v4
+        if: success() || failure()
+        with:
+          name: ${{ inputs.os }}-coverity-scan
+          path: source/_reports/*
+
+      - name: Cleanup workspace (Linux)
+        if: always() && runner.os == 'Linux'
+        run: sudo rm -rf ..?* .[!.]* *
+
+      - name: Cleanup workspace (Windows)
+        if: always() && runner.os == 'Windows'
+        run: Remove-Item -Recurse -Force .\*

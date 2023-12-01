@@ -1,0 +1,68 @@
+---
+name: Vulnerability scan
+
+on:
+  workflow_call:
+
+jobs:
+  scan:
+    runs-on: [self-hosted, linux]
+    steps:
+
+      - name: Cleanup workspace
+        run: sudo rm -rf ..?* .[!.]* *
+
+      - name: Checkout scripts and dispositions
+        uses: actions/checkout@v4
+        with:
+          path: source
+
+      - name: Download artifacts to scan
+        uses: actions/download-artifact@v4
+        with:
+          path: bdba
+          pattern: "*-release-build"
+          merge-multiple: true
+
+      - name: Create archive to scan
+        run: |
+          # cp infrastructure/config/.bdba.yaml bdba/
+          pushd bdba
+          zip --symlinks -r ../vpl-release.zip .
+          popd
+
+      - name: Build Docker image
+        run: >
+          docker build "source/.github/workflows/bdba"
+          -f "source/.github/workflows/bdba/Dockerfile.ubuntu.bdba"
+          -t vpl_bdba:ubuntu
+
+      - name: Scan package
+        run: |
+          cat >scan.sh <<EOL
+          #!/bin/bash
+          set -o errexit ; set -o nounset
+          python3 source/.github/workflows/bdba/bdba.py \
+          -u ${{ vars.AD_USR }} -p ${{ secrets.AD_PW }} \
+          -g 32 -r results.pdf \
+          -c components.csv \
+          -v vulns.csv \
+          -V ${{ github.ref_name }} *.zip >results.json
+
+          EOL
+          chmod a+x scan.sh
+          docker run --rm -v $(pwd):/tmp/work -w /tmp/work  \
+          vpl_bdba:ubuntu ./scan.sh
+
+      - name: Upload scan results
+        uses: actions/upload-artifact@v4
+        if: success() || failure()
+        with:
+          name: all-bdba-scan
+          path: |
+            *.csv
+            *.json
+            *.pdf
+
+      - name: Cleanup workspace
+        run: sudo rm -rf ..?* .[!.]* *

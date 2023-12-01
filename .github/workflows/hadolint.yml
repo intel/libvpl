@@ -1,6 +1,7 @@
+---
 name: Hadolint
-run-name: Hadolint (Triggered by ${{ github.event_name }} by @${{ github.actor }})
-on: 
+
+on:
   workflow_call:
 
 jobs:
@@ -10,8 +11,8 @@ jobs:
       - name: Cleanup workspace
         run: sudo rm -rf ..?* .[!.]* *
 
-      - name: Checkout dispatcher source
-        uses: actions/checkout@v3
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
         with:
           path: source
 
@@ -24,7 +25,7 @@ jobs:
           echo "Hadolint Report" > artifact/hadolint.txt
           walk_dir () {
             shopt -s nullglob dotglob
-       
+
             for pathname in "$1"/*; do
               retVal=0
               if [ -d "$pathname" ]; then
@@ -67,12 +68,11 @@ jobs:
           cat artifact/hadolint.txt
 
       - name: Record Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: (success() || failure())
         with:
-          name: hadolint
+          name: all-hadolint
           path: artifact/*
-  
+
       - name: Cleanup workspace
-        if: always() && runner.os == 'Linux'
         run: sudo rm -rf ..?* .[!.]* *

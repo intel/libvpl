@@ -1,0 +1,239 @@
+---
+name: Acceptance
+
+on:
+
+  workflow_dispatch:
+    inputs:
+      os:
+        description: 'Operating system'
+        required: false
+        default: 'Linux'
+        type: string
+      build_type:
+        description: 'Build type (Release, Debug, RelWithDebInfo, etc.)'
+        required: false
+        default: 'Release'
+        type: string
+      ref:
+        description: 'The branch, tag or SHA of build'
+        required: false
+        default: ''
+        type: string
+      test_ref:
+        description: 'The branch, tag or SHA of tests'
+        required: false
+        default: ''
+        type: string
+      artifact_name:
+        description: 'Artifact name'
+        required: false
+        type: string
+      gpu:
+        description: 'GPU Family'
+        required: false
+        default: 'gen12.5'
+        type: string
+      distro_family:
+        description: 'OS distro family'
+        required: false
+        type: string
+      distro_version:
+        description: 'OS distro version'
+        required: false
+        type: string
+
+
+  workflow_call:
+    inputs:
+      os:
+        description: 'Operating system'
+        required: false
+        default: 'Linux'
+        type: string
+      build_type:
+        description: 'Build type (Release, Debug, RelWithDebInfo, etc.)'
+        required: false
+        default: 'Release'
+        type: string
+      ref:
+        description: 'The branch, tag or SHA of tests'
+        required: false
+        default: ''
+        type: string
+      test_ref:
+        description: 'The branch, tag or SHA of tests'
+        required: false
+        default: ''
+        type: string
+      artifact_name:
+        description: 'Artifact name'
+        required: false
+        type: string
+      gpu:
+        description: 'GPU Family'
+        required: false
+        default: 'gen12.5'
+        type: string
+      distro_family:
+        description: 'OS distro family'
+        required: false
+        type: string
+      distro_version:
+        description: 'OS distro version'
+        required: false
+        type: string
+
+env:
+  DISTRO_FAMILY: ${{ inputs.distro_family || 'windows' }}
+  DISTRO_VERSION: ${{ inputs.distro_version || '11' }}
+
+jobs:
+  build:
+    if: ${{ ! inputs.artifact_name }}
+    uses: ./.github/workflows/cmake.yml
+    with:
+      os: ${{ inputs.os || 'Linux' }}
+      build_type: ${{ inputs.build_type || 'Release' }}
+      ref: ${{ inputs.ref || '' }}
+      artifact_name: >
+        ${{ inputs.artifact_name
+        || format('{0}-{1}-build',
+        inputs.os || 'Linux',
+        inputs.build_type || 'Release') }}
+      run_tests: false
+
+  acceptance:
+    needs: [build]
+    if: always()  # always run, but waits until needed jobs are completed
+    runs-on:
+      - "self-hosted"
+      - "${{ inputs.os || 'Linux' }}"
+      - "${{ inputs.gpu || 'gen12.5' }}"
+    steps:
+
+      - name: Cleanup workspace (Linux)
+        if: always() && runner.os == 'Linux'
+        run: sudo rm -rf ..?* .[!.]* *
+
+      - name: Cleanup workspace (Windows)
+        if: always() && runner.os == 'Windows'
+        run: Remove-Item -Recurse -Force .\*
+
+      - name: Checkout tests
+        uses: actions/checkout@v4
+        with:
+          path: tests
+          ref: ${{ inputs.test_ref || 'main' }}
+          repository: ${{ vars.TEST_REPO }}
+          token: ${{ secrets.TEST_REPO_TOKEN }}
+
+      - name: Checkout PR branch
+        if: ${{ ! inputs.artifact_name }}
+        uses: actions/checkout@v4
+        with:
+          path: source
+          ref: ${{ inputs.ref || '' }}
+
+      - name: Download package
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.artifact_name
+            || format('{0}-{1}-build',
+            inputs.os || 'Linux',
+            inputs.build_type || 'Release') }}
+          path: package
+
+      - name: Extract package (Linux)
+        if: success() && runner.os == 'Linux'
+        run: unzip package/*.zip -d _install
+
+      - name: Extract package (Windows)
+        if: success() && runner.os == 'Windows'
+        run: Expand-Archive -Force -Path package\*.zip -DestinationPath _install
+
+      - name: Build Docker image for GPU testing (Linux)
+        if: success() && runner.os == 'Linux'
+        run: |
+          cd tests/environments
+          DISTRO=${{ env.DISTRO_FAMILY }}${{ env.DISTRO_VERSION }}
+          docker build . -f Dockerfile.$DISTRO.gputest -t vpl_gputestenv:$DISTRO
+
+      - name: Test package (Linux)
+        if: success() && runner.os == 'Linux'
+        run: |
+          cat >test.sh <<EOL
+          #!/bin/bash
+          set -o errexit
+          if [[ "\$DASHBOARD_PLATFORM_SW_OPENVINO_INSTALLED" == 1 ]]; then
+          . /opt/intel/openvino/setupvars.sh
+          fi
+          set -o nounset
+          . _install/etc/vpl/vars.sh
+          DASHBOARD_INSTALL_ONEVPLCPU_LICENSE=
+          export DASHBOARD_INSTALL_ONEVPLCPU_LICENSE
+          DASHBOARD_INSTALL_ONEVPL32=0
+          export DASHBOARD_INSTALL_ONEVPL32
+          DASHBOARD_INSTALL_ONEVPLDEBUG=${{ inputs.build_type == 'Debug' && 1 || 0 }}
+          export DASHBOARD_INSTALL_ONEVPLDEBUG
+          DASHBOARD_PLATFORM_HW_INTEGRATED_GPU="${{ inputs.gpu || 'gen12.5' }}"
+          export DASHBOARD_PLATFORM_HW_INTEGRATED_GPU
+          DASHBOARD_PLATFORM_OS_FAMILY=$DISTRO_FAMILY
+          export DASHBOARD_PLATFORM_OS_FAMILY
+          DASHBOARD_PLATFORM_OS_VERSION=$DISTRO_VERSION
+          export DASHBOARD_PLATFORM_OS_VERSION
+          pushd tests
+          ./run.sh gen
+
+          EOL
+          chmod a+x test.sh
+
+          cat ./test.sh
+
+          DISTRO=${{ env.DISTRO_FAMILY }}${{ env.DISTRO_VERSION }}
+          docker run --rm \
+            -v $(pwd):/tmp/work \
+            -w /tmp/work --privileged vpl_gputestenv:$DISTRO ./test.sh
+
+      - name: Test package (Windows)
+        if: success() && runner.os == 'Windows'
+        shell: cmd
+        run: |
+          echo on
+          set DASHBOARD_INSTALL_ONEVPLCPU_LICENSE=
+          set DASHBOARD_INSTALL_ONEVPL32=0
+          set DASHBOARD_INSTALL_ONEVPLDEBUG=${{ inputs.build_type == 'Debug' && 1 || 0 }}
+          set DASHBOARD_PLATFORM_HW_CPU_MICROARCHITECTURE=
+          set DASHBOARD_PLATFORM_HW_INTEGRATED_GPU=${{ inputs.gpu || 'gen12.5' }}
+          set DASHBOARD_PLATFORM_OS_FAMILY=${{ env.DISTRO_FAMILY }}
+          set DASHBOARD_PLATFORM_OS_VERSION=${{ env.DISTRO_VERSION }}
+          set DASHBOARD_PLATFORM_SW_CMAKE_INSTALLED=1
+          set DASHBOARD_PLATFORM_SW_VISUAL_STUDIO_INSTALLED=1
+
+          call _install\etc\vpl\vars.bat
+          if %errorlevel% neq 0 exit /b %errorlevel%
+
+          cd tests
+          run.bat gen
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: success() || failure()
+        with:
+          name: >
+             ${{ format('{0}{1}-{2}-{3}-acceptance',
+             env.DISTRO_FAMILY,
+             env.DISTRO_VERSION,
+             inputs.build_type || 'Release',
+             inputs.gpu || 'gen12.5'
+             )
+             }}
+          path: tests/logs/*
+
+      - name: Cleanup workspace (Linux)
+        if: always() && runner.os == 'Linux'
+        run: sudo rm -rf ..?* .[!.]* *
+
+      - name: Cleanup workspace (Windows)
+        if: always() && runner.os == 'Windows'
+        run: Remove-Item -Recurse -Force .\*

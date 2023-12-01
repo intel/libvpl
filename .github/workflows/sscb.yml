@@ -1,0 +1,132 @@
+---
+name: Security Scan for Compiled Binaries
+
+on:
+  workflow_call:
+    inputs:
+      os:
+        description: 'Operating system'
+        required: true
+        type: string
+      artifact_name:
+        description: 'Artifact to scan'
+        required: true
+        type: string
+
+jobs:
+  scan:
+    runs-on: [self-hosted, "${{ inputs.os }}"]
+    steps:
+
+      - name: Cleanup workspace (Linux)
+        if: always() && runner.os == 'Linux'
+        run: sudo rm -rf ..?* .[!.]* *
+
+      - name: Cleanup workspace (Windows)
+        if: always() && runner.os == 'Windows'
+        run: Remove-Item -Recurse -Force .\*
+
+      - name: Download package
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.artifact_name }}
+          path: package
+
+      - name: Extract package (Linux)
+        if: success() && runner.os == 'Linux'
+        run: unzip package/*.zip -d _install
+
+      - name: Extract package (Windows)
+        if: success() && runner.os == 'Windows'
+        run: Expand-Archive -Force -Path package\*.zip -DestinationPath _install
+
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          path: source
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Build Docker image (Linux)
+        if: success() && runner.os == 'Linux'
+        run: >
+          docker build "source/.github/workflows/sscb"
+          -f "source/.github/workflows/sscb/Dockerfile.ubuntu.sscb"
+          -t vpl_sscb:ubuntu
+          --build-arg "SSCB_TOOL_URL=${{ vars.COMPILER_SETTINGS_TOOL_URL }}"
+
+      - name: Run SSCB Scan (Linux)
+        if: success() && runner.os == 'Linux'
+        run: |
+          cat >action.sh <<EOL
+          #!/bin/bash
+          set -x
+          set -o errexit ; set -o nounset
+          sscb run --path _install --outpath _logs --report_name Linux
+          EOL
+          chmod +x action.sh
+
+          docker run --rm -v $PWD:/work -w /work vpl_sscb:ubuntu \
+                 /work/action.sh
+
+      - name: Run SSCB Scan (Windows)
+        if: success() && runner.os == 'Windows'
+        run: |
+          py -m venv venv
+          venv\Scripts\activate
+          py -m pip install --upgrade pip
+          py -m pip install ${{ vars.COMPILER_SETTINGS_TOOL_URL }} --use-pep517
+          sscb run --path "_install" --outpath "_logs" --report_name Windows
+
+      - name: Filter dispositioned issues (Linux)
+        if: success() && runner.os == 'Linux'
+        run: |
+          output=$(python3 source/.github/workflows/sscb/tool.py \
+                           _logs/SSCB_SCAN_results-Linux.json \
+                           source/.github/workflows/sscb/config.yaml)
+          echo "$output"
+          if [[ "$output" == "Fail" ]]; then
+            echo "Failure detected."
+          exit 1
+          else
+            echo "No failure detected."
+          fi
+
+      - name: Filter dispositioned issue (Windows)
+        if: success() && runner.os == 'Windows'
+        run: |
+          py -m pip install pyyaml
+          $output = py source\.github\workflows\sscb\tool.py `
+                       _logs\SSCB_SCAN_results-Windows.json `
+                       source\.github\workflows\sscb\config.yaml
+          Write-Output $output
+          if ($output -like '*Status: Fail*') {
+            Write-Output "Failure detected."
+            exit 1
+          } else {
+            Write-Output "No failure detected."
+          }
+
+      - name: Copy config.yaml to _logs (Linux)
+        if: success() && runner.os == 'Linux'
+        run: |
+          sudo cp source/.github/workflows/sscb/config.yaml _logs/
+
+      - name: Copy config.yaml to _logs (Windows)
+        if: success() && runner.os == 'Windows'
+        run: |
+          cp source\.github\workflows\sscb\config.yaml _logs\
+
+      - name: Record Artifacts
+        uses: actions/upload-artifact@v4
+        if: success() || failure()
+        with:
+          name: ${{ inputs.OS }}-sscb
+          path: _logs/*
+
+      - name: Cleanup workspace (Linux)
+        if: always() && runner.os == 'Linux'
+        run: sudo rm -rf ..?* .[!.]* *
+
+      - name: Cleanup workspace (Windows)
+        if: always() && runner.os == 'Windows'
+        run: Remove-Item -Recurse -Force .\*

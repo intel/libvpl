@@ -1,0 +1,81 @@
+---
+name: Diff report
+
+on:
+  workflow_call:
+    inputs:
+      report_name:
+        description: 'name of artifact to store the diff'
+        required: true
+        type: string
+      left:
+        description: 'name of artifact for left side of compare'
+        required: true
+        type: string
+      right:
+        description: 'name of artifact for right side of compare'
+        required: true
+        type: string
+
+jobs:
+  report:
+    runs-on: [self-hosted, linux]
+    steps:
+
+      - name: Cleanup workspace
+        run: sudo rm -rf ..?* .[!.]* *
+
+      - name: Download left artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.left }}
+          path: left
+
+      - name: Extract package
+        run: unzip left/*.zip -d ${{ inputs.left }}
+
+      - name: Download right artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.right }}
+          path: right
+
+      - name: Extract package
+        run: unzip right/*.zip -d ${{ inputs.right }}
+
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          path: source
+
+      - name: Run Diff
+        run: |
+          mkdir report
+          python3 source/.github/workflows/diff/bom_diff.py \
+            "${{ inputs.left }}" \
+            "${{ inputs.right }}" \
+            --mode All \
+            --title "Bom Report (Full)" \
+            --output report/FULL_BOM.html
+          python3 source/.github/workflows/diff/bom_diff.py \
+            "${{ inputs.left }}" \
+            "${{ inputs.right }}" \
+            --mode Diff \
+            --title "Bom Report (Diff)" \
+            --output report/DIFF_BOM.html
+          python3 source/.github/workflows/diff/bom_diff.py \
+            "${{ inputs.left }}" \
+            "${{ inputs.right }}" \
+            --mode Orphan \
+            --title "Bom Report (Orphan)" \
+            --output report/ORPHAN_BOM.html
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        if: (success() || failure()) && inputs.report_name
+        with:
+          name: ${{ inputs.report_name }}
+          path: ./report/
+
+      - name: Cleanup workspace
+        run: sudo rm -rf ..?* .[!.]* *

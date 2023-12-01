@@ -1,0 +1,239 @@
+---
+name: CMake
+
+on:
+
+  workflow_dispatch:
+    inputs:
+      os:
+        description: 'Operating system'
+        required: false
+        default: 'Linux'
+        type: string
+      build_type:
+        description: 'Build type (Release, Debug, RelWithDebInfo, etc.)'
+        required: false
+        default: 'Release'
+        type: string
+      ref:
+        description: 'The branch, tag or SHA to build'
+        required: false
+        default: ''
+        type: string
+      artifact_name:
+        description: 'Artifact name'
+        required: false
+        type: string
+      run_tests:
+        description: 'Run Tests'
+        required: false
+        default: false
+        type: boolean
+      no_artifacts:
+        description: 'Do not upload artifacts'
+        required: false
+        default: false
+        type: boolean
+      configure_options:
+        description: 'Extra options for CMake configure stage'
+        required: false
+        default: ''
+        type: string
+
+  workflow_call:
+    inputs:
+      os:
+        description: 'Operating system'
+        required: false
+        default: 'Linux'
+        type: string
+      build_type:
+        description: 'Build type (Release, Debug, RelWithDebInfo, etc.)'
+        required: false
+        default: 'Release'
+        type: string
+      ref:
+        description: 'The branch, tag or SHA to build'
+        required: false
+        default: ''
+        type: string
+      artifact_name:
+        description: 'Artifact name'
+        required: false
+        type: string
+      run_tests:
+        description: 'Run Tests'
+        required: false
+        default: false
+        type: boolean
+      no_artifacts:
+        description: 'Do not upload artifacts'
+        required: false
+        default: false
+        type: boolean
+      configure_options:
+        description: 'Extra options for CMake configure stage'
+        required: false
+        default: ''
+        type: string
+
+jobs:
+  cmake:
+    name: CMake ${{ inputs.os }} ${{ inputs.build_type }}
+    runs-on: [self-hosted, "${{ inputs.os || 'Linux' }}"]
+    steps:
+
+      - name: Cleanup workspace (Linux)
+        if: always() && runner.os == 'Linux'
+        run: sudo rm -rf ..?* .[!.]* *
+
+      - name: Cleanup workspace (Windows)
+        if: always() && runner.os == 'Windows'
+        run: Remove-Item -Recurse -Force .\*
+
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          path: source
+          ref: ${{ inputs.ref || '' }}
+
+      - name: Install dependencies (Linux)
+        if: always() && runner.os == 'Linux'
+        run: >
+          docker build "source/script"
+          -f "source/script/Dockerfile.centos7.build"
+          -t vpl_build:centos
+
+      - name: Install dependencies (Windows)
+        if: always() && runner.os == 'Windows'
+        shell: cmd
+        run: |
+          echo on
+
+          call source\script\bootstrap.bat
+          if %errorlevel% neq 0 exit /b %errorlevel%
+
+      - name: Configure (Linux)
+        if: always() && runner.os == 'Linux'
+        run: |
+          cat <<'EOL' > configure.sh
+          #!/bin/bash
+          set -o errexit
+          cmake -B "source/_build" -S "source" \
+          -DBUILD_TESTS=${{ inputs.run_tests && 'ON' || 'OFF' }} \
+          -DCMAKE_BUILD_TYPE=${{ inputs.build_type || 'Release' }} \
+          -DBUILD_TOOLS=ON \
+          -DCMAKE_INSTALL_LIBDIR=lib \
+          -DENABLE_WARNING_AS_ERROR=ON \
+          ${{ inputs.configure_options }}
+          EOL
+          chmod +x configure.sh
+
+          docker run --rm -v $(pwd):/tmp -w /tmp vpl_build:centos ./configure.sh
+
+      - name: Configure (Windows)
+        if: always() && runner.os == 'Windows'
+        shell: cmd
+        run: |
+          echo on
+
+          cmake -B "source\_build" ^
+          -S "source" ^
+          -DBUILD_TESTS=${{ inputs.run_tests && 'ON' || 'OFF' }} ^
+          -DBUILD_TOOLS=ON ^
+          -DENABLE_WARNING_AS_ERROR=ON ^
+          ${{ inputs.configure_options }}
+          if %errorlevel% neq 0 exit /b %errorlevel%
+
+      - name: Build (Linux)
+        if: always() && runner.os == 'Linux'
+        run: |
+          cat <<'EOL' > build.sh
+          #!/bin/bash
+          set -o errexit
+          cmake --build "source/_build" --verbose --parallel $(nproc)
+          pushd "source/_build"
+          cpack .
+          popd
+          EOL
+          chmod +x build.sh
+
+          docker run --rm -v $(pwd):/tmp -w /tmp vpl_build:centos ./build.sh
+
+      - name: Build (Windows)
+        if: always() && runner.os == 'Windows'
+        shell: cmd
+        run: |
+          echo on
+
+          cmake --build "source\_build" ^
+          --config ${{ inputs.build_type || 'Release' }} ^
+          --verbose ^
+          --parallel %NUMBER_OF_PROCESSORS%
+
+          if %errorlevel% neq 0 exit /b %errorlevel%
+
+          cmake --build "source\_build" ^
+          --config ${{ inputs.build_type || 'Release' }} ^
+          --target package
+
+          if %errorlevel% neq 0 exit /b %errorlevel%
+
+
+      - name: Upload build
+        uses: actions/upload-artifact@v4
+        if: (success() || failure()) && ! inputs.no_artifacts
+        with:
+          name: >
+            ${{ inputs.artifact_name
+            || format('{0}-{1}-build',
+            inputs.os || 'Linux',
+            inputs.build_type || 'Release') }}
+          # path: source/_build/*.zip
+          path: source/_build/*-all.zip
+
+      - name: Test (Linux)
+        if: always() && runner.os == 'Linux' && inputs.run_tests
+        run: |
+          cat <<'EOL' > test.sh
+          #!/bin/bash
+          set -o errexit
+          ctest --test-dir "source/_build" \
+          -C ${{ inputs.build_type || 'Release' }} \
+          --output-on-failure \
+          -T test
+          EOL
+          chmod +x test.sh
+          docker run --rm -v $(pwd):/tmp -w /tmp vpl_build:centos ./test.sh
+
+      - name: Test (Windows)
+        if: always() && runner.os == 'Windows' && inputs.run_tests
+        shell: cmd
+        run: |
+          echo on
+
+          ctest --test-dir "source\_build" ^
+          -C ${{ inputs.build_type || 'Release' }} ^
+          --output-on-failure ^
+          -T test
+
+          if %errorlevel% neq 0 exit /b %errorlevel%
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: >
+          (success() || failure()) && inputs.run_tests && ! inputs.no_artifacts
+        with:
+          name: >
+            ${{ format('{0}-{1}-utests',
+            inputs.os || 'Linux',
+            inputs.build_type || 'Release') }}
+          path: source/_build/Testing/*/Test.xml
+
+      - name: Cleanup workspace (Linux)
+        if: always() && runner.os == 'Linux'
+        run: sudo rm -rf ..?* .[!.]* *
+
+      - name: Cleanup workspace (Windows)
+        if: always() && runner.os == 'Windows'
+        run: Remove-Item -Recurse -Force .\*

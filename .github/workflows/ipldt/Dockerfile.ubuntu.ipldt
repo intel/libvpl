@@ -1,0 +1,28 @@
+# ==============================================================================
+# Copyright (C) Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+# ==============================================================================
+
+ARG DOCKER_REGISTRY
+
+FROM ${DOCKER_REGISTRY}ubuntu:22.04
+
+WORKDIR /setup
+COPY packages.txt packages.txt
+
+ARG DEBIAN_FRONTEND=noninteractive
+ARG IPLDB_TOOL_URL
+
+RUN apt-get update \
+ && xargs -a packages.txt apt-get install -y --no-install-recommends \
+ && rm -rf /var/lib/apt/lists/* \
+ && mkdir -p /tmp \
+ && mkdir -p /opt \
+ && curl -s -o /tmp/ipldt3_lin_intel64.tgz -k "${IPLDB_TOOL_URL}" \
+ && tar -xzvf /tmp/ipldt3_lin_intel64.tgz -C /opt \
+ && ls /opt \
+ && ls /opt/ipldt3_lin_intel64 \
+ && rm -rf /tmp/ipldt3_lin_intel64.tgz
+
+

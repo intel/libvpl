@@ -1,0 +1,53 @@
+---
+name: Lint
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: [self-hosted, linux, docker]
+    steps:
+
+      - name: Cleanup workspace
+        run: sudo rm -rf ..?* .[!.]* *
+
+      - name: Checkout PR branch and all history
+        uses: actions/checkout@v4
+        with:
+          path: source
+          fetch-depth: 0
+
+      - name: Build Docker image
+        run: >
+          docker build "source/.github/workflows/lint"
+          -f "source/.github/workflows/lint/Dockerfile.ubuntu.lint"
+          -t vpl_lint:ubuntu
+
+      - name: Lint source in container
+        run: |
+          cat <<'EOL' > lint.sh
+          #!/bin/bash
+          set -x
+          set -o pipefail
+          source/script/test lint | tee lint.log
+          ret=$?
+          set +o pipefail
+          exit $ret
+          EOL
+          chmod +x lint.sh
+
+          docker run --rm -v $(pwd):/tmp/work -w /tmp/work \
+          vpl_lint:ubuntu ./lint.sh
+
+      - name: Report
+        if: success() || failure()
+        run: |
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            cat lint.log >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Cleanup workspace
+        run: sudo rm -rf ..?* .[!.]* *

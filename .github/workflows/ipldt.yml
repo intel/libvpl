@@ -1,0 +1,96 @@
+---
+name: IP Leak Scan
+
+on:
+
+  workflow_dispatch:
+    # allow direct call to support testing updates to disposition DB
+    inputs:
+      db_ref:
+        description: 'The branch, tag or SHA to get DB from'
+        default: ipldt
+        type: string
+
+  workflow_call:
+    inputs:
+      db_ref:
+        description: 'The branch, tag or SHA to get DB from'
+        required: false
+        type: string
+
+jobs:
+  scan:
+    runs-on: [self-hosted, Linux, docker]
+    steps:
+
+      - name: Cleanup workspace
+        run: sudo rm -rf ..?* .[!.]* *
+
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          path: source
+
+      - name: Build Docker image
+        run: >
+          docker build "source/.github/workflows/ipldt"
+          -f "source/.github/workflows/ipldt/Dockerfile.ubuntu.ipldt"
+          -t vpl_ipldt:ubuntu
+          --build-arg "IPLDB_TOOL_URL=${{ vars.IPLDB_TOOL_URL }}"
+
+      - name: Checkout Dispositions
+        uses: actions/checkout@v4
+        with:
+          path: db
+          ref: ${{ inputs.db_ref || 'ipldt' }}
+
+      - name: Package Source
+        run: |
+          pushd source
+          git archive HEAD -o ../source.zip
+          popd
+
+      - name: Scan source in container
+        continue-on-error: false
+        run: |
+          cat <<'EOL' > action.sh
+          #!/bin/bash
+          set -x
+          mkdir -p _logs/ip-leak-scan
+          set +o errexit
+          set -o pipefail
+          /opt/ipldt3_lin_intel64/ipldt3_lin_intel64 \
+              -i source.zip \
+              -c 37 \
+              --usedb db/ipldt_results.ip.db \
+              --usedb db/ipldt_results.ipevt.db \
+              --usedb db/ipldt_results.tm.db \
+              --db-rel-path \
+              --gendb _logs/ip-leak-scan/hits-linux.db \
+              --r-overwrite \
+              --r _logs/ip-leak-scan | tee /working/_logs/ipldt.txt
+          ret=$?
+          set +o pipefail
+          exit $ret
+          EOL
+          chmod +x action.sh
+
+          docker run --rm -v $PWD:/working -w /working \
+          vpl_ipldt:ubuntu ./action.sh
+
+      - name: Report
+        if: success() || failure()
+        run: |
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            cat _logs/ip-leak-scan/ipldt_results.txt >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Record Artifacts
+        uses: actions/upload-artifact@v4
+        if: success() || failure()
+        with:
+          name: all-ip-leak-scan
+          path: _logs/ip-leak-scan
+
+      - name: Cleanup workspace
+        run: sudo rm -rf ..?* .[!.]* *
