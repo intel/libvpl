@@ -14,7 +14,7 @@ BEGIN
         BLOCK "040904E4"
         BEGIN
             VALUE "CompanyName",      "Intel\0"
-            VALUE "FileDescription",  "oneVPL Dispatcher\0"
+            VALUE "FileDescription",  "Intel® VPL Dispatcher\0"
             VALUE "FileVersion",      VER_FILEVERSION_STR
             // Copyright year is the first publication date. Subsequent dates are optional
             VALUE "LegalCopyright",   "Copyright (C) 2021 Intel Corporation\0"

@@ -21,7 +21,7 @@ detailed information about the errors and warnings.
    * - **Status**
      - **Description**
    * - :cpp:enumerator:`mfxStatus::MFX_ERR_DEVICE_FAILED`
-     - Hardware device returned unexpected errors. oneVPL was unable to restore operation.
+     - Hardware device returned unexpected errors. |vpl_short_name| was unable to restore operation.
    * - :cpp:enumerator:`mfxStatus::MFX_ERR_DEVICE_LOST`
      - Hardware device was lost due to system lock or shutdown.
    * - :cpp:enumerator:`mfxStatus::MFX_WRN_PARTIAL_ACCELERATION`
@@ -30,15 +30,15 @@ detailed information about the errors and warnings.
      - Hardware device is currently busy.
 
 
-oneVPL **Query**, **QueryIOSurf**, and **Init** functions return
+|vpl_short_name| **Query**, **QueryIOSurf**, and **Init** functions return
 :cpp:enumerator:`mfxStatus::MFX_WRN_PARTIAL_ACCELERATION` to indicate that the encoding,
 decoding, or video processing operation can be partially hardware accelerated or
 not hardware accelerated at all. The application can ignore this warning and
-proceed with the operation. (Note that oneVPL functions may return
+proceed with the operation. (Note that |vpl_short_name| functions may return
 errors or other warnings overwriting
 :cpp:enumerator:`mfxStatus::MFX_WRN_PARTIAL_ACCELERATION`, as it is a lower priority warning.)
 
-oneVPL functions return :cpp:enumerator:`mfxStatus::MFX_WRN_DEVICE_BUSY` to indicate that the
+|vpl_short_name| functions return :cpp:enumerator:`mfxStatus::MFX_WRN_DEVICE_BUSY` to indicate that the
 hardware device is busy and unable to receive commands at this time. The recommended approach is:
 
    * If the asynchronous operation returns synchronization point along with :cpp:enumerator:`mfxStatus::MFX_WRN_DEVICE_BUSY` - call the :cpp:func:`MFXVideoCORE_SyncOperation` with it.
@@ -55,11 +55,11 @@ hardware device is busy and unable to receive commands at this time. The recomme
 
 The same procedure applies to encoding and video processing.
 
-oneVPL functions return :cpp:enumerator:`mfxStatus::MFX_ERR_DEVICE_LOST` or
+|vpl_short_name| functions return :cpp:enumerator:`mfxStatus::MFX_ERR_DEVICE_LOST` or
 :cpp:enumerator:`mfxStatus::MFX_ERR_DEVICE_FAILED` to indicate that there is a complete
 failure in hardware acceleration. The application must close and reinitialize
-the oneVPL function class. If the application has provided a hardware acceleration
-device handle to oneVPL, the application must reset the device.
+the |vpl_short_name| function class. If the application has provided a hardware acceleration
+device handle to |vpl_short_name|, the application must reset the device.
 
 
 

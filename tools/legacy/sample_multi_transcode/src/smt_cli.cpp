@@ -3,7 +3,7 @@
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
-
+// CLI of tool for Intel® Video Processing Library (Intel® VPL)
 #include <regex>
 #include "mfx_samples_config.h"
 #include "plugin_utils.h"
@@ -237,11 +237,11 @@ void PrintHelp() {
     HELP_LINE("");
     HELP_LINE("  -dispatcher:fullSearch");
     HELP_LINE("                enable search for all available implementations in");
-    HELP_LINE("                oneVPL dispatcher");
+    HELP_LINE("                Intel® VPL dispatcher");
     HELP_LINE("");
     HELP_LINE("  -dispatcher:lowLatency");
     HELP_LINE("                enable limited implementation search and query in");
-    HELP_LINE("                oneVPL dispatcher");
+    HELP_LINE("                Intel® VPL dispatcher");
     HELP_LINE("");
     HELP_LINE("  -mfe_frames <N>");
     HELP_LINE("                maximum number of frames to be combined in multi-frame");

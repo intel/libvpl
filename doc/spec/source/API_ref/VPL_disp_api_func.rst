@@ -1,6 +1,8 @@
 .. SPDX-FileCopyrightText: 2019-2020 Intel Corporation
 ..
 .. SPDX-License-Identifier: CC-BY-4.0
+..
+  Intel(r) Video Processing Library (Intel(r) VPL)
 
 .. _disp_api_func:
 
@@ -20,40 +22,40 @@ MFXCreateConfig
 ---------------
 
 .. doxygenfunction:: MFXCreateConfig
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 MFXCreateSession
 ----------------
 
 .. doxygenfunction:: MFXCreateSession
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 MFXDispReleaseImplDescription
 -----------------------------
 
 .. doxygenfunction:: MFXDispReleaseImplDescription
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 MFXEnumImplementations
 ----------------------
 
 .. doxygenfunction:: MFXEnumImplementations
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 MFXLoad
 -------
 
 .. doxygenfunction:: MFXLoad
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 MFXSetConfigFilterProperty
 --------------------------
 
 .. doxygenfunction:: MFXSetConfigFilterProperty
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 MFXUnload
 ---------
 
 .. doxygenfunction:: MFXUnload
-   :project: oneVPL
+   :project: Intel&reg; VPL

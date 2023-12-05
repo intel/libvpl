@@ -1,6 +1,8 @@
 .. SPDX-FileCopyrightText: 2019-2020 Intel Corporation
 ..
 .. SPDX-License-Identifier: CC-BY-4.0
+..
+  Intel(r) Video Processing Library (Intel(r) VPL)
 
 .. _func_video_encode:
 
@@ -27,7 +29,7 @@ MFXVideoENCODE_Query
 --------------------
 
 .. doxygenfunction:: MFXVideoENCODE_Query
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 .. important:: The :cpp:func:`MFXVideoENCODE_Query` function is mandatory when
    implementing an encoder.
@@ -36,13 +38,13 @@ MFXVideoENCODE_QueryIOSurf
 --------------------------
 
 .. doxygenfunction:: MFXVideoENCODE_QueryIOSurf
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 MFXVideoENCODE_Init
 -------------------
 
 .. doxygenfunction:: MFXVideoENCODE_Init
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 .. important:: The :cpp:func:`MFXVideoENCODE_Init` function is mandatory when
                implementing an encoder.
@@ -51,13 +53,13 @@ MFXVideoENCODE_Reset
 --------------------
 
 .. doxygenfunction:: MFXVideoENCODE_Reset
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 MFXVideoENCODE_Close
 --------------------
 
 .. doxygenfunction:: MFXVideoENCODE_Close
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 .. important:: The :cpp:func:`MFXVideoENCODE_Close` function is mandatory when
                implementing an encoder.
@@ -66,19 +68,19 @@ MFXVideoENCODE_GetVideoParam
 ----------------------------
 
 .. doxygenfunction:: MFXVideoENCODE_GetVideoParam
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 MFXVideoENCODE_GetEncodeStat
 ----------------------------
 
 .. doxygenfunction:: MFXVideoENCODE_GetEncodeStat
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 MFXVideoENCODE_EncodeFrameAsync
 -------------------------------
 
 .. doxygenfunction:: MFXVideoENCODE_EncodeFrameAsync
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 .. important:: The :cpp:func:`MFXVideoENCODE_EncodeFrameAsync` function is mandatory when
                implementing an encoder.

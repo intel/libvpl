@@ -1,6 +1,8 @@
 .. SPDX-FileCopyrightText: 2019-2020 Intel Corporation
 ..
 .. SPDX-License-Identifier: CC-BY-4.0
+..
+  Intel(r) Video Processing Library (Intel(r) VPL)
 
 .. _disp_api_enum:
 
@@ -20,16 +22,16 @@ mfxAccelerationMode
 -------------------
 
 .. doxygenenum:: mfxAccelerationMode
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 mfxImplType
 -----------
 
 .. doxygenenum:: mfxImplType
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 mfxAutoSelectImplType
 ---------------------
 
 .. doxygenenum:: mfxAutoSelectImplType
-   :project: oneVPL
+   :project: Intel&reg; VPL

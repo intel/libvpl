@@ -1,6 +1,8 @@
 .. SPDX-FileCopyrightText: 2019-2020 Intel Corporation
 ..
 .. SPDX-License-Identifier: CC-BY-4.0
+..
+  Intel(r) Video Processing Library (Intel(r) VPL)
 
 ==============
 Type Reference
@@ -15,71 +17,71 @@ Basic Types
 -----------
 
 .. doxygentypedef:: mfxChar
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 .. doxygentypedef:: mfxF32
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 .. doxygentypedef:: mfxF64
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 .. doxygentypedef:: mfxHDL
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 .. doxygentypedef:: mfxI8
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 .. doxygentypedef:: mfxI16
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 .. doxygentypedef:: mfxI32
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 .. doxygentypedef:: mfxI64
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 .. doxygentypedef:: mfxL32
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 .. doxygentypedef:: mfxMemId
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 .. doxygentypedef:: mfxThreadTask
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 .. doxygentypedef:: mfxU8
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 .. doxygentypedef:: mfxU16
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 .. doxygentypedef:: mfxU32
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 .. doxygentypedef:: mfxU64
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 .. doxygentypedef:: mfxUL32
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 --------
 Typedefs
 --------
 
 .. doxygentypedef:: mfxConfig
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 .. doxygentypedef:: mfxLoader
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 .. doxygentypedef:: mfxSession
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 .. doxygentypedef:: mfxSyncPoint
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 .. doxygentypedef:: mfxExtRefListCtrl
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 .. doxygentypedef:: mfxExtEncodedFrameInfo
-   :project: oneVPL
+   :project: Intel&reg; VPL

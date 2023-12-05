@@ -5,10 +5,10 @@
 //==============================================================================
 
 ///
-/// A minimal oneAPI Video Processing Library (oneVPL) decode application
+/// A minimal Intel® Video Processing Library (Intel® VPL) decode application
 /// using the core API subset.  For more information see:
 /// https://software.intel.com/content/www/us/en/develop/articles/upgrading-from-msdk-to-onevpl.html
-/// https://oneapi-src.github.io/oneAPI-spec/elements/oneVPL/source/index.html
+/// https://intel.github.io/libvpl
 /// @file
 
 #include "util.hpp"
@@ -69,7 +69,7 @@ int main(int argc, char *argv[]) {
     sink = fopen(OUTPUT_FILE, "wb");
     VERIFY(sink, "Could not create output file");
 
-    // Initialize oneVPL session
+    // Initialize session
     loader = MFXLoad();
     VERIFY(NULL != loader, "MFXLoad failed -- is implementation in path?");
 

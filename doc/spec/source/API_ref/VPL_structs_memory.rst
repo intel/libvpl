@@ -1,6 +1,8 @@
 .. SPDX-FileCopyrightText: 2019-2020 Intel Corporation
 ..
 .. SPDX-License-Identifier: CC-BY-4.0
+..
+  Intel(r) Video Processing Library (Intel(r) VPL)
 
 .. _struct_memory:
 
@@ -26,7 +28,7 @@ mfxBitstream
 ------------
 
 .. doxygenstruct:: mfxBitstream
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -34,7 +36,7 @@ mfxFrameAllocator
 -----------------
 
 .. doxygenstruct:: mfxFrameAllocator
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -42,7 +44,7 @@ mfxFrameAllocRequest
 --------------------
 
 .. doxygenstruct:: mfxFrameAllocRequest
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -50,7 +52,7 @@ mfxFrameAllocResponse
 ---------------------
 
 .. doxygenstruct:: mfxFrameAllocResponse
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -58,22 +60,22 @@ mfxFrameData
 ------------
 
 .. doxygenstruct:: mfxY410
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
 .. doxygenstruct:: mfxY416
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
 .. doxygenstruct:: mfxA2RGB10
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
 .. doxygenstruct:: mfxFrameData
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -81,7 +83,7 @@ mfxFrameInfo
 ------------
 
 .. doxygenstruct:: mfxFrameInfo
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -124,7 +126,7 @@ mfxFrameSurface1
 ----------------
 
 .. doxygenstruct:: mfxFrameSurface1
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -132,7 +134,7 @@ mfxFrameSurfaceInterface
 ------------------------
 
 .. doxygenstruct:: mfxFrameSurfaceInterface
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -140,7 +142,7 @@ mfxSurfacePoolInterface
 ------------------------
 
 .. doxygenstruct:: mfxSurfacePoolInterface
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -148,7 +150,7 @@ mfxMemoryInterface
 ------------------
 
 .. doxygenstruct:: mfxMemoryInterface
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -156,7 +158,7 @@ mfxSurfaceTypesSupported
 ------------------------
 
 .. doxygenstruct:: mfxSurfaceTypesSupported
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -164,7 +166,7 @@ mfxSurfaceHeader
 ----------------
 
 .. doxygenstruct:: mfxSurfaceHeader
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -172,7 +174,7 @@ mfxSurfaceInterface
 -------------------
 
 .. doxygenstruct:: mfxSurfaceInterface
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -180,7 +182,7 @@ mfxSurfaceD3D11Tex2D
 --------------------
 
 .. doxygenstruct:: mfxSurfaceD3D11Tex2D
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -188,7 +190,7 @@ mfxSurfaceVAAPI
 ---------------
 
 .. doxygenstruct:: mfxSurfaceVAAPI
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -196,7 +198,7 @@ mfxSurfaceOpenCLImg2D
 ---------------------
 
 .. doxygenstruct:: mfxSurfaceOpenCLImg2D
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -204,6 +206,6 @@ mfxExtSurfaceOpenCLImg2DExportDescription
 -----------------------------------------
 
 .. doxygenstruct:: mfxExtSurfaceOpenCLImg2DExportDescription
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:

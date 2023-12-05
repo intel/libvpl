@@ -1,27 +1,29 @@
 .. SPDX-FileCopyrightText: 2019-2020 Intel Corporation
 ..
 .. SPDX-License-Identifier: CC-BY-4.0
+..
+  Intel(r) Video Processing Library (Intel(r) VPL)
 
 =================
 Programming Guide
 =================
 
-This chapter describes the concepts used in programming with oneVPL.
+This chapter describes the concepts used in programming with |vpl_short_name|.
 
 The application must use the include file :file:`mfx.h` for C/C++ programming
-and link the oneVPL dispatcher library :file:`libvpl.so`.
+and link the |vpl_short_name| dispatcher library :file:`libvpl.so`.
 
 Include these files:
 
 .. code-block:: c++
 
-   #include "mfx.h"    /* oneVPL include file */
+   #include "mfx.h"    /* Intel® VPL include file */
 
 Link this library:
 
 .. code-block:: c++
 
-   libvpl.so                /* oneVPL dynamic dispatcher library (Linux\*) */
+   libvpl.so                /* Intel® VPL dynamic dispatcher library (Linux\*) */
 
 .. toctree::
    :hidden:

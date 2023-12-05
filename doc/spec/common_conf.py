@@ -55,7 +55,8 @@ env = {
 prolog_template = string.Template(
     r"""
 
-.. |vpl_full_name| replace:: oneAPI Video Processing Library
+.. |vpl_full_name| replace:: Intel\ :supsub:`reg` Video Processing Library
+.. |vpl_short_name| replace:: Intel\ :supsub:`reg` VPL
 .. |vpl_version| replace:: $vpl_spec_version
 .. include:: <isonum.txt>
 .. |regsup| replace:: :supsub:`reg`
@@ -68,8 +69,7 @@ rst_prolog = prolog_template.substitute(env)
 
 
 # for substitutions in code blocks and sphinx-prompts:
-substitutions = [('|dal_short_name|', 'oneDAL'), ('|daal_in_code|', 'daal')]
-
+substitutions = []
 
 primary_domain = 'cpp'
 

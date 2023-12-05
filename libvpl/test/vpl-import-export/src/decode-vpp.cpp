@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: MIT
 //==============================================================================
-
+// Example using Intel® Video Processing Library (Intel® VPL)
 #include "./util.h"
 
 #include "./hw-device.h"
@@ -214,7 +214,7 @@ static int ProcessStreamDecodeVPP(mfxSession session, FileInfo *fileInfo, Decode
 #endif
                                 VPL_TOTAL_TIME_START(totalExportTime);
 
-                                // export mfxFrameSurface1 from oneVPL to a D3D11 or VAAPI surface
+                                // export mfxFrameSurface1 from Intel® VPL to a D3D11 or VAAPI surface
                                 sts = pmfxVPPOutSurface->FrameInterface->Export(pmfxVPPOutSurface, export_header, (mfxSurfaceHeader **)&extSurf);
                                 VERIFY(MFX_ERR_NONE == sts, "ERROR: Export");
 
@@ -267,7 +267,7 @@ static int ProcessStreamDecodeVPP(mfxSession session, FileInfo *fileInfo, Decode
 
                                 VPL_TOTAL_TIME_START(totalExportTime);
 
-                                // export surface from oneVPL runtime (output of VPP) as an OCL surface (input to OCL kernel)
+                                // export surface from Intel® VPL runtime (output of VPP) as an OCL surface (input to OCL kernel)
                                 mfxSurfaceOpenCLImg2D *extSurfOCL = nullptr;
                                 sts = pmfxVPPOutSurface->FrameInterface->Export(pmfxVPPOutSurface, export_header, (mfxSurfaceHeader **)&extSurfOCL);
                                 VERIFY(MFX_ERR_NONE == sts, "ERROR: Export (OpenCL)");

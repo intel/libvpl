@@ -3,6 +3,7 @@
 //
 // SPDX-License-Identifier: MIT
 //==============================================================================
+// Example using Intel® Video Processing Library (Intel® VPL)
 
 ///
 /// Utility library header file for sample code
@@ -81,10 +82,10 @@ bool ValidateSize(char *in, mfxU16 *vsize, mfxU32 vmax);
 
 bool ParseArgsAndValidate(int argc, char *argv[], Params *params, ParamGroup group);
 
-//Shows implementation info for Media SDK or oneVPL
+// Show implementation info for Media SDK or Intel® VPL
 mfxVersion ShowImplInfo(mfxSession session);
 
-// Shows implementation info with oneVPL
+// Show implementation info with Intel® VPL
 void ShowImplementationInfo(mfxLoader loader, mfxU32 implnum);
 
 // Write encoded stream to file

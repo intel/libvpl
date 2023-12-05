@@ -1,6 +1,8 @@
 .. SPDX-FileCopyrightText: 2019-2020 Intel Corporation
 ..
 .. SPDX-License-Identifier: CC-BY-4.0
+..
+  Intel(r) Video Processing Library (Intel(r) VPL)
 
 .. _func_session_mgmt:
 
@@ -26,19 +28,19 @@ MFXInit
 -------
 
 .. doxygenfunction:: MFXInit
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 MFXInitEx
 ---------
 
 .. doxygenfunction:: MFXInitEx
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 MFXInitialize
 -------------
 
 .. doxygenfunction:: MFXInitialize
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 .. important:: The :cpp:func:`MFXInitialize` function is mandatory for any implementation.
 
@@ -46,47 +48,47 @@ MFXClose
 --------
 
 .. doxygenfunction:: MFXClose
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 .. important:: The :cpp:func:`MFXClose` function is mandatory for any implementation.
 
 MFXQueryIMPL
 ------------
 .. doxygenfunction:: MFXQueryIMPL
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 MFXQueryVersion
 ---------------
 
 .. doxygenfunction:: MFXQueryVersion
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 MFXJoinSession
 --------------
 
 .. doxygenfunction:: MFXJoinSession
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 MFXDisjoinSession
 -----------------
 
 .. doxygenfunction:: MFXDisjoinSession
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 MFXCloneSession
 ---------------
 
 .. doxygenfunction:: MFXCloneSession
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 MFXSetPriority
 --------------
 
 .. doxygenfunction:: MFXSetPriority
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 MFXGetPriority
 --------------
 
 .. doxygenfunction:: MFXGetPriority
-   :project: oneVPL
+   :project: Intel&reg; VPL

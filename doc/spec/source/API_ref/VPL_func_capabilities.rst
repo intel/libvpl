@@ -1,6 +1,8 @@
 .. SPDX-FileCopyrightText: 2019-2020 Intel Corporation
 ..
 .. SPDX-License-Identifier: CC-BY-4.0
+..
+  Intel(r) Video Processing Library (Intel(r) VPL)
 
 .. _func_impl_capabilities:
 
@@ -27,7 +29,7 @@ MFXQueryImplsDescription
 ------------------------
 
 .. doxygenfunction:: MFXQueryImplsDescription
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 .. important:: The :cpp:func:`MFXQueryImplsDescription` function is mandatory for any implementation.
 
@@ -35,6 +37,6 @@ MFXReleaseImplDescription
 -------------------------
 
 .. doxygenfunction:: MFXReleaseImplDescription
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 .. important:: The :cpp:func:`MFXReleaseImplDescription` function is mandatory for any implementation.

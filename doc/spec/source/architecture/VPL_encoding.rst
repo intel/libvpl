@@ -29,7 +29,7 @@ ENCODE processes input frames in two ways;
 
 An ENCODE output consists of one frame of a bitstream with the time stamp
 passed from the input frame. The time stamp is used for multiplexing subsequent
-video with other associated data such as audio. oneVPL provides only pure video
+video with other associated data such as audio. |vpl_short_name| provides only pure video
 stream encoding. The application must provide its own multiplexing.
 
 ENCODE supports the following bitrate control algorithms: constant bitrate,

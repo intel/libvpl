@@ -17,7 +17,7 @@ namespace MFX {
 
 mfxStatus mfx_get_rt_dll_name(wchar_t *pPath, size_t pathSize);
 mfxStatus mfx_get_default_dll_name(wchar_t *pPath, size_t pathSize, eMfxImplType implType);
-mfxStatus mfx_get_default_onevpl_dll_name(wchar_t *pPath, size_t pathSize);
+mfxStatus mfx_get_default_vpl_dll_name(wchar_t *pPath, size_t pathSize);
 mfxStatus mfx_get_default_plugin_name(wchar_t *pPath, size_t pathSize, eMfxImplType implType);
 #if defined(MEDIASDK_UWP_DISPATCHER)
 mfxStatus mfx_get_default_intel_gfx_api_dll_name(wchar_t *pPath, size_t pathSize);

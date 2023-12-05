@@ -78,7 +78,7 @@ New in this release:
 * Added note that applications must call MFXVideoENCODE_Query() to check for support of :cpp:struct:`mfxExtChromaLocInfo` and :cpp:struct:`mfxExtHEVCRegion` extension buffers.
 * Added AV1 HDR metadata description and further clarified :cpp:struct:`mfxExtMasteringDisplayColourVolume` and :cpp:struct:`mfxExtContentLightLevelInfo`.
 * Added deprecation messages to the functions :cpp:func:`MFXQueryAdapters`, :cpp:func:`MFXQueryAdaptersDecode`, and :cpp:func:`MFXQueryAdaptersNumber`.
-  Applications should use the process described in :ref:`oneVPL Dispatcher <onevpl-dispatcher>` to enumerate and select adapters.
+  Applications should use the process described in :ref:`vpl-dispatcher` to enumerate and select adapters.
 * Fixed multiple spelling errors.
 * Added extension buffer :cpp:struct:`mfxExtSyncSubmission` to return submission synchronization sync point.
 * Added extension buffer :cpp:struct:`mfxExtVPPPercEncPrefilter` to control perceptual encoding prefilter.
@@ -162,7 +162,7 @@ New in this release:
 * Introduced priority loading option for custom libraries. 
 * Clarified AV1 encoder behavior about writing of IVF headers.
 * Removed outdated note about loading priority of |msdk_full_name|. For loading details see 
-  :ref:`onevpl_coexistense`.
+  :ref:`vpl_coexistense`.
 * Spelled out mfxVariant type usage for strings.
 * New product names for platforms:
 
@@ -193,7 +193,7 @@ New in this release:
 
 Bug Fixes:
 
-* Dispatcher: Removed /etc/ld.so.cache from oneVPL search order.
+* Dispatcher: Removed /etc/ld.so.cache from |vpl_short_name| search order.
 * mfxSurfaceArray: CDECL attribute added to the member-functions.
 
 Deprecated:

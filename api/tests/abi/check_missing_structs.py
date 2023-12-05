@@ -32,7 +32,7 @@ def find_structs(node):
 
 
 parser = argparse.ArgumentParser(description='Searches for the structs with missed ABI backward compatibility tests.')
-parser.add_argument('-i', '--ifolder', help='Input folder with onevpl header files.')
+parser.add_argument('-i', '--ifolder', help='Input folder with header files.')
 parser.add_argument('-t', '--test_file', help='Input file with ABI tests.')
 
 args = parser.parse_args()

@@ -23,7 +23,7 @@
 #include <iomanip>
 #include <memory>
 
-// oneAPI Video Processing Library (oneVPL)
+// Intel® Video Processing Library (Intel® VPL)
 
 using namespace std;
 using namespace TranscodingSample;

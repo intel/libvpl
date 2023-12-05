@@ -1,4 +1,4 @@
-# ** oneAPI Video Processing Library (oneVPL) Multi-Adapter Guide**
+# ** Intel® Video Processing Library (Intel® VPL) Multi-Adapter Guide**
 
 - [Overview](#overview)
 - [Developer guide](#developer-guide)
@@ -10,7 +10,7 @@
 
 # Overview
 
-oneVPL can access multiple adapters in Linux and Windows with features added in API 2.6.
+Intel® VPL can access multiple adapters in Linux and Windows with features added in API 2.6.
 
 # Developer guide
 
@@ -30,7 +30,7 @@ The code below shows how to filter in Windows for the implementation using adapt
   MFXSetConfigFilterProperty(
       cfg, (mfxU8 *)"DXGIAdapterIndex", cfgVal);
 ```
-- For more information on DXGIAdapterIndex, see https://spec.oneapi.io/onevpl/latest/programming_guide/VPL_prg_session.html.
+- For more information on DXGIAdapterIndex, see https://intel.github.io/libvpl/programming_guide/VPL_prg_session.html.
 
 Starting with API 2.6, Linux implementation selection is supported with the addition of mfxExtendedDeviceID.
 The code below shows how to filter in Linux for the implementation using /dev/dri/renderD128:
@@ -44,29 +44,29 @@ The code below shows how to filter in Linux for the implementation using /dev/dr
       cfg, (mfxU8 *)"mfxExtendedDeviceId.DRMRenderNodeNum", cfgVal);
 ```
 For more information on MFXExtendedDeviceId, see
-https://spec.oneapi.io/onevpl/latest/API_ref/VPL_disp_api_struct.html?highlight=mfxextendeddeviceid.
+https://intel.github.io/libvpl/API_ref/VPL_disp_api_struct.html?highlight=mfxextendeddeviceid.
 
 
-## Running sample_* tools with oneVPL runtime
+## Running sample_* tools with Intel® VPL runtime
 
 
 ## How to prepare the system
 
 Multi-adapter features can be used with any implementation.  However, they are most relevant for GPUs.
-Media SDK and oneVPL GPU hardware can be targeted.  
+Media SDK and Intel® VPL GPU hardware can be targeted.  
 
 
 # Release Notes
 
 ## Known limitations
 
-Media SDK only reports a subset of the info available from the oneVPL implementation, so it may not be possible to use all of the 
+Media SDK only reports a subset of the info available from the Intel® VPL implementation, so it may not be possible to use all of the 
 parameters available in mfxExtendedDeviceId for devices supported by Media SDK.
 
 
 # Example code.
 
-The code below is a quick illustration of how an implementation corresponding to a render node in Linux can be chosen by oneVPL multi-adapter features. Most of dependent functions are in the frameworks.media.onevpl.dispatcher\dispatcher\vpl\mfx_dispatcher_vpl.cpp
+The code below is a quick illustration of how an implementation corresponding to a render node in Linux can be chosen by Intel® VPL multi-adapter features. Most of dependent functions are in  libvpl/src/mfx_dispatcher_vpl.cpp
 
 ```c++
 
@@ -224,7 +224,7 @@ hello-multiadapter accepts a render node number as an argument in Linux.  For ex
 ```
 
 
-Expected output (Linux, oneVPL implementation):
+Expected output (Linux, Intel® VPL implementation):
 
 ```
 $ ./hello-multiadapter 128

@@ -1,6 +1,8 @@
 .. SPDX-FileCopyrightText: 2019-2020 Intel Corporation
 ..
 .. SPDX-License-Identifier: CC-BY-4.0
+..
+  Intel(r) Video Processing Library (Intel(r) VPL)
 
 .. _func_memory:
 
@@ -26,27 +28,27 @@ MFXMemory_GetSurfaceForVPP
 --------------------------
 
 .. doxygenfunction:: MFXMemory_GetSurfaceForVPP
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 Alias below, can be used as well:
 
 .. doxygendefine:: MFXMemory_GetSurfaceForVPPIn
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 MFXMemory_GetSurfaceForVPPOut
 -----------------------------
 
 .. doxygenfunction:: MFXMemory_GetSurfaceForVPPOut
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 MFXMemory_GetSurfaceForEncode
 -----------------------------
 
 .. doxygenfunction:: MFXMemory_GetSurfaceForEncode
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 MFXMemory_GetSurfaceForDecode
 -----------------------------
 
 .. doxygenfunction:: MFXMemory_GetSurfaceForDecode
-   :project: oneVPL
+   :project: Intel&reg; VPL

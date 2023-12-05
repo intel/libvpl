@@ -2,21 +2,21 @@
 ..
 .. SPDX-License-Identifier: CC-BY-4.0
 
-=================================
-oneVPL for |msdk_full_name| Users
-=================================
+===========================================
+|vpl_short_name| for |msdk_full_name| Users
+===========================================
 
-oneVPL is source compatible with |msdk_full_name|. Applications can use
-|msdk_full_name| to target older hardware and oneVPL to target everything else.
-Some obsolete features of |msdk_full_name| have been omitted from oneVPL.
-Hereinafter the term "Legacy" will be used to describe a behavior when oneVPL 
+|vpl_short_name| is source compatible with |msdk_full_name|. Applications can use
+|msdk_full_name| to target older hardware and |vpl_short_name| to target everything else.
+Some obsolete features of |msdk_full_name| have been omitted from |vpl_short_name|.
+Hereinafter the term "Legacy" will be used to describe a behavior when |vpl_short_name| 
 is called by |msdk_full_name| applications.
 
--------------------------------
-oneVPL Ease of Use Enhancements
--------------------------------
+-----------------------------------------
+|vpl_short_name| Ease of Use Enhancements
+-----------------------------------------
 
-oneVPL provides improved ease of use compared to |msdk_full_name|. Ease of use
+|vpl_short_name| provides improved ease of use compared to |msdk_full_name|. Ease of use
 enhancements include the following:
 
 - Smart dispatcher with discovery of implementation capabilities. See
@@ -28,15 +28,15 @@ enhancements include the following:
 
 .. _new-api:
 
-------------------
-New APIs in oneVPL
-------------------
+----------------------------
+New APIs in |vpl_short_name|
+----------------------------
 
-oneVPL introduces new functions that are not available in |msdk_full_name|.
+|vpl_short_name| introduces new functions that are not available in |msdk_full_name|.
 
 .. _dispatcher-api:
 
-New oneVPL dispatcher functions:
+New |vpl_short_name| dispatcher functions:
 
 - :cpp:func:`MFXLoad`
 - :cpp:func:`MFXUnload`
@@ -46,19 +46,19 @@ New oneVPL dispatcher functions:
 - :cpp:func:`MFXCreateSession`
 - :cpp:func:`MFXDispReleaseImplDescription`
 
-New oneVPL memory management functions:
+New |vpl_short_name| memory management functions:
 
 - :cpp:func:`MFXMemory_GetSurfaceForVPP`
 - :cpp:func:`MFXMemory_GetSurfaceForVPPOut`
 - :cpp:func:`MFXMemory_GetSurfaceForEncode`
 - :cpp:func:`MFXMemory_GetSurfaceForDecode`
 
-New oneVPL implementation capabilities retrieval functions:
+New |vpl_short_name| implementation capabilities retrieval functions:
 
 - :cpp:func:`MFXQueryImplsDescription`
 - :cpp:func:`MFXReleaseImplDescription`
 
-New oneVPL session initialization:
+New |vpl_short_name| session initialization:
 
 - :cpp:func:`MFXInitialize`
 
@@ -67,9 +67,9 @@ New oneVPL session initialization:
 ---------------------------------
 
 The following |msdk_full_name| features are considered obsolete and are not
-included in oneVPL:
+included in |vpl_short_name|:
 
-- **Audio support.** oneVPL is intended for video processing. Audio APIs that
+- **Audio support.** |vpl_short_name| is intended for video processing. Audio APIs that
   duplicate functionality from other audio libraries such as
   `Sound Open Firmware <https://github.com/thesofproject>`__ have been removed.
 
@@ -78,11 +78,11 @@ included in oneVPL:
   process for AVC and HEVC encoders. This feature was removed because it is not
   widely used by customers.
 
-- **User plugins architecture.** oneVPL enables robust video acceleration through
+- **User plugins architecture.** |vpl_short_name| enables robust video acceleration through
   API implementations of many different video processing frameworks. Support of
   a |msdk_full_name| user plugin framework is obsolete. |msdk_full_name| RAW acceleration (Camera API)
-  which is implemented as plugin is also obsolete, oneVPL enables RAW acceleration (Camera
-  API) through oneVPL runtime such as oneVPL GPU runtime.
+  which is implemented as plugin is also obsolete, |vpl_short_name| enables RAW acceleration (Camera
+  API) through |vpl_short_name| runtime such as |vpl_short_name| GPU runtime.
 
 - **External buffer memory management.** A set of callback functions to replace
   internal memory allocation is obsolete.
@@ -101,12 +101,12 @@ included in oneVPL:
   replaced with internal memory allocation concept.   
 
 - **Raw Acceleration.** |msdk_full_name| RAW acceleration (Camera API) which is
-  implemented as plugin is obsolete, replaced by oneVPL and oneVPL runtime implementation.
-  oneVPL reused most of |msdk_full_name| Camera API, but oneVPL camera API is not backward
-  compatible with |msdk_full_name| camera API due to obsolete plugin mechanism in oneVPL 
-  and a few difference between oneVPL and |msdk_full_name|. The major difference between oneVPL 
+  implemented as plugin is obsolete, replaced by |vpl_short_name| and |vpl_short_name| runtime implementation.
+  |vpl_short_name| reused most of |msdk_full_name| Camera API, but |vpl_short_name| camera API is not backward
+  compatible with |msdk_full_name| camera API due to obsolete plugin mechanism in |vpl_short_name| 
+  and a few difference between |vpl_short_name| and |msdk_full_name|. The major difference between |vpl_short_name| 
   and |msdk_full_name| are listed:
-  1) mfxCamGammaParam and mfxExtCamGammaCorrection are removed in oneVPL; 2) Added
+  1) mfxCamGammaParam and mfxExtCamGammaCorrection are removed in |vpl_short_name|; 2) Added
   reserved bytes in mfxExtCamHotPixelRemoval, mfxCamVignetteCorrectionParam and
   mfxCamVignetteCorrectionElement for future extension; 3) Changed CCM from mfxF64
   to mfxF32 in mfxExtCamColorCorrection3x3 and added more reserved bytes.
@@ -117,7 +117,7 @@ included in oneVPL:
 |msdk_full_name| API Removals
 -----------------------------
 
-The following |msdk_full_name| functions are not included in oneVPL:
+The following |msdk_full_name| functions are not included in |vpl_short_name|:
 
 - **Audio related functions**
 
@@ -186,12 +186,12 @@ The following |msdk_full_name| functions are not included in oneVPL:
 .. important:: Corresponding extension buffers are also removed.
 
 The following behaviors occur when attempting to use a |msdk_full_name| API that
-is not supported by oneVPL:
+is not supported by |vpl_short_name|:
 
-- Code compiled with the oneVPL API headers will generate a compile and/or
+- Code compiled with the |vpl_short_name| API headers will generate a compile and/or
   link error when attempting to use a removed API.
 
-- Code previously compiled with |msdk_full_name| and executed using a oneVPL
+- Code previously compiled with |msdk_full_name| and executed using a |vpl_short_name|
   runtime will generate an :cpp:enumerator:`MFX_ERR_NOT_IMPLEMENTED` error when
   calling a removed function.
 
@@ -199,11 +199,11 @@ is not supported by oneVPL:
 |msdk_full_name| Legacy API
 ---------------------------
 
-oneVPL contains following header files from |msdk_full_name| included for the
-simplification of existing applications migration to oneVPL:
+|vpl_short_name| contains following header files from |msdk_full_name| included for the
+simplification of existing applications migration to |vpl_short_name|:
 
 - mfxvideo++.h
 
 .. important:: |msdk_full_name| obsolete API removed from those header files.
-   Code compiled with the oneVPL API headers will generate a compile and/or
+   Code compiled with the |vpl_short_name| API headers will generate a compile and/or
    link error when attempting to use a removed API.

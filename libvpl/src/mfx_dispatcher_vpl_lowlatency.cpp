@@ -24,15 +24,15 @@
     #define LIB_MSDK   "libmfxhw64.so.1"
 #endif
 
-//oneAPI Video Processing Library (oneVPL) low latency dispatcher
+//Intel® Video Processing Library (Intel® VPL) low latency dispatcher
 
 // For Windows:
-//  oneVPL - load from Driver Store, look only for libmfx64-gen.dll (32)
+//  Intel® VPL - load from Driver Store, look only for libmfx64-gen.dll (32)
 //  MSDK - load from Driver Store, look only for libmfxhw64.dll (32)
 //  MSDK - fallback, load from %windir%\system32 or %windir%\syswow64
 
 // For Linux:
-//  oneVPL - load from system paths in LoadLibsFromMultipleDirs(), look only for libmfx-gen.so.1.2
+//  Intel® VPL - load from system paths in LoadLibsFromMultipleDirs(), look only for libmfx-gen.so.1.2
 //  MSDK - load from system paths in LoadLibsFromMultipleDirs(), look only for libmfxhw64.so.1
 
 // library names
@@ -260,7 +260,7 @@ mfxStatus LoaderCtxVPL::LoadLibsLowLatency() {
     if (!bEnumSuccess || numAdapters == 0)
         return MFX_ERR_UNSUPPORTED;
 
-    // try loading oneVPL from driver store
+    // try loading Intel® VPL from driver store
     sts = LoadLibsFromDriverStore(numAdapters, adapterInfo, LibTypeVPL);
     if (sts == MFX_ERR_NONE) {
         LibInfo *libInfo = m_libInfoList.back();
@@ -341,7 +341,7 @@ mfxStatus LoaderCtxVPL::LoadLibsLowLatency() {
 #else
     mfxStatus sts = MFX_ERR_NONE;
 
-    // try loading oneVPL from Linux system directories
+    // try loading Intel® VPL from Linux system directories
     sts = LoadLibsFromMultipleDirs(LibTypeVPL);
     if (sts == MFX_ERR_NONE) {
         LibInfo *libInfo = m_libInfoList.back();
@@ -411,7 +411,7 @@ mfxStatus LoaderCtxVPL::QuerySessionLowLatency(LibInfo *libInfo,
     mfxInitializationParam vplParam = {};
     vplParam.AccelerationMode       = m_specialConfig.accelerationMode;
 
-    // set adapter ID for both MSDK and oneVPL
+    // set adapter ID for both MSDK and Intel® VPL
     vplParam.VendorImplID = adapterID;
     mfxIMPL hwImpl        = msdkImplTab[adapterID];
 

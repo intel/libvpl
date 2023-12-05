@@ -5,7 +5,7 @@
 //==============================================================================
 
 ///
-/// A minimal oneAPI Video Processing Library (oneVPL) decode, vpp and infer application,
+/// A minimal Intel® Video Processing Library (Intel® VPL) decode, vpp and infer application,
 /// using 2.x API with internal memory management,
 /// showing zerocopy with remoteblob
 ///

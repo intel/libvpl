@@ -1,6 +1,8 @@
 .. SPDX-FileCopyrightText: 2019-2020 Intel Corporation
 ..
 .. SPDX-License-Identifier: CC-BY-4.0
+..
+  Intel(r) Video Processing Library (Intel(r) VPL)
 
 .. _func_adapters:
 
@@ -27,16 +29,16 @@ MFXQueryAdapters
 ----------------
 
 .. doxygenfunction:: MFXQueryAdapters
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 MFXQueryAdaptersDecode
 ----------------------
 
 .. doxygenfunction:: MFXQueryAdaptersDecode
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 MFXQueryAdaptersNumber
 ----------------------
 
 .. doxygenfunction:: MFXQueryAdaptersNumber
-   :project: oneVPL
+   :project: Intel&reg; VPL

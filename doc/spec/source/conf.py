@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: MIT
 
+# For Intel® Video Processing Library (Intel® VPL)
+
 # -*- coding: utf-8 -*-
 #
 # Configuration file for the Sphinx documentation builder.
@@ -20,7 +22,7 @@ import os
 import sys
 from os.path import join
 
-project = 'oneVPL'
+project = 'Intel&reg; VPL'
 
 repo_root = '..'
 sys.path.append(repo_root)

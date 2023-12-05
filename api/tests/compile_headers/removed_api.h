@@ -4,11 +4,10 @@
   # SPDX-License-Identifier: MIT
   ############################################################################*/
 
-/* This file contains API definitions which are deprected or removed from the oneVPL
- * add here removed enum value, function or structure definition.
- * if API located here will appear back in oneVPL --> oneVPL header compilation tests
- * will fail.
- * For each removed API entry - please keep original name of the header file.
+/* This file contains API definitions which are deprected or removed.  Add
+ * removed enum values, functions or structure definitions to this file.  If
+ * APIs located here reappear, header compilation tests will fail.  For each
+ * removed API entry - please keep original name of the header file.
 */
 
 #ifndef __REMOVED_API_H__

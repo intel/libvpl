@@ -57,7 +57,7 @@ def find_structs(node, mfxStruct):
 
 
 parser = argparse.ArgumentParser(description='Searches for the structs with missed ABI backward compatibility tests.')
-parser.add_argument('-i', '--ifolder', help='Input folder with onevpl header files.')
+parser.add_argument('-i', '--ifolder', help='Input folder with header files.')
 parser.add_argument('-s', '--structure', help='Name of the structure.')
 
 args = parser.parse_args()

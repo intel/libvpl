@@ -1,4 +1,4 @@
-sample_decode is a oneAPI Video Processing Library (oneVPL) decode application
+sample_decode is a Intel® Video Processing Library (Intel® VPL) decode application
 that takes a file containing an encoded video elementary stream as an argument,
 performs decoding of various video compression formats, and writes the decoded
 output to the file in raw native format (NV12 for GPU).

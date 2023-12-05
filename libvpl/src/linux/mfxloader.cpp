@@ -202,7 +202,7 @@ mfxStatus LoaderCtx::Init(mfxInitParam &par,
 
     // query graphics device_id
     // if it is found on list of legacy devices, load MSDK RT
-    // otherwise load oneAPI Video Processing Library (oneVPL) RT
+    // otherwise load Intel® Video Processing Library (Intel® VPL) RT
     mfxU16 deviceID = 0;
     mfx_res         = get_devices(devices);
     if (mfx_res == MFX_ERR_NOT_FOUND) {
@@ -232,17 +232,17 @@ mfxStatus LoaderCtx::Init(mfxInitParam &par,
         if (implType == MFX_IMPL_AUTO || implType == MFX_IMPL_AUTO_ANY ||
             (implType & MFX_IMPL_HARDWARE) || (implType & MFX_IMPL_HARDWARE_ANY)) {
             if (msdk_platform == MFX_HW_UNKNOWN) {
-                // if not on list of known MSDK platforms, prefer oneVPL
+                // if not on list of known MSDK platforms, prefer Intel® VPL
                 libs.emplace_back(ONEVPLHW);
                 libs.emplace_back(MFX_MODULES_DIR "/" ONEVPLHW);
             }
 
-            // use MSDK (fallback if oneVPL is not installed)
+            // use MSDK (fallback if Intel® VPL is not installed)
             libs.emplace_back(LIBMFXHW);
             libs.emplace_back(MFX_MODULES_DIR "/" LIBMFXHW);
         }
 
-        // add SW lib (oneVPL only)
+        // add SW lib (Intel® VPL only)
         if (implType == MFX_IMPL_AUTO || implType == MFX_IMPL_AUTO_ANY ||
             (implType & MFX_IMPL_SOFTWARE)) {
             libs.emplace_back(ONEVPLSW);

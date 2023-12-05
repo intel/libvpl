@@ -10,9 +10,9 @@
 
 #include <stddef.h>
 
-// force packing to 1 byte, which is never used by any real struct in our headers
-// the definition of each VPL structure should include setting the desired pack value (push)
-//   then immediately restoring the original value (pop)
+// force packing to 1 byte, which is never used by any real struct in our
+// headers the definition of each structure should include setting the desired
+// pack value (push) then immediately restoring the original value (pop)
 #if defined(_WIN32) || defined(_WIN64)
 __pragma(pack(push, 1))
 #else

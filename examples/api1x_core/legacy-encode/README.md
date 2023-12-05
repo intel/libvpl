@@ -1,21 +1,21 @@
 # `legacy-encode` Sample
 
-This sample shows how to use the oneAPI Video Processing Library (oneVPL) 1.35 common API to
+This sample shows how to use the Intel® Video Processing Library (Intel® VPL) 1.35 common API to
 perform a simple video encode.
 
 | Optimized for    | Description
 |----------------- | ----------------------------------------
 | OS               | Ubuntu* 20.04/22.04; Windows* 10
-| Hardware         | Compatible with IntelÂ® oneAPI Video Processing Library(oneVPL) GPU implementation, which can be found at https://github.com/oneapi-src/oneVPL-intel-gpu 
-|                  | and IntelÂ® Media SDK GPU implementation, which can be found at https://github.com/Intel-Media-SDK/MediaSDK
-| What You Will Learn | How to use oneVPL to encode an raw video file to H.265
+| Hardware         | Compatible with Intel® VPL GPU implementation, which can be found at https://github.com/intel/libvpl-intel-gpu 
+|                  | and Intel® Media SDK GPU implementation, which can be found at https://github.com/Intel-Media-SDK/MediaSDK
+| What You Will Learn | How to use Intel® VPL to encode an raw video file to H.265
 | Time to Complete | 5 minutes
 
 
 ## Purpose
 
 This sample is a command line application that takes a file containing a raw
-native format video elementary stream as an argument, encodes it with oneVPL and
+native format video elementary stream as an argument, encodes it with Intel® VPL and
 writes the encoded output to `out.h265` in H.265 format.
 
 Native raw frame format: GPU=NV12.
@@ -43,7 +43,7 @@ Perform the following steps:
 
 1. Install prerequisites. To build and run the sample you need to install prerequisite software and set up your environment:
 
-   - Follow the steps in [install.md](https://github.com/oneapi-src/oneVPL/blob/master/INSTALL.md) or install libvpl-dev.
+   - Follow the steps in [install.md](https://github.com/intel/libvpl/blob/master/INSTALL.md) or install libvpl-dev.
    - Follow the steps in [dgpu-docs](https://dgpu-docs.intel.com/) according to your GPU.
    - Install the packages using following commands:
    ```
@@ -55,7 +55,7 @@ Perform the following steps:
    ```
    source <vpl_install_dir>/etc/vpl/vars.sh
    ```
-   Here `<vpl_install_dir>` represents the root folder of your oneVPL installation. If you customized the
+   Here `<vpl_install_dir>` represents the root folder of your Intel® VPL installation. If you customized the
    installation folder, it is in your custom location.
 
 3. Build the program using the following commands:
@@ -79,7 +79,7 @@ Perform the following steps:
 1. Install prerequisites. To build and run the sample you need to
    install prerequisite software and set up your environment:
 
-   - Follow the steps in [install.md](https://github.com/oneapi-src/oneVPL/blob/master/INSTALL.md) to install oneVPL package.
+   - Follow the steps in [install.md](https://github.com/intel/libvpl/blob/master/INSTALL.md) to install Intel® VPL package.
    - Visual Studio 2022 
    - [CMake](https://cmake.org)
 
@@ -87,7 +87,7 @@ Perform the following steps:
    ```
    <vpl_install_dir>\etc\vpl\vars.bat
    ```
-   Here `<vpl_install_dir>` represents the root folder of your oneVPL
+   Here `<vpl_install_dir>` represents the root folder of your Intel® VPL
    installation. If you customized the installation
    folder, the `vars.bat` is in your custom location.  Note that if a
    compiler is not installed you should run in a Visual

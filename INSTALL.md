@@ -1,4 +1,4 @@
-# Build/Install oneAPI Video Processing Library (oneVPL) from Source
+# Build/Install Intel® Video Processing Library (Intel® VPL) from Source
 
 This document describes how to build from the source code in this repo.  Please
 note: this repo contains only headers, dispatcher, examples, and tools.  In most
@@ -34,13 +34,13 @@ see [script/README.md](script/README.md)
 
 ## Getting an Implementation
 
-The base package is limited to the dispatcher and samples. To use oneVPL for
+The base package is limited to the dispatcher and samples. To use Intel® VPL for
 video processing you need to install at least one implementation. Current
 implementations:
 
-- [oneVPL-intel-gpu](https://github.com/oneapi-src/oneVPL-intel-gpu) for use on
+- [oneVPL-intel-gpu](https://github.com/intel/libvpl-intel-gpu) for use on
   Intel Xe graphics and newer
-- [Media SDK](https://github.com/Intel-Media-SDK/MediaSDK) for use on legacy
+- [Intel® Media SDK](https://github.com/Intel-Media-SDK/MediaSDK) for use on legacy
   Intel graphics
 
 Follow the instructions on the respective repos to install the desired
@@ -51,12 +51,12 @@ to the selected implementation.
 
 ```mermaid
 graph TD;
-    VPL[oneVPL Dispatcher]-->oneVPL-intel-gpu;
-    VPL[oneVPL Dispatcher]-->MediaSDK;
+    dispatcher["Intel® VPL Dispatcher"]-->oneVPL-intel-gpu;
+    dispatcher-->msdk["Intel® Media SDK"];
 ```
 
 
-## Using oneVPL
+## Using Intel® VPL
 
 ### Configure your shell environment
 
@@ -74,10 +74,10 @@ For Windows:
 <vpl-install-location>\etc\vpl\vars.bat
 ```
 
-### Link to oneVPL with CMake
+### Link to Intel® VPL with CMake
 
 Add the following code to your CMakeLists, assuming TARGET is defined as the
-component that wants to use oneVPL:
+component that wants to use Intel® VPL:
 
 ```
 if(WIN32 AND CMAKE_SIZEOF_VOID_P EQUAL 4)
@@ -88,9 +88,9 @@ target_link_libraries(${TARGET} VPL::dispatcher)
 ```
 
 
-### Link to oneVPL from Bash with pkg-config
+### Link to Intel® VPL from Bash with pkg-config
 
-The following command line illustrates how to link a simple program to oneVPL
+The following command line illustrates how to link a simple program to Intel® VPL
 using pkg-config.
 
 ```

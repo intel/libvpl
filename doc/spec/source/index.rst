@@ -2,25 +2,25 @@
 ..
 .. SPDX-License-Identifier: CC-BY-4.0
 
-.. _oneVPL-section:
+.. _VPL-section:
 
-======
-oneVPL
-======
+================
+|vpl_short_name|
+================
 
-The |vpl_full_name| (oneVPL) is a programming interface for video decoding,
+The |vpl_full_name| (|vpl_short_name|) is a programming interface for video decoding,
 encoding, and processing to build portable media pipelines on CPUs,
 GPUs, and other accelerators. It provides device discovery and selection in
-media centric and video analytics workloads and API primitives for zero-copy
-buffer sharing. oneVPL is backwards and cross-architecture compatible to ensure
+media centric and video analytics workloads as well as API primitives for zero-copy
+buffer sharing. |vpl_short_name| is backwards and cross-architecture compatible to ensure
 optimal execution on current and next generation hardware without source code
 changes.
 
-.. rubric:: oneVPL Specification Version
+.. rubric:: Specification Version
 
-This document contains oneVPL specification version of |vpl_version|.
+This document contains |vpl_short_name| specification version |vpl_version|.
 
-Latest published version of oneVPL specification: `<https://intel.github.io/libvpl>`__.
+Latest published version of |vpl_short_name| specification: `<https://intel.github.io/libvpl>`__.
 
 .. toctree::
    :titlesonly:

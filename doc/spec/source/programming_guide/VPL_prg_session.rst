@@ -1,15 +1,16 @@
 .. SPDX-FileCopyrightText: 2019-2020 Intel Corporation
 ..
 .. SPDX-License-Identifier: CC-BY-4.0
-
+..
+  Intel® Video Processing Library (Intel® VPL)
 .. _sdk-session:
 
-==============
-oneVPL Session
-==============
+========================
+|vpl_short_name| Session
+========================
 
-Before calling any oneVPL functions, the application must initialize the
-library and create a oneVPL session. A oneVPL session maintains context for the
+Before calling any |vpl_short_name| functions, the application must initialize the
+library and create a |vpl_short_name| session. A |vpl_short_name| session maintains context for the
 use of any of :term:`DECODE`, :term:`ENCODE`, :term:`VPP`, :term:`DECODE_VPP` 
 functions.
 
@@ -27,7 +28,7 @@ session. To avoid memory leaks, always call :cpp:func:`MFXClose` after
                and :cpp:func:`MFXCreateSession` to initialize implementations.
 
 .. important:: For backward compatibility with existent |msdk_full_name|
-               applications oneVPL session can be created and initialized by
+               applications |vpl_short_name| session can be created and initialized by
                the legacy dispatcher through :cpp:func:`MFXInit` or
                :cpp:func:`MFXInitEx` calls. In this case, the reported API version
                will be 1.255 on |intel_r| platforms with X\ :sup:`e` architecture.
@@ -110,13 +111,13 @@ will vary according to the OS.
   #. SDK installation folder.
 
 
-.. _onevpl-dispatcher:
+.. _vpl-dispatcher:
 
------------------
-oneVPL Dispatcher
------------------
+---------------------------
+|vpl_short_name| Dispatcher
+---------------------------
 
-The oneVPL dispatcher extends the legacy dispatcher by providing additional
+The |vpl_short_name| dispatcher extends the legacy dispatcher by providing additional
 ability to select the appropriate implementation based on the implementation
 capabilities. Implementation capabilities include information about supported
 decoders, encoders, and VPP filters. For each supported encoder, decoder, and
@@ -184,13 +185,13 @@ will vary according to the OS.
      user-defined search folders which are provided by `ONEVPL_SEARCH_PATH`
      environmental variable.
 
-.. important:: To prioritize loading of custom oneVPL library, users may set environment variable
+.. important:: To prioritize loading of custom |vpl_short_name| library, users may set environment variable
                `ONEVPL_PRIORITY_PATH` with the path to the user-defined folder. 
                All libraries found in the ONEVPL_PRIORITY_PATH have the same priority 
                (higher than any others, and HW/SW or API version rules are not applied) and 
                should be loaded/filtered according to :cpp:func:`MFXSetConfigFilterProperty`.
 
-When oneVPL dispatcher searchers for the legacy |msdk_full_name|
+When |vpl_short_name| dispatcher searchers for the legacy |msdk_full_name|
 implementation it uses :ref:`legacy dispatcher search order <legacy_search_order>`, 
 excluding the current working directory and :file:`/etc/ld.so.cache`.
 
@@ -209,7 +210,7 @@ Internally, the dispatcher works as follows:
    Windows 64-bit     Windows 32-bit     Linux 64-bit      Description
    ================== ================== ================= =========================================
    libvpl\*.dll       libvpl\*.dll       libvpl\*.so\*     Runtime library for any platform
-   libmfx64-gen.dll   libmfx32-gen.dll   libmfx-gen.so.1.2 Runtime library for oneVPL for |intel_r| platforms with X\ :sup:`e` architecture
+   libmfx64-gen.dll   libmfx32-gen.dll   libmfx-gen.so.1.2 Runtime library for |vpl_short_name| for |intel_r| platforms with X\ :sup:`e` architecture
    libmfxhw64.dll     libmfxhw32.dll     libmfxhw64.so.1   Runtime library for |msdk_full_name|
    ================== ================== ================= =========================================
 
@@ -217,13 +218,13 @@ Internally, the dispatcher works as follows:
    :cpp:func:`MFXQueryImplsDescription` function to collect the implementation's
    capabilities.
 #. Once the user has requested to create the session based on this implementation,
-   the dispatcher obtains addresses of each oneVPL function. See the
+   the dispatcher obtains addresses of each |vpl_short_name| function. See the
    :ref:`Exported Functions/API Version table <export-func-version-table-2x>` for
    the list of functions to export.
 
-------------------------------------------
-oneVPL Dispatcher Configuration Properties
-------------------------------------------
+----------------------------------------------------
+|vpl_short_name| Dispatcher Configuration Properties
+----------------------------------------------------
 
 The :ref:`Dispatcher Configuration Properties Table <dsp-conf-prop-table>` shows property strings
 supported by the dispatcher. Table organized in the hierarchy way, to create the string, go from the
@@ -482,11 +483,11 @@ influence on the implementation selection. They are used during the
      - Pointer to the extension buffer
      - :cpp:enumerator:`mfxVariantType::MFX_VARIANT_TYPE_PTR`
 
-.. _onevpl-dispatcher-interactions:
+.. _vpl-dispatcher-interactions:
 
-------------------------------
-oneVPL Dispatcher Interactions
-------------------------------
+----------------------------------------
+|vpl_short_name| Dispatcher Interactions
+----------------------------------------
 
 This sequence diagram visualize how application communicates with implementations
 via the dispatcher.
@@ -501,10 +502,10 @@ Implementation API
 
    @startuml
    actor Application as A
-   participant "oneVPL Dispatcher" as D
-   participant "oneVPL Implementation 1" as I1
-   participant "oneVPL Implementation 2" as I2
-   participant "oneVPL Implementation 3" as I3
+   participant "Intel® VPL Dispatcher" as D
+   participant "Intel® VPL Implementation 1" as I1
+   participant "Intel® VPL Implementation 2" as I2
+   participant "Intel® VPL Implementation 3" as I3
 
    ref over A, D : Dispatcher API
    ref over D, I1, I2, I3 : Implementation API
@@ -611,15 +612,15 @@ Implementation API
    deactivate D
    @enduml
 
-The oneVPL dispatcher is capable to load and initialize |msdk_full_name| legacy
+The |vpl_short_name| dispatcher is capable to load and initialize |msdk_full_name| legacy
 library. The sequence diagram below demonstrates the approach.
 
 .. uml::
 
    @startuml
    actor Application as A
-   participant "oneVPL Dispatcher" as D
-   participant "MediaSDK (legacy)" as M
+   participant "Intel® VPL Dispatcher" as D
+   participant "Intel® MediaSDK (legacy)" as M
    A -> D: MFXLoad
    activate D
    D -> D: Search for the available runtimes
@@ -672,15 +673,15 @@ library. The sequence diagram below demonstrates the approach.
                |msdk_full_name| implementation. Once |msdk_full_name| is loaded
                applications have to use legacy approach to query capabilities.
 
----------------------------
-oneVPL Dispatcher Debug Log
----------------------------
+-------------------------------------
+|vpl_short_name| Dispatcher Debug Log
+-------------------------------------
 
 The debug output of the dispatcher is controlled with the `ONEVPL_DISPATCHER_LOG`
 environment variable. To enable log output, set the `ONEVPL_DISPATCHER_LOG`
 environment variable value equals to "ON".
 
-By default, oneVPL dispatcher prints all log messages to the console.
+By default, |vpl_short_name| dispatcher prints all log messages to the console.
 To redirect log output to the desired file, set the `ONEVPL_DISPATCHER_LOG_FILE`
 environmental variable with the file name of the log file.
 
@@ -873,43 +874,43 @@ shared library:
    :end-before: /*end5*/
    :lineno-start: 1
 
-.. _onevpl_coexistense:
+.. _vpl_coexistense:
 
------------------------------------------------------------------------------------------------------------
-oneVPL implementation on |intel_r| platforms with X\ :sup:`e` architecture and |msdk_full_name| Coexistence 
------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------
+|vpl_short_name| implementation on |intel_r| platforms with X\ :sup:`e` architecture and |msdk_full_name| Coexistence 
+---------------------------------------------------------------------------------------------------------------------
 
-oneVPL supersedes |msdk_full_name| and is partially binary compatible with
-|msdk_full_name|. Both oneVPL and |msdk_full_name| includes own dispatcher and
-implementation. Coexistence of oneVPL and |msdk_full_name| dispatchers and
+|vpl_short_name| supersedes |msdk_full_name| and is partially binary compatible with
+|msdk_full_name|. Both |vpl_short_name| and |msdk_full_name| includes own dispatcher and
+implementation. Coexistence of |vpl_short_name| and |msdk_full_name| dispatchers and
 implementations on single system is allowed until |msdk_full_name| is not EOL.
 
 Usage of the following combinations of dispatchers and implementations within
 the single application is permitted for the legacy purposes only. In that
 scenario legacy applications developed with |msdk_full_name| will continue to
-work on any HW supported either by |msdk_full_name| or by the oneVPL.
+work on any HW supported either by |msdk_full_name| or by the |vpl_short_name|.
 
-.. attention:: Any application to work with the oneVPL API starting from version
-               2.0 must use only oneVPL dispatcher.
+.. attention:: Any application to work with the |vpl_short_name| API starting from version
+               2.0 must use only |vpl_short_name| dispatcher.
 
 |msdk_full_name| API
     |msdk_full_name| API of 1.x version.
 
 Removed API
-    |msdk_full_name| :ref:`API <deprecated-api>` which is removed from oneVPL.
+    |msdk_full_name| :ref:`API <deprecated-api>` which is removed from |vpl_short_name|.
 
 Core API
     |msdk_full_name| API without removed API.
 
-oneVPL API
-    New :ref:`API <new-api>` introduced in oneVPL only started from API 2.0
+|vpl_short_name| API
+    New :ref:`API <new-api>` introduced in |vpl_short_name| only started from API 2.0
     version.
 
-oneVPL Dispatcher API
-    Dispatcher :ref:`API <dispatcher-api>` introduced in oneVPL in 2.0
-    API version. This is subset of oneVPL API.
+|vpl_short_name| Dispatcher API
+    Dispatcher :ref:`API <dispatcher-api>` introduced in |vpl_short_name| in 2.0
+    API version. This is subset of |vpl_short_name| API.
 
-.. list-table:: oneVPL for |intel_r| platforms with X\ :sup:`e` architecture and |msdk_full_name|
+.. list-table:: |vpl_short_name| for |intel_r| platforms with X\ :sup:`e` architecture and |msdk_full_name|
    :header-rows: 1
    :widths: 25 25 25 25
 
@@ -917,24 +918,24 @@ oneVPL Dispatcher API
      - **Installed on the device**
      - **Loaded**
      - **Allowed API**
-   * - oneVPL
-     - oneVPL for |intel_r| platforms with X\ :sup:`e` architecture
-     - oneVPL for |intel_r| platforms with X\ :sup:`e` architecture
+   * - |vpl_short_name|
+     - |vpl_short_name| for |intel_r| platforms with X\ :sup:`e` architecture
+     - |vpl_short_name| for |intel_r| platforms with X\ :sup:`e` architecture
      - Usage of any API except removed API is allowed.
-   * - oneVPL
+   * - |vpl_short_name|
      - |msdk_full_name|
      - |msdk_full_name|
      - Usage of core API plus dispatcher API is allowed only.
-   * - oneVPL
-     - oneVPL for |intel_r| platforms with X\ :sup:`e` architecture and |msdk_full_name|
-     - oneVPL for |intel_r| platforms with X\ :sup:`e` architecture
+   * - |vpl_short_name|
+     - |vpl_short_name| for |intel_r| platforms with X\ :sup:`e` architecture and |msdk_full_name|
+     - |vpl_short_name| for |intel_r| platforms with X\ :sup:`e` architecture
      - Usage of any API except removed API is allowed.
    * - |msdk_full_name|
-     - oneVPL for |intel_r| platforms with X\ :sup:`e` architecture
-     - oneVPL for |intel_r| platforms with X\ :sup:`e` architecture
+     - |vpl_short_name| for |intel_r| platforms with X\ :sup:`e` architecture
+     - |vpl_short_name| for |intel_r| platforms with X\ :sup:`e` architecture
      - Usage of core API is allowed only.
    * - |msdk_full_name|
-     - oneVPL for |intel_r| platforms with X\ :sup:`e` architecture and |msdk_full_name|
+     - |vpl_short_name| for |intel_r| platforms with X\ :sup:`e` architecture and |msdk_full_name|
      - |msdk_full_name|
      - Usage of |msdk_full_name| API is allowed.
    * - |msdk_full_name|
@@ -949,25 +950,25 @@ oneVPL Dispatcher API
 Multiple Sessions
 -----------------
 
-Each oneVPL session can run exactly one instance of the DECODE, ENCODE, and
+Each |vpl_short_name| session can run exactly one instance of the DECODE, ENCODE, and
 VPP functions. This is adequate for a simple transcoding operation. If the
 application needs more than one instance of DECODE, ENCODE, or VPP
 in a complex transcoding setting or needs more simultaneous transcoding
 operations, the application can initialize multiple
-oneVPL sessions created from one or several oneVPL implementations. 
+|vpl_short_name| sessions created from one or several |vpl_short_name| implementations. 
 
-The application can use multiple oneVPL sessions independently or run a “joined”
+The application can use multiple |vpl_short_name| sessions independently or run a “joined”
 session. To join two sessions together, the application can use the function
 :cpp:func:`MFXJoinSession`. Alternatively, the application can use the
 :cpp:func:`MFXCloneSession` function to duplicate an existing session. Joined
-oneVPL sessions work together as a single session, sharing all session
+|vpl_short_name| sessions work together as a single session, sharing all session
 resources, threading control, and prioritization operations except hardware
 acceleration devices and external allocators. When joined, the first session
 (first join) serves as the parent session and will schedule execution resources
 with all other child sessions. Child sessions rely on the parent session for
 resource management.
 
-.. important:: Applications can join sessions created from the same oneVPL 
+.. important:: Applications can join sessions created from the same |vpl_short_name| 
                implementation only.
 
 With joined sessions, the application can set the priority of session operations

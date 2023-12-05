@@ -247,7 +247,7 @@ mfxStatus MFXLibraryIterator::Init(eMfxImplType implType,
         return MFX_ERR_UNSUPPORTED;
     }
 
-    // only need the path for oneAPI Video Processing Library (oneVPL) loader
+    // only need the path for Intel® Video Processing Library (Intel® VPL) loader
     if (storageID == MFX_DRIVER_STORE_ONEVPL || storageID == MFX_CURRENT_USER_KEY_ONEVPL ||
         storageID == MFX_LOCAL_MACHINE_KEY_ONEVPL) {
         return MFX_ERR_NONE;
@@ -331,7 +331,7 @@ mfxStatus MFXLibraryIterator::InitFolder(eMfxImplType implType,
         mfx_get_default_dll_name(m_path + pathLen, msdk_disp_path_len - pathLen, MFX_LIB_SOFTWARE);
     }
     else if (storageID == MFX_DRIVER_STORE_ONEVPL_MFXINIT) {
-        mfx_get_default_onevpl_dll_name(m_path + pathLen, msdk_disp_path_len - pathLen);
+        mfx_get_default_vpl_dll_name(m_path + pathLen, msdk_disp_path_len - pathLen);
     }
     else {
         mfx_get_default_dll_name(m_path + pathLen, msdk_disp_path_len - pathLen, implType);

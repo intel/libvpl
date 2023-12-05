@@ -7,11 +7,11 @@
 #ifndef LIBVPL_SRC_MFX_DISPATCHER_VPL_LOG_H_
 #define LIBVPL_SRC_MFX_DISPATCHER_VPL_LOG_H_
 
-/* oneAPI Video Processing Library (oneVPL) Dispatcher Debug Log
+/* Intel® Video Processing Library (Intel® VPL) Dispatcher Debug Log
  * The debug output of the dispatcher is controlled with the ONEVPL_DISPATCHER_LOG environment variable.
  * To enable log output, set the ONEVPL_DISPATCHER_LOG environment variable value equals to "ON".
  * 
- * By default, oneVPL dispatcher prints all log messages to the console.
+ * By default, Intel® VPL dispatcher prints all log messages to the console.
  * To redirect log output to the desired file, set the ONEVPL_DISPATCHER_LOG_FILE environmental 
  *   variable with the file name of the log file.
  */

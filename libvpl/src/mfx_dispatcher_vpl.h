@@ -139,7 +139,7 @@ struct DXGI1DeviceInfo {
     mfxU64 luid;
 };
 
-// priority of runtime loading, based on oneAPI-spec
+// priority of runtime loading
 enum LibPriority {
     LIB_PRIORITY_SPECIAL = 0, // highest priority regardless of other priority rules
 

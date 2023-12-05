@@ -24,7 +24,7 @@
     #error MFX_VERSION not defined
 #endif
 
-// oneAPI Video Processing Library (oneVPL)
+// Intel® Video Processing Library (Intel® VPL)
 
 void vppPrintHelp(const char* strAppName, const char* strErrorMessage) {
     printf("Intel(R) Media SDK VPP Sample version %s\n", GetMSDKSampleVersion().c_str());
@@ -56,9 +56,9 @@ void vppPrintHelp(const char* strAppName, const char* strErrorMessage) {
     printf(
         "   [-AdapterNum]               - specifies adapter number for processing, starts from 0\n");
     printf(
-        "   [-dispatcher:fullSearch]    - enable search for all available implementations in oneVPL dispatcher\n");
+        "   [-dispatcher:fullSearch]    - enable search for all available implementations in Intel® VPL dispatcher\n");
     printf(
-        "   [-dispatcher:lowLatency]    - enable limited implementation search and query in oneVPL dispatcher\n");
+        "   [-dispatcher:lowLatency]    - enable limited implementation search and query in Intel® VPL dispatcher\n");
 #if defined(D3D_SURFACES_SUPPORT)
     printf("   [-d3d]                      - use d3d9 surfaces\n\n");
 #endif

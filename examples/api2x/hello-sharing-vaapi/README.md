@@ -1,23 +1,23 @@
 # `hello-sharing-vaapi` Sample
 
-This sample shows how to use the oneAPI Video Processing Library (oneVPL) 2.X common API to :
+This sample shows how to use the Intel® Video Processing Library (Intel® VPL) 2.X common API to :
 - Perform video encode for a VA-API surface with surface sharing.
-- Perform video decode and export mfxFrameSurface1 from oneVPL to a VA-API surface with surface sharing.
+- Perform video decode and export mfxFrameSurface1 from Intel® VPL to a VA-API surface with surface sharing.
 
 | Optimized for    | Description
 |----------------- | ----------------------------------------
 | OS               | Ubuntu* 20.04/22.04;
-| Hardware         | Compatible with IntelÂ® oneAPI Video Processing Library(oneVPL) GPU implementation, which can be found at https://github.com/oneapi-src/oneVPL-intel-gpu 
-| What You Will Learn | How to use oneVPL to encode a VA-API surface to H.265 and decode an H.265 encoded video file and save raw frame using VA-API surface sharing
+| Hardware         | Compatible with Intel® VPL GPU implementation, which can be found at https://github.com/intel/libvpl-intel-gpu 
+| What You Will Learn | How to use Intel® VPL to encode a VA-API surface to H.265 and decode an H.265 encoded video file and save raw frame using VA-API surface sharing
 | Time to Complete | 10 minutes
 
 
 ## Purpose
 
 This sample has two command line applications:
-- `hello-sharing-vaapi-import`: takes a file containing a raw format video elementary stream as an argument. The application creates a VA-API surface based on the input video stream to be able to illustrate VAAPI surface sharing encoding. Using oneVPL, the application encodes the VA-API surface and writes the encoded output to `a out.h265` in H.265 format. Native raw frame input format: GPU=NV12.
+- `hello-sharing-vaapi-import`: takes a file containing a raw format video elementary stream as an argument. The application creates a VA-API surface based on the input video stream to be able to illustrate VAAPI surface sharing encoding. Using Intel® VPL, the application encodes the VA-API surface and writes the encoded output to `a out.h265` in H.265 format. Native raw frame input format: GPU=NV12.
 - `hello-sharing-vaapi-export`: takes a file containing an H.265
-video elementary stream as an argument. Using oneVPL, the application decodes, exports mfxFrameSurface1 to a VA-API surface and writes the decoded surface to a file `out.raw` in raw format. Native raw frame output format: GPU=NV12.
+video elementary stream as an argument. Using Intel® VPL, the application decodes, exports mfxFrameSurface1 to a VA-API surface and writes the decoded surface to a file `out.raw` in raw format. Native raw frame output format: GPU=NV12.
 
 ## Key Implementation details
 
@@ -46,7 +46,7 @@ Code samples are licensed under the MIT license.
 ## Building the `hello-sharing-vaapi` Project
 
 ### Include Files
-The oneVPL include folder is located at these locations on your development system:
+The Intel® VPL include folder is located at these locations on your development system:
  - Windows: <vpl_install_dir>\include 
 
 
@@ -57,7 +57,7 @@ Perform the following steps:
 1. Install prerequisites. To build and run the sample you need to
    install prerequisite software and set up your environment:
 
-   - Follow the steps in [install.md](https://github.com/oneapi-src/oneVPL/blob/master/INSTALL.md) or install libvpl-dev. 
+   - Follow the steps in [install.md](https://github.com/intel/libvpl/blob/master/INSTALL.md) or install libvpl-dev. 
    - Follow the steps in [dgpu-docs](https://dgpu-docs.intel.com/) according to your GPU.
    - Install the packages using following commands:
    ```
@@ -69,7 +69,7 @@ Perform the following steps:
    ```
    source <vpl_install_dir>/etc/vpl/vars.sh
    ```
-   Here `<vpl_install_dir>` represents the root folder of your oneVPL
+   Here `<vpl_install_dir>` represents the root folder of your Intel® VPL
    installation.  If you customized the
    installation folder, it is in your custom location.
 

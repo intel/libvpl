@@ -6,7 +6,7 @@
 Encoding Procedures
 ===================
 
-There are two methods for shared memory allocation and handling in oneVPL:
+There are two methods for shared memory allocation and handling in |vpl_short_name|:
 external and internal.
 
 ---------------
@@ -40,7 +40,7 @@ Note the following key points about the example:
   synchronize the encoding operation before retrieving the encoded bitstream.
 - At the end of the stream, the application continuously calls the
   :cpp:func:`MFXVideoENCODE_EncodeFrameAsync` function with a NULL surface
-  pointer to drain any remaining bitstreams cached within the oneVPL encoder,
+  pointer to drain any remaining bitstreams cached within the |vpl_short_name| encoder,
   until the function returns :cpp:enumerator:`mfxStatus::MFX_ERR_MORE_DATA`.
 
 .. note:: It is the application's responsibility to fill pixels outside of the
@@ -65,7 +65,7 @@ There are several key differences in this example, compared to external memory
 
 - The application does not need to call the
   :cpp:func:`MFXVideoENCODE_QueryIOSurf` function to obtain the number of
-  working frame surfaces since allocation is done by oneVPL.
+  working frame surfaces since allocation is done by |vpl_short_name|.
 - The application calls the :cpp:func:`MFXMemory_GetSurfaceForEncode` function
   to get a free surface for the subsequent encode operation.
 - The application must call the
@@ -82,7 +82,7 @@ Configuration Change
 
 The application changes configuration during encoding by calling the
 :cpp:func:`MFXVideoENCODE_Reset` function. Depending on the difference in
-configuration parameters before and after the change, the oneVPL encoder will
+configuration parameters before and after the change, the |vpl_short_name| encoder will
 either continue the current sequence or start a new one. If the encoder starts a
 new sequence, it completely resets internal state and begins a new sequence with
 the IDR frame.
@@ -100,7 +100,7 @@ application may query the reset outcome before the actual reset by calling the
 
 The application uses the following procedure to change encoding configurations:
 
-#. The application retrieves any cached frames in the oneVPL encoder by calling
+#. The application retrieves any cached frames in the |vpl_short_name| encoder by calling
    the :cpp:func:`MFXVideoENCODE_EncodeFrameAsync` function with a NULL input
    frame pointer until the function returns
    :cpp:enumerator:`mfxStatus::MFX_ERR_MORE_DATA`.
@@ -112,7 +112,7 @@ The application uses the following procedure to change encoding configurations:
      continue encoding as usual.
    - If the new configuration requires a new memory allocation, the function
      returns :cpp:enumerator:`mfxStatus::MFX_ERR_INCOMPATIBLE_VIDEO_PARAM`. The
-     application must close the oneVPL encoder and reinitialize the encoding
+     application must close the |vpl_short_name| encoder and reinitialize the encoding
      procedure with the new configuration.
 
 ------------------------
@@ -135,7 +135,7 @@ following figure shows asynchronous encoding flow with external BRC (using
 
    Asynchronous encoding flow with external BRC
 
-.. note:: ``IntAsyncDepth`` is the oneVPL max internal asynchronous encoding
+.. note:: ``IntAsyncDepth`` is the |vpl_short_name| max internal asynchronous encoding
    queue size. It is always less than or equal to
    :cpp:member:`mfxVideoParam::AsyncDepth`.
 
@@ -167,10 +167,10 @@ encoding, as shown in the following pseudo code:
 The application may specify Huffman and quantization tables during encoder
 initialization by attaching :cpp:struct:`mfxExtJPEGQuantTables` and
 :cpp:struct:`mfxExtJPEGHuffmanTables` buffers to the :cpp:struct:`mfxVideoParam`
-structure. If the application does not define tables, then the oneVPL encoder
+structure. If the application does not define tables, then the |vpl_short_name| encoder
 uses tables recommended in ITU-T\* Recommendation T.81. If the application does
 not define a quantization table it must specify the
-:cpp:member:`mfxInfoMFX::Quality` parameter. In this case, the oneVPL encoder
+:cpp:member:`mfxInfoMFX::Quality` parameter. In this case, the |vpl_short_name| encoder
 scales the default quantization table according to the specified
 :cpp:member:`mfxInfoMFX::Quality` parameter value.
 
@@ -185,7 +185,7 @@ picture, the application should set :cpp:member:`mfxFrameInfo::FourCC` to
 :cpp:enumerator:`MFX_FOURCC_RGB4` and :cpp:member:`mfxFrameInfo::ChromaFormat`
 to :cpp:enumerator:`MFX_CHROMAFORMAT_YUV444`.
 
-The oneVPL encoder supports different sets of chroma sampling and color formats
+The |vpl_short_name| encoder supports different sets of chroma sampling and color formats
 on different platforms. The application must call the
 :cpp:func:`MFXVideoENCODE_Query` function to check if the required color format
 is supported on a given platform and then initialize the encoder with proper
@@ -193,7 +193,7 @@ values of :cpp:member:`mfxFrameInfo::FourCC` and
 :cpp:member:`mfxFrameInfo::ChromaFormat`.
 
 The application should not define the number of scans and number of components.
-These numbers are derived by the oneVPL encoder from the
+These numbers are derived by the |vpl_short_name| encoder from the
 :cpp:member:`mfxInfoMFx::Interleaved` flag and from chroma type. If interleaved
 coding is specified, then one scan is encoded that contains all image
 components. Otherwise, the number of scans is equal to number of components.
@@ -220,27 +220,27 @@ Multi-view Video Encoding
 Similar to the decoding and video processing initialization procedures, the
 application attaches the :cpp:struct:`mfxExtMVCSeqDesc` structure to the
 :cpp:struct:`mfxVideoParam` structure for encoding initialization. The
-:cpp:struct:`mfxExtMVCSeqDesc` structure configures the oneVPL MVC encoder to
+:cpp:struct:`mfxExtMVCSeqDesc` structure configures the |vpl_short_name| MVC encoder to
 work in three modes:
 
 - **Default dependency mode:** The application specifies
   :cpp:member:`mfxExtMVCSeqDesc::NumView` and all other fields to zero. The
-  oneVPL encoder creates a single operation point with all views (view
+  |vpl_short_name| encoder creates a single operation point with all views (view
   identifier 0 : NumView-1) as target views. The first view (view identifier 0)
   is the base view. Other views depend on the base view.
 
 - **Explicit dependency mode:** The application specifies
   :cpp:member:`mfxExtMVCSeqDesc::NumView` and the view dependency array, and
-  sets all other fields to zero. The oneVPL encoder creates a single operation
+  sets all other fields to zero. The |vpl_short_name| encoder creates a single operation
   point with all views (view identifier View[0 : NumView-1].ViewId) as target
   views. The first view (view identifier View[0].ViewId) is the base view. View
   dependencies are defined as :cpp:struct:`mfxMVCViewDependency` structures.
 
 - **Complete mode:** The application fully specifies the views and their
-  dependencies. The oneVPL encoder generates a bitstream with corresponding
+  dependencies. The |vpl_short_name| encoder generates a bitstream with corresponding
   stream structures.
 
-During encoding, the oneVPL encoding function
+During encoding, the |vpl_short_name| encoding function
 :cpp:func:`MFXVideoENCODE_EncodeFrameAsync` accumulates input frames until
 encoding of a picture is possible. The function returns
 :cpp:enumerator:`mfxStatus::MFX_ERR_MORE_DATA` for more data at input or
@@ -253,7 +253,7 @@ In this case, the encoder returns
 :cpp:enumerator:`mfxStatus::MFX_ERR_MORE_BITSTREAM` if it needs more bitstream
 buffers at output and :cpp:enumerator:`mfxStatus::MFX_ERR_NONE` when processing
 of the picture (multiple views) has been finished. It is recommended that the
-application provide a new input frame each time the oneVPL encoder requests a
+application provide a new input frame each time the |vpl_short_name| encoder requests a
 new bitstream buffer. The application must submit view data for encoding in the
 order they are described in the :cpp:struct:`mfxExtMVCSeqDesc` structure.
 Particular view data can be submitted for encoding only when all views that it

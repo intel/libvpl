@@ -1844,15 +1844,13 @@ void Dispatcher_CreateSession_RequestImplNameValidReturnsErrNone(mfxImplType imp
     EXPECT_EQ(sts, MFX_ERR_NONE);
 
     // pass the correct ImplName for RT
-    if (implType == MFX_IMPL_TYPE_SOFTWARE) {
-        SetConfigFilterProperty<mfxHDL>(loader,
-                                        "mfxImplDescription.ImplName",
-                                        const_cast<char *>("oneAPI VPL CPU Implementation"));
-    }
-    else {
+    if (implType == MFX_IMPL_TYPE_HARDWARE) {
         SetConfigFilterProperty<mfxHDL>(loader,
                                         "mfxImplDescription.ImplName",
                                         const_cast<char *>("mfx-gen"));
+    }
+    else {
+        GTEST_SKIP();
     }
 
     // create session with first implementation
@@ -1875,7 +1873,7 @@ void Dispatcher_CreateSession_RequestImplNameInvalidReturnsErrNotFound(mfxImplTy
     // pass invalid ImplName
     SetConfigFilterProperty<mfxHDL>(loader,
                                     "mfxImplDescription.ImplName",
-                                    const_cast<char *>("oneAPI VPL Unsupported Impl"));
+                                    const_cast<char *>("Unsupported Impl"));
 
     // create session with first implementation
     mfxSession session = nullptr;

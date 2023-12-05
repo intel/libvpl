@@ -1,6 +1,8 @@
 .. SPDX-FileCopyrightText: 2019-2020 Intel Corporation
 ..
 .. SPDX-License-Identifier: CC-BY-4.0
+..
+  Intel(r) Video Processing Library (Intel(r) VPL)
 
 .. _func_video_core:
 
@@ -26,31 +28,31 @@ MFXVideoCORE_SetFrameAllocator
 ------------------------------
 
 .. doxygenfunction:: MFXVideoCORE_SetFrameAllocator
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 MFXVideoCORE_SetHandle
 ----------------------
 
 .. doxygenfunction:: MFXVideoCORE_SetHandle
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 MFXVideoCORE_GetHandle
 ----------------------
 
 .. doxygenfunction:: MFXVideoCORE_GetHandle
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 MFXVideoCORE_QueryPlatform
 --------------------------
 
 .. doxygenfunction:: MFXVideoCORE_QueryPlatform
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 MFXVideoCORE_SyncOperation
 --------------------------
 
 .. doxygenfunction:: MFXVideoCORE_SyncOperation
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 .. important:: The :cpp:func:`MFXVideoCORE_SyncOperation` function is mandatory for
    any implementation.

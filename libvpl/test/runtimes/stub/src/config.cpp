@@ -449,7 +449,7 @@ static const mfxSurfaceTypesSupported *minSurfTypesSupportedArray[NUM_CPU_IMPLS]
 // clang-format on
 
 // query and release are independent of session - called during
-//   caps query and config stage using oneAPI Video Processing Library (oneVPL) extensions
+//   caps query and config stage using Intel® Video Processing Library (Intel® VPL) extensions
 mfxHDL *MFXQueryImplsDescription(mfxImplCapsDeliveryFormat format, mfxU32 *num_impls) {
     *num_impls = NUM_CPU_IMPLS;
 

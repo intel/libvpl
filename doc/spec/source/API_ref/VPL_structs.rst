@@ -1,6 +1,8 @@
 .. SPDX-FileCopyrightText: 2019-2020 Intel Corporation
 ..
 .. SPDX-License-Identifier: CC-BY-4.0
+..
+  Intel(r) Video Processing Library (Intel(r) VPL)
 
 ===================
 Structure Reference
@@ -70,10 +72,3 @@ Structure Reference
    VPL_structs_protected
    VPL_structs_decode_vpp
    VPL_structs_camera
-
-
-
-
-
-
-

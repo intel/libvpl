@@ -23,7 +23,7 @@
     #include "va/va_drm.h"
 #endif
 
-// oneAPI Video Processing Library (oneVPL)
+// Intel® Video Processing Library (Intel® VPL)
 typedef struct gpuinfo {
     unsigned int deviceid;
     std::array<char, 128> name;
@@ -258,7 +258,7 @@ int main() {
     printf("------------------------------------\n");
     printf("Available implementation details:\n");
     if (!show_MFXLoad_info()) {
-        printf("No oneVPL implementations found.  Is environment configured?\n");
+        printf("No Intel® VPL implementations found.  Is environment configured?\n");
     }
     printf("------------------------------------\n");
 

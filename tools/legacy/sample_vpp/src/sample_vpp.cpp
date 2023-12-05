@@ -3,7 +3,7 @@
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
-
+// VPP tool using Intel® Video Processing Library (Intel® VPL)
 #include "parameters_dumper.h"
 #include "sample_vpp_pts.h"
 #include "sample_vpp_roi.h"
@@ -407,7 +407,7 @@ int sample_vpp_main(int argc, char* argv[]) {
     // change Params.frameInfoOut[0].FourCC to nv12 for processing in gen lib.
     // So, when it writes vpp output, it refers forceOutputFourcc to convert nv12 to -dcc format.
     //
-    // In case of oneVPL, ignore these steps and use original format (i420)
+    // In case of Intel® VPL, ignore these steps and use original format (i420)
     if (Params.ImpLib == MFX_IMPL_SOFTWARE && Params.forcedOutputFourcc != 0) {
         Params.frameInfoOut[0].FourCC = Params.forcedOutputFourcc;
         Params.forcedOutputFourcc     = 0;

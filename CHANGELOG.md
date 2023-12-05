@@ -4,19 +4,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-This project is part of the oneAPI Video Processing Library (oneVPL), a
+This project is part of the Intel® Video Processing Library (Intel® VPL), a
 programming interface for video decoding, encoding, and processing to build
 portable media pipelines on CPUs, GPUs, and other accelerators.
 
 ## [Unreleased]
 
 ### Added
-- oneVPL specification and associated build scripts
+- Intel® VPL specification and associated build scripts
+
+### Changed
+- Project name to Intel® Video Processing Library (Intel® VPL)
 
 ## [2023.4.0] - 2023-12-01
 
 ### Added
-- oneVPL API 2.10 support
+- Intel® VPL API 2.10 support
 - New command line parameters to sample_multi_transcode for setting
   B Frame QP Offsets based on Pyramid Level
 - New command line parameters to the sample_vpp tool to enable video signal
@@ -86,7 +89,7 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 ## [2023.2.0] - 2023-04-07
 
 ### Added
-- oneVPL API 2.9 support
+- Intel® VPL API 2.9 support
 - Perceptual encoding prefilter option to sample_multi_transcode
 
 ### Fixed
@@ -103,7 +106,7 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 ## [2023.1.3] - 2023-03-03
 
 ### Added
- - New tutorial on transitioning from Media SDK to oneVPL replaces hello-createsession
+ - New tutorial on transitioning from Media SDK to Intel® VPL replaces hello-createsession
  - More logs in sample tools to inform correct parameters for hyper encode mode
 
 ### Fixed
@@ -146,7 +149,7 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 ## [2023.1.0] - 2022-11-10
 
 ### Added
-- oneVPL API 2.8 support
+- Intel® VPL API 2.8 support
 - New infer sample
 - xdg_shell for weston10
 
@@ -195,7 +198,7 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 ## [2022.2.0] - 2022-07-22
 
 ### Added
-- oneVPL API 2.7 support
+- Intel® VPL API 2.7 support
 - Experimental DeviceCopy option for GPU-accelerated surface copying
 - Ability to select host or device responsible for the memory copy between host
   and device
@@ -246,10 +249,10 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 ## [2022.1.0] - 2022-03-18
 
 ### Added
-- oneVPL API 2.6 support
+- Intel® VPL API 2.6 support
 - `ONEVPL_PRIORITY_PATH` environment variable for runtime loading
 - Multi-adapter support for most combinations of GPU hardware that works with
-  Intel® Media SDK and oneVPL
+  Intel® Media SDK and Intel® VPL
 - Documentation on working with multiple adapters using 2.x API
 - Support for extended device ID on legacy GPUs
 - Support for Intel® Arc™ A Series Graphics
@@ -288,7 +291,7 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 
 ### Changed
 - mfxvideo++.h to remove deprecation warnings
-- Sample* tools to select oneVPL 2.x APIs by default
+- Sample* tools to select Intel® VPL 2.x APIs by default
 - Python previews to target Python 3.7
 - Documentation and build for OpenVINO™ toolkit interop sample
 
@@ -298,7 +301,7 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 ## [2021.6.0] - 2021-09-13
 
 ### Added
-- oneVPL API 2.4 support
+- Intel® VPL API 2.4 support
 - Internal memory support for dpcpp-blur sample
 
 ## [2021.5.0] - 2021-08-03
@@ -317,7 +320,7 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 
 ### Added
 
-- oneVPL API 2.4 support
+- Intel® VPL API 2.4 support
 - Advanced OpenVINO™ toolkit interop sample w/ remoteBlob support (Linux only)
 - C++ API and Samples (Preview)
 - Python API and Samples (Preview)
@@ -329,19 +332,19 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 ## [2021.2.2] - 2021-04-01
 
 ### Added
-- oneVPL API 2.2 support
+- Intel® VPL API 2.2 support
 - Legacy Intel® Media SDK test tools (with CPU and GPU support)
-- Intel® Media SDK to oneVPL migration guide
+- Intel® Media SDK to Intel® VPL migration guide
 - pkg-config support
 - 32-bit Windows* support
 - Legacy mfxvideo++ header
-- New Preview Sample: oneVPL OpenVINO™ toolkit Interop Sample
+- New Preview Sample: Intel® VPL OpenVINO™ toolkit Interop Sample
 - Ubuntu 20.10 support
 
 ## [2021.1] - 2020-12-08
 
 ### Added
-- oneVPL dispatcher implementation supporting oneVPL API 2.0
+- Intel® VPL dispatcher implementation supporting Intel® VPL API 2.0
 - Frame memory interface with access to internally allocated buffers
 - hello-decode sample
 - hello-encode sample
@@ -350,37 +353,37 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 - hello-transcode sample
 
 
-[Unreleased]: https://github.com/oneapi-src/oneVPL/compare/v2023.4.0...HEAD
-[2023.4.0]: https://github.com/oneapi-src/oneVPL/compare/v2023.3.1...v2023.4.0
-[2023.3.1]: https://github.com/oneapi-src/oneVPL/compare/v2023.3.0...v2023.3.1
-[2023.3.0]: https://github.com/oneapi-src/oneVPL/compare/v2023.2.1...v2023.3.0
-[2023.2.1]: https://github.com/oneapi-src/oneVPL/compare/v2023.2.0...v2023.2.1
-[2023.2.0]: https://github.com/oneapi-src/oneVPL/compare/v2023.1.3...v2023.2.0
-[2023.1.3]: https://github.com/oneapi-src/oneVPL/compare/v2023.1.2...v2023.1.3
-[2023.1.2]: https://github.com/oneapi-src/oneVPL/compare/v2023.1.1...v2023.1.2
-[2023.1.1]: https://github.com/oneapi-src/oneVPL/compare/v2023.1.0...v2023.1.1
-[2023.1.0]: https://github.com/oneapi-src/oneVPL/compare/v2023.0.0...v2023.1.0
-[2023.0.0]: https://github.com/oneapi-src/oneVPL/compare/v2022.2.4...v2023.0.0
-[2022.2.4]: https://github.com/oneapi-src/oneVPL/compare/v2022.2.3...v2022.2.4
-[2022.2.3]: https://github.com/oneapi-src/oneVPL/compare/v2022.2.2...v2022.2.3
-[2022.2.2]: https://github.com/oneapi-src/oneVPL/compare/v2022.2.1...v2022.2.2
-[2022.2.1]: https://github.com/oneapi-src/oneVPL/compare/v2022.2.0...v2022.2.1
-[2022.2.0]: https://github.com/oneapi-src/oneVPL/compare/v2022.1.6...v2022.2.0
-[2022.1.6]: https://github.com/oneapi-src/oneVPL/compare/v2022.1.5...v2022.1.6
-[2022.1.5]: https://github.com/oneapi-src/oneVPL/compare/v2022.1.4...v2022.1.5
-[2022.1.4]: https://github.com/oneapi-src/oneVPL/compare/v2022.1.3...v2022.1.4
-[2022.1.3]: https://github.com/oneapi-src/oneVPL/compare/v2022.1.2...v2022.1.3
-[2022.1.2]: https://github.com/oneapi-src/oneVPL/compare/v2022.1.1...v2022.1.2
-[2022.1.1]: https://github.com/oneapi-src/oneVPL/compare/v2022.1.0...v2022.1.1
-[2022.1.0]: https://github.com/oneapi-src/oneVPL/compare/v2022.0.6...v2022.1.0
-[2022.0.6]: https://github.com/oneapi-src/oneVPL/compare/v2022.0.5...v2022.0.6
-[2022.0.5]: https://github.com/oneapi-src/oneVPL/compare/v2022.0.4...v2022.0.5
-[2022.0.4]: https://github.com/oneapi-src/oneVPL/compare/v2022.0.3...v2022.0.4
-[2022.0.3]: https://github.com/oneapi-src/oneVPL/compare/v2022.0.2...v2022.0.3
-[2022.0.2]: https://github.com/oneapi-src/oneVPL/compare/v2022.0.0...v2022.0.2
-[2022.0.0]: https://github.com/oneapi-src/oneVPL/compare/v2021.6.0...v2022.0.0
-[2021.6.0]: https://github.com/oneapi-src/oneVPL/compare/v2021.5.0...v2021.6.0
-[2021.5.0]: https://github.com/oneapi-src/oneVPL/compare/v2021.4.0...v2021.5.0
-[2021.4.0]: https://github.com/oneapi-src/oneVPL/compare/v2021.2.2...v2021.4.0
-[2021.2.2]: https://github.com/oneapi-src/oneVPL/compare/v2021.1]:...v2021.2.2
-[2021.1]: https://github.com/oneapi-src/oneVPL/releases/tag/v2021.1
+[Unreleased]: https://github.com/intel/libvpl/compare/v2023.4.0...HEAD
+[2023.4.0]: https://github.com/intel/libvpl/compare/v2023.3.1...v2023.4.0
+[2023.3.1]: https://github.com/intel/libvpl/compare/v2023.3.0...v2023.3.1
+[2023.3.0]: https://github.com/intel/libvpl/compare/v2023.2.1...v2023.3.0
+[2023.2.1]: https://github.com/intel/libvpl/compare/v2023.2.0...v2023.2.1
+[2023.2.0]: https://github.com/intel/libvpl/compare/v2023.1.3...v2023.2.0
+[2023.1.3]: https://github.com/intel/libvpl/compare/v2023.1.2...v2023.1.3
+[2023.1.2]: https://github.com/intel/libvpl/compare/v2023.1.1...v2023.1.2
+[2023.1.1]: https://github.com/intel/libvpl/compare/v2023.1.0...v2023.1.1
+[2023.1.0]: https://github.com/intel/libvpl/compare/v2023.0.0...v2023.1.0
+[2023.0.0]: https://github.com/intel/libvpl/compare/v2022.2.4...v2023.0.0
+[2022.2.4]: https://github.com/intel/libvpl/compare/v2022.2.3...v2022.2.4
+[2022.2.3]: https://github.com/intel/libvpl/compare/v2022.2.2...v2022.2.3
+[2022.2.2]: https://github.com/intel/libvpl/compare/v2022.2.1...v2022.2.2
+[2022.2.1]: https://github.com/intel/libvpl/compare/v2022.2.0...v2022.2.1
+[2022.2.0]: https://github.com/intel/libvpl/compare/v2022.1.6...v2022.2.0
+[2022.1.6]: https://github.com/intel/libvpl/compare/v2022.1.5...v2022.1.6
+[2022.1.5]: https://github.com/intel/libvpl/compare/v2022.1.4...v2022.1.5
+[2022.1.4]: https://github.com/intel/libvpl/compare/v2022.1.3...v2022.1.4
+[2022.1.3]: https://github.com/intel/libvpl/compare/v2022.1.2...v2022.1.3
+[2022.1.2]: https://github.com/intel/libvpl/compare/v2022.1.1...v2022.1.2
+[2022.1.1]: https://github.com/intel/libvpl/compare/v2022.1.0...v2022.1.1
+[2022.1.0]: https://github.com/intel/libvpl/compare/v2022.0.6...v2022.1.0
+[2022.0.6]: https://github.com/intel/libvpl/compare/v2022.0.5...v2022.0.6
+[2022.0.5]: https://github.com/intel/libvpl/compare/v2022.0.4...v2022.0.5
+[2022.0.4]: https://github.com/intel/libvpl/compare/v2022.0.3...v2022.0.4
+[2022.0.3]: https://github.com/intel/libvpl/compare/v2022.0.2...v2022.0.3
+[2022.0.2]: https://github.com/intel/libvpl/compare/v2022.0.0...v2022.0.2
+[2022.0.0]: https://github.com/intel/libvpl/compare/v2021.6.0...v2022.0.0
+[2021.6.0]: https://github.com/intel/libvpl/compare/v2021.5.0...v2021.6.0
+[2021.5.0]: https://github.com/intel/libvpl/compare/v2021.4.0...v2021.5.0
+[2021.4.0]: https://github.com/intel/libvpl/compare/v2021.2.2...v2021.4.0
+[2021.2.2]: https://github.com/intel/libvpl/compare/v2021.1]:...v2021.2.2
+[2021.1]: https://github.com/intel/libvpl/releases/tag/v2021.1

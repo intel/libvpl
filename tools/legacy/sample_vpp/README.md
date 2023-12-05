@@ -1,4 +1,4 @@
-sample_vpp is a oneAPI Video Processing Library (oneVPL) application that
+sample_vpp is a Intel® Video Processing Library (Intel® VPL) application that
 performs video processing of raw video sequences.
 
 Command Line Format:

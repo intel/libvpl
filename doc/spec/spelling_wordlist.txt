@@ -46,7 +46,6 @@ DirectX
 Dror
 Elementwise
 Elkhart
-Embree
 Emplaces
 Enqueues
 Enum
@@ -123,7 +122,6 @@ Transactional
 Trilinear
 USM
 VPL
-VTune
 Variadic
 Verifier
 Verlag
@@ -544,12 +542,8 @@ nv
 oc
 oneAPI
 oneCCL
-oneDAL
-oneDNN
-oneDPL
 oneMKL
 oneTBB
-oneVPL
 oneapi
 onemkl
 opencl

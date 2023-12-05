@@ -1,7 +1,8 @@
 .. SPDX-FileCopyrightText: 2019-2020 Intel Corporation
 ..
 .. SPDX-License-Identifier: CC-BY-4.0
-
+..
+  Intel(r) Video Processing Library (Intel(r) VPL)
 
 .. _struct_decode_vpp:
 
@@ -28,7 +29,7 @@ mfxSurfaceArray
 ---------------
 
 .. doxygenstruct:: mfxSurfaceArray
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -36,7 +37,7 @@ mfxVideoChannelParam
 --------------------
 
 .. doxygenstruct:: mfxVideoChannelParam
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -44,6 +45,6 @@ mfxExtInCrops
 -------------
 
 .. doxygenstruct:: mfxExtInCrops
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:

@@ -5,10 +5,9 @@
 //==============================================================================
 
 ///
-/// A minimal oneAPI Video Processing Library (oneVPL) decode and VPP application
-/// using oneVPL 2.2 API features including internal memory. For more information see:
-/// https://software.intel.com/content/www/us/en/develop/articles/upgrading-from-msdk-to-onevpl.html
-/// https://oneapi-src.github.io/oneAPI-spec/elements/oneVPL/source/index.html
+/// A minimal Intel® Video Processing Library (Intel® VPL) decode and VPP application
+/// using Intel® VPL 2.2 API features including internal memory. For more information see:
+/// https://intel.github.io/libvpl
 ///
 /// @file
 

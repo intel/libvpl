@@ -2,7 +2,7 @@
 
 ## Intro
 
-This sample shows how to use the oneAPI Video Processing Library (oneVPL) 
+This sample shows how to use the Intel® Video Processing Library (Intel® VPL) 
 and Intel® Distribution of OpenVINO™ Toolkit together to perform a simple inference pipeline 
 
 ```mermaid
@@ -14,16 +14,16 @@ graph LR;
 | Optimized for    | Description
 |----------------- | ----------------------------------------
 | OS               | Ubuntu* 20.04; Windows* 10
-| Hardware runtime | Compatible with Intel® oneAPI Video Processing Library(oneVPL) GPU implementation, which can be found at [Intel® oneVPL GPU Implementation Open Source](https://github.com/oneapi-src/oneVPL-intel-gpu)
+| Hardware runtime | Compatible with Intel® VPL GPU implementation, which can be found at https://github.com/intel/libvpl-intel-gpu)
 |                  | and Intel® Media SDK GPU implementation, which can be found at [Intel® Media SDK Open Source](https://github.com/Intel-Media-SDK/MediaSDK)
-| What You Will Learn | How to combine oneAPI Video Processing Library (oneVPL) and Intel® Distribution of OpenVINO™ Toolkit
+| What You Will Learn | How to combine Intel® VPL and Intel® Distribution of OpenVINO™ Toolkit
 | Time to Complete | 5 minutes
 
 
 ## Purpose
 
 This sample is a command line application that takes a file containing an H.265
-video elementary stream and network model as an argument, decodes and resize it with oneVPL and performs 
+video elementary stream and network model as an argument, decodes and resize it with Intel® VPL and performs 
 object detection on each frame using the OpenVINO™ toolkit.
 
 
@@ -44,7 +44,7 @@ object detection on each frame using the OpenVINO™ toolkit.
 | -i       | H.265 video elementary stream  |
 | -m       | Object detection network model |
 | -legacy  | Run sample using core 1.x API for portability |
-| -zerocopy| Process data without copying between oneVPL and the OpenVINO™ toolkit in hardware implemenation mode |
+| -zerocopy| Process data without copying between Intel® VPL and the OpenVINO™ toolkit in hardware implemenation mode |
 |          | | not with `-legacy`
 
 
@@ -64,7 +64,7 @@ This can be set up in a bare metal Ubuntu 20.04 system or with Docker for Linux,
 1. Install media and compute stack prerequisites. 
 
    - Follow the steps in [dgpu-docs](https://dgpu-docs.intel.com/) according to your GPU.
-   - Follow the steps in [install.md](https://github.com/oneapi-src/oneVPL/blob/master/INSTALL.md) or install libvpl-dev. 
+   - Follow the steps in [install.md](https://github.com/intel/libvpl/blob/master/INSTALL.md) or install libvpl-dev. 
    - Install these additional packages:
 
     ```
@@ -152,30 +152,30 @@ These instructions assume that Docker is already set up on your system.
 
 
     ```
-    docker build -t onevpl_openvino docker
+    docker build -t interop docker
     ```
     
     If needed, pass proxy information with “--build-arg”:
 
     ```
-    docker build -t onevpl_openvino $(env | grep -E '(_proxy=|_PROXY)' | sed 's/^/--build-arg /') docker
+    docker build -t interop $(env | grep -E '(_proxy=|_PROXY)' | sed 's/^/--build-arg /') docker
     ```
 
 
 2. Start the container
 
-    These steps start from the oneVPL dispatcher examples directory to provide access to the input video file.
+    These steps start from the Intel® VPL dispatcher examples directory to provide access to the input video file.
     (To reach the examples directory type `cd ../..` from the directory with vpl-infer CMakeLists.txt.)
 
     ```
-    docker run -it --rm --privileged -v `pwd`:`pwd` -w `pwd` onevpl_openvino:latest
+    docker run -it --rm --privileged -v `pwd`:`pwd` -w `pwd` interop:latest
     ```
     
 
 3. Build and run the program in the container:
 
 
-    Build steps: if not installed to system directories, source oneVPL vars.sh then 
+    Build steps: if not installed to system directories, source Intel® VPL vars.sh then 
 
 
     ```
@@ -336,7 +336,7 @@ OpenVINO™ Runtime
     Version : 2022.3.0
     Build   : 2022.3.0-9052-9752fafe8eb-releases/2022/3
 
-Loading network model files: /oneVPL/nm/mobilenet-ssd/FP32/mobilenet-ssd.xml
+Loading network model files: /libvpl/nm/mobilenet-ssd/FP32/mobilenet-ssd.xml
     Model name: MobileNet-SSD
     Inputs
         Input name: data
@@ -356,7 +356,7 @@ libva info: Trying to open /usr/lib/x86_64-linux-gnu/dri/iHD_drv_video.so
 libva info: Found init function __vaDriverInit_1_15
 libva info: va_openDriver() returns 0
 
-oneVPL Implementation details:
+Intel® VPL Implementation details:
     ApiVersion:           2.7
     Implementation type:  HW
     AccelerationMode via: VAAPI
@@ -366,7 +366,7 @@ libva info: VA-API version 1.15.0
 libva info: Trying to open /usr/lib/x86_64-linux-gnu/dri/iHD_drv_video.so
 libva info: Found init function __vaDriverInit_1_15
 libva info: va_openDriver() returns 0
-Decoding VPP, and inferring /oneVPL/examples/content/cars_320x240.h265 with /oneVPL/nm/mobilenet-ssd/FP32/mobilenet-ssd.xml
+Decoding VPP, and inferring /libvpl/examples/content/cars_320x240.h265 with /libvpl/nm/mobilenet-ssd/FP32/mobilenet-ssd.xml
 Result:
     Class ID (7),  BBox (  92,  112,  201,  217),  Confidence (0.999)
     Class ID (7),  BBox ( 207,   50,  296,  144),  Confidence (0.997)

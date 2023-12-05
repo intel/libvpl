@@ -1,3 +1,4 @@
+// Example using Intel® Video Processing Library (Intel® VPL)
 #include <vector>
 
 #include <stdlib.h>
@@ -39,7 +40,7 @@ static mfxStatus prg_config2 () {
 mfxConfigInterface *iface = nullptr;
 sts = MFXGetConfigInterface(session, &iface);
 
-// pass string parameter which maps to a VPL extension buffer
+// pass string parameter which maps to an Intel® VPL extension buffer
 mfxVideoParam par   = {};
 mfxExtBuffer extBuf = {};
 sts = iface->SetParameter(iface, (mfxU8 *)"mfxExtHEVCParam.PicWidthInLumaSamples", (mfxU8 *)"640", MFX_STRUCTURE_TYPE_VIDEO_PARAM, &par, &extBuf);

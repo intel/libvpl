@@ -107,7 +107,7 @@ static int HandleSort(const void *plhs, const void *prhs) {
     const MFX_DISP_HANDLE_EX *rhs   = *(const MFX_DISP_HANDLE_EX **)prhs;
     const mfxVersion vplInitVersion = { 255, 1 };
 
-    // prefer oneAPI Video Processing Library (oneVPL) runtime (API = 1.255)
+    // prefer Intel® Video Processing Library (Intel® VPL) runtime (API = 1.255)
     if ((lhs->actualApiVersion.Version == vplInitVersion.Version) &&
         (rhs->actualApiVersion < lhs->actualApiVersion)) {
         return -1;

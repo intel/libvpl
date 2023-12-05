@@ -3,6 +3,7 @@
 #
 # SPDX-License-Identifier: MIT
 # ##############################################################################
+# Build stub runtime for testing Intel® Video Processing Library (Intel® VPL)
 cmake_minimum_required(VERSION 3.13.0)
 set(DLL_PREFIX "lib")
 file(STRINGS "../stub/version.txt" version_txt)
@@ -55,7 +56,7 @@ if(WIN32)
 endif()
 
 find_package(VPL 2.2 REQUIRED COMPONENTS api)
-message(STATUS "Found oneVPL (version ${VPL_VERSION})")
+message(STATUS "Found Intel® VPL (version ${VPL_VERSION})")
 target_link_libraries(${PROJECT_NAME} PUBLIC VPL::api)
 
 target_include_directories(${PROJECT_NAME} PRIVATE ../stub

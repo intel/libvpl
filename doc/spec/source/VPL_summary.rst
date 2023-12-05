@@ -10,16 +10,16 @@ Mandatory APIs and Functions
 Disclaimer
 ----------
 
-Developers can implement any subset of the oneVPL API.
+Developers can implement any subset of the |vpl_short_name| API.
 The specification makes no claim about what encoder, decoder, VPP
 filter, or any other underlying features are mandatory for the implementation.
-The oneVPL API is designed such that users have several options
+The |vpl_short_name| API is designed such that users have several options
 to discover capabilities exposed by the implementation:
 
 #. Before or after session creation: Users can get a list of supported encoders, decoders,
    VPP filters, correspondent color formats, and memory types with the help of
    the :cpp:func:`MFXEnumImplementations` function. For more details, see
-   :ref:`oneVPL Dispatcher Interactions <onevpl-dispatcher-interactions>`.
+   :ref:`vpl-dispatcher-interactions`.
 #. After session is created: Users can call **Query** functions to obtain
    low level implementation capabilities.
 

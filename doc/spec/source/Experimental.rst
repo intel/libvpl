@@ -2,9 +2,9 @@
 ..
 .. SPDX-License-Identifier: CC-BY-4.0
 
-=======================
-oneVPL Experimental API
-=======================
+=================================
+|vpl_short_name| Experimental API
+=================================
 
 All API entries defined under the ONEVPL_EXPERIMENTAL macro are considered as
 experimental. Backward compatibility is not guaranteed for these features.

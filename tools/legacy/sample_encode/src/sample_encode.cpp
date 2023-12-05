@@ -40,7 +40,7 @@
     #error MFX_VERSION not defined
 #endif
 
-// oneAPI Video Processing Library (oneVPL)
+// Intel® Video Processing Library (Intel® VPL)
 
 void PrintHelp(char* strAppName, const char* strErrorMessage, ...) {
     printf("Encoding Sample Version %s\n\n", GetMSDKSampleVersion().c_str());
@@ -86,9 +86,9 @@ void PrintHelp(char* strAppName, const char* strErrorMessage, ...) {
     printf("   [-iGfx] - prefer processing on iGfx (by default system decides)\n");
     printf("   [-AdapterNum] - specifies adapter number for processing, starts from 0\n");
     printf(
-        "   [-dispatcher:fullSearch]  - enable search for all available implementations in oneVPL dispatcher\n");
+        "   [-dispatcher:fullSearch]  - enable search for all available implementations in Intel® VPL dispatcher\n");
     printf(
-        "   [-dispatcher:lowLatency]  - enable limited implementation search and query in oneVPL dispatcher\n");
+        "   [-dispatcher:lowLatency]  - enable limited implementation search and query in Intel® VPL dispatcher\n");
 #ifdef MOD_ENC
     MOD_ENC_PRINT_HELP;
 #endif

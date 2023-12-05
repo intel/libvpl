@@ -128,6 +128,6 @@ video processing, and encoding operations to determine the hardware acceleration
 capability.
 
 If the interruption occurs during decoding, video processing, or encoding
-operations, oneVPL functions will return :cpp:enumerator:`mfxStatus::MFX_ERR_DEVICE_LOST`
+operations, |vpl_short_name| functions will return :cpp:enumerator:`mfxStatus::MFX_ERR_DEVICE_LOST`
 or :cpp:enumerator:`mfxStatus::MFX_ERR_DEVICE_FAILED`. The application should handle these
 errors and exit gracefully.

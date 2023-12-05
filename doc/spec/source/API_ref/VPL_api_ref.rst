@@ -4,9 +4,9 @@
 
 .. _VPL_api_ref:
 
-====================
-oneVPL API Reference
-====================
+==============================
+|vpl_short_name| API Reference
+==============================
 
 .. toctree::
    :titlesonly:

@@ -1,6 +1,8 @@
 .. SPDX-FileCopyrightText: 2019-2020 Intel Corporation
 ..
 .. SPDX-License-Identifier: CC-BY-4.0
+..
+  Intel(r) Video Processing Library (Intel(r) VPL)
 
 .. _struct_vpp:
 
@@ -26,7 +28,7 @@ mfxExtColorConversion
 ---------------------
 
 .. doxygenstruct:: mfxExtColorConversion
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -53,7 +55,7 @@ mfxExtDecVideoProcessing
 ------------------------
 
 .. doxygenstruct:: mfxExtDecVideoProcessing
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -61,7 +63,7 @@ mfxExtEncodedSlicesInfo
 -----------------------
 
 .. doxygenstruct:: mfxExtEncodedSlicesInfo
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -69,7 +71,7 @@ mfxExtVppAuxData
 ----------------
 
 .. doxygenstruct:: mfxExtVppAuxData
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -77,7 +79,7 @@ mfxExtVPPColorFill
 ------------------
 
 .. doxygenstruct:: mfxExtVPPColorFill
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -85,7 +87,7 @@ mfxExtVPPComposite
 ------------------
 
 .. doxygenstruct:: mfxExtVPPComposite
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -93,7 +95,7 @@ mfxExtVPPDeinterlacing
 ----------------------
 
 .. doxygenstruct:: mfxExtVPPDeinterlacing
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
    :undoc-members:
@@ -102,7 +104,7 @@ mfxExtVPPDenoise
 ----------------
 
 .. doxygenstruct:: mfxExtVPPDenoise
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
    :undoc-members:
@@ -111,7 +113,7 @@ mfxExtVPPDenoise2
 -----------------
 
 .. doxygenstruct:: mfxExtVPPDenoise2
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
    :undoc-members:
@@ -120,7 +122,7 @@ mfxExtVPPDetail
 ---------------
 
 .. doxygenstruct:: mfxExtVPPDetail
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
    :undoc-members:
@@ -129,7 +131,7 @@ mfxExtVPPDoNotUse
 -----------------
 
 .. doxygenstruct:: mfxExtVPPDoNotUse
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
    :undoc-members:
@@ -138,7 +140,7 @@ mfxExtVPPDoUse
 --------------
 
 .. doxygenstruct:: mfxExtVPPDoUse
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
    :undoc-members:
@@ -147,7 +149,7 @@ mfxExtVPPFieldProcessing
 ------------------------
 
 .. doxygenstruct:: mfxExtVPPFieldProcessing
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -155,7 +157,7 @@ mfxExtVPPFrameRateConversion
 ----------------------------
 
 .. doxygenstruct:: mfxExtVPPFrameRateConversion
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -163,7 +165,7 @@ mfxExtVPPImageStab
 ------------------
 
 .. doxygenstruct:: mfxExtVPPImageStab
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -171,7 +173,7 @@ mfxExtVppMctf
 -------------
 
 .. doxygenstruct:: mfxExtVppMctf
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -179,7 +181,7 @@ mfxExtVPPMirroring
 ------------------
 
 .. doxygenstruct:: mfxExtVPPMirroring
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -187,7 +189,7 @@ mfxExtVPPProcAmp
 ----------------
 
 .. doxygenstruct:: mfxExtVPPProcAmp
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
    :undoc-members:
@@ -196,7 +198,7 @@ mfxExtVPPRotation
 -----------------
 
 .. doxygenstruct:: mfxExtVPPRotation
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -204,7 +206,7 @@ mfxExtVPPScaling
 ----------------
 
 .. doxygenstruct:: mfxExtVPPScaling
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -212,7 +214,7 @@ mfxChannel
 ----------
 
 .. doxygenstruct:: mfxChannel
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -220,7 +222,7 @@ mfx3DLutSystemBuffer
 --------------------
 
 .. doxygenstruct:: mfx3DLutSystemBuffer
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -228,7 +230,7 @@ mfx3DLutVideoBuffer
 -------------------
 
 .. doxygenstruct:: mfx3DLutVideoBuffer
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -236,7 +238,7 @@ mfxExtVPP3DLut
 --------------
 
 .. doxygenstruct:: mfxExtVPP3DLut
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -244,7 +246,7 @@ mfxExtVPPVideoSignalInfo
 ------------------------
 
 .. doxygenstruct:: mfxExtVPPVideoSignalInfo
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -252,7 +254,7 @@ mfxInfoVPP
 ----------
 
 .. doxygenstruct:: mfxInfoVPP
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -260,7 +262,7 @@ mfxVPPCompInputStream
 ---------------------
 
 .. doxygenstruct:: mfxVPPCompInputStream
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -268,7 +270,7 @@ mfxVPPStat
 ----------
 
 .. doxygenstruct:: mfxVPPStat
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -276,6 +278,6 @@ mfxExtVPPPercEncPrefilter
 -------------------------
 
 .. doxygenstruct:: mfxExtVPPPercEncPrefilter
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:

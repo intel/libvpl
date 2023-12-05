@@ -11,7 +11,7 @@
 #include "src/dispatcher_common.h"
 
 // clang-format off
-//oneAPI Video Processing Library (oneVPL) legacy cpp session test
+//Intel® Video Processing Library (Intel® VPL) legacy cpp session test
 
 #define SET_UTEST_PARAMETER(param, val)                               \
 {                                                                 \
@@ -20,16 +20,16 @@
 }
 
 static void Usage(void) {
-    printf("\nCustom parameters for vplTests:\n");
+    printf("\nCustom parameters:\n");
     printf("   -disp:stub      ....  run dispatcher tests with stub runtime (default)\n");
     printf("   -disp:sw        ....  run dispatcher tests with CPU runtime\n");
     printf("   -disp:gpu-all   ....  run dispatcher tests with all GPU runtimes\n");
-    printf("   -disp:gpu-msdk  ....  run dispatcher tests with GPU MSDK runtime (exclude tests only applicable to oneVPL RT)\n");
-    printf("   -disp:gpu-vpl   ....  run dispatcher tests with GPU oneVPL runtime (exclude tests only applicable to MSDK RT)\n");
+    printf("   -disp:gpu-msdk  ....  run dispatcher tests with GPU MSDK runtime (exclude tests only applicable to Intel® VPL RT)\n");
+    printf("   -disp:gpu-vpl   ....  run dispatcher tests with GPU Intel® VPL runtime (exclude tests only applicable to MSDK RT)\n");
     printf("   -disp:enumimpl  ....  run dispatcher implementation enumeration tests (requires vpl-inspect installed)\n");
     printf("   -device:gpu ID  ....  add implementation of type GPU with ID corresponding to mfxDeviceDescription:DeviceID (ex: 9a49/0)\n");
-    printf("   -workDir path   ....  location in which to create working directory (full path or relative to 'oneVPLTests' application)\n");
-    printf("                         directory 'path/oneVPLTests-work' will be created if it does not exist\n");
+    printf("   -workDir path   ....  location in which to create working directory (full path or relative to this application)\n");
+    printf("                         directory 'path/utest-work' will be created if it does not exist\n");
 
     printf("\nLegacy C++ API (mfxvideo++.h) - requires GPU\n");
     printf("   -legacycpp accelModes [adapterList]\n");
@@ -93,7 +93,7 @@ int main(int argc, char **argv) {
             SET_UTEST_PARAMETER(g_bDispInclGPU_MSDK, true);
         }
         else if (nextArg == "-disp:gpu-vpl") {
-            // only run GPU tests that are expected to pass with oneVPL (2.x) runtimes
+            // only run GPU tests that are expected to pass with Intel® VPL (2.x) runtimes
             bDispCustom = true;
             SET_UTEST_PARAMETER(g_bDispInclGPU_VPL, true);
             SET_UTEST_PARAMETER(g_bDispInclGPU_MSDK, false);

@@ -2,11 +2,10 @@ prefix=@pc_rel_prefix@
 libdir=@pc_rel_libdir@
 includedir=@pc_rel_incdir@
 
-# oneAPI Video Processing Library (oneVPL)
-Name: oneVPL
-Description: oneAPI Video Processing Library
+Name: Intel® Video Processing Library
+Description: Accelerated video decode, encode, and frame processing capabilities on Intel® GPUs
 Version: @API_VERSION_MAJOR@.@API_VERSION_MINOR@
-URL: https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/onevpl.html
+URL: https://github.com/intel/libvpl
 
 Libs: -L${libdir} -l@OUTPUT_NAME@ @VPL_PKGCONFIG_DEPENDENT_LIBS@
 Libs.private: @VPL_PKGCONFIG_PRIVATE_LIBS@

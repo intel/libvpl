@@ -5,7 +5,7 @@
 //==============================================================================
 
 ///
-/// A minimal oneAPI Video Processing Library (oneVPL) VPP application,
+/// A minimal Intel® Video Processing Library (Intel® VPL) VPP application,
 /// using 2.x API with internal memory management
 ///
 /// @file

@@ -3,7 +3,6 @@
 #
 # SPDX-License-Identifier: MIT
 # ##############################################################################
-# oneAPI Video Processing Library (oneVPL) main build script
 
 add_subdirectory(media_sdk_compatibility_headers)
 add_subdirectory(sample_common)

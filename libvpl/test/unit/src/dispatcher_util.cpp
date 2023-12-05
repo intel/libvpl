@@ -3,7 +3,7 @@
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
-
+// Utility file for testing Intel® Video Processing Library (Intel® VPL)
 #include <gtest/gtest.h>
 
 #include "src/dispatcher_common.h"
@@ -171,7 +171,7 @@ void GetDeviceIDList(std::list<std::string> &deviceIDList) {
     deviceIDList = g_deviceIDList;
 }
 
-// check if working directory exists at 'dirPath/oneVPLTests-work'
+// check if working directory exists at 'dirPath/utest-work'
 //   if not, attempt to create it
 // return zero on success, non-zero if dirPath is invalid or not writable
 // for simplicity, does not check if working directory itself is writable
@@ -190,7 +190,7 @@ int CreateWorkingDirectory(const char *dirPath) {
         workDirPath.erase(lastSep);
 
     // create path to working directory
-    workDirPath = workDirPath + std::string(PATH_SEPARATOR) + std::string("oneVPLTests-work");
+    workDirPath = workDirPath + std::string(PATH_SEPARATOR) + std::string("utest-work");
 
 #if defined(_WIN32) || defined(_WIN64)
     // check whether working directory exists
@@ -292,22 +292,8 @@ mfxStatus SetConfigImpl(mfxLoader loader, mfxU32 implType, bool bRequire2xGPU) {
             ImplValue);
     }
     else if (implType == MFX_IMPL_TYPE_SOFTWARE) {
-        // for SW, filter by ImplName and ImplType (to exclude stub SW lib)
-        ImplValue.Version.Version = (mfxU16)MFX_VARIANT_VERSION;
-        ImplValue.Type            = MFX_VARIANT_TYPE_PTR;
-        ImplValue.Data.Ptr        = (mfxHDL) "oneAPI VPL CPU Implementation";
-
-        sts = MFXSetConfigFilterProperty(
-            cfg,
-            reinterpret_cast<const mfxU8 *>("mfxImplDescription.ImplName"),
-            ImplValue);
-
-        ImplValue.Type     = MFX_VARIANT_TYPE_U32;
-        ImplValue.Data.U32 = implType;
-
-        sts = MFXSetConfigFilterProperty(cfg,
-                                         reinterpret_cast<const mfxU8 *>("mfxImplDescription.Impl"),
-                                         ImplValue);
+        // unsupported in unit tests
+        return MFX_ERR_UNSUPPORTED;
     }
     else if (implType == MFX_IMPL_TYPE_HARDWARE) {
         // for HW, filter by ImplType (any is okay)
@@ -320,7 +306,8 @@ mfxStatus SetConfigImpl(mfxLoader loader, mfxU32 implType, bool bRequire2xGPU) {
                                          ImplValue);
 
         if (bRequire2xGPU) {
-            // for systems with both MSDK and oneVPL GPU's, limit the test to only the oneVPL device
+            // for systems with both MSDK and Intel® VPL GPU's, limit the test
+            // to only the Intel® VPL device
             ImplValue.Version.Version = (mfxU16)MFX_VARIANT_VERSION;
             ImplValue.Type            = MFX_VARIANT_TYPE_PTR;
             ImplValue.Data.Ptr        = (mfxHDL) "mfx-gen";

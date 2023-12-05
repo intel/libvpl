@@ -17,7 +17,7 @@ information.
 Dynamic Bitrate Change
 ----------------------
 
-The oneVPL encoder supports dynamic bitrate change according to bitrate control mode
+The |vpl_short_name| encoder supports dynamic bitrate change according to bitrate control mode
 and HRD conformance requirements. If HRD conformance is required, for example if
 the application sets the ``NalHrdConformance`` option in the
 :cpp:struct:`mfxExtCodingOption` structure to ON, the only allowed
@@ -36,7 +36,7 @@ application can change ``TargetKbps``. In VBR mode the application can change
 ``TargetKbps`` and ``MaxKbps`` values. This sort of change in bitrate will not
 result in the generation of a new keyframe or sequence header.
 
-The oneVPL encoder may change some initialization parameters provided by the
+The |vpl_short_name| encoder may change some initialization parameters provided by the
 application during initialization. That in turn may lead to incompatibility
 between the parameters provided by the application during reset and the working set
 of parameters used by the encoder. For this reason, it is strongly recommended
@@ -44,7 +44,7 @@ to retrieve the actual working parameters using the
 :cpp:func:`MFXVideoENCODE_GetVideoParam` function before making any changes to
 bitrate settings.
 
-In all modes, oneVPL encoders will respond to the bitrate changes as quickly as
+In all modes, |vpl_short_name| encoders will respond to the bitrate changes as quickly as
 the underlying algorithm allows, without breaking other encoding restrictions
 such as HRD compliance if it is enabled. How quickly the actual bitrate can catch
 up with the specified bitrate is implementation dependent.
@@ -57,17 +57,17 @@ of the encoded or display order modes to use per-frame CQP.
 Dynamic Resolution Change
 -------------------------
 
-The oneVPL encoder supports dynamic resolution change in all bitrate control modes.
+The |vpl_short_name| encoder supports dynamic resolution change in all bitrate control modes.
 The application may change resolution by calling the :cpp:func:`MFXVideoENCODE_Reset`
 function. The application may decrease or increase resolution up to the size
 specified during encoder initialization.
 
 Resolution change always results in the insertion of a key IDR frame and a new
-sequence parameter set in the header. The only exception is the oneVPL VP9 encoder
-(see section for `Dynamic reference frame scaling`_). The oneVPL encoder does not
+sequence parameter set in the header. The only exception is the |vpl_short_name| VP9 encoder
+(see section for `Dynamic reference frame scaling`_). The |vpl_short_name| encoder does not
 guarantee HRD conformance across the resolution change point.
 
-The oneVPL encoder may change some initialization parameters provided by the
+The |vpl_short_name| encoder may change some initialization parameters provided by the
 application during initialization. That in turn may lead to incompatibility of
 parameters provide by the application during reset and working set of parameters
 used by the encoder. Due to this potential incompatibility, it is strongly
@@ -82,7 +82,7 @@ Dynamic Reference Frame Scaling
 The VP9 standard allows changing the resolution without the insertion of a
 keyframe. This is possible because the VP9 encoder has the built-in capability
 to upscale and downscale reference frames to match the resolution of the frame
-being encoded. By default the oneVPL VP9 encoder inserts a keyframe when the
+being encoded. By default the |vpl_short_name| VP9 encoder inserts a keyframe when the
 application does `Dynamic Resolution Change`_. In this case, the first frame
 with a new resolution is encoded using inter prediction from the scaled reference
 frame of the previous resolution. Dynamic scaling has the following limitations,
@@ -93,7 +93,7 @@ described in the VP9 specification:
 * The resolution of any active reference frame cannot be smaller than 1/16 of
   the current frame resolution.
 
-In the case of dynamic scaling, the oneVPL VP9 encoder always uses a single active
+In the case of dynamic scaling, the |vpl_short_name| VP9 encoder always uses a single active
 reference frame for the first frame after a resolution change. The VP9
 encoder has the following limitations for dynamic resolution change:
 
@@ -107,7 +107,7 @@ dynamic resolution limitations are not enforced.
 
 Note that resolution change with dynamic reference scaling is compatible with
 multiref (:cpp:member:`mfxInfoMFX::NumRefFrame` > 1). For multiref
-configuration, the oneVPL VP9 encoder uses multiple references within stream pieces
+configuration, the |vpl_short_name| VP9 encoder uses multiple references within stream pieces
 of the same resolution and uses a single reference at the place of resolution
 change.
 
@@ -115,14 +115,14 @@ change.
 Forced Keyframe Generation
 ---------------------------
 
-oneVPL supports forced keyframe generation during encoding. The application
+|vpl_short_name| supports forced keyframe generation during encoding. The application
 can set the FrameType parameter of the :cpp:struct:`mfxEncodeCtrl` structure to
 control how the current frame is encoded, as follows:
 
-- If the oneVPL encoder works in the display order, the application can enforce any
+- If the |vpl_short_name| encoder works in the display order, the application can enforce any
   current frame to be a keyframe. The application cannot change the frame type
   of already buffered frames inside the encoder.
-- If the oneVPL encoder works in the encoded order, the application must specify
+- If the |vpl_short_name| encoder works in the encoded order, the application must specify
   exact frame type for every frame. In this way, the application can enforce the
   current frame to have any frame type that the particular coding standard allows.
 
@@ -150,7 +150,7 @@ specifies the length of the reference list L0 and ``NumRefIdxL1Active`` specifie
 the length of the reference list L1. These two numbers must be less than or equal
 to the :cpp:member:`mfxInfoMFX::NumRefFrame` parameter during encoding initialization.
 
-The application can instruct the oneVPL encoder to use or not use certain reference
+The application can instruct the |vpl_short_name| encoder to use or not use certain reference
 frames. To do this, there is a prerequisite that the application uniquely
 identify each input frame by setting the :cpp:member:`mfxFrameData::FrameOrder`
 parameter. The application then specifies the preferred reference frame list
@@ -162,10 +162,10 @@ The encoder does not keep ``PreferredRefList`` and the application must send it
 for each frame if necessary. There are limitations as follows:
 
 - The frames in the lists are ignored if they are out of the reference window.
-- If by going through the lists, the oneVPL encoder cannot find a reference frame
+- If by going through the lists, the |vpl_short_name| encoder cannot find a reference frame
   for the current frame, the encoder will encode the current frame without
   using any reference frames.
-- If the GOP pattern contains B-frames, the oneVPL encoder may not be able to follow
+- If the GOP pattern contains B-frames, the |vpl_short_name| encoder may not be able to follow
   the :cpp:struct:`mfxExtAVCRefListCtrl` instructions.
 
 ---------------------------------
@@ -191,7 +191,7 @@ message during encoding initialization by setting ``RefPicMarkRep`` of the
 repetition SEI message repeats certain reference frame information in the output
 bitstream for robust streaming.
 
-The oneVPL decoder will respond to the reference picture marking repetition SEI
+The |vpl_short_name| decoder will respond to the reference picture marking repetition SEI
 message if the message exists in the bitstream and compare it to the reference
 list information specified in the sequence/picture headers. The decoder will
 report any mismatch of the SEI message with the reference list information in
@@ -206,7 +206,7 @@ Long Term Reference Frame
 The application may use long term reference frames to improve coding efficiency
 or robustness for video conferencing applications. The application controls the
 long term frame marking process by attaching the :cpp:struct:`mfxExtAVCRefListCtrl`
-extended buffer during encoding. The oneVPL encoder itself never marks a frame as
+extended buffer during encoding. The |vpl_short_name| encoder itself never marks a frame as
 long term.
 
 There are two control lists in the :cpp:struct:`mfxExtAVCRefListCtrl` extended
@@ -220,7 +220,7 @@ for encoding. The application can either explicitly unmark long term reference
 frames or wait for the IDR frame. When the IDR frame is reached, all long term
 reference frames will be unmarked.
 
-The oneVPL encoder puts all long term reference frames at the end of a reference
+The |vpl_short_name| encoder puts all long term reference frames at the end of a reference
 frame list. If the number of active reference frames (the ``NumRefIdxL0Active``
 and ``NumRefIdxL1Active`` values in the :cpp:struct:`mfxExtAVCRefListCtrl`
 extended buffer) is less than than the total reference frame number (the
@@ -237,10 +237,10 @@ Temporal Scalability
 
 The application may specify the temporal hierarchy of frames by using the
 :cpp:struct:`mfxExtAvcTemporalLayers` extended buffer during the encoder
-initialization in the display order encoding mode. oneVPL inserts the prefix
+initialization in the display order encoding mode. |vpl_short_name| inserts the prefix
 NAL unit before each slice with a unique temporal and priority ID. The temporal
 ID starts from zero and the priority ID starts from the ``BaseLayerPID`` value.
-oneVPL increases the temporal ID and priority ID value by one for each
+|vpl_short_name| increases the temporal ID and priority ID value by one for each
 consecutive layer.
 
 If the application needs to specify a unique sequence or picture parameter set

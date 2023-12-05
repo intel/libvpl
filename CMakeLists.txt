@@ -3,7 +3,7 @@
 #
 # SPDX-License-Identifier: MIT
 # ##############################################################################
-# oneAPI Video Processing Library (oneVPL) main build script
+
 cmake_minimum_required(VERSION 3.13.0)
 if(MSVC)
   cmake_policy(SET CMP0091 NEW)

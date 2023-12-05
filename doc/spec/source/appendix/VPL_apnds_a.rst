@@ -7,8 +7,8 @@ Configuration Parameter Constraints
 ===================================
 
 The :cpp:struct:`mfxFrameInfo` structure is used by both the :cpp:struct:`mfxVideoParam`
-structure during oneVPL class initialization and the :cpp:struct:`mfxFrameSurface1`
-structure during the actual oneVPL class operation. The parameter constraints
+structure during |vpl_short_name| class initialization and the :cpp:struct:`mfxFrameSurface1`
+structure during the actual |vpl_short_name| class operation. The parameter constraints
 described in the following tables apply.
 
 -----------------------------------

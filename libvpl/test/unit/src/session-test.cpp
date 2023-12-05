@@ -5,7 +5,7 @@
   ############################################################################*/
 
 ///
-/// Example of a minimal oneAPI Video Processing Library (oneVPL) application.
+/// Example of a minimal Intel® Video Processing Library (Intel® VPL) application.
 ///
 /// @file
 

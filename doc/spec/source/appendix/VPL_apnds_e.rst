@@ -3,12 +3,12 @@
 .. SPDX-License-Identifier: CC-BY-4.0
 
 ========================================
-Working Directly with VA API for Linux\*
+Working Directly with VA-API for Linux\*
 ========================================
 
-|msdk_full_name| takes care of all memory and synchronization related operations in the VA API.
+|msdk_full_name| takes care of all memory and synchronization related operations in the VA-API.
 The application may need to extend |msdk_full_name| functionality by working directly
-with the VA API for Linux\*, for example to implement a customized external allocator.
+with the VA-API for Linux\*, for example to implement a customized external allocator.
 This section describes basic memory management and synchronization techniques.
 
 To create the VA surface pool, the application should call the vaCreateSurfaces

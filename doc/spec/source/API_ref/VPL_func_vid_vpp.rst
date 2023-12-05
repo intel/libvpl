@@ -1,6 +1,8 @@
 .. SPDX-FileCopyrightText: 2019-2020 Intel Corporation
 ..
 .. SPDX-License-Identifier: CC-BY-4.0
+..
+  Intel(r) Video Processing Library (Intel(r) VPL)
 
 .. _func_video_vpp:
 
@@ -26,7 +28,7 @@ MFXVideoVPP_Query
 -----------------
 
 .. doxygenfunction:: MFXVideoVPP_Query
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 .. important:: The :cpp:func:`MFXVideoVPP_Query` function is mandatory when implementing a VPP filter.
 
@@ -34,13 +36,13 @@ MFXVideoVPP_QueryIOSurf
 -----------------------
 
 .. doxygenfunction:: MFXVideoVPP_QueryIOSurf
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 MFXVideoVPP_Init
 ----------------
 
 .. doxygenfunction:: MFXVideoVPP_Init
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 .. important:: The :cpp:func:`MFXVideoVPP_Init` function is mandatory when implementing a VPP filter.
 
@@ -48,13 +50,13 @@ MFXVideoVPP_Reset
 -----------------
 
 .. doxygenfunction:: MFXVideoVPP_Reset
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 MFXVideoVPP_Close
 -----------------
 
 .. doxygenfunction:: MFXVideoVPP_Close
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 .. important:: The :cpp:func:`MFXVideoVPP_Close` function is mandatory when implementing a VPP filter.
 
@@ -62,24 +64,24 @@ MFXVideoVPP_GetVideoParam
 -------------------------
 
 .. doxygenfunction:: MFXVideoVPP_GetVideoParam
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 MFXVideoVPP_GetVPPStat
 ----------------------
 
 .. doxygenfunction:: MFXVideoVPP_GetVPPStat
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 MFXVideoVPP_RunFrameVPPAsync
 ----------------------------
 
 .. doxygenfunction:: MFXVideoVPP_RunFrameVPPAsync
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 MFXVideoVPP_ProcessFrameAsync
 -----------------------------
 
 .. doxygenfunction:: MFXVideoVPP_ProcessFrameAsync
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 .. important:: Either :cpp:func:`MFXVideoVPP_RunFrameVPPAsync` or  :cpp:func:`MFXVideoVPP_ProcessFrameAsync` function is                  mandatory when implementing a VPP filter.

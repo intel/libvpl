@@ -8,15 +8,15 @@
 Memory Allocation and External Allocators
 =========================================
 
-There are two models of memory management in oneVPL: internal and external.
+There are two models of memory management in |vpl_short_name|: internal and external.
 
 --------------------------
 External Memory Management
 --------------------------
 
 In the external memory model, the application must allocate sufficient memory for
-input and output parameters and buffers and deallocate it when oneVPL functions
-complete their operations. During execution, the oneVPL functions use callback
+input and output parameters and buffers and deallocate it when |vpl_short_name| functions
+complete their operations. During execution, the |vpl_short_name| functions use callback
 functions to the application to manage memory for video frames through the
 external allocator interface :cpp:struct:`mfxFrameAllocator`.
 
@@ -37,7 +37,7 @@ The external frame allocator can allocate different frame types:
 The external frame allocator responds only to frame allocation requests for the
 requested memory type and returns :cpp:enumerator:`mfxStatus::MFX_ERR_UNSUPPORTED`
 for all other types. The allocation request uses flags (part of the memory type
-field) to indicate which oneVPL class initiated the request so that the external
+field) to indicate which |vpl_short_name| class initiated the request so that the external
 frame allocator can respond accordingly.
 
 The following example shows a simple external frame allocator:
@@ -57,7 +57,7 @@ planes of the same frame as a single buffer (using one single malloc call).
 Internal Memory Management
 --------------------------
 
-In the internal memory management model, oneVPL provides interface functions for
+In the internal memory management model, |vpl_short_name| provides interface functions for
 frames allocation:
 
 - :cpp:func:`MFXMemory_GetSurfaceForVPP`
@@ -72,7 +72,7 @@ These functions are used together with :cpp:struct:`mfxFrameSurfaceInterface`
 for surface management. The surface returned by these functions is a reference
 counted object and the application must call :cpp:member:`mfxFrameSurfaceInterface::Release`
 after finishing all operations with the surface. In this model the application
-does not need to create and set the external allocator to oneVPL.
+does not need to create and set the external allocator to |vpl_short_name|.
 
 Another method to obtain an internally allocated surface is to call
 :cpp:func:`MFXVideoDECODE_DecodeFrameAsync` with a working surface equal to NULL
@@ -85,7 +85,7 @@ with the user are similar to the **MFXMemory_GetSurfaceForXXX** functions.
 mfxFrameSurfaceInterface
 ------------------------
 
-oneVPL API version 2.0 introduces :cpp:struct:`mfxFrameSurfaceInterface`. This
+|vpl_short_name| API version 2.0 introduces :cpp:struct:`mfxFrameSurfaceInterface`. This
 interface is a set of callback functions to manage the lifetime of allocated
 surfaces, get access to pixel data, and obtain native handles and device
 abstractions (if suitable). Instead of directly accessing

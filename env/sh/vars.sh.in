@@ -145,7 +145,7 @@ elif [ -n "${KSH_VERSION:-}" ] ; then                                     # ksh,
     vars_script_name="${.sh.file}" ;
   else # mksh or lksh or [lm]ksh masquerading as ksh or sh
     # force [lm]ksh to issue error msg; which contains this script's path/filename, e.g.:
-    # mksh: /home/ubuntu/intel/oneapi/vars.sh[137]: ${.sh.file}: bad substitution
+    # mksh: path/to/vars.sh[137]: ${.sh.file}: bad substitution
     vars_script_name="$( (echo "${.sh.file}") 2>&1 )" || : ;
     vars_script_name="$(expr "${vars_script_name:-}" : '^.*sh: \(.*\)\[[0-9]*\]:')" ;
   fi
@@ -154,7 +154,7 @@ elif [ -n "${BASH_VERSION:-}" ] ; then        # bash
   (return 0 2>/dev/null) && vars_script_name="${BASH_SOURCE}" ;
 elif [ "dash" = "$vars_script_shell" ] ; then # dash
   # force dash to issue error msg; which contains this script's rel/path/filename, e.g.:
-  # dash: 146: /home/ubuntu/intel/oneapi/vars.sh: Bad substitution
+  # dash: 146: path/to/vars.sh: Bad substitution
   vars_script_name="$( (echo "${.sh.file}") 2>&1 )" || : ;
   vars_script_name="$(expr "${vars_script_name:-}" : '^.*dash: [0-9]*: \(.*\):')" ;
 elif [ "sh" = "$vars_script_shell" ] ; then   # could be dash masquerading as /bin/sh
@@ -162,7 +162,7 @@ elif [ "sh" = "$vars_script_shell" ] ; then   # could be dash masquerading as /b
   # sample error msg shown; assume this file is named "vars.sh"; as required by setvars.sh
   vars_script_name="$( (echo "${.sh.file}") 2>&1 )" || : ;
   if [ "$(printf "%s" "$vars_script_name" | grep -Eq "sh: [0-9]+: .*vars\.sh: " ; echo $?)" -eq 0 ] ; then # dash as sh
-    # sh: 155: /home/ubuntu/intel/oneapi/vars.sh: Bad substitution
+    # sh: 155: path/to/vars.sh: Bad substitution
     vars_script_name="$(expr "${vars_script_name:-}" : '^.*sh: [0-9]*: \(.*\):')" ;
   fi
 else  # unrecognized shell or dash being sourced from within a user's script
@@ -170,7 +170,7 @@ else  # unrecognized shell or dash being sourced from within a user's script
   # sample error msg shown; assume this file is named "vars.sh"; as required by setvars.sh
   vars_script_name="$( (echo "${.sh.file}") 2>&1 )" || : ;
   if [ "$(printf "%s" "$vars_script_name" | grep -Eq "^.+: [0-9]+: .*vars\.sh: " ; echo $?)" -eq 0 ] ; then # dash
-    # .*: 164: intel/oneapi/vars.sh: Bad substitution
+    # .*: 164: path/to/vars.sh: Bad substitution
     vars_script_name="$(expr "${vars_script_name:-}" : '^.*: [0-9]*: \(.*\):')" ;
   else
     vars_script_name="" ;

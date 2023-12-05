@@ -1,16 +1,16 @@
-# oneAPI Video Processing Library (oneVPL) Surface Sharing - Overview of new APIs
+# Intel® Video Processing Library (Intel® VPL) Surface Sharing - Overview of new APIs
 
-oneVPL API 2.10 introduces new interfaces for sharing surfaces between oneVPL runtime and other applications, frameworks, and graphics APIs. This functionality is only supported when using the internal memory management model.
+Intel® VPL API 2.10 introduces new interfaces for sharing surfaces between Intel® VPL runtime and other applications, frameworks, and graphics APIs. This functionality is only supported when using the internal memory management model.
 
-**Importing** a surface enables oneVPL to access raw video data as input to encode or VPP operations without first mapping the data to system memory and then copying it to a surface allocated by oneVPL runtime using ``mfxFrameSurfaceInterface::Map``.
+**Importing** a surface enables Intel® VPL to access raw video data as input to encode or VPP operations without first mapping the data to system memory and then copying it to a surface allocated by Intel® VPL runtime using ``mfxFrameSurfaceInterface::Map``.
 
-**Exporting** a surface similarly enables the application to access raw video data which is the output of decode or VPP operations and which was allocated by oneVPL runtime, without first mapping to system memory using ``mfxFrameSurfaceInterface::Map``.
+**Exporting** a surface similarly enables the application to access raw video data which is the output of decode or VPP operations and which was allocated by Intel® VPL runtime, without first mapping to system memory using ``mfxFrameSurfaceInterface::Map``.
 
 The following provides an overview of the new APIs. Additional information and runnable sample code may be found in the examples directory (examples/api2x/hello-sharing-*).
 
 - Note: The following APIs are defined under the ONEVPL_EXPERIMENTAL macro. This macro must be defined at build time for these APIs to be accessible. Behavior of these APIs may change in future releases. Backwards compatibility and future presence of experiemental APIs is not guaranteed. 
 
-## Importing and exporting surfaces between oneVPL runtime and external frameworks
+## Importing and exporting surfaces between Intel® VPL runtime and external frameworks
 
 ### New header file mfxmemory.h
 
@@ -23,7 +23,7 @@ The following function declarations are moved from mfxvideo.h into mfxmemory.h. 
 ``` 
 ### New function - surface IMPORT
 
-A new interface structure ```mfxMemoryInterface``` is defined, which contains function pointers filled in by the oneVPL runtime. New functions are then called by the application (i.e. a callback interface). 
+A new interface structure ```mfxMemoryInterface``` is defined, which contains function pointers filled in by the Intel® VPL runtime. New functions are then called by the application (i.e. a callback interface). 
 
 The application requests the interface using ```MFXVideoCORE_GetHandle()```. Inputs to GetHandle() are the mfxSession handle and an enum of type ```mfxHandleType```. The output is a generic handle (```mfxHDL``` = ```void*```) which the application then casts to the appropriate interface structure.
 
@@ -52,7 +52,7 @@ typedef struct mfxMemoryInterface {
        @param[in]      surf_component    Surface component type. Required for allocating new surfaces from the appropriate pool.
        @param[in,out]  external_surface  Pointer to the mfxSurfaceXXX object describing the surface to be imported. All fields in
                                          mfxSurfaceHeader must be set by the application. mfxSurfaceHeader::SurfaceType is
-                                         read by oneVPL runtime to determine which particular mfxSurfaceXXX structure is supplied.
+                                         read by Intel® VPL runtime to determine which particular mfxSurfaceXXX structure is supplied.
                                          For example, if mfxSurfaceXXX::SurfaceType == MFX_SURFACE_TYPE_D3D11_TEX2D, then the handle
                                          will be interpreted as an object of type mfxSurfaceD3D11Tex2D. The application should
                                          set or clear other fields as specified in the corresponding structure description.
@@ -68,7 +68,7 @@ typedef struct mfxMemoryInterface {
        MFX_ERR_NULL_PTR If ext_surface or imported_surface are NULL.\n
        MFX_ERR_INVALID_HANDLE If the corresponding session was not initialized.\n
        MFX_ERR_UNSUPPORTED If surf_component is not one of [MFX_SURFACE_COMPONENT_ENCODE, MFX_SURFACE_COMPONENT_VPP_INPUT], or if
-                           mfxSurfaceHeader::SurfaceType is not supported by oneVPL runtime for this operation.\n
+                           mfxSurfaceHeader::SurfaceType is not supported by Intel® VPL runtime for this operation.\n
 
        @since This function is available since API version 2.10.
     */
@@ -122,7 +122,7 @@ typedef struct mfxFrameSurfaceInterface {
 
 ### New enumerated types
 
-- Defines a new enum ```mfxSurfaceComponent``` to distinguish which internal surface pool frames are imported/exported to/from. This is required in order for oneVPL runtime to allocate and assign surfaces from the proper internal frame pool.
+- Defines a new enum ```mfxSurfaceComponent``` to distinguish which internal surface pool frames are imported/exported to/from. This is required in order for Intel® VPL runtime to allocate and assign surfaces from the proper internal frame pool.
 
 ```
 /*! The mfxSurfaceComponent enumerator specifies the internal surface pool to use when importing surfaces. */
@@ -149,7 +149,7 @@ typedef enum {
 } mfxSurfaceType;
 ```
 
- - Defines a new list of enums prefixed with ```MFX_SURFACE_FLAG_``` which will be used as both inputs and outputs to oneVPL import/export operations. To avoid need for explicit cast when OR'ing flags together, it is not a typedef.
+ - Defines a new list of enums prefixed with ```MFX_SURFACE_FLAG_``` which will be used as both inputs and outputs to Intel® VPL import/export operations. To avoid need for explicit cast when OR'ing flags together, it is not a typedef.
 ```
 /*! This enumerator specifies the sharing modes which are allowed for importing or exporting shared surfaces. */
 enum {
@@ -163,12 +163,12 @@ enum {
 };
 ```
 - As inputs, these flags indicate whether the runtime should attempt to import/export surfaces with zero-copy ("shared") and/or by creating a copy ("copy").
-- As outputs, these flages indicate what operation oneVPL runtime performed (shared mapping or copy).
+- As outputs, these flages indicate what operation Intel® VPL runtime performed (shared mapping or copy).
 - Flags may be OR'd together to indicate, e.g. "attempt zero-copy sharing if possible, otherwise doing a copy is acceptable".
 
 ### New data structures - Common
 
-Each supported external API will require a new data structure which contains the necessary info to permit sharing/copying between oneVPL and the external framework. The contents will vary for each external API, but same basic approach is followed as with oneVPL extension buffers: define a common "header" structure which is always the first element in the API-specific data structure, followed by additional elements which are particular to each API (frame handle, device context, etc.)
+Each supported external API will require a new data structure which contains the necessary info to permit sharing/copying between Intel® VPL and the external framework. The contents will vary for each external API, but same basic approach is followed as with Intel® VPL extension buffers: define a common "header" structure which is always the first element in the API-specific data structure, followed by additional elements which are particular to each API (frame handle, device context, etc.)
 
 Defines a new data structure ```mfxSurfaceHeader``` which will be included as the first element in each API-specific surface description structure (below).
 
@@ -313,7 +313,7 @@ typedef struct {
    Optional extension buffer, which can be attached to mfxSurfaceHeader::ExtParam
    (second parameter of mfxFrameSurfaceInterface::Export) in order to pass OCL parameters
    during mfxFrameSurface1 exporting to OCL surface.
-   If buffer is not provided all resources will be created by oneVPL RT internally.
+   If buffer is not provided all resources will be created by Intel® VPL RT internally.
 */
 typedef struct {
     mfxExtBuffer    Header;                     /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_EXPORT_SHARING_DESC_OCL. */
@@ -333,7 +333,7 @@ Prior to session creation, applications may query the surface sharing capabiliti
 MFX_IMPLCAPS_SURFACE_TYPES     = 5, /*!< Deliver capabilities as mfxSurfaceTypesSupported structure. */
 ```
 
-To access surface sharing capabilities, oneVPL dispatcher will call MFXQueryImplsDescription(format = MFX_IMPLCAPS_SURFACE_TYPES), and each runtime which supports the surface sharing APIs will return an array of mfxSurfaceTypesSupported structures (one per implementation) which descripbe the supported surface types, along with the associated components and sharing modes that each supports. The description structure is defined as follows:
+To access surface sharing capabilities, Intel® VPL dispatcher will call MFXQueryImplsDescription(format = MFX_IMPLCAPS_SURFACE_TYPES), and each runtime which supports the surface sharing APIs will return an array of mfxSurfaceTypesSupported structures (one per implementation) which descripbe the supported surface types, along with the associated components and sharing modes that each supports. The description structure is defined as follows:
 
 ```
 typedef struct {
@@ -355,7 +355,7 @@ typedef struct {
 } mfxSurfaceTypesSupported;
 ```
 
-As with other oneVPL implementation capabilities reports, an application may use this information in two ways:
+As with other Intel® VPL implementation capabilities reports, an application may use this information in two ways:
 1) It can call MFXEnumImplementations(format = MFX_IMPLCAPS_SURFACE_TYPES) either before or after session creation, and then use the contents of the returned mfxSurfaceTypesSupported structures to inform the construction of media processing pipelines.
 2) It can call MFXSetConfigFilterProperty() prior to session creation, which causes the dispatcher to filter out (remove) any implementations which do not support the requested surface sharing operations. See an example in the code snippets below.
 
@@ -386,12 +386,12 @@ MFXSetConfigFilterProperty(config, (mfxU8 *)"mfxSurfaceTypesSupported.surftype.s
 MFXCreateSession(loader, 0, &session);
 ```
 
-### Exporting a frame decoded in oneVPL to a D3D11 texture
+### Exporting a frame decoded in Intel® VPL to a D3D11 texture
 ```
-// decode frame in oneVPL
+// decode frame
 sts = MFXVideoDECODE_DecodeFrameAsync(session, (isDrainingDec ? NULL : &fileInfo->bitstream), NULL, &pmfxDecOutSurface, &syncpD);
 
-// run VPP on frame in oneVPL
+// run VPP on frame
 sts = MFXVideoVPP_ProcessFrameAsync(session, pmfxDecOutSurface, &pmfxVPPOutSurface);
 
 // release decoded frame (decrease reference count) after passing to VPP
@@ -407,7 +407,7 @@ mfxSurfaceHeader export_header = {};
 export_header.SurfaceType      = MFX_SURFACE_TYPE_D3D11_TEX2D;
 export_header.SurfaceFlags     = MFX_SURFACE_FLAG_EXPORT_SHARED;
 
-// export mfxFrameSurface1 from oneVPL to a D3D11 texture, zero-copy enabled
+// export mfxFrameSurface1 to a D3D11 texture, zero-copy enabled
 mfxSurfaceD3D11Tex2D *exported_surface = nullptr;
 sts = pmfxVPPOutSurface->FrameInterface->Export(pmfxVPPOutSurface, export_header, (mfxSurfaceHeader **)(&exported_surface));
 
@@ -423,7 +423,7 @@ sts = exported_surface->SurfaceInterface.Release(&(exported_surface->SurfaceInte
 pmfxVPPOutSurface->FrameInterface->Release(pmfxVPPOutSurface);
 ```
 
-### Importing a D3D11 texture as a oneVPL frame for encoding
+### Importing a D3D11 texture as a Intel® VPL frame for encoding
 ```
 // get interface with import function (only call once per session)
 mfxMemoryInterface *memoryInterface = nullptr;
@@ -434,7 +434,7 @@ sts = MFXGetMemoryInterface(session, &memoryInterface);
 ID3D11Texture2D *pTex2D;
 sts = CaptureFrame(&pTex2D);
 
-// import D3D11 surface into mfxFrameSurface1 for oneVPL
+// import D3D11 surface into mfxFrameSurface1
 // set header.surfaceType, device, and texture2D, all other fields should be empty
 mfxSurfaceD3D11Tex2D extSurfD3D11                 = {};
 extSurfD3D11.SurfaceInterface.Header.SurfaceType  = MFX_SURFACE_TYPE_D3D11_TEX2D;
@@ -444,23 +444,23 @@ extSurfD3D11.SurfaceInterface.Header.StructSize   = sizeof(mfxSurfaceD3D11Tex2D)
 // pointer to the texture to import
 extSurfD3D11.texture2D = pTex2D;
 
-// import D3D11 texture into oneVPL, zero-copy preferred, copy okay
+// import D3D11 texture, zero-copy preferred, copy okay
 mfxFrameSurface1 *pmfxEncSurface = nullptr;
 sts = memoryInterface->ImportFrameSurface(memoryInterface, MFX_SURFACE_COMPONENT_ENCODE, (mfxSurfaceHeader *)extSurfD3D11, &pmfxEncSurface);
 
-// encode in oneVPL
+// encode
 sts = MFXVideoENCODE_EncodeFrameAsync(session, NULL, (isDrainingEnc ? NULL : pmfxEncSurface), &fileInfo->bitstream, &syncp);
 
 // release imported surface
 pmfxEncSurface->FrameInterface->Release(pmfxEncSurface);
 ```
 
-### Exporting a frame decoded in oneVPL to a VAAPI surface
+### Exporting a frame decoded in Intel® VPL to a VAAPI surface
 ```
-// decode frame in oneVPL
+// decode frame
 sts = MFXVideoDECODE_DecodeFrameAsync(session, (isDrainingDec ? NULL : &fileInfo->bitstream), NULL, &pmfxDecOutSurface, &syncpD);
 
-// run VPP on frame in oneVPL
+// run VPP on frame
 sts = MFXVideoVPP_ProcessFrameAsync(session, pmfxDecOutSurface, &pmfxVPPOutSurface);
 
 // release decoded frame (decrease reference count) after passing to VPP
@@ -476,7 +476,7 @@ mfxSurfaceHeader export_header = {};
 export_header.SurfaceType      = MFX_SURFACE_TYPE_VAAPI;
 export_header.SurfaceFlags     = MFX_SURFACE_FLAG_EXPORT_SHARED;
 
-// export mfxFrameSurface1 from oneVPL to a VAAPI surface, zero-copy enabled
+// export mfxFrameSurface1 from Intel® VPL to a VAAPI surface, zero-copy enabled
 mfxSurfaceVAAPI *exported_surface = nullptr;
 sts = pmfxVPPOutSurface->FrameInterface->Export(pmfxVPPOutSurface, export_header, (mfxSurfaceHeader **)(&exported_surface));
 
@@ -492,7 +492,7 @@ sts = exported_surface->SurfaceInterface.Release(&(exported_surface->SurfaceInte
 pmfxVPPOutSurface->FrameInterface->Release(pmfxVPPOutSurface);
 ```
 
-### Importing a VAAPI surface as a oneVPL frame for encoding
+### Importing a VAAPI surface as a Intel® VPL frame for encoding
 
 ```
 // get interface with import function (only call once per session)
@@ -504,7 +504,7 @@ sts = MFXGetMemoryInterface(session, &memoryInterface);
 VASurfaceID vaSurfaceID;
 sts = CaptureFrame(&vaSurfaceID);
 
-// import VAAPI surface into mfxFrameSurface1 for oneVPL
+// import VAAPI surface into mfxFrameSurface1
 // set header.surfaceType, device, and texture2D, all other fields should be empty
 mfxSurfaceVAAPI extSurfVAAPI                      = {};
 extSurfVAAPI.SurfaceInterface.Header.SurfaceType  = MFX_SURFACE_TYPE_VAAPI;
@@ -515,11 +515,11 @@ extSurfVAAPI.SurfaceInterface.Header.StructSize   = sizeof(mfxSurfaceVAAPI);
 extSurfVAAPI.vaDisplay   = GetVADisplay();
 extSurfVAAPI.vaSurfaceID = vaSurfaceID;
 
-// import VAAPI surface into oneVPL, zero-copy preferred, copy okay
+// import VAAPI surface, zero-copy preferred, copy okay
 mfxFrameSurface1 *pmfxEncSurface = nullptr;
 sts = memoryInterface->ImportFrameSurface(memoryInterface, MFX_SURFACE_COMPONENT_ENCODE, (mfxSurfaceHeader *)extSurfVAAPI, &pmfxEncSurface);
 
-// encode in oneVPL
+// encode
 sts = MFXVideoENCODE_EncodeFrameAsync(session, NULL, (isDrainingEnc ? NULL : pmfxEncSurface), &fileInfo->bitstream, &syncp);
 
 // release imported surface
@@ -544,13 +544,13 @@ pfn_clEnqueueAcquireD3D11ObjectsKHR = clGetExtensionFunctionAddressForPlatform(p
 pfn_clEnqueueReleaseD3D11ObjectsKHR = clGetExtensionFunctionAddressForPlatform(platform_id, (const char *)"clEnqueueReleaseD3D11ObjectsKHR");
 ```
 
-### Exporting a frame decoded in oneVPL to an OpenCL image for processing
+### Exporting a frame decoded in Intel® VPL to an OpenCL image for processing
 - Note: Currently supported on Windows only. Exported images will be provided as shared surfaces created with the clCreateFromD3D11Texture2DKHR extension.
 ```
-// decode frame in oneVPL
+// decode frame
 sts = MFXVideoDECODE_DecodeFrameAsync(session, (isDrainingDec ? NULL : &fileInfo->bitstream), NULL, &pmfxDecOutSurface, &syncpD);
 
-// run VPP on frame in oneVPL
+// run VPP on frame
 sts = MFXVideoVPP_ProcessFrameAsync(session, pmfxDecOutSurface, &pmfxVPPOutSurface);
 
 // release decoded frame (decrease reference count) after passing to VPP
@@ -582,7 +582,7 @@ std::vector<mfxExtBuffer *> extBufs;
 extBufs.push_back((mfxExtBuffer *)&export_header_buf);
 export_header.ExtParam = extBufs.data();
 
-// export mfxFrameSurface1 from oneVPL to an OpenCL image, zero-copy enabled
+// export mfxFrameSurface1 from Intel® VPL to an OpenCL image, zero-copy enabled
 mfxSurfaceOpenCLImg2D *extSurfOCL = nullptr;
 sts = pmfxVPPOutSurface->FrameInterface->Export(pmfxVPPOutSurface, export_header, (mfxSurfaceHeader **)&extSurfOCL);
 
@@ -617,7 +617,7 @@ sts = extSurfOCL->SurfaceInterface.Release(&(extSurfOCL->SurfaceInterface));
 pmfxVPPOutSurface->FrameInterface->Release(pmfxVPPOutSurface);```
 ```
 
-### Importing an OpenCL image as a oneVPL frame for encoding
+### Importing an OpenCL image as a Intel® VPL frame for encoding
 - Note: Currently supported on Windows only.
 ```
 // get interface with import function (only call once per session)
@@ -649,7 +649,7 @@ clBufInUV = clCreateImage(m_clcontext, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR
 // now load data into the OpenCL image and do some processing...
 // (see the Export example for main steps in running kernels)
 
-// once OpenCL processing is complete, import the surface into oneVPL
+// once OpenCL processing is complete, import the surface
 
 // set header and ocl_context, ocl_flags is optional, all other fields should be empty
 mfxSurfaceOpenCLImg2D extSurfOCL               = {};
@@ -670,11 +670,11 @@ extSurfOCL.ocl_image_num = 2;
 extSurfOCL.ocl_image[0]  = clBufInY;
 extSurfOCL.ocl_image[1]  = clBufInUV;
 
-// import the OpenCL surface into a oneVPL surface
+// import the OpenCL surface
 mfxFrameSurface1 *pmfxEncSurface = nullptr;
 sts = memoryInterface->ImportFrameSurface(encCtx->memoryInterface, MFX_SURFACE_COMPONENT_ENCODE, (mfxSurfaceHeader *)(&extSurfOCL), &pmfxEncSurface);
 
-// encode in oneVPL
+// encode
 sts = MFXVideoENCODE_EncodeFrameAsync(session, NULL, (isDrainingEnc ? NULL : pmfxEncSurface), &fileInfo->bitstream, &syncp);
 
 // release OCL surfaces (decrease refcount)
@@ -719,4 +719,4 @@ For refcounted case management of `mfxFrameSurface1` objects is much simpler. En
 
 Important note: there is no dependency between original handle and `mfxFrameSurface1` object for copy imported surface. They could be managed (i.e. deleted) independently.
 
-For Export case (for both Copy and Shared type) original `mfxFrameSurface1` and Exported `mfxSurfaceXXX` can be managed (i.e. `Release()`) independently, oneVPL RT manages dependency and keeps all required resources alive.
+For Export case (for both Copy and Shared type) original `mfxFrameSurface1` and Exported `mfxSurfaceXXX` can be managed (i.e. `Release()`) independently, Intel® VPL RT manages dependency and keeps all required resources alive.

@@ -1,13 +1,14 @@
 ***
 # `val-surface-sharing` tool
 ## Purpose
-This tool is a command line application that validates Surface Sharing API functionalities.
+This tool is a command line application that validates Surface Sharing API
+functionality of the Intel® Video Processing Library (Intel® VPL)
 
 ## Support
 | Support          | Description
 |----------------- | ----------------------------------------
 | OS               | Windows* 10, Windows* 11, Ubuntu* 22.04
-| Hardware         | Compatible with IntelÂ® oneAPI Video Processing Library(oneVPL) GPU implementation, which can be found at https://github.com/oneapi-src/oneVPL-intel-gpu 
+| Hardware         | Compatible with Intel® VPL GPU implementation, which can be found at https://github.com/oneapi-src/oneVPL-intel-gpu 
 
 ## Command line options
 | Options          | Values     | Description

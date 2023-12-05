@@ -8,7 +8,7 @@ Intent is that it will expand in scope to provide more features and diagnostics.
 OS-specific environment checks are attempted, with feedback about possible failure origins.
 Linux: 
  * presence of /dev/dri render nodes to indicate that the OS can communicate with adapters
- * data available from oneAPI Video Processing Library (oneVPL) implementations found by MFXLoad
+ * data available from Intel® Video Processing Library (Intel® VPL) implementations found by MFXLoad
 
 ## Example output
 ```

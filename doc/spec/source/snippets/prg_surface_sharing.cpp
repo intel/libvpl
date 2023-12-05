@@ -1,3 +1,4 @@
+// Example using Intel® Video Processing Library (Intel® VPL)
 #include <stdlib.h>
 
 #include "mfxdefs.h"
@@ -36,7 +37,7 @@ MFXGetMemoryInterface(session, &memoryInterface);
 ID3D11Texture2D *pTexture2D;
 CaptureFrame(&pTexture2D);
 
-// import D3D11 texture into VPL, zero-copy (shared) is preferred, copy is permitted if zero-copy is not supported
+// import D3D11 texture into Intel® VPL, zero-copy (shared) is preferred, copy is permitted if zero-copy is not supported
 mfxSurfaceD3D11Tex2D d3d11_surface                 = {};
 d3d11_surface.SurfaceInterface.Header.SurfaceType  = MFX_SURFACE_TYPE_D3D11_TEX2D;
 d3d11_surface.SurfaceInterface.Header.SurfaceFlags = (MFX_SURFACE_FLAG_IMPORT_SHARED | MFX_SURFACE_FLAG_IMPORT_COPY);
@@ -48,7 +49,7 @@ d3d11_surface.texture2D = pTexture2D;
 // external_surface is a pointer to mfxSurfaceHeader but points to a complete structure of type mfxSurfaceD3D11Tex2D
 mfxSurfaceHeader *external_surface = reinterpret_cast<mfxSurfaceHeader *>(&d3d11_surface);
 
-// ImportFrameSurface() will return a VPL surface which may then be used as input for encode or VPP
+// ImportFrameSurface() will return an Intel® VPL surface which may then be used as input for encode or VPP
 mfxFrameSurface1 *imported_surface = nullptr;
 memoryInterface->ImportFrameSurface(memoryInterface, MFX_SURFACE_COMPONENT_ENCODE, external_surface, &imported_surface);
 
@@ -74,7 +75,7 @@ MFXVideoVPP_ProcessFrameAsync(session, decoded_surface, &vpp_out_surface);
 // release decoded frame (decrease reference count) after passing to VPP
 decoded_surface->FrameInterface->Release(decoded_surface);
 
-// export mfxFrameSurface1 from VPL to a shared D3D11 texture, zero-copy (shared) is enabled
+// export mfxFrameSurface1 from Intel® VPL to a shared D3D11 texture, zero-copy (shared) is enabled
 mfxSurfaceHeader export_header = {};
 export_header.SurfaceType  = MFX_SURFACE_TYPE_D3D11_TEX2D;
 export_header.SurfaceFlags = MFX_SURFACE_FLAG_EXPORT_SHARED;

@@ -1,11 +1,11 @@
-# VPL Specification
+# Intel® Video Processing Library Specification
 
 # How to build locally
-The following instructions are tested on Ubuntu 22.04.
+The following instructions were tested on Ubuntu 22.04.
 
 1. Go to the root level of this repository
 
-2. Build Docker image with build environtment:
+2. Build Docker image with build environment:
 
 ```console
 python3 doc/spec/build-spec.py dockerbuild

@@ -28,7 +28,7 @@ def CheckTypedefWithPtr(line):
 checkers = [CheckPtr, CheckTypedefWithPtr]
 
 parser = argparse.ArgumentParser(description='Check that structures with pointers have correct pragme pack.')
-parser.add_argument('-i', '--ifolder', help='Input folder with onevpl header files.')
+parser.add_argument('-i', '--ifolder', help='Input folder with header files.')
 
 args = parser.parse_args()
 

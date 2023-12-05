@@ -5,8 +5,7 @@
 # ##############################################################################
 cmake_minimum_required(VERSION 3.13.0)
 
-project(${PROJECT_NAME}Tests LANGUAGES CXX)
-
+set(TARGET vpl-tests)
 set(test_sources
     src/session-test.cpp
     src/legacycpp-session-test-1x.cpp
@@ -24,17 +23,17 @@ set(test_sources
     src/dispatcher_gpu_stringapi.cpp
     src/dispatcher_stub_stringapi.cpp
     src/experimental_api.cpp)
-add_executable(${PROJECT_NAME} ${test_sources})
+add_executable(${TARGET} ${test_sources})
 
 find_package(VPL REQUIRED)
-target_link_libraries(${PROJECT_NAME} PUBLIC GTest::gtest VPL::dispatcher)
+target_link_libraries(${TARGET} PUBLIC GTest::gtest VPL::dispatcher)
 
-target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(${TARGET} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 if(WIN32)
-  target_link_libraries(${PROJECT_NAME} PUBLIC shlwapi.lib)
+  target_link_libraries(${TARGET} PUBLIC shlwapi.lib)
 endif()
 
 include(GoogleTest)
-gtest_discover_tests(${PROJECT_NAME} PROPERTIES ENVIRONMENT
+gtest_discover_tests(${TARGET} PROPERTIES ENVIRONMENT
                      ONEVPL_SEARCH_PATH=$<TARGET_FILE_DIR:vplstubrt>)

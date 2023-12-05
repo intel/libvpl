@@ -25,14 +25,14 @@ filters.
      F1->F2->F3->F4->F5;
    }
 
-The application specifies the input and output format; oneVPL configures the
+The application specifies the input and output format; |vpl_short_name| configures the
 pipeline according to the specified input and output formats. The application
 can also attach one or more hint structures
 to configure individual filters or turn them on and off. Unless specifically
-instructed, oneVPL builds the pipeline in a way that best utilizes hardware
+instructed, |vpl_short_name| builds the pipeline in a way that best utilizes hardware
 acceleration or generates the best video processing quality.
 
-The :ref:`Video Processing Features table <vid-processing-feat-table>` shows oneVPL
+The :ref:`Video Processing Features table <vid-processing-feat-table>` shows |vpl_short_name|
 video processing features. The application can configure supported video
 processing features through the video processing I/O parameters. The application
 can also configure optional features through hints.

@@ -359,8 +359,8 @@ mfxU32 LoaderCtxVPL::GetSearchPathsCurrentDir(std::list<STRING_TYPE> &searchDirs
 }
 
 // get legacy MSDK dispatcher search paths
-// documentation found in oneAPI Video Processing Library (oneVPL) spec
-// in the "oneVPL Session" section
+// documentation found in Intel® Video Processing Library (Intel® VPL) spec
+// in the "Intel® VPL Session" section
 mfxU32 LoaderCtxVPL::GetSearchPathsLegacy(std::list<STRING_TYPE> &searchDirs) {
     searchDirs.clear();
 
@@ -423,7 +423,7 @@ mfxU32 LoaderCtxVPL::GetSearchPathsSystemDefault(std::list<STRING_TYPE> &searchD
     return (mfxU32)searchDirs.size();
 }
 
-// search for implementations of oneAPI Video Processing Library (oneVPL)
+// search for implementations of Intel® Video Processing Library (Intel® VPL)
 //   according to the rules in the spec
 mfxStatus LoaderCtxVPL::BuildListOfCandidateLibs() {
     DISP_LOG_FUNCTION(&m_dispLog);
@@ -450,7 +450,7 @@ mfxStatus LoaderCtxVPL::BuildListOfCandidateLibs() {
 
 #if defined(_WIN32) || defined(_WIN64)
     // retrieve list of DX11 graphics adapters (lightweight)
-    // used for both oneVPL and legacy driver store search
+    // used for both Intel® VPL and legacy driver store search
     m_gpuAdapterInfo.clear();
     bool bEnumSuccess = MFX::DXGI1Device::GetAdapterList(m_gpuAdapterInfo);
 
@@ -662,7 +662,7 @@ mfxU32 LoaderCtxVPL::CheckValidLibraries() {
         }
     }
 
-    // number of valid oneVPL libs
+    // number of valid Intel® VPL libs
     return (mfxU32)m_libInfoList.size();
 }
 
@@ -1188,14 +1188,14 @@ mfxStatus LoaderCtxVPL::QueryLibraryCaps() {
                 implInfo->adapterIdx = adapterIdx;
             }
 
-            // per spec: if both oneVPL (HW) and MSDK are installed for the same accelerator, only load
-            //   the oneVPL implementation (mark MSDK as invalid)
+            // per spec: if both Intel® VPL (HW) and MSDK are installed for the same accelerator, only load
+            //   the Intel® VPL implementation (mark MSDK as invalid)
             // exception: if application requests D3D9, load MSDK if available
             if (implInfo->libInfo->libType == LibTypeMSDK) {
                 mfxImplDescription *msdkImplDesc = (mfxImplDescription *)(implInfo->implDesc);
                 std::string msdkDeviceID         = (msdkImplDesc ? msdkImplDesc->Dev.DeviceID : "");
 
-                // check if oneVPL impl also exists for this deviceID
+                // check if Intel® VPL impl also exists for this deviceID
                 auto vplIdx = std::find_if(
                     m_implInfoList.begin(),
                     m_implInfoList.end(),
@@ -1217,7 +1217,7 @@ mfxStatus LoaderCtxVPL::QueryLibraryCaps() {
                 if (vplIdx != m_implInfoList.end() && bD3D9Requested == false)
                     implInfo->validImplIdx = -1;
 
-                // avoid loading oneVPL RT via compatibility entrypoint
+                // avoid loading Intel® VPL RT via compatibility entrypoint
                 if (msdkImplDesc && msdkImplDesc->ApiVersion.Major == 1 &&
                     msdkImplDesc->ApiVersion.Minor == 255)
                     implInfo->validImplIdx = -1;
@@ -1462,7 +1462,7 @@ mfxStatus LoaderCtxVPL::UpdateValidImplList(void) {
     return MFX_ERR_NONE;
 }
 
-// From specification section "oneVPL Session":
+// From specification section "Intel® VPL Session":
 //
 // When the dispatcher searches for the implementation, it uses the following priority rules
 //  1) Hardware implementation has priority over software implementation.

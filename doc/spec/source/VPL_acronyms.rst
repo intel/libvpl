@@ -6,7 +6,7 @@
 Glossary
 ========
 
-The oneVPL API and documentation uses a standard set of acronyms and terms.
+The |vpl_short_name| API and documentation uses a standard set of acronyms and terms.
 This section describes these conventions.
 
 .. contents::
@@ -78,8 +78,8 @@ Acronyms and Terms
 	SPS
 		Sequence parameter set.
 
-	VA API
-		Video acceleration API.
+	VA-API
+		Video Acceleration API.
 
 	VBR
 		Variable bit rate.

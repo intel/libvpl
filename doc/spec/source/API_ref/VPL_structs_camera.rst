@@ -1,6 +1,8 @@
 .. SPDX-FileCopyrightText: 2019-2022 Intel Corporation
 ..
 .. SPDX-License-Identifier: CC-BY-4.0
+..
+  Intel(r) Video Processing Library (Intel(r) VPL)
 
 .. _struct_camera:
 
@@ -26,7 +28,7 @@ mfxExtCamWhiteBalance
 ---------------------
 
 .. doxygenstruct:: mfxExtCamWhiteBalance
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -34,7 +36,7 @@ mfxExtCamTotalColorControl
 --------------------------
 
 .. doxygenstruct:: mfxExtCamTotalColorControl
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -42,7 +44,7 @@ mfxExtCamCscYuvRgb
 ------------------
 
 .. doxygenstruct:: mfxExtCamCscYuvRgb
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -50,7 +52,7 @@ mfxExtCamHotPixelRemoval
 ------------------------
 
 .. doxygenstruct:: mfxExtCamHotPixelRemoval
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -58,7 +60,7 @@ mfxExtCamBlackLevelCorrection
 -----------------------------
 
 .. doxygenstruct:: mfxExtCamBlackLevelCorrection
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -66,7 +68,7 @@ mfxCamVignetteCorrectionElement
 -------------------------------
 
 .. doxygenstruct:: mfxCamVignetteCorrectionElement
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -74,7 +76,7 @@ mfxCamVignetteCorrectionParam
 -----------------------------
 
 .. doxygenstruct:: mfxCamVignetteCorrectionParam
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
    :undoc-members:
@@ -83,7 +85,7 @@ mfxExtCamVignetteCorrection
 ---------------------------
 
 .. doxygenstruct:: mfxExtCamVignetteCorrection
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
    :undoc-members:
@@ -92,7 +94,7 @@ mfxExtCamBayerDenoise
 ---------------------
 
 .. doxygenstruct:: mfxExtCamBayerDenoise
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
    :undoc-members:
@@ -101,7 +103,7 @@ mfxExtCamColorCorrection3x3
 ---------------------------
 
 .. doxygenstruct:: mfxExtCamColorCorrection3x3
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
    :undoc-members:
@@ -110,7 +112,7 @@ mfxExtCamPadding
 ----------------
 
 .. doxygenstruct:: mfxExtCamPadding
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
    :undoc-members:
@@ -119,7 +121,7 @@ mfxExtCamPipeControl
 --------------------
 
 .. doxygenstruct:: mfxExtCamPipeControl
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
    :undoc-members:
@@ -128,7 +130,7 @@ mfxCamFwdGammaSegment
 ---------------------
 
 .. doxygenstruct:: mfxCamFwdGammaSegment
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -136,7 +138,7 @@ mfxExtCamFwdGamma
 -----------------
 
 .. doxygenstruct:: mfxExtCamFwdGamma
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -144,7 +146,7 @@ mfxExtCamLensGeomDistCorrection
 -------------------------------
 
 .. doxygenstruct:: mfxExtCamLensGeomDistCorrection
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -152,7 +154,7 @@ mfxCam3DLutEntry
 ----------------
 
 .. doxygenstruct:: mfxCam3DLutEntry
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -160,6 +162,6 @@ mfxExtCam3DLut
 --------------
 
 .. doxygenstruct:: mfxExtCam3DLut
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:

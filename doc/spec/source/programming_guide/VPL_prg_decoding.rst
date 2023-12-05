@@ -65,7 +65,7 @@ Here the application should use the :cpp:func:`MFXVideoDECODE_QueryIOSurf`
 function to obtain the number of working frame surfaces required to reorder
 output frames. It is also required that
 :cpp:func:`MFXMemory_GetSurfaceForDecode` call is done after decoder
-initialization. In the :cpp:func:`MFXVideoDECODE_DecodeFrameAsync` the oneVPL
+initialization. In the :cpp:func:`MFXVideoDECODE_DecodeFrameAsync` the |vpl_short_name|
 library increments reference counter of incoming surface frame so it is required
 that the application releases frame surface after the call.  
 
@@ -123,7 +123,7 @@ The following pseudo code shows the simplified decoding procedure:
 
 .. _simplified-decoding-procedure:
 
-oneVPL API version 2.0 introduces a new decoding approach. For simple use cases,
+|vpl_short_name| API version 2.0 introduces a new decoding approach. For simple use cases,
 when the user wants to decode a stream and does not want to set additional
 parameters, a simplified procedure for the decoder's initialization has been
 proposed. In this scenario it is possible to skip explicit stages of a
@@ -141,14 +141,14 @@ Bitstream Repositioning
 The application can use the following procedure for bitstream reposition during
 decoding:
 
-#. Use the :cpp:func:`MFXVideoDECODE_Reset` function to reset the oneVPL
+#. Use the :cpp:func:`MFXVideoDECODE_Reset` function to reset the |vpl_short_name|
    decoder.
 #. Optional: If the application maintains a sequence header that correctly
    decodes the bitstream at the new position, the application may insert the
    sequence header to the bitstream buffer.
 #. Append the bitstream from the new location to the bitstream buffer.
 #. Resume the decoding procedure. If the sequence header is not inserted in the
-   previous steps, the oneVPL decoder searches for a new sequence header before
+   previous steps, the |vpl_short_name| decoder searches for a new sequence header before
    starting decoding.
 
 -----------------------
@@ -223,7 +223,7 @@ uses various hints to handle broken streams:
 VP8 Specific Details
 --------------------
 
-Unlike other oneVPL supported decoders, VP8 can accept only a complete frame as
+Unlike other |vpl_short_name| supported decoders, VP8 can accept only a complete frame as
 input. The application should provide the complete frame accompanied by the
 :cpp:enumerator:`MFX_BITSTREAM_COMPLETE_FRAME` flag. This is the single specific
 difference.
@@ -259,7 +259,7 @@ conform to the ITU-T Recommendation T.81 with an EXIF or JFIF header. For
 motion JPEG decoding, the input can be any JPEG bitstreams that conform to the
 ITU-T Recommendation T.81.
 
-Unlike other oneVPL decoders, JPEG decoding supports three different output
+Unlike other |vpl_short_name| decoders, JPEG decoding supports three different output
 color formats: :term:`NV12`, :term:`YUY2`, and :term:`RGB32`. This support
 sometimes requires internal color conversion and more complicated
 initialization. The color format of the input bitstream is described by the
@@ -267,18 +267,18 @@ initialization. The color format of the input bitstream is described by the
 :cpp:member:`mfxInfoMFX::JPEGColorFormat` fields. The
 :cpp:func:`MFXVideoDECODE_DecodeHeader` function usually fills them in. If the
 JPEG bitstream does not contains color format information, the application
-should provide it. Output color format is described by general oneVPL
+should provide it. Output color format is described by general |vpl_short_name|
 parameters: the :cpp:member:`mfxFrameInfo::FourCC` and
 :cpp:member:`mfxFrameInfo::ChromaFormat` fields.
 
 Motion JPEG supports interlaced content by compressing each field (a half-height
-frame) individually. This behavior is incompatible with the rest of the oneVPL
-transcoding pipeline, where oneVPL requires fields to be in odd and even lines
+frame) individually. This behavior is incompatible with the rest of the |vpl_short_name|
+transcoding pipeline, where |vpl_short_name| requires fields to be in odd and even lines
 of the same frame surface. The decoding procedure is modified as follows:
 
 - The application calls the :cpp:func:`MFXVideoDECODE_DecodeHeader` function
   with the first field JPEG bitstream to retrieve initialization parameters.
-- The application initializes the oneVPL JPEG decoder with the following
+- The application initializes the |vpl_short_name| JPEG decoder with the following
   settings:
 
   - The ``PicStruct`` field of the :cpp:struct:`mfxVideoParam` structure set to
@@ -292,8 +292,8 @@ of the same frame surface. The decoding procedure is modified as follows:
 - During decoding, the application sends both fields for decoding in the
   same :cpp:struct:`mfxBitstream`. The application should also set
   :cpp:member:`mfxBitstream::DataFlag` to
-  :cpp:enumerator:`MFX_BITSTREAM_COMPLETE_FRAME`. oneVPL decodes both fields
-  and combines them into odd and even lines according to oneVPL convention.
+  :cpp:enumerator:`MFX_BITSTREAM_COMPLETE_FRAME`. |vpl_short_name| decodes both fields
+  and combines them into odd and even lines according to |vpl_short_name| convention.
 
 By default, the :cpp:func:`MFXVideoDECODE_DecodeHeader` function returns the
 ``Rotation`` parameter so that after rotation, the pixel at the
@@ -313,8 +313,8 @@ tables by attaching the same buffers to :cpp:struct:`mfxVideoParam` and calling
 Multi-view Video Decoding
 -------------------------
 
-The oneVPL MVC decoder operates on complete MVC streams that contain all
-view and temporal configurations. The application can configure the oneVPL
+The |vpl_short_name| MVC decoder operates on complete MVC streams that contain all
+view and temporal configurations. The application can configure the |vpl_short_name|
 decoder to generate a subset at the decoding output. To do this, the application
 must understand the stream structure and use the stream information to configure
 the decoder for target views.
@@ -343,7 +343,7 @@ The decoder initialization procedure is as follows:
 #. The application fills the :cpp:struct:`mfxExtMVCTargetViews` structure to
    choose the target views, based on information described in the
    :cpp:struct:`mfxExtMVCSeqDesc` structure.
-#. The application initializes the oneVPL decoder using the
+#. The application initializes the |vpl_short_name| decoder using the
    :cpp:func:`MFXVideoDECODE_Init` function. The application must attach both
    the :cpp:struct:`mfxExtMVCSeqDesc` structure and the
    :cpp:struct:`mfxExtMVCTargetViews` structure to the
@@ -351,9 +351,9 @@ The decoder initialization procedure is as follows:
 
 In the above steps, do not modify the values of the
 :cpp:struct:`mfxExtMVCSeqDesc` structure after the
-:cpp:func:`MFXVideoDECODE_DecodeHeader` function, as the oneVPL decoder uses the
+:cpp:func:`MFXVideoDECODE_DecodeHeader` function, as the |vpl_short_name| decoder uses the
 values in the structure for internal memory allocation. Once the application
-configures the oneVPL decoder, the rest of the decoding procedure remains
+configures the |vpl_short_name| decoder, the rest of the decoding procedure remains
 unchanged. As shown in the pseudo code below, the application calls the
 :cpp:func:`MFXVideoDECODE_DecodeFrameAsync` function multiple times to obtain
 all target views of the current frame picture, one target view at a time. The
@@ -370,7 +370,7 @@ target view is identified by the ``FrameID`` field of the
 Combined Decode with Multi-channel Video Processing
 ---------------------------------------------------
 
-The oneVPL exposes interface for making decode and video processing operations
+The |vpl_short_name| exposes interface for making decode and video processing operations
 in one call. Users can specify a number of output processing channels and
 multiple video filters per each channel. This interface supports only internal
 memory allocation model and returns array of processed frames through

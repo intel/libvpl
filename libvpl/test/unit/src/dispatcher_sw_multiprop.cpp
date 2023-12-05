@@ -66,7 +66,6 @@ static const mfxRange32U cpuRangeInvalidMax    = { 64, 9000, 8 };
 static const mfxRange32U cpuRangeInvalidStep   = { 64, 4096, 4 };
 
 static const TestPropPtr TestPropPtrTab[] = {
-    { MFX_VARIANT_TYPE_PTR, "mfxImplDescription.ImplName",                                                          "oneAPI VPL CPU Implementation", "INVALID" },
     { MFX_VARIANT_TYPE_PTR, "mfxImplDescription.License",                                                           "MIT", "INVALID" },
     { MFX_VARIANT_TYPE_PTR, "mfxImplDescription.Keywords",                                                          "CPU", "INVALID" },
 

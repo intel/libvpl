@@ -1,38 +1,37 @@
-# ![oneAPI](doc/images/oneapi-logo.png "oneAPI") Video Processing Library
+# Intel® Video Processing Library (Intel® VPL)
 
-Intel® oneAPI Video Processing Library (oneVPL) supports AI visual inference, media delivery, 
+Intel® Video Processing Library (Intel® VPL) supports AI visual inference, media delivery, 
 cloud gaming, and virtual desktop infrastructure use cases by providing access to hardware 
 accelerated video decode, encode, and frame processing capabilities on Intel® GPUs.  
 
-See the [oneVPL Specification](https://intel.github.io/libvpl) for additional information.
+See the [specification](https://intel.github.io/libvpl) for additional information.
 
 This repository contains the following components:
 
-- Copies of the oneVPL Specification API header files. The version of the oneVPL API is listed in the
+- Copies of the Intel® VPL API header files. The version of the API is listed in the
 [mfxdefs.h](./api/vpl/mfxdefs.h) file.
-- oneVPL Dispatcher
+- Intel® VPL Dispatcher
 - Examples demonstrating API usage
-- oneVPL command line tools
-
-To use oneVPL for video processing you need to install at least one implementation. Here is a list:
+- Command line tools
+To use Intel® VPL for video processing you need to install at least one implementation. Here is a list:
 
 - [oneVPL-intel-gpu](https://github.com/oneapi-src/oneVPL-intel-gpu) for use on Intel® Iris® Xe graphics and newer
-- [Media SDK](https://github.com/Intel-Media-SDK/MediaSDK) for use on legacy Intel® graphics
+- [Intel® Media SDK](https://github.com/Intel-Media-SDK/MediaSDK) for use on legacy Intel® graphics
 
-## oneVPL Architecture
+## Architecture
 ```mermaid
 graph TD;
-    VPL[oneVPL Dispatcher]-->oneVPL-intel-gpu;
-    VPL[oneVPL Dispatcher]-->MediaSDK;
+    dispatcher["Intel® VPL Dispatcher"]-->oneVPL-intel-gpu;
+    dispatcher-->msdk["Intel® MediaSDK"];
 ```
 
-As shown in this diagram, the oneVPL Dispatcher forwards function calls from the application to use the selected runtime.
+As shown in this diagram, the Intel® VPL Dispatcher forwards function calls from the application to use the selected runtime.
 
-## oneVPL Dispatcher behavior when targeting Intel® GPUs
-Runtime loaded by oneVPL Dispatcher and their Microsoft* DirectX* support:
+## Dispatcher behavior when targeting Intel® GPUs
+Runtime loaded by Intel® VPL Dispatcher and their Microsoft* DirectX* support:
 
 
-| GPU                                        | Media SDK        | oneVPL           | Microsoft* DirectX* Support |
+| GPU                                        | Media SDK        | Intel® VPL           | Microsoft* DirectX* Support |
 |--------------------------------------------|------------------|------------------|-----------------------------|
 | Earlier platforms, back to BDW (Broadwell) |:heavy_check_mark:|                  | DX9/DX11                    |
 | ICL (Ice Lake)                             |:heavy_check_mark:|                  | DX9/DX11                    |
@@ -48,13 +47,13 @@ Runtime loaded by oneVPL Dispatcher and their Microsoft* DirectX* support:
 | ATSM (Intel® Data Center GPU Flex Series)  |                  |:heavy_check_mark:| DX11                        |
 | Future platforms...                        |                  |:heavy_check_mark:| DX11                        |
 
-For TGL and DG1, if both oneVPL and Intel® Media SDK runtime are installed then the oneVPL Dispatcher will prefer oneVPL runtime unless the application requests D3D9 by setting the oneVPL Dispatcher filter property "mfxImplDescription.AccelerationMode" to MFX_ACCEL_MODE_VIA_D3D9.
+For TGL and DG1, if both Intel® VPL and Intel® Media SDK runtime are installed then the Intel® VPL Dispatcher will prefer Intel® VPL runtime unless the application requests D3D9 by setting the filter property "mfxImplDescription.AccelerationMode" to MFX_ACCEL_MODE_VIA_D3D9.
 
 ## Installation and Usage
 
 ### Installation options
 
-oneVPL may be installed:
+Intel® VPL may be installed:
 
 - from source code.  See install and use instructions at [INSTALL.md](INSTALL.md).
 - from Linux packages.  See [Intel® software for general purpose GPU capabilities](https://dgpu-docs.intel.com/)

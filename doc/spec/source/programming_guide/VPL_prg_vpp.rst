@@ -49,17 +49,17 @@ Note the following key points about the example:
 Configuration
 -------------
 
-oneVPL configures the video processing pipeline operation based on the
+|vpl_short_name| configures the video processing pipeline operation based on the
 difference between the input and output formats, specified in the
 :cpp:struct:`mfxVideoParam` structure. The following list shows several examples:
 
 - When the input color format is :term:`YUY2` and the output color format is
-  :term:`NV12`, oneVPL enables color conversion from YUY2 to NV12.
-- When the input is interleaved and the output is progressive, oneVPL enables
+  :term:`NV12`, |vpl_short_name| enables color conversion from YUY2 to NV12.
+- When the input is interleaved and the output is progressive, |vpl_short_name| enables
   deinterlacing.
 - When the input is single field and the output is interlaced or progressive,
-  oneVPL enables field weaving, optionally with deinterlacing.
-- When the input is interlaced and the output is single field, oneVPL enables
+  |vpl_short_name| enables field weaving, optionally with deinterlacing.
+- When the input is interlaced and the output is single field, |vpl_short_name| enables
   field splitting.
 
 In addition to specifying the input and output formats, the application can
@@ -72,11 +72,11 @@ for a complete list of configurable video processing filters, their IDs, and
 configuration structures. See the :ref:`ExtendedBufferID enumerator <extendedbufferid>`
 for more details.
 
-oneVPL ensures that all filters necessary to convert the input format to the
-output format are included in the pipeline. oneVPL may skip some optional
+|vpl_short_name| ensures that all filters necessary to convert the input format to the
+output format are included in the pipeline. |vpl_short_name| may skip some optional
 filters even if they are explicitly requested by the application, for example
 due to limitations of the underlying hardware. To notify the application about
-skipped optional filters, oneVPL returns the :cpp:enumerator:`mfxStatus::MFX_WRN_FILTER_SKIPPED`
+skipped optional filters, |vpl_short_name| returns the :cpp:enumerator:`mfxStatus::MFX_WRN_FILTER_SKIPPED`
 warning. The application can retrieve the list of active filters by attaching
 the :cpp:struct:`mfxExtVPPDoUse` structure to the :cpp:struct:`mfxVideoParam`
 structure and calling the :cpp:func:`MFXVideoVPP_GetVideoParam` function. The
@@ -194,14 +194,14 @@ examples of VPP operations applied to a region of interest.
 Multi-view Video Processing
 ---------------------------
 
-oneVPL video processing supports processing multiple views. For video processing
+|vpl_short_name| video processing supports processing multiple views. For video processing
 initialization, the application needs to attach the :cpp:struct:`mfxExtMVCSeqDesc`
 structure to the :cpp:struct:`mfxVideoParam` structure and call the
 :cpp:func:`MFXVideoVPP_Init` function. The function saves the view identifiers.
-During video processing, oneVPL processes each view individually. oneVPL refers
+During video processing, |vpl_short_name| processes each view individually. |vpl_short_name| refers
 to the ``FrameID`` field of the :cpp:struct:`mfxFrameInfo` structure to configure
 each view according to its processing pipeline. If the video processing source
-frame is not the output from the oneVPL MVC decoder, then the application needs to
+frame is not the output from the |vpl_short_name| MVC decoder, then the application needs to
 fill the the ``FrameID`` field before calling the :cpp:func:`MFXVideoVPP_RunFrameVPPAsync`
 function. This is shown in the following pseudo code:
 
@@ -215,7 +215,7 @@ function. This is shown in the following pseudo code:
 Video Processing 3DLUT
 ----------------------
 
-oneVPL video processing supports 3DLUT with Intel HW specific memory layout. The following pseudo code
+|vpl_short_name| video processing supports 3DLUT with Intel HW specific memory layout. The following pseudo code
 shows how to create a :cpp:enumerator:`MFX_3DLUT_MEMORY_LAYOUT_INTEL_65LUT` 3DLUT surface.
 
 .. literalinclude:: ../snippets/prg_vpp.c
@@ -236,7 +236,7 @@ The following pseudo code shows how to create a system memory :cpp:struct:`mfx3D
 HDR Tone Mapping
 ----------------
 
-oneVPL video processing supports HDR Tone Mapping with Intel HW. The following pseudo code
+|vpl_short_name| video processing supports HDR Tone Mapping with Intel HW. The following pseudo code
 shows how to perform HDR Tone Mapping.
 
 The following pseudo code shows HDR to SDR.
@@ -267,7 +267,7 @@ The following pseudo code shows HDR to HDR.
 Camera RAW acceleration
 -----------------------
 
-oneVPL supports camera raw format processing with Intel HW. The following pseudo code
+|vpl_short_name| supports camera raw format processing with Intel HW. The following pseudo code
 shows how to perform camera raw hardware acceleration. For pipeline processing initialization,
 the application needs to attach the camera structures to the :cpp:struct:`mfxVideoParam` structure
 and call the :cpp:func:`MFXVideoVPP_Init` function.
@@ -284,7 +284,7 @@ The following pseudo code shows camera raw processing.
 Task submission synchronization
 -------------------------------
 
-oneVPL can return synchronization object - syncpoint to notify application about
+|vpl_short_name| can return synchronization object - syncpoint to notify application about
 submission a task to the GPU. The following example demonstrates the approach.
 
 .. literalinclude:: ../snippets/prg_vpp.c

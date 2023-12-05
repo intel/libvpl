@@ -1,6 +1,8 @@
 .. SPDX-FileCopyrightText: 2019-2020 Intel Corporation
 ..
 .. SPDX-License-Identifier: CC-BY-4.0
+..
+  Intel(r) Video Processing Library (Intel(r) VPL)
 
 .. _struct_cross_component:
 
@@ -26,7 +28,7 @@ mfxComponentInfo
 ----------------
 
 .. doxygenstruct:: mfxComponentInfo
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -34,7 +36,7 @@ mfxExtHEVCParam
 ---------------
 
 .. doxygenstruct:: mfxExtHEVCParam
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -42,7 +44,7 @@ mfxExtJPEGHuffmanTables
 -----------------------
 
 .. doxygenstruct:: mfxExtJPEGHuffmanTables
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -61,7 +63,7 @@ mfxExtJPEGQuantTables
 ---------------------
 
 .. doxygenstruct:: mfxExtJPEGQuantTables
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -83,7 +85,7 @@ mfxExtMVCSeqDesc
 ----------------
 
 .. doxygenstruct:: mfxExtMVCSeqDesc
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -91,7 +93,7 @@ mfxExtMVCTargetViews
 --------------------
 
 .. doxygenstruct:: mfxExtMVCTargetViews
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -99,7 +101,7 @@ mfxExtVideoSignalInfo
 ---------------------
 
 .. doxygenstruct:: mfxExtVideoSignalInfo
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
    :undoc-members:
@@ -108,7 +110,7 @@ mfxExtVP9Param
 --------------
 
 .. doxygenstruct:: mfxExtVP9Param
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -116,7 +118,7 @@ mfxFrameId
 ----------
 
 .. doxygenstruct:: mfxFrameId
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -124,7 +126,7 @@ mfxInfoMFX
 ----------
 
 .. doxygenstruct:: mfxInfoMFX
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -168,7 +170,7 @@ mfxMVCOperationPoint
 --------------------
 
 .. doxygenstruct:: mfxMVCOperationPoint
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -176,7 +178,7 @@ mfxMVCViewDependency
 --------------------
 
 .. doxygenstruct:: mfxMVCViewDependency
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -184,7 +186,7 @@ mfxPayload
 ----------
 
 .. doxygenstruct:: mfxPayload
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -232,7 +234,7 @@ mfxVideoParam
 -------------
 
 .. doxygenstruct:: mfxVideoParam
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -240,7 +242,7 @@ mfxVP9SegmentParam
 ------------------
 
 .. doxygenstruct:: mfxVP9SegmentParam
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -248,7 +250,7 @@ mfxExtAV1FilmGrainParam
 -----------------------
 
 .. doxygenstruct:: mfxExtAV1FilmGrainParam
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -256,7 +258,7 @@ mfxAV1FilmGrainPoint
 --------------------
 
 .. doxygenstruct:: mfxAV1FilmGrainPoint
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -264,15 +266,15 @@ mfxRect
 -------
 
 .. doxygenstruct:: mfxRect
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
-   
+
 mfxExtHyperModeParam
 --------------------
 
 .. doxygenstruct:: mfxExtHyperModeParam
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -280,21 +282,21 @@ mfxGUID
 -------
 
 .. doxygenstruct:: mfxGUID
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
 mfxExtAllocationHints
 ---------------------
 .. doxygenstruct:: mfxExtAllocationHints
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
 mfxRefInterface
 ---------------
 .. doxygenstruct:: mfxRefInterface
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -302,7 +304,7 @@ mfxExtMasteringDisplayColourVolume
 ----------------------------------
 
 .. doxygenstruct:: mfxExtMasteringDisplayColourVolume
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -311,7 +313,7 @@ mfxExtContentLightLevelInfo
 ---------------------------
 
 .. doxygenstruct:: mfxExtContentLightLevelInfo
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -319,7 +321,7 @@ mfxExtSyncSubmission
 --------------------
 
 .. doxygenstruct:: mfxExtSyncSubmission
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -327,7 +329,7 @@ mfxExtTuneEncodeQuality
 -----------------------
 
 .. doxygenstruct:: mfxExtTuneEncodeQuality
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -335,6 +337,6 @@ mfxConfigInterface
 ------------------
 
 .. doxygenstruct:: mfxConfigInterface
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:

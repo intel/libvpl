@@ -5,10 +5,10 @@
 //==============================================================================
 
 ///
-/// A minimal oneAPI Video Processing Library (oneVPL) decode application,
+/// A minimal Intel® Video Processing Library (Intel® VPL) decode application,
 /// using 2.9 or newer API with internal memory management.
 /// For more information see
-/// https://oneapi-src.github.io/oneAPI-spec/elements/oneVPL/source/
+/// https://intel.github.io/libvpl
 /// @file
 
 #include <vector>

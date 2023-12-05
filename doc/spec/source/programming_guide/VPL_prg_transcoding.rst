@@ -6,16 +6,16 @@
 Transcoding Procedures
 ======================
 
-The application can use oneVPL encoding, decoding, and video processing
+The application can use |vpl_short_name| encoding, decoding, and video processing
 functions together for transcoding operations. This section describes the key
-aspects of connecting two or more oneVPL functions together.
+aspects of connecting two or more |vpl_short_name| functions together.
 
 ---------------------
 Asynchronous Pipeline
 ---------------------
 
-The application passes the output of an upstream oneVPL function to the input of
-the downstream oneVPL function to construct an asynchronous pipeline. Pipeline
+The application passes the output of an upstream |vpl_short_name| function to the input of
+the downstream |vpl_short_name| function to construct an asynchronous pipeline. Pipeline
 construction is done at runtime and can be dynamically changed, as shown in the
 following example:
 
@@ -25,13 +25,13 @@ following example:
    :end-before: /*end1*/
    :lineno-start: 1
 
-oneVPL simplifies the requirements for asynchronous pipeline synchronization.
-The application only needs to synchronize after the last oneVPL function. Explicit
+|vpl_short_name| simplifies the requirements for asynchronous pipeline synchronization.
+The application only needs to synchronize after the last |vpl_short_name| function. Explicit
 synchronization of intermediate results is not required and may slow performance.
 
-oneVPL tracks dynamic pipeline construction and verifies dependency on input
+|vpl_short_name| tracks dynamic pipeline construction and verifies dependency on input
 and output parameters to ensure the execution order of the pipeline function.
-In the previous example, oneVPL will ensure :cpp:func:`MFXVideoENCODE_EncodeFrameAsync`
+In the previous example, |vpl_short_name| will ensure :cpp:func:`MFXVideoENCODE_EncodeFrameAsync`
 does not begin its operation until :cpp:func:`MFXVideoDECODE_DecodeFrameAsync` or
 :cpp:func:`MFXVideoVPP_RunFrameVPPAsync` has finished.
 
@@ -41,8 +41,8 @@ The application must also consider output data unavailable until the execution
 has finished. In addition, for encoders, the application must consider extended
 and payload buffers as "in use" while the input surface is locked.
 
-oneVPL checks dependencies by comparing the input and output parameters of each
-oneVPL function in the pipeline. Do not modify the contents of input and output
+|vpl_short_name| checks dependencies by comparing the input and output parameters of each
+|vpl_short_name| function in the pipeline. Do not modify the contents of input and output
 parameters before the previous asynchronous operation finishes. Doing so will
 break the dependency check and can result in undefined behavior. An exception
 occurs when the input and output parameters are structures, in which case
@@ -53,11 +53,11 @@ overwriting fields in the structures is allowed.
 There are two exceptions with respect to intermediate synchronization:
 
 - If the input is from any asynchronous operation, the application must
-  synchronize any input before calling the oneVPL :cpp:func:`MFXVideoDECODE_DecodeFrameAsync`
+  synchronize any input before calling the |vpl_short_name| :cpp:func:`MFXVideoDECODE_DecodeFrameAsync`
   function.
 - When the application calls an asynchronous function to generate an output
-  surface in video memory and passes that surface to a non-oneVPL component, it must
-  explicitly synchronize the operation before passing the surface to the non-oneVPL
+  surface in video memory and passes that surface to a non-|vpl_short_name| component, it must
+  explicitly synchronize the operation before passing the surface to the non-|vpl_short_name|
   component.
 
 .. _surface_pool_alloc:
@@ -69,11 +69,11 @@ Surface Pool Allocation
 When connecting API function **A** to API function **B**, the application must
 take into account the requirements of both functions to calculate the number of
 frame surfaces in the surface pool. Typically, the application can use the formula
-**Na+Nb**, where **Na** is the frame surface requirements for oneVPL function **A**
-output, and **Nb** is the frame surface requirements for oneVPL function **B** input.
+**Na+Nb**, where **Na** is the frame surface requirements for |vpl_short_name| function **A**
+output, and **Nb** is the frame surface requirements for |vpl_short_name| function **B** input.
 
 For performance considerations, the application must submit multiple operations
-and delay synchronization as much as possible, which gives oneVPL flexibility
+and delay synchronization as much as possible, which gives |vpl_short_name| flexibility
 to organize internal pipelining. For example, compare the following two operation
 sequences, where the first sequence is the recommended order:
 
@@ -110,9 +110,9 @@ sequences, where the first sequence is the recommended order:
 
 In this example, the surface pool needs additional surfaces to take into account
 multiple asynchronous operations before synchronization. The application can use
-the :cpp:member:`mfxVideoParam::AsyncDepth` field to inform a oneVPL function of
+the :cpp:member:`mfxVideoParam::AsyncDepth` field to inform a |vpl_short_name| function of
 the number of asynchronous operations the application plans to perform before
-synchronization. The corresponding oneVPL **QueryIOSurf** function will reflect
+synchronization. The corresponding |vpl_short_name| **QueryIOSurf** function will reflect
 this number in the :cpp:member:`mfxFrameAllocRequest::NumFrameSuggested`
 value. The following example shows a way of calculating the surface needs based
 on :cpp:member:`mfxFrameAllocRequest::NumFrameSuggested` values:

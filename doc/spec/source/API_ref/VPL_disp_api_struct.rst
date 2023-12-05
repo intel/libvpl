@@ -1,6 +1,8 @@
 .. SPDX-FileCopyrightText: 2019-2020 Intel Corporation
 ..
 .. SPDX-License-Identifier: CC-BY-4.0
+..
+  Intel(r) Video Processing Library (Intel(r) VPL)
 
 .. _disp_api_struct:
 
@@ -20,7 +22,7 @@ mfxDecoderDescription
 ---------------------
 
 .. doxygenstruct:: mfxDecoderDescription
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -28,7 +30,7 @@ mfxDeviceDescription
 --------------------
 
 .. doxygenstruct:: mfxDeviceDescription
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -36,7 +38,7 @@ mfxEncoderDescription
 ---------------------
 
 .. doxygenstruct:: mfxEncoderDescription
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -44,7 +46,7 @@ mfxImplDescription
 ------------------
 
 .. doxygenstruct:: mfxImplDescription
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -52,18 +54,18 @@ mfxVariant
 ----------
 
 .. doxygenstruct:: mfxVariant
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
 .. doxygenenum:: mfxVariantType
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 mfxVPPDescription
 -----------------
 
 .. doxygenstruct:: mfxVPPDescription
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -71,7 +73,7 @@ mfxAccelerationModeDescription
 ------------------------------
 
 .. doxygenstruct:: mfxAccelerationModeDescription
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -79,7 +81,7 @@ mfxImplementedFunctions
 -----------------------
 
 .. doxygenstruct:: mfxImplementedFunctions
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -87,7 +89,7 @@ mfxExtendedDeviceId
 -------------------
 
 .. doxygenstruct:: mfxExtendedDeviceId
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -95,7 +97,7 @@ mfxPoolPolicyDescription
 ------------------------
 
 .. doxygenstruct:: mfxPoolPolicyDescription
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -103,6 +105,6 @@ extDeviceUUID
 -------------
 
 .. doxygenstruct:: extDeviceUUID
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:

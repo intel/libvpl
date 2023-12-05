@@ -1,6 +1,8 @@
 .. SPDX-FileCopyrightText: 2019-2020 Intel Corporation
 ..
 .. SPDX-License-Identifier: CC-BY-4.0
+..
+  Intel(r) Video Processing Library (Intel(r) VPL)
 
 .. _struct_impl_manage:
 
@@ -26,7 +28,7 @@ mfxAdapterInfo
 --------------
 
 .. doxygenstruct:: mfxAdapterInfo
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -34,7 +36,7 @@ mfxAdaptersInfo
 ---------------
 
 .. doxygenstruct:: mfxAdaptersInfo
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -42,7 +44,7 @@ mfxExtThreadsParam
 ------------------
 
 .. doxygenstruct:: mfxExtThreadsParam
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
    :undoc-members:
@@ -51,7 +53,7 @@ mfxInitParam
 ------------
 
 .. doxygenstruct:: mfxInitParam
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -59,7 +61,7 @@ mfxPlatform
 -----------
 
 .. doxygenstruct:: mfxPlatform
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -67,13 +69,13 @@ mfxVersion
 ----------
 
 .. doxygenunion:: mfxVersion
-   :project: oneVPL
+   :project: Intel&reg; VPL
 
 mfxExtDeviceAffinityMask
 ------------------------
 
 .. doxygenstruct:: mfxExtDeviceAffinityMask
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -81,7 +83,7 @@ mfxInitializationParam
 ----------------------
 
 .. doxygenstruct:: mfxInitializationParam
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
 
@@ -89,7 +91,6 @@ mfxAutoSelectImplDeviceHandle
 -----------------------------
 
 .. doxygenstruct:: mfxAutoSelectImplDeviceHandle
-   :project: oneVPL
+   :project: Intel&reg; VPL
    :members:
    :protected-members:
-   
