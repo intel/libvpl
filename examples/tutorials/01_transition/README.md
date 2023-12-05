@@ -2,10 +2,10 @@
 
 ## Purpose
 This tutorial provides a working example demonstrating the steps to transition
-applications from Intel® Media SDK to the oneAPI Video Processing Library (oneVPL). 
-oneVPL opens the door to many new features and improved support for
+applications from Intel® Media SDK to the Intel® Video Processing Library (Intel® VPL). 
+Intel® VPL opens the door to many new features and improved support for
 newer hardware.  However, use of those new features is not required. Code
-without removed features that works for Media SDK will work for oneVPL.
+without removed features that works for Media SDK will work for Intel® VPL.
 
 After completing this tutorial you can apply the same process to transition
 your applications.
@@ -22,28 +22,26 @@ MIT
 To build this project you will need a system with these packages installed:
    - A compiler with C++11 support
    - [CMake](https://cmake.org) version 3.10 or newer
-   - oneVPL and Media SDK
+   - Intel® VPL and Media SDK
 
 ## Notes before starting
 
 These instructions assume you can read and write to the location where
-the examples are stored. If this is not the case (for example, if oneVPL has
+the examples are stored. If this is not the case (for example, if Intel® VPL has
 been installed to "Program Files" in Windows) just copy the entire examples
 folder to a location where you have read/write access and resume these
 instructions from that copy.
 
-Your shell should have paths etc. set up to find oneVPL.
+Your shell should have paths etc. set up to find Intel® VPL.
 
 For Windows, prepare your shell with:
 ```shell
 <VPL_install_dir>\etc\vpl\vars.bat
 ```
-Here `<VPL_install_dir>` represents the root folder of your oneAPI
-installation, which is `C:\Program Files (x86)\Intel\oneAPI\`
-when installed using default options. If you customized the installation
-folder, the `setvars.bat` is in your custom location.  Note that if a
-compiler is not part of your oneAPI installation you should run in a Visual
-Studio 64-bit command prompt.
+Here `<VPL_install_dir>` represents the root folder of your Intel® VPL
+installation from source. If you customized the installation
+folder, the `<VPL_install_dir>/etc/vpl/vars.bat` is in your custom location.  Note that if a
+compiler is not installed you should run in a Visual Studio 64-bit command prompt.
 
 For Linux, prepare your shell with :
 ```shell
@@ -57,7 +55,7 @@ source <vpl_install_dir>/etc/vpl/vars.sh
 The first step is a simple hello world from Media SDK.
 
 This is the starting point for the tutorial sequence, representing
-a Media SDK application which has not yet been transitioned to oneVPL.
+a Media SDK application which has not yet been transitioned to Intel® VPL.
 
 Note that
 1. Media SDK (mfx) includes are used in MediaSDK/CMakeLists.txt
@@ -108,13 +106,13 @@ int main() {
 
 In this scenario, the Media SDK dispatcher will route function calls from the
 application to the implementation matching the hardware.  Even though the
-dispatcher is limited to the Media SDK 1.35 API, it will load the oneVPL GPU
+dispatcher is limited to the Media SDK 1.35 API, it will load the Intel® VPL GPU
 implementation for newer hardware platforms.
 
 ```mermaid
 graph TD;
     MediaSDK[Media SDK dispatcher]-->impl1[Media SDK implementation];
-    MediaSDK[Media SDK dispatcher]-->impl2[VPL-intel-gpu implementation];
+    MediaSDK[Media SDK dispatcher]-->impl2[Intel VPL gpu implementation];
 ```
 
 ### Build:
@@ -169,13 +167,13 @@ exceed 1.35.
 
 ### Goal
 
-The next step demonstrates how to transition to oneVPL with the most minimal
-changes.  This uses the oneVPL dispatcher but, as with Media SDK, application
+The next step demonstrates how to transition to Intel® VPL with the most minimal
+changes.  This uses the Intel® VPL dispatcher but, as with Media SDK, application
 capabilities will be limited to 1.35.
 
 Here
-1. oneVPL paths to include files and libs are specified in VPL/CMakeLists.txt.
-Application is linked to oneVPL dispatcher instead of Media SDK.
+1. Intel® VPL paths to include files and libs are specified in VPL/CMakeLists.txt.
+Application is linked to Intel® VPL dispatcher instead of Media SDK.
 
 ```shell
 find_package(VPL REQUIRED)
@@ -184,8 +182,8 @@ target_compile_definitions(${TARGET} PUBLIC -DUSE_VPL_INCLUDE)
 ```
 
 2. Session initialization still happens with 1.x API MFXInit.  Beyond changing
-includes to their oneVPL equivalents, *no additional code changes are required*
-to start using oneVPL.
+includes to their Intel® VPL equivalents, *no additional code changes are required*
+to start using Intel® VPL.
 
 With this approach you will see a deprecation warning during compile.
 
@@ -231,13 +229,13 @@ int main() {
 }
 ```
 
-In this scenario, the oneVPL dispatcher will route function calls from the
+In this scenario, the Intel® VPL dispatcher will route function calls from the
 application to the implementation instead of the Media SDK dispatcher.
 
 ```mermaid
 graph TD;
-    VPL[VPL dispatcher limited to 1.x API]-->impl1[Media SDK implementation];
-    VPL[VPL dispatcher limited to 1.x API]-->impl2[VPL-intel-gpu implementation];
+    dispatcher[Intel VPL dispatcher limited to 1.x API]-->impl1[Media SDK implementation];
+    dispatcher[Intel VPL dispatcher limited to 1.x API]-->impl2[Intel VPL gpu implementation];
 ```
 
 ### Build:
@@ -273,7 +271,7 @@ Session loaded: ApiVersion = 1.255
 ```
 
 Application behavior is identical, even though dispatcher has been updated to
-oneVPL.
+Intel® VPL.
 
 1.255 indicates that even though the implementation is capable of 2.x functionality
 the application is limited to 1.x API features since the session was initialized
@@ -286,7 +284,7 @@ initialization is recommended to access full functionality.
 ### Goal
 
 The final step demonstrates the minor change needed to unlock the full range of
-oneVPL capabilities.  Upgrading to 2.x API session initialization is recommended
+Intel® VPL capabilities.  Upgrading to 2.x API session initialization is recommended
 but not required.
 
 The new session initialization has many improvements designed
@@ -314,10 +312,10 @@ int main() {
     implValue.Data.U32 = MFX_IMPL_TYPE_HARDWARE;
     MFXSetConfigFilterProperty(cfg, (mfxU8 *)"mfxImplDescription.Impl", implValue);
 
-    printf("Hello from unconstrained oneVPL\n");
+    printf("Hello from unconstrained Intel® VPL\n");
     mfxSession session = {};
     sts                = MFXCreateSession(loader, 0, &session);
-    printf("oneVPL 2.x API init MFXCreateSession %s\n",
+    printf("Intel® VPL 2.x API init MFXCreateSession %s\n",
            (sts == MFX_ERR_NONE) ? "succeeded" : "failed");
 
     if (sts == MFX_ERR_NONE) {
@@ -339,14 +337,14 @@ int main() {
 
 ```
 
-In this scenario, the oneVPL dispatcher will route function calls from the
+In this scenario, the Intel® VPL dispatcher will route function calls from the
 application to the implementation.  Full 2.x capabilities are available on hardware
-supported by the oneVPL Intel GPU implementation.
+supported by the Intel® VPL Intel GPU implementation.
 
 ```mermaid
 graph TD;
-    oneVPL[oneVPL dispatcher with full 2.x API]-->impl1[Media SDK implementation];
-    oneVPL[oneVPL dispatcher with full 2.x API]-->impl2[oneVPL-intel-gpu implementation];
+    dispatcher[Intel VPL dispatcher with full 2.x API]-->impl1[Media SDK implementation];
+    dispatcher[Intel VPL dispatcher with full 2.x API]-->impl2[Intel VPL gpu implementation];
 ```
 
 ### Build:
@@ -379,15 +377,15 @@ application.  They are not constrained by 1.x session initialization so the
 true API level of the implementation is reported.
 
 ```shell
-Hello from unconstrained oneVPL
-oneVPL 2.x API init MFXCreateSession succeeded
-Session loaded: ApiVersion = 2.7
+Hello from unconstrained Intel® VPL
+Intel® VPL 2.x API init MFXCreateSession succeeded
+Session loaded: ApiVersion = 2.9
 ```
 
 ## Conclusion
 
 This tutorial demonstrated the simple steps to transition your applications
-to oneVPL:
+to Intel® VPL:
 
 1. Change
 
@@ -401,7 +399,7 @@ to
 #include "vpl/mfx.h"
 ```
 
-2. Recompile with oneVPL API, link to oneVPL dispatcher
+2. Recompile with Intel® VPL API, link to Intel® VPL dispatcher
 
 3. (Optional) On your own schedule, start using new 2.x API features.  The
 first step is to change from MFXInit to MFXLoad/filter implementations/MFXCreateSession.
