@@ -1150,6 +1150,9 @@ mfxStatus GetChromaSize(const mfxFrameInfo& pInfo, mfxU32& ChromaW, mfxU32& Chro
     return MFX_ERR_NONE;
 }
 
+// Size of temp buffer for shifting operation
+#define SHIFT_OP_BUFF_SIZE 8192 * 4
+
 mfxStatus CSmplYUVWriter::WriteNextFrame(mfxFrameSurface1* pSurface) {
     MSDK_CHECK_ERROR(m_bInited, false, MFX_ERR_NOT_INITIALIZED);
     MSDK_CHECK_POINTER(pSurface, MFX_ERR_NULL_PTR);
@@ -1163,7 +1166,7 @@ mfxStatus CSmplYUVWriter::WriteNextFrame(mfxFrameSurface1* pSurface) {
     mfxU32 shiftSizeLuma   = 16 - pInfo.BitDepthLuma;
     mfxU32 shiftSizeChroma = 16 - pInfo.BitDepthChroma;
     // Temporary buffer to convert MS to no-MS format
-    std::vector<mfxU16> tmp;
+    std::vector<mfxU16> tmp(SHIFT_OP_BUFF_SIZE);
 
     if (!m_bIsMultiView) {
         MSDK_CHECK_POINTER(m_fDest, MFX_ERR_NULL_PTR);
@@ -1203,8 +1206,6 @@ mfxStatus CSmplYUVWriter::WriteNextFrame(mfxFrameSurface1* pSurface) {
                                  i * pData.Pitch;
                 if (pInfo.Shift) {
                     // Bits will be shifted to the lower position
-                    tmp.resize(pInfo.CropW * 2);
-
                     for (int idx = 0; idx < pInfo.CropW * 2; idx++) {
                         tmp[idx] = ((mfxU16*)pBuffer)[idx] >> shiftSizeLuma;
                     }
@@ -1243,8 +1244,7 @@ mfxStatus CSmplYUVWriter::WriteNextFrame(mfxFrameSurface1* pSurface) {
                 mfxU8* pBuffer = ((mfxU8*)pData.U) + (pInfo.CropY * pData.Pitch + pInfo.CropX * 8) +
                                  i * pData.Pitch;
                 if (pInfo.Shift) {
-                    tmp.resize(pInfo.CropW * 4);
-
+                    // Bits will be shifted to the lower position
                     for (int idx = 0; idx < pInfo.CropW * 4; idx++) {
                         tmp[idx] = ((mfxU16*)pBuffer)[idx] >> shiftSizeLuma;
                     }
@@ -1281,8 +1281,6 @@ mfxStatus CSmplYUVWriter::WriteNextFrame(mfxFrameSurface1* pSurface) {
                 if (pInfo.Shift) {
                     // Convert MS-P*1* to P*1* and write
                     // Bits will be shifted to the lower position
-                    tmp.resize(pData.Pitch);
-
                     for (int idx = 0; idx < pInfo.CropW; idx++) {
                         tmp[idx] = shortPtr[idx] >> shiftSizeLuma;
                     }
@@ -1413,8 +1411,6 @@ mfxStatus CSmplYUVWriter::WriteNextFrame(mfxFrameSurface1* pSurface) {
                 if (pInfo.Shift) {
                     // Convert MS-P*1* to P*1* and write
                     // Bits will be shifted to the lower position
-                    tmp.resize(pData.Pitch);
-
                     for (mfxU32 idx = 0; idx < ChromaW; idx++) {
                         tmp[idx] = shortPtr[idx] >> shiftSizeChroma;
                     }
