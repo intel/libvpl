@@ -3,7 +3,11 @@ name: Specification
 on:
   pull_request:
     # Run on pull requests
-    # TO DO: add filter to trigger only when spec files have changed
+    # Trigger only when spec files have changed
+    paths:
+    - .github/workflows/**
+    - api/**
+    - doc/spec/**
   workflow_dispatch:
     # Run on user request
 
