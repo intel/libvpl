@@ -437,12 +437,39 @@ jobs:
           path: ./doc/spec/build/latex/
           retention-days: 28
 
+  # if branch name is in the format "specification/vX.Y" then use the basename (vX.Y)
+  #   as the github pages subdirectory to publish into
+  get_branch_basename:
+    name: Get branch basename
+    runs-on: [self-hosted, linux]
+    outputs:
+      branch_name: ${{ steps.get_branch_name.outputs.branch_name }}
+      is_spec_branch: ${{ steps.get_branch_name.outputs.is_spec_branch}}
+    steps:
+      - name: Parse name
+        id: get_branch_name
+        run: |
+          if [[ ${{ github.ref }} =~ ^refs/heads/specification/v[0-9]+\.[0-9]+$ ]]; then
+              echo "Specification branch matched"
+              echo "${GITHUB_REF#refs/heads/specification/*}"
+              base_name="${GITHUB_REF#refs/heads/specification/*}"
+              echo "branch_name=$base_name" >> $GITHUB_OUTPUT
+              echo "is_spec_branch=true" >> $GITHUB_OUTPUT
+          else
+              echo "Specification branch not matched"
+              echo "${GITHUB_REF#refs/heads/*}"
+              base_name="${GITHUB_REF#refs/heads/*}"
+              echo "branch_name=$base_name" >> $GITHUB_OUTPUT
+              echo "is_spec_branch=false" >> $GITHUB_OUTPUT
+          fi
+
   pages:
     name: Deploy HTML
     needs:
       - html
       - pdf
-    if: github.ref == 'refs/heads/main'
+      - get_branch_basename
+    if: (github.ref == 'refs/heads/main' || needs.get_branch_basename.outputs.is_spec_branch == 'true')
     runs-on: [self-hosted, linux]
     steps:
       - name: Download HTML
@@ -452,8 +479,21 @@ jobs:
           path: ./html_files
       - name: Move html files to public
         run: mv ./html_files ./public
-      - name: Deploy
+      - name: Deploy to latest
+        if: (github.ref == 'refs/heads/main')
         uses: intel-innersource/frameworks.actions.thirdparty.actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./public
+          destination_dir: latest
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
+      - name: Deploy to version subdirectory
+        if: (needs.get_branch_basename.outputs.is_spec_branch == 'true')
+        uses: intel-innersource/frameworks.actions.thirdparty.actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
+          destination_dir: ${{needs.get_branch_basename.outputs.branch_name}}
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
