@@ -66,7 +66,7 @@ jobs:
           cmake -B "source\_build" -S "source" -DBUILD_TESTS=ON -DENABLE_WARNING_AS_ERROR=ON
           if %errorlevel% neq 0 exit /b %errorlevel%
 
-          cmake --build "source\_build" --verbose --config Release
+          cmake --build "source\_build" --verbose --config Debug
           if %errorlevel% neq 0 exit /b %errorlevel%
 
           cmake --build "source\_build" --config Debug --target package
