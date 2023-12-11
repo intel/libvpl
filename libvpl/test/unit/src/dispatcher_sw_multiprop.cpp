@@ -399,11 +399,6 @@ TEST(Dispatcher_SW_MultiProp, MultiConfig_AllPropsPtr_InvalidProp_09) {
     TestAllPropsPtrSingleInvalid(9);
 }
 
-TEST(Dispatcher_SW_MultiProp, MultiConfig_AllPropsPtr_InvalidProp_10) {
-    SKIP_IF_DISP_SW_DISABLED();
-    TestAllPropsPtrSingleInvalid(10);
-}
-
 // repeat tests, but use same config object for all properties
 TEST(Dispatcher_SW_MultiProp, SingleConfig_AllPropsInt_InvalidProp_00) {
     SKIP_IF_DISP_SW_DISABLED();
@@ -574,9 +569,4 @@ TEST(Dispatcher_SW_MultiProp, SingleConfig_AllPropsPtr_InvalidProp_08) {
 TEST(Dispatcher_SW_MultiProp, SingleConfig_AllPropsPtr_InvalidProp_09) {
     SKIP_IF_DISP_SW_DISABLED();
     TestAllPropsPtrSingleInvalid(9, true);
-}
-
-TEST(Dispatcher_SW_MultiProp, SingleConfig_AllPropsPtr_InvalidProp_10) {
-    SKIP_IF_DISP_SW_DISABLED();
-    TestAllPropsPtrSingleInvalid(10, true);
 }

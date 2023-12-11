@@ -292,8 +292,22 @@ mfxStatus SetConfigImpl(mfxLoader loader, mfxU32 implType, bool bRequire2xGPU) {
             ImplValue);
     }
     else if (implType == MFX_IMPL_TYPE_SOFTWARE) {
-        // unsupported in unit tests
-        return MFX_ERR_UNSUPPORTED;
+        // for SW, filter by Keywords and ImplType (to exclude stub SW lib)
+        ImplValue.Version.Version = (mfxU16)MFX_VARIANT_VERSION;
+        ImplValue.Type            = MFX_VARIANT_TYPE_PTR;
+        ImplValue.Data.Ptr        = (mfxHDL) "CPU";
+
+        sts = MFXSetConfigFilterProperty(
+            cfg,
+            reinterpret_cast<const mfxU8 *>("mfxImplDescription.Keywords"),
+            ImplValue);
+
+        ImplValue.Type     = MFX_VARIANT_TYPE_U32;
+        ImplValue.Data.U32 = implType;
+
+        sts = MFXSetConfigFilterProperty(cfg,
+                                         reinterpret_cast<const mfxU8 *>("mfxImplDescription.Impl"),
+                                         ImplValue);
     }
     else if (implType == MFX_IMPL_TYPE_HARDWARE) {
         // for HW, filter by ImplType (any is okay)

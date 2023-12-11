@@ -14,6 +14,7 @@
 class StringAPITest : public ::testing::Test {
 protected:
     void SetUp() override {
+        SKIP_IF_DISP_STUB_DISABLED();
         loader_ = MFXLoad();
         ASSERT_NE(loader_, nullptr);
         mfxStatus sts = SetConfigImpl(loader_, MFX_IMPL_TYPE_STUB);
