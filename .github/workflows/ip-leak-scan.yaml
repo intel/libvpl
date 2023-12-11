@@ -107,7 +107,7 @@ jobs:
           EOL
           chmod +x action.sh
       - name: Run Test
-        continue-on-error: true
+        continue-on-error: false
         run: |
           docker run --rm -v $PWD:/working -w/working ipldt:github_runner ./action.sh
       - name: Report
