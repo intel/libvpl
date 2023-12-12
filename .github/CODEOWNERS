@@ -2,3 +2,8 @@
 # last matching pattern takes the most precedence.
 
 *       @intel-innersource/onevpl-maintainer
+
+# Specification
+/api/vpl/                          @varistar @jonrecker @mgonchar @tletnes @intel-innersource/onevpl-maintainer
+/api/tests/                        @varistar @jonrecker @mgonchar @tletnes @intel-innersource/onevpl-maintainer
+/doc/spec/                         @varistar @jonrecker @mgonchar @tletnes @intel-innersource/onevpl-maintainer
