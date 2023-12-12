@@ -28,39 +28,39 @@ if(INSTALL_EXAMPLE_CODE)
   install(
     DIRECTORY content
     DESTINATION ${VPL_INSTALL_EXAMPLEDIR}
-    COMPONENT dev)
+    COMPONENT ${VPL_COMPONENT_DEV})
 
   install(
     DIRECTORY api1x_core/legacy-decode api1x_core/legacy-vpp
               api1x_core/legacy-encode
     DESTINATION ${VPL_INSTALL_EXAMPLEDIR}/api1x_core
-    COMPONENT dev)
+    COMPONENT ${VPL_COMPONENT_DEV})
 
   install(
     DIRECTORY interop/vpl-infer
     DESTINATION ${VPL_INSTALL_EXAMPLEDIR}/interop
-    COMPONENT dev)
+    COMPONENT ${VPL_COMPONENT_DEV})
 
   install(
     DIRECTORY api2x/hello-decode api2x/hello-decvpp api2x/hello-encode
               api2x/hello-transcode api2x/hello-vpp
     DESTINATION ${VPL_INSTALL_EXAMPLEDIR}/api2x
-    COMPONENT dev)
+    COMPONENT ${VPL_COMPONENT_DEV})
 
   install(
     DIRECTORY tutorials/01_transition
     DESTINATION ${VPL_INSTALL_EXAMPLEDIR}/tutorials
-    COMPONENT dev)
+    COMPONENT ${VPL_COMPONENT_DEV})
 
   if(WIN32)
     install(
       DIRECTORY api2x/hello-sharing-dx11 api2x/hello-sharing-ocl
       DESTINATION ${VPL_INSTALL_EXAMPLEDIR}/api2x
-      COMPONENT dev)
+      COMPONENT ${VPL_COMPONENT_DEV})
   else()
     install(
       DIRECTORY api2x/hello-sharing-vaapi
       DESTINATION ${VPL_INSTALL_EXAMPLEDIR}/api2x
-      COMPONENT dev)
+      COMPONENT ${VPL_COMPONENT_DEV})
   endif()
 endif()

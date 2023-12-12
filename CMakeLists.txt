@@ -129,6 +129,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 
 include(cmake/InstallDirs.cmake)
+include(cmake/PackageTarget.cmake)
 
 # Set POSITION_INDEPENDENT_CODE property for all targets
 set(CMAKE_POSITION_INDEPENDENT_CODE true)
@@ -139,7 +140,7 @@ set(CMAKE_INSTALL_SO_NO_EXE 0)
 include(cmake/CompileOptions.cmake)
 
 if(BUILD_TESTS)
-  include(Dart)
+  include(CTest)
   enable_testing()
 endif()
 
@@ -156,16 +157,15 @@ endif()
 install(
   FILES third-party-programs.txt
   DESTINATION ${VPL_INSTALL_LICENSEDIR}
-  COMPONENT license)
+  COMPONENT ${VPL_COMPONENT_LIB})
 
 install(
   FILES LICENSE
   RENAME license.txt
   DESTINATION ${VPL_INSTALL_LICENSEDIR}
-  COMPONENT license)
+  COMPONENT ${VPL_COMPONENT_LIB})
 
-include(cmake/PackageTarget.cmake)
-set(CMAKE_INSTALL_SYSTEM_RUNTIME_COMPONENT runtime)
+set(CMAKE_INSTALL_SYSTEM_RUNTIME_COMPONENT ${VPL_COMPONENT_LIB})
 include(InstallRequiredSystemLibraries)
 
 message(

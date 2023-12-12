@@ -25,4 +25,4 @@ if(MSVC)
 endif()
 
 install(TARGETS sample_decode RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-                                      COMPONENT dev)
+                                      COMPONENT ${VPL_COMPONENT_TOOLS})

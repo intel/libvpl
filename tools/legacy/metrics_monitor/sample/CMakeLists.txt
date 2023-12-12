@@ -14,4 +14,4 @@ target_link_libraries(metrics_monitor cttmetrics_static drm)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/.. /usr/include/drm)
 
 install(TARGETS metrics_monitor RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-                                        COMPONENT dev)
+                                        COMPONENT ${VPL_COMPONENT_TOOLS})

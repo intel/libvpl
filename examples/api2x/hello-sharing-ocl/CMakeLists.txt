@@ -89,7 +89,7 @@ foreach(target IN LISTS OCL_TARGETS)
   endif()
 
   install(TARGETS ${target} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-                                    COMPONENT dev)
+                                    COMPONENT ${VPL_COMPONENT_DEV})
   # copy dependent dlls to target location
   if(WIN32)
     if(${CMAKE_VERSION} VERSION_LESS "3.26")

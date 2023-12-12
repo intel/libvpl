@@ -11,3 +11,6 @@ The main purpose of vpl-inspect is to dump the full set of capability info avail
 The system_analyzer tool is intended to query the system environment and show information which can be used to
 determine if the configuration is viable to run media workloads.
 
+# val-surface-sharing
+
+A command line application that validates Surface Sharing API functionality

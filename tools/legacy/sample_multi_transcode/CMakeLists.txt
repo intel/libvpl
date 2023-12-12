@@ -27,7 +27,8 @@ endif()
 target_compile_definitions(sample_multi_transcode PRIVATE MFX_ONEVPL)
 
 install(TARGETS sample_multi_transcode
-        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT dev)
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+                COMPONENT ${VPL_COMPONENT_TOOLS})
 
 if(BUILD_TESTS)
   set(BUILD_SHARED_LIBS OFF)

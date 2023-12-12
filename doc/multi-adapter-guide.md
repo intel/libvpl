@@ -368,13 +368,4 @@ if(UNIX)
   endif()
 endif()
 
-get_directory_property(has_parent PARENT_DIRECTORY)
-if(NOT has_parent)
-  # only make run target available for stand-alone build
-  add_custom_target(run ${TARGET} ${RUNARGS})
-else()
-  install(TARGETS ${TARGET} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-                                    COMPONENT dev)
-endif()
-
 ```

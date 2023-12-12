@@ -87,7 +87,7 @@ if(NOT has_parent)
   add_custom_target(run ${TARGET} ${RUNARGS})
 else()
   install(TARGETS ${TARGET} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-                                    COMPONENT dev)
+                                    COMPONENT ${VPL_COMPONENT_DEV})
 endif()
 
 # copy dependent dlls to target location

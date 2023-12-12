@@ -21,7 +21,7 @@ if(WIN32)
   install(
     PROGRAMS "cmd/vars.bat"
     DESTINATION "${VPL_INSTALL_ENVDIR}"
-    COMPONENT dev)
+    COMPONENT ${VPL_COMPONENT_DEV})
 
   if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     set(ENV_SCRIPT_NAME "vars64.bat")
@@ -33,7 +33,7 @@ if(WIN32)
   install(
     PROGRAMS "${CMAKE_CURRENT_BINARY_DIR}/${ENV_SCRIPT_NAME}"
     DESTINATION "${VPL_INSTALL_ENVDIR}"
-    COMPONENT dev)
+    COMPONENT ${VPL_COMPONENT_DEV})
 else()
   file(TO_CMAKE_PATH "${env_rel_prefix}" env_rel_prefix)
   file(TO_CMAKE_PATH "${CMAKE_INSTALL_INCLUDEDIR}" _install_includedir)
@@ -45,5 +45,5 @@ else()
   install(
     PROGRAMS "${CMAKE_CURRENT_BINARY_DIR}/${ENV_SCRIPT_NAME}"
     DESTINATION "${VPL_INSTALL_ENVDIR}"
-    COMPONENT dev)
+    COMPONENT ${VPL_COMPONENT_DEV})
 endif()

@@ -69,7 +69,3 @@ if(UNIX)
   set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS
                                                    -Wl,-Bsymbolic,-z,defs)
 endif()
-
-# install( TARGETS ${PROJECT_NAME} LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-# COMPONENT runtime RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT
-# runtime)

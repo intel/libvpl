@@ -126,20 +126,20 @@ if(BUILD_DISPATCHER)
   install(
     TARGETS ${TARGET}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            COMPONENT runtime
+            COMPONENT ${VPL_COMPONENT_LIB}
             NAMELINK_SKIP
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime)
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT ${VPL_COMPONENT_LIB})
 endif()
 
 if(BUILD_DEV)
   install(
     TARGETS ${TARGET}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            COMPONENT dev
+            COMPONENT ${VPL_COMPONENT_DEV}
             NAMELINK_ONLY)
   if(WIN32)
     install(TARGETS ${TARGET} ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-                                      COMPONENT dev)
+                                      COMPONENT ${VPL_COMPONENT_DEV})
   endif()
 
   file(RELATIVE_PATH cmake_rel_prefix ${CMAKE_INSTALL_FULL_LIBDIR}/cmake/vpl
@@ -159,7 +159,7 @@ if(BUILD_DEV)
     FILES "${CMAKE_CURRENT_BINARY_DIR}/cmake/VPLConfig.cmake"
           "${CMAKE_CURRENT_BINARY_DIR}/cmake/VPLConfigVersion.cmake"
     DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/vpl"
-    COMPONENT dev)
+    COMPONENT ${VPL_COMPONENT_DEV})
 
   file(RELATIVE_PATH pc_rel_prefix ${CMAKE_INSTALL_FULL_LIBDIR}/pkgconfig
        ${CMAKE_INSTALL_PREFIX})
@@ -188,7 +188,7 @@ if(BUILD_DEV)
   install(
     FILES "${CMAKE_CURRENT_BINARY_DIR}/pkgconfig/vpl.pc"
     DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig"
-    COMPONENT dev)
+    COMPONENT ${VPL_COMPONENT_DEV})
 endif()
 
 if(BUILD_TESTS)

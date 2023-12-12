@@ -72,7 +72,7 @@ if(UNIX)
 endif()
 
 install(TARGETS ${TARGET} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-                                  COMPONENT dev)
+                                  COMPONENT ${VPL_COMPONENT_DEV})
 
 # copy dependent dlls to target location
 if(WIN32)
