@@ -1,3 +1,9 @@
+/*############################################################################
+  # Copyright (C) 2020 Intel Corporation
+  #
+  # SPDX-License-Identifier: MIT
+  ############################################################################*/
+
 // Example using Intel® Video Processing Library (Intel® VPL)
 #include <vector>
 

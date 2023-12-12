@@ -4,14 +4,14 @@
   # SPDX-License-Identifier: MIT
   ############################################################################*/
 
-#include "mfxdefs.h"
-#include "mfxcommon.h"
-#include "mfxstructures.h"
-#include "mfxdispatcher.h"
-#include "mfximplcaps.h"
-#include "mfxjpeg.h"
-#include "mfxvideo.h"
-#include "mfxadapter.h"
+#include "./mfxdefs.h"
+#include "./mfxcommon.h"
+#include "./mfxstructures.h"
+#include "./mfxdispatcher.h"
+#include "./mfximplcaps.h"
+#include "./mfxjpeg.h"
+#include "./mfxvideo.h"
+#include "./mfxadapter.h"
 
 #define UNUSED_PARAM(x) (void)(x)
 
@@ -70,7 +70,7 @@ mfxHDL* MFX_CDECL MFXQueryImplsDescription(mfxImplCapsDeliveryFormat format, mfx
 {
     UNUSED_PARAM(format);
     UNUSED_PARAM(num);
-    return (mfxHDL*)1;
+    return (mfxHDL*)(1);  //NOLINT
 }
 
 mfxStatus MFX_CDECL MFXReleaseImplDescription(mfxHDL hdl)

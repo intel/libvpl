@@ -10,7 +10,7 @@
 
 #include <stddef.h>
 
-#include "removed_api.h"
+#include "./removed_api.h"
 
 #include "sdk_headers.inc"
 

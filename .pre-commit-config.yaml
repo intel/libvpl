@@ -7,7 +7,7 @@
 fail_fast: false
 default_language_version:
   python: python3
-exclude: '/ext/|doc/spec/|api/tests/'
+exclude: '/ext/'
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v2.5.0

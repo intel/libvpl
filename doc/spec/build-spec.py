@@ -4,6 +4,10 @@
 #
 # SPDX-License-Identifier: MIT
 ############################################################################
+"""
+Build specification.
+"""
+# pylint: disable=invalid-name
 
 # Main script to build the specification. Derived from:
 # github.com/oneapi-src/oneAPI-spec/blob/main/scripts/oneapi.py
@@ -12,8 +16,9 @@ import argparse
 import glob
 import os
 import os.path
+import sys
 import shutil
-import subprocess
+import subprocess  # nosec B404
 from functools import wraps
 from os.path import join
 
@@ -24,12 +29,14 @@ doxygen_dir = 'doxygen'
 doxygen_xml = join(doxygen_dir, 'xml', 'index.xml')
 
 indent = 0
+cl_args = []
 
 
 def action(func):
+    """Execute and log action"""
     @wraps(func)
     def wrapped(*args, **kwargs):
-        global indent
+        global indent  # pylint: disable=W0603
         log('%s: %s' % (
             args[1] if len(args) > 1 and args[1] else wrapped.__name__,
             args[0],
@@ -45,6 +52,7 @@ def action(func):
 class cd:
     """Context manager for changing the current working directory"""
     def __init__(self, newPath):
+        self.savedPath = ""
         self.newPath = os.path.expanduser(newPath)
 
     def __enter__(self):
@@ -57,27 +65,20 @@ class cd:
 
 
 def log(*args, **kwargs):
+    """Log message"""
     print(indent * ' ' + ' '.join(map(str, args)), flush=True, **kwargs)
 
 
 def shell(c):
+    """Execute shell command"""
     log(c)
     if cl_args.dry_run:
         return
-    subprocess.check_call(c, shell=True)
-
-
-def rm(dir):
-    log('rm -rf', dir)
-    if cl_args.dry_run:
-        return
-    shutil.rmtree(dir, ignore_errors=True)
-    if cl_args.dry_run:
-        return
-    shutil.copy(src, dst)
+    subprocess.check_call(c, shell=True)  # nosec B602
 
 
 def copy(src, dst):
+    """Execute copy command"""
     log('cp', src, dst)
     if cl_args.dry_run:
         return
@@ -85,6 +86,7 @@ def copy(src, dst):
 
 
 def makedirs(path):
+    """Execute mkdir command"""
     log('mkdir -p', path)
     if cl_args.dry_run:
         return
@@ -92,6 +94,7 @@ def makedirs(path):
 
 
 def sphinx(root, target):
+    """Execute sphinx build"""
     if not cl_args.verbose:
         os.environ['LATEXMKOPTS'] = '--silent'
         os.environ['LATEXOPTS'] = '-interaction=nonstopmode -halt-on-error'
@@ -117,18 +120,20 @@ def sphinx(root, target):
 
 
 def get_env(var):
+    """Get environment variable"""
     return os.environ[var] if var in os.environ else ''
 
 
 def root_only(root):
+    """Check if in root dir"""
     if root != '.':
-        exit('Error: Only works from root')
+        sys.exit('Error: Only works from root')
 
 
 @action
-def dockerbuild(root, target=None):
+def dockerbuild(root, _target=None):
+    """Build image"""
     cd(root)
-    os.system("pwd")
     copy(join(root, 'requirements.txt'), join(root, 'docker'))
     copy(join(root, 'ubuntu-packages.txt'), join(root, 'docker'))
     copy(join(root, 'install.sh'), join(root, 'docker'))
@@ -143,7 +148,8 @@ def dockerbuild(root, target=None):
 
 
 @action
-def dockerrun(root, target=None):
+def dockerrun(_root, _target=None):
+    """Run image"""
     shell('docker run --rm -it'
           ' -e http_proxy=%s'
           ' -e https_proxy=%s'
@@ -162,23 +168,27 @@ def dockerrun(root, target=None):
 
 
 @action
-def clean(root, target=None):
+def clean(root, _target=None):
+    """Execute sphinx clean"""
     apply_dirs(root, 'clean')
     sphinx(root, 'clean')
 
 
 def command(root, target):
+    """Execute command list"""
     commands[target](root, target)
 
 
 def apply_dirs(root, target):
+    """Execute command list"""
     elements = join(root, 'doc', 'spec')
     if os.path.exists(elements):
-        for dir in dirs:
-            command(join(elements, dir), target)
+        for curr_dir in dirs:
+            command(join(elements, curr_dir), target)
 
 
 def up_to_date(target, deps):
+    """Check if up to date"""
     if not os.path.exists(target):
         return False
     for dep in deps:
@@ -188,11 +198,13 @@ def up_to_date(target, deps):
 
 
 def doxygen_files(root):
+    """Get doxyfile"""
     return [join(root, 'Doxyfile')] + glob.glob(join('api', 'vpl', '**'),
                                                 recursive=True)
 
 
-def doxygen(root, target=None):
+def doxygen(root, _target=None):
+    """Execute doxygen build"""
     with cd(root):
         doxyfile = 'Doxyfile'
         if not os.path.exists(doxyfile) or up_to_date(join(root, doxygen_xml),
@@ -202,18 +214,21 @@ def doxygen(root, target=None):
 
 
 @action
-def prep(root='.', target=None):
+def prep(root='.', _target=None):
+    """Prepare doxygen build"""
     apply_dirs(root, 'prep')
     doxygen(root)
 
 
 @action
 def build(root, target):
+    """Build sphinx"""
     prep(root)
     sphinx(root, target)
 
 
 def remove_elements(li, elements):
+    """Remove elements"""
     for e in elements:
         if e in li:
             li.remove(e)
@@ -221,10 +236,13 @@ def remove_elements(li, elements):
 
 
 @action
-def sort_words(root, target=None):
-    with open(join('source', 'spelling_wordlist.txt')) as fin:
+def sort_words(_root, _target=None):
+    """Sort words in spell check"""
+    with open(join('source', 'spelling_wordlist.txt'),
+              encoding="utf-8") as fin:
         lines = fin.readlines()
-    with open(join('source', 'spelling_wordlist.txt'), 'w') as fout:
+    with open(join('source', 'spelling_wordlist.txt'), 'w',
+              encoding="utf-8") as fout:
         for li in sorted(list(set(lines))):
             fout.write(li)
 
@@ -247,7 +265,8 @@ dirs = [
 
 
 def main():
-    global cl_args
+    """Main specification build"""
+    global cl_args  # pylint: disable=W0603
     parser = argparse.ArgumentParser(
         description='Build Intel® Video Processing Library spec.')
     parser.add_argument('action',

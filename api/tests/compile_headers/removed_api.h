@@ -10,10 +10,10 @@
  * removed API entry - please keep original name of the header file.
 */
 
-#ifndef __REMOVED_API_H__
-#define __REMOVED_API_H__
+#ifndef API_TESTS_COMPILE_HEADERS_REMOVED_API_H_
+#define API_TESTS_COMPILE_HEADERS_REMOVED_API_H_
 
-#include "mfxstructures.h"
+#include "./mfxstructures.h"
 
 /* Don't expose this file publically without special approval. */
 
@@ -36,4 +36,4 @@ enum {
 
 /* Functions*/
 
-#endif  /* __REMOVED_API_H__ */
+#endif  /* API_TESTS_COMPILE_HEADERS_REMOVED_API_H_ */

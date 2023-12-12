@@ -27,9 +27,9 @@ typedef struct {
 static_assert(offsetof(PackStart, a) == 0, "Error - offset of PackStart.a should be 0");
 static_assert(offsetof(PackStart, b) == 1, "Error - offset of PackStart.b should be 1");
 
-#include "removed_api.h"
+#include "./removed_api.h"
 
-#include "mfxvideo++.h"
+#include "./mfxvideo++.h"
 
 #include "sdk_headers.inc"
 

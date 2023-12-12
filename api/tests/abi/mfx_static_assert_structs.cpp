@@ -7,8 +7,8 @@
 #include <stddef.h>
 #include <stdio.h>
 
-#include "mfx.h"
-#include "mfxcamera.h"
+#include "./mfx.h"
+#include "./mfxcamera.h"
 
 /* .cpp instead of .h to avoid changing of include files dependencies graph
     and not to include unnecessary includes into libmfx library             */
