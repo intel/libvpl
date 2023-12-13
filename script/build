@@ -29,7 +29,7 @@ cmake -B "$build_dir" -S "$source_dir" \
       -DENABLE_X11=ON \
       -DENABLE_WARNING_AS_ERROR=ON
 
-cmake --build "$build_dir" --verbose
+cmake --build "$build_dir" --parallel $(nproc) --verbose
 
 pushd "$build_dir"
   cpack .

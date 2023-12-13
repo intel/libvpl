@@ -66,10 +66,10 @@ jobs:
           cmake -B "source\_build" -S "source" -DBUILD_TESTS=ON -DENABLE_WARNING_AS_ERROR=ON
           if %errorlevel% neq 0 exit /b %errorlevel%
 
-          cmake --build "source\_build" --verbose --config Debug
+          cmake --build "source\_build" --parallel %NUMBER_OF_PROCESSORS% --verbose --config Debug
           if %errorlevel% neq 0 exit /b %errorlevel%
 
-          cmake --build "source\_build" --config Debug --target package
+          cmake --build "source\_build" --parallel %NUMBER_OF_PROCESSORS% --config Debug --target package
           if %errorlevel% neq 0 exit /b %errorlevel%
 
       - name: Build package (Windows, Disable Experimental APIs)
@@ -83,7 +83,10 @@ jobs:
 
           if %errorlevel% neq 0 exit /b %errorlevel%
 
-          cmake --build "source\_build" --verbose --config Release
+          cmake --build "source\_build" --parallel %NUMBER_OF_PROCESSORS% --verbose --config Release
+          if %errorlevel% neq 0 exit /b %errorlevel%
+
+          cmake --build "source\_build" --parallel %NUMBER_OF_PROCESSORS% --config Release --target package
           if %errorlevel% neq 0 exit /b %errorlevel%
 
       - name: Build Docker image for building (Linux)
@@ -115,7 +118,7 @@ jobs:
           -DENABLE_X11=ON \
           -DENABLE_WARNING_AS_ERROR=ON
 
-          cmake --build "source/_build" --verbose
+          cmake --build "source/_build" --parallel $(nproc) --verbose
 
           pushd "source/_build"
           cpack .
@@ -144,7 +147,7 @@ jobs:
           -DBUILD_DISPATCHER_ONEVPL_EXPERIMENTAL=OFF \
           -DBUILD_TOOLS_ONEVPL_EXPERIMENTAL=OFF
 
-          cmake --build "source/_build" --verbose
+          cmake --build "source/_build" --parallel $(nproc) --verbose
 
           pushd "source/_build"
           cpack .

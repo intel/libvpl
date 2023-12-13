@@ -167,11 +167,9 @@ jobs:
           pushd source
           export VERBOSE=1
           cmake -B _build \
-            -DENABLE_WARNING_AS_ERROR=ON \
             -DCMAKE_INSTALL_LIBDIR=lib \
             -DCMAKE_BUILD_TYPE=Release \
-            -DBUILD_TESTS=ON \
-            -DBUILD_PYTHON_BINDING=ON \
+            -DBUILD_TESTS=OFF \
             -DENABLE_VA=ON \
             -DENABLE_DRM=ON \
             -DENABLE_WAYLAND=ON \
@@ -196,7 +194,7 @@ jobs:
             --bu "AXG" \
             --description "${{ github.ref_name }}" \
             ${{ inputs.COVERITY_OPTS}} \
-            cmake --build "\${BUILD_DIR}" --verbose
+            cmake --build "\${BUILD_DIR}" --parallel $(nproc) --verbose
           EOL
           chmod +x action.sh
 
@@ -209,7 +207,7 @@ jobs:
         if: success() && runner.os == 'Windows'
         run: |
           pushd source
-          cmake -B _build -DENABLE_WARNING_AS_ERROR=ON -DBUILD_TESTS=ON -DBUILD_PYTHON_BINDING=OFF
+          cmake -B _build
           if($LASTEXITCODE -ne 0)
           {
               Exit $LASTEXITCODE
@@ -230,7 +228,7 @@ jobs:
             --bu "AXG" `
             --description "${{ github.ref_name }}" `
             ${{ inputs.COVERITY_OPTS}} `
-            cmake --build _build --verbose --config Release
+            cmake --build _build --parallel %NUMBER_OF_PROCESSORS% --verbose --config Release
           if($LASTEXITCODE -ne 0)
           {
             Exit $LASTEXITCODE

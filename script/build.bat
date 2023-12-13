@@ -20,11 +20,11 @@ cmake -B "%build_dir%" -S "%source_dir%" ^
       -DENABLE_WARNING_AS_ERROR=ON
 if %errorlevel% neq 0 exit /b %errorlevel%
 
-cmake --build "%build_dir%" --verbose --config Release
+cmake --build "%build_dir%" --parallel %NUMBER_OF_PROCESSORS% --verbose --config Release
 if %errorlevel% neq 0 exit /b %errorlevel%
 
 :: cmake cpack conflicts with choco cpack, at least until next choco release
-cmake --build "%build_dir%" --config Release --target package
+cmake --build "%build_dir%" --parallel %NUMBER_OF_PROCESSORS% --config Release --target package
 if %errorlevel% neq 0 exit /b %errorlevel%
 
 cmake --install "%build_dir%" --prefix "%staging_dir%" --config Release --strip
