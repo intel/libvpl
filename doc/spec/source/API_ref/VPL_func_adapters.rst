@@ -29,16 +29,16 @@ MFXQueryAdapters
 ----------------
 
 .. doxygenfunction:: MFXQueryAdapters
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 MFXQueryAdaptersDecode
 ----------------------
 
 .. doxygenfunction:: MFXQueryAdaptersDecode
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 MFXQueryAdaptersNumber
 ----------------------
 
 .. doxygenfunction:: MFXQueryAdaptersNumber
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT

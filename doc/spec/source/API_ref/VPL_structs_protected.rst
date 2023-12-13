@@ -28,6 +28,6 @@ mfxExtCencParam
 ----------------
 
 .. doxygenstruct:: _mfxExtCencParam
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:

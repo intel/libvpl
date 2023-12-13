@@ -29,7 +29,7 @@ MFXVideoDECODE_VPP_Init
 -----------------------
 
 .. doxygenfunction:: MFXVideoDECODE_VPP_Init
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 .. important:: The :cpp:func:`MFXVideoDECODE_VPP_Init` is mandatory when implementing a combined decode plus vpp.
 
@@ -37,19 +37,19 @@ MFXVideoDECODE_VPP_Reset
 ------------------------
 
 .. doxygenfunction:: MFXVideoDECODE_VPP_Reset
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 MFXVideoDECODE_VPP_GetChannelParam
 ----------------------------------
 
 .. doxygenfunction:: MFXVideoDECODE_VPP_GetChannelParam
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 MFXVideoDECODE_VPP_DecodeFrameAsync
 -----------------------------------
 
 .. doxygenfunction:: MFXVideoDECODE_VPP_DecodeFrameAsync
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 .. important:: The :cpp:func:`MFXVideoDECODE_VPP_DecodeFrameAsync` is mandatory when implementing a combined decode plus vpp.
 
@@ -57,6 +57,6 @@ MFXVideoDECODE_VPP_Close
 ------------------------
 
 .. doxygenfunction:: MFXVideoDECODE_VPP_Close
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 .. important:: The :cpp:func:`MFXVideoDECODE_VPP_Close` is mandatory when implementing a combined decode plus vpp.

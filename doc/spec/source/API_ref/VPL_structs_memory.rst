@@ -28,7 +28,7 @@ mfxBitstream
 ------------
 
 .. doxygenstruct:: mfxBitstream
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -36,7 +36,7 @@ mfxFrameAllocator
 -----------------
 
 .. doxygenstruct:: mfxFrameAllocator
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -44,7 +44,7 @@ mfxFrameAllocRequest
 --------------------
 
 .. doxygenstruct:: mfxFrameAllocRequest
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -52,7 +52,7 @@ mfxFrameAllocResponse
 ---------------------
 
 .. doxygenstruct:: mfxFrameAllocResponse
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -60,22 +60,22 @@ mfxFrameData
 ------------
 
 .. doxygenstruct:: mfxY410
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
 .. doxygenstruct:: mfxY416
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
 .. doxygenstruct:: mfxA2RGB10
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
 .. doxygenstruct:: mfxFrameData
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -83,7 +83,7 @@ mfxFrameInfo
 ------------
 
 .. doxygenstruct:: mfxFrameInfo
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -126,7 +126,7 @@ mfxFrameSurface1
 ----------------
 
 .. doxygenstruct:: mfxFrameSurface1
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -134,7 +134,7 @@ mfxFrameSurfaceInterface
 ------------------------
 
 .. doxygenstruct:: mfxFrameSurfaceInterface
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -142,7 +142,7 @@ mfxSurfacePoolInterface
 ------------------------
 
 .. doxygenstruct:: mfxSurfacePoolInterface
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -150,7 +150,7 @@ mfxMemoryInterface
 ------------------
 
 .. doxygenstruct:: mfxMemoryInterface
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -158,7 +158,7 @@ mfxSurfaceTypesSupported
 ------------------------
 
 .. doxygenstruct:: mfxSurfaceTypesSupported
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -166,7 +166,7 @@ mfxSurfaceHeader
 ----------------
 
 .. doxygenstruct:: mfxSurfaceHeader
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -174,7 +174,7 @@ mfxSurfaceInterface
 -------------------
 
 .. doxygenstruct:: mfxSurfaceInterface
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -182,7 +182,7 @@ mfxSurfaceD3D11Tex2D
 --------------------
 
 .. doxygenstruct:: mfxSurfaceD3D11Tex2D
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -190,7 +190,7 @@ mfxSurfaceVAAPI
 ---------------
 
 .. doxygenstruct:: mfxSurfaceVAAPI
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -198,7 +198,7 @@ mfxSurfaceOpenCLImg2D
 ---------------------
 
 .. doxygenstruct:: mfxSurfaceOpenCLImg2D
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -206,6 +206,6 @@ mfxExtSurfaceOpenCLImg2DExportDescription
 -----------------------------------------
 
 .. doxygenstruct:: mfxExtSurfaceOpenCLImg2DExportDescription
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:

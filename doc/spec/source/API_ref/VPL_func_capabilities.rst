@@ -29,7 +29,7 @@ MFXQueryImplsDescription
 ------------------------
 
 .. doxygenfunction:: MFXQueryImplsDescription
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 .. important:: The :cpp:func:`MFXQueryImplsDescription` function is mandatory for any implementation.
 
@@ -37,6 +37,6 @@ MFXReleaseImplDescription
 -------------------------
 
 .. doxygenfunction:: MFXReleaseImplDescription
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 .. important:: The :cpp:func:`MFXReleaseImplDescription` function is mandatory for any implementation.

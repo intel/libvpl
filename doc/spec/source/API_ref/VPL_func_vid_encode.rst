@@ -29,7 +29,7 @@ MFXVideoENCODE_Query
 --------------------
 
 .. doxygenfunction:: MFXVideoENCODE_Query
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 .. important:: The :cpp:func:`MFXVideoENCODE_Query` function is mandatory when
    implementing an encoder.
@@ -38,13 +38,13 @@ MFXVideoENCODE_QueryIOSurf
 --------------------------
 
 .. doxygenfunction:: MFXVideoENCODE_QueryIOSurf
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 MFXVideoENCODE_Init
 -------------------
 
 .. doxygenfunction:: MFXVideoENCODE_Init
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 .. important:: The :cpp:func:`MFXVideoENCODE_Init` function is mandatory when
                implementing an encoder.
@@ -53,13 +53,13 @@ MFXVideoENCODE_Reset
 --------------------
 
 .. doxygenfunction:: MFXVideoENCODE_Reset
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 MFXVideoENCODE_Close
 --------------------
 
 .. doxygenfunction:: MFXVideoENCODE_Close
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 .. important:: The :cpp:func:`MFXVideoENCODE_Close` function is mandatory when
                implementing an encoder.
@@ -68,19 +68,19 @@ MFXVideoENCODE_GetVideoParam
 ----------------------------
 
 .. doxygenfunction:: MFXVideoENCODE_GetVideoParam
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 MFXVideoENCODE_GetEncodeStat
 ----------------------------
 
 .. doxygenfunction:: MFXVideoENCODE_GetEncodeStat
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 MFXVideoENCODE_EncodeFrameAsync
 -------------------------------
 
 .. doxygenfunction:: MFXVideoENCODE_EncodeFrameAsync
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 .. important:: The :cpp:func:`MFXVideoENCODE_EncodeFrameAsync` function is mandatory when
                implementing an encoder.

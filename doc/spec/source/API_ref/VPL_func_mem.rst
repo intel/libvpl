@@ -28,27 +28,27 @@ MFXMemory_GetSurfaceForVPP
 --------------------------
 
 .. doxygenfunction:: MFXMemory_GetSurfaceForVPP
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 Alias below, can be used as well:
 
 .. doxygendefine:: MFXMemory_GetSurfaceForVPPIn
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 MFXMemory_GetSurfaceForVPPOut
 -----------------------------
 
 .. doxygenfunction:: MFXMemory_GetSurfaceForVPPOut
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 MFXMemory_GetSurfaceForEncode
 -----------------------------
 
 .. doxygenfunction:: MFXMemory_GetSurfaceForEncode
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 MFXMemory_GetSurfaceForDecode
 -----------------------------
 
 .. doxygenfunction:: MFXMemory_GetSurfaceForDecode
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT

@@ -29,7 +29,7 @@ mfxSurfaceArray
 ---------------
 
 .. doxygenstruct:: mfxSurfaceArray
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -37,7 +37,7 @@ mfxVideoChannelParam
 --------------------
 
 .. doxygenstruct:: mfxVideoChannelParam
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -45,6 +45,6 @@ mfxExtInCrops
 -------------
 
 .. doxygenstruct:: mfxExtInCrops
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:

@@ -22,7 +22,7 @@ mfxDecoderDescription
 ---------------------
 
 .. doxygenstruct:: mfxDecoderDescription
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -30,7 +30,7 @@ mfxDeviceDescription
 --------------------
 
 .. doxygenstruct:: mfxDeviceDescription
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -38,7 +38,7 @@ mfxEncoderDescription
 ---------------------
 
 .. doxygenstruct:: mfxEncoderDescription
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -46,7 +46,7 @@ mfxImplDescription
 ------------------
 
 .. doxygenstruct:: mfxImplDescription
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -54,18 +54,18 @@ mfxVariant
 ----------
 
 .. doxygenstruct:: mfxVariant
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
 .. doxygenenum:: mfxVariantType
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 mfxVPPDescription
 -----------------
 
 .. doxygenstruct:: mfxVPPDescription
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -73,7 +73,7 @@ mfxAccelerationModeDescription
 ------------------------------
 
 .. doxygenstruct:: mfxAccelerationModeDescription
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -81,7 +81,7 @@ mfxImplementedFunctions
 -----------------------
 
 .. doxygenstruct:: mfxImplementedFunctions
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -89,7 +89,7 @@ mfxExtendedDeviceId
 -------------------
 
 .. doxygenstruct:: mfxExtendedDeviceId
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -97,7 +97,7 @@ mfxPoolPolicyDescription
 ------------------------
 
 .. doxygenstruct:: mfxPoolPolicyDescription
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -105,6 +105,6 @@ extDeviceUUID
 -------------
 
 .. doxygenstruct:: extDeviceUUID
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:

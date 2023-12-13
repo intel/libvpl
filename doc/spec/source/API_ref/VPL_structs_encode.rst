@@ -29,7 +29,7 @@ mfxBRCFrameCtrl
 ---------------
 
 .. doxygenstruct:: mfxBRCFrameCtrl
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -37,7 +37,7 @@ mfxBRCFrameParam
 ----------------
 
 .. doxygenstruct:: mfxBRCFrameParam
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -50,7 +50,7 @@ mfxBRCFrameStatus
 -----------------
 
 .. doxygenstruct:: mfxBRCFrameStatus
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -58,7 +58,7 @@ mfxEncodeCtrl
 -------------
 
 .. doxygenstruct:: mfxEncodeCtrl
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -66,7 +66,7 @@ mfxEncodedUnitInfo
 ------------------
 
 .. doxygenstruct:: mfxEncodedUnitInfo
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -74,7 +74,7 @@ mfxEncodeStat
 -------------
 
 .. doxygenstruct:: mfxEncodeStat
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -82,7 +82,7 @@ mfxExtAVCEncodedFrameInfo
 -------------------------
 
 .. doxygenstruct:: mfxExtAVCEncodedFrameInfo
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
    :undoc-members:
@@ -91,7 +91,7 @@ mfxExtAVCRefListCtrl
 --------------------
 
 .. doxygenstruct:: mfxExtAVCRefListCtrl
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
    :undoc-members:
@@ -100,7 +100,7 @@ mfxExtAVCRefLists
 -----------------
 
 .. doxygenstruct:: mfxExtAVCRefLists
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -108,7 +108,7 @@ mfxExtAVCRoundingOffset
 -----------------------
 
 .. doxygenstruct:: mfxExtAVCRoundingOffset
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -116,7 +116,7 @@ mfxExtAvcTemporalLayers
 -----------------------
 
 .. doxygenstruct:: mfxExtAvcTemporalLayers
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -124,7 +124,7 @@ mfxExtBRC
 ---------
 
 .. doxygenstruct:: mfxExtBRC
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -132,7 +132,7 @@ mfxExtChromaLocInfo
 -------------------
 
 .. doxygenstruct:: mfxExtChromaLocInfo
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
    :undoc-members:
@@ -141,7 +141,7 @@ mfxExtCodingOption
 ------------------
 
 .. doxygenstruct:: mfxExtCodingOption
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -149,7 +149,7 @@ mfxExtCodingOption2
 -------------------
 
 .. doxygenstruct:: mfxExtCodingOption2
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
    :undoc-members:
@@ -158,7 +158,7 @@ mfxExtCodingOption3
 -------------------
 
 .. doxygenstruct:: mfxExtCodingOption3
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -166,7 +166,7 @@ mfxExtCodingOptionSPSPPS
 ------------------------
 
 .. doxygenstruct:: mfxExtCodingOptionSPSPPS
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
    :undoc-members:
@@ -175,7 +175,7 @@ mfxExtCodingOptionVPS
 ---------------------
 
 .. doxygenstruct:: mfxExtCodingOptionVPS
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -183,7 +183,7 @@ mfxExtDirtyRect
 ---------------
 
 .. doxygenstruct:: mfxExtDirtyRect
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -191,7 +191,7 @@ mfxExtEncodedUnitsInfo
 ----------------------
 
 .. doxygenstruct:: mfxExtEncodedUnitsInfo
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -199,7 +199,7 @@ mfxExtEncoderCapability
 -----------------------
 
 .. doxygenstruct:: mfxExtEncoderCapability
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -207,7 +207,7 @@ mfxExtEncoderIPCMArea
 ---------------------
 
 .. doxygenstruct:: mfxExtEncoderIPCMArea
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -215,7 +215,7 @@ mfxExtEncoderResetOption
 ------------------------
 
 .. doxygenstruct:: mfxExtEncoderResetOption
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -223,7 +223,7 @@ mfxExtEncoderROI
 ----------------
 
 .. doxygenstruct:: mfxExtEncoderROI
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -231,7 +231,7 @@ mfxExtHEVCRegion
 ----------------
 
 .. doxygenstruct:: mfxExtHEVCRegion
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -239,7 +239,7 @@ mfxExtHEVCTiles
 ---------------
 
 .. doxygenstruct:: mfxExtHEVCTiles
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -247,7 +247,7 @@ mfxExtInsertHeaders
 -------------------
 
 .. doxygenstruct:: mfxExtInsertHeaders
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
    :undoc-members:
@@ -256,7 +256,7 @@ mfxExtMBDisableSkipMap
 ----------------------
 
 .. doxygenstruct:: mfxExtMBDisableSkipMap
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -264,7 +264,7 @@ mfxExtMBForceIntra
 ------------------
 
 .. doxygenstruct:: mfxExtMBForceIntra
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -272,7 +272,7 @@ mfxExtMBQP
 ----------
 
 .. doxygenstruct:: mfxExtMBQP
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -280,7 +280,7 @@ mfxExtMoveRect
 --------------
 
 .. doxygenstruct:: mfxExtMoveRect
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -288,7 +288,7 @@ mfxExtMVOverPicBoundaries
 -------------------------
 
 .. doxygenstruct:: mfxExtMVOverPicBoundaries
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -296,7 +296,7 @@ mfxExtPartialBitstreamParam
 ---------------------------
 
 .. doxygenstruct:: mfxExtPartialBitstreamParam
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -304,7 +304,7 @@ mfxExtPictureTimingSEI
 ----------------------
 
 .. doxygenstruct:: mfxExtPictureTimingSEI
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
    :undoc-members:
@@ -313,7 +313,7 @@ mfxExtPredWeightTable
 ---------------------
 
 .. doxygenstruct:: mfxExtPredWeightTable
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -321,7 +321,7 @@ mfxExtVP8CodingOption
 ---------------------
 
 .. doxygenstruct:: mfxExtVP8CodingOption
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -329,7 +329,7 @@ mfxExtVP9Segmentation
 ---------------------
 
 .. doxygenstruct:: mfxExtVP9Segmentation
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -337,7 +337,7 @@ mfxExtVP9TemporalLayers
 -----------------------
 
 .. doxygenstruct:: mfxExtVP9TemporalLayers
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -345,7 +345,7 @@ mfxQPandMode
 ------------
 
 .. doxygenstruct:: mfxQPandMode
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -353,7 +353,7 @@ mfxVP9TemporalLayer
 -------------------
 
 .. doxygenstruct:: mfxVP9TemporalLayer
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -362,7 +362,7 @@ mfxTemporalLayer
 ----------------
 
 .. doxygenstruct:: mfxTemporalLayer
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -371,7 +371,7 @@ mfxExtTemporalLayers
 --------------------
 
 .. doxygenstruct:: mfxExtTemporalLayers
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -380,7 +380,7 @@ mfxExtAV1BitstreamParam
 -----------------------
 
 .. doxygenstruct:: mfxExtAV1BitstreamParam
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -388,7 +388,7 @@ mfxExtAV1ResolutionParam
 ------------------------
 
 .. doxygenstruct:: mfxExtAV1ResolutionParam
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -396,7 +396,7 @@ mfxExtAV1TileParam
 ------------------
 
 .. doxygenstruct:: mfxExtAV1TileParam
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -404,7 +404,7 @@ mfxExtAV1Segmentation
 ---------------------
 
 .. doxygenstruct:: mfxExtAV1Segmentation
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -412,7 +412,7 @@ mfxCTUHeader
 ------------
 
 .. doxygenstruct:: mfxCTUHeader
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -420,7 +420,7 @@ mfxCUInfo
 ---------
 
 .. doxygenstruct:: mfxCUInfo
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -428,7 +428,7 @@ mfxCTUInfo
 ----------
 
 .. doxygenstruct:: mfxCTUInfo
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -436,7 +436,7 @@ mfxMBInfo
 ---------
 
 .. doxygenstruct:: mfxMBInfo
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -444,7 +444,7 @@ mfxEncodeBlkStats
 -----------------
 
 .. doxygenstruct:: mfxEncodeBlkStats
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -452,7 +452,7 @@ mfxEncodeHighLevelStats
 -----------------------
 
 .. doxygenstruct:: mfxEncodeHighLevelStats
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -460,13 +460,13 @@ mfxEncodeFrameStats
 -------------------
 
 .. doxygentypedef:: mfxEncodeFrameStats
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 mfxEncodeSliceStats
 -------------------
 
 .. doxygenstruct:: mfxEncodeSliceStats
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -474,13 +474,13 @@ mfxEncodeTileStats
 ------------------
 
 .. doxygentypedef:: mfxEncodeTileStats
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 mfxEncodeStatsContainer
 -----------------------
 
 .. doxygenstruct:: mfxEncodeStatsContainer
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -488,7 +488,7 @@ mfxExtEncodeStatsOutput
 -----------------------
 
 .. doxygenstruct:: mfxExtEncodeStatsOutput
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -496,16 +496,16 @@ mfxExtHEVCRefListCtrl
 ---------------------
 
 .. doxygentypedef:: mfxExtHEVCRefListCtrl
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 mfxExtHEVCRefLists
 ------------------
 
 .. doxygentypedef:: mfxExtHEVCRefLists
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 mfxExtHEVCTemporalLayers
 ------------------------
 
 .. doxygentypedef:: mfxExtHEVCTemporalLayers
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT

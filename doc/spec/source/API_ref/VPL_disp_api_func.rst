@@ -22,40 +22,40 @@ MFXCreateConfig
 ---------------
 
 .. doxygenfunction:: MFXCreateConfig
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 MFXCreateSession
 ----------------
 
 .. doxygenfunction:: MFXCreateSession
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 MFXDispReleaseImplDescription
 -----------------------------
 
 .. doxygenfunction:: MFXDispReleaseImplDescription
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 MFXEnumImplementations
 ----------------------
 
 .. doxygenfunction:: MFXEnumImplementations
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 MFXLoad
 -------
 
 .. doxygenfunction:: MFXLoad
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 MFXSetConfigFilterProperty
 --------------------------
 
 .. doxygenfunction:: MFXSetConfigFilterProperty
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 MFXUnload
 ---------
 
 .. doxygenfunction:: MFXUnload
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT

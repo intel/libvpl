@@ -409,7 +409,6 @@ jobs:
 
   pdf:
     name: PDF
-    if: false
     needs:
       - required_checks
     runs-on: [self-hosted, linux]

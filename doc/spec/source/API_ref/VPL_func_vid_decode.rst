@@ -29,7 +29,7 @@ MFXVideoDECODE_Query
 --------------------
 
 .. doxygenfunction:: MFXVideoDECODE_Query
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 .. important:: The :cpp:func:`MFXVideoDECODE_Query` is mandatory when implementing a decoder.
 
@@ -37,19 +37,19 @@ MFXVideoDECODE_DecodeHeader
 ---------------------------
 
 .. doxygenfunction:: MFXVideoDECODE_DecodeHeader
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 MFXVideoDECODE_QueryIOSurf
 --------------------------
 
 .. doxygenfunction:: MFXVideoDECODE_QueryIOSurf
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 MFXVideoDECODE_Init
 -------------------
 
 .. doxygenfunction:: MFXVideoDECODE_Init
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 .. important:: The :cpp:func:`MFXVideoDECODE_Init` is mandatory when implementing a decoder.
 
@@ -57,13 +57,13 @@ MFXVideoDECODE_Reset
 --------------------
 
 .. doxygenfunction:: MFXVideoDECODE_Reset
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 MFXVideoDECODE_Close
 --------------------
 
 .. doxygenfunction:: MFXVideoDECODE_Close
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 .. important:: The :cpp:func:`MFXVideoDECODE_Close` is mandatory when implementing a decoder.
 
@@ -71,30 +71,30 @@ MFXVideoDECODE_GetVideoParam
 ----------------------------
 
 .. doxygenfunction:: MFXVideoDECODE_GetVideoParam
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 MFXVideoDECODE_GetDecodeStat
 ----------------------------
 
 .. doxygenfunction:: MFXVideoDECODE_GetDecodeStat
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 MFXVideoDECODE_SetSkipMode
 --------------------------
 
 .. doxygenfunction:: MFXVideoDECODE_SetSkipMode
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 MFXVideoDECODE_GetPayload
 -------------------------
 
 .. doxygenfunction:: MFXVideoDECODE_GetPayload
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 MFXVideoDECODE_DecodeFrameAsync
 -------------------------------
 
 .. doxygenfunction:: MFXVideoDECODE_DecodeFrameAsync
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 .. important:: The :cpp:func:`MFXVideoDECODE_DecodeFrameAsync` is mandatory when implementing a decoder.

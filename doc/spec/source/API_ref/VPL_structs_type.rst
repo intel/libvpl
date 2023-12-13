@@ -29,7 +29,7 @@ mfxExtBuffer
 ------------
 
 .. doxygenstruct:: mfxExtBuffer
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
    :undoc-members:
@@ -38,7 +38,7 @@ mfxHDLPair
 ----------
 
 .. doxygenstruct:: mfxHDLPair
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -46,7 +46,7 @@ mfxI16Pair
 ----------
 
 .. doxygenstruct:: mfxI16Pair
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -54,7 +54,7 @@ mfxRange32U
 -----------
 
 .. doxygenstruct:: mfxRange32U
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -62,4 +62,4 @@ mfxStructVersion
 ----------------
 
 .. doxygenunion:: mfxStructVersion
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT

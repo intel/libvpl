@@ -28,7 +28,7 @@ mfxExtCamWhiteBalance
 ---------------------
 
 .. doxygenstruct:: mfxExtCamWhiteBalance
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -36,7 +36,7 @@ mfxExtCamTotalColorControl
 --------------------------
 
 .. doxygenstruct:: mfxExtCamTotalColorControl
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -44,7 +44,7 @@ mfxExtCamCscYuvRgb
 ------------------
 
 .. doxygenstruct:: mfxExtCamCscYuvRgb
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -52,7 +52,7 @@ mfxExtCamHotPixelRemoval
 ------------------------
 
 .. doxygenstruct:: mfxExtCamHotPixelRemoval
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -60,7 +60,7 @@ mfxExtCamBlackLevelCorrection
 -----------------------------
 
 .. doxygenstruct:: mfxExtCamBlackLevelCorrection
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -68,7 +68,7 @@ mfxCamVignetteCorrectionElement
 -------------------------------
 
 .. doxygenstruct:: mfxCamVignetteCorrectionElement
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -76,7 +76,7 @@ mfxCamVignetteCorrectionParam
 -----------------------------
 
 .. doxygenstruct:: mfxCamVignetteCorrectionParam
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
    :undoc-members:
@@ -85,7 +85,7 @@ mfxExtCamVignetteCorrection
 ---------------------------
 
 .. doxygenstruct:: mfxExtCamVignetteCorrection
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
    :undoc-members:
@@ -94,7 +94,7 @@ mfxExtCamBayerDenoise
 ---------------------
 
 .. doxygenstruct:: mfxExtCamBayerDenoise
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
    :undoc-members:
@@ -103,7 +103,7 @@ mfxExtCamColorCorrection3x3
 ---------------------------
 
 .. doxygenstruct:: mfxExtCamColorCorrection3x3
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
    :undoc-members:
@@ -112,7 +112,7 @@ mfxExtCamPadding
 ----------------
 
 .. doxygenstruct:: mfxExtCamPadding
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
    :undoc-members:
@@ -121,7 +121,7 @@ mfxExtCamPipeControl
 --------------------
 
 .. doxygenstruct:: mfxExtCamPipeControl
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
    :undoc-members:
@@ -130,7 +130,7 @@ mfxCamFwdGammaSegment
 ---------------------
 
 .. doxygenstruct:: mfxCamFwdGammaSegment
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -138,7 +138,7 @@ mfxExtCamFwdGamma
 -----------------
 
 .. doxygenstruct:: mfxExtCamFwdGamma
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -146,7 +146,7 @@ mfxExtCamLensGeomDistCorrection
 -------------------------------
 
 .. doxygenstruct:: mfxExtCamLensGeomDistCorrection
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -154,7 +154,7 @@ mfxCam3DLutEntry
 ----------------
 
 .. doxygenstruct:: mfxCam3DLutEntry
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -162,6 +162,6 @@ mfxExtCam3DLut
 --------------
 
 .. doxygenstruct:: mfxExtCam3DLut
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:

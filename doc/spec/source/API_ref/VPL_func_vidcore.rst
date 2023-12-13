@@ -28,31 +28,31 @@ MFXVideoCORE_SetFrameAllocator
 ------------------------------
 
 .. doxygenfunction:: MFXVideoCORE_SetFrameAllocator
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 MFXVideoCORE_SetHandle
 ----------------------
 
 .. doxygenfunction:: MFXVideoCORE_SetHandle
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 MFXVideoCORE_GetHandle
 ----------------------
 
 .. doxygenfunction:: MFXVideoCORE_GetHandle
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 MFXVideoCORE_QueryPlatform
 --------------------------
 
 .. doxygenfunction:: MFXVideoCORE_QueryPlatform
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 MFXVideoCORE_SyncOperation
 --------------------------
 
 .. doxygenfunction:: MFXVideoCORE_SyncOperation
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 .. important:: The :cpp:func:`MFXVideoCORE_SyncOperation` function is mandatory for
    any implementation.

@@ -28,7 +28,7 @@ mfxAdapterInfo
 --------------
 
 .. doxygenstruct:: mfxAdapterInfo
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -36,7 +36,7 @@ mfxAdaptersInfo
 ---------------
 
 .. doxygenstruct:: mfxAdaptersInfo
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -44,7 +44,7 @@ mfxExtThreadsParam
 ------------------
 
 .. doxygenstruct:: mfxExtThreadsParam
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
    :undoc-members:
@@ -53,7 +53,7 @@ mfxInitParam
 ------------
 
 .. doxygenstruct:: mfxInitParam
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -61,7 +61,7 @@ mfxPlatform
 -----------
 
 .. doxygenstruct:: mfxPlatform
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -69,13 +69,13 @@ mfxVersion
 ----------
 
 .. doxygenunion:: mfxVersion
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 mfxExtDeviceAffinityMask
 ------------------------
 
 .. doxygenstruct:: mfxExtDeviceAffinityMask
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -83,7 +83,7 @@ mfxInitializationParam
 ----------------------
 
 .. doxygenstruct:: mfxInitializationParam
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -91,6 +91,6 @@ mfxAutoSelectImplDeviceHandle
 -----------------------------
 
 .. doxygenstruct:: mfxAutoSelectImplDeviceHandle
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:

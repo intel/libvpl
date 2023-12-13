@@ -28,19 +28,19 @@ MFXInit
 -------
 
 .. doxygenfunction:: MFXInit
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 MFXInitEx
 ---------
 
 .. doxygenfunction:: MFXInitEx
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 MFXInitialize
 -------------
 
 .. doxygenfunction:: MFXInitialize
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 .. important:: The :cpp:func:`MFXInitialize` function is mandatory for any implementation.
 
@@ -48,47 +48,47 @@ MFXClose
 --------
 
 .. doxygenfunction:: MFXClose
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 .. important:: The :cpp:func:`MFXClose` function is mandatory for any implementation.
 
 MFXQueryIMPL
 ------------
 .. doxygenfunction:: MFXQueryIMPL
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 MFXQueryVersion
 ---------------
 
 .. doxygenfunction:: MFXQueryVersion
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 MFXJoinSession
 --------------
 
 .. doxygenfunction:: MFXJoinSession
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 MFXDisjoinSession
 -----------------
 
 .. doxygenfunction:: MFXDisjoinSession
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 MFXCloneSession
 ---------------
 
 .. doxygenfunction:: MFXCloneSession
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 MFXSetPriority
 --------------
 
 .. doxygenfunction:: MFXSetPriority
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 MFXGetPriority
 --------------
 
 .. doxygenfunction:: MFXGetPriority
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT

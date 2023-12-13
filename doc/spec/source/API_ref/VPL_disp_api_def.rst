@@ -22,43 +22,43 @@ MFX_IMPL_NAME_LEN
 -----------------
 
 .. doxygendefine:: MFX_IMPL_NAME_LEN
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 MFX_STRFIELD_LEN
 ----------------
 .. doxygendefine:: MFX_STRFIELD_LEN
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 Helper macro definitions to add property with single value.
 
 MFX_ADD_PROPERTY_U32
 --------------------
 .. doxygendefine:: MFX_ADD_PROPERTY_U32
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 MFX_ADD_PROPERTY_U16
 --------------------
 .. doxygendefine:: MFX_ADD_PROPERTY_U16
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 MFX_ADD_PROPERTY_PTR
 --------------------
 .. doxygendefine:: MFX_ADD_PROPERTY_PTR
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 Helper macro definitions to update existing property.
 
 MFX_UPDATE_PROPERTY_U32
 -----------------------
 .. doxygendefine:: MFX_UPDATE_PROPERTY_U32
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 MFX_UPDATE_PROPERTY_U16
 -----------------------
 .. doxygendefine:: MFX_UPDATE_PROPERTY_U16
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 MFX_UPDATE_PROPERTY_PTR
 -----------------------
 .. doxygendefine:: MFX_UPDATE_PROPERTY_PTR
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT

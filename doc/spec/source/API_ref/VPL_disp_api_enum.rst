@@ -22,16 +22,16 @@ mfxAccelerationMode
 -------------------
 
 .. doxygenenum:: mfxAccelerationMode
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 mfxImplType
 -----------
 
 .. doxygenenum:: mfxImplType
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 mfxAutoSelectImplType
 ---------------------
 
 .. doxygenenum:: mfxAutoSelectImplType
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT

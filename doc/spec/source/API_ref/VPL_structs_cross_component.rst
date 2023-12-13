@@ -28,7 +28,7 @@ mfxComponentInfo
 ----------------
 
 .. doxygenstruct:: mfxComponentInfo
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -36,7 +36,7 @@ mfxExtHEVCParam
 ---------------
 
 .. doxygenstruct:: mfxExtHEVCParam
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -44,7 +44,7 @@ mfxExtJPEGHuffmanTables
 -----------------------
 
 .. doxygenstruct:: mfxExtJPEGHuffmanTables
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -63,7 +63,7 @@ mfxExtJPEGQuantTables
 ---------------------
 
 .. doxygenstruct:: mfxExtJPEGQuantTables
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -85,7 +85,7 @@ mfxExtMVCSeqDesc
 ----------------
 
 .. doxygenstruct:: mfxExtMVCSeqDesc
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -93,7 +93,7 @@ mfxExtMVCTargetViews
 --------------------
 
 .. doxygenstruct:: mfxExtMVCTargetViews
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -101,7 +101,7 @@ mfxExtVideoSignalInfo
 ---------------------
 
 .. doxygenstruct:: mfxExtVideoSignalInfo
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
    :undoc-members:
@@ -110,7 +110,7 @@ mfxExtVP9Param
 --------------
 
 .. doxygenstruct:: mfxExtVP9Param
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -118,7 +118,7 @@ mfxFrameId
 ----------
 
 .. doxygenstruct:: mfxFrameId
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -126,7 +126,7 @@ mfxInfoMFX
 ----------
 
 .. doxygenstruct:: mfxInfoMFX
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -170,7 +170,7 @@ mfxMVCOperationPoint
 --------------------
 
 .. doxygenstruct:: mfxMVCOperationPoint
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -178,7 +178,7 @@ mfxMVCViewDependency
 --------------------
 
 .. doxygenstruct:: mfxMVCViewDependency
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -186,7 +186,7 @@ mfxPayload
 ----------
 
 .. doxygenstruct:: mfxPayload
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -234,7 +234,7 @@ mfxVideoParam
 -------------
 
 .. doxygenstruct:: mfxVideoParam
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -242,7 +242,7 @@ mfxVP9SegmentParam
 ------------------
 
 .. doxygenstruct:: mfxVP9SegmentParam
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -250,7 +250,7 @@ mfxExtAV1FilmGrainParam
 -----------------------
 
 .. doxygenstruct:: mfxExtAV1FilmGrainParam
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -258,7 +258,7 @@ mfxAV1FilmGrainPoint
 --------------------
 
 .. doxygenstruct:: mfxAV1FilmGrainPoint
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -266,7 +266,7 @@ mfxRect
 -------
 
 .. doxygenstruct:: mfxRect
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -274,7 +274,7 @@ mfxExtHyperModeParam
 --------------------
 
 .. doxygenstruct:: mfxExtHyperModeParam
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -282,21 +282,21 @@ mfxGUID
 -------
 
 .. doxygenstruct:: mfxGUID
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
 mfxExtAllocationHints
 ---------------------
 .. doxygenstruct:: mfxExtAllocationHints
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
 mfxRefInterface
 ---------------
 .. doxygenstruct:: mfxRefInterface
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -304,7 +304,7 @@ mfxExtMasteringDisplayColourVolume
 ----------------------------------
 
 .. doxygenstruct:: mfxExtMasteringDisplayColourVolume
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -313,7 +313,7 @@ mfxExtContentLightLevelInfo
 ---------------------------
 
 .. doxygenstruct:: mfxExtContentLightLevelInfo
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -321,7 +321,7 @@ mfxExtSyncSubmission
 --------------------
 
 .. doxygenstruct:: mfxExtSyncSubmission
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -329,7 +329,7 @@ mfxExtTuneEncodeQuality
 -----------------------
 
 .. doxygenstruct:: mfxExtTuneEncodeQuality
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -337,6 +337,6 @@ mfxConfigInterface
 ------------------
 
 .. doxygenstruct:: mfxConfigInterface
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:

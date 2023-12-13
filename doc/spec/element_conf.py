@@ -140,5 +140,5 @@ todo_include_todos = True
 
 # -- Options for breathe extension -------------------------------------------
 
-breathe_projects = {project: '../doxygen/xml'}  # noqa: F821
+breathe_projects = {'DEF_BREATHE_PROJECT': '../doxygen/xml'}  # noqa: F821
 breathe_default_project = 'none'

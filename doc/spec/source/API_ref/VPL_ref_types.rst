@@ -17,71 +17,71 @@ Basic Types
 -----------
 
 .. doxygentypedef:: mfxChar
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 .. doxygentypedef:: mfxF32
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 .. doxygentypedef:: mfxF64
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 .. doxygentypedef:: mfxHDL
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 .. doxygentypedef:: mfxI8
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 .. doxygentypedef:: mfxI16
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 .. doxygentypedef:: mfxI32
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 .. doxygentypedef:: mfxI64
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 .. doxygentypedef:: mfxL32
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 .. doxygentypedef:: mfxMemId
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 .. doxygentypedef:: mfxThreadTask
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 .. doxygentypedef:: mfxU8
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 .. doxygentypedef:: mfxU16
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 .. doxygentypedef:: mfxU32
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 .. doxygentypedef:: mfxU64
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 .. doxygentypedef:: mfxUL32
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 --------
 Typedefs
 --------
 
 .. doxygentypedef:: mfxConfig
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 .. doxygentypedef:: mfxLoader
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 .. doxygentypedef:: mfxSession
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 .. doxygentypedef:: mfxSyncPoint
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 .. doxygentypedef:: mfxExtRefListCtrl
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 .. doxygentypedef:: mfxExtEncodedFrameInfo
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT

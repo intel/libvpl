@@ -22,7 +22,7 @@ import os
 import sys
 from os.path import join
 
-project = 'Intel&reg; VPL'
+project = 'Intel\u00AE VPL'
 
 repo_root = '..'
 sys.path.append(repo_root)

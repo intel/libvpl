@@ -29,7 +29,7 @@ mfxDecodeStat
 -------------
 
 .. doxygenstruct:: mfxDecodeStat
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -37,7 +37,7 @@ mfxExtDecodeErrorReport
 -----------------------
 
 .. doxygenstruct:: mfxExtDecodeErrorReport
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -45,7 +45,7 @@ mfxExtDecodedFrameInfo
 ----------------------
 
 .. doxygenstruct:: mfxExtDecodedFrameInfo
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
 
@@ -53,6 +53,6 @@ mfxExtTimeCode
 --------------
 
 .. doxygenstruct:: mfxExtTimeCode
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:

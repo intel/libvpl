@@ -28,7 +28,7 @@ MFXVideoVPP_Query
 -----------------
 
 .. doxygenfunction:: MFXVideoVPP_Query
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 .. important:: The :cpp:func:`MFXVideoVPP_Query` function is mandatory when implementing a VPP filter.
 
@@ -36,13 +36,13 @@ MFXVideoVPP_QueryIOSurf
 -----------------------
 
 .. doxygenfunction:: MFXVideoVPP_QueryIOSurf
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 MFXVideoVPP_Init
 ----------------
 
 .. doxygenfunction:: MFXVideoVPP_Init
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 .. important:: The :cpp:func:`MFXVideoVPP_Init` function is mandatory when implementing a VPP filter.
 
@@ -50,13 +50,13 @@ MFXVideoVPP_Reset
 -----------------
 
 .. doxygenfunction:: MFXVideoVPP_Reset
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 MFXVideoVPP_Close
 -----------------
 
 .. doxygenfunction:: MFXVideoVPP_Close
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 .. important:: The :cpp:func:`MFXVideoVPP_Close` function is mandatory when implementing a VPP filter.
 
@@ -64,24 +64,24 @@ MFXVideoVPP_GetVideoParam
 -------------------------
 
 .. doxygenfunction:: MFXVideoVPP_GetVideoParam
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 MFXVideoVPP_GetVPPStat
 ----------------------
 
 .. doxygenfunction:: MFXVideoVPP_GetVPPStat
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 MFXVideoVPP_RunFrameVPPAsync
 ----------------------------
 
 .. doxygenfunction:: MFXVideoVPP_RunFrameVPPAsync
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 MFXVideoVPP_ProcessFrameAsync
 -----------------------------
 
 .. doxygenfunction:: MFXVideoVPP_ProcessFrameAsync
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
 
 .. important:: Either :cpp:func:`MFXVideoVPP_RunFrameVPPAsync` or  :cpp:func:`MFXVideoVPP_ProcessFrameAsync` function is                  mandatory when implementing a VPP filter.

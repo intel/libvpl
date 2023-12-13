@@ -17,4 +17,4 @@ API
    :depth: 1
 
 .. doxygenvariable:: MFX_GUID_SURFACE_POOL
-   :project: Intel&reg; VPL
+   :project: DEF_BREATHE_PROJECT
