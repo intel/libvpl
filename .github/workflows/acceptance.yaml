@@ -87,7 +87,7 @@ jobs:
           #!/bin/bash
           set -o errexit
           if [[ "\$DASHBOARD_PLATFORM_SW_OPENVINO_INSTALLED" == 1 ]]; then
-          . /opt/intel/openvino_2022/setupvars.sh
+          . /opt/intel/openvino/setupvars.sh
           fi
           set -o nounset
           . _install/etc/vpl/vars.sh
