@@ -10,11 +10,14 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 
 ## [Unreleased]
 
+## [2.10.1] - 2023-12-22
+
 ### Added
 - Intel® VPL specification and associated build scripts
 
 ### Changed
 - Project name to Intel® Video Processing Library (Intel® VPL)
+- Project versioning scheme to align with library and API version
 
 ## [2023.4.0] - 2023-12-01
 
