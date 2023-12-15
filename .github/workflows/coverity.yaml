@@ -36,7 +36,7 @@ jobs:
           GROUP_ID=$(id -g ${USER})
           # Dockerfile will contain everything between <<EOL and EOL
           cat >Dockerfile <<EOL
-          FROM public.ecr.aws/docker/library/centos:7 AS buildenv
+          FROM public.ecr.aws/docker/library/ubuntu:22.04 AS buildenv
 
           ARG http_proxy
           ARG https_proxy
@@ -45,84 +45,70 @@ jobs:
           ENV https_proxy \${https_proxy}
           ENV no_proxy \${no_proxy}
 
-          # basic build tools
-          RUN yum install -y \
-              centos-release-scl \
-              && yum-config-manager --enable rhel-server-rhscl-7-rpms \
-              && yum install -y \
-              devtoolset-9
+          ARG DEBIAN_FRONTEND=noninteractive
+          RUN apt-get update && apt-get install -y \
+              apt-utils \
+              build-essential libssl-dev libwayland-dev libx11-dev libxext-dev libxfixes-dev libpciaccess-dev  libxcb-dri3-dev libx11-xcb-dev libxcb-present-dev curl
 
           # cmake
-          RUN yum install -y \
-              openssl-devel \
-              && cd /tmp \
+          RUN cd /tmp \
               && curl -O -L --retry 5 \
               https://github.com/Kitware/CMake/releases/download/v3.18.4/cmake-3.18.4.tar.gz \
               && tar zxvf cmake-3.* \
               && cd cmake-3.* \
-              && source /opt/rh/devtoolset-9/enable \
               && ./bootstrap --prefix=/usr/local --parallel=\$(nproc) \
               && make -j\$(nproc) \
               && make install
 
           #install xcb and wayland
-          RUN yum -y update \
-              && yum -y install wayland-devel libX11-devel libXext-devel libXfixes-devel libpciaccess-devel \
-              && cd /tmp \
+          RUN cd /tmp \
               && curl -O -L --retry 5 \
               https://wayland.freedesktop.org/releases/wayland-protocols-1.15.tar.xz \
               && tar -xJf wayland-protocols-1.15.tar.xz \
               && cd wayland-protocols-1.15 \
-              && ./configure --prefix="/usr" --bindir="/usr/bin" --libdir="/usr/lib64" \
+              && ./configure --prefix="/usr" --bindir="/usr/bin" --libdir="/usr/lib/x86_64-linux-gnu" \
               && make install
 
           # libva
-          RUN yum install -y \
+          RUN apt-get update && apt-get install -y \
               bzip2 \
-              libdrm-devel \
+              libdrm-dev \
+              pkg-config \
               && cd /tmp \
               && curl -O -L --retry 5 \
               https://github.com/intel/libva/releases/download/2.10.0/libva-2.10.0.tar.bz2 \
               && tar xjf libva-2.10.0.tar.bz2 \
-              && source /opt/rh/devtoolset-9/enable \
               && cd libva-2.10.0 \
-              && ./configure --prefix="/usr" --enable-wayland --enable-x11 --bindir="/usr/bin" --libdir="/usr/lib64" \
+              && ./configure --prefix="/usr" --enable-wayland --enable-x11 --bindir="/usr/bin" --libdir="/usr/lib/x86_64-linux-gnu" \
               && make \
               && make install
 
           # install python 3.7.9
-          RUN yum -y update \
-              && yum install openssl-devel libffi-devel bzip2-devel -y \
-              && yum install wget -y \
-              && wget https://www.python.org/ftp/python/3.7.9/Python-3.7.9.tgz \
+          RUN apt-get update && apt-get install -y \
+              libssl-dev libffi-dev libbz2-dev zlib1g-dev \
+              && cd /tmp \
+              && curl -O https://www.python.org/ftp/python/3.7.9/Python-3.7.9.tgz \
               && tar xzf Python-3.7.9.tgz \
               && cd Python-3.7.9 \
               && ./configure --enable-optimizations \
               && make install
 
           # install pybind11
-          RUN yum -y update && yum install wget -y \
+          RUN apt-get update && apt-get install -y cmake \
               && cd /usr/local/src \
-              && wget https://github.com/pybind/pybind11/archive/refs/tags/v2.6.2.tar.gz \
+              && curl -L https://github.com/pybind/pybind11/archive/refs/tags/v2.6.2.tar.gz -o v2.6.2.tar.gz\
               && tar xzf v2.6.2.tar.gz \
               && cd pybind11-2.6.2 \
-              && source /opt/rh/devtoolset-9/enable \
               && mkdir build \
               && cd build \
               && cmake .. \
               && make \
               && make install  
 
-          # create devtoolset-9 entrypoint script since we can't source
-          RUN echo "#!/bin/sh" > /etc/profile.d/entrypoint.sh \
-              && echo ". /opt/rh/devtoolset-9/enable" >> /etc/profile.d/entrypoint.sh \
-          # && echo "exec \"\$@\"" >> /tmp/entrypoint.sh \
-              && chmod 755 /etc/profile.d/entrypoint.sh
-
-          ENV BASH_ENV /etc/profile.d/entrypoint.sh
+          ENV PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/local/lib/pkgconfig
 
           # Enable dev tools when using this image
-          #ENTRYPOINT ["/tmp/entrypoint.sh"]
+
           RUN groupadd -g \$GROUP_ID user || true
           RUN useradd --disabled-password --gecos "" --uid \$USER_ID --gid \$GROUP_ID user || true
 
@@ -144,7 +130,7 @@ jobs:
                   --component.sdk=false --component.skip.documentation=true
           
           FROM buildenv
-          RUN yum install -y fontconfig
+          RUN apt-get update && apt-get install -y fontconfig
           ENV PATH="/opt/coverity/analysis/bin:/opt/coverity/reports/bin:\${PATH}"
           COPY --from=coverity_install /opt/coverity /opt/coverity
 
