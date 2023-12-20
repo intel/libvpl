@@ -149,6 +149,8 @@ if(WIN32)
       POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy -t $<TARGET_FILE_DIR:${TARGET}>
               $<TARGET_RUNTIME_DLLS:${TARGET}>
+      COMMAND ${CMAKE_COMMAND} -E remove
+              $<TARGET_FILE_DIR:${TARGET}>/openvino.dll
       COMMAND_EXPAND_LISTS)
   endif()
 endif()
