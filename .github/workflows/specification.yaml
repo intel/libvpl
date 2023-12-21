@@ -8,6 +8,10 @@ on:
     - .github/workflows/**
     - api/**
     - doc/spec/**
+  push:
+    branches:
+      - 'main'
+      - 'specification/*'
   workflow_dispatch:
     # Run on user request
 
