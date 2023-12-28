@@ -156,17 +156,22 @@ if(WIN32)
 endif()
 
 include(CTest)
+if(WIN32)
+  set(VPL_MODEL_DIR "C:/OpenVINO/public/mobilenet-ssd/FP32")
+else()
+  set(VPL_MODEL_DIR "/OpenVINO/public/mobilenet-ssd/FP32")
+endif()
+
 set(VPL_CONTENT_DIR
     ${CMAKE_CURRENT_SOURCE_DIR}/../../content
     CACHE PATH "Path to content.")
 if("${TEST_ZERO_COPY}")
-  add_test(
-    NAME ${TARGET}-zerocopy-test
-    COMMAND ${TARGET} -i "${VPL_CONTENT_DIR}/cars_320x240.h265" -zerocopy -m
-            "/OpenVINO/public/mobilenet-ssd/FP32/mobilenet-ssd.xml")
+  add_test(NAME ${TARGET}-zerocopy-test
+           COMMAND ${TARGET} -i "${VPL_CONTENT_DIR}/cars_320x240.h265"
+                   -zerocopy -m "${VPL_MODEL_DIR}/mobilenet-ssd.xml")
 endif()
 if("${TEST_LEGACY_API}")
   add_test(NAME ${TARGET}-legacyapi-test
            COMMAND ${TARGET} -i "${VPL_CONTENT_DIR}/cars_320x240.h265" -legacy
-                   -m "/OpenVINO/public/mobilenet-ssd/FP32/mobilenet-ssd.xml")
+                   -m "${VPL_MODEL_DIR}/mobilenet-ssd.xml")
 endif()
