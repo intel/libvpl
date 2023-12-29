@@ -221,22 +221,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-          include:
-            - distro: rhel
-              version: 8
-              fatal: true
-            - distro: rhel
-              version: 9
-              fatal: true
-            - distro: centos
-              version: 9
-              fatal: true
-            - distro: ubuntu
-              version: 20.04
-              fatal: false
-            - distro: ubuntu
-              version: 22.04
-              fatal: false
+        include:
+          - distro: rhel
+            version: 8.5
+            fatal: true
+          - distro: sles
+            version: 15.3
+            fatal: true
+          - distro: ubuntu
+            version: 20.04
+            fatal: true
+          - distro: ubuntu
+            version: 22.04
+            fatal: true
     uses: ./.github/workflows/linux-distro-test.yaml
     secrets: inherit
     with:

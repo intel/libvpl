@@ -57,9 +57,9 @@ jobs:
 
       - name: Build and Run Docker image
         run: |
-          cd tests/platform/docker
+          cd tests/environments
           DISTRO=${{ inputs.DISTRO_FAMILY }}${{ inputs.DISTRO_VERSION }}
-          docker build -f Dockerfile-$DISTRO -t vpl_distro:$DISTRO .
+          docker build . -f Dockerfile.$DISTRO.gputest -t vpl_gputestenv:$DISTRO
 
       - name: Run tests
         continue-on-error: ${{ inputs.NONFATAL }}
@@ -69,6 +69,9 @@ jobs:
           cat >test.sh <<EOL
           #!/bin/bash
           set -o errexit
+          if [[ "\$DASHBOARD_PLATFORM_SW_OPENVINO_INSTALLED" == 1 ]]; then
+          . /opt/intel/openvino/setupvars.sh
+          fi
           set -o nounset
           . _install/etc/vpl/vars.sh
 
@@ -88,7 +91,7 @@ jobs:
           docker run --rm \
             -v $(pwd):/tmp/work \
             -e ONEVPL_PRIORITY_PATH=/tmp/work/runtimes \
-            -w /tmp/work --privileged vpl_distro:$DISTRO ./test.sh
+            -w /tmp/work --privileged vpl_gputestenv:$DISTRO ./test.sh
 
       - name: Package Report
         if: success() || failure()
