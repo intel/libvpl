@@ -422,6 +422,18 @@ jobs:
         -DBUILD_TOOLS_ONEVPL_EXPERIMENTAL=OFF
       docker_opts: ${{ inputs.docker_opts }}
 
+  linux-performance:
+    if: true
+    needs:
+      - linux-build
+      - linux-ref-build
+    uses: ./.github/workflows/performance.yml
+    with:
+      image: ${{ vars.PERF_DOCKER_IMAGE }}
+      ref_lib_artifact: linux-ref-build
+      lib_artifact: linux-release-build
+      artifact_name: linux-performance
+
   summary:
     if: true
     needs:
@@ -439,6 +451,7 @@ jobs:
       - windows-acceptance
       - linux-acceptance
       - distro-tests
+      - linux-performance
     uses: ./.github/workflows/summary.yml
     with:
       output_prefix: lib-

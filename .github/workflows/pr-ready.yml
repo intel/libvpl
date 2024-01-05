@@ -69,6 +69,18 @@ jobs:
       run_tests: true
       no_artifacts: false
 
+  linux-ref-build:
+    if: false
+    needs: setup-variables
+    uses: ./.github/workflows/cmake.yml
+    with:
+      os: linux
+      build_type: release
+      artifact_name: linux-ref-build
+      run_tests: false
+      no_artifacts: false
+      ref: ${{ needs.setup-variables.outputs.last_release_ref }}
+
   windows-build:
     if: '! github.event.pull_request.draft'
     uses: ./.github/workflows/cmake.yml
@@ -220,3 +232,15 @@ jobs:
     steps:
       - name: Required Checks
         run: cd .
+
+  linux-performance:
+    if: false
+    needs:
+      - linux-build
+      - linux-ref-build
+    uses: ./.github/workflows/performance.yml
+    with:
+      image: ${{ vars.PERF_DOCKER_IMAGE }}
+      ref_lib_artifact: linux-ref-build
+      lib_artifact: linux-release-build
+      artifact_name: linux-performance

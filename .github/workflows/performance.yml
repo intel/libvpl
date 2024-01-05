@@ -1,0 +1,271 @@
+---
+name: Performance Test
+
+permissions: read-all
+
+on:
+  workflow_call:
+    inputs:
+      image:
+        description: 'Docker image to test in'
+        required: true
+        type: string
+      ref_lib_artifact:
+        description: 'name of artifact for refrence lib'
+        required: true
+        type: string
+      lib_artifact:
+        description: 'name of artifact for lib under test'
+        required: true
+        type: string
+      artifact_name:
+        description: 'Artifact name'
+        required: false
+        type: string
+
+jobs:
+  dispatcher-performance:
+    name: Dispatcher Performance Test
+    runs-on: [self-hosted, linux]
+    steps:
+      - name: Cleanup workspace
+        run: sudo rm -rf ..?* .[!.]* *
+
+      - name: Download lib+dev test package
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.lib_artifact }}
+          path: test_package
+
+      - name: Extract test package
+        run: unzip test_package/\*.zip -d _install_test
+
+      - name: Download lib+dev ref package
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.ref_lib_artifact }}
+          path: ref_package
+
+      - name: Extract ref package
+        run: unzip ref_package/\*.zip -d _install_ref
+
+      - name: Checkout dispatcher repo
+        uses: actions/checkout@v4
+        with:
+          path: source
+
+      - name: Create Report Folders
+        run: |
+          mkdir -p _report
+          mkdir -p _report/ref_results
+          mkdir -p _report/test_results
+
+      - name: Dry Run
+        if: false
+        # yamllint disable rule:line-length
+        run: |
+          mkdir -p _report/ref_results/data/artifacts/measure/perf
+          pushd _report/ref_results/data/artifacts/measure/perf
+          cat > msperf_FFMPEG_HEVC-HEVC_performance.csv <<EOL
+          clipname, performance_stream, fps, runtime(s), GPU_Vid0(%), GPU_Vid1(%), GPU_Render(%), AVG_CPU(%), RC6(%), GPU_Freq_Avg(MHz), MEM_RES_Avg(MB/stream), MEM_RES_Total(MB), AVG_MEM(%), PHYSICAL_MEM(MB), CPU_IPC, TOTAL_CPU(%), GPU_MEM_RES_Avg(MB/stream), GPU_MEM_RES_Total(MB)
+          hevc_1920x1080p_bits.h265,1,30.0,100.2,0
+          EOL
+          cat > msperf_FFMPEG_HEVC-AVC_performance.csv <<EOL
+          clipname, performance_stream, fps, runtime(s), GPU_Vid0(%), GPU_Vid1(%), GPU_Render(%), AVG_CPU(%), RC6(%), GPU_Freq_Avg(MHz), MEM_RES_Avg(MB/stream), MEM_RES_Total(MB), AVG_MEM(%), PHYSICAL_MEM(MB), CPU_IPC, TOTAL_CPU(%), GPU_MEM_RES_Avg(MB/stream), GPU_MEM_RES_Total(MB)
+          hevc_1920x1080p_bits.h265,1,30.0,100.19,0
+          EOL
+          cat > msperf_SMT_HEVC-HEVC_performance.csv <<EOL
+          clipname, performance_stream, fps, runtime(s), GPU_Vid0(%), GPU_Vid1(%), GPU_Render(%), AVG_CPU(%), RC6(%), GPU_Freq_Avg(MHz), MEM_RES_Avg(MB/stream), MEM_RES_Total(MB), AVG_MEM(%), PHYSICAL_MEM(MB), CPU_IPC, TOTAL_CPU(%), GPU_MEM_RES_Avg(MB/stream), GPU_MEM_RES_Total(MB)
+          hevc_1920x1080p_bits.h265,1,29.9,100.27,0
+          EOL
+          cat > msperf_SMT_HEVC-AVC_performance.csv <<EOL
+          clipname, performance_stream, fps, runtime(s), GPU_Vid0(%), GPU_Vid1(%), GPU_Render(%), AVG_CPU(%), RC6(%), GPU_Freq_Avg(MHz), MEM_RES_Avg(MB/stream), MEM_RES_Total(MB), AVG_MEM(%), PHYSICAL_MEM(MB), CPU_IPC, TOTAL_CPU(%), GPU_MEM_RES_Avg(MB/stream), GPU_MEM_RES_Total(MB)
+          hevc_1920x1080p_bits.h265,1,29.9,100.27,0
+          EOL
+          popd
+          mkdir -p _report/test_results/data/artifacts/measure/perf
+          pushd _report/test_results/data/artifacts/measure/perf
+          # HEVC-HEVC,FFMPEG => Expect: Pass -0.99% (Faster than ref)
+          cat > msperf_FFMPEG_HEVC-HEVC_performance.csv <<EOL
+          clipname, performance_stream, fps, runtime(s), GPU_Vid0(%), GPU_Vid1(%), GPU_Render(%), AVG_CPU(%), RC6(%), GPU_Freq_Avg(MHz), MEM_RES_Avg(MB/stream), MEM_RES_Total(MB), AVG_MEM(%), PHYSICAL_MEM(MB), CPU_IPC, TOTAL_CPU(%), GPU_MEM_RES_Avg(MB/stream), GPU_MEM_RES_Total(MB)
+          hevc_1920x1080p_bits.h265,1,30.0,99.2,0
+          EOL
+          # HEVC-AVC,FFMPEG => Expect: Pass -9.98% (Faster than ref)
+          cat > msperf_FFMPEG_HEVC-AVC_performance.csv <<EOL
+          clipname, performance_stream, fps, runtime(s), GPU_Vid0(%), GPU_Vid1(%), GPU_Render(%), AVG_CPU(%), RC6(%), GPU_Freq_Avg(MHz), MEM_RES_Avg(MB/stream), MEM_RES_Total(MB), AVG_MEM(%), PHYSICAL_MEM(MB), CPU_IPC, TOTAL_CPU(%), GPU_MEM_RES_Avg(MB/stream), GPU_MEM_RES_Total(MB)
+          hevc_1920x1080p_bits.h265,1,30.0,90.19,0
+          EOL
+          # HEVC-HEVC,SMT => Expect: Pass 0.83% (Slower than ref)
+          cat > msperf_SMT_HEVC-HEVC_performance.csv <<EOL
+          clipname, performance_stream, fps, runtime(s), GPU_Vid0(%), GPU_Vid1(%), GPU_Render(%), AVG_CPU(%), RC6(%), GPU_Freq_Avg(MHz), MEM_RES_Avg(MB/stream), MEM_RES_Total(MB), AVG_MEM(%), PHYSICAL_MEM(MB), CPU_IPC, TOTAL_CPU(%), GPU_MEM_RES_Avg(MB/stream), GPU_MEM_RES_Total(MB)
+          hevc_1920x1080p_bits.h265,1,29.9,101.27,0
+          EOL
+          # HEVC-AVC,SMT => Expect: FAIL 4.97% (Slower than ref)
+          cat > msperf_SMT_HEVC-AVC_performance.csv <<EOL
+          clipname, performance_stream, fps, runtime(s), GPU_Vid0(%), GPU_Vid1(%), GPU_Render(%), AVG_CPU(%), RC6(%), GPU_Freq_Avg(MHz), MEM_RES_Avg(MB/stream), MEM_RES_Total(MB), AVG_MEM(%), PHYSICAL_MEM(MB), CPU_IPC, TOTAL_CPU(%), GPU_MEM_RES_Avg(MB/stream), GPU_MEM_RES_Total(MB)
+          hevc_1920x1080p_bits.h265,1,29.9,105.26,0
+          EOL
+          popd
+        # yamllint enable rule:line-length
+
+      - name: Build Docker image
+        run: |
+          docker build source/.github/workflows/performance \
+            -f source/.github/workflows/performance/Dockerfile \
+            --build-arg BASE_IMAGE="${{ inputs.image }}" \
+            --build-arg USER_ID=$(id -u) \
+            --build-arg GROUP_ID=$(id -g) \
+            -t vpl_performance:linux
+
+      - name: Get Reference Performance Results
+        run: |
+          docker run --rm -u root \
+            -v $(pwd):/work \
+            -w /work \
+            -v "$(realpath _report/ref_results):/results" \
+            -v "$(realpath _install_ref):/package" \
+            -e DEVICE=/dev/dri/renderD128 \
+            --device /dev/dri/renderD128 \
+            --group-add=109 \
+            --cap-add SYS_ADMIN \
+            -p 8080:8080 \
+            vpl_performance:linux \
+            /setup/performance.sh
+
+      - name: Get Test Performance Results
+        run: |
+          docker run --rm -u root \
+            -v $(pwd):/work \
+            -w /work \
+            -v "$(realpath _report/test_results):/results" \
+            -v "$(realpath _install_test):/package" \
+            -e DEVICE=/dev/dri/renderD128 \
+            --device /dev/dri/renderD128 \
+            --group-add=109 \
+            --cap-add SYS_ADMIN \
+            -p 8080:8080 \
+            vpl_performance:linux \
+            /setup/performance.sh
+
+      - name: Combine Test Results
+        run: |
+          write_perf_result() {
+            CODEC="$1"
+            TOOL="$2"
+            TEST_RESULT_DIR="$3"
+            REF_RESULT_DIR="$4"
+            PERF_DIR=data/artifacts/measure/perf
+            PERF_FILE=msperf_${TOOL}_${CODEC}_performance.csv
+            TEST_DATA_FILE="${TEST_RESULT_DIR}/${PERF_DIR}/${PERF_FILE}"
+            REF_DATA_FILE="${REF_RESULT_DIR}/${PERF_DIR}/${PERF_FILE}"
+            LAST_LINE="$( tail -n 1 "$TEST_DATA_FILE" )"
+            IFS=',' read -r -a TEST_FIELDS <<< "$LAST_LINE"
+            LAST_LINE="$( tail -n 1 "$REF_DATA_FILE" )"
+            IFS=',' read -r -a REF_FIELDS <<< "$LAST_LINE"
+            echo "${CODEC},${TOOL},${REF_FIELDS[3]},${TEST_FIELDS[3]}"
+          }
+
+          write_perf_report() {
+            TEST_RESULT_DIR="$1"
+            REF_RESULT_DIR="$2"
+            echo "Codec,Tool,Ref,Test"
+            write_perf_result HEVC-HEVC SMT \
+              "${TEST_RESULT_DIR}" "${REF_RESULT_DIR}"
+            write_perf_result HEVC-HEVC FFMPEG \
+              "${TEST_RESULT_DIR}" "${REF_RESULT_DIR}"
+            write_perf_result HEVC-AVC SMT \
+              "${TEST_RESULT_DIR}" "${REF_RESULT_DIR}"
+            write_perf_result HEVC-AVC FFMPEG \
+              "${TEST_RESULT_DIR}" "${REF_RESULT_DIR}"
+          }
+
+          write_perf_report _report/test_results _report/ref_results \
+            > _report/perf_numbers.csv
+
+      - name: Summarize Results
+        if: success() || failure()
+        run: |
+          set +e
+          function join {
+            local delim=${1-}
+            local list=${2-}
+            if shift 2; then
+              printf %s "$list" "${@/#/$delim}"
+            fi
+          }
+          function csv() {
+            local mode=${1-}
+            shift 1
+            printf "$(join , "$@")\n"
+          }
+          function md() {
+            local mode=${1-}
+            shift 1
+            printf "| $(join ' | ' "$@") |\n"
+            if [[ "$mode" == "head" ]]
+            then
+              local seps=()
+              for s in "$@"
+              do
+                local sep=""
+                for ((i=0; i<${#s}; i++))
+                do
+                  sep="${sep}-"
+                done
+                seps=("${seps[@]}" "${sep}")
+              done
+              printf "| $(join ' | ' "${seps[@]}") |\n"
+            fi
+          }
+          function summarize() {
+            local result=0
+            local acceptable="$1"
+            local fmt="${2}"
+            local data_file="${3}"
+            local count="0"
+            $fmt head "Codec" "Tool" "Refrence Time(s)" \
+                      "Test Time(s)" "Percent" "Status"
+            while IFS= read -r line || [[ -n "$line" ]]; do
+              if [[ "$count" -gt '0' ]]; then
+                IFS=',' read -a array <<< $line
+                codec=${array[0]}
+                tool=${array[1]}
+                ref_time=${array[2]}
+                test_time=${array[3]}
+                  formula="100 * ($test_time - $ref_time) / $ref_time"
+                  pct=$( echo "scale=2; $formula"  |bc )
+                  status="Passed"
+                  if (( $(echo "${pct} > $acceptable"  |bc -l) )); then
+                      status="Failed"
+                      result=1
+                  fi
+                  $fmt data "${codec}" "${tool}" "${ref_time}" \
+                            "${test_time}" "${pct}" "${status}"
+              fi
+              count=$[ $count+1 ]
+            done < "$data_file"
+            return $result
+          }
+
+          # check performance difference between N and N-1
+          summarize 1 "csv" _report/perf_numbers.csv \
+            >> _report/summary.csv
+          summarize 1 "md" _report/perf_numbers.csv \
+            >> _report/summary.md
+          retcode=$?
+          cat _report/summary.md
+          cat _report/summary.md >> $GITHUB_STEP_SUMMARY
+          if [ $retcode -ne 0 ]; then
+              exit 1
+          fi
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: success() || failure()
+        with:
+          name: ${{ inputs.artifact_name }}
+          path: _report
+
+      - name: Cleanup workspace
+        if: success() || failure()
+        run: sudo rm -rf ..?* .[!.]* *

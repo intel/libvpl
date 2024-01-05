@@ -113,6 +113,7 @@ jobs:
           mkdir -p summary/quality/acceptance/SLES15.4/gen12.5
           mkdir -p summary/quality/acceptance/RHEL8.6/gen12.5
           mkdir -p summary/quality/unit
+          mkdir -p summary/quality/performance
 
           cp artifacts/$UTEST_L/*/Test.xml \
              summary/quality/unit/linux.xml
@@ -130,6 +131,10 @@ jobs:
              summary/quality/acceptance/SLES15.4/gen12.5/
           cp -r artifacts/$RHEL86/. \
              summary/quality/acceptance/RHEL8.6/gen12.5/
+          cp artifacts/linux-performance/summary.csv \
+             summary/quality/performance/linux-performance-summary.csv
+          cp artifacts/linux-performance/summary.md \
+             summary/quality/performance/linux-performance-summary.md
 
       - name: Upload Summary
         if: success() || failure()
