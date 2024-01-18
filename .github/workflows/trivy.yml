@@ -18,12 +18,15 @@ jobs:
           path: source
 
       - name: Pull docker image
-        run: docker pull aquasec/trivy:0.47.0
+        run: docker pull aquasec/trivy:0.48.3
 
-      - name: Scan
+      - name: Create output location
         run: |
           mkdir artifact
           echo "Trivy Report" > artifact/trivy.txt
+
+      - name: Scan
+        run: |
           docker run \
             -v /var/run/docker.sock:/var/run/docker.sock \
             -v $HOME/Library/Caches:/root/.cache/ \
@@ -31,7 +34,45 @@ jobs:
             -w /work \
             --attach stderr --attach stdout \
             aquasec/trivy:0.47.0 \
-            fs . 2>&1 >> artifact/trivy.txt
+            fs \
+              --exit-code 1 \
+              --list-all-pkgs \
+              . >> artifact/trivy.txt
+
+      - name: Scan for SDL Evidence
+        if: (success() || failure())
+        run: |
+          docker run \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            -v $HOME/Library/Caches:/root/.cache/ \
+            -v $(pwd):/work \
+            -w /work \
+            --attach stderr --attach stdout \
+            aquasec/trivy:0.47.0 \
+            fs \
+              --exit-code 1 \
+              --list-all-pkgs \
+              --format template \
+              --template "@/work/source/.github/workflows/trivy/csv.tpl" \
+              --output artifact/trivy-report.csv \
+              .
+
+      - name: Scan for SPDX for SBOM
+        if: (success() || failure())
+        run: |
+          docker run \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            -v $HOME/Library/Caches:/root/.cache/ \
+            -v $(pwd):/work \
+            -w /work \
+            --attach stderr --attach stdout \
+            aquasec/trivy:0.47.0 \
+            fs \
+              --exit-code 1 \
+              --list-all-pkgs \
+              --format spdx-json \
+              --output artifact/trivy-spdx.json \
+              .
 
       - name: Summarize
         if: (failure())

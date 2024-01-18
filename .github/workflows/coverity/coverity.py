@@ -20,7 +20,7 @@ import json
 import xml.etree.ElementTree as ET  # nosec
 import xml.dom.minidom as minidom  # nosec
 
-from lib.cmdline import run_command, md
+from cmdline import run_command, md, capture_command
 
 
 def pretty_print_xml(root):
@@ -165,9 +165,13 @@ def read_command_line(cmd_line):
                         action="store",
                         required=True,
                         help='Coverity Connect Server URL')
+    parser.add_argument('--auth-key-file',
+                        action="store",
+                        default=None,
+                        help='Authentication key file.')
     parser.add_argument('--user',
                         action="store",
-                        required=True,
+                        default=None,
                         help='User name.')
     parser.add_argument('--email',
                         action="store",
@@ -226,6 +230,8 @@ def read_command_line(cmd_line):
     args = parser.parse_args(args=cmd_line)
 
     # Resolve settings form arguments
+    if args.auth_key_file:
+        args.auth_key_file = os.path.abspath(args.auth_key_file)
     args.intermediate_dir = os.path.abspath(args.intermediate_dir)
     args.report_dir = os.path.abspath(args.report_dir)
     args.strip_path = os.path.abspath(args.strip_path)
@@ -254,31 +260,49 @@ def build_under_coverity(intermediate_dir, command, strip_path):
                 "SECURE_CODING")
 
 
-# pylint: disable=too-many-arguments
-def get_preview_report(user, password, intermediate_dir, url, stream,
-                       code_version, strip_path, preview_report_v2_path,
-                       full_report_v9_path, active_report_v9_path,
-                       full_html_report_path, active_html_report_path):
+# pylint: disable=too-many-arguments,too-many-locals
+def get_preview_report(intermediate_dir,
+                       url,
+                       stream,
+                       code_version,
+                       strip_path,
+                       preview_report_v2_path,
+                       full_report_v9_path,
+                       active_report_v9_path,
+                       full_html_report_path,
+                       active_html_report_path,
+                       text_output=None,
+                       user=None,
+                       password=None,
+                       auth_key_file=None):
     """Generate preview reports (Pull from Coverity Connect, but don't push)"""
     env = os.environ.copy()
-    env["COVERITY_PASSPHRASE"] = password
-    env["COV_USER"] = user
-    run_command("cov-commit-defects",
-                "--dir",
-                intermediate_dir,
-                "--url",
-                url,
-                "--stream",
-                stream,
-                "--ticker-mode",
-                "none",
-                "--version",
-                code_version,
-                "--strip-path",
-                strip_path,
-                "--preview-report-v2",
-                preview_report_v2_path,
-                env=env)
+    if password is not None:
+        env["COVERITY_PASSPHRASE"] = password
+    if user is not None:
+        env["COV_USER"] = user
+    args = [
+        "--dir",
+        intermediate_dir,
+        "--url",
+        url,
+        "--stream",
+        stream,
+        "--ticker-mode",
+        "none",
+        "--version",
+        code_version,
+        "--strip-path",
+        strip_path,
+        "--preview-report-v2",
+        preview_report_v2_path,
+    ]
+    if auth_key_file:
+        args.extend([
+            "--auth-key-file",
+            auth_key_file,
+        ])
+    run_command("cov-commit-defects", *args, env=env)
 
     run_command("cov-format-errors", "--dir", intermediate_dir,
                 "--no-default-triage-filters", "--preview-report-v2",
@@ -299,84 +323,62 @@ def get_preview_report(user, password, intermediate_dir, url, stream,
                 "--preview-report-v2", preview_report_v2_path, "--html-output",
                 active_html_report_path)
 
+    if text_output:
+        with open(text_output, 'w') as dest:
+            dest.write(
+                capture_command("cov-format-errors", "--dir", intermediate_dir,
+                                "--preview-report-v2", preview_report_v2_path,
+                                "--triage-attribute-regex", "action",
+                                "Undecided", "--text-output-style",
+                                "multiline")[0])
+
 
 # pylint: disable=too-many-arguments
-def publish_to_coverity_connect(user, password, intermediate_dir, url, stream,
-                                code_version, strip_path, description,
-                                snapshot_id_path):
+def publish_to_coverity_connect(intermediate_dir,
+                                url,
+                                stream,
+                                code_version,
+                                strip_path,
+                                description,
+                                snapshot_id_path,
+                                user=None,
+                                password=None,
+                                auth_key_file=None):
     """Publish to Coverity Connect"""
     env = os.environ.copy()
-    env["COVERITY_PASSPHRASE"] = password
-    env["COV_USER"] = user
-    run_command("cov-commit-defects",
-                "--dir",
-                intermediate_dir,
-                "--url",
-                url,
-                "--stream",
-                stream,
-                "--ticker-mode",
-                "none",
-                "--version",
-                code_version,
-                "--strip-path",
-                strip_path,
-                "--description",
-                description,
-                "--snapshot-id-file",
-                snapshot_id_path,
-                env=env)
+    if password is not None:
+        env["COVERITY_PASSPHRASE"] = password
+    if user is not None:
+        env["COV_USER"] = user
+    args = [
+        "--dir",
+        intermediate_dir,
+        "--url",
+        url,
+        "--stream",
+        stream,
+        "--ticker-mode",
+        "none",
+        "--version",
+        code_version,
+        "--strip-path",
+        strip_path,
+        "--description",
+        description,
+        "--snapshot-id-file",
+        snapshot_id_path,
+    ]
+    if auth_key_file:
+        args.extend([
+            "--auth-key-file",
+            auth_key_file,
+        ])
+    run_command("cov-commit-defects", *args, env=env)
 
 
-def run(args):
-    """main entry point
-    """
-    # Set up analysis environment
-    configure_coverity()
-    md(args.intermediate_dir)
-    build_under_coverity(args.intermediate_dir, args.command, args.strip_path)
-
-    # Gather data
-    md(os.path.join(args.report_dir, "json"))
-    preview_report_v2_path = os.path.join(args.report_dir, "json",
-                                          "preview_report_v2.json")
-    json_report_path = os.path.join(args.report_dir, "json",
-                                    "errors_v9_full.json")
-    get_preview_report(
-        args.user, args.password, args.intermediate_dir, args.url, args.stream,
-        args.code_version, args.strip_path, preview_report_v2_path,
-        json_report_path,
-        os.path.join(args.report_dir, "json", "errors_v9_active.json"),
-        os.path.join(args.report_dir, "html_full"),
-        os.path.join(args.report_dir, "html_active"))
-
-    error_count = 0
-    with open(json_report_path, "r") as json_file:
-        report = json.load(json_file)
-        summary = ReportSummary(report, ['undecided'])
-        error_count = summary.problems
-        xunit_from_report(os.path.join(args.report_dir, "xunit.xml"), summary)
-    snapshot_id = None
-    if args.report or error_count > 0:
-        publish_to_coverity_connect(args.user, args.password,
-                                    args.intermediate_dir, args.url,
-                                    args.stream, args.code_version,
-                                    args.strip_path, args.description,
-                                    "_snapshot_id.txt")
-
-        with open("_snapshot_id.txt", "r") as snapshot_id_file:
-            snapshot_id = snapshot_id_file.read().strip()
-    snapshot_info = {}
-    if snapshot_id is not None:
-        snapshot_info["id"] = snapshot_id
-    snapshot_info["stream"] = args.stream
-    snapshot_info["version"] = args.code_version
-    with open(os.path.join(args.report_dir, "json", "info.json"),
-              "w") as info_file:
-        json.dump(snapshot_info, info_file, indent=2)
-
-    if snapshot_id is not None:
-        cfg = f"""# This is an example configuration file for Coverity report generators. It
+def write_reports(args, snapshot_id):
+    """Write PDF reports"""
+    cfg = f"""# This is an example configuration file for Coverity report generators. It
 # tells report generators how to generate reports. You can make and modify a
 # copy of it for use in configuring a report generator.
 #
@@ -492,7 +494,7 @@ locale: en_US
 issue-cutoff-count: 4000
 
 # Used for retrieving the defects of specific snapshot id, instead of using the latest snapshot id of
-# all the streams associated with project(default behaviour).
+# all the streams associated with project(default behavior).
 # It is not supported for CIR report.
 snapshot-id: {snapshot_id}
 
@@ -646,33 +648,106 @@ disa-stig:
 
     version: V5
 """
-        with open("_covreport.yml", "w") as file:
-            file.write(cfg)
+    with open("_covreport.yml", "w") as file:
+        file.write(cfg)
 
-        # Special environment with Coverity user information
-        env = os.environ.copy()
+    # Special environment with Coverity user information
+    env = os.environ.copy()
+    if args.password:
         env["COVERITY_PASSPHRASE"] = args.password
+    if args.user:
         env["COV_USER"] = args.user
 
-        report_path = os.path.join(args.report_dir, "cvss_report.pdf")
-        run_command("cov-generate-cvss-report",
-                    "_covreport.yml",
-                    "--output",
-                    report_path,
-                    "--report",
-                    "--password",
-                    "env:COVERITY_PASSPHRASE",
-                    env=env)
-        report_path = os.path.join(args.report_dir, "security_report.pdf")
-        run_command("cov-generate-security-report",
-                    "_covreport.yml",
-                    "--output",
-                    report_path,
-                    "--password",
-                    "env:COVERITY_PASSPHRASE",
-                    env=env)
+    report_path = os.path.join(args.report_dir, "cvss_report.pdf")
+    arguments = [
+        "_covreport.yml",
+        "--output",
+        report_path,
+        "--report",
+    ]
+    if args.password:
+        arguments.extend([
+            "--password",
+            "env:COVERITY_PASSPHRASE",
+        ])
+    run_command("cov-generate-cvss-report", *arguments, env=env)
+    report_path = os.path.join(args.report_dir, "security_report.pdf")
+    arguments = [
+        "_covreport.yml",
+        "--output",
+        report_path,
+    ]
+    if args.password:
+        arguments.extend([
+            "--password",
+            "env:COVERITY_PASSPHRASE",
+        ])
+    run_command("cov-generate-security-report", *arguments, env=env)
 
-    return 0
+
+def run(args):
+    """main entry point
+    """
+    # Set up analysis environment
+    configure_coverity()
+    md(args.intermediate_dir)
+    build_under_coverity(args.intermediate_dir, args.command, args.strip_path)
+
+    # Gather data
+    md(os.path.join(args.report_dir, "json"))
+    preview_report_v2_path = os.path.join(args.report_dir, "json",
+                                          "preview_report_v2.json")
+    json_report_path = os.path.join(args.report_dir, "json",
+                                    "errors_v9_full.json")
+    get_preview_report(args.intermediate_dir,
+                       args.url,
+                       args.stream,
+                       args.code_version,
+                       args.strip_path,
+                       preview_report_v2_path,
+                       json_report_path,
+                       os.path.join(args.report_dir, "json",
+                                    "errors_v9_active.json"),
+                       os.path.join(args.report_dir, "html_full"),
+                       os.path.join(args.report_dir, "html_active"),
+                       os.path.join(args.report_dir, "text_report.txt"),
+                       user=args.user,
+                       password=args.password,
+                       auth_key_file=args.auth_key_file)
+
+    error_count = 0
+    with open(json_report_path, "r") as json_file:
+        report = json.load(json_file)
+        summary = ReportSummary(report, ['undecided'])
+        error_count = summary.problems
+        xunit_from_report(os.path.join(args.report_dir, "xunit.xml"), summary)
+    snapshot_id = None
+    if args.report or error_count > 0:
+        publish_to_coverity_connect(args.intermediate_dir,
+                                    args.url,
+                                    args.stream,
+                                    args.code_version,
+                                    args.strip_path,
+                                    args.description,
+                                    "_snapshot_id.txt",
+                                    user=args.user,
+                                    password=args.password,
+                                    auth_key_file=args.auth_key_file)
+
+        with open("_snapshot_id.txt", "r") as snapshot_id_file:
+            snapshot_id = snapshot_id_file.read().strip()
+    snapshot_info = {}
+    if snapshot_id is not None:
+        snapshot_info["id"] = snapshot_id
+    snapshot_info["stream"] = args.stream
+    snapshot_info["version"] = args.code_version
+    with open(os.path.join(args.report_dir, "json", "info.json"),
+              "w") as info_file:
+        json.dump(snapshot_info, info_file, indent=2)
+
+    if snapshot_id is not None:
+        write_reports(args, snapshot_id)
+    return error_count
 
 
 # pylint: disable=bare-except

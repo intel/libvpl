@@ -84,6 +84,9 @@ jobs:
       - name: Run Scan (Linux)
         if: success() && runner.os == 'Linux'
         run: |
+          cat > source/auth_key.txt <<EOL
+          ${{ secrets.COVERITY_AUTH_KEY }}
+          EOL
           cat > action.sh <<EOL
           #!/bin/bash
           set -o errexit ; set -o nounset
@@ -104,7 +107,9 @@ jobs:
           REPORT_DIR="\$(realpath _reports)"
           BUILD_DIR="\$(realpath _build)"
           STRIP_DIR="\$(realpath .)"
-          script/coverity-scan \
+          chmod u+rw auth_key.txt
+          chmod go-rwx auth_key.txt
+          python3 .github/workflows/coverity/coverity.py \
             --url "${{ vars.COVERITY_HOST}}" \
             --user "${{ vars.AD_USR }}" \
             --password "${{ secrets.AD_PW }}" \
@@ -118,8 +123,10 @@ jobs:
             --code-version "${{ github.sha }}" \
             --bu "AXG" \
             --description "${{ github.ref_name }}" \
+            --auth-key-file auth_key.txt \
             ${{ inputs.COVERITY_OPTS}} \
             cmake --build "\${BUILD_DIR}" --parallel $(nproc) --verbose
+          rm auth_key.txt
           EOL
           chmod +x action.sh
 
@@ -130,13 +137,17 @@ jobs:
         if: success() && runner.os == 'Windows'
         run: |
           pushd source
+          @"
+          ${{ secrets.COVERITY_AUTH_KEY }}
+          "@ | Out-File -encoding ascii auth_key.txt -NoNewline
           cmake -B _build
           if($LASTEXITCODE -ne 0)
           {
               Exit $LASTEXITCODE
           }
+          $Env:VERBOSE = 1
           mkdir _reports
-          & script\coverity-scan.bat `
+          & py -3 .github\workflows\coverity\coverity.py `
             --url "${{ vars.COVERITY_HOST }}" `
             --user "${{ vars.AD_USR }}" `
             --password "${{ secrets.AD_PW }}" `
@@ -150,6 +161,7 @@ jobs:
             --code-version "${{ github.sha }}" `
             --bu "AXG" `
             --description "${{ github.ref_name }}" `
+            --auth-key-file auth_key.txt `
             ${{ inputs.COVERITY_OPTS}} `
             cmake --build _build --parallel %NUMBER_OF_PROCESSORS% `
                   --verbose --config Release
@@ -158,6 +170,22 @@ jobs:
             Exit $LASTEXITCODE
           }
           popd
+
+      - name: Summarize (Linux)
+        if: failure() && runner.os == 'Linux'
+        run: |
+          cat source/_reports/text_report.txt
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          cat source/_reports/text_report.txt >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Summarize (Windows)
+        if: failure() && runner.os == 'Windows'
+        run: |
+          get-content source/_reports/text_report.txt
+          echo '```' >> $env:GITHUB_STEP_SUMMARY
+          get-content source/_reports/text_report.txt | Out-File -encoding ascii $env:GITHUB_STEP_SUMMARY
+          echo '```' >> $env:GITHUB_STEP_SUMMARY
 
       - name: Record Artifacts
         uses: actions/upload-artifact@v4
