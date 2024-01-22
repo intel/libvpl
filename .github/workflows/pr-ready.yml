@@ -2,43 +2,39 @@
 name: Check
 
 on:
+  # Run on pull requests, including when readiness state is changed
   pull_request:
-  # Run on pull requests
-  workflow_dispatch:
+    types: ['opened', 'synchronize', 'reopened', 'ready_for_review']
   # Run on user request
+  workflow_dispatch:
 
 concurrency:
-  # Cancel any exisitng jobs related to the target branch
-  group: ci-${{ github.ref || github.run_id }}
+  # Cancel any existing jobs related to the target branch
+  group: ready-ci-${{ github.ref || github.run_id }}
   cancel-in-progress: true
 
 jobs:
 
   lint:
-    if: true
+    if: '! github.event.pull_request.draft'
     uses: ./.github/workflows/lint.yml
 
   hadolint:
-    if: true
+    if: '! github.event.pull_request.draft'
     uses: ./.github/workflows/hadolint.yml
 
   trivy:
-    if: true
+    if: '! github.event.pull_request.draft'
     uses: ./.github/workflows/trivy.yml
 
   ip-leak-scan:
-    if: true
+    if: '! github.event.pull_request.draft'
     name: IP Leak Scan
     uses: ./.github/workflows/ipldt.yml
     secrets: inherit
 
-  source-malware-scan:
-    if: true
-    uses: ./.github/workflows/mcafee.yml
-    secrets: inherit
-
   coverity:
-    if: true
+    if: '! github.event.pull_request.draft'
     strategy:
       fail-fast: true
       matrix:
@@ -51,7 +47,7 @@ jobs:
       os: ${{ matrix.os }}
 
   linux-build:
-    if: true
+    if: '! github.event.pull_request.draft'
     uses: ./.github/workflows/cmake.yml
     with:
       os: linux
@@ -61,7 +57,7 @@ jobs:
       no_artifacts: false
 
   windows-build:
-    if: true
+    if: '! github.event.pull_request.draft'
     uses: ./.github/workflows/cmake.yml
     with:
       os: windows
@@ -70,24 +66,8 @@ jobs:
       run_tests: true
       no_artifacts: false
 
-  windows-malware-scan:
-    if: true
-    needs: [windows-build]
-    uses: ./.github/workflows/mcafee.yml
-    secrets: inherit
-    with:
-      artifact_name: windows-release-build
-
-  linux-malware-scan:
-    if: true
-    needs: [linux-build]
-    uses: ./.github/workflows/mcafee.yml
-    secrets: inherit
-    with:
-      artifact_name: linux-release-build
-
   windows-sscb:
-    if: true
+    if: '! github.event.pull_request.draft'
     needs: [windows-build]
     uses: ./.github/workflows/sscb.yml
     with:
@@ -95,7 +75,7 @@ jobs:
       artifact_name: windows-release-build
 
   linux-sscb:
-    if: true
+    if: '! github.event.pull_request.draft'
     needs: [linux-build]
     uses: ./.github/workflows/sscb.yml
     with:
@@ -103,7 +83,7 @@ jobs:
       artifact_name: linux-release-build
 
   bdba:
-    if: true
+    if: '! github.event.pull_request.draft'
     needs:
       - linux-build
       - windows-build
@@ -114,7 +94,7 @@ jobs:
   # that depend on this one can access the variables via
   # needs.setup-variables.outputs.<variable-name>
   setup-variables:
-    if: true
+    if: '! github.event.pull_request.draft'
     runs-on: [self-hosted, linux]
     outputs:
       last_release_ref: ${{ env.last_release_ref }}
@@ -197,39 +177,8 @@ jobs:
           echo "last_release_ref=${{ env.last_release_ref }}"
           echo "test_ref=${{ env.test_ref }}"
 
-  ref-build:
-    if: true
-    needs: setup-variables
-    strategy:
-      fail-fast: true
-      matrix:
-        os:
-          - windows
-          - linux
-    uses: ./.github/workflows/cmake.yml
-    with:
-      os: ${{ matrix.os }}
-      build_type: release
-      artifact_name: ${{ matrix.os }}-ref-build
-      run_tests: false
-      no_artifacts: false
-      ref: ${{ needs.setup-variables.outputs.last_release_ref }}
-
-  diff-report:
-    if: true
-    needs: [linux-build, windows-build, ref-build]
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [windows, linux]
-    uses: ./.github/workflows/diff.yml
-    with:
-      report_name: ${{ matrix.os }}-diff-report
-      left: ${{ matrix.os }}-ref-build
-      right: ${{ matrix.os }}-release-build
-
   windows-acceptance:
-    if: true
+    if: '! github.event.pull_request.draft'
     needs: [windows-build, setup-variables]
     strategy:
       fail-fast: true
@@ -253,7 +202,7 @@ jobs:
       test_ref: ${{ needs.setup-variables.outputs.test_ref }}
 
   linux-acceptance:
-    if: true
+    if: '! github.event.pull_request.draft'
     needs: [linux-build, setup-variables]
     strategy:
       fail-fast: true
@@ -279,121 +228,19 @@ jobs:
       distro_version: ${{ matrix.distro.version }}
       test_ref: ${{ needs.setup-variables.outputs.test_ref }}
 
-  distro-tests:
-    if: true
-    needs: [linux-build, setup-variables]
-    strategy:
-      fail-fast: true
-      matrix:
-        distro:
-          - family: rhel
-            version: 8.5
-          - family: sles
-            version: 15.3
-          - family: ubuntu
-            version: 20.04
-        gpu:
-          - gen12.5
-        os:
-          - linux
-        config:
-          - release
-    uses: ./.github/workflows/acceptance.yml
-    secrets: inherit
-    with:
-      os: ${{ matrix.os }}
-      build_type: ${{ matrix.config }}
-      artifact_name: ${{ matrix.os }}-${{ matrix.config }}-build
-      gpu: ${{ matrix.gpu }}
-      distro_family: ${{ matrix.distro.family }}
-      distro_version: ${{ matrix.distro.version }}
-      test_ref: ${{ needs.setup-variables.outputs.test_ref }}
-
-  debug-build:
-    if: true
-    strategy:
-      fail-fast: true
-      matrix:
-        os:
-          - windows
-          - linux
-        config:
-          - debug
-    uses: ./.github/workflows/cmake.yml
-    with:
-      os: ${{ matrix.os }}
-      build_type: ${{ matrix.config }}
-      artifact_name: ${{ matrix.os }}-${{ matrix.config }}-build
-      run_tests: true
-
-  debug-acceptance:
-    if: true
-    needs: [setup-variables, debug-build]
-    strategy:
-      fail-fast: true
-      matrix:
-        os:
-          - windows
-          - linux
-        gpu:
-          - gen12.5
-        config:
-          - debug
-    uses: ./.github/workflows/acceptance.yml
-    secrets: inherit
-    with:
-      os: ${{ matrix.os }}
-      build_type: debug
-      artifact_name: ${{ matrix.os }}-${{ matrix.config }}-build
-      gpu: ${{ matrix.gpu }}
-      distro_family: ${{ matrix.os == 'linux' && 'ubuntu' || 'windows' }}
-      distro_version: ${{ matrix.os == 'linux' && '22.04' || '11'}}
-      test_ref: ${{ needs.setup-variables.outputs.test_ref }}
-
-  experimental-off:
-    if: true
-    uses: ./.github/workflows/cmake.yml
-    strategy:
-      fail-fast: true
-      matrix:
-        os:
-          - windows
-          - linux
-    with:
-      os: ${{ matrix.os }}
-      build_type: release
-      run_tests: true
-      no_artifacts: true
-      configure_options: >
-        -DBUILD_DISPATCHER_ONEVPL_EXPERIMENTAL=OFF
-        -DBUILD_TOOLS_ONEVPL_EXPERIMENTAL=OFF
-
-  summary:
-    if: true
+  required:
+    if: '! github.event.pull_request.draft'
     needs:
+      - lint
       - hadolint
       - trivy
       - ip-leak-scan
-      - source-malware-scan
       - coverity
-      - windows-malware-scan
-      - linux-malware-scan
       - windows-sscb
       - linux-sscb
       - bdba
-      - diff-report
       - windows-acceptance
       - linux-acceptance
-      - distro-tests
-    uses: ./.github/workflows/summary.yml
-
-  required:
-    if: true
-    needs:
-      - lint
-      - summary
-      - debug-acceptance
-      - experimental-off
     runs-on: [self-hosted]
     steps:
       - name: Required Checks
