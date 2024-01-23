@@ -46,7 +46,7 @@ common bad patterns, such as words ending in ed or ing."""
     def validate(self, line, _commit):
         """Validate that the title is imperative"""
         violations = []
-        bad_suffixes = ('ed', 'ing')
+        bad_suffixes = ('ed', 'ing', 's')
         for word in line.split():
             if word.endswith(bad_suffixes):
                 violation = RuleViolation(self.id, "Title is not imperative",
