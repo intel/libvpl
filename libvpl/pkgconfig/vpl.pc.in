@@ -2,8 +2,8 @@ prefix=@pc_rel_prefix@
 libdir=@pc_rel_libdir@
 includedir=@pc_rel_incdir@
 
-Name: Intel® Video Processing Library
-Description: Accelerated video decode, encode, and frame processing capabilities on Intel® GPUs
+Name: Intel(R) Video Processing Library
+Description: Accelerated video decode, encode, and frame processing capabilities on Intel(R) GPUs
 Version: @API_VERSION_MAJOR@.@API_VERSION_MINOR@
 URL: https://github.com/intel/libvpl
 

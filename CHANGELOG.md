@@ -10,6 +10,9 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 
 ## [Unreleased]
 
+### Fixed
+- "®" symbol in pkg-config file breaking downstream build tools
+
 ## [2.10.1] - 2023-12-22
 
 ### Added
