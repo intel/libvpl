@@ -8,6 +8,7 @@
 Custom rules for gitlint
 """
 
+import os
 from gitlint.rules import LineRule, RuleViolation, CommitMessageTitle
 
 
@@ -32,6 +33,10 @@ capitalized"""
         return violations
 
 
+__location__ = os.path.realpath(
+    os.path.join(os.getcwd(), os.path.dirname(__file__)))
+
+
 class TitleImperative(LineRule):
     """This rule will enforce that the commit message title uses the imperative
 mood.
@@ -46,9 +51,13 @@ common bad patterns, such as words ending in ed or ing."""
     def validate(self, line, _commit):
         """Validate that the title is imperative"""
         violations = []
-        bad_suffixes = ('ed', 'ing', 's')
+        bad_suffixes = ('ed', 'ing')
+        with open(os.path.join(__location__, 'verbs.txt')) as verbfile:
+            verbs_ending_with_s = [line.rstrip() for line in verbfile]
         for word in line.split():
-            if word.endswith(bad_suffixes):
+            if word.endswith(bad_suffixes) or (
+                    word.endswith('s')
+                    and word.lower() not in verbs_ending_with_s):
                 violation = RuleViolation(self.id, "Title is not imperative",
                                           line)
                 violations.append(violation)
