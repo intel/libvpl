@@ -46,9 +46,10 @@ repos:
       - id: gitlint-ci  # hook for CI environments
         args: [--commits, "origin/main..HEAD"]
   - repo: https://github.com/PyCQA/bandit
-    rev: 1.7.0
+    rev: 1.7.7
     hooks:
       - id: bandit
+        args: ["-c", "bandit.yaml"]
   - repo: https://github.com/python-jsonschema/check-jsonschema
     rev: 0.23.2
     hooks:
