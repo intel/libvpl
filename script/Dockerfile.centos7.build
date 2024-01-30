@@ -22,3 +22,6 @@ RUN git config --global safe.directory '*'
 ENV LC_ALL en_US.utf8
 ENV LANG en_US.utf8
 ENV BASH_ENV /opt/rh/devtoolset-9/enable
+
+# check-github-workflows requires a version of OpenSSL not avalible in CentOS 7
+ENV SKIP check-github-workflows
