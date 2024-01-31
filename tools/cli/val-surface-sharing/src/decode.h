@@ -19,6 +19,8 @@ class CDecodeTest : public CTest {
 public:
     CDecodeTest();
     virtual ~CDecodeTest();
+    CDecodeTest(const CDecodeTest &)            = delete;
+    CDecodeTest &operator=(const CDecodeTest &) = delete;
 
     mfxStatus Init(int tIndex, Options *opts, std::vector<mfxU32> *adapterNumbers = nullptr);
     mfxStatus Run();

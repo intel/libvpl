@@ -21,6 +21,8 @@ class CEncodeTest : public CTest {
 public:
     CEncodeTest();
     virtual ~CEncodeTest();
+    CEncodeTest(const CEncodeTest &)            = delete;
+    CEncodeTest &operator=(const CEncodeTest &) = delete;
 
     mfxStatus Init(int tIndex,
                    Options *opts,

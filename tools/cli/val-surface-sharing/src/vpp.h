@@ -20,6 +20,8 @@ class CVPPTest : public CTest {
 public:
     CVPPTest();
     virtual ~CVPPTest();
+    CVPPTest(const CVPPTest &)            = delete;
+    CVPPTest &operator=(const CVPPTest &) = delete;
 
     mfxStatus Init(int tIndex,
                    Options *opts,

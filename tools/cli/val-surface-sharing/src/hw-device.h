@@ -66,6 +66,8 @@ public:
             m_vaDRMfd = -1;
         }
     }
+    DevCtxVAAPI(const DevCtxVAAPI &)            = delete;
+    DevCtxVAAPI &operator=(const DevCtxVAAPI &) = delete;
 
     mfxStatus InitDevice(mfxU32 nAdapterNum, mfxHandleType *pHandleType, mfxHDL *pHandle);
 
@@ -91,6 +93,8 @@ struct DevCtx
 public:
     DevCtx() {}
     ~DevCtx() {}
+    DevCtx(const DevCtx &)            = delete;
+    DevCtx &operator=(const DevCtx &) = delete;
 };
 
 #endif // TOOLS_CLI_VAL_SURFACE_SHARING_SRC_HW_DEVICE_H_

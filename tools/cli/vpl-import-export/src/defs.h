@@ -153,6 +153,9 @@ struct VPLSession {
     ~VPLSession() {
         Close();
     }
+
+    VPLSession(const VPLSession &)            = delete;
+    VPLSession &operator=(const VPLSession &) = delete;
 };
 
 #endif // TOOLS_CLI_VPL_IMPORT_EXPORT_SRC_DEFS_H_
