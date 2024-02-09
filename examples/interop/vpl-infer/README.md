@@ -72,14 +72,14 @@ This can be set up in a bare metal Ubuntu 22.04 system or with Docker for Linux,
     apt-get install -y cmake build-essential pkg-config libva-dev libva-drm2 vainfo
     ```
 
-2. Install Intel® Distribution of OpenVINO™ Toolkit 2023.2.0 from archive
+2. Install Intel® Distribution of OpenVINO™ Toolkit 2023.3.0 from archive
 
     ``` 
-    curl -L https://storage.openvinotoolkit.org/repositories/openvino/packages/2023.2/linux/l_openvino_toolkit_ubuntu22_2023.2.0.13089.cfd42bd2cb0_x86_64.tgz --output l_openvino_toolkit.tgz
+    curl -L https://storage.openvinotoolkit.org/repositories/openvino/packages/2023.3/linux/l_openvino_toolkit_ubuntu22_2023.3.0.13775.ceeafaf64f3_x86_64.tgz --output l_openvino_toolkit.tgz
     tar -xf l_openvino_toolkit.tgz
     mkdir -p /opt/intel
-    mv l_openvino_toolkit_ubuntu22_2023.2.0.13089.cfd42bd2cb0_x86_64 /opt/intel/openvino_2023.2.0
-    ln -s /opt/intel/openvino_2023.2.0 /opt/intel/openvino
+    mv l_openvino_toolkit_ubuntu22_2023.3.0.13775.ceeafaf64f3_x86_64 /opt/intel/openvino_2023.3.0
+    ln -s /opt/intel/openvino_2023.3.0 /opt/intel/openvino
     ```
 
 
@@ -98,7 +98,7 @@ This can be set up in a bare metal Ubuntu 22.04 system or with Docker for Linux,
 
     ```
     python -m pip install --upgrade pip
-    pip install openvino-dev[caffe]==2023.2.0
+    pip install openvino-dev[caffe]==2023.3.0
     omz_downloader --name mobilenet-ssd
     omz_converter --name mobilenet-ssd --precision FP32 --download_dir . --output_dir .
     deactivate
@@ -218,7 +218,7 @@ These instructions assume that Docker is already set up on your system.
 
     ```
     python -m pip install --upgrade pip
-    pip install openvino-dev[caffe]==2023.2.0
+    pip install openvino-dev[caffe]==2023.3.0
     omz_downloader --name mobilenet-ssd
     omz_converter --name mobilenet-ssd --precision FP32 --download_dir . --output_dir .
     deactivate
@@ -243,14 +243,14 @@ These instructions assume that Docker is already set up on your system.
 
     If OpenCL ICD loader is not ready, `-zerocopy` option is not activated. But vpl-infer will still work with other options
 
-    You can check the repos and commit ids for the build from [OpenCL versions for OpenVINO™ toolkit 2023.2.0](https://github.com/openvinotoolkit/openvino/tree/2023.2.0/thirdparty/ocl)
+    You can check the repos and commit ids for the build from [OpenCL versions for OpenVINO™ toolkit 2023.3.0](https://github.com/openvinotoolkit/openvino/tree/2023.3.0/thirdparty/ocl)
 
-    For `OpenVINO™ toolkit 2023.2.0`:
+    For `OpenVINO™ toolkit 2023.3.0`:
 
     ```
-    cl_headers @ 4c82e9c
-    clhpp_headers @ 4a11574
-    icd_loader @ 2cde5d0
+    cl_headers @ 2368105
+    clhpp_headers @ 83cc072
+    icd_loader @ 229410f
     ```
     Following steps are simplified from [OpenCL ICD loader build instruction](https://github.com/KhronosGroup/OpenCL-ICD-Loader/tree/9b5e3849b49a1448996c8b96ba086cd774d987db#build-instructions)
 
@@ -260,17 +260,17 @@ These instructions assume that Docker is already set up on your system.
     ```
     git clone https://github.com/KhronosGroup/OpenCL-Headers.git
     cd OpenCL-Headers
-    git checkout 4c82e9c
+    git checkout 2368105
     cd ..
 
     git clone https://github.com/KhronosGroup/OpenCL-CLHPP.git
     cd OpenCL-CLHPP
-    git checkout 4a11574
+    git checkout 83cc072
     cd ..
 
     git clone https://github.com/KhronosGroup/OpenCL-ICD-Loader.git
     cd OpenCL-ICD-Loader
-    git checkout 2cde5d0
+    git checkout 229410f
     cd ..
     ```
 
