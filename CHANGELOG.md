@@ -10,6 +10,8 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 
 ## [Unreleased]
 
+## [2.10.2] - 2024-02-21
+
 ### Fixed
 - "®" symbol in pkg-config file breaking downstream build tools
 
@@ -359,7 +361,9 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 - hello-transcode sample
 
 
-[Unreleased]: https://github.com/intel/libvpl/compare/v2023.4.0...HEAD
+[Unreleased]: https://github.com/intel/libvpl/compare/v2.10.2...HEAD
+[2.10.2]: https://github.com/intel/libvpl/compare/v2.10.1...v2.10.2
+[2.10.1]: https://github.com/intel/libvpl/compare/v2023.4.0...v2.10.1
 [2023.4.0]: https://github.com/intel/libvpl/compare/v2023.3.1...v2023.4.0
 [2023.3.1]: https://github.com/intel/libvpl/compare/v2023.3.0...v2023.3.1
 [2023.3.0]: https://github.com/intel/libvpl/compare/v2023.2.1...v2023.3.0
