@@ -58,13 +58,15 @@ list(APPEND sources ${srcs})
 
 if(PKG_LIBDRM_FOUND)
   set(DEPENDENCIES libdrm)
+  set(METRICS_LIB cttmetrics)
 
-  add_library(cttmetrics SHARED ${sources})
+  add_library(${METRICS_LIB} SHARED ${sources})
 
-  target_include_directories(cttmetrics PUBLIC include)
-  target_link_libraries(cttmetrics PRIVATE PkgConfig::PKG_LIBDRM)
+  target_include_directories(${METRICS_LIB} PUBLIC include)
+  target_link_libraries(${METRICS_LIB} PRIVATE PkgConfig::PKG_LIBDRM)
 
-  target_compile_definitions(cttmetrics PRIVATE LIBVA_DRM_SUPPORT LIBVA_SUPPORT)
+  target_compile_definitions(${METRICS_LIB} PRIVATE LIBVA_DRM_SUPPORT
+                                                    LIBVA_SUPPORT)
 
   # cttmetrics_static
   add_library(cttmetrics_static STATIC ${sources})
@@ -74,22 +76,29 @@ if(PKG_LIBDRM_FOUND)
 
   target_compile_definitions(cttmetrics_static PRIVATE LIBVA_DRM_SUPPORT
                                                        LIBVA_SUPPORT)
+  install(TARGETS ${METRICS_LIB} LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+                                         COMPONENT ${VPL_COMPONENT_TOOLS})
 
   # metrics_monitor
   set(sources sample/cttmetrics_sample.cpp)
+  set(METRICS_TOOL metrics_monitor)
+
   file(GLOB_RECURSE srcs "${CMAKE_CURRENT_SOURCE_DIR}/sample/*.cpp")
 
-  add_executable(metrics_monitor ${sources})
-  set_property(TARGET metrics_monitor PROPERTY FOLDER "samples")
+  add_executable(${METRICS_TOOL} ${sources})
+  set_property(TARGET ${METRICS_TOOL} PROPERTY FOLDER "samples")
   if(NOT CMAKE_C_COMPILER_ID MATCHES Intel)
-    set_property(TARGET metrics_monitor
+    set_property(TARGET ${METRICS_TOOL}
                  PROPERTY INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
   endif()
 
-  target_link_libraries(metrics_monitor PUBLIC cttmetrics)
+  target_link_libraries(${METRICS_TOOL} PUBLIC ${METRICS_LIB})
 
-  target_compile_definitions(metrics_monitor PRIVATE LIBVA_DRM_SUPPORT
+  target_compile_definitions(${METRICS_TOOL} PRIVATE LIBVA_DRM_SUPPORT
                                                      LIBVA_SUPPORT)
+
+  install(TARGETS ${METRICS_TOOL} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+                                          COMPONENT ${VPL_COMPONENT_TOOLS})
 
   # test_monitor
   if(BUILD_TESTS)

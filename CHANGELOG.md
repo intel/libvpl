@@ -14,6 +14,7 @@ portable media pipelines on CPUs, GPUs, and other accelerators.
 
 ### Fixed
 - "®" symbol in pkg-config file breaking downstream build tools
+- CMake not installing metrics monitor and cttmetrics library
 
 ## [2.10.1] - 2023-12-22
 
