@@ -20,9 +20,8 @@ env:
   UTEST_W: windows-release-utests
   SSCB_L: linux-sscb
   SSCB_W: windows-sscb
-  RHEL85: rhel8.5-release-gen12.5-acceptance
-  SLES153: sles15.3-release-gen12.5-acceptance
-  U2004: ubuntu20.04-release-gen12.5-acceptance
+  RHEL86: rhel8.6-release-gen12.5-acceptance
+  SLES154: sles15.4-release-gen12.5-acceptance
   U2204: ubuntu22.04-release-gen12.5-acceptance
   U2204_GEN95: ubuntu22.04-release-gen9.5-acceptance
   WIN11: windows11-release-gen12.5-acceptance
@@ -94,9 +93,8 @@ jobs:
           mkdir -p summary/quality/acceptance/Ubuntu22.04/gen12.5
           mkdir -p summary/quality/acceptance/Win11/gen9.5
           mkdir -p summary/quality/acceptance/Win11/gen12.5
-          mkdir -p summary/quality/acceptance/Ubuntu20.04/gen12.5
-          mkdir -p summary/quality/acceptance/SLES15.3/gen12.5
-          mkdir -p summary/quality/acceptance/RHEL8.5/gen12.5
+          mkdir -p summary/quality/acceptance/SLES15.4/gen12.5
+          mkdir -p summary/quality/acceptance/RHEL8.6/gen12.5
           mkdir -p summary/quality/unit
 
           cp artifacts/$UTEST_L/*/Test.xml \
@@ -111,12 +109,10 @@ jobs:
              summary/quality/acceptance/Win11/gen9.5/
           cp -r artifacts/$WIN11/. \
              summary/quality/acceptance/Win11/gen12.5/
-          cp -r artifacts/$U2004/. \
-             summary/quality/acceptance/Ubuntu20.04/gen12.5/
-          cp -r artifacts/$SLES153/. \
-             summary/quality/acceptance/SLES15.3/gen12.5/
-          cp -r artifacts/$RHEL85/. \
-             summary/quality/acceptance/RHEL8.5/gen12.5/
+          cp -r artifacts/$SLES154/. \
+             summary/quality/acceptance/SLES15.4/gen12.5/
+          cp -r artifacts/$RHEL86/. \
+             summary/quality/acceptance/RHEL8.6/gen12.5/
 
       - name: Upload Summary
         if: success() || failure()

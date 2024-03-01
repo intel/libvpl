@@ -289,11 +289,9 @@ jobs:
       matrix:
         distro:
           - family: rhel
-            version: 8.5
+            version: 8.6
           - family: sles
-            version: 15.3
-          - family: ubuntu
-            version: 20.04
+            version: 15.4
         gpu:
           - gen12.5
         os:
