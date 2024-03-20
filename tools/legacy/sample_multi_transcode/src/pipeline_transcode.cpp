@@ -1652,23 +1652,10 @@ mfxStatus CTranscodingPipeline::Encode() {
                         VppExtSurface.pSurface = 0;
                     }
                     sts = EncodeOneFrame(&VppExtSurface, &m_BSPool.back()->Bitstream);
-                    if (bAllBlackFrame && (1 == m_Prolonged)) {
-                        isQuit = true;
-                        if (m_nVPPCompMode > 0) {
-                            curBuffer->Prolong = AllBlack; //first thread
-                            while (curBuffer->m_pNext != NULL) {
-                                curBuffer = curBuffer->m_pNext;
-                                curBuffer->Prolong =
-                                    AllBlack; //indicate All Black detected for remaining thread
-                            }
-                        }
-                        curBuffer = m_pBuffer;
-                    }
 
                     // Count only real surfaces
                     if (VppExtSurface.pSurface) {
                         m_nProcessedFramesNum++;
-                        bAllBlackFrame = true; //reset value, default to true
                     }
 
                     if (m_nProcessedFramesNum >= m_MaxFramesForTranscode) {
@@ -1694,6 +1681,21 @@ mfxStatus CTranscodingPipeline::Encode() {
         {
             m_pBuffer->ReleaseSurface(DecExtSurface.pSurface);
         }
+
+        if (bAllBlackFrame && (1 == m_Prolonged)) {
+            isQuit = true;
+            if (m_nVPPCompMode > 0) {
+                curBuffer->Prolong = AllBlack; //first thread
+                while (curBuffer->m_pNext != NULL) {
+                    curBuffer = curBuffer->m_pNext;
+                    curBuffer->Prolong =
+                        AllBlack; //indicate All Black detected for remaining thread
+                }
+            }
+            curBuffer = m_pBuffer;
+        }
+
+        bAllBlackFrame = true; //reset value, default to true
 
         // check if we need one more frame from decode
         if (MFX_ERR_MORE_DATA == sts) {
