@@ -1,5 +1,7 @@
 name: Specification
 
+permissions: read-all
+
 on:
   pull_request:
     # Run on pull requests

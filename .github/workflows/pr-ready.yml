@@ -1,6 +1,8 @@
 ---
 name: Check
 
+permissions: read-all
+
 on:
   # Run on pull requests, including when readiness state is changed
   pull_request:

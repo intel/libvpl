@@ -1,6 +1,8 @@
 ---
 name: IP Leak Scan
 
+permissions: read-all
+
 on:
 
   workflow_dispatch:

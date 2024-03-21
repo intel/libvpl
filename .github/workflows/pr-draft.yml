@@ -1,6 +1,8 @@
 ---
 name: Smoke
 
+permissions: read-all
+
 on:
   # Run on pull requests
   pull_request:

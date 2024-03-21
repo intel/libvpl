@@ -1,6 +1,8 @@
 ---
 name: CMake
 
+permissions: read-all
+
 on:
 
   workflow_dispatch:

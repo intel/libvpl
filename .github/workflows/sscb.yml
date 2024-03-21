@@ -1,6 +1,8 @@
 ---
 name: Security Scan for Compiled Binaries
 
+permissions: read-all
+
 on:
   workflow_call:
     inputs:

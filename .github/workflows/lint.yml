@@ -1,6 +1,8 @@
 ---
 name: Lint
 
+permissions: read-all
+
 on:
   workflow_call:
   workflow_dispatch:

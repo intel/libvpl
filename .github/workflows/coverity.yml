@@ -1,6 +1,8 @@
 ---
 name: Coverity Scan
 
+permissions: read-all
+
 on:
 
   workflow_dispatch:
