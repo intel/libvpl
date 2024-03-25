@@ -149,6 +149,8 @@ enum LibPriority {
     LIB_PRIORITY_04 = 4,
     LIB_PRIORITY_05 = 5,
 
+    LIB_PRIORITY_9999 = 9999, // lowest priority for 2.x libs
+
     LIB_PRIORITY_LEGACY_DRIVERSTORE = 10000,
     LIB_PRIORITY_LEGACY,
 };
@@ -587,6 +589,10 @@ private:
     mfxU32 GetSearchPathsCurrentExe(std::list<STRING_TYPE> &searchDirs);
     mfxU32 GetSearchPathsCurrentDir(std::list<STRING_TYPE> &searchDirs);
     mfxU32 GetSearchPathsLegacy(std::list<STRING_TYPE> &searchDirs);
+
+#if defined INSTALL_LIBDIR_SEARCH
+    mfxU32 GetSearchPathsInstallDir(std::list<STRING_TYPE> &searchDirs);
+#endif
 
     mfxU32 ParseEnvSearchPaths(const CHAR_TYPE *envVarName, std::list<STRING_TYPE> &searchDirs);
     mfxU32 ParseLegacySearchPaths(std::list<STRING_TYPE> &searchDirs);

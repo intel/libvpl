@@ -59,6 +59,17 @@ add_library(${TARGET} "")
 set_target_properties(${TARGET} PROPERTIES COMPILE_DEFINITIONS
                                            "MFX_DEPRECATED_OFF")
 
+# optionally include the install location of dispatcher dll in the runtime
+# search process
+if(UNIX)
+  if(ENABLE_LIBDIR_IN_RUNTIME_SEARCH)
+    file(TO_CMAKE_PATH "${CMAKE_INSTALL_FULL_LIBDIR}" _install_libdir_search)
+    target_compile_definitions(
+      ${TARGET} PRIVATE INSTALL_LIBDIR_SEARCH=\"${_install_libdir_search}\")
+    message(STATUS "Enabled install libdir search: ${_install_libdir_search}")
+  endif()
+endif()
+
 if(WIN32)
   # force libxxx style sharedlib name on Windows
   if(BUILD_SHARED_LIBS)

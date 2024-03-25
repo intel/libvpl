@@ -423,6 +423,19 @@ mfxU32 LoaderCtxVPL::GetSearchPathsSystemDefault(std::list<STRING_TYPE> &searchD
     return (mfxU32)searchDirs.size();
 }
 
+#if defined INSTALL_LIBDIR_SEARCH
+mfxU32 LoaderCtxVPL::GetSearchPathsInstallDir(std::list<STRING_TYPE> &searchDirs) {
+    searchDirs.clear();
+
+    #ifdef __linux__
+    STRING_TYPE install_dir = INSTALL_LIBDIR_SEARCH;
+    searchDirs.push_back(install_dir);
+    #endif
+
+    return (mfxU32)searchDirs.size();
+}
+#endif
+
 // search for implementations of Intel® Video Processing Library (Intel® VPL)
 //   according to the rules in the spec
 mfxStatus LoaderCtxVPL::BuildListOfCandidateLibs() {
@@ -557,6 +570,20 @@ mfxStatus LoaderCtxVPL::BuildListOfCandidateLibs() {
         sts                 = SearchDirForLibs(nextDir, m_libInfoList, LIB_PRIORITY_LEGACY);
         it++;
     }
+
+    #if defined INSTALL_LIBDIR_SEARCH
+    // optional: add installation lib directory to runtime search path
+    // only enabled if ENABLE_LIBDIR_IN_RUNTIME_SEARCH=ON during cmake config
+    searchDirList.clear();
+    GetSearchPathsInstallDir(searchDirList);
+    it = searchDirList.begin();
+    while (it != searchDirList.end()) {
+        STRING_TYPE nextDir = (*it);
+        sts                 = SearchDirForLibs(nextDir, m_libInfoList, LIB_PRIORITY_9999);
+        it++;
+    }
+    #endif
+
 #endif
 
     return sts;

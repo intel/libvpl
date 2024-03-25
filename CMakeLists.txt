@@ -73,6 +73,12 @@ set(BUILD_TOOLS_ONEVPL_EXPERIMENTAL
     ON
     CACHE BOOL "Build tools with ONEVPL_EXPERIMENTAL APIs.")
 
+if(UNIX)
+  set(ENABLE_LIBDIR_IN_RUNTIME_SEARCH
+      OFF
+      CACHE BOOL "Include installation lib directory in runtime search path.")
+endif()
+
 option(BUILD_DISPATCHER_ONLY "Build dispatcher only." OFF)
 option(BUILD_DEV_ONLY "Build only developer package." OFF)
 
@@ -253,6 +259,13 @@ message(
 )
 message(
   STATUS "  INSTALL_EXAMPLE_CODE                 : ${INSTALL_EXAMPLE_CODE}")
+
+if(UNIX)
+  message(
+    STATUS
+      "  ENABLE_LIBDIR_IN_RUNTIME_SEARCH      : ${ENABLE_LIBDIR_IN_RUNTIME_SEARCH}"
+  )
+endif()
 
 if(MSVC)
   message(
