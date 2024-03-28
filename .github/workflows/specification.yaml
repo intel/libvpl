@@ -471,6 +471,9 @@ jobs:
 
   pages:
     name: Deploy HTML
+    permissions:
+      contents: write
+      pages: write
     needs:
       - html
       - get_branch_basename
