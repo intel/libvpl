@@ -46,80 +46,24 @@ endif()
 option(BUILD_SHARED_LIBS "Build shared instead of static libraries." ON)
 option(BUILD_TESTS "Build tests." OFF)
 
-set(BUILD_DEV
+set(INSTALL_DEV
     ON
-    CACHE BOOL "Build files that are only needed for development.")
-set(BUILD_DISPATCHER
+    CACHE BOOL "Install files that are only needed for development.")
+set(INSTALL_LIB
     ON
-    CACHE BOOL "Build dispatcher.")
-set(BUILD_TOOLS
-    ON
-    CACHE BOOL "Build tools.")
+    CACHE BOOL "Install dispatcher library.")
 set(BUILD_EXAMPLES
     OFF
     CACHE BOOL "Build examples when building dev package.")
-set(BUILD_PREVIEW
-    ON
-    CACHE BOOL "Build preview features.")
-set(INSTALL_EXAMPLE_CODE
-    ON
-    CACHE BOOL "Install examples when installing dev package.")
 
-set(BUILD_DISPATCHER_ONEVPL_EXPERIMENTAL
+set(BUILD_EXPERIMENTAL
     ON
-    CACHE BOOL "Build dispatcher with ONEVPL_EXPERIMENTAL APIs.")
-
-set(BUILD_TOOLS_ONEVPL_EXPERIMENTAL
-    ON
-    CACHE BOOL "Build tools with ONEVPL_EXPERIMENTAL APIs.")
+    CACHE BOOL "Build dispatcher with EXPERIMENTAL APIs.")
 
 if(UNIX)
   set(ENABLE_LIBDIR_IN_RUNTIME_SEARCH
       OFF
       CACHE BOOL "Include installation lib directory in runtime search path.")
-endif()
-
-option(BUILD_DISPATCHER_ONLY "Build dispatcher only." OFF)
-option(BUILD_DEV_ONLY "Build only developer package." OFF)
-
-# Test tool options for surface sharing
-if(WIN32)
-  set(TOOLS_DEFAULT_SCREEN_CAPTURE ON)
-  set(TOOLS_DEFAULT_RENDER ON)
-  set(TOOLS_DEFAULT_OPENCL ON)
-  set(TOOLS_DEFAULT_X11 OFF)
-else()
-  set(TOOLS_DEFAULT_SCREEN_CAPTURE ON)
-  set(TOOLS_DEFAULT_RENDER ON)
-  set(TOOLS_DEFAULT_OPENCL OFF)
-  set(TOOLS_DEFAULT_X11 ON)
-endif()
-
-option(TOOLS_ENABLE_SCREEN_CAPTURE
-       "Enable screen capture in surface sharing test tools."
-       ${TOOLS_DEFAULT_SCREEN_CAPTURE})
-
-option(TOOLS_ENABLE_RENDER "Enable rendering in surface sharing test tools."
-       ${TOOLS_DEFAULT_RENDER})
-
-option(TOOLS_ENABLE_OPENCL "Enable OpenCL in surface sharing test tools."
-       ${TOOLS_DEFAULT_OPENCL})
-
-option(TOOLS_ENABLE_X11 "Enable X11 in surface sharing test tools."
-       ${TOOLS_DEFAULT_X11})
-
-if(BUILD_DISPATCHER_ONLY)
-  set(BUILD_DEV OFF)
-  set(BUILD_PREVIEW OFF)
-  set(BUILD_TOOLS OFF)
-  set(BUILD_TOOLS_ONEVPL_EXPERIMENTAL OFF)
-  set(INSTALL_EXAMPLE_CODE OFF)
-  set(BUILD_DISPATCHER ON)
-
-endif()
-if(BUILD_DEV_ONLY)
-  set(BUILD_DISPATCHER OFF)
-  set(BUILD_TOOLS OFF)
 endif()
 
 option(USE_MSVC_STATIC_RUNTIME
@@ -152,10 +96,7 @@ endif()
 
 add_subdirectory(api)
 add_subdirectory(libvpl)
-if(BUILD_TOOLS)
-  add_subdirectory(tools)
-endif()
-if(BUILD_DEV)
+if(INSTALL_DEV)
   add_subdirectory(env)
   add_subdirectory(examples)
 endif()
@@ -171,8 +112,10 @@ install(
   DESTINATION ${VPL_INSTALL_LICENSEDIR}
   COMPONENT ${VPL_COMPONENT_LIB})
 
-set(CMAKE_INSTALL_SYSTEM_RUNTIME_COMPONENT ${VPL_COMPONENT_LIB})
-include(InstallRequiredSystemLibraries)
+if(INSTALL_LIB)
+  set(CMAKE_INSTALL_SYSTEM_RUNTIME_COMPONENT ${VPL_COMPONENT_LIB})
+  include(InstallRequiredSystemLibraries)
+endif()
 
 message(
   STATUS "---------------- Configuration summary ------------------------------"
@@ -230,56 +173,19 @@ message(
   STATUS "  VPL_INSTALL_FULL_EXAMPLEDIR     : ${VPL_INSTALL_FULL_EXAMPLEDIR}")
 message(
   STATUS "  VPL_INSTALL_FULL_LICENSEDIR     : ${VPL_INSTALL_FULL_LICENSEDIR}")
-message(
-  STATUS "  VPL_INSTALL_FULL_PYTHONDIR      : ${VPL_INSTALL_FULL_PYTHONDIR}")
+message(STATUS "  INSTALL_DEV                     : ${INSTALL_DEV}")
+message(STATUS "  INSTALL_LIB                     : ${INSTALL_LIB}")
 message(STATUS "Build:")
-message(
-  STATUS "  BUILD_DISPATCHER_ONLY                : ${BUILD_DISPATCHER_ONLY}")
-message(STATUS "  BUILD_DEV                            : ${BUILD_DEV}")
-message(STATUS "  BUILD_DISPATCHER                     : ${BUILD_DISPATCHER}")
-message(STATUS "  BUILD_TOOLS                          : ${BUILD_TOOLS}")
-if(CMAKE_SYSTEM_NAME MATCHES Linux)
-  message(STATUS "  ENABLE_VA                            : ${ENABLE_VA}")
-  message(STATUS "  ENABLE_DRM                           : ${ENABLE_DRM}")
-  message(STATUS "  ENABLE_WAYLAND                       : ${ENABLE_WAYLAND}")
-  message(STATUS "  ENABLE_X11                           : ${ENABLE_X11}")
-  message(STATUS "  ENABLE_DRI3                          : ${ENABLE_DRI3}")
-endif()
-message(STATUS "  BUILD_SHARED_LIBS                    : ${BUILD_SHARED_LIBS}")
-message(STATUS "  BUILD_TESTS                          : ${BUILD_TESTS}")
-message(STATUS "  BUILD_EXAMPLES                       : ${BUILD_EXAMPLES}")
-message(STATUS "  BUILD_PREVIEW                        : ${BUILD_PREVIEW}")
-message(
-  STATUS
-    "  BUILD_DISPATCHER_ONEVPL_EXPERIMENTAL : ${BUILD_DISPATCHER_ONEVPL_EXPERIMENTAL}"
-)
-message(
-  STATUS
-    "  BUILD_TOOLS_ONEVPL_EXPERIMENTAL      : ${BUILD_TOOLS_ONEVPL_EXPERIMENTAL}"
-)
-message(
-  STATUS "  INSTALL_EXAMPLE_CODE                 : ${INSTALL_EXAMPLE_CODE}")
-
+message(STATUS "  BUILD_SHARED_LIBS               : ${BUILD_SHARED_LIBS}")
+message(STATUS "  BUILD_TESTS                     : ${BUILD_TESTS}")
+message(STATUS "  BUILD_EXAMPLES                  : ${BUILD_EXAMPLES}")
+message(STATUS "  BUILD_EXPERIMENTAL              : ${BUILD_EXPERIMENTAL}")
 if(UNIX)
   message(
     STATUS
-      "  ENABLE_LIBDIR_IN_RUNTIME_SEARCH      : ${ENABLE_LIBDIR_IN_RUNTIME_SEARCH}"
-  )
+      "  ENABLE_LIBDIR_IN_RUNTIME_SEARCH : ${ENABLE_LIBDIR_IN_RUNTIME_SEARCH}")
 endif()
-
 if(MSVC)
   message(
-    STATUS "  USE_MSVC_STATIC_RUNTIME              : ${USE_MSVC_STATIC_RUNTIME}"
-  )
-
+    STATUS "  USE_MSVC_STATIC_RUNTIME         : ${USE_MSVC_STATIC_RUNTIME}")
 endif()
-
-message(STATUS "Surface sharing test tools:")
-message(
-  STATUS
-    "  TOOLS_ENABLE_SCREEN_CAPTURE          : ${TOOLS_ENABLE_SCREEN_CAPTURE}")
-message(
-  STATUS "  TOOLS_ENABLE_RENDER                  : ${TOOLS_ENABLE_RENDER}")
-message(
-  STATUS "  TOOLS_ENABLE_OPENCL                  : ${TOOLS_ENABLE_OPENCL}")
-message(STATUS "  TOOLS_ENABLE_X11                     : ${TOOLS_ENABLE_X11}")

@@ -22,11 +22,6 @@ cmake -B "$build_dir" -S "$source_dir" \
       -DBUILD_TESTS=ON \
       -DCMAKE_BUILD_TYPE=Release \
       -DCMAKE_INSTALL_LIBDIR=lib \
-      -DENABLE_DRI3=ON \
-      -DENABLE_DRM=ON \
-      -DENABLE_VA=ON \
-      -DENABLE_WAYLAND=ON \
-      -DENABLE_X11=ON \
       -DENABLE_WARNING_AS_ERROR=ON
 
 cmake --build "$build_dir" --parallel $(nproc) --verbose

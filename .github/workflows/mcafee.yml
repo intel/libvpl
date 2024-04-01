@@ -16,6 +16,11 @@ on:
       write_test_file:
         description: 'Write EICAR test file (see https://www.eicar.org/)'
         type: boolean
+      output_prefix:
+        description: 'Prefix to add to output artifacts'
+        required: false
+        default: ''
+        type: string
 
 jobs:
   scan:
@@ -63,7 +68,8 @@ jobs:
         if: success() && inputs.caas
         run: >
           docker run -v $(realpath product):/scanme
-                     --rm ${{ inputs.caas }} >> report.txt
+                     --rm ${{ inputs.caas }}
+                     >> report.txt
 
       # Local image based testing
       - name: Checkout av scanning tool

@@ -8,7 +8,6 @@ project(hello-sharing-ocl)
 
 # Enable experimental mode
 add_definitions(-DONEVPL_EXPERIMENTAL)
-add_definitions(-DTOOLS_ENABLE_OPENCL)
 
 # Default install places 64 bit runtimes in the environment, so we want to do a
 # 64 bit build by default.
@@ -31,7 +30,6 @@ foreach(target IN LISTS OCL_TARGETS)
   add_executable(${target} ${SOURCES})
   target_include_directories(${target}
                              PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-  target_compile_definitions(${target} PRIVATE -DTOOLS_ENABLE_OPENCL)
   target_link_libraries(${target} PRIVATE OpenCL::OpenCL)
 
   # Set default build type to RelWithDebInfo if not specified

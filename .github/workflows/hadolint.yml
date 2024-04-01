@@ -5,6 +5,12 @@ permissions: read-all
 
 on:
   workflow_call:
+    inputs:
+      output_prefix:
+        description: 'Prefix to add to output artifacts'
+        required: false
+        default: ''
+        type: string
 
 jobs:
   scan:
@@ -24,7 +30,8 @@ jobs:
       - name: Lint
         run: |
           mkdir artifact
-          echo "Hadolint Report" > artifact/hadolint.txt
+          echo "Hadolint Report" \
+          > artifact/hadolint.txt
           walk_dir () {
             shopt -s nullglob dotglob
 
@@ -40,13 +47,18 @@ jobs:
                   *Dockerfile*|*dockerfile*)
                     echo "Checking $pathname"
                     echo "" >> artifact/hadolint.txt
-                    echo "  $pathname" >> artifact/hadolint.txt
-                    echo "----------" >> artifact/hadolint.txt
+                    echo "  $pathname" \
+                    >> artifact/hadolint.txt
+                    echo "----------" \
+                    >> artifact/hadolint.txt
                     docker run --rm \
                       -i --attach stderr --attach stdout \
                       -v $(pwd)/source:/source \
                       -w /source \
-                      hadolint/hadolint < $pathname 2>&1 >> artifact/hadolint.txt || retVal=$?
+                      hadolint/hadolint \
+                      < $pathname 2>&1 \
+                      >> artifact/hadolint.txt \
+                      || retVal=$?
                     if [ $retVal -ne 0 ]; then
                       RC=$retVal
                     fi
@@ -61,7 +73,8 @@ jobs:
         if: (failure())
         run: |
           echo '```' >> $GITHUB_STEP_SUMMARY
-          cat artifact/hadolint.txt >> $GITHUB_STEP_SUMMARY
+          cat artifact/hadolint.txt \
+          >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
 
       - name: Report
@@ -73,7 +86,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: (success() || failure())
         with:
-          name: all-hadolint
+          name: ${{ inputs.output_prefix }}hadolint
           path: artifact/*
 
       - name: Cleanup workspace

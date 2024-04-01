@@ -12,12 +12,22 @@ on:
         description: 'The branch, tag or SHA to get DB from'
         default: ipldt
         type: string
+      output_prefix:
+        description: 'Prefix to add to output artifacts'
+        required: false
+        default: ''
+        type: string
 
   workflow_call:
     inputs:
       db_ref:
         description: 'The branch, tag or SHA to get DB from'
         required: false
+        type: string
+      output_prefix:
+        description: 'Prefix to add to output artifacts'
+        required: false
+        default: ''
         type: string
 
 jobs:
@@ -91,7 +101,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: success() || failure()
         with:
-          name: all-ip-leak-scan
+          name: ${{ inputs.output_prefix }}ip-leak-scan
           path: _logs/ip-leak-scan
 
       - name: Cleanup workspace

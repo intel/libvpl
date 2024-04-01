@@ -1,8 +1,9 @@
 # Intel® Video Processing Library (Intel® VPL)
 
-Intel® Video Processing Library (Intel® VPL) supports AI visual inference, media delivery, 
-cloud gaming, and virtual desktop infrastructure use cases by providing access to hardware 
-accelerated video decode, encode, and frame processing capabilities on Intel® GPUs.  
+Intel® Video Processing Library (Intel® VPL) provides access to hardware
+accelerated video decode, encode, and frame processing capabilities on Intel®
+GPUs to support AI visual inference, media delivery, cloud gaming, and virtual
+desktop infrastructure use cases.
 
 See the [specification](https://intel.github.io/libvpl) for additional information.
 
@@ -12,7 +13,7 @@ This repository contains the following components:
 [mfxdefs.h](./api/vpl/mfxdefs.h) file.
 - Intel® VPL Dispatcher
 - Examples demonstrating API usage
-- Command line tools
+
 To use Intel® VPL for video processing you need to install at least one implementation. Here is a list:
 
 - [oneVPL-intel-gpu](https://github.com/oneapi-src/oneVPL-intel-gpu) for use on Intel® Iris® Xe graphics and newer
@@ -49,7 +50,7 @@ Runtime loaded by Intel® VPL Dispatcher and their Microsoft* DirectX* support:
 
 For TGL and DG1, if both Intel® VPL and Intel® Media SDK runtime are installed then the Intel® VPL Dispatcher will prefer Intel® VPL runtime unless the application requests D3D9 by setting the filter property "mfxImplDescription.AccelerationMode" to MFX_ACCEL_MODE_VIA_D3D9.
 
-## Installation and Usage
+## Installing Intel® VPL
 
 ### Installation options
 
@@ -58,6 +59,47 @@ Intel® VPL may be installed:
 - from source code.  See install and use instructions at [INSTALL.md](INSTALL.md).
 - from Linux packages.  See [Intel® software for general purpose GPU capabilities](https://dgpu-docs.intel.com/)
 
+
+## Using Intel® VPL
+
+### Configure your shell environment
+
+If you did not install to standard system locations, you need to set up the
+environment, so tools like CMake and pkg-config can find the library and
+headers.
+
+For Linux:
+```
+source <vpl-install-location>/etc/vpl/vars.sh
+```
+
+For Windows:
+```
+<vpl-install-location>\etc\vpl\vars.bat
+```
+
+### Link to Intel® VPL with CMake
+
+Add the following code to your CMakeLists, assuming TARGET is defined as the
+component that wants to use Intel® VPL:
+
+```
+if(WIN32 AND CMAKE_SIZEOF_VOID_P EQUAL 4)
+ set(CMAKE_LIBRARY_ARCHITECTURE x86)
+endif()
+find_package(VPL REQUIRED)
+target_link_libraries(${TARGET} VPL::dispatcher)
+```
+
+
+### Link to Intel® VPL from Bash with pkg-config
+
+The following command line illustrates how to link a simple program to Intel® VPL
+using pkg-config.
+
+```
+gcc program.cpp `pkg-config --cflags --libs vpl`
+```
 
 ## How to Contribute
 
@@ -70,5 +112,6 @@ for details.
 
 ## Security
 
-See the [Intel® Security Center](https://www.intel.com/content/www/us/en/security-center/default.html) for information on how to report a potential
-security issue or vulnerability.
+See the [Intel® Security
+Center](https://www.intel.com/content/www/us/en/security-center/default.html)
+for information on how to report a potential security issue or vulnerability.

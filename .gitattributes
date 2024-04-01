@@ -10,6 +10,8 @@ script/* eol=lf
 
 # force lf endings for yaml
 *.yaml eol=lf
+*.yml eol=lf
+.clang-format eol=lf
 
 # force encoding for json
 *.json encoding=utf-8

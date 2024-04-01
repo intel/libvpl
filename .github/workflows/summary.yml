@@ -5,23 +5,29 @@ permissions: read-all
 
 on:
   workflow_call:
+    inputs:
+      output_prefix:
+        description: 'Prefix to add to output artifacts'
+        required: false
+        default: ''
+        type: string
 
 env:
-  BDBA: all-bdba-scan
-  HADOLINT: all-hadolint
-  IPLEAKS: all-ip-leak-scan
-  TRIVY: all-trivy
-  COVERITY_L: linux-coverity-scan
-  COVERITY_W: windows-coverity-scan
-  DIFF_L: linux-diff-report
-  DIFF_W: windows-diff-report
+  BDBA: ${{ inputs.output_prefix }}bdba-scan
+  HADOLINT: ${{ inputs.output_prefix }}hadolint
+  IPLEAKS: ${{ inputs.output_prefix }}ip-leak-scan
+  TRIVY: ${{ inputs.output_prefix }}trivy
+  COVERITY_L: linux-${{ inputs.output_prefix }}coverity-scan
+  COVERITY_W: windows-${{ inputs.output_prefix }}coverity-scan
+  DIFF_L: linux-${{ inputs.output_prefix }}diff-report
+  DIFF_W: windows-${{ inputs.output_prefix }}diff-report
   AV_S: source-malware-scan
   AV_L: linux-release-build-malware-scan
   AV_W: windows-release-build-malware-scan
-  UTEST_L: linux-release-utests
-  UTEST_W: windows-release-utests
-  SSCB_L: linux-sscb
-  SSCB_W: windows-sscb
+  UTEST_L: linux-release-build-utests
+  UTEST_W: windows-release-build-utests
+  SSCB_L: linux-${{ inputs.output_prefix }}sscb
+  SSCB_W: windows-${{ inputs.output_prefix }}sscb
   RHEL86: rhel8.6-release-gen12.5-acceptance
   SLES154: sles15.4-release-gen12.5-acceptance
   U2204: ubuntu22.04-release-gen12.5-acceptance
@@ -120,7 +126,7 @@ jobs:
         if: success() || failure()
         uses: actions/upload-artifact@v4
         with:
-          name: source-code-release-summary
+          name: ${{ inputs.output_prefix }}release-summary
           path: summary/*
 
       - name: Cleanup workspace

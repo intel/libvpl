@@ -7,6 +7,11 @@ on:
 
   workflow_dispatch:
     inputs:
+      output_prefix:
+        description: 'Prefix to add to output artifacts'
+        required: false
+        default: ''
+        type: string
       os:
         description: 'Operating system'
         required: false
@@ -17,9 +22,24 @@ on:
         required: false
         default: ''
         type: string
+      dependent_artifact:
+        description: 'Name of artifact to treat as dependency'
+        required: false
+        default: ''
+        type: string
+      configure_options:
+        description: 'Extra options for CMake configure stage'
+        required: false
+        default: ''
+        type: string
 
   workflow_call:
     inputs:
+      output_prefix:
+        description: 'Prefix to add to output artifacts'
+        required: false
+        default: ''
+        type: string
       os:
         description: 'Operating system'
         required: false
@@ -27,6 +47,16 @@ on:
         type: string
       extra_opts:
         description: 'Extra Coverity options'
+        required: false
+        default: ''
+        type: string
+      dependent_artifact:
+        description: 'Name of artifact to treat as dependency'
+        required: false
+        default: ''
+        type: string
+      configure_options:
+        description: 'Extra options for CMake configure stage'
         required: false
         default: ''
         type: string
@@ -53,6 +83,21 @@ jobs:
         uses: actions/checkout@v4
         with:
           path: source
+
+      - name: Download dependent artifact
+        if: inputs.dependent_artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.dependent_artifact }}
+          path: deps
+
+      - name: Extract dependent artifact (Linux)
+        if: inputs.dependent_artifact && runner.os == 'Linux'
+        run: unzip deps/*.zip -d _deps
+
+      - name: Extract dependent artifact (Windows)
+        if: inputs.dependent_artifact && runner.os == 'Windows'
+        run: Expand-Archive -Force -Path deps\*.zip -DestinationPath _deps
 
       - name: Install dependencies (Windows)
         if: always() && runner.os == 'Windows'
@@ -93,18 +138,16 @@ jobs:
           #!/bin/bash
           set -o errexit ; set -o nounset
           set -x
+          deps_path="\$(realpath _deps)"
           pushd source
           export VERBOSE=1
           cmake -B _build \
-            -DBUILD_TESTS=OFF \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DBUILD_TOOLS=ON \
-            -DCMAKE_INSTALL_LIBDIR=lib \
-            -DENABLE_VA=ON \
-            -DENABLE_DRM=ON \
-            -DENABLE_WAYLAND=ON \
-            -DENABLE_X11=ON \
-            -DENABLE_DRI3=ON
+          -DBUILD_TESTS=OFF \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_INSTALL_LIBDIR=lib \
+          -DCMAKE_PREFIX_PATH="\$deps_path" \
+          ${{ inputs.configure_options }} \
+          -DENABLE_WARNING_AS_ERROR=ON
           mkdir _reports
           REPORT_DIR="\$(realpath _reports)"
           BUILD_DIR="\$(realpath _build)"
@@ -138,6 +181,8 @@ jobs:
       - name: Run Scan (Windows)
         if: success() && runner.os == 'Windows'
         run: |
+          $env:CMAKE_PREFIX_PATH `
+          = $(if (Test-Path _deps) {(Get-Item _deps).FullName})
           pushd source
           @"
           ${{ secrets.COVERITY_AUTH_KEY }}
@@ -186,14 +231,15 @@ jobs:
         run: |
           get-content source/_reports/text_report.txt
           echo '```' >> $env:GITHUB_STEP_SUMMARY
-          get-content source/_reports/text_report.txt | Out-File -encoding ascii $env:GITHUB_STEP_SUMMARY
+          get-content source/_reports/text_report.txt `
+          | Out-File -encoding ascii $env:GITHUB_STEP_SUMMARY
           echo '```' >> $env:GITHUB_STEP_SUMMARY
 
       - name: Record Artifacts
         uses: actions/upload-artifact@v4
         if: success() || failure()
         with:
-          name: ${{ inputs.os }}-coverity-scan
+          name: ${{ inputs.os }}-${{ inputs.output_prefix }}coverity-scan
           path: source/_reports/*
 
       - name: Cleanup workspace (Linux)

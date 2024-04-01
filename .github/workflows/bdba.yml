@@ -5,6 +5,20 @@ permissions: read-all
 
 on:
   workflow_call:
+    inputs:
+      output_prefix:
+        description: 'Prefix to add to output artifacts'
+        required: false
+        default: ''
+        type: string
+      version:
+        description: 'String indicating version of uploaded scan'
+        required: true
+        type: string
+      pattern:
+        description: 'Glob pattern to the artifacts that should be scanned'
+        required: true
+        type: string
 
 jobs:
   scan:
@@ -23,14 +37,14 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: bdba
-          pattern: "*-release-build"
+          pattern: ${{ inputs.pattern }}
           merge-multiple: true
 
       - name: Create archive to scan
         run: |
           # cp infrastructure/config/.bdba.yaml bdba/
           pushd bdba
-          zip --symlinks -r ../vpl-release.zip .
+          zip --symlinks -r ../vpl-${{ inputs.output_prefix }}.zip .
           popd
 
       - name: Build Docker image
@@ -49,7 +63,8 @@ jobs:
           -g 32 -r results.pdf \
           -c components.csv \
           -v vulns.csv \
-          -V ${{ github.ref_name }} *.zip >results.json
+          -V ${{ inputs.version }} *.zip \
+          > ${{ inputs.output_prefix }}results.json
 
           EOL
           chmod a+x scan.sh
@@ -60,7 +75,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: success() || failure()
         with:
-          name: all-bdba-scan
+          name: ${{ inputs.output_prefix }}bdba-scan
           path: |
             *.csv
             *.json

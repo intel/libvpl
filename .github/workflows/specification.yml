@@ -1,21 +1,23 @@
+---
 name: Specification
 
 permissions: read-all
 
 on:
+  # Run on pull requests
   pull_request:
-    # Run on pull requests
     # Trigger only when spec files have changed
     paths:
-    - .github/workflows/**
-    - api/**
-    - doc/spec/**
+      - .github/workflows/**
+      - api/**
+      - doc/spec/**
   push:
     branches:
       - 'main'
       - 'specification/*'
+  # Run on user request
   workflow_dispatch:
-    # Run on user request
+
 
 jobs:
   linux_check_structure_pack:
@@ -106,7 +108,9 @@ jobs:
           -e https_proxy=$https_proxy
           --volume=$(pwd):/data
           --user $(id -u):$(id -g)
-          gcc_img gcc -I./api/vpl -DONEVPL_EXPERIMENTAL ./api/tests/compile_headers/test.c -o ./api/tests/abi/abi_test
+          gcc_img gcc -I./api/vpl -DONEVPL_EXPERIMENTAL
+          ./api/tests/compile_headers/test.c
+          -o ./api/tests/abi/abi_test
 
   linux_compile_cpp:
     name: Linux Compile C++
@@ -158,7 +162,8 @@ jobs:
           -e https_proxy=$https_proxy
           --volume=$(pwd):/data
           --user $(id -u):$(id -g)
-          gcc_img gcc -I./api/vpl -DONEVPL_EXPERIMENTAL ./api/tests/compile_headers/test.cpp
+          gcc_img gcc -I./api/vpl -DONEVPL_EXPERIMENTAL
+          ./api/tests/compile_headers/test.cpp
 
   linux_compile_abi_64:
     name: Linux Static Assert Test
@@ -182,7 +187,8 @@ jobs:
           -e https_proxy=$https_proxy
           --volume=$(pwd):/data
           --user $(id -u):$(id -g)
-          gcc_img gcc -D _x86_64 -m64 -I./api/vpl ./api/tests/abi/mfx_static_assert_structs.cpp
+          gcc_img gcc -D _x86_64 -m64 -I./api/vpl
+          ./api/tests/abi/mfx_static_assert_structs.cpp
       - name: Execute
         run: ./a.out
 
@@ -208,7 +214,8 @@ jobs:
           -e https_proxy=$https_proxy
           --volume=$(pwd):/data
           --user $(id -u):$(id -g)
-          gcc_img gcc -D _x86_64 -m64 -I./api/vpl -DONEVPL_EXPERIMENTAL ./api/tests/abi/mfx_static_assert_structs.cpp
+          gcc_img gcc -D _x86_64 -m64 -I./api/vpl -DONEVPL_EXPERIMENTAL
+          ./api/tests/abi/mfx_static_assert_structs.cpp
       - name: Execute
         run: ./a.out
 
@@ -234,12 +241,17 @@ jobs:
           -e https_proxy=$https_proxy
           --volume=$(pwd):/data
           --user $(id -u):$(id -g)
-          gcc_img gcc -Wall  -Wextra -Wno-unused-function -Werror -I./api/vpl -DONEVPL_EXPERIMENTAL
+          gcc_img gcc -Wall  -Wextra -Wno-unused-function -Werror -I./api/vpl
+          -DONEVPL_EXPERIMENTAL
           ./api/tests/doc_examples/dummy_impl.c
-          ./doc/spec/source/snippets/appnd_b.c ./doc/spec/source/snippets/prg_decoding.c
-          ./doc/spec/source/snippets/prg_encoding.c ./doc/spec/source/snippets/prg_err.c
-          ./doc/spec/source/snippets/prg_mem.c ./doc/spec/source/snippets/prg_transcoding.c
-          ./doc/spec/source/snippets/prg_vpp.c ./doc/spec/source/snippets/appnd_e.c
+          ./doc/spec/source/snippets/appnd_b.c
+          ./doc/spec/source/snippets/prg_decoding.c
+          ./doc/spec/source/snippets/prg_encoding.c
+          ./doc/spec/source/snippets/prg_err.c
+          ./doc/spec/source/snippets/prg_mem.c
+          ./doc/spec/source/snippets/prg_transcoding.c
+          ./doc/spec/source/snippets/prg_vpp.c
+          ./doc/spec/source/snippets/appnd_e.c
           ./api/tests/doc_examples/main.c
           ./doc/spec/source/snippets/prg_decoding_vpp.c
           ./doc/spec/source/snippets/prg_disp.c
@@ -267,9 +279,11 @@ jobs:
           -e https_proxy=$https_proxy
           --volume=$(pwd):/data
           --user $(id -u):$(id -g)
-          gcc_img g++ -Wall -Wextra -Wno-unused-function -Werror -I./api/vpl -DONEVPL_EXPERIMENTAL -DMFX_DEPRECATED_OFF
+          gcc_img g++ -Wall -Wextra -Wno-unused-function -Werror -I./api/vpl
+          -DONEVPL_EXPERIMENTAL -DMFX_DEPRECATED_OFF
           ./api/tests/doc_examples/dummy_impl.c
-          ./doc/spec/source/snippets/prg_hw.cpp ./doc/spec/source/snippets/prg_session.cpp
+          ./doc/spec/source/snippets/prg_hw.cpp
+          ./doc/spec/source/snippets/prg_session.cpp
           ./doc/spec/source/snippets/prg_surface_sharing.cpp
           ./doc/spec/source/snippets/prg_config.cpp
           ./api/tests/doc_examples/main.c
@@ -443,8 +457,8 @@ jobs:
           path: ./doc/spec/build/latex/
           retention-days: 28
 
-  # if branch name is in the format "specification/vX.Y" then use the basename (vX.Y)
-  #   as the github pages subdirectory to publish into
+  # if branch name is in the format "specification/vX.Y" then use the basename
+  #   (vX.Y) as the github pages subdirectory to publish into
   get_branch_basename:
     name: Get branch basename
     runs-on: [self-hosted, linux]
@@ -455,7 +469,8 @@ jobs:
       - name: Parse name
         id: get_branch_name
         run: |
-          if [[ ${{ github.ref }} =~ ^refs/heads/specification/v[0-9]+\.[0-9]+$ ]]; then
+          if [[ ${{ github.ref }} \
+          =~ ^refs/heads/specification/v[0-9]+\.[0-9]+$ ]]; then
               echo "Specification branch matched"
               echo "${GITHUB_REF#refs/heads/specification/*}"
               base_name="${GITHUB_REF#refs/heads/specification/*}"
@@ -477,7 +492,9 @@ jobs:
     needs:
       - html
       - get_branch_basename
-    if: (github.ref == 'refs/heads/main' || needs.get_branch_basename.outputs.is_spec_branch == 'true')
+    if: >
+      github.ref == 'refs/heads/main'
+      || needs.get_branch_basename.outputs.is_spec_branch == 'true'
     runs-on: [self-hosted, linux]
     steps:
       - name: Download HTML
@@ -489,7 +506,8 @@ jobs:
         run: mv ./html_files ./public
       - name: Deploy to latest
         if: (github.ref == 'refs/heads/main')
-        uses: intel-innersource/frameworks.actions.thirdparty.actions-gh-pages@v3
+        uses:
+          intel-innersource/frameworks.actions.thirdparty.actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./public
@@ -498,7 +516,8 @@ jobs:
           user_email: 'github-actions[bot]@users.noreply.github.com'
       - name: Deploy to version subdirectory
         if: (needs.get_branch_basename.outputs.is_spec_branch == 'true')
-        uses: intel-innersource/frameworks.actions.thirdparty.actions-gh-pages@v3
+        uses:
+          intel-innersource/frameworks.actions.thirdparty.actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./public

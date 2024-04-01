@@ -17,6 +17,11 @@ on:
         required: false
         default: 'Release'
         type: string
+      repository:
+        description: 'Repository name with owner. For example, actions/checkout'
+        required: false
+        default: ''
+        type: string
       ref:
         description: 'The branch, tag or SHA to build'
         required: false
@@ -36,11 +41,20 @@ on:
         required: false
         default: false
         type: boolean
+      dependent_artifact:
+        description: 'Name of artifact to treat as dependency'
+        required: false
+        default: ''
+        type: string
       configure_options:
         description: 'Extra options for CMake configure stage'
         required: false
         default: ''
         type: string
+    secrets:
+      token:
+        description: 'Personal access token (PAT) used to fetch the repository'
+        required: false
 
   workflow_call:
     inputs:
@@ -54,6 +68,11 @@ on:
         required: false
         default: 'Release'
         type: string
+      repository:
+        description: 'Repository name with owner. For example, actions/checkout'
+        required: false
+        default: ''
+        type: string
       ref:
         description: 'The branch, tag or SHA to build'
         required: false
@@ -73,11 +92,20 @@ on:
         required: false
         default: false
         type: boolean
+      dependent_artifact:
+        description: 'Name of artifact to treat as dependency'
+        required: false
+        default: ''
+        type: string
       configure_options:
         description: 'Extra options for CMake configure stage'
         required: false
         default: ''
         type: string
+    secrets:
+      token:
+        description: 'Personal access token (PAT) used to fetch the repository'
+        required: false
 
 jobs:
   cmake:
@@ -97,7 +125,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           path: source
-          ref: ${{ inputs.ref || '' }}
+          repository: ${{ inputs.repository }}
+          ref: ${{ inputs.ref }}
+          token: ${{ secrets.token || github.token }}
 
       - name: Install dependencies (Linux)
         if: always() && runner.os == 'Linux'
@@ -115,19 +145,35 @@ jobs:
           call source\script\bootstrap.bat
           if %errorlevel% neq 0 exit /b %errorlevel%
 
+      - name: Download dependent artifact
+        if: inputs.dependent_artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.dependent_artifact }}
+          path: deps
+
+      - name: Extract dependent artifact (Linux)
+        if: inputs.dependent_artifact && runner.os == 'Linux'
+        run: unzip deps/*.zip -d _deps
+
+      - name: Extract dependent artifact (Windows)
+        if: inputs.dependent_artifact && runner.os == 'Windows'
+        run: Expand-Archive -Force -Path deps\*.zip -DestinationPath _deps
+
       - name: Configure (Linux)
         if: always() && runner.os == 'Linux'
         run: |
           cat <<'EOL' > configure.sh
           #!/bin/bash
           set -o errexit
+          deps_path=$(realpath _deps)
           cmake -B "source/_build" -S "source" \
           -DBUILD_TESTS=${{ inputs.run_tests && 'ON' || 'OFF' }} \
           -DCMAKE_BUILD_TYPE=${{ inputs.build_type || 'Release' }} \
-          -DBUILD_TOOLS=ON \
           -DCMAKE_INSTALL_LIBDIR=lib \
-          -DENABLE_WARNING_AS_ERROR=ON \
-          ${{ inputs.configure_options }}
+          -DCMAKE_PREFIX_PATH=$deps_path \
+          ${{ inputs.configure_options }} \
+          -DENABLE_WARNING_AS_ERROR=ON
           EOL
           chmod +x configure.sh
 
@@ -137,18 +183,24 @@ jobs:
         if: always() && runner.os == 'Windows'
         shell: cmd
         run: |
-          echo on
+          @echo off
+          if exist _deps (
+          pushd _deps
+          for /f %%i in ('cd') do set deps_path=%%i
+          popd
+          )
+          @echo on
 
           cmake -B "source\_build" ^
           -S "source" ^
           -DBUILD_TESTS=${{ inputs.run_tests && 'ON' || 'OFF' }} ^
-          -DBUILD_TOOLS=ON ^
-          -DENABLE_WARNING_AS_ERROR=ON ^
-          ${{ inputs.configure_options }}
+          -DCMAKE_PREFIX_PATH=%deps_path% ^
+          ${{ inputs.configure_options }} ^
+          -DENABLE_WARNING_AS_ERROR=ON
           if %errorlevel% neq 0 exit /b %errorlevel%
 
       - name: Build (Linux)
-        if: always() && runner.os == 'Linux'
+        if: runner.os == 'Linux'
         run: |
           cat <<'EOL' > build.sh
           #!/bin/bash
@@ -163,7 +215,7 @@ jobs:
           docker run --rm -v $(pwd):/tmp -w /tmp vpl_build:centos ./build.sh
 
       - name: Build (Windows)
-        if: always() && runner.os == 'Windows'
+        if: runner.os == 'Windows'
         shell: cmd
         run: |
           echo on
@@ -195,7 +247,7 @@ jobs:
           path: source/_build/*-all.zip
 
       - name: Test (Linux)
-        if: always() && runner.os == 'Linux' && inputs.run_tests
+        if: runner.os == 'Linux' && inputs.run_tests
         run: |
           cat <<'EOL' > test.sh
           #!/bin/bash
@@ -203,13 +255,14 @@ jobs:
           ctest --test-dir "source/_build" \
           -C ${{ inputs.build_type || 'Release' }} \
           --output-on-failure \
+          -E .*-test \
           -T test
           EOL
           chmod +x test.sh
           docker run --rm -v $(pwd):/tmp -w /tmp vpl_build:centos ./test.sh
 
       - name: Test (Windows)
-        if: always() && runner.os == 'Windows' && inputs.run_tests
+        if: runner.os == 'Windows' && inputs.run_tests
         shell: cmd
         run: |
           echo on
@@ -217,6 +270,7 @@ jobs:
           ctest --test-dir "source\_build" ^
           -C ${{ inputs.build_type || 'Release' }} ^
           --output-on-failure ^
+          -E .*-test ^
           -T test
 
           if %errorlevel% neq 0 exit /b %errorlevel%
@@ -227,9 +281,7 @@ jobs:
           (success() || failure()) && inputs.run_tests && ! inputs.no_artifacts
         with:
           name: >
-            ${{ format('{0}-{1}-utests',
-            inputs.os || 'Linux',
-            inputs.build_type || 'Release') }}
+            ${{ format('{0}-utests', inputs.artifact_name ) }}
           path: source/_build/Testing/*/Test.xml
 
       - name: Cleanup workspace (Linux)

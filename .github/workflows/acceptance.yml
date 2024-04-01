@@ -5,47 +5,6 @@ permissions: read-all
 
 on:
 
-  workflow_dispatch:
-    inputs:
-      os:
-        description: 'Operating system'
-        required: false
-        default: 'Linux'
-        type: string
-      build_type:
-        description: 'Build type (Release, Debug, RelWithDebInfo, etc.)'
-        required: false
-        default: 'Release'
-        type: string
-      ref:
-        description: 'The branch, tag or SHA of build'
-        required: false
-        default: ''
-        type: string
-      test_ref:
-        description: 'The branch, tag or SHA of tests'
-        required: false
-        default: ''
-        type: string
-      artifact_name:
-        description: 'Artifact name'
-        required: false
-        type: string
-      gpu:
-        description: 'GPU Family'
-        required: false
-        default: 'gen12.5'
-        type: string
-      distro_family:
-        description: 'OS distro family'
-        required: false
-        type: string
-      distro_version:
-        description: 'OS distro version'
-        required: false
-        type: string
-
-
   workflow_call:
     inputs:
       os:
@@ -68,9 +27,13 @@ on:
         required: false
         default: ''
         type: string
-      artifact_name:
-        description: 'Artifact name'
-        required: false
+      lib_artifact:
+        description: 'Artifact containing lib+dev package'
+        required: true
+        type: string
+      tools_artifact:
+        description: 'Artifact containing tools package'
+        required: true
         type: string
       gpu:
         description: 'GPU Family'
@@ -89,25 +52,12 @@ on:
 env:
   DISTRO_FAMILY: ${{ inputs.distro_family || 'windows' }}
   DISTRO_VERSION: ${{ inputs.distro_version || '11' }}
+  IS_DEBUG: ${{ inputs.build_type == 'Debug' && 1 || 0 }}
+  GPU: ${{ inputs.gpu || 'gen12.5' }}
 
 jobs:
-  build:
-    if: ${{ ! inputs.artifact_name }}
-    uses: ./.github/workflows/cmake.yml
-    with:
-      os: ${{ inputs.os || 'Linux' }}
-      build_type: ${{ inputs.build_type || 'Release' }}
-      ref: ${{ inputs.ref || '' }}
-      artifact_name: >
-        ${{ inputs.artifact_name
-        || format('{0}-{1}-build',
-        inputs.os || 'Linux',
-        inputs.build_type || 'Release') }}
-      run_tests: false
 
   acceptance:
-    needs: [build]
-    if: always()  # always run, but waits until needed jobs are completed
     runs-on:
       - "self-hosted"
       - "${{ inputs.os || 'Linux' }}"
@@ -130,29 +80,27 @@ jobs:
           repository: ${{ vars.TEST_REPO }}
           token: ${{ secrets.TEST_REPO_TOKEN }}
 
-      - name: Checkout PR branch
-        if: ${{ ! inputs.artifact_name }}
-        uses: actions/checkout@v4
-        with:
-          path: source
-          ref: ${{ inputs.ref || '' }}
-
-      - name: Download package
+      - name: Download lib+dev package
         uses: actions/download-artifact@v4
         with:
-          name: ${{ inputs.artifact_name
-            || format('{0}-{1}-build',
-            inputs.os || 'Linux',
-            inputs.build_type || 'Release') }}
+          name: ${{ inputs.lib_artifact }}
+          path: package
+
+      - name: Download tools package
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.tools_artifact }}
           path: package
 
       - name: Extract package (Linux)
         if: success() && runner.os == 'Linux'
-        run: unzip package/*.zip -d _install
+        run: unzip package/\*.zip -d _install
 
       - name: Extract package (Windows)
         if: success() && runner.os == 'Windows'
-        run: Expand-Archive -Force -Path package\*.zip -DestinationPath _install
+        run: >
+          Get-ChildItem 'package' -Filter *.zip
+          | Expand-Archive -DestinationPath '_install' -Force
 
       - name: Build Docker image for GPU testing (Linux)
         if: success() && runner.os == 'Linux'
@@ -176,9 +124,9 @@ jobs:
           export DASHBOARD_INSTALL_ONEVPLCPU_LICENSE
           DASHBOARD_INSTALL_ONEVPL32=0
           export DASHBOARD_INSTALL_ONEVPL32
-          DASHBOARD_INSTALL_ONEVPLDEBUG=${{ inputs.build_type == 'Debug' && 1 || 0 }}
+          DASHBOARD_INSTALL_ONEVPLDEBUG=${{ env.IS_DEBUG }}
           export DASHBOARD_INSTALL_ONEVPLDEBUG
-          DASHBOARD_PLATFORM_HW_INTEGRATED_GPU="${{ inputs.gpu || 'gen12.5' }}"
+          DASHBOARD_PLATFORM_HW_INTEGRATED_GPU="${{ env.GPU }}"
           export DASHBOARD_PLATFORM_HW_INTEGRATED_GPU
           DASHBOARD_PLATFORM_OS_FAMILY=$DISTRO_FAMILY
           export DASHBOARD_PLATFORM_OS_FAMILY
@@ -204,9 +152,9 @@ jobs:
           echo on
           set DASHBOARD_INSTALL_ONEVPLCPU_LICENSE=
           set DASHBOARD_INSTALL_ONEVPL32=0
-          set DASHBOARD_INSTALL_ONEVPLDEBUG=${{ inputs.build_type == 'Debug' && 1 || 0 }}
+          set DASHBOARD_INSTALL_ONEVPLDEBUG=${{ env.IS_DEBUG }}
           set DASHBOARD_PLATFORM_HW_CPU_MICROARCHITECTURE=
-          set DASHBOARD_PLATFORM_HW_INTEGRATED_GPU=${{ inputs.gpu || 'gen12.5' }}
+          set DASHBOARD_PLATFORM_HW_INTEGRATED_GPU=${{ env.GPU }}
           set DASHBOARD_PLATFORM_OS_FAMILY=${{ env.DISTRO_FAMILY }}
           set DASHBOARD_PLATFORM_OS_VERSION=${{ env.DISTRO_VERSION }}
           set DASHBOARD_PLATFORM_SW_CMAKE_INSTALLED=1

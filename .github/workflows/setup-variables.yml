@@ -1,0 +1,157 @@
+---
+permissions: read-all
+
+on:
+  workflow_call:
+    # Map the workflow outputs to job outputs
+    outputs:
+      last_release_ref:
+        description: "Ref to last release"
+        value: ${{ jobs.configure.outputs.last_release_ref }}
+      test_ref:
+        description: "Ref in test repo to be used"
+        value: ${{ jobs.configure.outputs.test_ref }}
+      tools_ref:
+        description: "Ref in tools repo to be used"
+        value: ${{ jobs.configure.outputs.tools_ref }}
+
+# This workflow configures variables that are useful for other jobs. Other
+# jobs that depend on this one can access the variables via
+# needs.<job-name>.outputs.<variable-name>
+jobs:
+  configure:
+    runs-on: [self-hosted, linux]
+    outputs:
+      last_release_ref: ${{ env.last_release_ref }}
+      test_ref: ${{ env.test_ref }}
+      tools_ref: ${{ env.tools_ref }}
+    env:
+      last_release_ref: ''
+      test_ref: ''
+      tools_ref: ''
+    steps:
+
+      - name: Cleanup workspace (Linux)
+        if: always() && runner.os == 'Linux'
+        run: sudo rm -rf ..?* .[!.]* *
+
+      # Get ref of last release.
+
+      - name: Checkout PR branch and all history
+        uses: actions/checkout@v4
+        with:
+          path: source
+          fetch-depth: 0
+          ref: '${{ github.event.pull_request.head.sha }}'
+
+      - name: Get ref of last release
+        id: run
+        run: |
+          cd source
+          echo "last_release_ref=$(git describe --abbrev=0 --tags --match=v*)" \
+               >> $GITHUB_ENV
+
+      # Get ref of test to be used.  If this is a pull request prefer a branch
+      # of the same name as the branch being merged into otherwise try to use a
+      # branch of the same name otherwise use main
+
+      - name: Checkout tests from base_ref
+        if: github.base_ref
+        id: check-tests-from-base_ref
+        uses: actions/checkout@v4
+        continue-on-error: true
+        with:
+          repository: ${{ vars.TEST_REPO }}
+          token: ${{ secrets.TEST_REPO_TOKEN }}
+          path: tests
+          fetch-depth: 0
+          ref: ${{ github.base_ref }}
+
+      - name: Use tests from base_ref
+        if: steps.check-tests-from-base_ref.outcome == 'success'
+        id: use-tests-from-base_ref
+        run: |
+          echo "test_ref=${{ github.base_ref }}" >> $GITHUB_ENV
+
+      - name: Checkout tests from ref_name
+        if: steps.check-tests-from-base_ref.outcome != 'success'
+        id: check-tests-from-ref_name
+        uses: actions/checkout@v4
+        continue-on-error: true
+        with:
+          repository: ${{ vars.TEST_REPO }}
+          token: ${{ secrets.TEST_REPO_TOKEN }}
+          path: tests
+          fetch-depth: 0
+          ref: ${{ github.ref_name }}
+
+      - name: Use tests from ref_name
+        if: steps.check-tests-from-ref_name.outcome == 'success'
+        id: use-tests-from-ref_name
+        run: |
+          echo "test_ref=${{ github.ref_name }}" >> $GITHUB_ENV
+
+      - name: Use tests from default
+        if: >
+          steps.check-tests-from-base_ref.outcome != 'success'
+          && steps.check-tests-from-ref_name.outcome != 'success'
+        run: |
+          echo "test_ref=main" >> $GITHUB_ENV
+
+      # Get ref of tools to be used.  If this is a pull request prefer a branch
+      # of the same name as the branch being merged into otherwise try to use a
+      # branch of the same name otherwise use main
+
+      - name: Checkout tools from base_ref
+        if: github.base_ref
+        id: check-tools-from-base_ref
+        uses: actions/checkout@v4
+        continue-on-error: true
+        with:
+          repository: ${{ vars.TOOLS_REPO }}
+          token: ${{ secrets.TOOLS_REPO_TOKEN }}
+          path: tools
+          fetch-depth: 0
+          ref: ${{ github.base_ref }}
+
+      - name: Use tools from base_ref
+        if: steps.check-tools-from-base_ref.outcome == 'success'
+        id: use-tools-from-base_ref
+        run: |
+          echo "tools_ref=${{ github.base_ref }}" >> $GITHUB_ENV
+
+      - name: Checkout tools from ref_name
+        if: steps.check-tools-from-base_ref.outcome != 'success'
+        id: check-tools-from-ref_name
+        uses: actions/checkout@v4
+        continue-on-error: true
+        with:
+          repository: ${{ vars.TOOLS_REPO }}
+          token: ${{ secrets.TOOLS_REPO_TOKEN }}
+          path: tools
+          fetch-depth: 0
+          ref: ${{ github.ref_name }}
+
+      - name: Use tools from ref_name
+        if: steps.check-tools-from-ref_name.outcome == 'success'
+        id: use-tools-from-ref_name
+        run: |
+          echo "tools_ref=${{ github.ref_name }}" >> $GITHUB_ENV
+
+      - name: Use tools from default
+        if: >
+          steps.check-tools-from-base_ref.outcome != 'success'
+          && steps.check-tools-from-ref_name.outcome != 'success'
+        run: |
+          echo "tools_ref=main" >> $GITHUB_ENV
+
+      - name: Report
+        if: always()
+        run: |
+          echo "last_release_ref=${{ env.last_release_ref }}"
+          echo "test_ref=${{ env.test_ref }}"
+          echo "tools_ref=${{ env.tools_ref }}"
+
+      - name: Cleanup workspace (Linux)
+        if: always() && runner.os == 'Linux'
+        run: sudo rm -rf ..?* .[!.]* *

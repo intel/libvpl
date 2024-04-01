@@ -6,6 +6,11 @@ permissions: read-all
 on:
   workflow_call:
     inputs:
+      output_prefix:
+        description: 'Prefix to add to output artifacts'
+        required: false
+        default: ''
+        type: string
       os:
         description: 'Operating system'
         required: true
@@ -122,7 +127,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: success() || failure()
         with:
-          name: ${{ inputs.OS }}-sscb
+          name: ${{ inputs.OS }}-${{ inputs.output_prefix }}sscb
           path: _logs/*
 
       - name: Cleanup workspace (Linux)

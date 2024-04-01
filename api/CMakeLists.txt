@@ -33,7 +33,7 @@ add_library(vpl-api INTERFACE)
 
 target_include_directories(vpl-api INTERFACE ${VPL_API_INCLUDE_DIR})
 
-if(BUILD_DEV)
+if(INSTALL_DEV)
   install(
     DIRECTORY ${VPL_API_INCLUDE_DIR}/vpl
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}

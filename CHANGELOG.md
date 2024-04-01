@@ -5,10 +5,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 This project is part of the Intel® Video Processing Library (Intel® VPL), a
-programming interface for video decoding, encoding, and processing to build
-portable media pipelines on CPUs, GPUs, and other accelerators.
+programming interface that provides access to hardware accelerated video decode,
+encode, and frame processing capabilities on Intel® GPUs to support AI visual
+inference, media delivery, cloud gaming, and virtual desktop infrastructure use
+cases.
 
 ## [Unreleased]
+
+### Removed
+- Command line tools. They have been moved to a septate repository
+  (https://github.com/intel/libvpl-tools)
 
 ## [2.10.2] - 2024-02-21
 

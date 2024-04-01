@@ -13,8 +13,8 @@ repos:
     rev: v2.5.0
     hooks:
       - id: check-yaml
-  - repo: https://github.com/pre-commit/mirrors-yapf
-    rev: v0.29.0
+  - repo: https://github.com/google/yapf
+    rev: v0.40.2
     hooks:
       - id: yapf
   - repo: https://github.com/PyCQA/pylint
@@ -55,3 +55,8 @@ repos:
     hooks:
       - id: check-github-actions
       - id: check-github-workflows
+  - repo: https://github.com/adrienverge/yamllint.git
+    rev: v1.33.0
+    hooks:
+      - id: yamllint
+        args: [--strict]

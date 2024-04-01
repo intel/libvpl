@@ -24,16 +24,22 @@ jobs:
   hadolint:
     if: '! github.event.pull_request.draft'
     uses: ./.github/workflows/hadolint.yml
+    with:
+      output_prefix: lib-
 
   trivy:
     if: '! github.event.pull_request.draft'
     uses: ./.github/workflows/trivy.yml
+    with:
+      output_prefix: lib-
 
   ip-leak-scan:
     if: '! github.event.pull_request.draft'
     name: IP Leak Scan
     uses: ./.github/workflows/ipldt.yml
     secrets: inherit
+    with:
+      output_prefix: lib-
 
   coverity:
     if: '! github.event.pull_request.draft'
@@ -47,6 +53,7 @@ jobs:
     secrets: inherit
     with:
       os: ${{ matrix.os }}
+      output_prefix: lib-
 
   linux-build:
     if: '! github.event.pull_request.draft'
@@ -75,6 +82,7 @@ jobs:
     with:
       os: windows
       artifact_name: windows-release-build
+      output_prefix: lib-
 
   linux-sscb:
     if: '! github.event.pull_request.draft'
@@ -83,6 +91,7 @@ jobs:
     with:
       os: linux
       artifact_name: linux-release-build
+      output_prefix: lib-
 
   bdba:
     if: '! github.event.pull_request.draft'
@@ -90,6 +99,10 @@ jobs:
       - linux-build
       - windows-build
     uses: ./.github/workflows/bdba.yml
+    with:
+      output_prefix: lib-
+      version: ${{ github.ref_name }}
+      pattern: "*-release-build"
     secrets: inherit
 
   # This job configures variables that are useful for other jobs. Other jobs
@@ -97,91 +110,44 @@ jobs:
   # needs.setup-variables.outputs.<variable-name>
   setup-variables:
     if: '! github.event.pull_request.draft'
-    runs-on: [self-hosted, linux]
-    outputs:
-      last_release_ref: ${{ env.last_release_ref }}
-      test_ref: ${{ env.test_ref }}
-    env:
-      last_release_ref: ''
-      test_ref: ''
-    steps:
+    uses: ./.github/workflows/setup-variables.yml
+    secrets: inherit
 
-      - name: Cleanup workspace (Linux)
-        if: always() && runner.os == 'Linux'
-        run: sudo rm -rf ..?* .[!.]* *
+  linux-tools-build:
+    if: '! github.event.pull_request.draft'
+    needs: [linux-build, setup-variables]
+    uses: ./.github/workflows/cmake.yml
+    with:
+      os: linux
+      build_type: release
+      artifact_name: linux-tools-build
+      run_tests: false
+      no_artifacts: false
+      repository: ${{ vars.TOOLS_REPO }}
+      ref: ${{ needs.setup-variables.outputs.tools_ref }}
+      dependent_artifact: linux-release-build
+    secrets:
+      token: ${{ secrets.TOOLS_REPO_TOKEN }}
 
-      # Get ref of last release.
-
-      - name: Checkout PR branch and all history
-        uses: actions/checkout@v4
-        with:
-          path: source
-          fetch-depth: 0
-          ref: '${{ github.event.pull_request.head.sha }}'
-
-      - name: Get ref of last release
-        id: run
-        run: |
-          cd source
-          echo "last_release_ref=$(git describe --abbrev=0 --tags --match=v*)" \
-               >> $GITHUB_ENV
-
-      # Get ref of test to be used.  If this is a pull request prefer a branch
-      # of the same name as the branch being merged into otherwise try to use a
-      # branch of the same name otherwise use main
-
-      - name: Checkout tests from base_ref
-        if: github.base_ref
-        id: check-tests-from-base_ref
-        uses: actions/checkout@v4
-        continue-on-error: true
-        with:
-          repository: ${{ vars.TEST_REPO }}
-          token: ${{ secrets.TEST_REPO_TOKEN }}
-          path: tests
-          fetch-depth: 0
-          ref: ${{ github.base_ref }}
-
-      - name: Use tests from base_ref
-        if: steps.check-tests-from-base_ref.outcome == 'success'
-        id: use-tests-from-base_ref
-        run: |
-          echo "test_ref=${{ github.base_ref }}" >> $GITHUB_ENV
-
-      - name: Checkout tests from ref_name
-        if: steps.check-tests-from-base_ref.outcome != 'success'
-        id: check-tests-from-ref_name
-        uses: actions/checkout@v4
-        continue-on-error: true
-        with:
-          repository: ${{ vars.TEST_REPO }}
-          token: ${{ secrets.TEST_REPO_TOKEN }}
-          path: tests
-          fetch-depth: 0
-          ref: ${{ github.ref_name }}
-
-      - name: Use tests from ref_name
-        if: steps.check-tests-from-ref_name.outcome == 'success'
-        id: use-tests-from-ref_name
-        run: |
-          echo "test_ref=${{ github.ref_name }}" >> $GITHUB_ENV
-
-      - name: Use tests from default
-        if: >
-          steps.check-tests-from-base_ref.outcome != 'success'
-          && steps.check-tests-from-ref_name.outcome != 'success'
-        run: |
-          echo "test_ref=main" >> $GITHUB_ENV
-
-      - name: Report
-        if: always()
-        run: |
-          echo "last_release_ref=${{ env.last_release_ref }}"
-          echo "test_ref=${{ env.test_ref }}"
+  windows-tools-build:
+    if: '! github.event.pull_request.draft'
+    needs: [windows-build, setup-variables]
+    uses: ./.github/workflows/cmake.yml
+    with:
+      os: windows
+      build_type: release
+      artifact_name: windows-tools-build
+      run_tests: false
+      no_artifacts: false
+      repository: ${{ vars.TOOLS_REPO }}
+      ref: ${{ needs.setup-variables.outputs.tools_ref }}
+      dependent_artifact: windows-release-build
+    secrets:
+      token: ${{ secrets.TOOLS_REPO_TOKEN }}
 
   windows-acceptance:
     if: '! github.event.pull_request.draft'
-    needs: [windows-build, setup-variables]
+    needs: [windows-build, windows-tools-build, setup-variables]
     strategy:
       fail-fast: true
       matrix:
@@ -197,7 +163,8 @@ jobs:
     with:
       os: ${{ matrix.os }}
       build_type: ${{ matrix.config }}
-      artifact_name: ${{ matrix.os }}-${{ matrix.config }}-build
+      lib_artifact: ${{ matrix.os }}-${{ matrix.config }}-build
+      tools_artifact: windows-tools-build
       gpu: ${{ matrix.gpu }}
       distro_family: windows
       distro_version: 11
@@ -205,7 +172,7 @@ jobs:
 
   linux-acceptance:
     if: '! github.event.pull_request.draft'
-    needs: [linux-build, setup-variables]
+    needs: [linux-build, linux-tools-build, setup-variables]
     strategy:
       fail-fast: true
       matrix:
@@ -224,7 +191,8 @@ jobs:
     with:
       os: ${{ matrix.os }}
       build_type: ${{ matrix.config }}
-      artifact_name: ${{ matrix.os }}-${{ matrix.config }}-build
+      lib_artifact: ${{ matrix.os }}-${{ matrix.config }}-build
+      tools_artifact: linux-tools-build
       gpu: ${{ matrix.gpu }}
       distro_family: ${{ matrix.distro.family }}
       distro_version: ${{ matrix.distro.version }}
