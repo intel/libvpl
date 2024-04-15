@@ -146,11 +146,11 @@ jobs:
     with:
       SUMMARY_ARTIFACT: lib-release-summary
       LABEL: v1.0
-      SDLE_PROJECT: 20667
+      SDLE_PROJECT: ${vars.SDLE_ID}
+      SDLE_USER: ${vars.SDLE_API_USER}
       output_prefix: lib-
     secrets:
       SDLE_API_KEY: ${{ secrets.SDLE_API_KEY }}
-      SDLE_USER: spalne
 
   # This job configures variables that are useful for other jobs. Other jobs
   # that depend on this one can access the variables via

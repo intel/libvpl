@@ -16,6 +16,10 @@ on:
         description: 'SDL-E Project ID'
         type: string
         required: true
+      SDLE_USER:
+        description: 'SDL-E Project ID'
+        type: string
+        required: true
       output_prefix:
         description: 'Prefix to add to output artifacts'
         required: false
@@ -35,6 +39,10 @@ on:
         description: 'SDL-E Project ID'
         type: string
         required: true
+      SDLE_USER:
+        description: 'SDL-E Project ID'
+        type: string
+        required: true
       output_prefix:
         description: 'Prefix to add to output artifacts'
         required: false
@@ -43,9 +51,6 @@ on:
     secrets:
       SDLE_API_KEY:
         description: 'SDL-E Api Key for User'
-        required: true
-      SDLE_USER:
-        description: 'SDL-E API User ID'
         required: true
 
 jobs:
