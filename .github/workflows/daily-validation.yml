@@ -6,6 +6,11 @@ permissions: read-all
 on:
   # Run on user request
   workflow_dispatch:
+    inputs:
+      upload_sdl:
+        description: 'Trigger SDL Upload'
+        required: false
+        default: 'false'
   # Run on schedule
   schedule:
     # daily at 8:00 UTC (1:00 MST)
@@ -130,6 +135,21 @@ jobs:
       version: ${{ github.ref_name }}
       pattern: "*-release-build"
     secrets: inherit
+
+  sdl:
+    if: ${{ github.event.inputs.upload_sdl == 'true'}}
+    needs:
+      - linux-build
+      - windows-build
+      - summary
+    uses: ./.github/workflows/sdl.yml
+    with:
+      SUMMARY_ARTIFACT: source-code-release-summary
+      LABEL: v1.0
+      SDLE_PROJECT: 20667
+    secrets:
+      SDLE_API_KEY: ${{ secrets.SDLE_API_KEY }}
+      SDLE_USER: AD_USR
 
   # This job configures variables that are useful for other jobs. Other jobs
   # that depend on this one can access the variables via

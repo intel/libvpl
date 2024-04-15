@@ -1,0 +1,127 @@
+---
+name: Upload SDL Evidence
+
+on:
+  workflow_dispatch:
+    inputs:
+      SUMMARY_ARTIFACT:
+        description: 'Summary_Artifact Zip File Name'
+        type: string
+        required: true
+      LABEL:
+        description: 'SDL-E label (tag) for uploads'
+        type: string
+        required: true
+      SDLE_PROJECT:
+        description: 'SDL-E Project ID'
+        type: string
+        required: true
+  workflow_call:
+    inputs:
+      SUMMARY_ARTIFACT:
+        description: 'Summary_Artifact Zip File Name'
+        type: string
+        required: true
+      LABEL:
+        description: 'SDL-E label (tag) for uploads'
+        type: string
+        required: true
+      SDLE_PROJECT:
+        description: 'SDL-E Project ID'
+        type: string
+        required: true
+    secrets:
+      SDLE_API_KEY:
+        description: 'SDL-E Api Key for User'
+        required: true
+      SDLE_USER:
+        description: 'SDL-E API User ID'
+        required: true
+
+jobs:
+  upload_files:
+    runs-on: [self-hosted, linux]
+
+    steps:
+      - name: Cleanup workspace
+        run: sudo rm -rf ..?* .[!.]* *
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          path: source
+
+      - name: Download Release Summary
+        uses: actions/download-artifact@v4
+        with:
+          name: source-code-release-summary
+          path: artifacts
+
+      - name: Move artifacts to target directory
+        run: |
+            mv artifacts/* source/.github/workflows/sdl/
+            ls -al source/.github/workflows/sdl/sdl
+
+      - name: Build Docker image
+        run: >
+          docker build "source/.github/workflows/sdl"
+          -f "source/.github/workflows/sdl/Dockerfile.ubuntu.sdl"
+          -t vpl_sdl:ubuntu
+
+      - name: Upload SDL evidence
+        run: |
+          cat <<'EOL' > upload.sh
+          #!/bin/bash
+          ls source/.github/workflows/sdl
+
+          file_path="source/.github/workflows/sdl/sdl"
+
+          python3 source/.github/workflows/sdl/evidence_upload.py \
+          --api_key "${{ secrets.SDLE_API_KEY }}" \
+          --user_id ${{ secrets.SDLE_USER }} \
+          --project_id ${{ inputs.SDLE_PROJECT }} \
+          --task_id CT7 \
+          --file_paths $file_path/CT37-MalwareScan/source-report.txt \
+          --label ${{ inputs.LABEL }}
+
+          python3 source/.github/workflows/sdl/evidence_upload.py \
+          --api_key "${{ secrets.SDLE_API_KEY }}" \
+          --user_id ${{ secrets.SDLE_USER }} \
+          --project_id ${{ inputs.SDLE_PROJECT }} \
+          --task_id CT37 \
+          --file_paths $file_path/CT37-MalwareScan/windows-report.txt \
+          --label ${{ inputs.LABEL }}
+
+          python3 source/.github/workflows/sdl/evidence_upload.py \
+          --api_key "${{ secrets.SDLE_API_KEY }}" \
+          --user_id ${{ secrets.SDLE_USER }} \
+          --project_id ${{ inputs.SDLE_PROJECT }} \
+          --task_id CT37 \
+          --file_paths $file_path/CT39-StaticAnalysis/linux-coverity.json \
+          --label ${{ inputs.LABEL }}
+
+          python3 source/.github/workflows/sdl/evidence_upload.py \
+          --api_key "${{ secrets.SDLE_API_KEY }}" \
+          --user_id ${{ secrets.SDLE_USER }} \
+          --project_id ${{ inputs.SDLE_PROJECT }} \
+          --task_id CT37 \
+          --file_paths $file_path/CT39-StaticAnalysis/windows-coverity.json \
+          --label ${{ inputs.LABEL }}
+
+          python3 source/.github/workflows/sdl/evidence_upload.py \
+          --api_key "${{ secrets.SDLE_API_KEY }}" \
+          --user_id ${{ secrets.SDLE_USER }} \
+          --project_id ${{ inputs.SDLE_PROJECT }} \
+          --task_id CT39 \
+          --file_paths $file_path/CT7-KnownVulnerabilities/vulns.csv \
+          --label ${{ inputs.LABEL }}
+          EOL
+          chmod a+x upload.sh
+          ls -l
+          pwd
+
+          docker run --rm -v $(pwd):/tmp/work -w /tmp/work \
+          vpl_sdl:ubuntu ./upload.sh
+
+      - name: Cleanup workspace
+        run: sudo rm -rf ..?* .[!.]* *
