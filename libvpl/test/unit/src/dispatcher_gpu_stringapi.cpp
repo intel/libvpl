@@ -8,8 +8,6 @@
 
 #include "src/dispatcher_common.h"
 
-#ifdef ONEVPL_EXPERIMENTAL
-
 static void InitBasicEncodeSession(mfxLoader &loader, mfxSession &session, mfxVideoParam &par) {
     mfxStatus sts = MFX_ERR_NONE;
 
@@ -178,5 +176,3 @@ TEST(Dispatcher_GPU_StringAPI, SetExtBufValidNeedAllocEncode) {
     EXPECT_EQ(sts, MFX_ERR_NONE);
     MFXUnload(loader);
 }
-
-#endif // ONEVPL_EXPERIMENTAL

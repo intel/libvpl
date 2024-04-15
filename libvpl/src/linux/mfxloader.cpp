@@ -673,7 +673,6 @@ mfxStatus MFXVideoCORE_GetHandle(mfxSession session, mfxHandleType type, mfxHDL 
 
     MFX::LoaderCtx *loader = (MFX::LoaderCtx *)session;
 
-#ifdef ONEVPL_EXPERIMENTAL
     // first check if handle type points to an interface implemented inside the dispatcher
     if (type == MFX_HANDLE_CONFIG_INTERFACE) {
         if (!hdl)
@@ -683,7 +682,6 @@ mfxStatus MFXVideoCORE_GetHandle(mfxSession session, mfxHandleType type, mfxHDL 
 
         return MFX_ERR_NONE;
     }
-#endif
 
     // passthrough to runtime
     auto proc =

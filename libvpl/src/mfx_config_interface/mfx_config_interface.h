@@ -7,20 +7,18 @@
 #ifndef LIBVPL_SRC_MFX_CONFIG_INTERFACE_MFX_CONFIG_INTERFACE_H_
 #define LIBVPL_SRC_MFX_CONFIG_INTERFACE_MFX_CONFIG_INTERFACE_H_
 
-#ifdef ONEVPL_EXPERIMENTAL
+#include <algorithm>
+#include <list>
+#include <map>
+#include <sstream>
+#include <string>
+#include <utility>
+#include <vector>
 
-    #include <algorithm>
-    #include <list>
-    #include <map>
-    #include <sstream>
-    #include <string>
-    #include <utility>
-    #include <vector>
+#include "vpl/mfxvideo.h"
 
-    #include "vpl/mfxvideo.h"
-
-    // special key to indicate Context is not a real context, as it is a stateless interface
-    #define MFX_CONFIG_INTERFACE_CONTEXT ((mfxHDL)(-1))
+// special key to indicate Context is not a real context, as it is a stateless interface
+#define MFX_CONFIG_INTERFACE_CONTEXT ((mfxHDL)(-1))
 
 namespace MFX_CONFIG_INTERFACE {
 
@@ -48,7 +46,5 @@ mfxStatus SetExtBufParam(mfxExtBuffer *extBufActual, KVPair &kvStrParsed);
 mfxStatus GetExtBufType(const KVPair &kvStr, mfxExtBuffer *extBufHeader, KVPair &kvStrParsed);
 
 }; // namespace MFX_CONFIG_INTERFACE
-
-#endif // ONEVPL_EXPERIMENTAL
 
 #endif // LIBVPL_SRC_MFX_CONFIG_INTERFACE_MFX_CONFIG_INTERFACE_H_

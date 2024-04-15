@@ -19,7 +19,7 @@
 #include "vpl/mfx.h"
 
 #define MIN_VERSION_EXPECTED_MAJOR 2
-#define MIN_VERSION_EXPECTED_MINOR 10
+#define MIN_VERSION_EXPECTED_MINOR 11
 
 TEST(Experimental_API, CheckMinimumAPI) {
     if ((MFX_VERSION_MAJOR < MIN_VERSION_EXPECTED_MAJOR) ||
@@ -187,4 +187,34 @@ TEST(Experimental_API, PromotedEnumsAvailable_2_10) {
     mfxExtCamWhiteBalance t_mfxExtCamWhiteBalance = {};
     t_mfxExtCamWhiteBalance.R                     = 6;
     EXPECT_EQ(t_mfxExtCamWhiteBalance.R, 6);
+}
+
+// if unavailable in headers, this should fail at compile time
+TEST(Experimental_API, PromotedEnumsAvailable_2_11) {
+    // mfxdefs.h
+    mfxStatus t_err = MFX_ERR_UNKNOWN;
+    t_err           = MFX_ERR_MORE_EXTBUFFER;
+    EXPECT_EQ(t_err, MFX_ERR_MORE_EXTBUFFER);
+
+    // mfxvideo.h
+    mfxConfigInterface t_mfxConfigInterface = {};
+    t_mfxConfigInterface.Version.Version    = 0x1499;
+    EXPECT_EQ(t_mfxConfigInterface.Version.Version, 0x1499);
+
+    mfxStructureType t_mfxStructureType = (mfxStructureType)0x18181818;
+
+    t_mfxStructureType = MFX_STRUCTURE_TYPE_UNKNOWN;
+    EXPECT_EQ(t_mfxStructureType, MFX_STRUCTURE_TYPE_UNKNOWN);
+
+    t_mfxStructureType = MFX_STRUCTURE_TYPE_VIDEO_PARAM;
+    EXPECT_EQ(t_mfxStructureType, MFX_STRUCTURE_TYPE_VIDEO_PARAM);
+
+    // alias to MFXVideoCORE_GetHandle(), so dispatcher will return error with null session
+    t_err = MFXGetConfigInterface(nullptr, &t_mfxConfigInterface);
+    EXPECT_EQ(t_err, MFX_ERR_INVALID_HANDLE);
+
+    // mfxstructures.h
+    mfxU32 t_u32 = 0x27272727;
+    t_u32        = MFX_HANDLE_CONFIG_INTERFACE;
+    EXPECT_EQ(t_u32, MFX_HANDLE_CONFIG_INTERFACE);
 }

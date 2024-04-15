@@ -8,8 +8,6 @@
 
 #include "src/dispatcher_common.h"
 
-#ifdef ONEVPL_EXPERIMENTAL
-
 // Fixture class to allow reuse of objects across tests
 class StringAPITest : public ::testing::Test {
 protected:
@@ -13607,4 +13605,3 @@ TEST_F(StringAPITest, SetmfxExtVppMctfFilterStrength) {
     EXPECT_EQ(ext->FilterStrength, 256);
 }
 //[[[end]]] (checksum: 219e98b619481df6214801c89886fa8e)
-#endif // ONEVPL_EXPERIMENTAL

@@ -4,17 +4,15 @@
   # SPDX-License-Identifier: MIT
   ############################################################################*/
 
-#ifdef ONEVPL_EXPERIMENTAL
+#include "src/mfx_config_interface/mfx_config_interface.h"
 
-    #include "src/mfx_config_interface/mfx_config_interface.h"
-
-    #include <cctype>
-    #include <cinttypes>
-    #include <cstring>
-    #include <limits>
-    #include <type_traits>
-    #include <vector>
-    #include "vpl/mfxcommon.h"
+#include <cctype>
+#include <cinttypes>
+#include <cstring>
+#include <limits>
+#include <type_traits>
+#include <vector>
+#include "vpl/mfxcommon.h"
 
 namespace MFX_CONFIG_INTERFACE {
 
@@ -376,71 +374,71 @@ static mfxStatus ConvertStrToArray(std::string value, EType *arr, mfxU32 arrSize
     return MFX_ERR_NONE;
 }
 
-    // Set numeric field
-    //  p1: parameter struct
-    //  s1: input name
-    //  v1: string encoded value
-    //  s2: expected name
-    //  d1: field name in struct
-    #define UPDATE_VIDEO_PARAM_VALUE(p1, s1, v1, s2, d1)                        \
-        if (s1 == #s2) {                                                        \
-            return value_converter<decltype(p1->d1)>::str_to_value(v1, p1->d1); \
-        }
+// Set numeric field
+//  p1: parameter struct
+//  s1: input name
+//  v1: string encoded value
+//  s2: expected name
+//  d1: field name in struct
+#define UPDATE_VIDEO_PARAM_VALUE(p1, s1, v1, s2, d1)                        \
+    if (s1 == #s2) {                                                        \
+        return value_converter<decltype(p1->d1)>::str_to_value(v1, p1->d1); \
+    }
 
-    // Set fourcc field
-    //  p1: parameter struct
-    //  s1: input name
-    //  v1: string encoded value
-    //  s2: expected name
-    //  d1: field name in struct
-    #define UPDATE_VIDEO_PARAM_FOURCC(p1, s1, v1, s2, d1) \
-        if (s1 == #s2) {                                  \
-            return ConvertStrToFourCC(v1, p1->d1);        \
-        }
+// Set fourcc field
+//  p1: parameter struct
+//  s1: input name
+//  v1: string encoded value
+//  s2: expected name
+//  d1: field name in struct
+#define UPDATE_VIDEO_PARAM_FOURCC(p1, s1, v1, s2, d1) \
+    if (s1 == #s2) {                                  \
+        return ConvertStrToFourCC(v1, p1->d1);        \
+    }
 
-    // Set fixed width string field
-    //  p1: parameter struct
-    //  s1: input name
-    //  v1: string encoded value
-    //  s2: expected name
-    //  d1: field name in struct
-    //  sz: field size in struct
-    #define UPDATE_VIDEO_PARAM_STRING(p1, s1, v1, s2, d1, sz) \
-        if (s1 == #s2) {                                      \
-            return ConvertStrToStr(v1, p1->d1, sz);           \
-        }
+// Set fixed width string field
+//  p1: parameter struct
+//  s1: input name
+//  v1: string encoded value
+//  s2: expected name
+//  d1: field name in struct
+//  sz: field size in struct
+#define UPDATE_VIDEO_PARAM_STRING(p1, s1, v1, s2, d1, sz) \
+    if (s1 == #s2) {                                      \
+        return ConvertStrToStr(v1, p1->d1, sz);           \
+    }
 
-    // Set array field
-    //  p1: parameter struct
-    //  s1: input name
-    //  v1: string encoded value
-    //  s2: expected name
-    //  d1: field name in struct
-    //  ty: type of array elements
-    //  sz: array size in struct
-    #define UPDATE_VIDEO_PARAM_FLAT_ARRAY(p1, s1, v1, s2, d1, ty, sz)                    \
-        if (s1 == #s2) {                                                                 \
-            return ConvertStrToArray<ty, ty>(v1, (ty *)p1->d1, sz, [](ty &par) -> ty & { \
-                return par;                                                              \
-            });                                                                          \
-        }
+// Set array field
+//  p1: parameter struct
+//  s1: input name
+//  v1: string encoded value
+//  s2: expected name
+//  d1: field name in struct
+//  ty: type of array elements
+//  sz: array size in struct
+#define UPDATE_VIDEO_PARAM_FLAT_ARRAY(p1, s1, v1, s2, d1, ty, sz)                    \
+    if (s1 == #s2) {                                                                 \
+        return ConvertStrToArray<ty, ty>(v1, (ty *)p1->d1, sz, [](ty &par) -> ty & { \
+            return par;                                                              \
+        });                                                                          \
+    }
 
-    // Set struct field in array field
-    //  p1: parameter struct
-    //  s1: input name
-    //  v1: string encoded value
-    //  s2: expected name
-    //  d1: field name of array in struct
-    //  sz: array size in struct
-    //  f1: field to set
-    #define UPDATE_VIDEO_PARAM_ARRAY_OF_STRUCT(p1, s1, v1, s2, d1, sz, f1)                                             \
-        if (s1 == #s2) {                                                                                               \
-            typedef std::remove_reference<decltype((p1->d1[0]))>::type element_type;                                   \
-            typedef std::remove_reference<decltype((p1->d1[0].f1))>::type field_type;                                  \
-            return ConvertStrToArray<element_type, field_type>(v1, p1->d1, sz, [](element_type &par) -> field_type & { \
-                return par.f1;                                                                                         \
-            });                                                                                                        \
-        }
+// Set struct field in array field
+//  p1: parameter struct
+//  s1: input name
+//  v1: string encoded value
+//  s2: expected name
+//  d1: field name of array in struct
+//  sz: array size in struct
+//  f1: field to set
+#define UPDATE_VIDEO_PARAM_ARRAY_OF_STRUCT(p1, s1, v1, s2, d1, sz, f1)                                             \
+    if (s1 == #s2) {                                                                                               \
+        typedef std::remove_reference<decltype((p1->d1[0]))>::type element_type;                                   \
+        typedef std::remove_reference<decltype((p1->d1[0].f1))>::type field_type;                                  \
+        return ConvertStrToArray<element_type, field_type>(v1, p1->d1, sz, [](element_type &par) -> field_type & { \
+            return par.f1;                                                                                         \
+        });                                                                                                        \
+    }
 
 // clang-format off
 mfxStatus UpdateVideoParam(const KVPair &kvStr, mfxVideoParam* videoParam) {
@@ -1459,5 +1457,3 @@ mfxStatus SetExtBufParam(mfxExtBuffer *extBufActual, KVPair &kvStrParsed) {
 // clang-format on
 
 } // namespace MFX_CONFIG_INTERFACE
-
-#endif // ONEVPL_EXPERIMENTAL

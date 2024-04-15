@@ -5,7 +5,6 @@
   ############################################################################*/
 
 #include "src/mfx_config_interface/mfx_config_interface.h"
-#ifdef ONEVPL_EXPERIMENTAL
 
 namespace MFX_CONFIG_INTERFACE {
 
@@ -109,4 +108,3 @@ mfxStatus SetParameter(const mfxU8 *key, const mfxU8 *value, mfxVideoParam *vide
 }
 
 } // namespace MFX_CONFIG_INTERFACE
-#endif // ONEVPL_EXPERIMENTAL
