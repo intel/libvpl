@@ -16,6 +16,11 @@ on:
         description: 'SDL-E Project ID'
         type: string
         required: true
+      output_prefix:
+        description: 'Prefix to add to output artifacts'
+        required: false
+        default: ''
+        type: string
   workflow_call:
     inputs:
       SUMMARY_ARTIFACT:
@@ -30,6 +35,11 @@ on:
         description: 'SDL-E Project ID'
         type: string
         required: true
+      output_prefix:
+        description: 'Prefix to add to output artifacts'
+        required: false
+        default: ''
+        type: string
     secrets:
       SDLE_API_KEY:
         description: 'SDL-E Api Key for User'
@@ -54,7 +64,7 @@ jobs:
       - name: Download Release Summary
         uses: actions/download-artifact@v4
         with:
-          name: source-code-release-summary
+          name: lib-release-summary
           path: artifacts
 
       - name: Move artifacts to target directory
@@ -114,6 +124,40 @@ jobs:
           --project_id ${{ inputs.SDLE_PROJECT }} \
           --task_id CT39 \
           --file_paths $file_path/CT7-KnownVulnerabilities/vulns.csv \
+          --label ${{ inputs.LABEL }}
+
+          python3 source/.github/workflows/sdl/evidence_upload.py \
+          --api_key "${{ secrets.SDLE_API_KEY }}" \
+          --user_id ${{ secrets.SDLE_USER }} \
+          --project_id ${{ inputs.SDLE_PROJECT }} \
+          --task_id CT151 \
+          --file_paths \
+            $file_path/CT151-CompilerFlags/SSCB_SCAN_results-Windows.html \
+          --label ${{ inputs.LABEL }}
+
+          python3 source/.github/workflows/sdl/evidence_upload.py \
+          --api_key "${{ secrets.SDLE_API_KEY }}" \
+          --user_id ${{ secrets.SDLE_USER }} \
+          --project_id ${{ inputs.SDLE_PROJECT }} \
+          --task_id CT151 \
+          --file_paths \
+            $file_path/CT151-CompilerFlags/SSCB_SCAN_results-Linux.html \
+          --label ${{ inputs.LABEL }}
+
+          python3 source/.github/workflows/sdl/evidence_upload.py \
+          --api_key "${{ secrets.SDLE_API_KEY }}" \
+          --user_id ${{ secrets.SDLE_USER }} \
+          --project_id ${{ inputs.SDLE_PROJECT }} \
+          --task_id CT222 \
+          --file_paths $file_path/CT222-Hadolint/hadolint.txt \
+          --label ${{ inputs.LABEL }}
+
+          python3 source/.github/workflows/sdl/evidence_upload.py \
+          --api_key "${{ secrets.SDLE_API_KEY }}" \
+          --user_id ${{ secrets.SDLE_USER }} \
+          --project_id ${{ inputs.SDLE_PROJECT }} \
+          --task_id CT247 \
+          --file_paths $file_path/CT247-Trivy/trivy-report.csv \
           --label ${{ inputs.LABEL }}
           EOL
           chmod a+x upload.sh

@@ -144,12 +144,13 @@ jobs:
       - summary
     uses: ./.github/workflows/sdl.yml
     with:
-      SUMMARY_ARTIFACT: source-code-release-summary
+      SUMMARY_ARTIFACT: lib-release-summary
       LABEL: v1.0
       SDLE_PROJECT: 20667
+      output_prefix: lib-
     secrets:
       SDLE_API_KEY: ${{ secrets.SDLE_API_KEY }}
-      SDLE_USER: AD_USR
+      SDLE_USER: spalne
 
   # This job configures variables that are useful for other jobs. Other jobs
   # that depend on this one can access the variables via
