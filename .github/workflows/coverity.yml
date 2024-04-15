@@ -169,7 +169,7 @@ jobs:
             --bu "AXG" \
             --description "${{ github.ref_name }}" \
             --auth-key-file auth_key.txt \
-            ${{ inputs.COVERITY_OPTS}} \
+            ${{ inputs.extra_opts }} \
             cmake --build "\${BUILD_DIR}" --parallel $(nproc) --verbose
           rm auth_key.txt
           EOL
@@ -209,7 +209,7 @@ jobs:
             --bu "AXG" `
             --description "${{ github.ref_name }}" `
             --auth-key-file auth_key.txt `
-            ${{ inputs.COVERITY_OPTS}} `
+            ${{ inputs.extra_opts }} `
             cmake --build _build --parallel %NUMBER_OF_PROCESSORS% `
                   --verbose --config Release
           if($LASTEXITCODE -ne 0)
