@@ -16,7 +16,8 @@ import urllib3
 urllib3.disable_warnings()
 
 
-def upload_file(api_key, user_id, project_id, task_id, file_path, labels):
+def upload_file(api_key, user_id, project_id, task_id, file_path, labels,
+                output_prefix):
     # pylint: disable=too-many-locals
     # pylint: disable=too-many-arguments
     """
@@ -29,6 +30,7 @@ def upload_file(api_key, user_id, project_id, task_id, file_path, labels):
         project_id (int): Project ID.
         file_path (str): Path to the file to be uploaded.
         labels (list): List of labels or tags for the file upload.
+        output_prefix (str): Prefix for output messages.
 
     """
     # URL encode user-provided values
@@ -40,6 +42,7 @@ def upload_file(api_key, user_id, project_id, task_id, file_path, labels):
     base_url = "https://sdl-e.app.intel.com/uploader/v1/evidence/uploads/documents/creators"
     upload_url = (f"{base_url}/{user_id_encoded}"
                   f"?projectId={project_id_encoded}&taskId={task_id_encoded}")
+
     if labels:
         for label in labels:
             if label:
@@ -51,7 +54,8 @@ def upload_file(api_key, user_id, project_id, task_id, file_path, labels):
 
     # Prepare files for upload in multipart/form-data format
     try:
-        files = {'file': (os.path.basename(file_path), open(file_path, 'rb'))}
+        file_name_with_prefix = f"{output_prefix}{os.path.basename(file_path)}"
+        files = {'file': (file_name_with_prefix, open(file_path, 'rb'))}
     except OSError as exception:
         print(f"Failed to open file {file_path}: {exception}")
         sys.exit(1)
@@ -62,7 +66,7 @@ def upload_file(api_key, user_id, project_id, task_id, file_path, labels):
                                  headers=headers,
                                  files=files,
                                  verify=False)
-        print(f"Response Content: {response.text}")
+        print(f" Response Content: {response.text}")
 
         # Check for success
         if response.status_code == 200:
@@ -70,9 +74,8 @@ def upload_file(api_key, user_id, project_id, task_id, file_path, labels):
             if 'Documents were uploaded correctly.' in response_text:
                 print(f"File for Task {task_id}  uploaded successfully!")
             else:
-                print(
-                    f"Failed to upload file  for Task {task_id}. Response: {response_text}"
-                )
+                print(f"Failed to upload file for Task {task_id}."
+                      "Response: {response_text}")
                 sys.exit(response.status_code)
         else:
             print(
@@ -97,6 +100,7 @@ def main():
         --task_id (str): Task ID.
         --file_paths (list): List of file paths.
         --label (list, optional): Label or tags for this file upload.
+        --output_prefix (str): Prefix for output messages.
     """
     # Create argument parser
     parser = argparse.ArgumentParser(description="Upload files.")
@@ -116,9 +120,12 @@ def main():
                         nargs="+",
                         help="List of file paths")
     parser.add_argument("--label",
-                        required=False,
+                        required=True,
                         nargs="*",
                         help="Label or tags for this file upload")
+    parser.add_argument("--output_prefix",
+                        required=True,
+                        help="Prefix for output messages")
 
     # Parse command-line arguments
     args = parser.parse_args()
@@ -126,7 +133,7 @@ def main():
     # Upload files
     for file_path in args.file_paths:
         upload_file(args.api_key, args.user_id, args.project_id, args.task_id,
-                    file_path, args.label)
+                    file_path, args.label, args.output_prefix)
     sys.exit(0)
 
 

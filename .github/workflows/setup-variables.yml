@@ -14,6 +14,9 @@ on:
       tools_ref:
         description: "Ref in tools repo to be used"
         value: ${{ jobs.configure.outputs.tools_ref }}
+      lib_version:
+        description: "Lib version in lib repo to be used"
+        value: ${{ jobs.configure.outputs.lib_version }}
 
 # This workflow configures variables that are useful for other jobs. Other
 # jobs that depend on this one can access the variables via
@@ -25,10 +28,12 @@ jobs:
       last_release_ref: ${{ env.last_release_ref }}
       test_ref: ${{ env.test_ref }}
       tools_ref: ${{ env.tools_ref }}
+      lib_version: ${{env.lib_version}}
     env:
       last_release_ref: ''
       test_ref: ''
       tools_ref: ''
+      lib_version: ''
     steps:
 
       - name: Cleanup workspace (Linux)
@@ -43,6 +48,12 @@ jobs:
           path: source
           fetch-depth: 0
           ref: '${{ github.event.pull_request.head.sha }}'
+
+      - name: Get lib version
+        run: |
+          cd source
+          # Extract the version from version.txt and store it in a variable
+          echo "lib_version=$(cat version.txt)" >> $GITHUB_ENV
 
       - name: Get ref of last release
         id: run

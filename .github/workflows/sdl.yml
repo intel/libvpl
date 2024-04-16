@@ -4,49 +4,47 @@ name: Upload SDL Evidence
 on:
   workflow_dispatch:
     inputs:
-      SUMMARY_ARTIFACT:
+      summary_artifact:
         description: 'Summary_Artifact Zip File Name'
         type: string
         required: true
-      LABEL:
+      label:
         description: 'SDL-E label (tag) for uploads'
         type: string
         required: true
-      SDLE_PROJECT:
+      sdle_project:
         description: 'SDL-E Project ID'
         type: string
         required: true
-      SDLE_USER:
-        description: 'SDL-E Project ID'
+      sdle_user:
+        description: 'SDL-E User ID'
         type: string
         required: true
       output_prefix:
         description: 'Prefix to add to output artifacts'
-        required: false
-        default: ''
+        required: true
         type: string
   workflow_call:
     inputs:
-      SUMMARY_ARTIFACT:
+      summary_artifact:
         description: 'Summary_Artifact Zip File Name'
         type: string
         required: true
-      LABEL:
+      label:
         description: 'SDL-E label (tag) for uploads'
         type: string
         required: true
-      SDLE_PROJECT:
+      sdle_project:
         description: 'SDL-E Project ID'
         type: string
         required: true
-      SDLE_USER:
-        description: 'SDL-E Project ID'
+      sdle_user:
+        description: 'SDL-E User ID'
         type: string
         required: true
       output_prefix:
         description: 'Prefix to add to output artifacts'
-        required: false
-        default: ''
+        required: true
         type: string
     secrets:
       SDLE_API_KEY:
@@ -93,77 +91,86 @@ jobs:
 
           python3 source/.github/workflows/sdl/evidence_upload.py \
           --api_key "${{ secrets.SDLE_API_KEY }}" \
-          --user_id ${{ secrets.SDLE_USER }} \
-          --project_id ${{ inputs.SDLE_PROJECT }} \
-          --task_id CT7 \
+          --user_id ${{ inputs.sdle_user }} \
+          --project_id ${{ inputs.sdle_project }} \
+          --task_id CT37 \
           --file_paths $file_path/CT37-MalwareScan/source-report.txt \
-          --label ${{ inputs.LABEL }}
+          --label ${{ inputs.label }} \
+          --output_prefix ${{ inputs.output_prefix }}
 
           python3 source/.github/workflows/sdl/evidence_upload.py \
           --api_key "${{ secrets.SDLE_API_KEY }}" \
-          --user_id ${{ secrets.SDLE_USER }} \
-          --project_id ${{ inputs.SDLE_PROJECT }} \
+          --user_id ${{ inputs.sdle_user }} \
+          --project_id ${{ inputs.sdle_project }} \
           --task_id CT37 \
           --file_paths $file_path/CT37-MalwareScan/windows-report.txt \
-          --label ${{ inputs.LABEL }}
+          --label ${{ inputs.label }} \
+          --output_prefix ${{ inputs.output_prefix }}
 
           python3 source/.github/workflows/sdl/evidence_upload.py \
           --api_key "${{ secrets.SDLE_API_KEY }}" \
-          --user_id ${{ secrets.SDLE_USER }} \
-          --project_id ${{ inputs.SDLE_PROJECT }} \
-          --task_id CT37 \
-          --file_paths $file_path/CT39-StaticAnalysis/linux-coverity.json \
-          --label ${{ inputs.LABEL }}
-
-          python3 source/.github/workflows/sdl/evidence_upload.py \
-          --api_key "${{ secrets.SDLE_API_KEY }}" \
-          --user_id ${{ secrets.SDLE_USER }} \
-          --project_id ${{ inputs.SDLE_PROJECT }} \
-          --task_id CT37 \
-          --file_paths $file_path/CT39-StaticAnalysis/windows-coverity.json \
-          --label ${{ inputs.LABEL }}
-
-          python3 source/.github/workflows/sdl/evidence_upload.py \
-          --api_key "${{ secrets.SDLE_API_KEY }}" \
-          --user_id ${{ secrets.SDLE_USER }} \
-          --project_id ${{ inputs.SDLE_PROJECT }} \
+          --user_id ${{ inputs.sdle_user }} \
+          --project_id ${{ inputs.sdle_project }} \
           --task_id CT39 \
-          --file_paths $file_path/CT7-KnownVulnerabilities/vulns.csv \
-          --label ${{ inputs.LABEL }}
+          --file_paths $file_path/CT39-StaticAnalysis/linux-coverity.json \
+          --label ${{ inputs.label }} \
+          --output_prefix ${{ inputs.output_prefix }}
 
           python3 source/.github/workflows/sdl/evidence_upload.py \
           --api_key "${{ secrets.SDLE_API_KEY }}" \
-          --user_id ${{ secrets.SDLE_USER }} \
-          --project_id ${{ inputs.SDLE_PROJECT }} \
+          --user_id ${{ inputs.sdle_user }} \
+          --project_id ${{ inputs.sdle_project }} \
+          --task_id CT39 \
+          --file_paths $file_path/CT39-StaticAnalysis/windows-coverity.json \
+          --label ${{ inputs.label }} \
+          --output_prefix ${{ inputs.output_prefix }}
+
+          python3 source/.github/workflows/sdl/evidence_upload.py \
+          --api_key "${{ secrets.SDLE_API_KEY }}" \
+          --user_id ${{ inputs.sdle_user }} \
+          --project_id ${{ inputs.sdle_project }} \
+          --task_id CT7 \
+          --file_paths $file_path/CT7-KnownVulnerabilities/vulns.csv \
+          --label ${{ inputs.label }} \
+          --output_prefix ${{ inputs.output_prefix }}
+
+          python3 source/.github/workflows/sdl/evidence_upload.py \
+          --api_key "${{ secrets.SDLE_API_KEY }}" \
+          --user_id ${{ inputs.sdle_user }} \
+          --project_id ${{ inputs.sdle_project }} \
           --task_id CT151 \
           --file_paths \
             $file_path/CT151-CompilerFlags/SSCB_SCAN_results-Windows.html \
-          --label ${{ inputs.LABEL }}
+          --label ${{ inputs.label }} \
+          --output_prefix ${{ inputs.output_prefix }}
 
           python3 source/.github/workflows/sdl/evidence_upload.py \
           --api_key "${{ secrets.SDLE_API_KEY }}" \
-          --user_id ${{ secrets.SDLE_USER }} \
-          --project_id ${{ inputs.SDLE_PROJECT }} \
+          --user_id ${{ inputs.sdle_user }} \
+          --project_id ${{ inputs.sdle_project }} \
           --task_id CT151 \
           --file_paths \
             $file_path/CT151-CompilerFlags/SSCB_SCAN_results-Linux.html \
-          --label ${{ inputs.LABEL }}
+          --label ${{ inputs.label }} \
+          --output_prefix ${{ inputs.output_prefix }}
 
           python3 source/.github/workflows/sdl/evidence_upload.py \
           --api_key "${{ secrets.SDLE_API_KEY }}" \
-          --user_id ${{ secrets.SDLE_USER }} \
-          --project_id ${{ inputs.SDLE_PROJECT }} \
+          --user_id ${{ inputs.sdle_user }} \
+          --project_id ${{ inputs.sdle_project }} \
           --task_id CT222 \
           --file_paths $file_path/CT222-Hadolint/hadolint.txt \
-          --label ${{ inputs.LABEL }}
+          --label ${{ inputs.label }} \
+          --output_prefix ${{ inputs.output_prefix }}
 
           python3 source/.github/workflows/sdl/evidence_upload.py \
           --api_key "${{ secrets.SDLE_API_KEY }}" \
-          --user_id ${{ secrets.SDLE_USER }} \
-          --project_id ${{ inputs.SDLE_PROJECT }} \
+          --user_id ${{ inputs.sdle_user }} \
+          --project_id ${{ inputs.sdle_project }} \
           --task_id CT247 \
           --file_paths $file_path/CT247-Trivy/trivy-report.csv \
-          --label ${{ inputs.LABEL }}
+          --label ${{ inputs.label }} \
+          --output_prefix ${{ inputs.output_prefix }}
           EOL
           chmod a+x upload.sh
           ls -l

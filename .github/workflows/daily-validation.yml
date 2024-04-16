@@ -142,12 +142,13 @@ jobs:
       - linux-build
       - windows-build
       - summary
+      - setup-variables
     uses: ./.github/workflows/sdl.yml
     with:
       SUMMARY_ARTIFACT: lib-release-summary
-      LABEL: v1.0
-      SDLE_PROJECT: ${vars.SDLE_ID}
-      SDLE_USER: ${vars.SDLE_API_USER}
+      label: ${{ needs.setup-variables.outputs.lib_version }}
+      SDLE_PROJECT: ${{vars.SDLE_ID}}
+      SDLE_USER: ${{vars.SDLE_API_USER}}
       output_prefix: lib-
     secrets:
       SDLE_API_KEY: ${{ secrets.SDLE_API_KEY }}
