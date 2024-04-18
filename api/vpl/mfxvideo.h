@@ -191,8 +191,6 @@ mfxStatus MFX_CDECL MFXVideoCORE_QueryPlatform(mfxSession session, mfxPlatform* 
 */
 mfxStatus MFX_CDECL MFXVideoCORE_SyncOperation(mfxSession session, mfxSyncPoint syncp, mfxU32 wait);
 
-#ifdef ONEVPL_EXPERIMENTAL
-
 /*! Maximum allowed length of parameter key and value strings, in bytes. */
 #define MAX_PARAM_STRING_LENGTH     4096
 
@@ -248,8 +246,6 @@ MFX_PACK_END()
 
 /*! Alias for returning interface of type mfxConfigInterface. */
 #define MFXGetConfigInterface(session, piface)  MFXVideoCORE_GetHandle((session), MFX_HANDLE_CONFIG_INTERFACE, (mfxHDL *)(piface))
-
-#endif
 
 /* VideoENCODE */
 

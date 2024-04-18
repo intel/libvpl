@@ -86,11 +86,3 @@ mfxInitializationParam
    :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
-
-mfxAutoSelectImplDeviceHandle
------------------------------
-
-.. doxygenstruct:: mfxAutoSelectImplDeviceHandle
-   :project: DEF_BREATHE_PROJECT
-   :members:
-   :protected-members:

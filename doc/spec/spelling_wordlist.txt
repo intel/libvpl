@@ -811,7 +811,6 @@ decrementing
 
 # additional entries
 AllocationPolicy
-AutoSelectImpl
 altref
 BitDepthChroma
 BitDepthLuma
@@ -886,8 +885,6 @@ mfxAccelerationMode
 mfxAccelerationModeDescription
 mfxAdapterInfo
 mfxAdaptersInfo
-mfxAutoSelectImplType
-mfxAutoSelectImplDeviceHandle
 mfxAV
 mfxBitstream
 mfxBRCFrameCtrl
@@ -992,7 +989,6 @@ mfxExtPartialBitstreamParam
 mfxExtPictureTimingSEI
 mfxExtPredWeightTable
 mfxExtRefListCtrl
-mfxExtSyncSubmission
 mfxExtTemporalLayers
 mfxExtThreadsParam
 mfxExtTimeCode

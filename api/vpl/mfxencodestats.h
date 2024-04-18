@@ -424,12 +424,12 @@ typedef struct mfxEncodeStatsContainer {
     mfxStatus (MFX_CDECL *SynchronizeBitstream)(mfxRefInterface*  ref_interface, mfxU32 wait);
     mfxHDL    reserved[4];
     mfxU32    reserved1[2];
-    mfxU32                       DisplayOrder;       /*< To which frame number statistics belong. */
-    mfxEncodeBlkStatsMemLayout   MemLayout;          /*< Memory layout for statistics. */
-    mfxEncodeBlkStats           *EncodeBlkStats;     /*< Block level  statistics. */
-    mfxEncodeSliceStats         *EncodeSliceStats;   /*< Slice level  statistics. */
-    mfxEncodeTileStats          *EncodeTileStats;    /*< Tile  level  statistics. */
-    mfxEncodeFrameStats         *EncodeFrameStats;   /*< Frame level  statistics. */
+    mfxU32                       DisplayOrder;       /*!< To which frame number statistics belong. */
+    mfxEncodeBlkStatsMemLayout   MemLayout;          /*!< Memory layout for statistics. */
+    mfxEncodeBlkStats           *EncodeBlkStats;     /*!< Block level  statistics. */
+    mfxEncodeSliceStats         *EncodeSliceStats;   /*!< Slice level  statistics. */
+    mfxEncodeTileStats          *EncodeTileStats;    /*!< Tile  level  statistics. */
+    mfxEncodeFrameStats         *EncodeFrameStats;   /*!< Frame level  statistics. */
     mfxU32       reserved2[8];
 }mfxEncodeStatsContainer;
 MFX_PACK_END()
@@ -441,7 +441,7 @@ MFX_PACK_BEGIN_STRUCT_W_PTR()
 */
 typedef struct {
     mfxExtBuffer Header; /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_ENCODESTATS_BLK. */
-    mfxU16                       EncodeStatsFlags;       /*! What statistics is required: block/slice/tile/frame level or any combinations. 
+    mfxU16                       EncodeStatsFlags;       /*!< What statistics is required: block/slice/tile/frame level or any combinations. 
                                                              In case of slice or tile output statistics for one slice or tile will be available only.*/
     mfxEncodeStatsMode           Mode;                   /*!< What encoding mode should be used to gather statistics. */
     mfxEncodeStatsContainer     *EncodeStatsContainer; /*!< encode output, filled by the implementation. */ 

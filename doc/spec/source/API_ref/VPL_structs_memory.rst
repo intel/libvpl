@@ -209,3 +209,19 @@ mfxExtSurfaceOpenCLImg2DExportDescription
    :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
+
+mfxSurfaceD3D12Tex2D
+---------------------
+
+.. doxygenstruct:: mfxSurfaceD3D12Tex2D
+   :project: DEF_BREATHE_PROJECT
+   :members:
+   :protected-members:
+
+mfxExtSurfaceD3D12Tex2DExportDescription
+-----------------------------------------
+
+.. doxygenstruct:: mfxExtSurfaceD3D12Tex2DExportDescription
+   :project: DEF_BREATHE_PROJECT
+   :members:
+   :protected-members:

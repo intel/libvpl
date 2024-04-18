@@ -188,9 +188,13 @@ typedef struct _mfxSyncPoint *mfxSyncPoint;
 enum {
     MFX_GPUCOPY_DEFAULT = 0, /*!< Use default mode for the legacy Intel(r) Media SDK implementation. */
     MFX_GPUCOPY_ON      = 1, /*!< The hint to enable GPU accelerated copying when it is supported by the library. 
-                                  If the library doesn't support GPU accelerated copy the operation will be made by CPU. */
+                                  If the library doesn't support GPU accelerated copy the operation will be made by CPU.
+                                  Buffer caching usage decision is up to runtime to decide, for explicit hints please use MFX_GPUCOPY_SAFE or MFX_GPUCOPY_FAST */
     MFX_GPUCOPY_OFF     = 2, /*!< Disable GPU accelerated copying. */
-    MFX_GPUCOPY_SAFE    = 3  /*!< The hint to disable buffer caching for GPU accelerated copying. Actual when GPU accelerated copying is supported by the library. */
+    MFX_GPUCOPY_SAFE    = 3, /*!< The hint to disable buffer caching for GPU accelerated copying. Actual when GPU accelerated copying is supported by the library. */
+#ifdef ONEVPL_EXPERIMENTAL
+    MFX_GPUCOPY_FAST    = 4  /*!< The hint to enable buffer caching for GPU accelerated copying. Actual when GPU accelerated copying is supported by the library. */
+#endif
 };
 
 MFX_PACK_BEGIN_STRUCT_W_PTR()
@@ -282,7 +286,7 @@ typedef struct {
 MFX_PACK_END()
 
 
-/* The mfxResourceType enumerator specifies types of different native data frames and buffers. */
+/*! The mfxResourceType enumerator specifies types of different native data frames and buffers. */
 typedef enum {
     MFX_RESOURCE_SYSTEM_SURFACE                  = 1, /*!< System memory. */
     MFX_RESOURCE_VA_SURFACE_PTR                  = 2, /*!< Pointer to VA surface index. */
@@ -575,7 +579,7 @@ typedef struct {
 MFX_PACK_END()
 
 
-/* The mfxImplCapsDeliveryFormat enumerator specifies delivery format of the implementation capability. */
+/*! The mfxImplCapsDeliveryFormat enumerator specifies delivery format of the implementation capability. */
 typedef enum {
     MFX_IMPLCAPS_IMPLDESCSTRUCTURE       = 1,  /*!< Deliver capabilities as mfxImplDescription structure. */
     MFX_IMPLCAPS_IMPLEMENTEDFUNCTIONS    = 2,  /*!< Deliver capabilities as mfxImplementedFunctions structure. */

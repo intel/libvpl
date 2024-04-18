@@ -110,11 +110,11 @@ typedef struct {
         Header; /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUF_CAM_WHITE_BALANCE. */
     mfxU32
         Mode; /*!< Specifies one of White Balance operation modes defined in enumeration mfxCamWhiteBalanceMode. */
-    mfxF64 R; /*!< White Balance Red correction..*/
-    mfxF64 G0; /*!< White Balance Green Top correction..*/
+    mfxF64 R; /*!< White Balance Red correction. */
+    mfxF64 G0; /*!< White Balance Green Top correction. */
     mfxF64 B; /*!< White Balance Blue correction.*/
-    mfxF64 G1; /*!< White Balance Green Bottom correction..*/
-    mfxU32 reserved[8]; /*!< Reserved for future extension.*/
+    mfxF64 G1; /*!< White Balance Green Bottom correction. */
+    mfxU32 reserved[8]; /*!< Reserved for future extension. */
 } mfxExtCamWhiteBalance;
 MFX_PACK_END()
 
@@ -261,13 +261,13 @@ typedef struct {
     mfxExtBuffer
         Header; /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUF_CAM_PADDING. */
     mfxU16
-        Top; /*!< Specify number of padded columns respectively. Currently only 8 pixels supported for all dimensions..*/
+        Top; /*!< Specify number of padded columns respectively. Currently only 8 pixels supported for all dimensions. */
     mfxU16
-        Bottom; /*!< Specify number of padded columns respectively. Currently only 8 pixels supported for all dimensions..*/
+        Bottom; /*!< Specify number of padded columns respectively. Currently only 8 pixels supported for all dimensions. */
     mfxU16
-        Left; /*!< Specify number of padded rows respectively. Currently only 8 pixels supported for all dimensions..*/
+        Left; /*!< Specify number of padded rows respectively. Currently only 8 pixels supported for all dimensions. */
     mfxU16
-        Right; /*!< Specify number of padded rows respectively. Currently only 8 pixels supported for all dimensions..*/
+        Right; /*!< Specify number of padded rows respectively. Currently only 8 pixels supported for all dimensions. */
     mfxU32 reserved[4]; /*!< Reserved for future extension.*/
 } mfxExtCamPadding;
 MFX_PACK_END()

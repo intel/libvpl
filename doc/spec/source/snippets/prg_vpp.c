@@ -400,28 +400,38 @@ MFXVideoVPP_Init(session, &VPPParams);
 /*end9*/
 }
 
-static void run_your_GPU_kernel(mfxFrameSurface1 *surface)
-{
-    UNUSED_PARAM(surface);
-    return;
-}
-
-static void prg_vpp10() {
-/*beg10*/
+static void prg_vpp11() {
+/*beg11*/
 #ifdef ONEVPL_EXPERIMENTAL
-mfxExtSyncSubmission syncSubmit = {};
-syncSubmit.Header.BufferId      = MFX_EXTBUFF_SYNCSUBMISSION;
-syncSubmit.Header.BufferSz      = sizeof(mfxExtSyncSubmission);
-
-mfxFrameSurface1 in;
-mfxFrameSurface1 out;
-out.Data.ExtParam = (mfxExtBuffer **)&syncSubmit;
-out.Data.NumExtParam=1;
-sts=MFXVideoVPP_RunFrameVPPAsync(session,&in,&out,NULL,&syncp);
-if (MFX_ERR_NONE == sts) {
-    MFXVideoCORE_SyncOperation(session, *syncSubmit.SubmissionSyncPoint, INFINITE);
-    run_your_GPU_kernel(&out);
-}
+// configure 3DLUT parameters
+mfxExtVPP3DLut lut3DConfig;
+memset(&lut3DConfig, 0, sizeof(lut3DConfig));
+lut3DConfig.Header.BufferId         = MFX_EXTBUFF_VPP_3DLUT;
+lut3DConfig.Header.BufferSz         = sizeof(mfxExtVPP3DLut);
+lut3DConfig.ChannelMapping          = MFX_3DLUT_CHANNEL_MAPPING_RGB_RGB;
+lut3DConfig.BufferType              = MFX_RESOURCE_SYSTEM_SURFACE;
+lut3DConfig.InterpolationMethod     = MFX_3DLUT_INTERPOLATION_TETRAHEDRAL;
 #endif
-/*end10*/
+/*end11*/
 }
+
+static void prg_vpp12() {
+/*beg12*/
+#ifdef ONEVPL_EXPERIMENTAL
+// configure AI super resolution vpp filter
+mfxExtVPPAISuperResolution aiSuperResolution = {};
+aiSuperResolution.Header.BufferId      = MFX_EXTBUFF_VPP_AI_SUPER_RESOLUTION;
+aiSuperResolution.Header.BufferSz      = sizeof(mfxExtVPPAISuperResolution);
+aiSuperResolution.SRMode               = MFX_AI_SUPER_RESOLUTION_MODE_DEFAULT;
+
+mfxExtBuffer * ExtParam[1] = { (mfxExtBuffer *)&aiSuperResolution };
+
+mfxSession session      = (mfxSession)0;
+mfxVideoParam VPPParams = {};
+VPPParams.NumExtParam   = 1;
+VPPParams.ExtParam      = ExtParam;
+MFXVideoVPP_Init(session, &VPPParams);
+#endif
+/*end12*/
+}
+

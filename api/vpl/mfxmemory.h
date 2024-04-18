@@ -173,6 +173,32 @@ typedef struct {
 } mfxSurfaceOpenCLImg2D;
 MFX_PACK_END()
 
+MFX_PACK_BEGIN_STRUCT_W_PTR()
+/*!
+   Optional extension buffer, which can be attached to mfxSurfaceHeader::ExtParam
+   (second parameter of mfxFrameSurfaceInterface::Export) in order to pass D3D12 parameters
+   during mfxFrameSurface1 exporting to D3D12 resource.
+   If buffer is not provided all resources will be created by oneAPI Video Processing Library (oneVPL) RT internally.
+*/
+typedef struct {
+    mfxExtBuffer    Header;                     /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_EXPORT_SHARING_DESC_D3D12. */
+
+    mfxHDL d3d12Device;                         /*!< Pointer to D3D12 Device, type ID3D12Device */
+
+    mfxHDL reserved[9];
+} mfxExtSurfaceD3D12Tex2DExportDescription;
+MFX_PACK_END()
+
+MFX_PACK_BEGIN_STRUCT_W_PTR()
+typedef struct {
+    mfxSurfaceInterface SurfaceInterface;
+
+    mfxHDL texture2D;                           /*!< Pointer to D3D12 resource, type ID3D12Resource */
+
+    mfxHDL reserved[7];
+} mfxSurfaceD3D12Tex2D;
+MFX_PACK_END()
+
 /*! The mfxSurfaceComponent enumerator specifies the internal surface pool to use when importing surfaces. */
 typedef enum {
     MFX_SURFACE_COMPONENT_UNKNOWN     = 0,      /*!< Unknown surface component. */

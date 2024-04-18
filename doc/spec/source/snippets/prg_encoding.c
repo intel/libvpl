@@ -584,3 +584,199 @@ if (MFX_ERR_NONE) {
 /*end8*/
 #endif
 
+#ifdef ONEVPL_EXPERIMENTAL
+static void AttachBufferForQualityInfoOutput(mfxBitstream* bs, mfxExtQualityInfoOutput* qualityInfoOutput)
+{
+   UNUSED_PARAM(bs);
+   UNUSED_PARAM(qualityInfoOutput);
+   return;
+}
+
+static void prg_encoding9() {
+/*beg9*/
+/* mfxExtQualityInfoMode Init */
+mfxExtQualityInfoMode qualityInfoMode = {};
+qualityInfoMode.Header.BufferId   = MFX_EXTBUFF_ENCODED_QUALITY_INFO_MODE;
+qualityInfoMode.Header.BufferSz   = sizeof(mfxExtQualityInfoMode);
+qualityInfoMode.QualityInfoMode   = MFX_QUALITY_INFO_LEVEL_FRAME;
+
+mfxExtBuffer * ExtParam[1]    = { (mfxExtBuffer *)&qualityInfoMode };
+
+mfxSession session            = (mfxSession)0;
+mfxVideoParam encodeParams    = {};
+encodeParams.NumExtParam      = 1;
+encodeParams.ExtParam         = ExtParam;
+
+/* perform check quality report support status */
+MFXVideoENCODE_Query(session, &encodeParams, &encodeParams);
+
+/* init encode */
+MFXVideoENCODE_Init(session, &encodeParams);
+
+/* perform encoding and gathering qualityInfo. */
+mfxExtQualityInfoOutput qualityInfoOutput = {};
+qualityInfoOutput.Header.BufferId   = MFX_EXTBUFF_ENCODED_QUALITY_INFO_OUTPUT;
+qualityInfoOutput.Header.BufferSz   = sizeof(mfxExtQualityInfoOutput);
+AttachBufferForQualityInfoOutput(bits, &qualityInfoOutput);
+sts = MFXVideoENCODE_EncodeFrameAsync(session, NULL, surface, bits, &syncp);
+if (sts == MFX_ERR_NONE) {
+   /* to synchronize everything. */
+   MFXVideoCORE_SyncOperation(session, syncp, INFINITE);
+
+   /* qualityInfo result output such as qualityInfoOutput.FrameOrder, qualityInfoOutput.MSE. */
+}
+/*end9*/
+}
+#endif
+
+#ifdef ONEVPL_EXPERIMENTAL
+static void prg_encoding10() {
+/*beg10*/
+/* mfxExtScreenContentTools Init */
+mfxExtAV1ScreenContentTools screenContentTools = {};
+screenContentTools.Header.BufferId   = MFX_EXTBUFF_AV1_SCREEN_CONTENT_TOOLS;
+screenContentTools.Header.BufferSz   = sizeof(mfxExtAV1ScreenContentTools);
+screenContentTools.Palette           = MFX_CODINGOPTION_ON;
+screenContentTools.IntraBlockCopy    = MFX_CODINGOPTION_ON;
+
+mfxExtBuffer * ExtParam[1]    = { (mfxExtBuffer *)&screenContentTools };
+
+mfxSession session            = (mfxSession)0;
+mfxVideoParam encodeParams    = {};
+encodeParams.NumExtParam      = 1;
+encodeParams.ExtParam         = ExtParam;
+
+/* perform check screen content tools support status */
+MFXVideoENCODE_Query(session, &encodeParams, &encodeParams);
+
+/* init encode */
+MFXVideoENCODE_Init(session, &encodeParams);
+
+/* perform encoding */
+for (;;) {
+    MFXVideoENCODE_EncodeFrameAsync(session, NULL, surface, bits, &syncp);
+    MFXVideoCORE_SyncOperation(session, syncp, INFINITE);
+}
+/*end10*/
+}
+#endif
+
+#ifdef ONEVPL_EXPERIMENTAL
+typedef enum {NV12_SYS = 1, NV12_VIDEO, RGBA_SYS, RGBA_VIDEO} UserDataType;
+UserDataType userDataType;
+mfxU8* alphaSysData;
+mfxMemId alphaVidioMemId;
+static void prg_encoding11() {
+/*beg11*/
+/* mfxExtAlphaChannelEncCtrl Init */
+mfxExtAlphaChannelEncCtrl alphaEncCtrl = {};
+alphaEncCtrl.Header.BufferId              = MFX_EXTBUFF_ALPHA_CHANNEL_ENC_CTRL;
+alphaEncCtrl.Header.BufferSz              = sizeof(mfxExtAlphaChannelEncCtrl);
+alphaEncCtrl.EnableAlphaChannelEncoding   = MFX_CODINGOPTION_ON;
+alphaEncCtrl.AlphaChannelBitrateRatio     = 30;
+alphaEncCtrl.AlphaChannelMode             = MFX_ALPHA_MODE_PREMULTIPLIED;
+
+mfxExtBuffer* ext_buf_init[1]             = { (mfxExtBuffer *)&alphaEncCtrl };
+init_param.NumExtParam                    = 1;
+init_param.ExtParam                       = ext_buf_init;
+
+/* query caps */
+MFXVideoENCODE_Query(session, &init_param, &init_param);
+
+/* query IO surface */
+MFXVideoENCODE_QueryIOSurf(session, &init_param, &request);
+allocate_pool_of_frame_surfaces(request.NumFrameSuggested);
+
+/* init encoder */
+MFXVideoENCODE_Init(session, &init_param);
+
+/* perform encoding */
+for (;;) {
+
+   switch (userDataType)
+   {
+      case NV12_SYS:
+      {
+         
+         /* sys mem data for alpha channel */
+         mfxFrameSurface1 alphaSurfSys    = {};
+         alphaSurfSys.Info                = surface->Info; // same as the surface.Info(base)
+         alphaSurfSys.Data.NumExtParam    = 0;
+         alphaSurfSys.Data.ExtParam       = NULL;
+         alphaSurfSys.Data.A              = alphaSysData; // Other fields(e.g. MemType/TimeStamp/FrameOrder) will be forced to be set to the same as the surface.Data(base)
+
+         /* fill mfxExtAlphaChannelSurface */
+         mfxExtAlphaChannelSurface extAlphaSurfSys = {};
+         extAlphaSurfSys.Header.BufferId           = MFX_EXTBUFF_ALPHA_CHANNEL_SURFACE;
+         extAlphaSurfSys.Header.BufferSz           = sizeof(mfxExtAlphaChannelSurface);
+         extAlphaSurfSys.AlphaSurface              = &alphaSurfSys;
+
+         /* attach alpha surface to mfxFrameSurface1.Data.ExtParam */
+         mfxExtBuffer * ext_buf_surf_sys[1]        = { (mfxExtBuffer *)&extAlphaSurfSys };
+         surface->Data.NumExtParam                 = 1;
+         surface->Data.ExtParam                    = ext_buf_surf_sys;
+
+      }
+      break;
+      case NV12_VIDEO:
+      {
+
+         /* alomost same as SYS_NV12, need to use AlphaSurf.Data.MemId instead of AlphaSurf.Data.Y/UV */
+         /* user can use external frame allocator or internal memory management to allocate video memory and map MemId */
+
+         mfxFrameSurface1 alphaSurfVideo     = {};
+         alphaSurfVideo.Info                 = surface->Info; // same as the surface.Info(base)
+         alphaSurfVideo.Data.NumExtParam     = 0;
+         alphaSurfVideo.Data.ExtParam        = NULL;
+         alphaSurfVideo.Data.MemId           = alphaVidioMemId; // Other fields(e.g. MemType/TimeStamp/FrameOrder) will be forced to be set to the same as the surface.Data(base)
+
+         /* fill mfxExtAlphaChannelSurface */
+         mfxExtAlphaChannelSurface extAlphaSurfVideo  = {};
+         extAlphaSurfVideo.Header.BufferId            = MFX_EXTBUFF_ALPHA_CHANNEL_SURFACE;
+         extAlphaSurfVideo.Header.BufferSz            = sizeof(mfxExtAlphaChannelSurface);
+         extAlphaSurfVideo.AlphaSurface               = &alphaSurfVideo;
+
+         /* attach alpha surface to mfxFrameSurface1.Data.ExtParam */
+         mfxExtBuffer * ext_buf_surf_video[1]         = { (mfxExtBuffer *)&extAlphaSurfVideo };
+         surface->Data.NumExtParam                    = 1;
+         surface->Data.ExtParam                       = ext_buf_surf_video;
+
+      }
+      break;
+      case RGBA_SYS:
+      {
+         
+         /* no need for mfxExtAlphaChannelSurface, put alpha channel data into the mfxFrameSurface1.Data.A */
+         surface->Data.A = alphaSysData;
+
+      }
+      break;
+      case RGBA_VIDEO:
+      {
+
+         /* no need for mfxExtAlphaChannelSurface, alpha texture will be extracted internally */
+         /* the source surface must be shared, set this before allocating the source surface */
+         request.Type |= MFX_MEMTYPE_SHARED_RESOURCE;
+
+      }
+      break;
+   }
+
+   /* encode base&alpha frame */
+   sts = MFXVideoENCODE_EncodeFrameAsync(session, NULL, surface, bits, &syncp);
+   if (end_of_stream() && sts == MFX_ERR_MORE_DATA) break;
+   if (sts == MFX_ERR_NONE) {
+      /* get base&alpha encoded data */
+      sts = MFXVideoCORE_SyncOperation(session, syncp, INFINITE);
+       if (sts == MFX_ERR_NONE)
+         do_something_with_encoded_bits(bits);
+   }
+}
+
+/* close encoder */
+MFXVideoENCODE_Close(session);
+free_pool_of_frame_surfaces();
+
+/*end11*/
+}
+#endif

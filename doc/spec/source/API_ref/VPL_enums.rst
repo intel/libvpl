@@ -167,6 +167,9 @@ The CodecFormatFourCC enumerator itemizes codecs in the FourCC format.
 .. doxygenenumvalue:: MFX_CODEC_HEVC
    :project: DEF_BREATHE_PROJECT
 
+.. doxygenenumvalue:: MFX_CODEC_VVC
+   :project: DEF_BREATHE_PROJECT
+
 .. doxygenenumvalue:: MFX_CODEC_MPEG2
    :project: DEF_BREATHE_PROJECT
 
@@ -433,6 +436,51 @@ AV1 Levels
 .. doxygenenumvalue:: MFX_LEVEL_AV1_73
    :project: DEF_BREATHE_PROJECT
 
+VVC Levels
+-----------
+
+.. doxygenenumvalue:: MFX_LEVEL_VVC_1
+   :project: DEF_BREATHE_PROJECT
+
+.. doxygenenumvalue:: MFX_LEVEL_VVC_2
+   :project: DEF_BREATHE_PROJECT
+
+.. doxygenenumvalue:: MFX_LEVEL_VVC_21
+   :project: DEF_BREATHE_PROJECT
+
+.. doxygenenumvalue:: MFX_LEVEL_VVC_3
+   :project: DEF_BREATHE_PROJECT
+
+.. doxygenenumvalue:: MFX_LEVEL_VVC_31
+   :project: DEF_BREATHE_PROJECT
+
+.. doxygenenumvalue:: MFX_LEVEL_VVC_4
+   :project: DEF_BREATHE_PROJECT
+
+.. doxygenenumvalue:: MFX_LEVEL_VVC_41
+   :project: DEF_BREATHE_PROJECT
+
+.. doxygenenumvalue:: MFX_LEVEL_VVC_5
+   :project: DEF_BREATHE_PROJECT
+
+.. doxygenenumvalue:: MFX_LEVEL_VVC_51
+   :project: DEF_BREATHE_PROJECT
+
+.. doxygenenumvalue:: MFX_LEVEL_VVC_52
+   :project: DEF_BREATHE_PROJECT
+
+.. doxygenenumvalue:: MFX_LEVEL_VVC_6
+   :project: DEF_BREATHE_PROJECT
+
+.. doxygenenumvalue:: MFX_LEVEL_VVC_61
+   :project: DEF_BREATHE_PROJECT
+
+.. doxygenenumvalue:: MFX_LEVEL_VVC_62
+   :project: DEF_BREATHE_PROJECT
+
+.. doxygenenumvalue:: MFX_LEVEL_VVC_155
+   :project: DEF_BREATHE_PROJECT
+
 
 ------------
 CodecProfile
@@ -480,6 +528,21 @@ AV1 Profiles
    :project: DEF_BREATHE_PROJECT
 
 .. doxygenenumvalue:: MFX_PROFILE_AV1_PRO
+   :project: DEF_BREATHE_PROJECT
+
+VVC Profiles
+-------------
+
+.. doxygenenumvalue:: MFX_PROFILE_VVC_MAIN10
+   :project: DEF_BREATHE_PROJECT
+
+VVC Tiers
+----------
+
+.. doxygenenumvalue:: MFX_TIER_VVC_MAIN
+   :project: DEF_BREATHE_PROJECT
+
+.. doxygenenumvalue:: MFX_TIER_VVC_HIGH
    :project: DEF_BREATHE_PROJECT
 
 VC-1 Profiles
@@ -1124,9 +1187,6 @@ extended buffers or video processing algorithm identifiers.
 .. doxygenenumvalue:: MFX_EXTBUFF_ENCODESTATS
    :project: DEF_BREATHE_PROJECT
 
-.. doxygenenumvalue:: MFX_EXTBUFF_SYNCSUBMISSION
-   :project: DEF_BREATHE_PROJECT
-
 .. doxygenenumvalue:: MFX_EXTBUFF_TUNE_ENCODE_QUALITY
    :project: DEF_BREATHE_PROJECT
 
@@ -1341,6 +1401,12 @@ GPUCopy
 .. doxygenenumvalue:: MFX_GPUCOPY_OFF
    :project: DEF_BREATHE_PROJECT
 
+.. doxygenenumvalue:: MFX_GPUCOPY_SAFE
+   :project: DEF_BREATHE_PROJECT
+
+.. doxygenenumvalue:: MFX_GPUCOPY_FAST
+   :project: DEF_BREATHE_PROJECT
+
 -------------
 HEVC Profiles
 -------------
@@ -1453,6 +1519,13 @@ DataType
 -----------------
 
 .. doxygenenum:: mfx3DLutMemoryLayout
+   :project: DEF_BREATHE_PROJECT
+
+------------------------
+3DLutInterpolationMethod
+------------------------
+
+.. doxygenenum:: mfx3DLutInterpolationMethod
    :project: DEF_BREATHE_PROJECT
 
 -------------------------------------
@@ -2471,4 +2544,30 @@ mfxStructureType
 ----------------
 
 .. doxygenenum:: mfxStructureType
+   :project: DEF_BREATHE_PROJECT
+
+------------------------
+mfxAISuperResolutionMode
+------------------------
+
+.. doxygenenum:: mfxAISuperResolutionMode
+   :project: DEF_BREATHE_PROJECT
+
+------------------------
+mfxQualityInfoMode
+------------------------
+
+.. doxygenenum:: mfxQualityInfoMode
+   :project: DEF_BREATHE_PROJECT
+
+----------------
+AlphaChannelMode
+----------------
+
+The AlphaChannelMode enumerator specifies alpha is pre-multiplied or straight.
+
+.. doxygenenumvalue:: MFX_ALPHA_MODE_PREMULTIPLIED
+   :project: DEF_BREATHE_PROJECT
+
+.. doxygenenumvalue:: MFX_ALPHA_MODE_STRAIGHT
    :project: DEF_BREATHE_PROJECT

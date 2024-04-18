@@ -8,7 +8,7 @@
 #define __MFXDEFS_H__
 
 #define MFX_VERSION_MAJOR 2
-#define MFX_VERSION_MINOR 10
+#define MFX_VERSION_MINOR 11
 
 // MFX_VERSION - version of API that 'assumed' by build may be provided externally
 // if it omitted then latest stable API derived from Major.Minor is assumed
@@ -292,10 +292,7 @@ typedef enum
     MFX_ERR_RESOURCE_MAPPED             = -23,  /*!< Write access is already acquired and user requested
                                                    another write access, or read access with MFX_MEMORY_NO_WAIT flag. */
     MFX_ERR_NOT_IMPLEMENTED             = -24,   /*!< Feature or function not implemented. */
-
-#ifdef ONEVPL_EXPERIMENTAL
     MFX_ERR_MORE_EXTBUFFER              = -25,   /*!< Expect additional extended configuration buffer. */
-#endif
 
     /* warnings >0 */
     MFX_WRN_IN_EXECUTION                = 1,    /*!< The previous asynchronous operation is in execution. */

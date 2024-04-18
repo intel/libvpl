@@ -79,10 +79,10 @@ The following is a list of experimental interfaces, starting from API version
      - 2.8
      - 2.10
      - Moved to production
-   * - :cpp:struct:`mfxExtSyncSubmission`
+   * - ``mfxExtSyncSubmission``
      - 2.9
-     -
-     -
+     - 2.11
+     - Removed from API
    * - :cpp:struct:`mfxExtVPPPercEncPrefilter`
      - 2.9
      -
@@ -127,22 +127,22 @@ The following is a list of experimental interfaces, starting from API version
      - 2.9
      -
      -
-   * - :cpp:struct:`mfxAutoSelectImplDeviceHandle`
+   * - ``mfxAutoSelectImplDeviceHandle``
      - 2.9
-     - 
-     - 
-   * - :cpp:type:`mfxAutoSelectImplType`
+     - 2.11
+     - Removed from API
+   * - ``mfxAutoSelectImplType``
      - 2.9
-     - 
-     - 
-   * - :cpp:enumerator:`mfxAutoSelectImplType::MFX_AUTO_SELECT_IMPL_TYPE_UNKNOWN`
+     - 2.11
+     - Removed from API
+   * - ``mfxAutoSelectImplType::MFX_AUTO_SELECT_IMPL_TYPE_UNKNOWN``
      - 2.9
-     -  
-     - 
-   * - :cpp:enumerator:`mfxAutoSelectImplType::MFX_AUTO_SELECT_IMPL_TYPE_DEVICE_HANDLE`
+     - 2.11
+     - Removed from API
+   * - ``mfxAutoSelectImplType::MFX_AUTO_SELECT_IMPL_TYPE_DEVICE_HANDLE``
      - 2.9
-     - 
-     - 
+     - 2.11
+     - Removed from API
    * - :cpp:enumerator:`MFX_CORRUPTION_HW_RESET`
      - 2.10
      -
@@ -201,18 +201,65 @@ The following is a list of experimental interfaces, starting from API version
      -
    * - :cpp:struct:`mfxConfigInterface`
      - 2.10
-     -
-     -
+     - 2.11
+     - Moved to production
    * - :cpp:enumerator:`mfxHandleType::MFX_HANDLE_CONFIG_INTERFACE`
      - 2.10
-     -
-     -
+     - 2.11
+     - Moved to production
    * - :cpp:enum:`mfxStructureType`
      - 2.10
-     -
-     -
+     - 2.11
+     - Moved to production
    * - :cpp:enumerator:`mfxStatus::MFX_ERR_MORE_EXTBUFFER`
      - 2.10
+     - 2.11
+     - Moved to production
+   * - :cpp:enum:`mfx3DLutInterpolationMethod`
+     - 2.11
      -
      -
-
+   * - :cpp:struct:`mfxSurfaceD3D12Tex2D`
+     - 2.11
+     -
+     -
+   * - :cpp:struct:`mfxExtSurfaceD3D12Tex2DExportDescription`
+     - 2.11
+     -
+     -
+   * - :cpp:struct:`mfxExtVPPAISuperResolution`
+     - 2.11
+     -
+     -
+   * - :cpp:enum:`mfxAISuperResolutionMode`
+     - 2.11
+     -
+     -
+   * - :cpp:struct:`mfxExtQualityInfoMode`
+     - 2.11
+     -
+     -
+   * - :cpp:struct:`mfxExtQualityInfoOutput`
+     - 2.11
+     -
+     -
+   * - :cpp:enum:`mfxQualityInfoMode`
+     - 2.11
+     -
+     -
+   * - :cpp:enumerator:`MFX_GPUCOPY_FAST`
+     - 2.11
+     -
+     -
+   * - :cpp:struct:`mfxExtAV1ScreenContentTools`
+     - 2.11
+     -
+     -
+   * - :cpp:struct:`mfxExtAlphaChannelEncCtrl`
+     - 2.11
+     -
+     -
+   * - :cpp:struct:`mfxExtAlphaChannelSurface`
+     - 2.11
+     -
+     -  

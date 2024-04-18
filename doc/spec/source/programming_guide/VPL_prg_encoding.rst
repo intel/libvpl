@@ -266,3 +266,40 @@ The following pseudo code shows the encoding procedure:
    :start-after: /*beg4*/
    :end-before: /*end4*/
    :lineno-start: 1
+
+---------------------------
+Encoder Quality Information
+---------------------------
+
+The following pseudo code shows an example of gathering encoder quality information:
+
+.. literalinclude:: ../snippets/prg_encoding.c
+   :language: c++
+   :start-after: /*beg9*/
+   :end-before: /*end9*/
+   :lineno-start: 1
+
+------------------------
+AV1 Screen Content Tools
+------------------------
+
+The following pseudo code shows an example of encoding with AV1 Screen Content tools:
+
+.. literalinclude:: ../snippets/prg_encoding.c
+   :language: c++
+   :start-after: /*beg10*/
+   :end-before: /*end10*/
+   :lineno-start: 1
+
+----------------------
+Alpha Channel Encoding
+----------------------
+
+The following pseudo code shows several examples of alpha channel encoding
+with multiple input data formats:
+
+.. literalinclude:: ../snippets/prg_encoding.c
+   :language: c++
+   :start-after: /*beg11*/
+   :end-before: /*end11*/
+   :lineno-start: 1

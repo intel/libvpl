@@ -13,6 +13,38 @@ This section describes the API evolution from version to version.
    :depth: 1
 
 ------------
+Version 2.11
+------------
+
+New in this release:
+
+* Experimental API: introduced :cpp:struct:`mfxExtAV1ScreenContentTools` to support screen content tools setting for encoder.
+* Experimental API: introduced :cpp:struct:`mfxExtAlphaChannelEncCtrl` and :cpp:struct:`mfxExtAlphaChannelSurface` for alpha channel encoding.
+* Experimental API: introduced :cpp:struct:`mfxExtQualityInfoMode`, :cpp:struct:`mfxExtQualityInfoOutput` and :cpp:enum:`mfxQualityInfoMode` to report quality information about encoded picture.
+* Experimental API: introduced :cpp:struct:`mfxExtVPPAISuperResolution` and :cpp:enum:`mfxAISuperResolutionMode` for AI enhanced video processing filter super resolution.
+* Experimental API: introduced :cpp:enum:`mfx3DLutInterpolationMethod` to support 3DLUT interpolation method.
+* Experimental API: Added :cpp:enumerator:`MFX_GPUCOPY_FAST`.
+* Experimental API: Added new structures and enumerated types for importing and exporting surfaces:
+
+    * :cpp:struct:`mfxSurfaceD3D12Tex2D`
+    * :cpp:struct:`mfxExtSurfaceD3D12Tex2DExportDescription`
+
+* Supported the extraction of AV1 HDR metadata in the decoder.
+* Updated description of :cpp:struct:`mfxExtAVCRefListCtrl` to clarify process for querying encoder support.
+* Clarified the :cpp:member:`mfxExtCodingOption2::MaxQPI`, :cpp:member:`mfxExtCodingOption2::MaxQPP`, :cpp:member:`mfxExtCodingOption2::MaxQPB`, :cpp:member:`mfxExtCodingOption2::MinQPI`, :cpp:member:`mfxExtCodingOption2::MinQPP`, :cpp:member:`mfxExtCodingOption2::MinQPB` for the video encoding usage.
+* Added VVC decode API.
+* Update notes on :cpp:member:`mfxInfoMFX::QPI`, :cpp:member:`mfxInfoMFX::QPP`, :cpp:member:`mfxInfoMFX::QPB` to clarify to valid range.
+* Moved to production API:
+
+    * :cpp:struct:`mfxConfigInterface`
+    * :cpp:enumerator:`mfxHandleType::MFX_HANDLE_CONFIG_INTERFACE`
+    * :cpp:enum:`mfxStructureType`
+    * :cpp:enumerator:`mfxStatus::MFX_ERR_MORE_EXTBUFFER`
+
+* Experimental API: Removed ``mfxAutoSelectImplDeviceHandle`` and ``mfxAutoSelectImplType``
+* Experimental API: Removed ``mfxExtSyncSubmission``
+
+------------
 Version 2.10
 ------------
 
@@ -80,14 +112,14 @@ New in this release:
 * Added deprecation messages to the functions :cpp:func:`MFXQueryAdapters`, :cpp:func:`MFXQueryAdaptersDecode`, and :cpp:func:`MFXQueryAdaptersNumber`.
   Applications should use the process described in :ref:`vpl-dispatcher` to enumerate and select adapters.
 * Fixed multiple spelling errors.
-* Added extension buffer :cpp:struct:`mfxExtSyncSubmission` to return submission synchronization sync point.
+* Added extension buffer ``mfxExtSyncSubmission`` to return submission synchronization sync point.
 * Added extension buffer :cpp:struct:`mfxExtVPPPercEncPrefilter` to control perceptual encoding prefilter.
 * Deprecated :cpp:member:`mfxPlatform::CodeName` and corresponding enum values.
 * Added :cpp:member:`mfxExtendedDeviceId::RevisionID` and :cpp:struct:`extDeviceUUID` to be aligned across multiple domains including compute and specify device UUID accordingly.
 * Added extension buffer :cpp:struct:`mfxExtTuneEncodeQuality` and correspondent enumeration to specify encoding tuning option.
 * Updated description of :cpp:func:`MFXEnumImplementations` to clarify that the input :cpp:type:`mfxImplCapsDeliveryFormat` determines the type of structure returned.
 * Updated mfxvideo++.h to use MFXLoad API.
-* Added :cpp:struct:`mfxAutoSelectImplDeviceHandle` and :cpp:type:`mfxAutoSelectImplType` for automatically selecting a suitable implementation based on application-provided device handle.
+* Added ``mfxAutoSelectImplDeviceHandle`` and ``mfxAutoSelectImplType`` for automatically selecting a suitable implementation based on application-provided device handle.
 
 
 -----------

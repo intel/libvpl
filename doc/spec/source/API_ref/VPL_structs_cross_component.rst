@@ -317,14 +317,6 @@ mfxExtContentLightLevelInfo
    :members:
    :protected-members:
 
-mfxExtSyncSubmission
---------------------
-
-.. doxygenstruct:: mfxExtSyncSubmission
-   :project: DEF_BREATHE_PROJECT
-   :members:
-   :protected-members:
-
 mfxExtTuneEncodeQuality
 -----------------------
 

@@ -232,6 +232,14 @@ The following pseudo code shows how to create a system memory :cpp:struct:`mfx3D
    :end-before: /*end5*/
    :lineno-start: 1
 
+The following pseudo code shows how to specify 3DLUT interpolation method :cpp:enum:`mfx3DLutInterpolationMethod`.
+
+.. literalinclude:: ../snippets/prg_vpp.c
+   :language: c++
+   :start-after: /*beg11*/
+   :end-before: /*end11*/
+   :lineno-start: 1
+
 ----------------
 HDR Tone Mapping
 ----------------
@@ -280,15 +288,13 @@ The following pseudo code shows camera raw processing.
    :end-before: /*end9*/
    :lineno-start: 1
 
--------------------------------
-Task submission synchronization
--------------------------------
+|vpl_short_name| supports AI based super resolution with Intel HW. The following pseudo code
+shows how to perform AI based super resolution.
 
-|vpl_short_name| can return synchronization object - syncpoint to notify application about
-submission a task to the GPU. The following example demonstrates the approach.
+The following pseudo code shows AI super resolution video processing.
 
 .. literalinclude:: ../snippets/prg_vpp.c
    :language: c++
-   :start-after: /*beg10*/
-   :end-before: /*end10*/
+   :start-after: /*beg12*/
+   :end-before: /*end12*/
    :lineno-start: 1

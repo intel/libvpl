@@ -29,9 +29,3 @@ mfxImplType
 
 .. doxygenenum:: mfxImplType
    :project: DEF_BREATHE_PROJECT
-
-mfxAutoSelectImplType
----------------------
-
-.. doxygenenum:: mfxAutoSelectImplType
-   :project: DEF_BREATHE_PROJECT

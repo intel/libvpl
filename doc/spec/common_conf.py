@@ -42,7 +42,7 @@ extensions = [
 ]
 
 env = {
-    'vpl_spec_version': "2.10.0",
+    'vpl_spec_version': "2.11.0",
 }
 
 prolog_template = string.Template(r"""

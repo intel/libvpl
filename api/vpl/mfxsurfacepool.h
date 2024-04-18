@@ -12,7 +12,7 @@
 /*! GUID to obtain mfxSurfacePoolInterface. */
 static const mfxGUID  MFX_GUID_SURFACE_POOL        = {{0x35, 0x24, 0xf3, 0xda, 0x96, 0x4e, 0x47, 0xf1, 0xaf, 0xb4, 0xec, 0xb1, 0x15, 0x08, 0x06, 0xb1}};
 
-//*! Specifies type of pool for VPP component. */
+/*! Specifies type of pool for VPP component. */
 typedef enum {
     MFX_VPP_POOL_IN  = 0, /*!< Input pool. */
     MFX_VPP_POOL_OUT = 1  /*!< Output pool. */

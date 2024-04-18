@@ -385,8 +385,8 @@ typedef enum {
     MFX_HANDLE_HDDLUNITE_WORKLOADCONTEXT        = 9,  /*!< Pointer to HddlUnite::WorkloadContext interface. */
     MFX_HANDLE_PXP_CONTEXT                      = 10, /*!< Pointer to PXP context for protected content support. */
 
-#ifdef ONEVPL_EXPERIMENTAL
     MFX_HANDLE_CONFIG_INTERFACE                 = 1000,  /*!< Pointer to interface of type mfxConfigInterface. */
+#ifdef ONEVPL_EXPERIMENTAL
     MFX_HANDLE_MEMORY_INTERFACE                 = 1001,  /*!< Pointer to interface of type mfxMemoryInterface. */
 #endif
 } mfxHandleType;
@@ -418,7 +418,7 @@ typedef struct {
         struct mfxFrameSurfaceInterface*  FrameInterface;       /*!< Specifies interface to work with surface. */
         mfxU32  reserved[2];
     };
-    mfxStructVersion Version; /* Specifies version of mfxFrameSurface1 structure. */
+    mfxStructVersion Version; /*!< Specifies version of mfxFrameSurface1 structure. */
     mfxU16          reserved1[3];
     mfxFrameInfo    Info; /*!< Specifies surface properties. */
     mfxFrameData    Data; /*!< Describes the actual frame buffer. */
@@ -434,6 +434,7 @@ typedef enum {
     MFX_SURFACE_TYPE_D3D11_TEX2D           = 2,      /*!< D3D11 surface of type ID3D11Texture2D. */
     MFX_SURFACE_TYPE_VAAPI                 = 3,      /*!< VA-API surface. */
     MFX_SURFACE_TYPE_OPENCL_IMG2D          = 4,      /*!< OpenCL 2D image (cl_mem). */
+    MFX_SURFACE_TYPE_D3D12_TEX2D           = 5,      /*!< D3D12 surface of type ID3D12Resource with 2D texture type. */
 } mfxSurfaceType;
 
 /*! This enumerator specifies the sharing modes which are allowed for importing or exporting shared surfaces. */
@@ -561,7 +562,7 @@ MFX_PACK_END()
 #endif
 
 MFX_PACK_BEGIN_STRUCT_W_L_TYPE()
-/* Specifies frame surface interface. */
+/*! Specifies frame surface interface. */
 typedef struct mfxFrameSurfaceInterface {
     mfxHDL              Context; /*!< The context of the memory interface. User should not touch (change, set, null) this pointer. */
     mfxStructVersion    Version; /*!< The version of the structure. */
@@ -897,6 +898,8 @@ typedef struct {
                     @note In the HEVC design, a further adjustment to QPs can occur based on bit depth.
                     Adjusted QPI value = QPI - (6 * (BitDepthLuma - 8)) for BitDepthLuma in the range [8,14].
                     For HEVC_MAIN10, we minus (6*(10-8)=12) on our side and continue.
+                    @note In av1 design, valid range is 0 to 255 inclusive, and if QPI=QPP=QPB=0, the encoder is in lossless mode.
+                    @note In vp9 design, valid range is 1 to 255 inclusive, and zero QP that the default value is assigned by the library.
                     @note Default QPI value is implementation dependent and subject to change without additional notice in this document. */
                 mfxU16  QPI;
                 mfxU16  Accuracy; /*!< Specifies accuracy range in the unit of tenth of percent. */
@@ -910,6 +913,8 @@ typedef struct {
                     @note In the HEVC design, a further adjustment to QPs can occur based on bit depth.
                     Adjusted QPP value = QPP - (6 * (BitDepthLuma - 8)) for BitDepthLuma in the range [8,14].
                     For HEVC_MAIN10, we minus (6*(10-8)=12) on our side and continue.
+                    @note In av1 design, valid range is 0 to 255 inclusive, and if QPI=QPP=QPB=0, the encoder is in lossless mode.
+                    @note In vp9 design, valid range is 1 to 255 inclusive, and zero QP that the default value is assigned by the library.
                     @note Default QPP value is implementation dependent and subject to change without additional notice in this document. */
                 mfxU16  QPP;
                 mfxU16  ICQQuality; /*!< Used by the Intelligent Constant Quality (ICQ) bitrate control algorithm. Values are in the 1 to 51 range, where 1 corresponds the best quality. */
@@ -922,6 +927,7 @@ typedef struct {
                     @note In the HEVC design, a further adjustment to QPs can occur based on bit depth.
                     Adjusted QPB value = QPB - (6 * (BitDepthLuma - 8)) for BitDepthLuma in the range [8,14].
                     For HEVC_MAIN10, we minus (6*(10-8)=12) on our side and continue.
+                    @note In av1 design, valid range is 0 to 255 inclusive, and if QPI=QPP=QPB=0, the encoder is in lossless mode.
                     @note Default QPB value is implementation dependent and subject to change without additional notice in this document. */
                 mfxU16  QPB;
                 mfxU16  Convergence; /*!< Convergence period in the unit of 100 frames. */
@@ -1061,7 +1067,8 @@ enum {
     MFX_CODEC_VC1         =MFX_MAKEFOURCC('V','C','1',' '), /*!< VC-1 codec. */
     MFX_CODEC_CAPTURE     =MFX_MAKEFOURCC('C','A','P','T'), /*!<  */
     MFX_CODEC_VP9         =MFX_MAKEFOURCC('V','P','9',' '), /*!< VP9 codec. */
-    MFX_CODEC_AV1         =MFX_MAKEFOURCC('A','V','1',' ')  /*!< AV1 codec. */
+    MFX_CODEC_AV1         =MFX_MAKEFOURCC('A','V','1',' '), /*!< AV1 codec. */
+    MFX_CODEC_VVC         =MFX_MAKEFOURCC('V','V','C',' ')  /*!< VVC codec. */
 };
 
 /*!
@@ -1246,6 +1253,35 @@ enum {
     MFX_LEVEL_AV1_71                        = 71,
     MFX_LEVEL_AV1_72                        = 72,
     MFX_LEVEL_AV1_73                        = 73,
+    /*! @} */
+
+    /*! @{ */
+    /* VVC Profiles */
+    MFX_PROFILE_VVC_MAIN10                  = 1,
+    /*! @} */
+
+    /*! @{ */
+    /* VVC Levels */
+    MFX_LEVEL_VVC_1                         = 16,
+    MFX_LEVEL_VVC_2                         = 32,
+    MFX_LEVEL_VVC_21                        = 35,
+    MFX_LEVEL_VVC_3                         = 48,
+    MFX_LEVEL_VVC_31                        = 51,
+    MFX_LEVEL_VVC_4                         = 64,
+    MFX_LEVEL_VVC_41                        = 67,
+    MFX_LEVEL_VVC_5                         = 80,
+    MFX_LEVEL_VVC_51                        = 83,
+    MFX_LEVEL_VVC_52                        = 86,
+    MFX_LEVEL_VVC_6                         = 96,
+    MFX_LEVEL_VVC_61                        = 99,
+    MFX_LEVEL_VVC_62                        = 102,
+    MFX_LEVEL_VVC_155                       = 255,
+    /*! @} */
+
+    /*! @{ */
+    /* VVC tiers */
+    MFX_TIER_VVC_MAIN                       = 0,
+    MFX_TIER_VVC_HIGH                       = 0x100,
     /*! @} */
 };
 
@@ -1608,17 +1644,26 @@ typedef struct {
        @note Not all codecs and implementations support this value. Use the Query API function to check if this feature is supported.
     */
     mfxU16      SkipFrame;
-    mfxU8       MinQPI; /*!< Minimum allowed QP value for I-frame types. Valid range is 1 to 51 inclusive. Zero means default value, that is, no limitations on QP.
+    mfxU8       MinQPI; /*!< Minimum allowed QP value for I-frame types. Valid range varies with the codec. Zero means default value, that is, no limitations on QP.
                              @note Not all codecs and implementations support this value. Use the Query API function to check if this feature is supported. */
-    mfxU8       MaxQPI; /*!< Maximum allowed QP value for I-frame types. Valid range is 1 to 51 inclusive. Zero means default value, that is, no limitations on QP.
+    mfxU8       MaxQPI; /*!< Maximum allowed QP value for I-frame types. Valid range varies with the codec. Zero means default value, that is, no limitations on QP.
+                             @note In the HEVC design, a further adjustment to QPs can occur based on bit depth.
+                             Adjusted MaxQPI value = 51 + (6 * (BitDepthLuma - 8)) for BitDepthLuma in the range [8,14].
+                             For HEVC_MAIN10, we add (6*(10-8)=12) on our side for MaxQPI will reach 63.
                              @note Not all codecs and implementations support this value. Use the Query API function to check if this feature is supported. */
-    mfxU8       MinQPP; /*!< Minimum allowed QP value for P-frame types. Valid range is 1 to 51 inclusive. Zero means default value, that is, no limitations on QP.
+    mfxU8       MinQPP; /*!< Minimum allowed QP value for P-frame types. Valid range varies with the codec. Zero means default value, that is, no limitations on QP.
                              @note Not all codecs and implementations support this value. Use the Query API function to check if this feature is supported. */
-    mfxU8       MaxQPP; /*!< Maximum allowed QP value for P-frame types. Valid range is 1 to 51 inclusive. Zero means default value, that is, no limitations on QP.
+    mfxU8       MaxQPP; /*!< Maximum allowed QP value for P-frame types. Valid range varies with the codec. Zero means default value, that is, no limitations on QP.
+                             @note In the HEVC design, a further adjustment to QPs can occur based on bit depth.
+                             Adjusted MaxQPP value = 51 + (6 * (BitDepthLuma - 8)) for BitDepthLuma in the range [8,14].
+                             For HEVC_MAIN10, we add (6*(10-8)=12) on our side for MaxQPP will reach 63.
                              @note Not all codecs and implementations support this value. Use the Query API function to check if this feature is supported. */
-    mfxU8       MinQPB; /*!< Minimum allowed QP value for B-frame types. Valid range is 1 to 51 inclusive. Zero means default value, that is, no limitations on QP.
+    mfxU8       MinQPB; /*!< Minimum allowed QP value for B-frame types. Valid range varies with the codec. Zero means default value, that is, no limitations on QP.
                              @note Not all codecs and implementations support this value. Use the Query API function to check if this feature is supported. */
-    mfxU8       MaxQPB; /*!< Maximum allowed QP value for B-frame types. Valid range is 1 to 51 inclusive. Zero means default value, that is, no limitations on QP.
+    mfxU8       MaxQPB; /*!< Maximum allowed QP value for B-frame types. Valid range varies with the codec. Zero means default value, that is, no limitations on QP.
+                             @note In the HEVC design, a further adjustment to QPs can occur based on bit depth.
+                             Adjusted MaxQPB value = 51 + (6 * (BitDepthLuma - 8)) for BitDepthLuma in the range [8,14].
+                             For HEVC_MAIN10, we add (6*(10-8)=12) on our side for MaxQPB will reach 63.
                              @note Not all codecs and implementations support this value. Use the Query API function to check if this feature is supported. */
     /*!
        Sets fixed_frame_rate_flag in VUI.
@@ -2360,11 +2405,6 @@ enum {
     
 #ifdef ONEVPL_EXPERIMENTAL
     /*!
-       See the mfxExtSyncSubmission structure for more details.
-    */
-    MFX_EXTBUFF_SYNCSUBMISSION = MFX_MAKEFOURCC('S','Y','N','C'),
-
-    /*!
        See the mfxExtVPPPercEncPrefilter structure for details.
     */
     MFX_EXTBUFF_VPP_PERC_ENC_PREFILTER        = MFX_MAKEFOURCC('V','P','E','F'),
@@ -2376,6 +2416,42 @@ enum {
     See the mfxExtSurfaceOpenCLImg2DExportDescription structure for more details.
     */
     MFX_EXTBUFF_EXPORT_SHARING_DESC_OCL = MFX_MAKEFOURCC('E', 'O', 'C', 'L'),
+    /*!
+    See the mfxExtSurfaceD3D12Tex2DExportDescription structure for more details.
+    */
+    MFX_EXTBUFF_EXPORT_SHARING_DESC_D3D12 = MFX_MAKEFOURCC('E', 'D', '1', '2'),
+#endif
+#ifdef ONEVPL_EXPERIMENTAL
+    /*!
+       See the mfxExtVPPAISuperResolution structure for details.
+    */
+    MFX_EXTBUFF_VPP_AI_SUPER_RESOLUTION = MFX_MAKEFOURCC('V','A','S','R'),
+#endif
+#ifdef ONEVPL_EXPERIMENTAL
+   /*!
+      See the mfxExtQualityInfoMode structure for details.
+   */
+   MFX_EXTBUFF_ENCODED_QUALITY_INFO_MODE = MFX_MAKEFOURCC('E', 'N', 'Q', 'M'),
+    /*!
+      See the mfxExtQualityInfoOutput structure for details.
+   */
+   MFX_EXTBUFF_ENCODED_QUALITY_INFO_OUTPUT = MFX_MAKEFOURCC('E', 'N', 'Q', 'O'),
+#endif
+#ifdef ONEVPL_EXPERIMENTAL
+   /*!
+      See the mfxExtAV1ScreenContentTools structure for details.
+   */
+   MFX_EXTBUFF_AV1_SCREEN_CONTENT_TOOLS = MFX_MAKEFOURCC('1', 'S', 'C', 'C'),
+#endif
+#ifdef ONEVPL_EXPERIMENTAL
+    /*!
+        See the mfxExtAlphaChannelEncCtrl structure for more details.
+    */
+    MFX_EXTBUFF_ALPHA_CHANNEL_ENC_CTRL = MFX_MAKEFOURCC('A', 'C', 'E', 'C'),
+    /*!
+        See the mfxExtAlphaChannelSurface structure for more details.
+    */
+    MFX_EXTBUFF_ALPHA_CHANNEL_SURFACE = MFX_MAKEFOURCC('A', 'C', 'S', 'F'),
 #endif
 };
 
@@ -2505,12 +2581,21 @@ typedef struct {
 } mfx3DLutVideoBuffer;
 MFX_PACK_END()
 
+#ifdef ONEVPL_EXPERIMENTAL
+/*! The mfx3DLutInterpolationMethod enumerator specifies the 3DLUT interpolation method. */
+typedef enum {
+    MFX_3DLUT_INTERPOLATION_DEFAULT              = 0,   /*!< Default 3DLUT interpolation Method. The library selects the most appropriate 3DLUT interpolation method. */
+    MFX_3DLUT_INTERPOLATION_TRILINEAR            = 1,   /*!< 3DLUT Trilinear interpolation method. */
+    MFX_3DLUT_INTERPOLATION_TETRAHEDRAL          = 2,   /*!< 3DLUT Tetrahedral interpolation method. */
+} mfx3DLutInterpolationMethod;
+#endif
+
 MFX_PACK_BEGIN_USUAL_STRUCT()
 /*!
     A hint structure that configures 3DLUT filter.
 */
 typedef struct {
-    mfxExtBuffer             Header;           /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_VPP_3DLUT..*/
+    mfxExtBuffer             Header;           /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_VPP_3DLUT.*/
     mfx3DLutChannelMapping   ChannelMapping;   /*!< Indicates 3DLUT channel mapping. mfx3DLutChannelMapping enumerator.*/
     mfxResourceType          BufferType;       /*!< Indicates 3DLUT buffer type. mfxResourceType enumerator, can be system memory, VA surface, DX11 texture/buffer etc.*/
     union
@@ -2518,7 +2603,12 @@ typedef struct {
         mfx3DLutSystemBuffer SystemBuffer;     /*!< The 3DLUT system buffer. mfx3DLutSystemBuffer structure describes the details of the buffer.*/
         mfx3DLutVideoBuffer  VideoBuffer;      /*!< The 3DLUT video buffer. mfx3DLutVideoBuffer describes the details of 3DLUT video buffer.*/
     };
+#ifdef ONEVPL_EXPERIMENTAL
+    mfx3DLutInterpolationMethod     InterpolationMethod;       /*!< Indicates 3DLUT Interpolation Method. mfx3DLutInterpolationMethod enumerator.*/
+    mfxU32                          reserved[3];               /*!< Reserved for future extension.*/
+#else
     mfxU32                   reserved[4];      /*!< Reserved for future extension.*/
+#endif
 } mfxExtVPP3DLut;
 MFX_PACK_END()
 
@@ -2756,7 +2846,9 @@ enum {
                                                considered to be exported to DRM Prime FD, DRM FLink or DRM FrameBuffer Handle. Specifics of export
                                                types and export procedure depends on external frame allocator implementation */
     MFX_MEMTYPE_SHARED_RESOURCE = MFX_MEMTYPE_EXPORT_FRAME, /*!< For DX11 allocation use shared resource bind flag. */
-    MFX_MEMTYPE_VIDEO_MEMORY_ENCODER_TARGET = 0x1000 /*!< Frames are in video memory and belong to video encoder render targets. */
+    MFX_MEMTYPE_VIDEO_MEMORY_ENCODER_TARGET = 0x1000, /*!< Frames are in video memory and belong to video encoder render targets. */
+
+    MFX_MEMTYPE_VIDEO_MEMORY_UNORDERED_ACCESS = 0x8000 /*!< Frames are in video memory and used as an unordered access resource. */
 };
 
 MFX_PACK_BEGIN_USUAL_STRUCT()
@@ -2952,7 +3044,7 @@ MFX_PACK_BEGIN_USUAL_STRUCT()
 
    @note Not all implementations of the encoder support LongTermIdx and ApplyLongTermIdx fields in this structure. The application must use
          query mode 1 to determine if such functionality is supported. To do this, the application must attach this extended buffer to the
-         mfxVideoParam structure and call the MFXVideoENCODE_Query function. If the function returns MFX_ERR_NONE and these fields were set to one,
+         mfxVideoParam structure and call the MFXVideoENCODE_Query function. If the function returns MFX_ERR_NONE and these fields were set to non-zero value,
          then the functionality is supported. If the function fails or sets fields to zero, then the functionality is not supported.
 
 */
@@ -3045,34 +3137,34 @@ MFX_PACK_END()
 
 /*!
     The InsertHDRPayload enumerator itemizes HDR payloads insertion rules in the encoder,
-    and indicates if there is valid HDR SEI message in the clip in the decoder.
+    and indicates if there is valid HDR information in the clip in the decoder.
 */
 enum {
     MFX_PAYLOAD_OFF = 0, /*!< Do not insert payload when encoding;
-                              Clip does not have valid HDE SEI when decoding. */
+                              Clip does not have valid HDR information when decoding. */
     MFX_PAYLOAD_IDR = 1  /*!< Insert payload on IDR frames when encoding;
-                              Clip has valid HDE SEI when decoding. */
+                              Clip has valid HDR information when decoding. */
 };
 
 MFX_PACK_BEGIN_USUAL_STRUCT()
 /*!
-   Handle the HDR SEI message.
+   Handle the HDR information.
 
    During encoding: If the application attaches this structure to the mfxEncodeCtrl structure at runtime,
-   the encoder inserts the HDR SEI message for the current frame and ignores InsertPayloadToggle. If the application attaches this
-   structure to the mfxVideoParam structure during initialization or reset, the encoder inserts the HDR SEI message based on InsertPayloadToggle.
+   the encoder inserts the HDR information for the current frame and ignores InsertPayloadToggle. If the application attaches this
+   structure to the mfxVideoParam structure during initialization or reset, the encoder inserts the HDR information based on InsertPayloadToggle.
 
    During video processing: If the application attaches this structure for video processing, InsertPayloadToggle will be ignored.
    And DisplayPrimariesX[3], DisplayPrimariesY[3] specify the color primaries where 0,1,2 specifies Red, Green, Blue respectively.
 
    During decoding: If the application attaches this structure to the mfxFrameSurface1 structure at runtime
    which will seed to the MFXVideoDECODE_DecodeFrameAsync() as surface_work parameter,
-   the decoder will parse the HDR SEI message if the bitstream include HDR SEI message per frame.
-   The parsed HDR SEI will be attached to the ExtendBuffer of surface_out parameter of MFXVideoDECODE_DecodeFrameAsync()
-   with flag `InsertPayloadToggle` to indicate if there is valid HDR SEI message in the clip.
-   `InsertPayloadToggle` will be set to `MFX_PAYLOAD_IDR` if oneAPI Video Processing Library (oneVPL) gets valid HDR SEI, otherwise it will be set 
+   the decoder will parse the HDR information if the bitstream include HDR information per frame.
+   The parsed HDR information will be attached to the ExtendBuffer of surface_out parameter of MFXVideoDECODE_DecodeFrameAsync()
+   with flag `InsertPayloadToggle` to indicate if there is valid HDR information in the clip.
+   `InsertPayloadToggle` will be set to `MFX_PAYLOAD_IDR` if oneAPI Video Processing Library (oneVPL) gets valid HDR information, otherwise it will be set 
    to `MFX_PAYLOAD_OFF`.
-   This function is support for HEVC only now.
+   This function is support for HEVC and AV1 only now.
 
    Encoding or Decoding, Field semantics are defined in ITU-T* H.265 Annex D, AV1 6.7.4 Metadata OBU semantics.
 
@@ -3098,22 +3190,22 @@ MFX_PACK_END()
 
 MFX_PACK_BEGIN_USUAL_STRUCT()
 /*!
-   Handle the HDR SEI message.
+   Handle the HDR information.
 
    During encoding: If the application attaches this structure to the mfxEncodeCtrl structure at runtime,
-   the encoder inserts the HDR SEI message for the current frame and ignores InsertPayloadToggle. If the application
+   the encoder inserts the HDR information for the current frame and ignores InsertPayloadToggle. If the application
    attaches this structure to the mfxVideoParam structure during initialization or reset, the encoder inserts
-   the HDR SEI message based on InsertPayloadToggle.
+   the HDR information based on InsertPayloadToggle.
 
    During video processing: If the application attaches this structure for video processing, InsertPayloadToggle will be ignored.
 
    During decoding: If the application attaches this structure to the mfxFrameSurface1 structure at runtime
    which will seed to the MFXVideoDECODE_DecodeFrameAsync() as surface_work parameter,
-   the decoder will parse the HDR SEI message if the bitstream include HDR SEI message per frame.
-   The parsed HDR SEI will be attached to the ExtendBuffer of surface_out parameter of MFXVideoDECODE_DecodeFrameAsync()
-   with flag `InsertPayloadToggle` to indicate if there is valid HDR SEI message in the clip.
-   `InsertPayloadToggle` will be set to `MFX_PAYLOAD_IDR` if oneVPL gets valid HDR SEI, otherwise it will be set to `MFX_PAYLOAD_OFF`.
-   This function is support for HEVC only now.
+   the decoder will parse the HDR information if the bitstream include HDR information per frame.
+   The parsed HDR information will be attached to the ExtendBuffer of surface_out parameter of MFXVideoDECODE_DecodeFrameAsync()
+   with flag `InsertPayloadToggle` to indicate if there is valid HDR information in the clip.
+   `InsertPayloadToggle` will be set to `MFX_PAYLOAD_IDR` if oneVPL gets valid HDR information, otherwise it will be set to `MFX_PAYLOAD_OFF`.
+   This function is support for HEVC and AV1 only now.
 
    Field semantics are defined in ITU-T* H.265 Annex D, AV1 6.7.3 Metadata high dynamic range content light level semantics.
 */
@@ -3436,7 +3528,7 @@ enum {
     MFX_TRANSFERMATRIX_BT601   = 2  /*!< Transfer matrix from ITU-R BT.601 standard. */
 };
 
-/* The NominalRange enumerator itemizes pixel's value nominal range. */
+/*! The NominalRange enumerator itemizes pixel's value nominal range. */
 enum {
     MFX_NOMINALRANGE_UNKNOWN   = 0, /*!< Range is not defined. */
     MFX_NOMINALRANGE_0_255     = 1, /*!< Range is from  0 to 255. */
@@ -5001,17 +5093,6 @@ typedef struct {
 MFX_PACK_END()
 
 #ifdef ONEVPL_EXPERIMENTAL
-MFX_PACK_BEGIN_STRUCT_W_PTR()
-/*! The structure is used to get a synchronization object which signalizes about submission of a task to GPU.  */
-typedef struct {
-    mfxExtBuffer     Header;     /*! Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_SYNCSUBMISSION. */
-    mfxSyncPoint     *SubmissionSyncPoint; /*!< SyncPoint object to get a moment of a submission task to GPU.  */
-    mfxU32 reserved1[8]; /*!< Reserved for future use. */
-} mfxExtSyncSubmission;
-MFX_PACK_END()
-#endif
-
-#ifdef ONEVPL_EXPERIMENTAL
 MFX_PACK_BEGIN_USUAL_STRUCT()
 /*! The structure is used to configure perceptual encoding prefilter in VPP. */
 typedef struct {
@@ -5045,23 +5126,152 @@ MFX_PACK_END()
 #endif
 
 #ifdef ONEVPL_EXPERIMENTAL
-/* The mfxAutoSelectImplType enumerator specifies the method for automatically selecting an implementation. */
+/*! The mfxAISuperResolutionMode enumerator specifies the mode of AI based super resolution. */
 typedef enum {
-    MFX_AUTO_SELECT_IMPL_TYPE_UNKNOWN = 0,         /*!< Unspecified automatic implementation selection. */
-    MFX_AUTO_SELECT_IMPL_TYPE_DEVICE_HANDLE = 1,   /*!< Select implementation corresponding to device handle. */
-} mfxAutoSelectImplType;
+    MFX_AI_SUPER_RESOLUTION_MODE_DISABLED = 0,        /*!< Super Resolution is disabled.*/
+    MFX_AI_SUPER_RESOLUTION_MODE_DEFAULT = 1,         /*!< Default super resolution mode. The library selects the most appropriate super resolution mode.*/
+} mfxAISuperResolutionMode;
 
 MFX_PACK_BEGIN_STRUCT_W_PTR()
-/*! Specifies that an implementation should be selected which matches the device handle provided by the application. */
+/*!
+    A hint structure that configures AI based super resolution VPP filter.
+    Super resolution is an AI-powered upscaling feature which converts a low-resolution to high-resolution.
+    On some platforms this filter is not supported. To query its support, the application should use the same approach that it uses to configure VPP filters:
+    adding the filter ID to the mfxExtVPPDoUse structure or by attaching the mfxExtVPPAISuperResolution structure directly to the mfxVideoParam structure and
+    calling the Query API function. If the filter is supported, the function returns a MFX_ERR_NONE status; otherwise, the function returns MFX_ERR_UNSUPPORTED.
+    If both mfxExtVPPAISuperResolution and mfxExtVPPScaling are attached during initialization, the function will return MFX_ERR_INCOMPATIBLE_VIDEO_PARAM; if both
+    of them are attached during runtime, the mfxExtVPPAISuperResolution will override the upscaling mode and use super resolution.
+    If the application needs to switch on and off, the application can set the MFX_AI_SUPER_RESOLUTION_MODE_DISABLED to switch off, MFX_AI_SUPER_RESOLUTION_MODE_DEFAULT
+    to switch on.
+*/
 typedef struct {
-    mfxAutoSelectImplType AutoSelectImplType;      /*!< Must be set to MFX_AUTO_SELECT_IMPL_TYPE_DEVICE_HANDLE. */
+    mfxExtBuffer                Header;               /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_VPP_AI_SUPER_RESOLUTION.*/
+    mfxAISuperResolutionMode    SRMode;               /*!< Indicates Super Resolution Mode. mfxAISuperResolutionMode enumerator.*/
 
-    mfxAccelerationMode   AccelMode;               /*!< Hardware acceleration mode of provided device handle. */
-    mfxHandleType         DeviceHandleType;        /*!< Type of provided device handle. */
-    mfxHDL                DeviceHandle;            /*!< System handle to hardware device. */
+    mfxU32                      reserved1[16];         /*!< Reserved for future use. */
+    mfxHDL                      reserved2[4];          /*!< Reserved for future use. */
+} mfxExtVPPAISuperResolution;
+MFX_PACK_END()
+#endif
 
-    mfxU16                reserved[8];             /*!< Reserved for future use. */
-} mfxAutoSelectImplDeviceHandle;
+#ifdef ONEVPL_EXPERIMENTAL
+/*! The mfxQualityInfoMode enumerator specifies the mode of Quality information. */
+typedef enum {
+    MFX_QUALITY_INFO_DISABLE        = 0,   /*!< Quality reporting disabled. */
+    MFX_QUALITY_INFO_LEVEL_FRAME    = 0x1, /*!< Frame level quality report. */
+} mfxQualityInfoMode;
+
+MFX_PACK_BEGIN_USUAL_STRUCT()
+/*!
+   Used by the encoder to set quality information report mode for the encoded picture. 
+   
+   @note Not all implementations of the encoder support this extended buffer. The application must use query mode 1 to determine if
+         the functionality is supported. To do this, the application must attach this extended buffer to the mfxVideoParam structure and
+         call the MFXVideoENCODE_Query function. If the function returns MFX_ERR_NONE then the functionality is supported.
+*/
+typedef struct {
+    mfxExtBuffer        Header;         /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_ENCODED_QUALITY_INFO_MODE. */
+    mfxQualityInfoMode  QualityInfoMode;/*!< See mfxQualityInfoMode enumeration for supported modes. */
+    mfxU32              reserved[5];    /*!< Reserved for future use. */
+} mfxExtQualityInfoMode;
+MFX_PACK_END()
+
+MFX_PACK_BEGIN_STRUCT_W_PTR()
+/*!
+   Used by the encoder to report quality information about the encoded picture. The application can attach
+   this buffer to the mfxBitstream structure before calling MFXVideoENCODE_EncodeFrameAsync function.
+*/
+typedef struct {
+    mfxExtBuffer        Header;         /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_ENCODED_QUALITY_INFO_OUTPUT. */
+    mfxU32              FrameOrder;     /*!< Frame display order of encoded picture. */
+    mfxU32              MSE[3];         /*!< Frame level mean squared errors (MSE) for Y/U/V channel. */
+    mfxU32              reserved1[50];  /*!< Reserved for future use. */
+    mfxHDL              reserved2[4];   /*!< Reserved for future use. */
+} mfxExtQualityInfoOutput;
+MFX_PACK_END()
+#endif
+
+#ifdef ONEVPL_EXPERIMENTAL
+MFX_PACK_BEGIN_USUAL_STRUCT()
+/*!
+   Used by the encoder to set the screen content tools.
+
+   @note Not all implementations of the encoder support this extended buffer. The application must use query mode 1 to determine if
+         the functionality is supported. To do this, the application must attach this extended buffer to the mfxVideoParam structure and
+         call the MFXVideoENCODE_Query function. If the function returns MFX_ERR_NONE then the functionality is supported.
+*/
+typedef struct {
+    mfxExtBuffer        Header;         /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_AV1_SCREEN_CONTENT_TOOLS. */
+    /*!
+       Set this flag to MFX_CODINGOPTION_ON to enable palette prediction for encoder. Set this flag to MFX_CODINGOPTION_OFF to disable it.
+       If this flag is set to any other value, the default value will be used which can be obtained from the MFXVideoENCODE_GetVideoParam function after encoding initialization.
+       See the CodingOptionValue enumerator for values of this option. This parameter is valid only during initialization.
+       @note Not all codecs and implementations support this value. Use the Query API function to check if this feature is supported.
+    */
+    mfxU16              Palette;
+    /*!
+       Set this flag to MFX_CODINGOPTION_ON to enable intra block copy prediction for encoder. Set this flag to MFX_CODINGOPTION_OFF to disable it. 
+       If this flag is set to any other value, the default value will be used which can be obtained from the MFXVideoENCODE_GetVideoParam function after encoding initialization.
+       See the CodingOptionValue enumerator for values of this option. This parameter is valid only during initialization.
+       @note Not all codecs and implementations support this value. Use the Query API function to check if this feature is supported.
+    */    
+    mfxU16              IntraBlockCopy;
+    mfxU16              reserved[10];   /*!< Reserved for future use. */
+} mfxExtAV1ScreenContentTools;
+MFX_PACK_END()
+#endif
+
+
+#ifdef ONEVPL_EXPERIMENTAL
+/*! The AlphaChannelMode enumerator specifies alpha is straight or pre-multiplied. */
+enum {
+    /*!
+        RGB and alpha are independent, then the alpha value specifies how solid it is.
+        We set it to the default value, i.e., the alpha source data is already pre-multiplied, so that the decoded samples of the associated primary picture
+        should not be multiplied by the interpretation sample values of the auxiliary coded picture in the display process after output from the decoding process.
+    */
+    MFX_ALPHA_MODE_PREMULTIPLIED    = 1,
+
+    /*!
+        RGB and alpha are linked, then the alpha value specifies how much it obscures whatever is behind it.
+        Therefore, the decoded samples of the associated primary picture should be multiplied by the interpretation sample values
+        of the auxiliary coded picture in the display process after output from the decoding process.
+    */
+    MFX_ALPHA_MODE_STRAIGHT         = 2
+};
+
+MFX_PACK_BEGIN_USUAL_STRUCT()
+/*! Configure the alpha channel encoding. */
+typedef struct {
+    mfxExtBuffer        Header;     /*!< Extension buffer header. BufferId must be equal to MFX_EXTBUFF_ALPHA_CHANNEL_ENC_CTRL. */
+    /*!
+       Set this flag to MFX_CODINGOPTION_ON to enable alpha channel encoding. See the CodingOptionValue enumerator for values of this option.
+       This parameter is valid only during initialization.
+       @note Not all codecs and implementations support this value. Use the Query API function to check if this feature is supported.
+    */
+    mfxU16              EnableAlphaChannelEncoding;
+    /*!
+        Specifies alpha is straight or pre-multiplied. See the AlphaChannelMode enumerator for details.
+        Encoder just record this in the SEI for post-decoding rendering.
+    */
+    mfxU16              AlphaChannelMode;
+    /*!
+       Indicates the percentage of the auxiliary alpha layer in the total bitrate. Valid range for this parameter is [1, 99].
+       We set 25 as the default value, i.e. Alpha(25) : Total(100), then 25% of the bits will be spent on alpha layer encoding whereas the other 75% will be spent on base(YUV) layer.
+       Affects the following variables: InitialDelayInKB, BufferSizeInKB, TargetKbps, MaxKbps.
+    */
+    mfxU16              AlphaChannelBitrateRatio;
+    mfxU16              reserved[9];
+} mfxExtAlphaChannelEncCtrl;
+MFX_PACK_END()
+
+MFX_PACK_BEGIN_STRUCT_W_PTR()
+/*! Defines the uncompressed frames surface information and data buffers for alpha channel encoding. */
+typedef struct {
+    mfxExtBuffer        Header;         /*!< Extension buffer header. BufferId must be equal to MFX_EXTBUFF_ALPHA_CHANNEL_SURFACE. */
+    mfxFrameSurface1*   AlphaSurface;   /*!< Alpha channel surface. */
+    mfxU16              reserved[8];
+} mfxExtAlphaChannelSurface;
 MFX_PACK_END()
 #endif
 
