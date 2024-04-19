@@ -9,15 +9,18 @@ See the [specification](https://intel.github.io/libvpl) for additional informati
 
 This repository contains the following components:
 
-- Copies of the Intel® VPL API header files. The version of the API is listed in the
-[mfxdefs.h](./api/vpl/mfxdefs.h) file.
+- Copies of the Intel® VPL API header files. The version of the API is listed in
+the [mfxdefs.h](./api/vpl/mfxdefs.h) file.
 - Intel® VPL Dispatcher
 - Examples demonstrating API usage
 
-To use Intel® VPL for video processing you need to install at least one implementation. Here is a list:
+To use Intel® VPL for video processing you need to install at least one
+implementation. Here is a list:
 
-- [oneVPL-intel-gpu](https://github.com/oneapi-src/oneVPL-intel-gpu) for use on Intel® Iris® Xe graphics and newer
-- [Intel® Media SDK](https://github.com/Intel-Media-SDK/MediaSDK) for use on legacy Intel® graphics
+- [Intel® VPL GPU Runtime](https://github.com/intel/vpl-gpu-rt) for use on
+  Intel® Iris® Xe graphics and newer
+- [Intel® Media SDK](https://github.com/Intel-Media-SDK/MediaSDK) for use on
+  legacy Intel® graphics
 
 ## Architecture
 ```mermaid
@@ -26,7 +29,8 @@ graph TD;
     dispatcher-->msdk["Intel® MediaSDK"];
 ```
 
-As shown in this diagram, the Intel® VPL Dispatcher forwards function calls from the application to use the selected runtime.
+As shown in this diagram, the Intel® VPL Dispatcher forwards function calls from
+the application to use the selected runtime.
 
 ## Dispatcher behavior when targeting Intel® GPUs
 Runtime loaded by Intel® VPL Dispatcher and their Microsoft* DirectX* support:
@@ -48,7 +52,10 @@ Runtime loaded by Intel® VPL Dispatcher and their Microsoft* DirectX* support:
 | ATSM (Intel® Data Center GPU Flex Series)  |                  |:heavy_check_mark:| DX11                        |
 | Future platforms...                        |                  |:heavy_check_mark:| DX11                        |
 
-For TGL and DG1, if both Intel® VPL and Intel® Media SDK runtime are installed then the Intel® VPL Dispatcher will prefer Intel® VPL runtime unless the application requests D3D9 by setting the filter property "mfxImplDescription.AccelerationMode" to MFX_ACCEL_MODE_VIA_D3D9.
+For TGL and DG1, if both Intel® VPL and Intel® Media SDK runtime are installed
+then the Intel® VPL Dispatcher will prefer Intel® VPL runtime unless the
+application requests D3D9 by setting the filter property
+"mfxImplDescription.AccelerationMode" to MFX_ACCEL_MODE_VIA_D3D9.
 
 ## Installing Intel® VPL
 
@@ -56,8 +63,10 @@ For TGL and DG1, if both Intel® VPL and Intel® Media SDK runtime are installed
 
 Intel® VPL may be installed:
 
-- from source code.  See install and use instructions at [INSTALL.md](INSTALL.md).
-- from Linux packages.  See [Intel® software for general purpose GPU capabilities](https://dgpu-docs.intel.com/)
+- from source code.  See install and use instructions at
+  [INSTALL.md](INSTALL.md).
+- from Linux packages.  See [Intel® software for general purpose GPU
+  capabilities](https://dgpu-docs.intel.com/)
 
 
 ## Using Intel® VPL
@@ -94,8 +103,8 @@ target_link_libraries(${TARGET} VPL::dispatcher)
 
 ### Link to Intel® VPL from Bash with pkg-config
 
-The following command line illustrates how to link a simple program to Intel® VPL
-using pkg-config.
+The following command line illustrates how to link a simple program to Intel®
+VPL using pkg-config.
 
 ```
 gcc program.cpp `pkg-config --cflags --libs vpl`
