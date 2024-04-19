@@ -12,8 +12,11 @@ cases.
 
 ## [Unreleased]
 
+### Added
+- Intel® VPL API 2.11 support
+
 ### Removed
-- Command line tools. They have been moved to a septate repository
+- Command line tools. They have been moved to a separate repository
   (https://github.com/intel/libvpl-tools)
 
 ## [2.10.2] - 2024-02-21
