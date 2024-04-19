@@ -12,6 +12,8 @@ cases.
 
 ## [Unreleased]
 
+## [2.11.0] - 2024-04-26
+
 ### Added
 - Intel® VPL API 2.11 support
 
@@ -371,7 +373,8 @@ cases.
 - hello-transcode sample
 
 
-[Unreleased]: https://github.com/intel/libvpl/compare/v2.10.2...HEAD
+[Unreleased]: https://github.com/intel/libvpl/compare/v2.11.0...HEAD
+[2.11.0]: https://github.com/intel/libvpl/compare/v2.10.2...v2.11.0
 [2.10.2]: https://github.com/intel/libvpl/compare/v2.10.1...v2.10.2
 [2.10.1]: https://github.com/intel/libvpl/compare/v2023.4.0...v2.10.1
 [2023.4.0]: https://github.com/intel/libvpl/compare/v2023.3.1...v2023.4.0
