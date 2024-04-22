@@ -35,5 +35,8 @@ if(WIN32)
 endif()
 
 include(GoogleTest)
-gtest_discover_tests(${TARGET} PROPERTIES ENVIRONMENT
-                     ONEVPL_SEARCH_PATH=$<TARGET_FILE_DIR:vplstubrt>)
+# note that RESOURCE_LOCK prevents running any discoveded tests in parallel
+gtest_discover_tests(
+  ${TARGET} PROPERTIES ENVIRONMENT
+  ONEVPL_SEARCH_PATH=$<TARGET_FILE_DIR:vplstubrt> RESOURCE_LOCK
+  DISPATCHER_LOG_FILE)
