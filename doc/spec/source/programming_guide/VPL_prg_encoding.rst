@@ -271,6 +271,14 @@ The following pseudo code shows the encoding procedure:
 Encoder Quality Information
 ---------------------------
 
+Video encoder supports outputting quality information. Currently, it only 
+reports the mean squared error (MSE).
+
+- The application uses the :cpp:struct:`mfxExtQualityInfoMode` structure with 
+  ``mfxQualityInfoMode = MFX_QUALITY_INFO_LEVEL_FRAME`` to initiate the request.
+- The application uses the :cpp:struct:`mfxExtQualityInfoOutput` structure to obtain the 
+  MSE result.
+
 The following pseudo code shows an example of gathering encoder quality information:
 
 .. literalinclude:: ../snippets/prg_encoding.c
@@ -279,10 +287,28 @@ The following pseudo code shows an example of gathering encoder quality informat
    :end-before: /*end9*/
    :lineno-start: 1
 
+Note the following key points about the example:
+
+- The application must attach the :cpp:struct:`mfxExtQualityInfoMode` structure to the 
+  :cpp:struct:`mfxVideoParam` structure and call the :cpp:func:`MFXVideoENCODE_Query` to 
+  check the support status of the request. The function returns 
+  :cpp:enumerator:`mfxStatus::MFX_ERR_NONE` if support is successful, or issues a warning 
+  :cpp:enumerator:`mfxStatus::MFX_WRN_INCOMPATIBLE_VIDEO_PARAM` if not supported, and 
+  sets :cpp:struct:`mfxExtQualityInfoMode` to 
+  ``mfxQualityInfoMode = MFX_QUALITY_INFO_DISABLE``.
+- The application uses the :cpp:func:`MFXVideoENCODE_Init` to initialize the encoder.
+- The application can attach the :cpp:struct:`mfxExtQualityInfoOutput` structure to 
+  the encoded bitstream structure before calling 
+  :cpp:func:`MFXVideoENCODE_EncodeFrameAsync` function.
+- The application must use the :cpp:func:`MFXVideoCORE_SyncOperation` function to 
+  synchronize the encoding operation before retrieving the encoded bitstream and MSE 
+  result.
+
 ------------------------
 AV1 Screen Content Tools
 ------------------------
 
+AV1 video encoder supports Palette Prediction and Intra Block Copy mode.
 The following pseudo code shows an example of encoding with AV1 Screen Content tools:
 
 .. literalinclude:: ../snippets/prg_encoding.c
@@ -290,6 +316,22 @@ The following pseudo code shows an example of encoding with AV1 Screen Content t
    :start-after: /*beg10*/
    :end-before: /*end10*/
    :lineno-start: 1
+
+Note the following key points about the example:
+
+- The application must attach the :cpp:struct:`mfxExtAV1ScreenContentTools` structure to 
+  the :cpp:struct:`mfxVideoParam` structure and call the :cpp:func:`MFXVideoENCODE_Query` 
+  to check the support status of the request. The function returns 
+  :cpp:enumerator:`mfxStatus::MFX_ERR_NONE` if support is successful, issues a warning   
+  :cpp:enumerator:`mfxStatus::MFX_WRN_INCOMPATIBLE_VIDEO_PARAM` due to platform 
+  limitations and updates the :cpp:struct:`mfxExtAV1ScreenContentTools` structure values 
+  to the default, or returns the error :cpp:enumerator:`mfxStatus::MFX_ERR_UNSUPPORTED` if 
+  not support.
+- The application uses the :cpp:func:`MFXVideoENCODE_Init` to initialize the encoder.
+- The application calls the :cpp:func:`MFXVideoENCODE_EncodeFrameAsync` function to 
+  perform the encoding operation.
+- The application must use the :cpp:func:`MFXVideoCORE_SyncOperation` function to 
+  synchronize the encoding operation before retrieving the encoded bitstream.
 
 ----------------------
 Alpha Channel Encoding
