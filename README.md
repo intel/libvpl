@@ -14,6 +14,11 @@ the [mfxdefs.h](./api/vpl/mfxdefs.h) file.
 - Intel® VPL Dispatcher
 - Examples demonstrating API usage
 
+> [!IMPORTANT]
+>
+> Intel® VPL Tools are no longer in this repository. They have all been moved to
+> https://github.com/intel/libvpl-tools
+
 To use Intel® VPL for video processing you need to install at least one
 implementation. Here is a list:
 

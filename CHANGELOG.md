@@ -10,6 +10,11 @@ encode, and frame processing capabilities on Intel® GPUs to support AI visual
 inference, media delivery, cloud gaming, and virtual desktop infrastructure use
 cases.
 
+> [!IMPORTANT]
+>
+> Intel® VPL Tools are no longer in this repository. They have all been moved to
+> https://github.com/intel/libvpl-tools
+
 ## [Unreleased]
 
 ## [2.11.0] - 2024-04-26
