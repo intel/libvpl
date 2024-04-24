@@ -509,3 +509,43 @@ mfxExtHEVCTemporalLayers
 
 .. doxygentypedef:: mfxExtHEVCTemporalLayers
    :project: DEF_BREATHE_PROJECT
+
+mfxExtQualityInfoMode
+---------------------
+
+.. doxygenstruct:: mfxExtQualityInfoMode
+   :project: DEF_BREATHE_PROJECT
+   :members:
+   :protected-members:
+
+mfxExtQualityInfoOutput
+-----------------------
+
+.. doxygenstruct:: mfxExtQualityInfoOutput
+   :project: DEF_BREATHE_PROJECT
+   :members:
+   :protected-members:
+
+mfxExtAV1ScreenContentTools
+---------------------------
+
+.. doxygenstruct:: mfxExtAV1ScreenContentTools
+   :project: DEF_BREATHE_PROJECT
+   :members:
+   :protected-members:
+
+mfxExtAlphaChannelEncCtrl
+-------------------------
+
+.. doxygenstruct:: mfxExtAlphaChannelEncCtrl
+   :project: DEF_BREATHE_PROJECT
+   :members:
+   :protected-members:
+
+mfxExtAlphaChannelSurface
+-------------------------
+
+.. doxygenstruct:: mfxExtAlphaChannelSurface
+   :project: DEF_BREATHE_PROJECT
+   :members:
+   :protected-members:
