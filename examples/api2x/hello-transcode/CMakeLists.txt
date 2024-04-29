@@ -8,6 +8,10 @@ project(hello-transcode)
 
 # Default install places 64 bit runtimes in the environment, so we want to do a
 # 64 bit build by default.
+if(WIN32 AND CMAKE_SIZEOF_VOID_P EQUAL 4)
+  set(CMAKE_LIBRARY_ARCHITECTURE x86)
+endif()
+
 if(WIN32)
   if(NOT DEFINED CMAKE_GENERATOR_PLATFORM)
     set(CMAKE_GENERATOR_PLATFORM

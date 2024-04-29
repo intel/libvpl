@@ -85,7 +85,7 @@ The Intel® VPL include folder is located at these locations on your development 
    cmake -A x64 -T v143 -D OPENCL_SDK_BUILD_OPENGL_SAMPLES=OFF -B OpenCL-SDK\build -S OpenCL-SDK
    cmake --build  OpenCL-SDK\build --config Release
    cmake --install OpenCL-SDK\build --prefix OpenCL-SDK\install
-   set OpenCL_DIR=OpenCL-SDK\install
+   set OpenCL_DIR=%cd%\OpenCL-SDK\install
    ```
 
 4. Build the program with default arguments using the following commands:
