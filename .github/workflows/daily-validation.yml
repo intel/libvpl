@@ -10,7 +10,8 @@ on:
       upload_sdl:
         description: 'Trigger SDL Upload'
         required: false
-        default: 'false'
+        default: false
+        type: boolean
   # Run on schedule
   schedule:
     # daily at 8:00 UTC (1:00 MST)
@@ -137,7 +138,7 @@ jobs:
     secrets: inherit
 
   sdl:
-    if: ${{ github.event.inputs.upload_sdl == 'true'}}
+    if: ${{ github.event.inputs.upload_sdl == true}}
     needs:
       - linux-build
       - windows-build
