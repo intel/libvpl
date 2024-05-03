@@ -465,20 +465,27 @@ mfxStatus MFXInitEx(mfxInitParam par, mfxSession *session) {
     bool callOldInit = !actualTable[eMFXInitEx];
     pFunc            = actualTable[(callOldInit) ? eMFXInit : eMFXInitEx];
 
-    mfxVersion version(pHandle->apiVersion);
-    if (callOldInit) {
-        pHandle->loadStatus = (*(mfxStatus(MFX_CDECL *)(mfxIMPL, mfxVersion *, mfxSession *))pFunc)(
-            pHandle->impl | pHandle->implInterface,
-            &version,
-            &pHandle->session);
+    try {
+        mfxVersion version(pHandle->apiVersion);
+        if (callOldInit) {
+            pHandle->loadStatus =
+                (*(mfxStatus(MFX_CDECL *)(mfxIMPL, mfxVersion *, mfxSession *))pFunc)(
+                    pHandle->impl | pHandle->implInterface,
+                    &version,
+                    &pHandle->session);
+        }
+        else {
+            mfxInitParam initPar   = par;
+            initPar.Implementation = pHandle->impl | pHandle->implInterface;
+            initPar.Version        = version;
+            pHandle->loadStatus =
+                (*(mfxStatus(MFX_CDECL *)(mfxInitParam, mfxSession *))pFunc)(initPar,
+                                                                             &pHandle->session);
+        }
     }
-    else {
-        mfxInitParam initPar   = par;
-        initPar.Implementation = pHandle->impl | pHandle->implInterface;
-        initPar.Version        = version;
-        pHandle->loadStatus =
-            (*(mfxStatus(MFX_CDECL *)(mfxInitParam, mfxSession *))pFunc)(initPar,
-                                                                         &pHandle->session);
+    catch (...) {
+        DISPATCHER_LOG_ERROR((("Unhandled exception occurred\n")));
+        pHandle->loadStatus = MFX_ERR_UNDEFINED_BEHAVIOR;
     }
 
     //===================================
