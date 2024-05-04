@@ -68,7 +68,7 @@ bool DriverStoreLoader::GetDriverStorePath(wchar_t *path,
         return false;
     }
 
-    if (StringFromGUID2(GUID_DEVCLASS_DISPLAY, DisplayGUID, sizeof(DisplayGUID)) == 0) {
+    if (StringFromGUID2(GUID_DEVCLASS_DISPLAY, DisplayGUID, _countof(DisplayGUID)) == 0) {
         DISPATCHER_LOG_WRN(("Couldn't prepare string from GUID\n"));
         return false;
     }
