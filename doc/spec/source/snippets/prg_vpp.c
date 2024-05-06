@@ -435,3 +435,51 @@ MFXVideoVPP_Init(session, &VPPParams);
 /*end12*/
 }
 
+static void prg_vpp13() {
+/*beg13*/
+#ifdef ONEVPL_EXPERIMENTAL
+// configure AI frame interpolation vpp filter
+mfxExtVPPAIFrameInterpolation aiFrameInterpolation = {};
+aiFrameInterpolation.Header.BufferId      = MFX_EXTBUFF_VPP_AI_FRAME_INTERPOLATION;
+aiFrameInterpolation.Header.BufferSz      = sizeof(mfxExtVPPAIFrameInterpolation);
+aiFrameInterpolation.FIMode               = MFX_AI_FRAME_INTERPOLATION_MODE_DEFAULT;
+aiFrameInterpolation.EnableScd            = 1;
+mfxExtBuffer * ExtParam[1] = { (mfxExtBuffer *)&aiFrameInterpolation };
+
+init_param.NumExtParam   = 1;
+init_param.ExtParam      = ExtParam;
+init_param.vpp.In.FrameRateExtN = 30;
+init_param.vpp.In.FrameRateExtD = 1;
+init_param.vpp.Out.FrameRateExtN = 60;
+init_param.vpp.Out.FrameRateExtD = 1;
+sts = MFXVideoVPP_QueryIOSurf(session, &init_param, response);
+sts = MFXVideoVPP_Init(session, &init_param);
+
+// The below code follows the video processing procedure, not specific to AI frame interpolation.
+allocate_pool_of_surfaces(in_pool, response[0].NumFrameSuggested);
+allocate_pool_of_surfaces(out_pool, response[1].NumFrameSuggested);
+mfxFrameSurface1 *in=find_unlocked_surface_and_fill_content(in_pool);
+mfxFrameSurface1 *out=find_unlocked_surface_from_the_pool(out_pool);
+for (;;) {
+   sts=MFXVideoVPP_RunFrameVPPAsync(session,in,out,NULL,&syncp);
+   if (sts==MFX_ERR_MORE_SURFACE || sts==MFX_ERR_NONE) {
+      MFXVideoCORE_SyncOperation(session,syncp,INFINITE);
+      process_output_frame(out);
+      out=find_unlocked_surface_from_the_pool(out_pool);
+   }
+   if (sts==MFX_ERR_MORE_DATA && in==NULL)
+      break;
+   if (sts==MFX_ERR_NONE || sts==MFX_ERR_MORE_DATA) {
+      in=find_unlocked_surface_from_the_pool(in_pool);
+      fill_content_for_video_processing(in);
+      if (end_of_stream())
+         in=NULL;
+   }
+}
+MFXVideoVPP_Close(session);
+free_pool_of_surfaces(in_pool);
+free_pool_of_surfaces(out_pool);
+#endif
+/*end13*/
+}
+

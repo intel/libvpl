@@ -63,28 +63,28 @@ typedef struct {
     mfxU32  FourCC;     /*!< FourCC code of the color format. See the ColorFourCC enumerator for details. */
     union {
         struct { /* Frame parameters */
-            /*! Width of the video frame in pixels. Must be a multiple of 16. 
+            /*! Width of the video frame in pixels. Must be a multiple of 16.
                 In case of fused operation of decode plus VPP it can be set to zero to signalize that scaling operation is not requested. */
-            mfxU16  Width;  
-            /*! Height of the video frame in pixels. Must be a multiple of 16 for progressive frame sequence and a multiple of 32 otherwise. 
+            mfxU16  Width;
+            /*! Height of the video frame in pixels. Must be a multiple of 16 for progressive frame sequence and a multiple of 32 otherwise.
                 In case of fused operation of decode plus VPP it can be set to zero to signalize that scaling operation is not requested. */
-            mfxU16  Height; 
+            mfxU16  Height;
 
             /*! @{
              @name ROI
              The region of interest of the frame. Specify the display width and height in mfxVideoParam. */
             /*! X coordinate.
                 In case of fused operation of decode plus VPP it can be set to zero to signalize that cropping operation is not requested. */
-            mfxU16  CropX; 
+            mfxU16  CropX;
             /*! Y coordinate.
                 In case of fused operation of decode plus VPP it can be set to zero to signalize that cropping operation is not requested. */
-            mfxU16  CropY; 
-            /*! Width in pixels. 
+            mfxU16  CropY;
+            /*! Width in pixels.
                 In case of fused operation of decode plus VPP it can be set to zero to signalize that cropping operation is not requested. */
-            mfxU16  CropW; 
-            /*! Height in pixels. 
+            mfxU16  CropW;
+            /*! Height in pixels.
                 In case of fused operation of decode plus VPP it can be set to zero to signalize that cropping operation is not requested. */
-            mfxU16  CropH; 
+            mfxU16  CropH;
             /*! @} */
         };
         struct { /* Buffer parameters (for plain formats like P8) */
@@ -205,7 +205,7 @@ enum {
     MFX_PICSTRUCT_FIELD_PAIRED_NEXT =0x400, /*!< Paired with next field: pic_struct = 11 or 12 in H.265 */
 };
 
-/* The ChromaFormatIdc enumerator itemizes color-sampling formats. */
+/*! The ChromaFormatIdc enumerator itemizes color-sampling formats. */
 enum {
     MFX_CHROMAFORMAT_MONOCHROME =0, /*!< Monochrome. */
     MFX_CHROMAFORMAT_YUV420     =1, /*!< 4:2:0 color. */
@@ -226,13 +226,13 @@ enum {
     MFX_FRAMEORDER_UNKNOWN = -1 /*!< Unused entry or API functions that generate the frame output do not use this frame. */
 };
 
-/* The FrameDataFlag enumerator itemizes DataFlag value in mfxFrameData. */
+/*! The FrameDataFlag enumerator itemizes DataFlag value in mfxFrameData. */
 enum {
     MFX_FRAMEDATA_TIMESTAMP_UNKNOWN  = 0x0000,/*!< Indicates the time stamp of this frame is unknown and will be calculated by SDK. */
     MFX_FRAMEDATA_ORIGINAL_TIMESTAMP = 0x0001 /*!< Indicates the time stamp of this frame is not calculated and is a pass-through of the original time stamp. */
 };
 
-/* Corrupted in mfxFrameData */
+/*! Corrupted in mfxFrameData */
 enum {
     MFX_CORRUPTION_NO              = 0x0000, /*!< No corruption. */
     MFX_CORRUPTION_MINOR           = 0x0001, /*!< Minor corruption in decoding certain macro-blocks. */
@@ -435,6 +435,7 @@ typedef enum {
     MFX_SURFACE_TYPE_VAAPI                 = 3,      /*!< VA-API surface. */
     MFX_SURFACE_TYPE_OPENCL_IMG2D          = 4,      /*!< OpenCL 2D image (cl_mem). */
     MFX_SURFACE_TYPE_D3D12_TEX2D           = 5,      /*!< D3D12 surface of type ID3D12Resource with 2D texture type. */
+    MFX_SURFACE_TYPE_VULKAN_IMG2D          = 6,      /*!< Vulkan 2D image (VkImage). */
 } mfxSurfaceType;
 
 /*! This enumerator specifies the sharing modes which are allowed for importing or exporting shared surfaces. */
@@ -451,7 +452,7 @@ enum {
 MFX_PACK_BEGIN_STRUCT_W_PTR()
 typedef struct {
     mfxSurfaceType SurfaceType;     /*!< Set to the MFX_SURFACE_TYPE enum corresponding to the specific structure. */
-    mfxU32         SurfaceFlags;    /*!< Set to the MFX_SURFACE_FLAG enum (or combination) corresponding to the allowed import / export mode(s). Multiple flags may be combined with OR. 
+    mfxU32         SurfaceFlags;    /*!< Set to the MFX_SURFACE_FLAG enum (or combination) corresponding to the allowed import / export mode(s). Multiple flags may be combined with OR.
                                          Upon a successful Import or Export operation, this field will indicate the actual mode used.*/
 
     mfxU32         StructSize;      /*!< Size in bytes of the complete mfxSurfaceXXX structure. */
@@ -740,7 +741,7 @@ typedef struct mfxFrameSurfaceInterface {
     @attention This is callback function and intended to be called by
                the library only.
 
-    @note The library calls this callback only when this surface is used as the output surface. 
+    @note The library calls this callback only when this surface is used as the output surface.
 
     It is expected that the function is low-intrusive designed otherwise it may
     impact performance.
@@ -751,7 +752,7 @@ typedef struct mfxFrameSurfaceInterface {
     void               (MFX_CDECL *OnComplete)(mfxStatus sts);
 
    /*! @brief
-    Returns an interface defined by the GUID. If the returned interface is a reference 
+    Returns an interface defined by the GUID. If the returned interface is a reference
     counted object the caller should release the obtained interface to avoid memory leaks.
 
     @param[in]  surface   Valid surface.
@@ -772,7 +773,7 @@ typedef struct mfxFrameSurfaceInterface {
 #ifdef ONEVPL_EXPERIMENTAL
     /*! @brief
      If successful returns an exported surface, which is a refcounted object allocated by runtime. It could be exported with or without copy, depending
-     on export flags and the possibility of such export. Exported surface is valid throughout the session, as long as the original mfxFrameSurface1 
+     on export flags and the possibility of such export. Exported surface is valid throughout the session, as long as the original mfxFrameSurface1
      object is not closed and the refcount of exported surface is not zero.
 
      @param[in]  surface              Valid surface.
@@ -1952,7 +1953,7 @@ typedef struct {
 
         /*!
             If this flag is set to ON, encoder will mark, modify, or remove LTR frames based on encoding parameters and content
-            properties. Turn OFF to prevent Adaptive marking of Long Term Reference Frames. 
+            properties. Turn OFF to prevent Adaptive marking of Long Term Reference Frames.
         */
         mfxU16      AdaptiveLTR;
     };
@@ -1970,9 +1971,9 @@ typedef struct {
        If this flag is set to OFF, regular reference frames are used for encoding.
     */
     mfxU16      AdaptiveRef;
- 
+
     mfxU16      reserved[161];
-  
+
 } mfxExtCodingOption3;
 MFX_PACK_END()
 
@@ -2387,7 +2388,7 @@ enum {
        the mfxEncodeCtrl structure for per-frame encoding configuration.
     */
     MFX_EXTBUFF_UNIVERSAL_REFLIST_CTRL = MFX_EXTBUFF_AVC_REFLIST_CTRL,
-#ifdef ONEVPL_EXPERIMENTAL    
+#ifdef ONEVPL_EXPERIMENTAL
     /*!
        See the mfxExtEncodeStats structure for details.
     */
@@ -2402,7 +2403,7 @@ enum {
        See the mfxExtAllocationHints structure for more details.
     */
     MFX_EXTBUFF_ALLOCATION_HINTS = MFX_MAKEFOURCC('A','L','C','H'),
-    
+
 #ifdef ONEVPL_EXPERIMENTAL
     /*!
        See the mfxExtVPPPercEncPrefilter structure for details.
@@ -2420,12 +2421,22 @@ enum {
     See the mfxExtSurfaceD3D12Tex2DExportDescription structure for more details.
     */
     MFX_EXTBUFF_EXPORT_SHARING_DESC_D3D12 = MFX_MAKEFOURCC('E', 'D', '1', '2'),
+    /*!
+    See the mfxExtSurfaceVulkanImg2DExportDescription structure for more details.
+    */
+    MFX_EXTBUFF_EXPORT_SHARING_DESC_VULKAN = MFX_MAKEFOURCC('E', 'V', 'U', 'L'),
 #endif
 #ifdef ONEVPL_EXPERIMENTAL
     /*!
        See the mfxExtVPPAISuperResolution structure for details.
     */
     MFX_EXTBUFF_VPP_AI_SUPER_RESOLUTION = MFX_MAKEFOURCC('V','A','S','R'),
+#endif
+#ifdef ONEVPL_EXPERIMENTAL
+    /*!
+       See the mfxExtVPPAIFrameInterpolation structure for details.
+    */
+    MFX_EXTBUFF_VPP_AI_FRAME_INTERPOLATION = MFX_MAKEFOURCC('V', 'A', 'F', 'I'),
 #endif
 #ifdef ONEVPL_EXPERIMENTAL
    /*!
@@ -3075,12 +3086,19 @@ MFX_PACK_END()
 
 /*! The FrcAlgm enumerator itemizes frame rate conversion algorithms. See description of mfxExtVPPFrameRateConversion structure for more details. */
 enum {
-    MFX_FRCALGM_PRESERVE_TIMESTAMP    = 0x0001, /*!< Frame dropping/repetition based frame rate conversion algorithm with preserved original
-                                                     time stamps. Any inserted frames will carry MFX_TIMESTAMP_UNKNOWN. */
-    MFX_FRCALGM_DISTRIBUTED_TIMESTAMP = 0x0002, /*!< Frame dropping/repetition based frame rate conversion algorithm with distributed time stamps.
-                                                     The algorithm distributes output time stamps evenly according to the output frame rate. */
-    MFX_FRCALGM_FRAME_INTERPOLATION   = 0x0004  /*!< Frame rate conversion algorithm based on frame interpolation. This flag may be combined with
-                                                     MFX_FRCALGM_PRESERVE_TIMESTAMP or MFX_FRCALGM_DISTRIBUTED_TIMESTAMP flags. */
+    MFX_FRCALGM_PRESERVE_TIMESTAMP         = 0x0001, /*!< Frame dropping/repetition based frame rate conversion algorithm with preserved original
+                                                          time stamps. Any inserted frames will carry MFX_TIMESTAMP_UNKNOWN. */
+    MFX_FRCALGM_DISTRIBUTED_TIMESTAMP      = 0x0002, /*!< Frame dropping/repetition based frame rate conversion algorithm with distributed time stamps.
+                                                          The algorithm distributes output time stamps evenly according to the output frame rate. */
+    MFX_FRCALGM_FRAME_INTERPOLATION        = 0x0004, /*!< Frame rate conversion algorithm based on frame interpolation. This flag may be combined with
+                                                          MFX_FRCALGM_PRESERVE_TIMESTAMP or MFX_FRCALGM_DISTRIBUTED_TIMESTAMP flags. */
+#ifdef ONEVPL_EXPERIMENTAL
+    MFX_FRCALGM_AI_FRAME_INTERPOLATION     = 0x0008  /*!< Frame rate conversion algorithm based on AI powered frame interpolation. This flag may be combined with
+                                                          MFX_FRCALGM_PRESERVE_TIMESTAMP or MFX_FRCALGM_DISTRIBUTED_TIMESTAMP flags. This flag can not be combined
+                                                          with MFX_FRCALGM_FRAME_INTERPOLATION. If application sets this flag, the application needs to attach
+                                                          MFX_EXTBUFF_VPP_AI_FRAME_INTERPOLATION for the details of frame interpolation to mfxVideoParam. Refer to
+                                                          mfxExtVPPAIFrameInterpolation for more details.*/
+#endif
 };
 
 MFX_PACK_BEGIN_USUAL_STRUCT()
@@ -3162,7 +3180,7 @@ MFX_PACK_BEGIN_USUAL_STRUCT()
    the decoder will parse the HDR information if the bitstream include HDR information per frame.
    The parsed HDR information will be attached to the ExtendBuffer of surface_out parameter of MFXVideoDECODE_DecodeFrameAsync()
    with flag `InsertPayloadToggle` to indicate if there is valid HDR information in the clip.
-   `InsertPayloadToggle` will be set to `MFX_PAYLOAD_IDR` if oneAPI Video Processing Library (oneVPL) gets valid HDR information, otherwise it will be set 
+   `InsertPayloadToggle` will be set to `MFX_PAYLOAD_IDR` if oneAPI Video Processing Library (oneVPL) gets valid HDR information, otherwise it will be set
    to `MFX_PAYLOAD_OFF`.
    This function is support for HEVC and AV1 only now.
 
@@ -3929,8 +3947,8 @@ typedef struct {
 MFX_PACK_END()
 
 /*! The GeneralConstraintFlags enumerator uses bit-ORed values to itemize HEVC bitstream indications for specific profiles. Each value
-    indicates for format range extensions profiles. 
-    To specify HEVC Main 10 Still Picture profile applications have to set mfxInfoMFX::CodecProfile == MFX_PROFILE_HEVC_MAIN10 and 
+    indicates for format range extensions profiles.
+    To specify HEVC Main 10 Still Picture profile applications have to set mfxInfoMFX::CodecProfile == MFX_PROFILE_HEVC_MAIN10 and
     mfxExtHEVCParam::GeneralConstraintFlags == MFX_HEVC_CONSTR_REXT_ONE_PICTURE_ONLY. */
 enum {
     /* REXT Profile constraint flags*/
@@ -4238,10 +4256,10 @@ enum {
     MFX_SCALING_MODE_LOWPOWER   = 1, /*!< Low power scaling mode which is applicable for library implementations.
                                          The exact scaling algorithm is defined by the library. */
     MFX_SCALING_MODE_QUALITY    = 2, /*!< The best quality scaling mode. */
-    MFX_SCALING_MODE_VENDOR = 1000, /*!< The enumeration to separate common scaling controls above and vendor specific. */ 
+    MFX_SCALING_MODE_VENDOR = 1000, /*!< The enumeration to separate common scaling controls above and vendor specific. */
     MFX_SCALING_MODE_INTEL_GEN_COMPUTE  = MFX_SCALING_MODE_VENDOR + 1, /*! The mode to run scaling operation on Execution Units (EUs). */
-    MFX_SCALING_MODE_INTEL_GEN_VDBOX = MFX_SCALING_MODE_VENDOR + 2, /*! The special optimization mode where scaling operation running on SFC (Scaler & Format Converter) is coupled with VDBOX (also known as Multi-Format Codec Engines). This mode is applicable for DECODE_VPP domain functions. */ 
-    MFX_SCALING_MODE_INTEL_GEN_VEBOX = MFX_SCALING_MODE_VENDOR + 3 /*! The special optimization mode where scaling operation running on SFC is coupled with VEBOX (HW video processing pipe). */ 
+    MFX_SCALING_MODE_INTEL_GEN_VDBOX = MFX_SCALING_MODE_VENDOR + 2, /*! The special optimization mode where scaling operation running on SFC (Scaler & Format Converter) is coupled with VDBOX (also known as Multi-Format Codec Engines). This mode is applicable for DECODE_VPP domain functions. */
+    MFX_SCALING_MODE_INTEL_GEN_VEBOX = MFX_SCALING_MODE_VENDOR + 3 /*! The special optimization mode where scaling operation running on SFC is coupled with VEBOX (HW video processing pipe). */
 };
 
 /*! The InterpolationMode enumerator specifies type of interpolation method used by VPP scaling filter. */
@@ -5043,28 +5061,28 @@ MFX_PACK_BEGIN_USUAL_STRUCT()
 /*! The structure is used for universal temporal layer description. */
 typedef struct {
     mfxU16 FrameRateScale;  /*!< The ratio between the frame rates of the current temporal layer and the base layer. The library treats a particular
-                                 temporal layer as "defined" if it has FrameRateScale > 0. If the base layer is defined, it must have FrameRateScale = 1. 
+                                 temporal layer as "defined" if it has FrameRateScale > 0. If the base layer is defined, it must have FrameRateScale = 1.
                                  FrameRateScale of each subsequent layer (if defined) must be a multiple of and greater than the
                                  FrameRateScale value of previous layer. */
     mfxU16  reserved[3]; /*!< Reserved for future use. */
-                                 
+
     union {
-          /*!< Type of bitrate controls is currently the same across all temporal layers and inherits from common parameters. */ 
+          /*!< Type of bitrate controls is currently the same across all temporal layers and inherits from common parameters. */
           struct {
             mfxU32  InitialDelayInKB;/*!< Initial size of the Video Buffering Verifier (VBV) buffer for the current temporal layer.
                                           @note In this context, KB is 1000 bytes and Kbps is 1000 bps. */
             mfxU32  BufferSizeInKB; /*!< Represents the maximum possible size of any compressed frames for the current temporal layer. */
             mfxU32  TargetKbps;  /*!< Target bitrate for the current temporal layer. If RateControlMethod is not CQP, the
-                                      application can provide TargetKbps for every defined temporal layer. If TargetKbps per temporal layer is not set then 
+                                      application can provide TargetKbps for every defined temporal layer. If TargetKbps per temporal layer is not set then
                                       encoder doesn't apply any special bitrate limitations for the layer.  */
             mfxU32  MaxKbps;  /*!< The maximum bitrate at which the encoded data enters the Video Buffering Verifier (VBV) buffer for the current temporal layer. */
 
             mfxU32  reserved1[16]; /*!< Reserved for future use. */
-            
+
           };
           struct {
             mfxI32  QPI;  /*!< Quantization Parameter (QP) for I-frames for constant QP mode (CQP) for the current temporal layer. Zero QP is not valid and means that the default value is assigned by the library.
-                    Non-zero QPI might be clipped to supported QPI range. 
+                    Non-zero QPI might be clipped to supported QPI range.
                     @note Default QPI value is implementation dependent and subject to change without additional notice in this document. */
             mfxI32  QPP;  /*!< Quantization Parameter (QP) for P-frames for constant QP mode (CQP) for the current temporal layer. Zero QP is not valid and means that the default value is assigned by the library.
                     Non-zero QPP might be clipped to supported QPI range.
@@ -5075,7 +5093,7 @@ typedef struct {
           };
     };
     mfxU16  reserved2[4]; /*!< Reserved for future use. */
-    
+
 } mfxTemporalLayer;
 MFX_PACK_END()
 
@@ -5087,7 +5105,7 @@ typedef struct {
     mfxU16           BaseLayerPID; /*!< The priority ID of the base layer. The encoder increases the ID for each temporal layer and writes to the prefix NAL unit for AVC and HEVC. */
     mfxU16           reserved[2]; /*!< Reserved for future use. */
     mfxTemporalLayer *Layers; /*!< The array of temporal layers. */
-    
+
     mfxU16 reserved1[8]; /*!< Reserved for future use. */
 } mfxExtTemporalLayers;
 MFX_PACK_END()
@@ -5155,6 +5173,46 @@ MFX_PACK_END()
 #endif
 
 #ifdef ONEVPL_EXPERIMENTAL
+/* The mfxAIFrameInterpolationMode enumerator specifies the mode of AI based frame interpolation. */
+typedef enum {
+    MFX_AI_FRAME_INTERPOLATION_MODE_DISABLE = 0,         /*!< AI based frame interpolation is disabled. The library duplicates the frame if AI frame interpolation is disabled.*/
+    MFX_AI_FRAME_INTERPOLATION_MODE_DEFAULT = 1,         /*!< Default AI based frame interpolation mode. The library selects the most appropriate AI based frame interpolation mode.*/
+} mfxAIFrameInterpolationMode;
+
+/*!
+    A hint structure that configures AI based frame interpolation VPP filter.
+    AI powered frame interpolation feature can reconstruct one or more intermediate frames between two consecutive frames by AI method.
+    On some platforms this filter is not supported. To query its support, the application should use the same approach that it uses to configure VPP filters:
+    Attaching the mfxExtVPPAIFrameInterpolation structure directly to the mfxVideoParam structure and setting the frame rate of input and output (FrameRateExtN and FrameRateExtD),
+    then calling the Query API function. If the filter is supported, the Query function returns a MFX_ERR_NONE status; otherwise, the function returns MFX_ERR_UNSUPPORTED.
+    As a new method of frame interpolation, the application can attach mfxExtVPPAIFrameInterpolation to mfxVideoParam during initialization for frame interpolation, or attach both
+    mfxExtVPPAIFrameInterpolation and mfxExtVPPFrameRateConversion to mfxVideoParam and use which mfxExtVPPAIFrameInterpolation is regarded as a new algorithm of mfxExtVPPFrameRateConversion
+    (MFX_FRCALGM_AI_FRAME_INTERPOLATION).
+    The applications should follow video processing procedures and call the API mfxStatus MFXVideoVPP_RunFrameVPPAsync(Session, Input, Output, Auxdata, Syncp) to process the frames one by one.
+    The below is detailed explanation of video processing procedures in this AI frame interpolation case. If the application does not follow the below input/output sequence, the application could
+    get the unexpected output and get an error return value.
+    Input:    Frame0                Frame1                Frame2                Frame3                        FrameN
+    Output:   Frame0    Frame0.5    Frame1    Frame1.5    Frame2    Frame2.5    Frame3    FrameX.5            FrameN
+    #0 API call: Input Frame0, Output Frame0, Return MFX_ERR_NONE.
+    #1 API call: Input Frame1, Output Frame0.5 and Return MFX_ERR_MORE_SURFACE.
+    #2 API call: Input Frame1, Output Frame1, Return MFX_ERR_NONE.
+    #3 API call: Input Frame2, Output Frame1.5, Return MFX_ERR_MORE_SURFACE.
+    #4 API call: Input Frame2, Output Frame2, Return MFX_ERR_NONE.
+*/
+MFX_PACK_BEGIN_STRUCT_W_PTR()
+typedef struct {
+    mfxExtBuffer                        Header;                           /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_VPP_AI_FRAME_INTERPOLATION.*/
+    mfxAIFrameInterpolationMode         FIMode;                           /*!< Indicates frame interpolation mode. The mfxAIFrameInterpolationMode enumerator.*/
+    mfxU16                              EnableScd;                        /*!< Indicates if enabling scene change detection(SCD) of the library. Recommend to enable this flag for
+                                                                               better quality. Value 0 means disable SCD, Value 1 means enable SCD.*/
+
+    mfxU32                              reserved1[24];                    /*!< Reserved for future use. */
+    mfxHDL                              reserved2[8];                     /*!< Reserved for future use. */
+} mfxExtVPPAIFrameInterpolation;
+MFX_PACK_END()
+#endif
+
+#ifdef ONEVPL_EXPERIMENTAL
 /*! The mfxQualityInfoMode enumerator specifies the mode of Quality information. */
 typedef enum {
     MFX_QUALITY_INFO_DISABLE        = 0,   /*!< Quality reporting disabled. */
@@ -5163,8 +5221,8 @@ typedef enum {
 
 MFX_PACK_BEGIN_USUAL_STRUCT()
 /*!
-   Used by the encoder to set quality information report mode for the encoded picture. 
-   
+   Used by the encoder to set quality information report mode for the encoded picture.
+
    @note Not all implementations of the encoder support this extended buffer. The application must use query mode 1 to determine if
          the functionality is supported. To do this, the application must attach this extended buffer to the mfxVideoParam structure and
          call the MFXVideoENCODE_Query function. If the function returns MFX_ERR_NONE then the functionality is supported.
@@ -5210,11 +5268,11 @@ typedef struct {
     */
     mfxU16              Palette;
     /*!
-       Set this flag to MFX_CODINGOPTION_ON to enable intra block copy prediction for encoder. Set this flag to MFX_CODINGOPTION_OFF to disable it. 
+       Set this flag to MFX_CODINGOPTION_ON to enable intra block copy prediction for encoder. Set this flag to MFX_CODINGOPTION_OFF to disable it.
        If this flag is set to any other value, the default value will be used which can be obtained from the MFXVideoENCODE_GetVideoParam function after encoding initialization.
        See the CodingOptionValue enumerator for values of this option. This parameter is valid only during initialization.
        @note Not all codecs and implementations support this value. Use the Query API function to check if this feature is supported.
-    */    
+    */
     mfxU16              IntraBlockCopy;
     mfxU16              reserved[10];   /*!< Reserved for future use. */
 } mfxExtAV1ScreenContentTools;

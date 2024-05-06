@@ -8,7 +8,7 @@
 #define __MFXDEFS_H__
 
 #define MFX_VERSION_MAJOR 2
-#define MFX_VERSION_MINOR 11
+#define MFX_VERSION_MINOR 12
 
 // MFX_VERSION - version of API that 'assumed' by build may be provided externally
 // if it omitted then latest stable API derived from Major.Minor is assumed
@@ -19,7 +19,7 @@
 #else
   #undef MFX_VERSION_MAJOR
   #define MFX_VERSION_MAJOR ((MFX_VERSION) / 1000)
-  
+
   #undef MFX_VERSION_MINOR
   #define MFX_VERSION_MINOR ((MFX_VERSION) % 1000)
 #endif
@@ -126,7 +126,7 @@ extern "C"
    #define MFX_DEPRECATED_ENUM_FIELD_INSIDE(arg) arg
    #define MFX_DEPRECATED_ENUM_FIELD_OUTSIDE(arg)
  #endif
- 
+
 typedef unsigned char       mfxU8;         /*!< Unsigned integer, 8 bit type. */
 typedef char                mfxI8;         /*!< Signed integer, 8 bit type. */
 typedef short               mfxI16;        /*!< Signed integer, 16 bit type. */
@@ -320,7 +320,7 @@ typedef enum
 
 
 MFX_PACK_BEGIN_USUAL_STRUCT()
-/*! Represents Globally Unique Identifier (GUID) with memory layout 
+/*! Represents Globally Unique Identifier (GUID) with memory layout
     compliant to RFC 4122. See https://www.rfc-editor.org/info/rfc4122 for details. */
 typedef struct
 {

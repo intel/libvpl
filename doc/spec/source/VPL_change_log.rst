@@ -13,6 +13,31 @@ This section describes the API evolution from version to version.
    :depth: 1
 
 ------------
+Version 2.12
+------------
+
+New in this release:
+
+* Experimental API: Added new structures and enumerated types for importing and exporting surfaces:
+
+    * :cpp:struct:`mfxSurfaceVulkanImg2D`
+    * :cpp:struct:`mfxExtSurfaceVulkanImg2DExportDescription`
+
+* Experimental API: introduced :cpp:struct:`mfxExtVPPAIFrameInterpolation` and :cpp:enum:`mfxAIFrameInterpolationMode` for AI powered frame interpolation.
+
+* Added code names for the platforms: Meteor Lake, Arrow Lake and Lunar Lake:
+
+    * :cpp:enum:`MFX_DEPRECATED_ENUM_FIELD_INSIDE(MFX_PLATFORM_METEORLAKE)`
+    * :cpp:enum:`MFX_DEPRECATED_ENUM_FIELD_INSIDE(MFX_PLATFORM_LUNARLAKE)`
+    * :cpp:enum:`MFX_DEPRECATED_ENUM_FIELD_INSIDE(MFX_PLATFORM_ARROWLAKE)`
+
+* Added code name for future platforms:
+
+    * :cpp:enum:`MFX_DEPRECATED_ENUM_FIELD_INSIDE(MFX_PLATFORM_MAXIMUM)`
+
+* Updated description for the function :cpp:func:`MFXVideoCORE_QueryPlatform`.
+
+------------
 Version 2.11
 ------------
 

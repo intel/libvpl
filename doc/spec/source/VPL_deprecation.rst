@@ -167,6 +167,26 @@ The following is a list of deprecated interfaces, starting from API version 2.0.
      - 2.9
      -
      - Field :cpp:member:`mfxPlatform::CodeName` is not filled by the library
+     - No change
+   * - :cpp:enumerator:`MFX_PLATFORM_METEORLAKE`
+     - 2.12
+     -
+     - Field :cpp:member:`mfxPlatform::CodeName` is not filled by the library
+     - No change
+   * - :cpp:enumerator:`MFX_PLATFORM_LUNARLAKE`
+     - 2.12
+     -
+     - Field :cpp:member:`mfxPlatform::CodeName` is not filled by the library
+     - No change
+   * - :cpp:enumerator:`MFX_PLATFORM_ARROWLAKE`
+     - 2.12
+     -
+     - Field :cpp:member:`mfxPlatform::CodeName` is not filled by the library
+     - No change
+   * - :cpp:enumerator:`MFX_PLATFORM_MAXIMUM`
+     - 2.12
+     -
+     - Field :cpp:member:`mfxPlatform::CodeName` is not filled by the library
      - No change   
    * - :cpp:member:`mfxPlatform::CodeName`
      - 2.9

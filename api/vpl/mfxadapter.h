@@ -25,7 +25,7 @@ extern "C"
 
    @return
    MFX_ERR_NONE The function completed successfully. \n
-   MFX_ERR_NULL_PTR  
+   MFX_ERR_NULL_PTR
    @p input_info or adapters pointer is NULL. \n
    MFX_ERR_NOT_FOUND  No suitable adapters found. \n
    MFX_WRN_OUT_OF_RANGE  Not enough memory to report back entire list of adapters. In this case as many adapters as possible will be returned.

@@ -25,7 +25,7 @@ MFX_PACK_BEGIN_STRUCT_W_PTR()
    Using the default allocator implies that frame data passes in or out of functions through pointers,
    as opposed to using memory IDs.
 
-   Behavior is undefined when using an incompletely defined external allocator. 
+   Behavior is undefined when using an incompletely defined external allocator.
    \verbatim embed:rst
     See the :ref:`Memory Allocation and External Allocators section <mem-alloc-ext-alloc>` for additional information.
     \endverbatim
@@ -40,7 +40,7 @@ typedef struct {
               input surfaces and again for the internal reconstructed surfaces.
 
               If two library components must share DirectX* surfaces, this function should pass the pre-allocated surface
-              chain to the library instead of allocating new DirectX surfaces. 
+              chain to the library instead of allocating new DirectX surfaces.
               \verbatim embed:rst
               See the :ref:`Surface Pool Allocation section <surface_pool_alloc>` for additional information.
               \endverbatim
@@ -169,6 +169,8 @@ mfxStatus MFX_CDECL MFXVideoCORE_GetHandle(mfxSession session, mfxHandleType typ
    MFX_ERR_NONE The function completed successfully.
 
    @since This function is available since API version 1.19.
+
+   Notes: Deprecated mfxPlatform::CodeName will be filled with MFX_PLATFORM_MAXIMUM for future new platforms.
 */
 mfxStatus MFX_CDECL MFXVideoCORE_QueryPlatform(mfxSession session, mfxPlatform* platform);
 
@@ -210,7 +212,7 @@ typedef struct mfxConfigInterface {
     mfxStructVersion    Version; /*!< The version of the structure. */
 
     /*! @brief
-       Sets a parameter to specified value in the current session. If a parameter already has a value, 
+       Sets a parameter to specified value in the current session. If a parameter already has a value,
        the new value will overwrite the existing value.
 
        @param[in] config_interface     The valid interface returned by calling MFXQueryInterface().
@@ -219,12 +221,12 @@ typedef struct mfxConfigInterface {
                                        value will be converted from a string to the expected data type for the given key, or return an error if conversion fails.
        @param[in] struct_type          Type of structure pointed to by structure.
        @param[out] structure           If and only if SetParameter returns MFX_ERR_NONE, the contents of structure (including any attached extension
-                                       buffers) will be updated according to the provided key and value. If key modifies a field in an extension buffer 
+                                       buffers) will be updated according to the provided key and value. If key modifies a field in an extension buffer
                                        which is not already attached, the function will return MFX_ERR_MORE_EXTBUFFER and fill ext_buffer with the header for
                                        the required mfxExtBuffer type.
        @param[out] ext_buffer          If and only if SetParameter returns MFX_ERR_MORE_EXTBUFFER, ext_buffer will contain the header for a buffer
                                        of type mfxExtBuffer. The caller should allocate a buffer of the size ext_buffer.BufferSz, copy the header in ext_buffer
-                                       to the start of this new buffer, attach this buffer to videoParam, then call SetParameter again. Otherwise, the 
+                                       to the start of this new buffer, attach this buffer to videoParam, then call SetParameter again. Otherwise, the
                                        contents of ext_buffer will be cleared.
        @return
           MFX_ERR_NONE                 The function completed successfully.
@@ -718,7 +720,7 @@ mfxStatus MFX_CDECL MFXVideoDECODE_GetPayload(mfxSession session, mfxU64 *ts, mf
    MFX_ERR_DEVICE_LOST  Hardware device was lost.
    \verbatim embed:rst
    See the :ref:`Working with Microsoft* DirectX* Applications section<work_ms_directx_app>` for further information.
-   \endverbatim 
+   \endverbatim
    \n
    MFX_WRN_DEVICE_BUSY  Hardware device is currently busy. Call this function again after MFXVideoCORE_SyncOperation or in a few milliseconds.  \n
    MFX_WRN_VIDEO_PARAM_CHANGED  The decoder detected a new sequence header in the bitstream. Video parameters may have changed. \n
@@ -903,7 +905,7 @@ mfxStatus MFX_CDECL MFXVideoVPP_GetVPPStat(mfxSession session, mfxVPPStat *stat)
    MFX_ERR_DEVICE_LOST  Hardware device was lost.
    \verbatim embed:rst
     See the :ref:`Working with Microsoft* DirectX* Applications section<work_ms_directx_app>` for further information.
-    \endverbatim 
+    \endverbatim
     \n
    MFX_WRN_DEVICE_BUSY  Hardware device is currently busy. Call this function again after MFXVideoCORE_SyncOperation or in a few milliseconds.
 
@@ -920,7 +922,7 @@ mfxStatus MFX_CDECL MFXVideoVPP_RunFrameVPPAsync(mfxSession session, mfxFrameSur
 
    @param[in] session Session handle.
    @param[in] in  Pointer to the input video surface structure.
-   @param[out] out  Pointer to the output video surface structure which is reference counted object allocated by the library. 
+   @param[out] out  Pointer to the output video surface structure which is reference counted object allocated by the library.
 
    @return
    MFX_ERR_NONE The output frame is ready after synchronization. \n
@@ -930,7 +932,7 @@ mfxStatus MFX_CDECL MFXVideoVPP_RunFrameVPPAsync(mfxSession session, mfxFrameSur
    MFX_ERR_DEVICE_LOST  Hardware device was lost.
    \verbatim embed:rst
     See the :ref:`Working with Microsoft* DirectX* Applications section<work_ms_directx_app>` for further information.
-    \endverbatim 
+    \endverbatim
     \n
    MFX_WRN_DEVICE_BUSY  Hardware device is currently busy. Call this function again after MFXVideoCORE_SyncOperation or in a few milliseconds. \n
    MFX_WRN_ALLOC_TIMEOUT_EXPIRED Timeout expired for internal output frame allocation (if set with mfxExtAllocationHints). Repeat the call in a few milliseconds or reinitialize VPP with higher surface limit.
@@ -942,23 +944,23 @@ mfxStatus MFX_CDECL MFXVideoVPP_ProcessFrameAsync(mfxSession session, mfxFrameSu
 /*!
    @brief
    Initialize the SDK in (decode + vpp) mode. The logic of this function is similar to  MFXVideoDECODE_Init,
-   but application has to provide array of pointers to mfxVideoChannelParam and num_channel_param - number of channels. Application is responsible for    
-   memory allocation for mfxVideoChannelParam parameters and for each channel it should specify channel IDs:    
+   but application has to provide array of pointers to mfxVideoChannelParam and num_channel_param - number of channels. Application is responsible for
+   memory allocation for mfxVideoChannelParam parameters and for each channel it should specify channel IDs:
    mfxVideoChannelParam::mfxFrameInfo::ChannelId. ChannelId should be unique value within one session. ChannelID equals to the 0
    is reserved for the original decoded frame.
-   The application can attach mfxExtInCrops to mfxVideoChannelParam::ExtParam to annotate input video frame if it wants to enable 
+   The application can attach mfxExtInCrops to mfxVideoChannelParam::ExtParam to annotate input video frame if it wants to enable
    letterboxing operation.
    @param[in] session SDK session handle.
    @param[in] decode_par Pointer to the mfxVideoParam structure which contains initialization parameters for decoder.
-   @param[in] vpp_par_array Array of pointers to `mfxVideoChannelParam`structures. Each mfxVideoChannelParam contains initialization 
+   @param[in] vpp_par_array Array of pointers to `mfxVideoChannelParam`structures. Each mfxVideoChannelParam contains initialization
               parameters for each VPP channel.
    @param[in] num_vpp_par Size of array of pointers to mfxVideoChannelParam structures.
 
    @return
    MFX_ERR_NONE The function completed successfully. \n
-   MFX_ERR_INVALID_VIDEO_PARAM   The function detected invalid video parameters. These parameters may be out of the valid range, or 
+   MFX_ERR_INVALID_VIDEO_PARAM The function detected invalid video parameters. These parameters may be out of the valid range, or
    the combination of them resulted in incompatibility. Incompatibility not resolved. \n
-   MFX_WRN_INCOMPATIBLE_VIDEO_PARAM The function detected some video parameters were incompatible with others; incompatibility 
+   MFX_WRN_INCOMPATIBLE_VIDEO_PARAM The function detected some video parameters were incompatible with others; incompatibility
    resolved. \n
    MFX_ERR_UNDEFINED_BEHAVIOR The component is already initialized. \n
    MFX_WRN_FILTER_SKIPPED The VPP skipped one or more filters requested by the application.
@@ -983,9 +985,9 @@ mfxStatus  MFX_CDECL MFXVideoDECODE_VPP_Init(mfxSession session, mfxVideoParam* 
 
    @param[in] session SDK session handle.
    @param[in] bs Pointer to the input bitstream.
-   @param[in] skip_channels Pointer to the array of `ChannelId`s which specifies channels with skip output frames. Memory for 
-   the array is allocated by application.
-   @param[in] num_skip_channels Number of channels addressed by skip_channels. 
+   @param[in] skip_channels Pointer to the array of `ChannelId`s which specifies channels with skip output frames. Memory for
+              the array is allocated by application.
+   @param[in] num_skip_channels Number of channels addressed by skip_channels.
    @param[out] surf_array_out The address of a pointer to the structure with frame surfaces.
 
    @return
@@ -995,7 +997,7 @@ mfxStatus  MFX_CDECL MFXVideoDECODE_VPP_Init(mfxSession session, mfxVideoParam* 
    MFX_ERR_DEVICE_LOST  Hardware device was lost.
    \verbatim embed:rst
    See the :ref:`Working with Microsoft* DirectX* Applications section<work_ms_directx_app>` for further information.
-   \endverbatim 
+   \endverbatim
    \n
    MFX_WRN_DEVICE_BUSY  Hardware device is currently busy. Call this function again after MFXVideoCORE_SyncOperation or in a few milliseconds.  \n
    MFX_WRN_VIDEO_PARAM_CHANGED  The decoder detected a new sequence header in the bitstream. Video parameters may have changed. \n
@@ -1008,17 +1010,17 @@ mfxStatus  MFX_CDECL MFXVideoDECODE_VPP_DecodeFrameAsync(mfxSession session, mfx
 
 /*!
    @brief
-   This function is similar to MFXVideoDECODE_Reset and  stops the current decoding and vpp operation, and restores internal 
-   structures or parameters for a new decoding plus vpp operation. It resets the state of the decoder and/or all initialized vpp 
+   This function is similar to MFXVideoDECODE_Reset and  stops the current decoding and vpp operation, and restores internal
+   structures or parameters for a new decoding plus vpp operation. It resets the state of the decoder and/or all initialized vpp
    channels. Applications have to care about draining of buffered frames for decode and all vpp channels before call this function.
-   The application can attach mfxExtInCrops to mfxVideoChannelParam::ExtParam to annotate input video frame if it wants to enable 
+   The application can attach mfxExtInCrops to mfxVideoChannelParam::ExtParam to annotate input video frame if it wants to enable
    letterboxing operation.
 
    @param[in] session Session handle.
-   @param[in] decode_par   Pointer to the `mfxVideoParam` structure which contains new initialization parameters for decoder. Might 
-   be NULL if application wants to Reset only VPP channels.
-   @param[in] vpp_par_array Array of pointers to mfxVideoChannelParam structures. Each mfxVideoChannelParam contains new 
-   initialization parameters for each VPP channel.
+   @param[in] decode_par   Pointer to the `mfxVideoParam` structure which contains new initialization parameters for decoder. Might
+                           be NULL if application wants to Reset only VPP channels.
+   @param[in] vpp_par_array Array of pointers to mfxVideoChannelParam structures. Each mfxVideoChannelParam contains new
+                            initialization parameters for each VPP channel.
    @param[in] num_vpp_par Size of array of pointers to mfxVideoChannelParam structures.
 
    @return
@@ -1036,11 +1038,11 @@ mfxStatus  MFX_CDECL MFXVideoDECODE_VPP_Reset(mfxSession session, mfxVideoParam*
 
 /*!
    @brief
-   Returns actual VPP parameters for selected channel which should be specified by application through  
+   Returns actual VPP parameters for selected channel which should be specified by application through
    mfxVideoChannelParam::mfxFrameInfo::ChannelId.
 
    @param[in] session Session handle.
-   @param[in] par   Pointer to the `mfxVideoChannelParam` structure which allocated by application 
+   @param[in] par   Pointer to the `mfxVideoChannelParam` structure which allocated by application
    @param[in] channel_id specifies the requested channel's info
 
    @return

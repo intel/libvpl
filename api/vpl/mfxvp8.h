@@ -19,7 +19,7 @@ enum {
 
 /* VP8 CodecProfile*/
 enum {
-    MFX_PROFILE_VP8_0                       = 0+1, 
+    MFX_PROFILE_VP8_0                       = 0+1,
     MFX_PROFILE_VP8_1                       = 1+1,
     MFX_PROFILE_VP8_2                       = 2+1,
     MFX_PROFILE_VP8_3                       = 3+1,
@@ -36,7 +36,7 @@ enum {
 
 MFX_PACK_BEGIN_USUAL_STRUCT()
 /*! Describes VP8 coding options. */
-typedef struct { 
+typedef struct {
     mfxExtBuffer    Header;             /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_VP8_CODING_OPTION. */
 
     mfxU16   Version;                   /*!< Determines the bitstream version. Corresponds to the same VP8 syntax element in frame_tag. */

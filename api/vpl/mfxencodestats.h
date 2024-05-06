@@ -19,7 +19,7 @@ extern "C"
 
 /*!< The enum to specify memory layout for statistics. */
 typedef enum {
-     MFX_ENCODESTATS_MEMORY_LAYOUT_DEFAULT                            = 0, /*!< The default memory layout for statistics. */
+     MFX_ENCODESTATS_MEMORY_LAYOUT_DEFAULT                 = 0, /*!< The default memory layout for statistics. */
 } mfxEncodeBlkStatsMemLayout;
 
 /*!< The enum to specify mode to gather statistics. */
@@ -42,7 +42,7 @@ MFX_PACK_BEGIN_USUAL_STRUCT()
 typedef struct {
     union {
         struct {
-            mfxU32  CUcountminus1         : 6; /*!< Number of CU per CTU.  */
+            mfxU32  CUcountminus1         : 6; /*!< Number of CU per CTU. */
             mfxU32  MaxDepth              : 2; /*!< Max quad-tree depth of CU in CTU. */
             mfxU32  reserved              : 24;
         } bitfields0;
@@ -62,22 +62,22 @@ typedef struct {
         struct {
             mfxU32 CU_Size                 : 2; /*!< indicates the CU size of the current CU. 0: 8x8 1: 16x16 2: 32x32 3: 64x64 */
             mfxU32 CU_pred_mode            : 1; /*!< indicates the prediction mode for the current CU. 0: intra 1: inter */
-    /*! 
+    /*!
     indicates the PU partition mode for the current CU.
     0: 2Nx2N
     1: 2NxN (inter)
     2: Nx2N (inter)
-    3: NXN (intra only, CU Size=8x8 only. Luma Intra Mode indicates the intra prediction mode for 4x4_0. The additional prediction              modes are overloaded on 4x4_1, 4x4_2, 4x4_3 below)
+    3: NXN (intra only, CU Size=8x8 only. Luma Intra Mode indicates the intra prediction mode for 4x4_0. The additional prediction modes are overloaded on 4x4_1, 4x4_2, 4x4_3 below)
     4: 2NxnT (inter only)
     5: 2NxnB (inter only)
     6: nLx2N (inter only)
     7: nRx2N (inter only).
     */
-            mfxU32 CU_part_mode         : 3; 
+            mfxU32 CU_part_mode         : 3;
             mfxU32 InterPred_IDC_MV0    : 2; /*!< indicates the prediction direction for PU0 of the current CU. 0: L0 1: L1 2: Bi 3: reserved */
             mfxU32 InterPred_IDC_MV1    : 2; /*!< indicates the prediction direction for PU1 of the current CU. 0: L0 1: L1 2: Bi 3: reserved */
     /*!
-    Final explicit Luma Intra Mode 4x4_0 for NxN. 
+    Final explicit Luma Intra Mode 4x4_0 for NxN.
     Valid values 0..34
     Note: CU_part_mode==NxN.
     */
@@ -99,23 +99,23 @@ typedef struct {
     union {
         struct {
     /*!
-    Final explicit Luma Intra Mode 4x4_1. 
+    Final explicit Luma Intra Mode 4x4_1.
     Valid values 0..34
     Note: CU_part_mode==NxN.
     */
-            mfxU32 LumaIntraMode4x4_1  : 6; 
+            mfxU32 LumaIntraMode4x4_1  : 6;
     /*!
-    Final explicit Luma Intra Mode 4x4_2. 
+    Final explicit Luma Intra Mode 4x4_2.
     Valid values 0..34
     Note: CU_part_mode==NxN.
     */
-            mfxU32 LumaIntraMode4x4_2  : 6; 
+            mfxU32 LumaIntraMode4x4_2  : 6;
     /*!
-    Final explicit Luma Intra Mode 4x4_3. 
+    Final explicit Luma Intra Mode 4x4_3.
     Valid values 0..34
     Note: CU_part_mode==NxN.
     */
-            mfxU32 LumaIntraMode4x4_3  : 6; 
+            mfxU32 LumaIntraMode4x4_3  : 6;
             mfxU32 reserved1           : 14;
         } bitfields1;
         mfxU32     dword1;
@@ -123,13 +123,13 @@ typedef struct {
 
     mfxI8    QP;            // signed QP value
     mfxU8    reserved2[3];
-    /*! distortion measure, approximation to SAD.  
+    /*! distortion measure, approximation to SAD.
         Will deviate significantly (pre, post reconstruction) and due to variation in algorithm.
     */
     mfxU32    SAD;
 
-    /*! 
-    These parameters indicate motion vectors that are associated with the PU0/PU1 winners 
+    /*!
+    These parameters indicate motion vectors that are associated with the PU0/PU1 winners
     range [-2048.00..2047.75].
     L0/PU0 - MV[0][0]
     L0/PU1 - MV[0][1]
@@ -141,27 +141,27 @@ typedef struct {
     union {
         struct {
     /*!
-    This parameter indicates the reference index associated with the MV X/Y 
+    This parameter indicates the reference index associated with the MV X/Y
     that is populated in the L0_MV0.X and L0_MV0.Y fields. */
             mfxU32 L0_MV0_RefID    : 4;
     /*!
-    This parameter indicates the reference index associated with the MV X/Y 
+    This parameter indicates the reference index associated with the MV X/Y
     that is populated in the L0_MV1.X and L0_MV1.Y fields. */
             mfxU32 L0_MV1_RefID    : 4;
     /*!
-    This parameter indicates the reference index associated with the MV X/Y 
+    This parameter indicates the reference index associated with the MV X/Y
     that is populated in the L1_MV0.X and L1_MV0.Y fields. */
             mfxU32 L1_MV0_RefID    : 4;
     /*!
-    This parameter indicates the reference index associated with the MV X/Y 
+    This parameter indicates the reference index associated with the MV X/Y
     that is populated in the L1_MV1.X and L1_MV1.Y fields. */
             mfxU32 L1_MV1_RefID    : 4;
 
             mfxU32 reserved3       : 16;
         } bitfields8;
         mfxU32 dword8;
-    }; 
-    mfxU32    reserved4[10]; /*< should be minimized! */
+    };
+    mfxU32    reserved4[10];
 } mfxCUInfo;
 MFX_PACK_END()
 
@@ -174,12 +174,12 @@ typedef struct {
     mfxU32          reserved;
 } mfxCTUInfo;
 MFX_PACK_END()
-  
+
 
 
 MFX_PACK_BEGIN_USUAL_STRUCT()
 /*!
-   The structure describes H.264 stats per MB.  
+   The structure describes H.264 stats per MB.
 */
 typedef struct {
     union {
@@ -197,7 +197,7 @@ typedef struct {
          @li 0 - 16x16 mode
          @li 1 - 16x8 mode
          @li 2 - 8x16 mode
-         @li 3 - 8x8  mode 
+         @li 3 - 8x8  mode
       */
             mfxU32 InterMBMode    : 2;
       /*!
@@ -205,7 +205,7 @@ typedef struct {
          @li 0 - 16x16 mode
          @li 1 - 8x8 mode
          @li 2 - 4x4 mode
-         @li 3 - PCM 
+         @li 3 - PCM
       */
             mfxU32 IntraMBMode    : 2;
       /*!
@@ -251,11 +251,11 @@ typedef struct {
         mfxU32     dword0;
     } ;
       /*!
-          Distortion measure, approximation to SAD.  
+          Distortion measure, approximation to SAD.
           Deviate significantly (pre, post reconstruction) and due to variation in algorithm.
       */
-      mfxU32 SAD; 
-      mfxI8  Qp; /*!< MB QP. */     
+      mfxU32 SAD;
+      mfxI8  Qp; /*!< MB QP. */
       mfxU8  reserved1[3];
 
       /*!
@@ -283,13 +283,13 @@ typedef struct {
           @li 3 - Plane
       */
       mfxU16 LumaIntraMode[4];
- 
+
       mfxU32 reserved2;
 } mfxMBInfo;
 MFX_PACK_END()
 
 /*!
-   The enum specifies block size.  
+   The enum specifies block size.
 */
 typedef enum {
     MFX_BLOCK_4X4   = 0, /*!< 4x4 block size. */
@@ -299,7 +299,7 @@ typedef enum {
 
 MFX_PACK_BEGIN_STRUCT_W_PTR()
 /*!
-   The structure describes H.264 and H.265 stats per MB or CTUs.  
+   The structure describes H.264 and H.265 stats per MB or CTUs.
 */
 typedef struct {
     union {
@@ -311,34 +311,34 @@ typedef struct {
         mfxMBInfo      *AVCMBArray;   /*!< Array of MB statistics. */
     };
     mfxU32             reserved[8];
-    
+
 } mfxEncodeBlkStats;
 MFX_PACK_END()
 
 
 MFX_PACK_BEGIN_STRUCT_W_L_TYPE()
 /*!
-   The structure describes H.264/H.265 frame/slice/tile level statistics. 
+   The structure describes H.264/H.265 frame/slice/tile level statistics.
 */
 typedef struct {
     mfxF32  PSNRLuma; /*!< PSNR for LUMA samples. */
     mfxF32  PSNRCb;   /*!< PSNR for Chroma (Cb) samples. */
     mfxF32  PSNRCr;   /*!< PSNR for Chroma (Cr) samples. */
-    /*! distortion measure, approximation to SAD.  
+    /*! distortion measure, approximation to SAD.
         Will deviate significantly (pre, post reconstruction) and due to variation in algorithm.
     */
-    mfxU64  SADLuma;  
-    mfxF32  Qp;  /*< average frame QP, may have fractional part in case of MBQP. */
+    mfxU64  SADLuma;
+    mfxF32  Qp;  /*!< average frame QP, may have fractional part in case of MBQP. */
 
     union {
         mfxU32  NumMB;  /*!< Number of MBs per frame for H.264. */
         mfxU32  NumCTU; /*!< number of CTUs per frame for H.265. */
     };
 
-    mfxBlockSize   BlockSize; /*! For H.264 it is always 16x16 corresponding to MB size. 
+    mfxBlockSize   BlockSize; /*! For H.264 it is always 16x16 corresponding to MB size.
                                In H.265 it's normalized to 4x4, so for each CU we calculate number of 4x4 which belongs to the block. */
-    
-    mfxU32  NumIntraBlock;   /*! Number of intra blocks in the frame. The size of block is defined by BlockSize. 
+
+    mfxU32  NumIntraBlock;   /*! Number of intra blocks in the frame. The size of block is defined by BlockSize.
                                  For H.265 it can be more than number of intra CU. */
     mfxU32  NumInterBlock;   /*! Number of inter blocks in the frame. The size of block is defined by BlockSize.
                                  For H.265 it can be more than number of inter CU. */
@@ -357,13 +357,13 @@ typedef mfxEncodeHighLevelStats mfxEncodeFrameStats;
 
 MFX_PACK_BEGIN_STRUCT_W_PTR()
 /*!
-   The structure describes H.264 and H.265 stats per Slice or Tile.  
+   The structure describes H.264 and H.265 stats per Slice or Tile.
 */
 typedef struct {
     mfxU32                       NumElements;         /*!< Number of Slices or Tiles per frame for H.264/H.265. */
     mfxEncodeHighLevelStats     *HighLevelStatsArray; /*!< Array of CTU statistics. */
     mfxU32                       reserved[8];
-    
+
 } mfxEncodeSliceStats;
 MFX_PACK_END()
 
@@ -378,7 +378,7 @@ typedef mfxEncodeSliceStats mfxEncodeTileStats;
 
 MFX_PACK_BEGIN_STRUCT_W_PTR()
 /*! The structure represents reference counted container for output after encoding operation which includes statistics
-    and synchronization primitive for compressed bitstream. 
+    and synchronization primitive for compressed bitstream.
     The memory is allocated and released by the library.
 */
 typedef struct mfxEncodeStatsContainer {
@@ -386,7 +386,7 @@ typedef struct mfxEncodeStatsContainer {
     mfxRefInterface     RefInterface; /*! < Reference counting interface. */
     /*! @brief
     Guarantees readiness of the statistics after a function completes.
-    Instead of MFXVideoCORE_SyncOperation which leads to the synchronization of all output objects, 
+    Instead of MFXVideoCORE_SyncOperation which leads to the synchronization of all output objects,
     users may directly call the mfxEncodeStatsContainer::SynchronizeStatistics function to get output statistics.
 
 
@@ -405,7 +405,7 @@ typedef struct mfxEncodeStatsContainer {
     mfxStatus (MFX_CDECL *SynchronizeStatistics)(mfxRefInterface*  ref_interface, mfxU32 wait);
     /*! @brief
     Guarantees readiness of associated compressed bitstream after a function completes.
-    Instead of MFXVideoCORE_SyncOperation which leads to the synchronization of all output objects, 
+    Instead of MFXVideoCORE_SyncOperation which leads to the synchronization of all output objects,
     users may directly call the mfxEncodeStatsContainer::SynchronizeStatistics function to get output bitstream.
 
 
@@ -436,15 +436,15 @@ MFX_PACK_END()
 
 
 MFX_PACK_BEGIN_STRUCT_W_PTR()
-/*! The extension buffer which should be attached by application for mfxBitstream buffer before 
+/*! The extension buffer which should be attached by application for mfxBitstream buffer before
    encode operation. As result the encoder will allocate memory for statistics and fill appropriate structures.
 */
 typedef struct {
     mfxExtBuffer Header; /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_ENCODESTATS_BLK. */
-    mfxU16                       EncodeStatsFlags;       /*!< What statistics is required: block/slice/tile/frame level or any combinations. 
+    mfxU16                       EncodeStatsFlags;       /*!< What statistics is required: block/slice/tile/frame level or any combinations.
                                                              In case of slice or tile output statistics for one slice or tile will be available only.*/
     mfxEncodeStatsMode           Mode;                   /*!< What encoding mode should be used to gather statistics. */
-    mfxEncodeStatsContainer     *EncodeStatsContainer; /*!< encode output, filled by the implementation. */ 
+    mfxEncodeStatsContainer     *EncodeStatsContainer; /*!< encode output, filled by the implementation. */
     mfxU32       reserved[8];
 } mfxExtEncodeStatsOutput;
 MFX_PACK_END()

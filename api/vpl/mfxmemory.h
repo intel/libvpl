@@ -199,6 +199,39 @@ typedef struct {
 } mfxSurfaceD3D12Tex2D;
 MFX_PACK_END()
 
+MFX_PACK_BEGIN_STRUCT_W_PTR()
+/*!
+   Optional extension buffer, which can be attached to mfxSurfaceHeader::ExtParam
+   (second parameter of mfxFrameSurfaceInterface::Export) in order to pass Vulkan parameters
+   during mfxFrameSurface1 exporting to Vulkan surface.
+   If buffer is not provided all resources will be created by oneAPI Video Processing Library (oneVPL) RT internally.
+*/
+typedef struct {
+    mfxExtBuffer    Header;                     /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_EXPORT_SHARING_DESC_VULKAN. */
+
+    mfxHDL instance;                            /*!< Pointer to Vulkan instance, type VkInstance */
+    mfxHDL physicalDevice;                      /*!< Pointer to Vulkan physical device, type VkPhysicalDevice */
+    mfxHDL device;                              /*!< Pointer to Vulkan device, type VkDevice */
+
+    mfxHDL reserved[7];
+} mfxExtSurfaceVulkanImg2DExportDescription;
+MFX_PACK_END()
+
+MFX_PACK_BEGIN_STRUCT_W_PTR()
+typedef struct {
+    mfxSurfaceInterface SurfaceInterface;
+
+    mfxHDL instance;                            /*!< Pointer to Vulkan instance, type VkInstance */
+    mfxHDL physicalDevice;                      /*!< Pointer to Vulkan physical device, type VkPhysicalDevice */
+    mfxHDL device;                              /*!< Pointer to Vulkan device, type VkDevice */
+
+    mfxHDL image2D;                             /*!< Pointer to Vulkan 2D images, type VkImage */
+    mfxHDL image2DMemory;                       /*!< Pointer to Vulkan device memory, VkDeviceMemory*/
+
+    mfxHDL reserved[10];
+} mfxSurfaceVulkanImg2D;
+MFX_PACK_END()
+
 /*! The mfxSurfaceComponent enumerator specifies the internal surface pool to use when importing surfaces. */
 typedef enum {
     MFX_SURFACE_COMPONENT_UNKNOWN     = 0,      /*!< Unknown surface component. */

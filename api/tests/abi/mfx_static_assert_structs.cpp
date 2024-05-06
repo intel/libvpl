@@ -177,6 +177,7 @@
     MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxSurfaceD3D12Tex2D          ,248 )
     MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxSurfaceVAAPI               ,248 )
     MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxSurfaceOpenCLImg2D         ,304 )
+    MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxSurfaceVulkanImg2D         ,304 )
 
     MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxSurfaceTypesSupported                      ,32 )
     MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxSurfaceTypesSupported::surftype            ,40 )
@@ -184,9 +185,13 @@
 
     MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxExtSurfaceOpenCLImg2DExportDescription,  88 )
     MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxExtSurfaceD3D12Tex2DExportDescription,  88 )
+    MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxExtSurfaceVulkanImg2DExportDescription,  88 )
 #endif
 #ifdef ONEVPL_EXPERIMENTAL
     MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxExtVPPAISuperResolution, 112)
+#endif
+#ifdef ONEVPL_EXPERIMENTAL
+    MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxExtVPPAIFrameInterpolation, 176)
 #endif
 
 #elif defined(_x86)
@@ -286,6 +291,7 @@
     MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxSurfaceD3D12Tex2D          ,144 )
     MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxSurfaceVAAPI               ,148 )
     MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxSurfaceOpenCLImg2D         ,172 )
+    MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxSurfaceVulkanImg2D         ,172 )
 
     MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxSurfaceTypesSupported                      ,24 )
     MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxSurfaceTypesSupported::surftype            ,36 )
@@ -293,9 +299,13 @@
 
     MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxExtSurfaceOpenCLImg2DExportDescription,  48 )
     MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxExtSurfaceD3D12Tex2DExportDescription,  48 )
+    MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxExtSurfaceVulkanImg2DExportDescription,  48 )
 #endif
 #ifdef ONEVPL_EXPERIMENTAL
     MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxExtVPPAISuperResolution, 92)
+#endif
+#ifdef ONEVPL_EXPERIMENTAL
+    MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxExtVPPAIFrameInterpolation, 144)
 #endif
 
 #endif
@@ -1198,6 +1208,13 @@
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxSurfaceOpenCLImg2D           ,ocl_image                      ,200 )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxSurfaceOpenCLImg2D           ,ocl_image_num                  ,232 )
 
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxSurfaceVulkanImg2D           ,SurfaceInterface               ,  0 )
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxSurfaceVulkanImg2D           ,instance                       ,184 )
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxSurfaceVulkanImg2D           ,physicalDevice                 ,192 )
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxSurfaceVulkanImg2D           ,device                         ,200 )
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxSurfaceVulkanImg2D           ,image2D                        ,208 )
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxSurfaceVulkanImg2D           ,image2DMemory                  ,216 )
+
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxSurfaceTypesSupported        ,Version                         ,0  )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxSurfaceTypesSupported        ,NumSurfaceTypes                 ,2  )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxSurfaceTypesSupported        ,SurfaceTypes                    ,8  )
@@ -1220,6 +1237,13 @@
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtSurfaceD3D12Tex2DExportDescription    ,Header            ,  0 )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtSurfaceD3D12Tex2DExportDescription    ,d3d12Device       ,  8 )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtSurfaceD3D12Tex2DExportDescription    ,reserved          , 16 )
+
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtSurfaceVulkanImg2DExportDescription    ,Header           ,  0 )
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtSurfaceVulkanImg2DExportDescription    ,instance         ,  8 )
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtSurfaceVulkanImg2DExportDescription    ,physicalDevice   , 16 )
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtSurfaceVulkanImg2DExportDescription    ,device           , 24 )
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtSurfaceVulkanImg2DExportDescription    ,reserved         , 32 )
+
 #endif
 
 #ifdef ONEVPL_EXPERIMENTAL
@@ -1227,6 +1251,13 @@
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPPAISuperResolution         ,SRMode                        ,8    )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPPAISuperResolution         ,reserved1                     ,12   )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPPAISuperResolution         ,reserved2                     ,80   )
+#endif
+#ifdef ONEVPL_EXPERIMENTAL
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPPAIFrameInterpolation      ,Header                        ,0    )
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPPAIFrameInterpolation      ,FIMode                        ,8    )
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPPAIFrameInterpolation      ,EnableScd                     ,12   )
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPPAIFrameInterpolation      ,reserved1                     ,16   )
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPPAIFrameInterpolation      ,reserved2                     ,112  )
 #endif
 
 #elif defined(_x86)
@@ -1963,6 +1994,13 @@
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxSurfaceOpenCLImg2D           ,ocl_image                      ,120 )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxSurfaceOpenCLImg2D           ,ocl_image_num                  ,136 )
 
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxSurfaceVulkanImg2D           ,SurfaceInterface               ,  0 )
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxSurfaceVulkanImg2D           ,instance                       ,112 )
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxSurfaceVulkanImg2D           ,physicalDevice                 ,116 )
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxSurfaceVulkanImg2D           ,device                         ,120 )
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxSurfaceVulkanImg2D           ,image2D                        ,124 )
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxSurfaceVulkanImg2D           ,image2DMemory                  ,128 )
+
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxSurfaceTypesSupported        ,Version                         ,0  )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxSurfaceTypesSupported        ,NumSurfaceTypes                 ,2  )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxSurfaceTypesSupported        ,SurfaceTypes                    ,4  )
@@ -1985,12 +2023,26 @@
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtSurfaceD3D12Tex2DExportDescription    ,Header            ,  0 )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtSurfaceD3D12Tex2DExportDescription    ,d3d12Device       ,  8 )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtSurfaceD3D12Tex2DExportDescription    ,reserved          , 12 )
+
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtSurfaceVulkanImg2DExportDescription    ,Header           ,  0 )
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtSurfaceVulkanImg2DExportDescription    ,instance         ,  8 )
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtSurfaceVulkanImg2DExportDescription    ,physicalDevice   , 12 )
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtSurfaceVulkanImg2DExportDescription    ,device           , 16 )
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtSurfaceVulkanImg2DExportDescription    ,reserved         , 20 )
+
 #endif
 #ifdef ONEVPL_EXPERIMENTAL
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPPAISuperResolution         ,Header                        ,0    )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPPAISuperResolution         ,SRMode                        ,8    )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPPAISuperResolution         ,reserved1                     ,12   )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPPAISuperResolution         ,reserved2                     ,76   )
+#endif
+#ifdef ONEVPL_EXPERIMENTAL
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPPAIFrameInterpolation      ,Header                         ,0      )
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPPAIFrameInterpolation      ,FIMode                         ,8      )
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPPAIFrameInterpolation      ,EnableScd                      ,12     )
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPPAIFrameInterpolation      ,reserved1                      ,16     )
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPPAIFrameInterpolation      ,reserved2                      ,112     )
 #endif
 #endif
 

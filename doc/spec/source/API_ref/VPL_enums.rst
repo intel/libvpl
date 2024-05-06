@@ -2553,6 +2553,13 @@ mfxAISuperResolutionMode
 .. doxygenenum:: mfxAISuperResolutionMode
    :project: DEF_BREATHE_PROJECT
 
+---------------------------
+mfxAIFrameInterpolationMode
+---------------------------
+
+.. doxygenenum:: mfxAIFrameInterpolationMode
+   :project: DEF_BREATHE_PROJECT
+
 ------------------------
 mfxQualityInfoMode
 ------------------------

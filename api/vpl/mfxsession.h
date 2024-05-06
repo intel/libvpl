@@ -20,9 +20,9 @@ typedef struct _mfxSession *mfxSession;
 
 /*!
    @brief
-      Creates and initializes a session in the legacy mode for compatibility with Intel(r) Media SDK applications. 
-      This function is deprecated starting from API version 2.0, applications must use MFXLoad with mfxCreateSession 
-      to select the implementation and initialize the session. 
+      Creates and initializes a session in the legacy mode for compatibility with Intel(r) Media SDK applications.
+      This function is deprecated starting from API version 2.0, applications must use MFXLoad with mfxCreateSession
+      to select the implementation and initialize the session.
 
       Call this function before calling
       any other API function. If the desired implementation specified by ``impl`` is MFX_IMPL_AUTO,
@@ -47,7 +47,7 @@ typedef struct _mfxSession *mfxSession;
    @return
       MFX_ERR_NONE        The function completed successfully. The output parameter contains the handle of the session.\n
       MFX_ERR_UNSUPPORTED The function cannot find the desired legacy Intel(r) Media SDK implementation or version.
-   
+
    @since This function is available since API version 1.0.
 
    @deprecated Deprecated in API version 2.3. Use MFXLoad and MFXCreateSession to initialize the session.
@@ -57,8 +57,8 @@ MFX_DEPRECATED mfxStatus MFX_CDECL MFXInit(mfxIMPL impl, mfxVersion *ver, mfxSes
 
 /*!
    @brief
-      Creates and initializes a session in the legacy mode for compatibility with Intel(r) Media SDK applications. 
-      This function is deprecated starting from API version 2.0, applications must use MFXLoad with mfxCreateSession 
+      Creates and initializes a session in the legacy mode for compatibility with Intel(r) Media SDK applications.
+      This function is deprecated starting from API version 2.0, applications must use MFXLoad with mfxCreateSession
       to select the implementation and initialize the session.
 
       Call this function before calling any other API functions.

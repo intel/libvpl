@@ -149,7 +149,7 @@ mfxStatus MFX_CDECL MFXDispReleaseImplDescription(mfxLoader loader, mfxHDL hdl);
 
 /*!
    @brief
-      Macro help to return UUID in the common oneAPI format. 
+      Macro help to return UUID in the common oneAPI format.
 
    @param[in]  devinfo Handle to mfxExtendedDeviceId.
    @param[in]  sub_dev_num SubDevice number. Can be obtained from mfxDeviceDescription::SubDevices::Index. Set to zero if no SubDevices.
@@ -169,7 +169,7 @@ mfxStatus MFX_CDECL MFXDispReleaseImplDescription(mfxLoader loader, mfxHDL hdl);
    t_uuid.pci_func    = (mfxU8)(devinfo)->PCIFunction;                        \
    t_uuid.sub_device_id = (mfxU8)(sub_dev_num);                               \
    *shared_uuid = t_uuid;                                                     \
-}                                                                             
+}
 
 /* Helper macro definitions to add config filter properties. */
 

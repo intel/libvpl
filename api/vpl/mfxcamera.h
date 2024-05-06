@@ -25,7 +25,7 @@ extern "C" {
   */
 enum {
     /*!
-      This extended buffer is mandatory for camera raw acclerator initialization. See the mfxExtCamPipeControl structure for details.
+      This extended buffer is mandatory for camera raw accelerator initialization. See the mfxExtCamPipeControl structure for details.
       The application should attach this extended buffer to the mfxVideoParam structure to configure camera processing initialization.
     */
     MFX_EXTBUF_CAM_PIPECONTROL = MFX_MAKEFOURCC('C', 'P', 'P', 'C'),
@@ -106,13 +106,11 @@ MFX_PACK_BEGIN_USUAL_STRUCT()
     A hint structure that configures Camera White Balance filter.
 */
 typedef struct {
-    mfxExtBuffer
-        Header; /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUF_CAM_WHITE_BALANCE. */
-    mfxU32
-        Mode; /*!< Specifies one of White Balance operation modes defined in enumeration mfxCamWhiteBalanceMode. */
-    mfxF64 R; /*!< White Balance Red correction. */
-    mfxF64 G0; /*!< White Balance Green Top correction. */
-    mfxF64 B; /*!< White Balance Blue correction.*/
+    mfxExtBuffer Header; /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUF_CAM_WHITE_BALANCE. */
+    mfxU32       Mode;   /*!< Specifies one of White Balance operation modes defined in enumeration mfxCamWhiteBalanceMode. */
+    mfxF64 R;  /*!< White Balance Red correction.*/
+    mfxF64 G0; /*!< White Balance Green Top correction.*/
+    mfxF64 B;  /*!< White Balance Blue correction.*/
     mfxF64 G1; /*!< White Balance Green Bottom correction. */
     mfxU32 reserved[8]; /*!< Reserved for future extension. */
 } mfxExtCamWhiteBalance;
@@ -123,8 +121,7 @@ MFX_PACK_BEGIN_USUAL_STRUCT()
     A hint structure that configures Camera Total Color Control filter.
 */
 typedef struct {
-    mfxExtBuffer
-        Header; /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUF_CAM_TOTAL_COLOR_CONTROL. */
+    mfxExtBuffer  Header; /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUF_CAM_TOTAL_COLOR_CONTROL. */
     mfxU16 R; /*!< Red element.*/
     mfxU16 G; /*!< Green element.*/
     mfxU16 B; /*!< Blue element.*/
@@ -140,15 +137,11 @@ MFX_PACK_BEGIN_USUAL_STRUCT()
     A hint structure that configures Camera YUV to RGB format conversion.
 */
 typedef struct {
-    mfxExtBuffer
-        Header; /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUF_CAM_CSC_YUV_RGB. */
-    mfxF32 PreOffset
-        [3]; /*!< Specifies offset for conversion from full range RGB input to limited range YUV for input color coordinate.*/
-    mfxF32 Matrix[3]
-                 [3]; /*!< Specifies conversion matrix with CSC coefficients.*/
-    mfxF32 PostOffset
-        [3]; /*!< Specifies offset for conversion from full range RGB input to limited range YUV for output color coordinate.*/
-    mfxU16 reserved[30]; /*!< Reserved for future extension.*/
+    mfxExtBuffer Header;  /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUF_CAM_CSC_YUV_RGB. */
+    mfxF32 PreOffset[3];  /*!< Specifies offset for conversion from full range RGB input to limited range YUV for input color coordinate.*/
+    mfxF32 Matrix[3][3];  /*!< Specifies conversion matrix with CSC coefficients.*/
+    mfxF32 PostOffset[3]; /*!< Specifies offset for conversion from full range RGB input to limited range YUV for output color coordinate.*/
+    mfxU16 reserved[30];  /*!< Reserved for future extension.*/
 } mfxExtCamCscYuvRgb;
 MFX_PACK_END()
 
@@ -157,24 +150,22 @@ MFX_PACK_BEGIN_USUAL_STRUCT()
     A hint structure that configures Camera Hot Pixel Removal filter.
 */
 typedef struct {
-    mfxExtBuffer
-        Header; /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUF_CAM_HOT_PIXEL_REMOVAL. */
+    mfxExtBuffer Header;             /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUF_CAM_HOT_PIXEL_REMOVAL. */
     mfxU16 PixelThresholdDifference; /*!< Threshold for Hot Pixel difference. */
-    mfxU16 PixelCountThreshold; /*!< Count pixel detection.*/
-    mfxU16 reserved[32]; /*!< Reserved for future extension.*/
+    mfxU16 PixelCountThreshold;      /*!< Count pixel detection.*/
+    mfxU16 reserved[32];             /*!< Reserved for future extension.*/
 } mfxExtCamHotPixelRemoval;
 MFX_PACK_END()
 
 MFX_PACK_BEGIN_USUAL_STRUCT()
 typedef struct {
-    /*!
+/*!
     A hint structure that configures Camera black level correction.
 */
-    mfxExtBuffer
-        Header; /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUF_CAM_BLACK_LEVEL_CORRECTION. */
-    mfxU16 R; /*!< Black Level Red correction.*/
+    mfxExtBuffer Header; /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUF_CAM_BLACK_LEVEL_CORRECTION. */
+    mfxU16 R;  /*!< Black Level Red correction.*/
     mfxU16 G0; /*!< Black Level Green Top correction.*/
-    mfxU16 B; /*!< Black Level Blue correction.*/
+    mfxU16 B;  /*!< Black Level Blue correction.*/
     mfxU16 G1; /*!< Black Level Green Bottom correction.*/
     mfxU32 reserved[4]; /*!< Reserved for future extension.*/
 } mfxExtCamBlackLevelCorrection;
@@ -185,8 +176,8 @@ MFX_PACK_BEGIN_USUAL_STRUCT()
     A structure that defines Camera Vignette Correction Element.
 */
 typedef struct {
-    mfxU8 integer; /*!< Integer part of correction element.*/
-    mfxU8 mantissa; /*!< Fractional part of correction element.*/
+    mfxU8 integer;     /*!< Integer part of correction element.*/
+    mfxU8 mantissa;    /*!< Fractional part of correction element.*/
     mfxU8 reserved[6]; /*!< Reserved for future extension.*/
 } mfxCamVignetteCorrectionElement;
 MFX_PACK_END()
@@ -196,9 +187,9 @@ MFX_PACK_BEGIN_USUAL_STRUCT()
     A structure that defines Camera Vignette Correction Parameters.
 */
 typedef struct {
-    mfxCamVignetteCorrectionElement R; /*!< Red correction element.*/
+    mfxCamVignetteCorrectionElement R;  /*!< Red correction element.*/
     mfxCamVignetteCorrectionElement G0; /*!< Green top correction element.*/
-    mfxCamVignetteCorrectionElement B; /*!< Blue Correction element.*/
+    mfxCamVignetteCorrectionElement B;  /*!< Blue Correction element.*/
     mfxCamVignetteCorrectionElement G1; /*!< Green bottom correction element.*/
     mfxU32 reserved[4]; /*!< Reserved for future extension.*/
 } mfxCamVignetteCorrectionParam;
@@ -209,20 +200,15 @@ MFX_PACK_BEGIN_STRUCT_W_PTR()
     A hint structure that configures Camera Vignette Correction filter.
 */
 typedef struct {
-    mfxExtBuffer
-        Header; /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUF_CAM_VIGNETTE_CORRECTION. */
-    mfxU32
-        Width; /*!< Width of Correction Map 2D buffer in mfxCamVignetteCorrectionParam elements. */
-    mfxU32
-        Height; /*!< Height of Correction Map 2D buffer in mfxCamVignetteCorrectionParam elements. */
-    mfxU32
-        Pitch; /*!< Pitch of Correction Map 2D buffer in mfxCamVignetteCorrectionParam elements. */
-    mfxU32 reserved[7]; /*!< Reserved for future extension.*/
+    mfxExtBuffer Header; /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUF_CAM_VIGNETTE_CORRECTION. */
+    mfxU32       Width;  /*!< Width of Correction Map 2D buffer in mfxCamVignetteCorrectionParam elements. */
+    mfxU32       Height; /*!< Height of Correction Map 2D buffer in mfxCamVignetteCorrectionParam elements. */
+    mfxU32       Pitch;  /*!< Pitch of Correction Map 2D buffer in mfxCamVignetteCorrectionParam elements. */
+    mfxU32 reserved[7];  /*!< Reserved for future extension.*/
 
     union {
-        mfxCamVignetteCorrectionParam*
-            CorrectionMap; /*!< 2D buffer of mfxCamVignetteCorrectionParam elements.*/
-        mfxU64 reserved1; /*!< Reserved for alignment on 32bit and 64bit.*/
+        mfxCamVignetteCorrectionParam* CorrectionMap; /*!< 2D buffer of mfxCamVignetteCorrectionParam elements.*/
+        mfxU64 reserved1;                             /*!< Reserved for alignment on 32bit and 64bit.*/
     };
 } mfxExtCamVignetteCorrection;
 MFX_PACK_END()
@@ -232,9 +218,8 @@ MFX_PACK_BEGIN_USUAL_STRUCT()
     A hint structure that configures Camera Bayer denoise filter.
 */
 typedef struct {
-    mfxExtBuffer
-        Header; /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUF_CAM_BAYER_DENOISE. */
-    mfxU16 Threshold; /*!< Level of denoise, legal values: [0:63].*/
+    mfxExtBuffer Header; /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUF_CAM_BAYER_DENOISE. */
+    mfxU16 Threshold;    /*!< Level of denoise, legal values: [0:63].*/
     mfxU16 reserved[27]; /*!< Reserved for future extension.*/
 } mfxExtCamBayerDenoise;
 MFX_PACK_END()
@@ -244,11 +229,8 @@ MFX_PACK_BEGIN_STRUCT_W_L_TYPE()
     A hint structure that configures Camera Color correction filter.
 */
 typedef struct {
-    mfxExtBuffer
-        Header; /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUF_CAM_COLOR_CORRECTION_3X3. */
-    mfxF32 CCM
-        [3]
-        [3]; /*!< 3x3 dimension matrix providing RGB Color Correction coefficients.*/
+    mfxExtBuffer Header; /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUF_CAM_COLOR_CORRECTION_3X3. */
+    mfxF32 CCM[3][3];    /*!< 3x3 dimension matrix providing RGB Color Correction coefficients.*/
     mfxU32 reserved[32]; /*!< Reserved for future extension.*/
 } mfxExtCamColorCorrection3x3;
 MFX_PACK_END()
@@ -258,17 +240,12 @@ MFX_PACK_BEGIN_USUAL_STRUCT()
     A hint structure that configures Camera Padding.
 */
 typedef struct {
-    mfxExtBuffer
-        Header; /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUF_CAM_PADDING. */
-    mfxU16
-        Top; /*!< Specify number of padded columns respectively. Currently only 8 pixels supported for all dimensions. */
-    mfxU16
-        Bottom; /*!< Specify number of padded columns respectively. Currently only 8 pixels supported for all dimensions. */
-    mfxU16
-        Left; /*!< Specify number of padded rows respectively. Currently only 8 pixels supported for all dimensions. */
-    mfxU16
-        Right; /*!< Specify number of padded rows respectively. Currently only 8 pixels supported for all dimensions. */
-    mfxU32 reserved[4]; /*!< Reserved for future extension.*/
+    mfxExtBuffer Header; /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUF_CAM_PADDING. */
+    mfxU16       Top;    /*!< Specify number of padded columns respectively. Currently only 8 pixels supported for all dimensions. */
+    mfxU16       Bottom; /*!< Specify number of padded columns respectively. Currently only 8 pixels supported for all dimensions. */
+    mfxU16       Left;   /*!< Specify number of padded rows respectively. Currently only 8 pixels supported for all dimensions. */
+    mfxU16       Right;  /*!< Specify number of padded rows respectively. Currently only 8 pixels supported for all dimensions. */
+    mfxU32 reserved[4];  /*!< Reserved for future extension.*/
 } mfxExtCamPadding;
 MFX_PACK_END()
 
@@ -303,12 +280,10 @@ MFX_PACK_BEGIN_USUAL_STRUCT()
     A hint structure that configures camera pipe control.
 */
 typedef struct {
-    mfxExtBuffer
-        Header; /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUF_CAM_PIPECONTROL. */
-    mfxU16
-        RawFormat; /*!< Specifies one of the four Bayer patterns defined in mfxCamBayerFormat enumeration.*/
-    mfxU16 reserved1; /*!< Reserved for future extension.*/
-    mfxU32 reserved[5]; /*!< Reserved for future extension.*/
+    mfxExtBuffer Header;    /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUF_CAM_PIPECONTROL. */
+    mfxU16       RawFormat; /*!< Specifies one of the four Bayer patterns defined in mfxCamBayerFormat enumeration. */
+    mfxU16 reserved1;       /*!< Reserved for future extension.*/
+    mfxU32 reserved[5];     /*!< Reserved for future extension.*/
 } mfxExtCamPipeControl;
 MFX_PACK_END()
 
@@ -318,9 +293,9 @@ MFX_PACK_BEGIN_USUAL_STRUCT()
 */
 typedef struct {
     mfxU16 Pixel; /*!< Pixel value.*/
-    mfxU16 Red; /*!< Corrected Red value.*/
+    mfxU16 Red;   /*!< Corrected Red value.*/
     mfxU16 Green; /*!< Corrected Green value.*/
-    mfxU16 Blue; /*!< Corrected Blue value.*/
+    mfxU16 Blue;  /*!< Corrected Blue value.*/
 } mfxCamFwdGammaSegment;
 MFX_PACK_END()
 
@@ -329,14 +304,13 @@ MFX_PACK_BEGIN_STRUCT_W_L_TYPE()
     A hint structure that configures Camera Forward Gamma Correction filter.
 */
 typedef struct {
-    mfxExtBuffer
-        Header; /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUF_CAM_FORWARD_GAMMA_CORRECTION. */
+    mfxExtBuffer Header; /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUF_CAM_FORWARD_GAMMA_CORRECTION. */
 
     mfxU16 reserved[19]; /*!< Reserved for future extension.*/
-    mfxU16 NumSegments; /*!< Number of Gamma segments.*/
+    mfxU16 NumSegments;  /*!< Number of Gamma segments.*/
     union {
         mfxCamFwdGammaSegment* Segment; /*!< Pointer to Gamma segments array.*/
-        mfxU64 reserved1; /*!< Reserved for future extension.*/
+        mfxU64 reserved1;               /*!< Reserved for future extension.*/
     };
 } mfxExtCamFwdGamma;
 MFX_PACK_END()
@@ -363,7 +337,7 @@ MFX_PACK_END()
 enum {
     MFX_CAM_3DLUT17_SIZE = (17 * 17 * 17), /*!< 17^3 LUT size*/
     MFX_CAM_3DLUT33_SIZE = (33 * 33 * 33), /*!< 33^3 LUT size*/
-    MFX_CAM_3DLUT65_SIZE = (65 * 65 * 65) /*!< 65^3 LUT size*/
+    MFX_CAM_3DLUT65_SIZE = (65 * 65 * 65)  /*!< 65^3 LUT size*/
 };
 
 MFX_PACK_BEGIN_USUAL_STRUCT()
@@ -383,15 +357,12 @@ MFX_PACK_BEGIN_STRUCT_W_L_TYPE()
     A hint structure that configures Camera 3DLUT filter.
 */
 typedef struct {
-    mfxExtBuffer
-        Header; /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUF_CAM_3DLUT. */
+    mfxExtBuffer Header; /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUF_CAM_3DLUT. */
 
     mfxU16 reserved[10]; /*!< Reserved for future extension.*/
-    mfxU32
-        Size; /*!< LUT size, defined in MFX_CAM_3DLUT17/33/65_SIZE enumeration.*/
+    mfxU32         Size; /*!< LUT size, defined in MFX_CAM_3DLUT17/33/65_SIZE enumeration.*/
     union {
-        mfxCam3DLutEntry*
-            Table; /*!< Pointer to mfxCam3DLutEntry, size of each dimension depends on LUT size, e.g. LUT[17][17][17] for 17x17x17 look up table.*/
+        mfxCam3DLutEntry* Table; /*!< Pointer to mfxCam3DLutEntry, size of each dimension depends on LUT size, e.g. LUT[17][17][17] for 17x17x17 look up table.*/
         mfxU64 reserved1; /*!< Reserved for future extension.*/
     };
 } mfxExtCam3DLut;

@@ -94,7 +94,7 @@ MFX_PACK_END()
 MFX_PACK_BEGIN_USUAL_STRUCT()
 /*!
    Specifies Huffman tables. The application may specify up to 2 quantization table pairs for baseline process. The encoder
-   assigns an ID to each table. That ID is equal to the table index in the DCTables and ACTables arrays. Table "0" is used for encoding of the Y component and 
+   assigns an ID to each table. That ID is equal to the table index in the DCTables and ACTables arrays. Table "0" is used for encoding of the Y component and
    table "1" is used for encoding of the U and V component. The application may specify only one table, in which case the table will be used for all components in the image.
    The following table illustrates this behavior.
 
@@ -111,7 +111,7 @@ MFX_PACK_BEGIN_USUAL_STRUCT()
    @endinternal
 */
 typedef struct {
-    mfxExtBuffer    Header; /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_JPEG_HUFFMAN. */
+    mfxExtBuffer    Header;  /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_JPEG_HUFFMAN. */
 
     mfxU16  reserved[2];
     mfxU16  NumDCTable;      /*!< Number of DC quantization table in DCTables array. */

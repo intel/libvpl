@@ -291,10 +291,22 @@ The following pseudo code shows camera raw processing.
 |vpl_short_name| supports AI based super resolution with Intel HW. The following pseudo code
 shows how to perform AI based super resolution.
 
+---------------------------
+AI Powered Video Processing
+---------------------------
+
 The following pseudo code shows AI super resolution video processing.
 
 .. literalinclude:: ../snippets/prg_vpp.c
    :language: c++
    :start-after: /*beg12*/
    :end-before: /*end12*/
+   :lineno-start: 1
+
+The following pseudo code shows AI frame interpolation video processing.
+
+.. literalinclude:: ../snippets/prg_vpp.c
+   :language: c++
+   :start-after: /*beg13*/
+   :end-before: /*end13*/
    :lineno-start: 1

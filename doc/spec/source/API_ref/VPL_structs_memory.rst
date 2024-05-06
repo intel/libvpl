@@ -225,3 +225,19 @@ mfxExtSurfaceD3D12Tex2DExportDescription
    :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
+
+mfxSurfaceVulkanImg2D
+---------------------
+
+.. doxygenstruct:: mfxSurfaceVulkanImg2D
+   :project: DEF_BREATHE_PROJECT
+   :members:
+   :protected-members:
+
+mfxExtSurfaceVulkanImg2DExportDescription
+-----------------------------------------
+
+.. doxygenstruct:: mfxExtSurfaceVulkanImg2DExportDescription
+   :project: DEF_BREATHE_PROJECT
+   :members:
+   :protected-members:

@@ -262,4 +262,20 @@ The following is a list of experimental interfaces, starting from API version
    * - :cpp:struct:`mfxExtAlphaChannelSurface`
      - 2.11
      -
-     -  
+     -
+   * - :cpp:struct:`mfxSurfaceVulkanImg2D`
+     - 2.12
+     -
+     -
+   * - :cpp:struct:`mfxExtSurfaceVulkanImg2DExportDescription`
+     - 2.12
+     -
+     -
+   * - :cpp:struct:`mfxExtVPPAIFrameInterpolation`
+     - 2.12
+     -
+     -
+   * - :cpp:enum:`mfxAIFrameInterpolationMode`
+     - 2.12
+     -
+     -

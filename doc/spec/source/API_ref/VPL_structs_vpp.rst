@@ -289,3 +289,11 @@ mfxExtVPPAISuperResolution
    :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
+
+mfxExtVPPAIFrameInterpolation
+-----------------------------
+
+.. doxygenstruct:: mfxExtVPPAIFrameInterpolation
+   :project: DEF_BREATHE_PROJECT
+   :members:
+   :protected-members:
