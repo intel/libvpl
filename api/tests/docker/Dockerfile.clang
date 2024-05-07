@@ -12,17 +12,23 @@ RUN apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     clang-${CLANG_VER} \
  && apt-get clean \
- && rm -rf /var/lib/apt/lists/*
-
-RUN clang-${CLANG_VER} -v
-
-RUN apt-get update \
+ && rm -rf /var/lib/apt/lists/* \
+ && clang-${CLANG_VER} -v \
+ && apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     python3-pip \
  && apt-get clean \
- && rm -rf /var/lib/apt/lists/*
-
-RUN pip3 install --no-cache-dir clang libclang
+ && rm -rf /var/lib/apt/lists/* \
+ && pip3 install --no-cache-dir clang libclang
 
 WORKDIR /data
 VOLUME ["/data"]
+
+# Use non-root user
+ARG GROUP_ID=10000
+ARG USER_ID=10001
+RUN addgroup --gid ${GROUP_ID} --system appgroup \
+ && adduser --uid ${USER_ID} --system --gid ${GROUP_ID} appuser
+USER appuser
+
+HEALTHCHECK CMD clang --version || exit 1

@@ -102,3 +102,12 @@ RUN python3 -m pip install --no-cache-dir --upgrade pip && \
     pip3 install --no-cache-dir 'openvino-dev[caffe]==2023.2.0' && \
     omz_downloader --name mobilenet-ssd && \
     omz_converter --name mobilenet-ssd --precision FP32 --download_dir . --output_dir .
+
+# Use non-root user
+ARG GROUP_ID=10000
+ARG USER_ID=10001
+RUN addgroup --gid ${GROUP_ID} --system appgroup \
+ && adduser --uid ${USER_ID} --system --gid ${GROUP_ID} appuser
+USER appuser
+
+HEALTHCHECK CMD cmake --version || exit 1

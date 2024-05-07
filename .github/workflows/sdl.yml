@@ -160,7 +160,7 @@ jobs:
           --user_id ${{ inputs.sdle_user }} \
           --project_id ${{ inputs.sdle_project }} \
           --task_id CT222 \
-          --file_paths $file_path/CT222-Hadolint/hadolint.txt \
+          --file_paths $file_path/CT222-DockerScan/ct222-report.json \
           --label ${{ inputs.label }} \
           --output_prefix ${{ inputs.output_prefix }}
 

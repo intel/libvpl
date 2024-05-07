@@ -47,6 +47,8 @@ jobs:
         run: >
           docker build "source/.github/workflows/ipldt"
           -f "source/.github/workflows/ipldt/Dockerfile.ubuntu.ipldt"
+          --build-arg USER_ID=$(id -u)
+          --build-arg GROUP_ID=$(id -g)
           -t vpl_ipldt:ubuntu
           --build-arg "IPLDB_TOOL_URL=${{ vars.IPLDB_TOOL_URL }}"
 
@@ -68,7 +70,6 @@ jobs:
           cat <<'EOL' > action.sh
           #!/bin/bash
           set -x
-          mkdir -p _logs/ip-leak-scan
           set +o errexit
           set -o pipefail
           /opt/ipldt3_lin_intel64/ipldt3_lin_intel64 \
@@ -80,15 +81,17 @@ jobs:
               --db-rel-path \
               --gendb _logs/ip-leak-scan/hits-linux.db \
               --r-overwrite \
-              --r _logs/ip-leak-scan | tee /working/_logs/ipldt.txt
+              --r _logs/ip-leak-scan
           ret=$?
           set +o pipefail
           exit $ret
           EOL
           chmod +x action.sh
 
+          mkdir -p _logs/ip-leak-scan
           docker run --rm -v $PWD:/working -w /working \
-          vpl_ipldt:ubuntu ./action.sh
+          vpl_ipldt:ubuntu ./action.sh | tee _logs/ipldt.txt
+          mv _logs/ipldt.txt _logs/ip-leak-scan/ipldt_results.txt
 
       - name: Report
         if: success() || failure()

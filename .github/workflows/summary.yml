@@ -67,7 +67,7 @@ jobs:
           mkdir -p summary/sdl/CT37-MalwareScan
           mkdir -p summary/sdl/CT39-StaticAnalysis
           mkdir -p summary/sdl/CT151-CompilerFlags
-          mkdir -p summary/sdl/CT222-Hadolint
+          mkdir -p summary/sdl/CT222-DockerScan
           mkdir -p summary/sdl/CT247-Trivy
 
           cp artifacts/$BDBA/vulns.csv \
@@ -84,8 +84,8 @@ jobs:
              summary/sdl/CT39-StaticAnalysis/windows-coverity.json
           cp -r artifacts/$SSCB_L/. summary/sdl/CT151-CompilerFlags/
           cp -r artifacts/$SSCB_W/. summary/sdl/CT151-CompilerFlags/
-          cp -r artifacts/$HADOLINT/. summary/sdl/CT222-Hadolint/
-          cp -r artifacts/$TRIVY/. summary/sdl/CT247-Trivy/
+          cp -r artifacts/$TRIVY/ct222-report.json summary/sdl/CT222-DockerScan/
+          cp -r artifacts/$TRIVY/trivy-report.csv summary/sdl/CT247-Trivy/
 
       - name: SWLC artifacts
         run: |

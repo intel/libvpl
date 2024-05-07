@@ -58,6 +58,8 @@ jobs:
         run: >
           docker build "source/.github/workflows/sscb"
           -f "source/.github/workflows/sscb/Dockerfile.ubuntu.sscb"
+          --build-arg USER_ID=$(id -u)
+          --build-arg GROUP_ID=$(id -g)
           -t vpl_sscb:ubuntu
           --build-arg "SSCB_TOOL_URL=${{ vars.COMPILER_SETTINGS_TOOL_URL }}"
 

@@ -19,4 +19,6 @@ RUN apt-get update \
  && xargs -a packages.txt apt-get install -y --no-install-recommends \
  && rm -rf /var/lib/apt/lists/* \
  && pip3 install --no-cache-dir -U -r requirements.txt \
- && git config --global safe.directory '*' \
+ && git config --global safe.directory '*'
+
+HEALTHCHECK CMD python3 --version || exit 1

@@ -25,4 +25,11 @@ RUN apt-get update \
  && ls /opt/ipldt3_lin_intel64 \
  && rm -rf /tmp/ipldt3_lin_intel64.tgz
 
+# Use non-root user
+ARG GROUP_ID=10000
+ARG USER_ID=10001
+RUN addgroup --gid ${GROUP_ID} --system appgroup \
+ && adduser --uid ${USER_ID} --system --gid ${GROUP_ID} appuser
+USER appuser
 
+HEALTHCHECK CMD /opt/ipldt3_lin_intel64/ipldt3_lin_intel64 --v || exit 1

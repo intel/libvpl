@@ -23,3 +23,5 @@ RUN apt-get update \
  && pip3 install --no-cache-dir -U -r requirements.txt \
  && pip3 install --no-cache-dir -U "${SSCB_TOOL_URL}" \
  && git config --global safe.directory '*'
+
+HEALTHCHECK CMD sscb version || exit 1

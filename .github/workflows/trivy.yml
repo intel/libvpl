@@ -41,7 +41,7 @@ jobs:
             -v $(pwd):/work \
             -w /work \
             --attach stderr --attach stdout \
-            aquasec/trivy:0.47.0 \
+            aquasec/trivy:0.51.1 \
             fs \
               --exit-code 1 \
               --list-all-pkgs \
@@ -56,7 +56,7 @@ jobs:
             -v $(pwd):/work \
             -w /work \
             --attach stderr --attach stdout \
-            aquasec/trivy:0.47.0 \
+            aquasec/trivy:0.51.1 \
             fs \
               --exit-code 1 \
               --list-all-pkgs \
@@ -64,6 +64,32 @@ jobs:
               --template "@/work/source/.github/workflows/trivy/csv.tpl" \
               --output artifact/trivy-report.csv \
               .
+
+      - name: Lint Dockerfiles for SDL Evidence
+        if: (success() || failure())
+        run: |
+          docker run \
+          -v /var/run/docker.sock:/var/run/docker.sock \
+          -v $HOME/Library/Caches:/root/.cache/ \
+          -v $(pwd):/work \
+          -w /work \
+          --attach stderr --attach stdout \
+          aquasec/trivy:0.51.1 \
+            --ignorefile source/.trivyignore.yaml \
+            --format table --output artifact/ct222-report.txt \
+            config source
+
+          docker run \
+          -v /var/run/docker.sock:/var/run/docker.sock \
+          -v $HOME/Library/Caches:/root/.cache/ \
+          -v $(pwd):/work \
+          -w /work \
+          --attach stderr --attach stdout \
+          aquasec/trivy:0.51.1 \
+            --ignorefile source/.trivyignore.yaml \
+            --format json --output artifact/ct222-report.json \
+            --exit-code 1 \
+            config source
 
       - name: Scan for SPDX for SBOM
         if: (success() || failure())
@@ -74,20 +100,20 @@ jobs:
             -v $(pwd):/work \
             -w /work \
             --attach stderr --attach stdout \
-            aquasec/trivy:0.47.0 \
+            aquasec/trivy:0.51.1 \
             fs \
               --exit-code 1 \
               --list-all-pkgs \
               --format spdx-json \
               --output artifact/trivy-spdx.json \
-              .
+              source
 
       - name: Summarize
         if: (failure())
         run: |
           echo '```' >> $GITHUB_STEP_SUMMARY
-          cat artifact/trivy.txt \
-          >> $GITHUB_STEP_SUMMARY
+          cat artifact/ct222-report.txt >> $GITHUB_STEP_SUMMARY
+          cat artifact/trivy.txt >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
 
       - name: Report

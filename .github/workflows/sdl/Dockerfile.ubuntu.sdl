@@ -19,4 +19,13 @@ RUN apt-get update \
  && xargs -a packages.txt apt-get install -y --no-install-recommends \
  && rm -rf /var/lib/apt/lists/* \
  && pip3 install --no-cache-dir -U -r requirements.txt \
- && git config --global safe.directory '*' \
+ && git config --global safe.directory '*'
+
+# Use non-root user
+ARG GROUP_ID=10000
+ARG USER_ID=10001
+RUN addgroup --gid ${GROUP_ID} --system appgroup \
+ && adduser --uid ${USER_ID} --system --gid ${GROUP_ID} appuser
+USER appuser
+
+HEALTHCHECK CMD python3 --version || exit 1

@@ -26,6 +26,8 @@ jobs:
         run: >
           docker build "source/.github/workflows/lint"
           -f "source/.github/workflows/lint/Dockerfile.ubuntu.lint"
+          --build-arg USER_ID=$(id -u)
+          --build-arg GROUP_ID=$(id -g)
           -t vpl_lint:ubuntu
 
       - name: Lint source in container
@@ -34,7 +36,7 @@ jobs:
           #!/bin/bash
           set -x
           set -o pipefail
-          source/script/test lint | tee lint.log
+          source/script/test lint
           ret=$?
           set +o pipefail
           exit $ret
@@ -42,7 +44,7 @@ jobs:
           chmod +x lint.sh
 
           docker run --rm -v $(pwd):/tmp/work -w /tmp/work \
-          vpl_lint:ubuntu ./lint.sh
+          vpl_lint:ubuntu ./lint.sh | tee lint.log
 
       - name: Report
         if: success() || failure()

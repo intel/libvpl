@@ -26,6 +26,12 @@ jobs:
     with:
       output_prefix: lib-
 
+  trivy:
+    if: 'github.event.pull_request.draft'
+    uses: ./.github/workflows/trivy.yml
+    with:
+      output_prefix: lib-
+
   linux-build:
     if: 'github.event.pull_request.draft'
     uses: ./.github/workflows/cmake.yml

@@ -12,3 +12,11 @@ RUN apt-get update && \
     apt-get install --no-install-recommends -q -y libmfxgen1 intel-media-va-driver-non-free libmfx1 libva-dev libva-drm2 vainfo && \
     apt-get install --no-install-recommends -q -y cmake build-essential pkg-config && rm -rf /var/lib/apt/lists/*
 
+# Use non-root user
+ARG GROUP_ID=10000
+ARG USER_ID=10001
+RUN addgroup --gid ${GROUP_ID} --system appgroup \
+ && adduser --uid ${USER_ID} --system --gid ${GROUP_ID} appuser
+USER appuser
+
+HEALTHCHECK CMD cmake --version || exit 1

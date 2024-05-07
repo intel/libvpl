@@ -35,6 +35,8 @@ RUN mkdir /opt/coverity \
 
 ARG DOCKER_REGISTRY
 
+HEALTHCHECK CMD ls /opt/coverity || exit 1
+
 FROM ${DOCKER_REGISTRY}vpl_build:ubuntu
 
 WORKDIR /setup
@@ -47,3 +49,5 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/*
 ENV PATH="/opt/coverity/analysis/bin:/opt/coverity/reports/bin:${PATH}"
 COPY --from=coverity_install /opt/coverity /opt/coverity
+
+HEALTHCHECK CMD gcc --version || exit 1

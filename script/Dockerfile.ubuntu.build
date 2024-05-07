@@ -14,6 +14,7 @@ COPY bootstrap bootstrap
 ARG DEBIAN_FRONTEND=noninteractive
 ENV PIP_ROOT_USER_ACTION=ignore
 
-RUN ./bootstrap && rm -rf /var/lib/apt/lists/*
+RUN ./bootstrap && rm -rf /var/lib/apt/lists/* \
+ && git config --global safe.directory '*'
 
-RUN git config --global safe.directory '*'
+HEALTHCHECK CMD gcc --version || exit 1
