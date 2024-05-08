@@ -141,57 +141,71 @@ typedef IDirect3D9 *(WINAPI *D3DCreateFunctionPtr_t)(UINT);
 typedef HRESULT(WINAPI *D3DExCreateFunctionPtr_t)(UINT, IDirect3D9Ex **);
 
 bool D3D9Device::Init(const mfxU32 adapterNum) {
-    // close the device before initialization
-    Close();
-
     // load the library
     if (NULL == m_hModule) {
         LoadDLLModule(L"d3d9.dll");
     }
 
     if (m_hModule) {
-        D3DCreateFunctionPtr_t pFunc;
+        if (NULL == m_pD3D9) {
+            D3DCreateFunctionPtr_t pFunc;
 
-        // load address of procedure to create D3D device
-        pFunc = (D3DCreateFunctionPtr_t)GetProcAddress(m_hModule, "Direct3DCreate9");
-        if (pFunc) {
-            D3DADAPTER_IDENTIFIER9 adapterIdent;
-            IDirect3D9 *pD3D9;
-            HRESULT hRes;
+            // load address of procedure to create D3D device
+            pFunc = (D3DCreateFunctionPtr_t)GetProcAddress(m_hModule, "Direct3DCreate9");
+            if (pFunc) {
+                // create D3D object
+                m_pD3D9 = pFunc(D3D_SDK_VERSION);
 
-            // create D3D object
-            m_pD3D9 = pFunc(D3D_SDK_VERSION);
-
-            if (NULL == m_pD3D9) {
-                DXVA2DEVICE_TRACE(("FAIL: Direct3DCreate9(%d) : GetLastError()=0x%x",
-                                   D3D_SDK_VERSION,
-                                   GetLastError()));
+                if (NULL == m_pD3D9) {
+                    DXVA2DEVICE_TRACE(("FAIL: Direct3DCreate9(%d) : GetLastError()=0x%x",
+                                       D3D_SDK_VERSION,
+                                       GetLastError()));
+                    return false;
+                }
+            }
+            else {
+                DXVA2DEVICE_TRACE_OPERATION({
+                    wchar_t path[1024];
+                    DWORD lastErr = GetLastError();
+                    GetModuleFileNameW(m_hModule, path, sizeof(path) / sizeof(path[0]));
+                    DXVA2DEVICE_TRACE((
+                        "FAIL: invoking GetProcAddress(Direct3DCreate9) in %S : GetLastError()==0x%x\n",
+                        path,
+                        lastErr));
+                });
                 return false;
             }
+        }
 
-            // cast the interface
-            pD3D9 = (IDirect3D9 *)m_pD3D9;
+        D3DADAPTER_IDENTIFIER9 adapterIdent;
+        IDirect3D9 *pD3D9;
+        HRESULT hRes;
 
-            m_numAdapters = pD3D9->GetAdapterCount();
-            if (adapterNum >= m_numAdapters) {
-                return false;
-            }
+        // cast the interface
+        pD3D9 = (IDirect3D9 *)m_pD3D9;
 
-            // get the card's parameters
-            hRes = pD3D9->GetAdapterIdentifier(adapterNum, 0, &adapterIdent);
-            if (D3D_OK != hRes) {
-                DXVA2DEVICE_TRACE(("FAIL: GetAdapterIdentifier(%d) = 0x%x \n", adapterNum, hRes));
-                return false;
-            }
+        m_numAdapters = pD3D9->GetAdapterCount();
+        if (adapterNum >= m_numAdapters) {
+            return false;
+        }
 
-            m_vendorID      = adapterIdent.VendorId;
-            m_deviceID      = adapterIdent.DeviceId;
-            m_driverVersion = (mfxU64)adapterIdent.DriverVersion.QuadPart;
+        // get the card's parameters
+        hRes = pD3D9->GetAdapterIdentifier(adapterNum, 0, &adapterIdent);
+        if (D3D_OK != hRes) {
+            DXVA2DEVICE_TRACE(("FAIL: GetAdapterIdentifier(%d) = 0x%x \n", adapterNum, hRes));
+            return false;
+        }
 
-            // load LUID
-            IDirect3D9Ex *pD3D9Ex;
+        m_vendorID      = adapterIdent.VendorId;
+        m_deviceID      = adapterIdent.DeviceId;
+        m_driverVersion = (mfxU64)adapterIdent.DriverVersion.QuadPart;
+
+        // load LUID
+        IDirect3D9Ex *pD3D9Ex;
+        LUID d3d9LUID;
+
+        if (NULL == m_pD3D9Ex) {
             D3DExCreateFunctionPtr_t pFuncEx;
-            LUID d3d9LUID;
 
             // find the appropriate function
             pFuncEx = (D3DExCreateFunctionPtr_t)GetProcAddress(m_hModule, "Direct3DCreate9Ex");
@@ -201,34 +215,23 @@ bool D3D9Device::Init(const mfxU32 adapterNum) {
             }
 
             // create extended interface
-            hRes = pFuncEx(D3D_SDK_VERSION, &pD3D9Ex);
+            hRes = pFuncEx(D3D_SDK_VERSION, (IDirect3D9Ex **)&m_pD3D9Ex);
             if (FAILED(hRes)) {
                 // can't create extended interface
                 return true;
             }
-            m_pD3D9Ex = pD3D9Ex;
+        }
 
-            // obtain D3D9 device LUID
-            hRes = pD3D9Ex->GetAdapterLUID(adapterNum, &d3d9LUID);
-            if (FAILED(hRes)) {
-                // can't get LUID
-                return true;
-            }
-            // copy the LUID
-            m_luid = LUIDtomfxU64(d3d9LUID);
+        pD3D9Ex = (IDirect3D9Ex *)m_pD3D9Ex;
+
+        // obtain D3D9 device LUID
+        hRes = pD3D9Ex->GetAdapterLUID(adapterNum, &d3d9LUID);
+        if (FAILED(hRes)) {
+            // can't get LUID
+            return true;
         }
-        else {
-            DXVA2DEVICE_TRACE_OPERATION({
-                wchar_t path[1024];
-                DWORD lastErr = GetLastError();
-                GetModuleFileNameW(m_hModule, path, sizeof(path) / sizeof(path[0]));
-                DXVA2DEVICE_TRACE((
-                    "FAIL: invoking GetProcAddress(Direct3DCreate9) in %S : GetLastError()==0x%x\n",
-                    path,
-                    lastErr));
-            });
-            return false;
-        }
+        // copy the LUID
+        m_luid = LUIDtomfxU64(d3d9LUID);
     }
     else {
         DXVA2DEVICE_TRACE(
@@ -270,9 +273,6 @@ void DXGI1Device::Close(void) {
 } // void DXGI1Device::Close(void)
 
 bool DXGI1Device::Init(const mfxU32 adapterNum) {
-    // release the object before initialization
-    Close();
-
     IDXGIFactory1 *pFactory = NULL;
     IDXGIAdapter1 *pAdapter = NULL;
     DXGI_ADAPTER_DESC1 desc = { 0 };
@@ -280,37 +280,46 @@ bool DXGI1Device::Init(const mfxU32 adapterNum) {
     mfxU32 maxAdapters      = 0;
     HRESULT hRes            = E_FAIL;
 
-    DXGICreateFactoryFunc pFunc = NULL;
-
     // load up the library if it is not loaded
     if (NULL == m_hModule) {
         LoadDLLModule(L"dxgi.dll");
     }
 
-    if (m_hModule) {
-        // load address of procedure to create DXGI 1.1 factory
-        pFunc = (DXGICreateFactoryFunc)GetProcAddress(m_hModule, "CreateDXGIFactory1");
-    }
+    if (NULL == m_pDXGIFactory1) {
+        DXGICreateFactoryFunc pFunc = NULL;
 
-    if (NULL == pFunc) {
-        return false;
-    }
+        if (m_hModule) {
+            // load address of procedure to create DXGI 1.1 factory
+            pFunc = (DXGICreateFactoryFunc)GetProcAddress(m_hModule, "CreateDXGIFactory1");
+        }
 
-    // create the factory
+        if (NULL == pFunc) {
+            return false;
+        }
+
+        // create the factory
 #if _MSC_VER >= 1400
-    hRes = pFunc(__uuidof(IDXGIFactory1), (void **)(&pFactory));
+        hRes = pFunc(__uuidof(IDXGIFactory1), (void **)(&m_pDXGIFactory1));
 #else
-    hRes = pFunc(IID_IDXGIFactory1, (void **)(&pFactory));
+        hRes = pFunc(IID_IDXGIFactory1, (void **)(&m_pDXGIFactory1));
 #endif
 
-    if (FAILED(hRes)) {
-        return false;
+        if (FAILED(hRes)) {
+            return false;
+        }
     }
-    m_pDXGIFactory1 = pFactory;
+
+    pFactory = (IDXGIFactory1 *)m_pDXGIFactory1;
 
     // get the number of adapters
     curAdapter  = 0;
     maxAdapters = 0;
+
+    if (m_pDXGIAdapter1) {
+        ((IDXGIAdapter1 *)m_pDXGIAdapter1)->Release();
+        m_pDXGIAdapter1 = (void *)0;
+    }
+
     do {
         // get the required adapted
         hRes = pFactory->EnumAdapters1(curAdapter, &pAdapter);
@@ -428,7 +437,7 @@ void DXVA2Device::Close(void) {
 
 #ifdef MFX_D3D9_ENABLED
 bool DXVA2Device::InitD3D9(const mfxU32 adapterNum) {
-    D3D9Device d3d9Device;
+    D3D9Device &d3d9Device = m_d3d9Device;
     bool bRes;
 
     // release the object before initialization
@@ -445,7 +454,7 @@ bool DXVA2Device::InitD3D9(const mfxU32 adapterNum) {
     // check if the application is under Remote Desktop
     if ((0 == d3d9Device.GetVendorID()) || (0 == d3d9Device.GetDeviceID())) {
         // get the required parameters alternative way and ...
-        UseAlternativeWay(&d3d9Device);
+        UseAlternativeWay(d3d9Device);
     }
     else {
         // save the parameters and ...
@@ -466,7 +475,7 @@ bool DXVA2Device::InitD3D9(const mfxU32 adapterNum) {
 #endif // MFX_D3D9_ENABLED
 
 bool DXVA2Device::InitDXGI1(const mfxU32 adapterNum) {
-    DXGI1Device dxgi1Device;
+    DXGI1Device &dxgi1Device = m_dxgi1Device;
     bool bRes;
 
     // release the object before initialization
@@ -490,16 +499,17 @@ bool DXVA2Device::InitDXGI1(const mfxU32 adapterNum) {
 } // bool DXVA2Device::InitDXGI1(const mfxU32 adapterNum)
 
 #ifdef MFX_D3D9_ENABLED
-void DXVA2Device::UseAlternativeWay(const D3D9Device *pD3D9Device) {
-    mfxU64 d3d9LUID     = pD3D9Device->GetLUID();
+void DXVA2Device::UseAlternativeWay(const D3D9Device &pD3D9Device) {
+    mfxU64 d3d9LUID     = pD3D9Device.GetLUID();
     mfxU64 kInvalidLUID = {};
     // work only with valid LUIDs
     if (kInvalidLUID == d3d9LUID) {
         return;
     }
-    DXGI1Device dxgi1Device;
-    mfxU32 curDevice = 0;
-    bool bRes        = false;
+
+    DXGI1Device &dxgi1Device = m_dxgi1Device;
+    mfxU32 curDevice         = 0;
+    bool bRes                = false;
 
     do {
         // initialize the next DXGI1 or DXGI device

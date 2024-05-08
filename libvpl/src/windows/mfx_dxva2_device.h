@@ -169,7 +169,7 @@ public:
 protected:
 #ifdef MFX_D3D9_ENABLED
     // Get vendor & device IDs by alternative way (D3D9 in Remote Desktop sessions)
-    void UseAlternativeWay(const D3D9Device *pD3D9Device);
+    void UseAlternativeWay(const D3D9Device &pD3D9Device);
 #endif // MFX_D3D9_ENABLED
     // Number of adapters available
     mfxU32 m_numAdapters;
@@ -182,6 +182,10 @@ protected:
     mfxU64 m_driverVersion;
     // LUID
     mfxU64 m_luid;
+    // D3D9 Device
+    D3D9Device m_d3d9Device;
+    // DXGI Device
+    DXGI1Device m_dxgi1Device;
 
 private:
     // unimplemented by intent to make this class non-copyable

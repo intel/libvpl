@@ -196,7 +196,7 @@ mfxStatus LoaderCtxMSDK::GetDefaultAccelType(mfxU32 adapterID, mfxIMPL *implDefa
 
     // check whether adapterID supports D3D11 and has correct VendorID
     implTest = MFX_IMPL_VIA_D3D11;
-    sts      = MFX::SelectImplementationType(adapterID, &implTest, &VendorID, &DeviceID, luid);
+    sts      = MFX::SelectImplementationType2(adapterID, &implTest, &VendorID, &DeviceID, luid);
 
     if (sts != MFX_ERR_NONE || VendorID != 0x8086) {
         implTest = MFX_IMPL_UNSUPPORTED;
@@ -446,7 +446,7 @@ mfxStatus LoaderCtxMSDK::CheckD3D9Support(mfxU64 luid, STRING_TYPE libNameFull, 
     mfxU32 idx;
     for (idx = 0; idx < MAX_NUM_IMPL_MSDK; idx++) {
         mfxU64 luidD3D9 = 0;
-        sts = MFX::SelectImplementationType(idx, &implTest, &VendorID, &DeviceID, &luidD3D9);
+        sts = MFX::SelectImplementationType2(idx, &implTest, &VendorID, &DeviceID, &luidD3D9);
 
         if (sts != MFX_ERR_NONE || VendorID != 0x8086 || luid != luidD3D9)
             continue;

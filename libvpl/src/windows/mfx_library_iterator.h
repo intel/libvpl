@@ -17,6 +17,7 @@
 
 #include "src/windows/mfx_dispatcher.h"
 #include "src/windows/mfx_driver_store_loader.h"
+#include "src/windows/mfx_dxva2_device.h"
 
 namespace MFX {
 
@@ -50,16 +51,24 @@ enum {
 
 // Try to initialize using given implementation type. Select appropriate type automatically in case of MFX_IMPL_VIA_ANY.
 // Params: adapterNum - in, pImplInterface - in/out, pVendorID - out, pDeviceID - out, pLUID - out (optional)
-mfxStatus SelectImplementationType(const mfxU32 adapterNum,
+mfxStatus SelectImplementationType(DXVA2Device &dxvaDevice,
+                                   const mfxU32 adapterNum,
                                    mfxIMPL *pImplInterface,
                                    mfxU32 *pVendorID,
                                    mfxU32 *pDeviceID);
 
-mfxStatus SelectImplementationType(const mfxU32 adapterNum,
+mfxStatus SelectImplementationType(DXVA2Device &dxvaDevice,
+                                   const mfxU32 adapterNum,
                                    mfxIMPL *pImplInterface,
                                    mfxU32 *pVendorID,
                                    mfxU32 *pDeviceID,
                                    mfxU64 *pLUID);
+
+mfxStatus SelectImplementationType2(const mfxU32 adapterNum,
+                                    mfxIMPL *pImplInterface,
+                                    mfxU32 *pVendorID,
+                                    mfxU32 *pDeviceID,
+                                    mfxU64 *pLUID);
 
 bool GetImplPath(int storageID, wchar_t *sImplPath);
 
@@ -68,7 +77,7 @@ const mfxU32 msdk_disp_path_len = 1024;
 class MFXLibraryIterator {
 public:
     // Default constructor
-    MFXLibraryIterator(void);
+    explicit MFXLibraryIterator(DXVA2Device &dxvaDevice);
     // Destructor
     ~MFXLibraryIterator(void);
 
@@ -133,6 +142,8 @@ protected:
     wchar_t m_driverStoreDir[msdk_disp_path_len]; //NOLINT(runtime/arrays)
 
     DriverStoreLoader m_driverStoreLoader; // for loading MediaSDK from DriverStore
+
+    DXVA2Device &m_dxvaDevice; // for getting d3d9 or d3d11 information
 
 private:
     // unimplemented by intent to make this class non-copyable

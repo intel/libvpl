@@ -32,7 +32,8 @@ const wchar_t meritKeyName[]    = L"Merit";
 const wchar_t pathKeyName[]     = L"Path";
 const wchar_t apiVersionName[]  = L"APIVersion";
 
-mfxStatus SelectImplementationType(const mfxU32 adapterNum,
+mfxStatus SelectImplementationType(DXVA2Device &dxvaDevice,
+                                   const mfxU32 adapterNum,
                                    mfxIMPL *pImplInterface,
                                    mfxU32 *pVendorID,
                                    mfxU32 *pDeviceID,
@@ -42,7 +43,6 @@ mfxStatus SelectImplementationType(const mfxU32 adapterNum,
     }
     mfxIMPL impl_via = *pImplInterface;
 
-    DXVA2Device dxvaDevice;
     if (MFX_IMPL_VIA_D3D9 == impl_via) {
         // try to create the Direct3D 9 device and find right adapter
         if (!dxvaDevice.InitD3D9(adapterNum)) {
@@ -89,17 +89,40 @@ mfxStatus SelectImplementationType(const mfxU32 adapterNum,
     return MFX_ERR_NONE;
 }
 
-mfxStatus SelectImplementationType(const mfxU32 adapterNum,
+mfxStatus SelectImplementationType(DXVA2Device &dxvaDevice,
+                                   const mfxU32 adapterNum,
                                    mfxIMPL *pImplInterface,
                                    mfxU32 *pVendorID,
                                    mfxU32 *pDeviceID) {
     // do not return LUID
-    return SelectImplementationType(adapterNum, pImplInterface, pVendorID, pDeviceID, nullptr);
+    return SelectImplementationType(dxvaDevice,
+                                    adapterNum,
+                                    pImplInterface,
+                                    pVendorID,
+                                    pDeviceID,
+                                    nullptr);
 }
 
-MFXLibraryIterator::MFXLibraryIterator(void)
+mfxStatus SelectImplementationType2(const mfxU32 adapterNum,
+                                    mfxIMPL *pImplInterface,
+                                    mfxU32 *pVendorID,
+                                    mfxU32 *pDeviceID,
+                                    mfxU64 *pLUID) {
+    DXVA2Device dxvaDevice;
+    // do not return LUID
+    return SelectImplementationType(dxvaDevice,
+                                    adapterNum,
+                                    pImplInterface,
+                                    pVendorID,
+                                    pDeviceID,
+                                    pLUID);
+}
+
+MFXLibraryIterator::MFXLibraryIterator(DXVA2Device &dxvaDevice)
+        : m_dxvaDevice(dxvaDevice)
 #if !defined(MEDIASDK_UWP_DISPATCHER)
-        : m_baseRegKey()
+          ,
+          m_baseRegKey()
 #endif
 {
     m_implType      = MFX_LIB_PSEUDO;
@@ -204,8 +227,11 @@ mfxStatus MFXLibraryIterator::Init(eMfxImplType implType,
 
     // for HW impl check impl interface, check adapter, obtain deviceID and vendorID
     if (m_implType != MFX_LIB_SOFTWARE) {
-        mfxStatus mfxRes =
-            MFX::SelectImplementationType(adapterNum, &m_implInterface, &m_vendorID, &m_deviceID);
+        mfxStatus mfxRes = MFX::SelectImplementationType(m_dxvaDevice,
+                                                         adapterNum,
+                                                         &m_implInterface,
+                                                         &m_vendorID,
+                                                         &m_deviceID);
         if (MFX_ERR_NONE != mfxRes) {
             return mfxRes;
         }
@@ -617,7 +643,8 @@ mfxStatus MFXLibraryIterator::GetDriverStoreDir(std::wstring &driverStoreDir,
 
 mfxStatus MFXLibraryIterator::GetRegkeyDir(std::wstring &regDir, size_t length, int storageID) {
     mfxStatus sts = MFX_ERR_UNSUPPORTED;
-    MFX::MFXLibraryIterator libIterator;
+    DXVA2Device dxvaDevice;
+    MFX::MFXLibraryIterator libIterator(dxvaDevice);
     wchar_t wRegDir[MFX_MAX_DLL_PATH];
 
     regDir.clear();

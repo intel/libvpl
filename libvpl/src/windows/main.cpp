@@ -170,7 +170,9 @@ mfxStatus MFXInitEx(mfxInitParam par, mfxSession *session) {
 
     MFX_DISP_HANDLE_EX *pHandle;
     wchar_t dllName[MFX_MAX_DLL_PATH] = { 0 };
-    MFX::MFXLibraryIterator libIterator;
+
+    DXVA2Device dxvaDevice;
+    MFX::MFXLibraryIterator libIterator(dxvaDevice);
 
     // there iterators are used only if the caller specified implicit type like AUTO
     mfxU32 curImplIdx, maxImplIdx;
@@ -384,7 +386,8 @@ mfxStatus MFXInitEx(mfxInitParam par, mfxSession *session) {
                     implInterface = MFX_IMPL_VIA_ANY;
                 }
                 mfxU32 curVendorID = 0, curDeviceID = 0;
-                mfxRes = MFX::SelectImplementationType(implTypes[curImplIdx].adapterID,
+                mfxRes = MFX::SelectImplementationType(dxvaDevice,
+                                                       implTypes[curImplIdx].adapterID,
                                                        &implInterface,
                                                        &curVendorID,
                                                        &curDeviceID);
