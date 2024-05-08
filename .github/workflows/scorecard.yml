@@ -1,0 +1,59 @@
+---
+name: OSSF Scorecard
+permissions: read-all
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  scorecard:
+    name: Scorecard
+    runs-on: [self-hosted, linux, docker]
+    steps:
+
+      - name: Cleanup workspace
+        run: sudo rm -rf ..?* .[!.]* *
+
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          path: source
+
+      - name: Pull Docker image
+        run: >
+          docker pull gcr.io/openssf/scorecard:stable
+
+      - name: Perform required checks
+        run: >
+          docker run --rm -v $(pwd):/tmp/work -w /tmp/work
+          gcr.io/openssf/scorecard:stable
+          --checks=Token-Permissions,Dangerous-Workflow
+          --show-details
+          --verbosity warn
+          --local /tmp/work/source
+          > scorecard.txt
+
+      - name: Generate full report
+        run: >
+          docker run --rm -v $(pwd):/tmp/work -w /tmp/work
+          gcr.io/openssf/scorecard:stable
+          --local /tmp/work/source
+          --format json
+          > scorecard.json
+
+      - name: Check
+        run: >
+          python3 source/.github/workflows/scorecard/check.py
+          scorecard.json
+          --config source/.github/workflows/scorecard/config.yml
+
+      - name: Report
+        if: success() || failure()
+        run: |
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            cat scorecard.txt >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Cleanup workspace
+        run: sudo rm -rf ..?* .[!.]* *

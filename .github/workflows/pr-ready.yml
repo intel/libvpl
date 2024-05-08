@@ -21,6 +21,10 @@ jobs:
     if: '! github.event.pull_request.draft'
     uses: ./.github/workflows/lint.yml
 
+  scorecard:
+    if: '! github.event.pull_request.draft'
+    uses: ./.github/workflows/scorecard.yml
+
   hadolint:
     if: '! github.event.pull_request.draft'
     uses: ./.github/workflows/hadolint.yml
@@ -202,6 +206,7 @@ jobs:
     if: '! github.event.pull_request.draft'
     needs:
       - lint
+      - scorecard
       - hadolint
       - trivy
       - ip-leak-scan

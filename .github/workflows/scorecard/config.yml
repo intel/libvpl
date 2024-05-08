@@ -1,0 +1,21 @@
+---
+Checks:
+  Binary-Artifacts: -1
+  Branch-Protection: -1
+  CI-Tests: -1
+  CII-Best-Practices: -1
+  Code-Review: -1
+  Contributors: -1
+  Dangerous-Workflow: 10
+  Dependency-Update-Tool: -1
+  Fuzzing: -1
+  License: -1
+  Maintained: -1
+  Packaging: -1
+  Pinned-Dependencies: -1
+  SAST: -1
+  Security-Policy: -1
+  Signed-Releases: -1
+  Token-Permissions: 10
+  Vulnerabilities: -1
+  Webhooks: -1

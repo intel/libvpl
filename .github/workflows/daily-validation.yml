@@ -28,6 +28,10 @@ jobs:
     if: true
     uses: ./.github/workflows/lint.yml
 
+  scorecard:
+    if: true
+    uses: ./.github/workflows/scorecard.yml
+
   hadolint:
     if: true
     uses: ./.github/workflows/hadolint.yml
