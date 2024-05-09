@@ -1,5 +1,6 @@
 ---
 name: Upload SDL Evidence
+permissions: read-all
 
 on:
   workflow_dispatch:
