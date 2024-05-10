@@ -208,7 +208,7 @@ mfxStatus LoaderCtxVPL::SearchDirForLibs(STRING_TYPE searchDir,
                 if (libFound != libInfoList.end())
                     continue;
 
-                LibInfo *libInfo = new LibInfo;
+                LibInfo *libInfo = new (std::nothrow) LibInfo;
                 if (!libInfo)
                     return MFX_ERR_MEMORY_ALLOC;
 
@@ -271,7 +271,7 @@ mfxStatus LoaderCtxVPL::SearchDirForLibs(STRING_TYPE searchDir,
                     continue;
                 }
 
-                LibInfo *libInfo = new LibInfo;
+                LibInfo *libInfo = new (std::nothrow) LibInfo;
                 if (!libInfo)
                     return MFX_ERR_MEMORY_ALLOC;
 
@@ -992,7 +992,7 @@ mfxStatus LoaderCtxVPL::QueryLibraryCaps() {
             UpdateImplPath(libInfo);
 
             for (mfxU32 i = 0; i < numImpls; i++) {
-                ImplInfo *implInfo = new ImplInfo;
+                ImplInfo *implInfo = new (std::nothrow) ImplInfo;
                 if (!implInfo)
                     return MFX_ERR_MEMORY_ALLOC;
 
@@ -1128,7 +1128,7 @@ mfxStatus LoaderCtxVPL::QueryLibraryCaps() {
                     msdkCtx->m_msdkAdapterD3D9 = msdkImplTab[i];
                 }
 
-                ImplInfo *implInfo = new ImplInfo;
+                ImplInfo *implInfo = new (std::nothrow) ImplInfo;
                 if (!implInfo)
                     return MFX_ERR_MEMORY_ALLOC;
 
