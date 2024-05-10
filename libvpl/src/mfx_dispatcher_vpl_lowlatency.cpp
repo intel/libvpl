@@ -77,7 +77,7 @@ LibInfo *LoaderCtxVPL::AddSingleLibrary(STRING_TYPE libPath, LibType libType) {
 #endif
 
     // create new LibInfo and add to list
-    libInfo = new LibInfo;
+    libInfo = new (std::nothrow) LibInfo;
     if (!libInfo)
         return nullptr;
 
