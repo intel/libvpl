@@ -1,7 +1,7 @@
 # Intel® Video Processing Library (Intel® VPL)
 
 Intel® Video Processing Library (Intel® VPL) provides access to hardware
-accelerated video decode, encode, and frame processing capabilities on Intel®
+accelerated video decode, encode, and processing capabilities on Intel®
 GPUs to support AI visual inference, media delivery, cloud gaming, and virtual
 desktop infrastructure use cases.
 
