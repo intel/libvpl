@@ -80,11 +80,20 @@ jobs:
              summary/sdl/CT37-MalwareScan/windows-report.txt
           cp artifacts/$COVERITY_L/json/errors_v9_full.json \
              summary/sdl/CT39-StaticAnalysis/linux-coverity.json
+          cp artifacts/$COVERITY_L/cvss_report.pdf \
+             summary/sdl/CT39-StaticAnalysis/linux-cvss_report.pdf
+          cp artifacts/$COVERITY_L/security_report.pdf \
+             summary/sdl/CT39-StaticAnalysis/linux-security_report.pdf
           cp artifacts/$COVERITY_W/json/errors_v9_full.json \
              summary/sdl/CT39-StaticAnalysis/windows-coverity.json
+          cp artifacts/$COVERITY_W/cvss_report.pdf \
+             summary/sdl/CT39-StaticAnalysis/windows-cvss_report.pdf
+          cp artifacts/$COVERITY_W/security_report.pdf \
+             summary/sdl/CT39-StaticAnalysis/windows-security_report.pdf
           cp -r artifacts/$SSCB_L/. summary/sdl/CT151-CompilerFlags/
           cp -r artifacts/$SSCB_W/. summary/sdl/CT151-CompilerFlags/
-          cp -r artifacts/$TRIVY/ct222-report.json summary/sdl/CT222-DockerScan/
+          cp -r artifacts/$TRIVY/ct222-report.json \
+           summary/sdl/CT222-DockerScan/
           cp -r artifacts/$TRIVY/trivy-report.csv summary/sdl/CT247-Trivy/
 
       - name: SWLC artifacts

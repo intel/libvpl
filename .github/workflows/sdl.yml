@@ -84,94 +84,40 @@ jobs:
 
       - name: Upload SDL evidence
         run: |
+          # note: quotes around 'EOL' prevent bash variable
+          # expansion while writing file.
           cat <<'EOL' > upload.sh
           #!/bin/bash
           ls source/.github/workflows/sdl
 
-          file_path="source/.github/workflows/sdl/sdl"
+          FILE_PATH="source/.github/workflows/sdl/sdl"
+          function publish() {
+            TASK="$1"
+            EVIDENCE="$2"
+            python3 source/.github/workflows/sdl/evidence_upload.py \
+            --api_key "${{ secrets.SDLE_API_KEY }}" \
+            --user_id ${{ inputs.sdle_user }} \
+            --project_id ${{ inputs.sdle_project }} \
+            --task_id ${TASK} \
+            --file_paths ${FILE_PATH}/${EVIDENCE} \
+            --label ${{ inputs.label }} \
+            --output_prefix ${{ inputs.output_prefix }}
+          }
 
-          python3 source/.github/workflows/sdl/evidence_upload.py \
-          --api_key "${{ secrets.SDLE_API_KEY }}" \
-          --user_id ${{ inputs.sdle_user }} \
-          --project_id ${{ inputs.sdle_project }} \
-          --task_id CT37 \
-          --file_paths $file_path/CT37-MalwareScan/source-report.txt \
-          --label ${{ inputs.label }} \
-          --output_prefix ${{ inputs.output_prefix }}
+          publish CT7 CT7-KnownVulnerabilities/vulns.csv
+          publish CT37 CT37-MalwareScan/source-report.txt
+          publish CT37 CT37-MalwareScan/windows-report.txt
+          publish CT39 CT39-StaticAnalysis/linux-coverity.json
+          publish CT39 CT39-StaticAnalysis/linux-cvss_report.pdf
+          publish CT39 CT39-StaticAnalysis/linux-security_report.pdf
+          publish CT39 CT39-StaticAnalysis/windows-coverity.json
+          publish CT39 CT39-StaticAnalysis/windows-cvss_report.pdf
+          publish CT39 CT39-StaticAnalysis/windows-security_report.pdf
+          publish CT151 CT151-CompilerFlags/SSCB_SCAN_results-Windows.html
+          publish CT151 CT151-CompilerFlags/SSCB_SCAN_results-Linux.html
+          publish CT222 CT222-DockerScan/ct222-report.json
+          publish CT247 CT247-Trivy/trivy-report.csv
 
-          python3 source/.github/workflows/sdl/evidence_upload.py \
-          --api_key "${{ secrets.SDLE_API_KEY }}" \
-          --user_id ${{ inputs.sdle_user }} \
-          --project_id ${{ inputs.sdle_project }} \
-          --task_id CT37 \
-          --file_paths $file_path/CT37-MalwareScan/windows-report.txt \
-          --label ${{ inputs.label }} \
-          --output_prefix ${{ inputs.output_prefix }}
-
-          python3 source/.github/workflows/sdl/evidence_upload.py \
-          --api_key "${{ secrets.SDLE_API_KEY }}" \
-          --user_id ${{ inputs.sdle_user }} \
-          --project_id ${{ inputs.sdle_project }} \
-          --task_id CT39 \
-          --file_paths $file_path/CT39-StaticAnalysis/linux-coverity.json \
-          --label ${{ inputs.label }} \
-          --output_prefix ${{ inputs.output_prefix }}
-
-          python3 source/.github/workflows/sdl/evidence_upload.py \
-          --api_key "${{ secrets.SDLE_API_KEY }}" \
-          --user_id ${{ inputs.sdle_user }} \
-          --project_id ${{ inputs.sdle_project }} \
-          --task_id CT39 \
-          --file_paths $file_path/CT39-StaticAnalysis/windows-coverity.json \
-          --label ${{ inputs.label }} \
-          --output_prefix ${{ inputs.output_prefix }}
-
-          python3 source/.github/workflows/sdl/evidence_upload.py \
-          --api_key "${{ secrets.SDLE_API_KEY }}" \
-          --user_id ${{ inputs.sdle_user }} \
-          --project_id ${{ inputs.sdle_project }} \
-          --task_id CT7 \
-          --file_paths $file_path/CT7-KnownVulnerabilities/vulns.csv \
-          --label ${{ inputs.label }} \
-          --output_prefix ${{ inputs.output_prefix }}
-
-          python3 source/.github/workflows/sdl/evidence_upload.py \
-          --api_key "${{ secrets.SDLE_API_KEY }}" \
-          --user_id ${{ inputs.sdle_user }} \
-          --project_id ${{ inputs.sdle_project }} \
-          --task_id CT151 \
-          --file_paths \
-            $file_path/CT151-CompilerFlags/SSCB_SCAN_results-Windows.html \
-          --label ${{ inputs.label }} \
-          --output_prefix ${{ inputs.output_prefix }}
-
-          python3 source/.github/workflows/sdl/evidence_upload.py \
-          --api_key "${{ secrets.SDLE_API_KEY }}" \
-          --user_id ${{ inputs.sdle_user }} \
-          --project_id ${{ inputs.sdle_project }} \
-          --task_id CT151 \
-          --file_paths \
-            $file_path/CT151-CompilerFlags/SSCB_SCAN_results-Linux.html \
-          --label ${{ inputs.label }} \
-          --output_prefix ${{ inputs.output_prefix }}
-
-          python3 source/.github/workflows/sdl/evidence_upload.py \
-          --api_key "${{ secrets.SDLE_API_KEY }}" \
-          --user_id ${{ inputs.sdle_user }} \
-          --project_id ${{ inputs.sdle_project }} \
-          --task_id CT222 \
-          --file_paths $file_path/CT222-DockerScan/ct222-report.json \
-          --label ${{ inputs.label }} \
-          --output_prefix ${{ inputs.output_prefix }}
-
-          python3 source/.github/workflows/sdl/evidence_upload.py \
-          --api_key "${{ secrets.SDLE_API_KEY }}" \
-          --user_id ${{ inputs.sdle_user }} \
-          --project_id ${{ inputs.sdle_project }} \
-          --task_id CT247 \
-          --file_paths $file_path/CT247-Trivy/trivy-report.csv \
-          --label ${{ inputs.label }} \
-          --output_prefix ${{ inputs.output_prefix }}
           EOL
           chmod a+x upload.sh
           ls -l
