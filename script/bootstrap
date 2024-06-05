@@ -19,6 +19,9 @@ fi
 if [ -f "/etc/os-release" ]; then
   . /etc/os-release
 fi
+if [ -n "$ID" ]; then
+  ID_LIKE=$ID
+fi
 if [ "$ID_LIKE" == "debian" ]; then
   apt-get update
   # basic build tools
