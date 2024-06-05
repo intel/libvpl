@@ -12,6 +12,10 @@
 
 set -o errexit
 
+if [ ! $(whoami) == "root" ]; then
+  echo "You need superuser privileges to continue."
+fi
+
 if [ -f "/etc/os-release" ]; then
   . /etc/os-release
 fi
