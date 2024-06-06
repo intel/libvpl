@@ -1,4 +1,4 @@
-# Build/Install Intel® Video Processing Library (Intel® VPL) from Source
+# Build/Install IntelÂ® Video Processing Library (IntelÂ® VPL) from Source
 
 This document describes how to build from the source code in this repo.  Please
 note: this repo contains only headers, dispatcher, examples.  In most cases an
@@ -38,13 +38,13 @@ cmake --install _build --config Release
 
 ## Getting an Implementation
 
-The base package is limited to the dispatcher and samples. To use Intel® VPL for
+The base package is limited to the dispatcher and samples. To use IntelÂ® VPL for
 video processing you need to install at least one implementation. Current
 implementations:
 
-- [oneVPL-intel-gpu](https://github.com/intel/libvpl-intel-gpu) for use on
+- [oneVPL-intel-gpu](https://github.com/intel/vpl-gpu-rt) for use on
   Intel Xe graphics and newer
-- [Intel® Media SDK](https://github.com/Intel-Media-SDK/MediaSDK) for use on legacy
+- [IntelÂ® Media SDK](https://github.com/Intel-Media-SDK/MediaSDK) for use on legacy
   Intel graphics
 
 Follow the instructions on the respective repos to install the desired
@@ -55,6 +55,6 @@ to the selected implementation.
 
 ```mermaid
 graph TD;
-    dispatcher["Intel® VPL Dispatcher"]-->oneVPL-intel-gpu;
-    dispatcher-->msdk["Intel® Media SDK"];
+    dispatcher["IntelÂ® VPL Dispatcher"]-->oneVPL-intel-gpu;
+    dispatcher-->msdk["IntelÂ® Media SDK"];
 ```
