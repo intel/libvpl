@@ -21,6 +21,10 @@ on:
         required: false
         default: ''
         type: string
+      docker_opts:
+        description: 'extra options for docker build'
+        required: false
+        type: string
 
 jobs:
   scan:
@@ -87,7 +91,7 @@ jobs:
           pushd av-scanning
           sed -i 's|FROM.*ubuntu:latest|FROM public.ecr.aws/lts/ubuntu:22.04|' \
                  Dockerfile
-          docker build -t mcafee:latest .
+          docker build ${{ inputs.docker_opts }} -t mcafee:latest .
           popd
       - name: Run Test
         if: success() && !inputs.caas

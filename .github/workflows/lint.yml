@@ -5,8 +5,17 @@ permissions: read-all
 
 on:
   workflow_call:
+    inputs:
+      docker_opts:
+        description: 'extra options for docker build'
+        required: false
+        type: string
   workflow_dispatch:
-
+    inputs:
+      docker_opts:
+        description: 'extra options for docker build'
+        required: false
+        type: string
 jobs:
   lint:
     name: Lint
@@ -24,11 +33,12 @@ jobs:
 
       - name: Build Docker image
         run: >
-          docker build "source/.github/workflows/lint"
+          docker build ${{ inputs.docker_opts }}
           -f "source/.github/workflows/lint/Dockerfile.ubuntu.lint"
           --build-arg USER_ID=$(id -u)
           --build-arg GROUP_ID=$(id -g)
           -t vpl_lint:ubuntu
+          "source/.github/workflows/lint"
 
       - name: Lint source in container
         run: |

@@ -17,6 +17,11 @@ on:
         required: false
         default: ''
         type: string
+      docker_opts:
+        description: 'extra options for docker build'
+        required: false
+        default: ''
+        type: string
 
   workflow_call:
     inputs:
@@ -28,6 +33,10 @@ on:
         description: 'Prefix to add to output artifacts'
         required: false
         default: ''
+        type: string
+      docker_opts:
+        description: 'extra options for docker build'
+        required: false
         type: string
 
 jobs:
@@ -45,12 +54,13 @@ jobs:
 
       - name: Build Docker image
         run: >
-          docker build "source/.github/workflows/ipldt"
+          docker build ${{ inputs.docker_opts }}
           -f "source/.github/workflows/ipldt/Dockerfile.ubuntu.ipldt"
           --build-arg USER_ID=$(id -u)
           --build-arg GROUP_ID=$(id -g)
           -t vpl_ipldt:ubuntu
           --build-arg "IPLDB_TOOL_URL=${{ vars.IPLDB_TOOL_URL }}"
+          "source/.github/workflows/ipldt"
 
       - name: Checkout Dispositions
         uses: actions/checkout@v4

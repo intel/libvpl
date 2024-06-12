@@ -19,6 +19,10 @@ on:
         description: 'Glob pattern to the artifacts that should be scanned'
         required: true
         type: string
+      docker_opts:
+        description: 'extra options for docker build'
+        required: false
+        type: string
 
 jobs:
   scan:
@@ -49,9 +53,10 @@ jobs:
 
       - name: Build Docker image
         run: >
-          docker build "source/.github/workflows/bdba"
+          docker build ${{ inputs.docker_opts }}
           -f "source/.github/workflows/bdba/Dockerfile.ubuntu.bdba"
           -t vpl_bdba:ubuntu
+          "source/.github/workflows/bdba"
 
       - name: Scan package
         run: |

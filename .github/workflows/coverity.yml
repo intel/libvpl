@@ -32,6 +32,10 @@ on:
         required: false
         default: ''
         type: string
+      docker_opts:
+        description: 'extra options for docker build'
+        required: false
+        type: string
 
   workflow_call:
     inputs:
@@ -60,7 +64,10 @@ on:
         required: false
         default: ''
         type: string
-
+      docker_opts:
+        description: 'extra options for docker build'
+        required: false
+        type: string
 
 jobs:
   scan:
@@ -111,21 +118,23 @@ jobs:
       - name: Build vpl_build:ubuntu Docker image (Linux)
         if: success() && runner.os == 'Linux'
         run: |
-          docker build "source/script" \
+          docker build ${{ inputs.docker_opts }} \
           -f "source/script/Dockerfile.ubuntu.build" \
-          -t vpl_build:ubuntu
+          -t vpl_build:ubuntu \
+          "source/script"
 
       - name: Build Docker image (Linux)
         if: success() && runner.os == 'Linux'
         run: |
-          docker build "source/.github/workflows/coverity" \
+          docker build ${{ inputs.docker_opts }} \
           -f "source/.github/workflows/coverity/Dockerfile.ubuntu.coverity" \
           -t vpl_coverity:ubuntu \
           --build-arg \
           "COV_ANALYSIS_LINUX_URL=${{ vars.COV_ANALYSIS_LINUX_URL }}" \
           --build-arg \
           "COV_REPORTS_LINUX_URL=${{ vars.COV_REPORTS_LINUX_URL }}" \
-          --build-arg "COV_LICENSE_URL=${{ vars.COV_LICENSE_URL }}"
+          --build-arg "COV_LICENSE_URL=${{ vars.COV_LICENSE_URL }}" \
+          "source/.github/workflows/coverity"
 
 
       - name: Run Scan (Linux)

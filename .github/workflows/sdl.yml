@@ -25,6 +25,10 @@ on:
         description: 'Prefix to add to output artifacts'
         required: true
         type: string
+      docker_opts:
+        description: 'extra options for docker build'
+        required: false
+        type: string
   workflow_call:
     inputs:
       summary_artifact:
@@ -46,6 +50,10 @@ on:
       output_prefix:
         description: 'Prefix to add to output artifacts'
         required: true
+        type: string
+      docker_opts:
+        description: 'extra options for docker build'
+        required: false
         type: string
     secrets:
       SDLE_API_KEY:
@@ -78,9 +86,10 @@ jobs:
 
       - name: Build Docker image
         run: >
-          docker build "source/.github/workflows/sdl"
+          docker build ${{ inputs.docker_opts }}
           -f "source/.github/workflows/sdl/Dockerfile.ubuntu.sdl"
           -t vpl_sdl:ubuntu
+          "source/.github/workflows/sdl"
 
       - name: Upload SDL evidence
         run: |

@@ -17,7 +17,11 @@ on:
       - 'specification/*'
   # Run on user request
   workflow_dispatch:
-
+    inputs:
+      docker_opts:
+        description: 'extra options for docker build'
+        required: false
+        type: string
 
 jobs:
   linux_check_structure_pack:
@@ -43,7 +47,8 @@ jobs:
         uses: actions/checkout@v3
       - name: Docker build
         run: >
-          docker build -f ./api/tests/docker/Dockerfile.clang
+          docker build ${{ inputs.docker_opts }}
+          -f ./api/tests/docker/Dockerfile.clang
           -t clang_img .
       - name: Docker run
         run: >
@@ -67,7 +72,8 @@ jobs:
         run: ls
       - name: Docker build
         run: >
-          docker build -f ./api/tests/docker/Dockerfile.gcc
+          docker build ${{ inputs.docker_opts }}
+          -f ./api/tests/docker/Dockerfile.gcc
           -t gcc_img .
       - name: Docker run
         run: >
@@ -89,7 +95,8 @@ jobs:
         run: ls
       - name: Docker build
         run: >
-          docker build -f ./api/tests/docker/Dockerfile.gcc
+          docker build ${{ inputs.docker_opts }}
+          -f ./api/tests/docker/Dockerfile.gcc
           -t gcc_img .
       - name: Docker run
         run: >
@@ -113,7 +120,8 @@ jobs:
         run: ls
       - name: Docker build
         run: >
-          docker build -f ./api/tests/docker/Dockerfile.gcc
+          docker build ${{ inputs.docker_opts }}
+          -f ./api/tests/docker/Dockerfile.gcc
           -t gcc_img .
       - name: Docker run
         run: >
@@ -135,7 +143,8 @@ jobs:
         run: ls
       - name: Docker build
         run: >
-          docker build -f ./api/tests/docker/Dockerfile.gcc
+          docker build ${{ inputs.docker_opts }}
+          -f ./api/tests/docker/Dockerfile.gcc
           -t gcc_img .
       - name: Docker run
         run: >
@@ -156,7 +165,8 @@ jobs:
         uses: actions/checkout@v3
       - name: Docker build
         run: >
-          docker build -f ./api/tests/docker/Dockerfile.gcc
+          docker build ${{ inputs.docker_opts }}
+          -f ./api/tests/docker/Dockerfile.gcc
           -t gcc_img .
       - name: Docker run
         run: >
@@ -179,7 +189,8 @@ jobs:
         uses: actions/checkout@v3
       - name: Docker build
         run: >
-          docker build -f ./api/tests/docker/Dockerfile.gcc
+          docker build ${{ inputs.docker_opts }}
+          -f ./api/tests/docker/Dockerfile.gcc
           -t gcc_img .
       - name: Docker run
         run: >
@@ -202,7 +213,8 @@ jobs:
         uses: actions/checkout@v3
       - name: Docker build
         run: >
-          docker build -f ./api/tests/docker/Dockerfile.gcc
+          docker build ${{ inputs.docker_opts }}
+          -f ./api/tests/docker/Dockerfile.gcc
           -t gcc_img .
       - name: Docker run
         run: >
@@ -236,7 +248,8 @@ jobs:
         uses: actions/checkout@v3
       - name: Docker build
         run: >
-          docker build -f ./api/tests/docker/Dockerfile.gcc
+          docker build ${{ inputs.docker_opts }}
+          -f ./api/tests/docker/Dockerfile.gcc
           -t gcc_img .
       - name: Docker run
         run: >

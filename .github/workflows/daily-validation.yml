@@ -12,6 +12,11 @@ on:
         required: false
         default: false
         type: boolean
+      docker_opts:
+        description: 'extra options for docker build'
+        required: false
+        default: ''
+        type: string
   # Run on schedule
   schedule:
     # daily at 8:00 UTC (1:00 MST)
@@ -27,6 +32,8 @@ jobs:
   lint:
     if: true
     uses: ./.github/workflows/lint.yml
+    with:
+      docker_opts: ${{ inputs.docker_opts }}
 
   scorecard:
     if: true
@@ -51,6 +58,7 @@ jobs:
     secrets: inherit
     with:
       output_prefix: lib-
+      docker_opts: ${{ inputs.docker_opts }}
 
   source-malware-scan:
     if: true
@@ -58,6 +66,7 @@ jobs:
     secrets: inherit
     with:
       output_prefix: lib-
+      docker_opts: ${{ inputs.docker_opts }}
 
   coverity:
     if: true
@@ -73,6 +82,7 @@ jobs:
       os: ${{ matrix.os }}
       output_prefix: lib-
       extra_opts: --report
+      docker_opts: ${{ inputs.docker_opts }}
 
   linux-build:
     if: true
@@ -83,6 +93,7 @@ jobs:
       artifact_name: linux-release-build
       run_tests: true
       no_artifacts: false
+      docker_opts: ${{ inputs.docker_opts }}
 
   windows-build:
     if: true
@@ -93,6 +104,7 @@ jobs:
       artifact_name: windows-release-build
       run_tests: true
       no_artifacts: false
+      docker_opts: ${{ inputs.docker_opts }}
 
   windows-malware-scan:
     if: true
@@ -102,6 +114,7 @@ jobs:
     with:
       artifact_name: windows-release-build
       output_prefix: lib-
+      docker_opts: ${{ inputs.docker_opts }}
 
   linux-malware-scan:
     if: true
@@ -120,6 +133,7 @@ jobs:
       os: windows
       artifact_name: windows-release-build
       output_prefix: lib-
+      docker_opts: ${{ inputs.docker_opts }}
 
   linux-sscb:
     if: true
@@ -129,6 +143,7 @@ jobs:
       os: linux
       artifact_name: linux-release-build
       output_prefix: lib-
+      docker_opts: ${{ inputs.docker_opts }}
 
   bdba:
     if: true
@@ -140,6 +155,7 @@ jobs:
       output_prefix: lib-
       version: ${{ github.ref_name }}
       pattern: "*-release-build"
+      docker_opts: ${{ inputs.docker_opts }}
     secrets: inherit
 
   sdl:
@@ -156,6 +172,7 @@ jobs:
       SDLE_PROJECT: ${{vars.SDLE_ID}}
       SDLE_USER: ${{vars.SDLE_API_USER}}
       output_prefix: lib-
+      docker_opts: ${{ inputs.docker_opts }}
     secrets:
       SDLE_API_KEY: ${{ secrets.SDLE_API_KEY }}
 
@@ -184,6 +201,7 @@ jobs:
       run_tests: false
       no_artifacts: false
       ref: ${{ needs.setup-variables.outputs.last_release_ref }}
+      docker_opts: ${{ inputs.docker_opts }}
 
   diff-report:
     if: true
@@ -211,6 +229,7 @@ jobs:
       repository: ${{ vars.TOOLS_REPO }}
       ref: ${{ needs.setup-variables.outputs.tools_ref }}
       dependent_artifact: linux-release-build
+      docker_opts: ${{ inputs.docker_opts }}
     secrets:
       token: ${{ secrets.TOOLS_REPO_TOKEN }}
 
@@ -227,6 +246,7 @@ jobs:
       repository: ${{ vars.TOOLS_REPO }}
       ref: ${{ needs.setup-variables.outputs.tools_ref }}
       dependent_artifact: windows-release-build
+      docker_opts: ${{ inputs.docker_opts }}
     secrets:
       token: ${{ secrets.TOOLS_REPO_TOKEN }}
 
@@ -254,6 +274,7 @@ jobs:
       distro_family: windows
       distro_version: 11
       test_ref: ${{ needs.setup-variables.outputs.test_ref }}
+      docker_opts: ${{ inputs.docker_opts }}
 
   linux-acceptance:
     if: true
@@ -282,6 +303,7 @@ jobs:
       distro_family: ${{ matrix.distro.family }}
       distro_version: ${{ matrix.distro.version }}
       test_ref: ${{ needs.setup-variables.outputs.test_ref }}
+      docker_opts: ${{ inputs.docker_opts }}
 
   distro-tests:
     if: true
@@ -311,6 +333,7 @@ jobs:
       distro_family: ${{ matrix.distro.family }}
       distro_version: ${{ matrix.distro.version }}
       test_ref: ${{ needs.setup-variables.outputs.test_ref }}
+      docker_opts: ${{ inputs.docker_opts }}
 
   debug-build:
     if: true
@@ -328,6 +351,7 @@ jobs:
       build_type: ${{ matrix.config }}
       artifact_name: ${{ matrix.os }}-${{ matrix.config }}-build
       run_tests: true
+      docker_opts: ${{ inputs.docker_opts }}
 
   tools-debug-build:
     if: true
@@ -348,6 +372,7 @@ jobs:
       repository: ${{ vars.TOOLS_REPO }}
       ref: ${{ needs.setup-variables.outputs.tools_ref }}
       dependent_artifact: ${{ matrix.os }}-debug-build
+      docker_opts: ${{ inputs.docker_opts }}
     secrets:
       token: ${{ secrets.TOOLS_REPO_TOKEN }}
 
@@ -376,6 +401,7 @@ jobs:
       distro_family: ${{ matrix.os == 'linux' && 'ubuntu' || 'windows' }}
       distro_version: ${{ matrix.os == 'linux' && '22.04' || '11'}}
       test_ref: ${{ needs.setup-variables.outputs.test_ref }}
+      docker_opts: ${{ inputs.docker_opts }}
 
   experimental-off:
     if: true
@@ -394,6 +420,7 @@ jobs:
       configure_options: >-
         -DBUILD_DISPATCHER_ONEVPL_EXPERIMENTAL=OFF
         -DBUILD_TOOLS_ONEVPL_EXPERIMENTAL=OFF
+      docker_opts: ${{ inputs.docker_opts }}
 
   summary:
     if: true

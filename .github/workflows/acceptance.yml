@@ -48,6 +48,10 @@ on:
         description: 'OS distro version'
         required: false
         type: string
+      docker_opts:
+        description: 'extra options for docker build'
+        required: false
+        type: string
 
 env:
   DISTRO_FAMILY: ${{ inputs.distro_family || 'windows' }}
@@ -107,7 +111,8 @@ jobs:
         run: |
           cd tests/environments
           DISTRO=${{ env.DISTRO_FAMILY }}${{ env.DISTRO_VERSION }}
-          docker build . -f Dockerfile.$DISTRO.gputest -t vpl_gputestenv:$DISTRO
+          docker build ${{ inputs.docker_opts }} \
+          -f Dockerfile.$DISTRO.gputest -t vpl_gputestenv:$DISTRO .
 
       - name: Test package (Linux)
         if: success() && runner.os == 'Linux'

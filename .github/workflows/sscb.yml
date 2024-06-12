@@ -19,6 +19,10 @@ on:
         description: 'Artifact to scan'
         required: true
         type: string
+      docker_opts:
+        description: 'extra options for docker build'
+        required: false
+        type: string
 
 jobs:
   scan:
@@ -56,12 +60,13 @@ jobs:
       - name: Build Docker image (Linux)
         if: success() && runner.os == 'Linux'
         run: >
-          docker build "source/.github/workflows/sscb"
+          docker build ${{ inputs.docker_opts }}
           -f "source/.github/workflows/sscb/Dockerfile.ubuntu.sscb"
           --build-arg USER_ID=$(id -u)
           --build-arg GROUP_ID=$(id -g)
           -t vpl_sscb:ubuntu
           --build-arg "SSCB_TOOL_URL=${{ vars.COMPILER_SETTINGS_TOOL_URL }}"
+          "source/.github/workflows/sscb"
 
       - name: Run SSCB Scan (Linux)
         if: success() && runner.os == 'Linux'

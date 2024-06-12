@@ -51,6 +51,10 @@ on:
         required: false
         default: ''
         type: string
+      docker_opts:
+        description: 'extra options for docker build'
+        required: false
+        type: string
     secrets:
       token:
         description: 'Personal access token (PAT) used to fetch the repository'
@@ -102,6 +106,10 @@ on:
         required: false
         default: ''
         type: string
+      docker_opts:
+        description: 'extra options for docker build'
+        required: false
+        type: string
     secrets:
       token:
         description: 'Personal access token (PAT) used to fetch the repository'
@@ -132,9 +140,10 @@ jobs:
       - name: Install dependencies (Linux)
         if: always() && runner.os == 'Linux'
         run: >
-          docker build "source/script"
+          docker build ${{ inputs.docker_opts }}
           -f "source/script/Dockerfile.centos7.build"
           -t vpl_build:centos
+          "source/script"
 
       - name: Install dependencies (Windows)
         if: always() && runner.os == 'Windows'
