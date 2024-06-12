@@ -44,14 +44,10 @@ jobs:
       - name: Docker build
         run: >
           docker build -f ./api/tests/docker/Dockerfile.clang
-          --build-arg http_proxy=$http_proxy
-          --build-arg https_proxy=$https_proxy
           -t clang_img .
       - name: Docker run
         run: >
           docker run --rm
-          -e http_proxy=$http_proxy
-          -e https_proxy=$https_proxy
           --volume=$(pwd):/data
           --user $(id -u):$(id -g)
           clang_img python3 api/tests/abi/check_missing_structs.py
@@ -72,14 +68,10 @@ jobs:
       - name: Docker build
         run: >
           docker build -f ./api/tests/docker/Dockerfile.gcc
-          --build-arg http_proxy=$http_proxy
-          --build-arg https_proxy=$https_proxy
           -t gcc_img .
       - name: Docker run
         run: >
           docker run --rm
-          -e http_proxy=$http_proxy
-          -e https_proxy=$https_proxy
           --volume=$(pwd):/data
           --user $(id -u):$(id -g)
           gcc_img gcc -I./api/vpl ./api/tests/compile_headers/test.c
@@ -98,14 +90,10 @@ jobs:
       - name: Docker build
         run: >
           docker build -f ./api/tests/docker/Dockerfile.gcc
-          --build-arg http_proxy=$http_proxy
-          --build-arg https_proxy=$https_proxy
           -t gcc_img .
       - name: Docker run
         run: >
           docker run --rm
-          -e http_proxy=$http_proxy
-          -e https_proxy=$https_proxy
           --volume=$(pwd):/data
           --user $(id -u):$(id -g)
           gcc_img gcc -I./api/vpl -DONEVPL_EXPERIMENTAL
@@ -126,14 +114,10 @@ jobs:
       - name: Docker build
         run: >
           docker build -f ./api/tests/docker/Dockerfile.gcc
-          --build-arg http_proxy=$http_proxy
-          --build-arg https_proxy=$https_proxy
           -t gcc_img .
       - name: Docker run
         run: >
           docker run --rm
-          -e http_proxy=$http_proxy
-          -e https_proxy=$https_proxy
           --volume=$(pwd):/data
           --user $(id -u):$(id -g)
           gcc_img gcc -I./api/vpl ./api/tests/compile_headers/test.cpp
@@ -152,14 +136,10 @@ jobs:
       - name: Docker build
         run: >
           docker build -f ./api/tests/docker/Dockerfile.gcc
-          --build-arg http_proxy=$http_proxy
-          --build-arg https_proxy=$https_proxy
           -t gcc_img .
       - name: Docker run
         run: >
           docker run --rm
-          -e http_proxy=$http_proxy
-          -e https_proxy=$https_proxy
           --volume=$(pwd):/data
           --user $(id -u):$(id -g)
           gcc_img gcc -I./api/vpl -DONEVPL_EXPERIMENTAL
@@ -177,14 +157,10 @@ jobs:
       - name: Docker build
         run: >
           docker build -f ./api/tests/docker/Dockerfile.gcc
-          --build-arg http_proxy=$http_proxy
-          --build-arg https_proxy=$https_proxy
           -t gcc_img .
       - name: Docker run
         run: >
           docker run --rm
-          -e http_proxy=$http_proxy
-          -e https_proxy=$https_proxy
           --volume=$(pwd):/data
           --user $(id -u):$(id -g)
           gcc_img gcc -D _x86_64 -m64 -I./api/vpl
@@ -204,14 +180,10 @@ jobs:
       - name: Docker build
         run: >
           docker build -f ./api/tests/docker/Dockerfile.gcc
-          --build-arg http_proxy=$http_proxy
-          --build-arg https_proxy=$https_proxy
           -t gcc_img .
       - name: Docker run
         run: >
           docker run --rm
-          -e http_proxy=$http_proxy
-          -e https_proxy=$https_proxy
           --volume=$(pwd):/data
           --user $(id -u):$(id -g)
           gcc_img gcc -D _x86_64 -m64 -I./api/vpl -DONEVPL_EXPERIMENTAL
@@ -231,14 +203,10 @@ jobs:
       - name: Docker build
         run: >
           docker build -f ./api/tests/docker/Dockerfile.gcc
-          --build-arg http_proxy=$http_proxy
-          --build-arg https_proxy=$https_proxy
           -t gcc_img .
       - name: Docker run
         run: >
           docker run --rm
-          -e http_proxy=$http_proxy
-          -e https_proxy=$https_proxy
           --volume=$(pwd):/data
           --user $(id -u):$(id -g)
           gcc_img gcc -Wall  -Wextra -Wno-unused-function -Werror -I./api/vpl
@@ -269,14 +237,10 @@ jobs:
       - name: Docker build
         run: >
           docker build -f ./api/tests/docker/Dockerfile.gcc
-          --build-arg http_proxy=$http_proxy
-          --build-arg https_proxy=$https_proxy
           -t gcc_img .
       - name: Docker run
         run: >
           docker run --rm
-          -e http_proxy=$http_proxy
-          -e https_proxy=$https_proxy
           --volume=$(pwd):/data
           --user $(id -u):$(id -g)
           gcc_img g++ -Wall -Wextra -Wno-unused-function -Werror -I./api/vpl
@@ -413,8 +377,6 @@ jobs:
       - name: Build spec - HTML
         run: >
           docker run --rm
-          -e http_proxy=$http_proxy
-          -e https_proxy=$https_proxy
           --volume=$(pwd):/build
           --workdir=/build
           --user $(id -u):$(id -g)
@@ -443,8 +405,6 @@ jobs:
       - name: Build spec - PDF
         run: >
           docker run --rm
-          -e http_proxy=$http_proxy
-          -e https_proxy=$https_proxy
           --volume=$(pwd):/build
           --workdir=/build
           --user $(id -u):$(id -g)
