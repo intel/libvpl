@@ -12,8 +12,15 @@
 
 set -o errexit
 
+if [ ! $(whoami) == "root" ]; then
+  echo "You need superuser privileges to continue."
+fi
+
 if [ -f "/etc/os-release" ]; then
   . /etc/os-release
+fi
+if [ -n "$ID" ]; then
+  ID_LIKE=$ID
 fi
 if [ "$ID_LIKE" == "debian" ]; then
   apt-get update
