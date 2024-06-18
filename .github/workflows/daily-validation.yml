@@ -426,7 +426,7 @@ jobs:
     if: true
     needs:
       - linux-build
-      - linux-ref-build
+      - ref-build
     uses: ./.github/workflows/performance.yml
     with:
       image: ${{ vars.PERF_DOCKER_IMAGE }}
