@@ -43,14 +43,22 @@ endif()
 add_executable(${TARGET} ${SOURCES})
 
 find_package(VPL REQUIRED)
-target_link_libraries(${TARGET} VPL::dispatcher)
+target_link_libraries(${TARGET} PRIVATE VPL::dispatcher)
 
-find_package(OpenVINO COMPONENTS Runtime)
-if(OpenVINO_FOUND)
-  message(STATUS "Intel® Distribution of OpenVINO™ toolkit found")
-  target_link_libraries(${TARGET} openvino::runtime)
+find_package(OpenVINO COMPONENTS Runtime REQUIRED)
+target_link_libraries(${TARGET} PRIVATE openvino::runtime)
+
+if(WIN32)
+  find_package(OpenCL CONFIG)
 else()
-  message(FATAL_ERROR "Intel® Distribution of OpenVINO™ toolkit not found")
+  find_package(OpenCL)
+endif()
+if(OpenCL_FOUND)
+  target_link_libraries(${TARGET} PRIVATE OpenCL::OpenCL)
+  add_definitions(-DZEROCOPY)
+  message(STATUS "Building ${TARGET} with zerocopy support")
+else()
+  message(STATUS "Building ${TARGET} WITHOUT zerocopy support")
 endif()
 
 if(UNIX)
@@ -65,7 +73,7 @@ if(UNIX)
     pkg_check_modules(PKG_LIBVA libva>=1.2)
     if(PKG_LIBVA_FOUND)
       target_compile_definitions(${TARGET} PUBLIC -DLIBVA_SUPPORT)
-      target_link_libraries(${TARGET} ${PKG_LIBVA_LIBRARIES})
+      target_link_libraries(${TARGET} PRIVATE ${PKG_LIBVA_LIBRARIES})
       target_include_directories(${TARGET} PUBLIC ${PKG_LIBVA_INCLUDEDIR})
     else()
       message(FATAL_ERROR "libva not found")
@@ -74,65 +82,13 @@ if(UNIX)
     pkg_check_modules(PKG_LIBVADRM libva-drm>=1.2)
     if(PKG_LIBVADRM_FOUND)
       target_compile_definitions(${TARGET} PUBLIC -DLIBVA_SUPPORT)
-      target_link_libraries(${TARGET} ${PKG_LIBVADRM_LIBRARIES})
+      target_link_libraries(${TARGET} PRIVATE ${PKG_LIBVADRM_LIBRARIES})
       target_include_directories(${TARGET} PUBLIC ${PKG_LIBVADRM_INCLUDEDIR})
     else()
       message(FATAL_ERROR "libva-drm not found")
     endif()
   else()
     message(STATUS "Building ${TARGET} without hardware support")
-  endif()
-
-  find_package(OpenCL)
-  if(OpenCL_FOUND)
-    target_include_directories(${TARGET} PUBLIC ${OpenCL_INCLUDE_DIRS})
-  else()
-    message(
-      "OpenCL not found with find_package(OpenCL), using backup approach to find OpenCL library."
-    )
-    find_path(
-      OpenCL_LIBRARY_PATH libOpenCL.so.1
-      PATHS $ENV{ONEAPI_ROOT}/compiler/latest/linux/lib
-            /usr/lib/x86_64-linux-gnu
-      NO_DEFAULT_PATH)
-    if(OpenCL_LIBRARY_PATH)
-      set(OpenCL_LIBRARIES ${OpenCL_LIBRARY_PATH}/libOpenCL.so.1)
-      set(OpenCL_FOUND true)
-    endif()
-  endif()
-
-  if(OpenCL_FOUND)
-    message("Using OpenCL library ${OpenCL_LIBRARIES}")
-    target_link_libraries(${TARGET} ${OpenCL_LIBRARIES})
-
-    # check OpenCL headers for Compute Library for Deep Neural Networks using
-    # dpkg-query it comes with opencl-clhpp- headers, which is one of
-    # dependencies of opencl- headers package dpkg- query result is 0 if opencl-
-    # headers package exists
-    execute_process(
-      COMMAND dpkg-query -s opencl-headers
-      WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-      RESULT_VARIABLE query_result
-      OUTPUT_QUIET ERROR_QUIET)
-
-    if(${query_result})
-      message(
-        STATUS
-          "OpenCL cpp headers are not exist, building ${TARGET} without OpenCL and zerocopy support"
-      )
-      message(FATAL_ERROR "Install opencl-headers to enable zerocopy")
-    else()
-      add_definitions(-DZEROCOPY)
-      message(STATUS "Building ${TARGET} with zerocopy support")
-    endif()
-  else()
-    message(FATAL_ERROR "OpenCL not found")
-  endif()
-else()
-  if(DEFINED ENV{OpenCL_LIBRARY_PATH} AND DEFINED ENV{OpenCL_INCLUDE_DIRS})
-    target_link_libraries(${TARGET} "$ENV{OpenCL_LIBRARY_PATH}\\OpenCL.lib")
-    target_include_directories(${TARGET} PUBLIC $ENV{OpenCL_INCLUDE_DIRS})
-    add_definitions(-DZEROCOPY)
   endif()
 endif()
 
