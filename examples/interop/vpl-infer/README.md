@@ -14,7 +14,7 @@ graph LR;
 | Optimized for    | Description
 |----------------- | ----------------------------------------
 | OS               | Ubuntu* 20.04/22.04; Windows* 10/11
-| Hardware runtime | Compatible with Intel® VPL GPU implementation, which can be found at https://github.com/intel/vpl-gpu-rt)
+| Hardware runtime | Compatible with Intel® VPL GPU implementation, which can be found at https://github.com/intel/vpl-gpu-rt
 |                  | and Intel® Media SDK GPU implementation, which can be found at [Intel® Media SDK Open Source](https://github.com/Intel-Media-SDK/MediaSDK)
 | What You Will Learn | How to combine Intel® VPL and Intel® Distribution of OpenVINO™ Toolkit
 | Time to Complete | 15 minutes
@@ -44,8 +44,7 @@ object detection on each frame using the OpenVINO™ toolkit.
 | -i       | H.265 video elementary stream  |
 | -m       | Object detection network model |
 | -legacy  | Run sample using core 1.x API for portability |
-| -zerocopy| Process data without copying between Intel® VPL and the OpenVINO™ toolkit in hardware implemenation mode |
-|          | | not with `-legacy`
+| -zerocopy| Process data without copying between Intel® VPL and the OpenVINO™ toolkit in hardware implemenation mode | Not compatible with legacy API
 
 
 ## License
@@ -197,12 +196,27 @@ These instructions assume that Docker is already set up on your system.
 
 ### On a Windows* System
 
-1. Install the prerequisite software:
 
-   - Intel® OpenVINO™ toolkit for Windows*
-   - [Python](http://python.org) (ver 3.7 - 3.10)
+1. Install prerequisites. To build and run the sample you need to
+   install prerequisite software and set up your environment:
+
+   - Follow the steps in
+     [install.md](https://github.com/intel/libvpl/blob/master/INSTALL.md) to
+     install Intel® VPL package.
+   - Visual Studio 2022
    - [CMake](https://cmake.org)
-   - Follow INSTALL.md steps
+   - [Python](http://python.org) (v3.7-v3.10)
+
+2. Install Intel® Distribution of OpenVINO™ Toolkit 2024.2.0 from archive
+
+    ```
+    pushd %USERPROFILE%\Downloads
+    curl -L -o OpenVINO.zip https://storage.openvinotoolkit.org/repositories/openvino/packages/2024.2/windows/w_openvino_toolkit_windows_2024.2.0.15519.5c0f38f83f6_x86_64.zip
+    tar -xvf OpenVINO.zip
+    ren w_openvino_toolkit_windows_2024.2.0.15519.5c0f38f83f6_x86_64 OpenVINO
+    move OpenVINO C:\
+    popd
+    ```
 
 2. Download the Mobilenet-ssd object detection model from the Open Model Zoo for
    OpenVINO™ toolkit and covert it to an IR model:
@@ -232,74 +246,8 @@ These instructions assume that Docker is already set up on your system.
 
 3. Set up OpenVINO™ toolkit environment:
 
-    If the installation directory is `"c:\Program Files (x86)\intel\OpenVINO"`
-
     ```
-    "c:\Program Files (x86)\intel\OpenVINO\setupvars.bat"
-    ```
-
-
-4. Build `OpenCL ICD loader` to enable `-zerocopy` option:
-
-    If OpenCL ICD loader is not ready, `-zerocopy` option is not activated. But vpl-infer will still work with other options
-
-    You can check the repos and commit ids for the build from [OpenCL versions for OpenVINO™ toolkit 2023.3.0](https://github.com/openvinotoolkit/openvino/tree/2023.3.0/thirdparty/ocl)
-
-    For `OpenVINO™ toolkit 2023.3.0`:
-
-    ```
-    cl_headers @ 2368105
-    clhpp_headers @ 83cc072
-    icd_loader @ 229410f
-    ```
-    Following steps are simplified from [OpenCL ICD loader build instruction](https://github.com/KhronosGroup/OpenCL-ICD-Loader/tree/9b5e3849b49a1448996c8b96ba086cd774d987db#build-instructions)
-
-    Assume all the commands are executed from a work directory
-
-    Check out repos and corresponding commit ids:
-    ```
-    git clone https://github.com/KhronosGroup/OpenCL-Headers.git
-    cd OpenCL-Headers
-    git checkout 2368105
-    cd ..
-
-    git clone https://github.com/KhronosGroup/OpenCL-CLHPP.git
-    cd OpenCL-CLHPP
-    git checkout 83cc072
-    cd ..
-
-    git clone https://github.com/KhronosGroup/OpenCL-ICD-Loader.git
-    cd OpenCL-ICD-Loader
-    git checkout 229410f
-    cd ..
-    ```
-
-    Copy headers to `OpenCL-ICD-Loader` include directory:
-
-    ```
-    mkdir OpenCL-ICD-Loader\inc\CL
-    copy OpenCL-Headers\CL\* OpenCL-ICD-Loader\inc\CL
-    copy OpenCL-CLHPP\include\CL\* OpenCL-ICD-Loader\inc\CL
-    ```
-
-    Build OpenCL ICD loader from `OpenCL-ICD-Loader`:
-
-    ```
-    cd OpenCL-ICD-Loader
-    mkdir build && cd build
-    cmake .. && cmake --build . --config release -j8
-    ```
-
-    Set OpenCL ICD Loader library path, where `OpenCL.lib` and `OpenCL.dll` are existed:
-
-    ```
-    set OpenCL_LIBRARY_PATH=<your work dir>\OpenCL-ICD-Loader\build\Release
-    ```
-
-    Set OpenCL Headers path:
-
-    ```
-    set OpenCL_INCLUDE_DIRS=<your work dir>\OpenCL-ICD-Loader\inc
+    "C:\OpenVINO\setupvars.bat"
     ```
 
 5. Build and run the program:
