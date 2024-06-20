@@ -7,7 +7,7 @@ This sample shows how to use the Intel® Video Processing Library (Intel® VPL) 2.
 | Optimized for    | Description
 |----------------- | ----------------------------------------
 | OS               | Ubuntu* 20.04/22.04;
-| Hardware         | Compatible with Intel® VPL GPU implementation, which can be found at https://github.com/intel/libvpl-intel-gpu 
+| Hardware         | Compatible with Intel® VPL GPU implementation, which can be found at https://github.com/intel/vpl-gpu-rt 
 | What You Will Learn | How to use Intel® VPL to encode a VA-API surface to H.265 and decode an H.265 encoded video file and save raw frame using VA-API surface sharing
 | Time to Complete | 10 minutes
 

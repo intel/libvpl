@@ -6,7 +6,7 @@ perform simple video transcode.
 | Optimized for    | Description
 |----------------- | ----------------------------------------
 | OS               | Ubuntu* 20.04; Windows* 10
-| Hardware         | Compatible with Intel® VPL GPU implementation, which can be found at https://github.com/intel/libvpl-intel-gpu
+| Hardware         | Compatible with Intel® VPL GPU implementation, which can be found at https://github.com/intel/vpl-gpu-rt
 | What You Will Learn | How to use Intel® VPL to transcode a MJPEG encoded video file to H.265 encoded video file
 | Time to Complete | 5 minutes
 

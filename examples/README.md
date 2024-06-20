@@ -13,7 +13,7 @@ For more information see our [Transition Guide](https://www.intel.com/content/ww
 This group of examples demonstrates use of 2.x API capabilities including internal allocation.  This means that applications
 do not need to manage surface allocation lifecycles.
 Use of these examples requires a runtime implementation compatible with the 
-VPL 2.x API, such as the [Intel® VPL GPU Runtime](https://github.com/intel/libvpl-intel-gpu).  
+VPL 2.x API, such as the [Intel® VPL GPU Runtime](https://github.com/intel/vpl-gpu-rt).  
 Please note: the [Intel® Media SDK runtime](https://github.com/Intel-Media-SDK/MediaSDK) only provides API 1.35, and is not
 compatible with these examples.
 

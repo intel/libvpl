@@ -14,7 +14,7 @@ graph LR;
 | Optimized for    | Description
 |----------------- | ----------------------------------------
 | OS               | Ubuntu* 20.04/22.04; Windows* 10/11
-| Hardware runtime | Compatible with Intel® VPL GPU implementation, which can be found at https://github.com/intel/libvpl-intel-gpu)
+| Hardware runtime | Compatible with Intel® VPL GPU implementation, which can be found at https://github.com/intel/vpl-gpu-rt)
 |                  | and Intel® Media SDK GPU implementation, which can be found at [Intel® Media SDK Open Source](https://github.com/Intel-Media-SDK/MediaSDK)
 | What You Will Learn | How to combine Intel® VPL and Intel® Distribution of OpenVINO™ Toolkit
 | Time to Complete | 15 minutes
