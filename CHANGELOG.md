@@ -17,6 +17,9 @@ cases.
 
 ## [Unreleased]
 
+### Added
+- Intel® VPL API 2.12 support
+
 ## [2.11.0] - 2024-04-26
 
 ### Added
