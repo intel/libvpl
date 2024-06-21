@@ -46,7 +46,7 @@ jobs:
           #!/bin/bash
           set -x
           set -o pipefail
-          source/script/test lint
+          source/script/test lint | tee lint.log
           ret=$?
           set +o pipefail
           exit $ret
@@ -54,7 +54,7 @@ jobs:
           chmod +x lint.sh
 
           docker run --rm -v $(pwd):/tmp/work -w /tmp/work \
-          vpl_lint:ubuntu ./lint.sh | tee lint.log
+          vpl_lint:ubuntu ./lint.sh
 
       - name: Report
         if: success() || failure()
