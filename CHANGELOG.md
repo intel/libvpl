@@ -15,10 +15,11 @@ cases.
 > Intel® VPL Tools are no longer in this repository. They have all been moved to
 > https://github.com/intel/libvpl-tools
 
-## [Unreleased]
+## [2.12.0] - 2024-06-28
 
 ### Added
-- Intel® VPL API 2.12 support
+- Intel® VPL API 2.12 support, including new APIs for AI-based frame
+  interpolation and Vulkan zero-copy surface sharing.
 
 ## [2.11.0] - 2024-04-26
 
