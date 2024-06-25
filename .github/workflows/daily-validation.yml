@@ -71,7 +71,7 @@ jobs:
   coverity:
     if: true
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         os:
           - windows
@@ -188,7 +188,7 @@ jobs:
     if: true
     needs: setup-variables
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         os:
           - windows
@@ -254,7 +254,7 @@ jobs:
     if: true
     needs: [windows-build, windows-tools-build, setup-variables]
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         gpu:
           - gen12.5
@@ -280,7 +280,7 @@ jobs:
     if: true
     needs: [linux-build, linux-tools-build, setup-variables]
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         gpu:
           - gen12.5
@@ -309,7 +309,7 @@ jobs:
     if: true
     needs: [linux-build, linux-tools-build, setup-variables]
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         distro:
           - family: rhel
@@ -338,7 +338,7 @@ jobs:
   debug-build:
     if: true
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         os:
           - windows
@@ -357,7 +357,7 @@ jobs:
     if: true
     needs: [debug-build, setup-variables]
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         os:
           - windows
@@ -383,7 +383,7 @@ jobs:
       - debug-build
       - tools-debug-build
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         os:
           - windows
@@ -407,7 +407,7 @@ jobs:
     if: true
     uses: ./.github/workflows/cmake.yml
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         os:
           - windows
