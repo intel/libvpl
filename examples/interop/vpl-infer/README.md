@@ -2,14 +2,14 @@
 
 ## Intro
 
-This sample shows how to use the Intel® Video Processing Library (Intel® VPL) 
-and Intel® Distribution of OpenVINO™ Toolkit together to perform a simple inference pipeline 
+This sample shows how to use the Intel® Video Processing Library (Intel® VPL)
+and Intel® Distribution of OpenVINO™ Toolkit together to perform a simple inference pipeline
 
 ```mermaid
 graph LR;
     decode-->resize-->infer;
 ```
- 
+
 
 | Optimized for    | Description
 |----------------- | ----------------------------------------
@@ -23,7 +23,7 @@ graph LR;
 ## Purpose
 
 This sample is a command line application that takes a file containing an H.265
-video elementary stream and network model as an argument, decodes and resize it with Intel® VPL and performs 
+video elementary stream and network model as an argument, decodes and resize it with Intel® VPL and performs
 object detection on each frame using the OpenVINO™ toolkit.
 
 
@@ -33,7 +33,7 @@ object detection on each frame using the OpenVINO™ toolkit.
 | ---------------------- | ----------------------------------
 | Target device          | GPU
 | Input video format     | H.265 video elementary stream
-| Input IR network model | Object detection 
+| Input IR network model | Object detection
 | Output                 | Class ID, Bounding Box Location, and Confidence Score
 
 
@@ -54,16 +54,16 @@ This code sample is licensed under MIT license.
 
 ## Building and Executing the `vpl-infer` Program
 
-The first step is to set up a build environment with prerequisites installed.  
-This can be set up in a bare metal Ubuntu 22.04 system or with Docker for Linux, and in Windows. 
+The first step is to set up a build environment with prerequisites installed.
+This can be set up in a bare metal Ubuntu 22.04 system or with Docker for Linux, and in Windows.
 
 
 ### On a Linux* System
 
-1. Install media and compute stack prerequisites. 
+1. Install media and compute stack prerequisites.
 
    - Follow the steps in [dgpu-docs](https://dgpu-docs.intel.com/) according to your GPU.
-   - Follow the steps in [install.md](https://github.com/intel/libvpl/blob/master/INSTALL.md) or install libvpl-dev. 
+   - Follow the steps in [install.md](https://github.com/intel/libvpl/blob/master/INSTALL.md) or install libvpl-dev.
    - Install these additional packages:
 
     ```
@@ -73,7 +73,7 @@ This can be set up in a bare metal Ubuntu 22.04 system or with Docker for Linux,
 
 2. Install Intel® Distribution of OpenVINO™ Toolkit 2023.3.0 from archive
 
-    ``` 
+    ```
     curl -L https://storage.openvinotoolkit.org/repositories/openvino/packages/2023.3/linux/l_openvino_toolkit_ubuntu22_2023.3.0.13775.ceeafaf64f3_x86_64.tgz --output l_openvino_toolkit.tgz
     tar -xf l_openvino_toolkit.tgz
     mkdir -p /opt/intel
@@ -92,8 +92,8 @@ This can be set up in a bare metal Ubuntu 22.04 system or with Docker for Linux,
     python3 -m venv openvino_env
     source openvino_env/bin/activate
     ```
-    
-    From the Python virtual environment `(openvino_env) .. $` 
+
+    From the Python virtual environment `(openvino_env) .. $`
 
     ```
     python -m pip install --upgrade pip
@@ -109,7 +109,7 @@ This can be set up in a bare metal Ubuntu 22.04 system or with Docker for Linux,
     ```
     source /opt/intel/openvino/setupvars.sh
     ```
- 
+
 
 5. Build and run the program:
 
@@ -121,16 +121,16 @@ This can be set up in a bare metal Ubuntu 22.04 system or with Docker for Linux,
     mkdir build && cd build
     cmake .. && cmake --build . --config release
     ```
-    
+
     Provide path to video file and IR model in command line parameters
 
-    To run with 2.x API zero copy on GPU 
+    To run with 2.x API zero copy on GPU
 
     ```
     ./vpl-infer -i cars_320x240.h265 -m mobilenet-ssd.xml -zerocopy
     ```
 
-    To run with 1.x API (and extra copy) on GPU 
+    To run with 1.x API (and extra copy) on GPU
 
     ```
     ./vpl-infer -i cars_320x240.h265 -m mobilenet-ssd.xml -legacy
@@ -154,7 +154,7 @@ These instructions assume that Docker is already set up on your system.
     ```
     docker build -t interop docker
     ```
-    
+
     If needed, pass proxy information with “--build-arg”:
 
     ```
@@ -168,7 +168,7 @@ These instructions assume that Docker is already set up on your system.
     ```
     docker run -it --rm --privileged -v `pwd`/../../:/work -w /work/interop/vpl-infer interop:latest
     ```
-    
+
 
 3. Build and run the program in the container:
 
@@ -182,13 +182,13 @@ These instructions assume that Docker is already set up on your system.
     cmake .. && cmake --build . --config release
     ```
 
-    To run with 2.x API zero copy on GPU 
+    To run with 2.x API zero copy on GPU
 
     ```
     ./vpl-infer -i /work/content/cars_320x240.h265 -m /OpenVINO/public/mobilenet-ssd/FP32/mobilenet-ssd.xml -zerocopy
     ```
 
-    To run with 1.x API (and extra copy) on GPU 
+    To run with 1.x API (and extra copy) on GPU
 
     ```
     ./vpl-infer -i /work/content/cars_320x240.h265 -m /OpenVINO/public/mobilenet-ssd/FP32/mobilenet-ssd.xml -legacy
@@ -227,7 +227,7 @@ These instructions assume that Docker is already set up on your system.
     python -m venv openvino_env
     openvino_env\Scripts\activate
     ```
-    
+
     From the Python virtual environment `(openvino_env) .. >`
 
     ```
@@ -237,7 +237,7 @@ These instructions assume that Docker is already set up on your system.
     omz_converter --name mobilenet-ssd --precision FP32 --download_dir . --output_dir .
     deactivate
     ```
-    mobilenet-ssd IR model will be generated in `.\public\mobilenet-ssd\FP32` 
+    mobilenet-ssd IR model will be generated in `.\public\mobilenet-ssd\FP32`
 
     ```
     mobilenet-ssd.bin  mobilenet-ssd.xml  mobilenet-ssd.mapping
@@ -259,18 +259,24 @@ These instructions assume that Docker is already set up on your system.
     mkdir build && cd build
     cmake .. && cmake --build . --config release && cd release
     ```
-  
-    To run with 2.x API zero copy on GPU 
+
+    To run with 2.x API zero copy on GPU
 
     ```
     .\vpl-infer -i cars_320x240.h265 -m mobilenet-ssd.xml -zerocopy
     ```
 
-    To run with 1.x API (and extra copy) on GPU 
+    To run with 1.x API (and extra copy) on GPU
 
     ```
     .\vpl-infer -i cars_320x240.h265 -m mobilenet-ssd.xml -legacy
     ```
+
+> [!NOTE]
+>
+> Building this example in debug mode is not currently supported. The model will
+> fail to load if built in debug mode.
+
 
 ### Example of Output
 
