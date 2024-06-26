@@ -91,7 +91,8 @@ jobs:
               --db-rel-path \
               --gendb _logs/ip-leak-scan/hits-linux.db \
               --r-overwrite \
-              --r _logs/ip-leak-scan
+              --r _logs/ip-leak-scan \
+              | tee _logs/ipldt.txt
           ret=$?
           set +o pipefail
           exit $ret
@@ -100,7 +101,7 @@ jobs:
 
           mkdir -p _logs/ip-leak-scan
           docker run --rm -v $PWD:/working -w /working \
-          vpl_ipldt:ubuntu ./action.sh | tee _logs/ipldt.txt
+          vpl_ipldt:ubuntu ./action.sh
           mv _logs/ipldt.txt _logs/ip-leak-scan/ipldt_results.txt
 
       - name: Report
