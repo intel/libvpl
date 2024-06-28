@@ -1,0 +1,845 @@
+<!--
+SPDX-FileCopyrightText: 2019-2023 Intel Corporation
+
+SPDX-License-Identifier: MIT
+-->
+
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Session Management &#8212; Intel® VPL  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=5b4479735964841361fd" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=5b4479735964841361fd" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd" />
+  <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=5b4479735964841361fd"></script>
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'API_ref/VPL_func_session';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Memory" href="VPL_func_mem.html" />
+    <link rel="prev" title="VideoCORE" href="VPL_func_vidcore.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Intel® VPL  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../VPL_intel_media_sdk.html">Intel<sup>®</sup> VPL for Intel<sup>®</sup> Media Software Development Kit Users</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../architecture/index.html">Architecture</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/VPL_decoding.html">Video Decoding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/VPL_encoding.html">Video Encoding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/VPL_processing.html">Video Processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/VPL_decoding_vpp.html">Video Decoding with multiple video processing</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../programming_guide/index.html">Programming Guide</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_stc.html">Status Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_session.html">Intel<sup>®</sup> VPL Session</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_frame.html">Frame and Fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_decoding.html">Decoding Procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_encoding.html">Encoding Procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_vpp.html">Video Processing Procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_transcoding.html">Transcoding Procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_config.html">Parameter Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_hw.html">Hardware Acceleration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_mem.html">Memory Allocation and External Allocators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_surface_sharing.html">Importing and Exporting Shared Surfaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_err.html">Hardware Device Error Handling</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../VPL_summary.html">Mandatory APIs and Functions</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="VPL_api_ref.html">Intel<sup>®</sup> VPL API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="VPL_functions.html">Function Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="VPL_func_vid_decode.html">VideoDECODE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_func_vid_encode.html">VideoENCODE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_func_vid_vpp.html">VideoVPP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_func_vidcore.html">VideoCORE</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">Session Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_func_mem.html">Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_func_capabilities.html">Implementation Capabilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_func_adapters.html">Adapters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_func_vid_decode_vpp.html">VideoDECODE_VPP</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="VPL_structs.html">Structure Reference</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="VPL_structs_type.html">Type Definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_structs_memory.html">Memory Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_structs_impl_manage.html">Implementation Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_structs_cross_component.html">Cross-component Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_structs_decode.html">Decode Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_structs_encode.html">Encode Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_structs_vpp.html">VPP Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_structs_protected.html">Protected Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_structs_decode_vpp.html">DECODE_VPP Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_structs_camera.html">Camera Structures</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_enums.html">Enumerator Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_defines.html">Define Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_ref_types.html">Type Reference</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="VPL_disp_api.html">Dispatcher API</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="VPL_disp_api_func.html">Dispatcher API Function Reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_disp_api_struct.html">Dispatcher API Structure Reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_disp_api_enum.html">Dispatcher API Enumeration Reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_disp_api_def.html">Dispatcher API Define Reference</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_guids.html">GUIDs Reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Versioning.html">Intel<sup>®</sup> VPL API Versioning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Experimental.html">Intel<sup>®</sup> VPL Experimental API</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../appendix/index.html">Appendices</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_a.html">Configuration Parameter Constraints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_b.html">Multiple-segment Encoding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_c.html">Streaming and Video Conferencing Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_d.html">Switchable Graphics and Multiple Monitors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_e.html">Working Directly with VA-API for Linux*</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_f.html">CQP HRD Mode Encoding</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../VPL_acronyms.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../VPL_deprecation.html">Deprecated API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../VPL_change_log.html">Change Log</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/API_ref/VPL_func_session.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Session Management</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxinit">MFXInit</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxinitex">MFXInitEx</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxinitialize">MFXInitialize</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxclose">MFXClose</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxqueryimpl">MFXQueryIMPL</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxqueryversion">MFXQueryVersion</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxjoinsession">MFXJoinSession</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxdisjoinsession">MFXDisjoinSession</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxclonesession">MFXCloneSession</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxsetpriority">MFXSetPriority</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxgetpriority">MFXGetPriority</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="session-management">
+<span id="func-session-mgmt"></span><h1>Session Management<a class="headerlink" href="#session-management" title="Permalink to this heading">#</a></h1>
+<p id="func-session-begin">Functions to manage sessions.</p>
+<section id="api">
+<span id="func-session-end"></span><h2>API<a class="headerlink" href="#api" title="Permalink to this heading">#</a></h2>
+<nav class="contents local" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#mfxinit" id="id1">MFXInit</a></p></li>
+<li><p><a class="reference internal" href="#mfxinitex" id="id2">MFXInitEx</a></p></li>
+<li><p><a class="reference internal" href="#mfxinitialize" id="id3">MFXInitialize</a></p></li>
+<li><p><a class="reference internal" href="#mfxclose" id="id4">MFXClose</a></p></li>
+<li><p><a class="reference internal" href="#mfxqueryimpl" id="id5">MFXQueryIMPL</a></p></li>
+<li><p><a class="reference internal" href="#mfxqueryversion" id="id6">MFXQueryVersion</a></p></li>
+<li><p><a class="reference internal" href="#mfxjoinsession" id="id7">MFXJoinSession</a></p></li>
+<li><p><a class="reference internal" href="#mfxdisjoinsession" id="id8">MFXDisjoinSession</a></p></li>
+<li><p><a class="reference internal" href="#mfxclonesession" id="id9">MFXCloneSession</a></p></li>
+<li><p><a class="reference internal" href="#mfxsetpriority" id="id10">MFXSetPriority</a></p></li>
+<li><p><a class="reference internal" href="#mfxgetpriority" id="id11">MFXGetPriority</a></p></li>
+</ul>
+</nav>
+<section id="mfxinit">
+<h3><a class="toc-backref" href="#id1" role="doc-backlink">MFXInit</a><a class="headerlink" href="#mfxinit" title="Permalink to this heading">#</a></h3>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv47MFXInit7mfxIMPLP10mfxVersionP10mfxSession">
+<span id="_CPPv37MFXInit7mfxIMPLP10mfxVersionP10mfxSession"></span><span id="_CPPv27MFXInit7mfxIMPLP10mfxVersionP10mfxSession"></span><span id="MFXInit__mfxIMPL.mfxVersionP.mfxSessionP"></span><span class="target" id="mfxsession_8h_1a8a8bc02e96edd272f43fa4d40a16f81a"></span><a class="reference internal" href="VPL_enums.html#_CPPv49mfxStatus" title="mfxStatus"><span class="n"><span class="pre">mfxStatus</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">MFXInit</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="VPL_enums.html#_CPPv47mfxIMPL" title="mfxIMPL"><span class="n"><span class="pre">mfxIMPL</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">impl</span></span>, <a class="reference internal" href="VPL_structs_impl_manage.html#_CPPv410mfxVersion" title="mfxVersion"><span class="n"><span class="pre">mfxVersion</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">ver</span></span>, <a class="reference internal" href="VPL_ref_types.html#_CPPv410mfxSession" title="mfxSession"><span class="n"><span class="pre">mfxSession</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">session</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv47MFXInit7mfxIMPLP10mfxVersionP10mfxSession" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Creates and initializes a session in the legacy mode for compatibility with Intel(r) Media SDK applications. This function is deprecated starting from API version 2.0, applications must use MFXLoad with mfxCreateSession to select the implementation and initialize the session. </p>
+<p>Call this function before calling any other API function. If the desired implementation specified by <code class="docutils literal notranslate"><span class="pre">impl</span></code> is MFX_IMPL_AUTO, the function will search for the platform-specific implementation. If the function cannot find the platform-specific implementation, it will use the software implementation instead.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">ver</span></code> argument indicates the desired version of the library implementation. The loaded implementation will have an API version compatible to the specified version (equal in the major version number, and no less in the minor version number.) If the desired version is not specified, the default is to use the API version from the library release with which an application is built.</p>
+<p>Production applications should always specify the minimum API version that meets the functional requirements. For example, if an application uses only H.264 decoding as described in API v1.0, the application should initialize the library with API v1.0. This ensures backward compatibility.</p>
+<p><dl>
+<dt class="sig sig-object cpp">
+<em><span class="pre">Deprecated:</span></em></dt>
+<dd><p>Deprecated in API version 2.3. Use MFXLoad and MFXCreateSession to initialize the session. Use MFX_DEPRECATED_OFF macro to turn off the deprecation message visualization. </p>
+</dd></dl>
+
+<dl class="simple">
+<dt><strong>Since</strong></dt><dd><p>This function is available since API version 1.0.</p>
+</dd>
+</dl>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>impl</strong> – <strong>[in]</strong> mfxIMPL enumerator that indicates the desired legacy Intel(r) Media SDK implementation. </p></li>
+<li><p><strong>ver</strong> – <strong>[in]</strong> Pointer to the minimum library version or zero, if not specified. </p></li>
+<li><p><strong>session</strong> – <strong>[out]</strong> Pointer to the legacy Intel(r) Media SDK session handle.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>MFX_ERR_NONE The function completed successfully. The output parameter contains the handle of the session.</p>
+<p>MFX_ERR_UNSUPPORTED The function cannot find the desired legacy Intel(r) Media SDK implementation or version.</p>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="mfxinitex">
+<h3><a class="toc-backref" href="#id2" role="doc-backlink">MFXInitEx</a><a class="headerlink" href="#mfxinitex" title="Permalink to this heading">#</a></h3>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv49MFXInitEx12mfxInitParamP10mfxSession">
+<span id="_CPPv39MFXInitEx12mfxInitParamP10mfxSession"></span><span id="_CPPv29MFXInitEx12mfxInitParamP10mfxSession"></span><span id="MFXInitEx__mfxInitParam.mfxSessionP"></span><span class="target" id="mfxsession_8h_1a0fb3f2e05f93d70bc3d164377dbf7545"></span><a class="reference internal" href="VPL_enums.html#_CPPv49mfxStatus" title="mfxStatus"><span class="n"><span class="pre">mfxStatus</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">MFXInitEx</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="VPL_structs_impl_manage.html#_CPPv412mfxInitParam" title="mfxInitParam"><span class="n"><span class="pre">mfxInitParam</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">par</span></span>, <a class="reference internal" href="VPL_ref_types.html#_CPPv410mfxSession" title="mfxSession"><span class="n"><span class="pre">mfxSession</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">session</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv49MFXInitEx12mfxInitParamP10mfxSession" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Creates and initializes a session in the legacy mode for compatibility with Intel(r) Media SDK applications. This function is deprecated starting from API version 2.0, applications must use MFXLoad with mfxCreateSession to select the implementation and initialize the session. </p>
+<p>Call this function before calling any other API functions. If the desired implementation specified by <code class="docutils literal notranslate"><span class="pre">par</span></code> is MFX_IMPL_AUTO, the function will search for the platform-specific implementation. If the function cannot find the platform-specific implementation, it will use the software implementation instead.</p>
+<p>The argument <code class="docutils literal notranslate"><span class="pre">par.Version</span></code> indicates the desired version of the implementation. The loaded implementation will have an API version compatible to the specified version (equal in the major version number, and no less in the minor version number.) If the desired version is not specified, the default is to use the API version from the library release with which an application is built.</p>
+<p>Production applications should always specify the minimum API version that meets the functional requirements. For example, if an application uses only H.264 decoding as described in API v1.0, the application should initialize the library with API v1.0. This ensures backward compatibility.</p>
+<p>The argument <code class="docutils literal notranslate"><span class="pre">par.ExternalThreads</span></code> specifies threading mode. Value 0 means that the implementation should create and handle work threads internally (this is essentially the equivalent of the regular MFXInit).</p>
+<p><dl>
+<dt class="sig sig-object cpp">
+<em><span class="pre">Deprecated:</span></em></dt>
+<dd><p>Deprecated in API version 2.3. Use MFXLoad and MFXCreateSession to initialize the session. Use MFX_DEPRECATED_OFF macro to turn off the deprecation message visualization. </p>
+</dd></dl>
+
+<dl class="simple">
+<dt><strong>Since</strong></dt><dd><p>This function is available since API version 1.14.</p>
+</dd>
+</dl>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>par</strong> – <strong>[in]</strong> <a class="reference internal" href="VPL_structs_impl_manage.html#structmfx_init_param"><span class="std std-ref">mfxInitParam</span></a> structure that indicates the desired implementation, minimum library version and desired threading mode. </p></li>
+<li><p><strong>session</strong> – <strong>[out]</strong> Pointer to the session handle.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>MFX_ERR_NONE The function completed successfully. The output parameter contains the handle of the session.</p>
+<p>MFX_ERR_UNSUPPORTED The function cannot find the desired implementation or version.</p>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="mfxinitialize">
+<h3><a class="toc-backref" href="#id3" role="doc-backlink">MFXInitialize</a><a class="headerlink" href="#mfxinitialize" title="Permalink to this heading">#</a></h3>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv413MFXInitialize22mfxInitializationParamP10mfxSession">
+<span id="_CPPv313MFXInitialize22mfxInitializationParamP10mfxSession"></span><span id="_CPPv213MFXInitialize22mfxInitializationParamP10mfxSession"></span><span id="MFXInitialize__mfxInitializationParam.mfxSessionP"></span><span class="target" id="mfxsession_8h_1a47528500d2ebf6b842b28379ff94473f"></span><a class="reference internal" href="VPL_enums.html#_CPPv49mfxStatus" title="mfxStatus"><span class="n"><span class="pre">mfxStatus</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">MFXInitialize</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="VPL_structs_impl_manage.html#_CPPv422mfxInitializationParam" title="mfxInitializationParam"><span class="n"><span class="pre">mfxInitializationParam</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">par</span></span>, <a class="reference internal" href="VPL_ref_types.html#_CPPv410mfxSession" title="mfxSession"><span class="n"><span class="pre">mfxSession</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">session</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv413MFXInitialize22mfxInitializationParamP10mfxSession" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Creates and initializes a session starting from API version 2.0. This function is used by the dispatcher. The dispatcher creates and fills the <a class="reference internal" href="VPL_structs_impl_manage.html#structmfx_initialization_param"><span class="std std-ref">mfxInitializationParam</span></a> structure according to mfxConfig values set by an application. Calling this function directly is not recommended. Instead, applications must call the mfxCreateSession function. </p>
+<p><dl class="simple">
+<dt><strong>Since</strong></dt><dd><p>This function is available since API version 2.0. </p>
+</dd>
+</dl>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>par</strong> – <strong>[in]</strong> <a class="reference internal" href="VPL_structs_impl_manage.html#structmfx_initialization_param"><span class="std std-ref">mfxInitializationParam</span></a> structure that indicates the minimum library version and acceleration type. </p></li>
+<li><p><strong>session</strong> – <strong>[out]</strong> Pointer to the session handle.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>MFX_ERR_NONE The function completed successfully. The output parameter contains the handle of the session.</p>
+<p>MFX_ERR_UNSUPPORTED The function cannot find the desired implementation or version.</p>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>The <a class="reference internal" href="#_CPPv413MFXInitialize22mfxInitializationParamP10mfxSession" title="MFXInitialize"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXInitialize()</span></code></a> function is mandatory for any implementation.</p>
+</div>
+</section>
+<section id="mfxclose">
+<h3><a class="toc-backref" href="#id4" role="doc-backlink">MFXClose</a><a class="headerlink" href="#mfxclose" title="Permalink to this heading">#</a></h3>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv48MFXClose10mfxSession">
+<span id="_CPPv38MFXClose10mfxSession"></span><span id="_CPPv28MFXClose10mfxSession"></span><span id="MFXClose__mfxSession"></span><span class="target" id="mfxsession_8h_1a603ef4a2f5f47e5991c3e9b4445c9117"></span><a class="reference internal" href="VPL_enums.html#_CPPv49mfxStatus" title="mfxStatus"><span class="n"><span class="pre">mfxStatus</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">MFXClose</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="VPL_ref_types.html#_CPPv410mfxSession" title="mfxSession"><span class="n"><span class="pre">mfxSession</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">session</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv48MFXClose10mfxSession" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Completes and deinitializes a session. Any active tasks in execution or in queue are aborted. The application cannot call any API function after calling this function. </p>
+<p>All child sessions must be disjoined before closing a parent session. <dl class="simple">
+<dt><strong>Since</strong></dt><dd><p>This function is available since API version 1.0. </p>
+</dd>
+</dl>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>session</strong> – <strong>[in]</strong> session handle.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>MFX_ERR_NONE The function completed successfully.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>The <a class="reference internal" href="#_CPPv48MFXClose10mfxSession" title="MFXClose"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXClose()</span></code></a> function is mandatory for any implementation.</p>
+</div>
+</section>
+<section id="mfxqueryimpl">
+<h3><a class="toc-backref" href="#id5" role="doc-backlink">MFXQueryIMPL</a><a class="headerlink" href="#mfxqueryimpl" title="Permalink to this heading">#</a></h3>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv412MFXQueryIMPL10mfxSessionP7mfxIMPL">
+<span id="_CPPv312MFXQueryIMPL10mfxSessionP7mfxIMPL"></span><span id="_CPPv212MFXQueryIMPL10mfxSessionP7mfxIMPL"></span><span id="MFXQueryIMPL__mfxSession.mfxIMPLP"></span><span class="target" id="mfxsession_8h_1ad163169a5b881a46ec36936e9396d0dd"></span><a class="reference internal" href="VPL_enums.html#_CPPv49mfxStatus" title="mfxStatus"><span class="n"><span class="pre">mfxStatus</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">MFXQueryIMPL</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="VPL_ref_types.html#_CPPv410mfxSession" title="mfxSession"><span class="n"><span class="pre">mfxSession</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">session</span></span>, <a class="reference internal" href="VPL_enums.html#_CPPv47mfxIMPL" title="mfxIMPL"><span class="n"><span class="pre">mfxIMPL</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">impl</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412MFXQueryIMPL10mfxSessionP7mfxIMPL" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Returns the implementation type of a given session. </p>
+<p><dl class="simple">
+<dt><strong>Since</strong></dt><dd><p>This function is available since API version 1.0. </p>
+</dd>
+</dl>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>session</strong> – <strong>[in]</strong> Session handle. </p></li>
+<li><p><strong>impl</strong> – <strong>[out]</strong> Pointer to the implementation type</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>MFX_ERR_NONE The function completed successfully.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="mfxqueryversion">
+<h3><a class="toc-backref" href="#id6" role="doc-backlink">MFXQueryVersion</a><a class="headerlink" href="#mfxqueryversion" title="Permalink to this heading">#</a></h3>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv415MFXQueryVersion10mfxSessionP10mfxVersion">
+<span id="_CPPv315MFXQueryVersion10mfxSessionP10mfxVersion"></span><span id="_CPPv215MFXQueryVersion10mfxSessionP10mfxVersion"></span><span id="MFXQueryVersion__mfxSession.mfxVersionP"></span><span class="target" id="mfxsession_8h_1a3186cb792429766b7627b7cc22d52229"></span><a class="reference internal" href="VPL_enums.html#_CPPv49mfxStatus" title="mfxStatus"><span class="n"><span class="pre">mfxStatus</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">MFXQueryVersion</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="VPL_ref_types.html#_CPPv410mfxSession" title="mfxSession"><span class="n"><span class="pre">mfxSession</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">session</span></span>, <a class="reference internal" href="VPL_structs_impl_manage.html#_CPPv410mfxVersion" title="mfxVersion"><span class="n"><span class="pre">mfxVersion</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">version</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv415MFXQueryVersion10mfxSessionP10mfxVersion" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Returns the implementation version. </p>
+<p><dl class="simple">
+<dt><strong>Since</strong></dt><dd><p>This function is available since API version 1.0. </p>
+</dd>
+</dl>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>session</strong> – <strong>[in]</strong> Session handle. </p></li>
+<li><p><strong>version</strong> – <strong>[out]</strong> Pointer to the returned implementation version.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>MFX_ERR_NONE The function completed successfully.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="mfxjoinsession">
+<h3><a class="toc-backref" href="#id7" role="doc-backlink">MFXJoinSession</a><a class="headerlink" href="#mfxjoinsession" title="Permalink to this heading">#</a></h3>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv414MFXJoinSession10mfxSession10mfxSession">
+<span id="_CPPv314MFXJoinSession10mfxSession10mfxSession"></span><span id="_CPPv214MFXJoinSession10mfxSession10mfxSession"></span><span id="MFXJoinSession__mfxSession.mfxSession"></span><span class="target" id="mfxsession_8h_1a3da4ff5dc3a2962579125014246a8361"></span><a class="reference internal" href="VPL_enums.html#_CPPv49mfxStatus" title="mfxStatus"><span class="n"><span class="pre">mfxStatus</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">MFXJoinSession</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="VPL_ref_types.html#_CPPv410mfxSession" title="mfxSession"><span class="n"><span class="pre">mfxSession</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">session</span></span>, <a class="reference internal" href="VPL_ref_types.html#_CPPv410mfxSession" title="mfxSession"><span class="n"><span class="pre">mfxSession</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">child</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv414MFXJoinSession10mfxSession10mfxSession" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Joins the child session to the current session. </p>
+<p>After joining, the two sessions share thread and resource scheduling for asynchronous operations. However, each session still maintains its own device manager and buffer/frame allocator. Therefore, the application must use a compatible device manager and buffer/frame allocator to share data between two joined sessions.</p>
+<p>The application can join multiple sessions by calling this function multiple times. When joining the first two sessions, the current session becomes the parent responsible for thread and resource scheduling of any later joined sessions.</p>
+<p>Joining of two parent sessions is not supported.</p>
+<p><dl class="simple">
+<dt><strong>Since</strong></dt><dd><p>This function is available since API version 1.1. </p>
+</dd>
+</dl>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>session</strong> – <strong>[inout]</strong> The current session handle. </p></li>
+<li><p><strong>child</strong> – <strong>[in]</strong> The child session handle to be joined</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>MFX_ERR_NONE The function completed successfully.</p>
+<p>MFX_WRN_IN_EXECUTION Active tasks are executing or in queue in one of the sessions. Call this function again after all tasks are completed.</p>
+
+ MFX_ERR_UNSUPPORTED The child session cannot be joined with the current session.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="mfxdisjoinsession">
+<h3><a class="toc-backref" href="#id8" role="doc-backlink">MFXDisjoinSession</a><a class="headerlink" href="#mfxdisjoinsession" title="Permalink to this heading">#</a></h3>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv417MFXDisjoinSession10mfxSession">
+<span id="_CPPv317MFXDisjoinSession10mfxSession"></span><span id="_CPPv217MFXDisjoinSession10mfxSession"></span><span id="MFXDisjoinSession__mfxSession"></span><span class="target" id="mfxsession_8h_1a4b8010780d973b2029f80395663e4bb5"></span><a class="reference internal" href="VPL_enums.html#_CPPv49mfxStatus" title="mfxStatus"><span class="n"><span class="pre">mfxStatus</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">MFXDisjoinSession</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="VPL_ref_types.html#_CPPv410mfxSession" title="mfxSession"><span class="n"><span class="pre">mfxSession</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">session</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv417MFXDisjoinSession10mfxSession" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Removes the joined state of the current session. </p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>   <span class="n">After</span> <span class="n">disjoining</span><span class="p">,</span> <span class="n">the</span> <span class="n">current</span> <span class="n">session</span> <span class="n">becomes</span> <span class="n">independent</span><span class="o">.</span> <span class="n">The</span> <span class="n">application</span> <span class="n">must</span> <span class="n">ensure</span> <span class="n">there</span> <span class="ow">is</span> <span class="n">no</span> <span class="n">active</span> <span class="n">task</span> <span class="n">running</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">session</span> <span class="n">before</span> <span class="n">calling</span> <span class="n">this</span> <span class="n">API</span> <span class="n">function</span><span class="o">.</span>
+</pre></div>
+</div>
+<p><dl class="simple">
+<dt><strong>Since</strong></dt><dd><p>This function is available since API version 1.1. </p>
+</dd>
+</dl>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>session</strong> – <strong>[inout]</strong> The current session handle.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>MFX_ERR_NONE The function completed successfully.</p>
+<p>MFX_WRN_IN_EXECUTION Active tasks are executing or in queue in one of the sessions. Call this function again after all tasks are completed.</p>
+
+ MFX_ERR_UNDEFINED_BEHAVIOR The session is independent, or this session is the parent of all joined sessions.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="mfxclonesession">
+<h3><a class="toc-backref" href="#id9" role="doc-backlink">MFXCloneSession</a><a class="headerlink" href="#mfxclonesession" title="Permalink to this heading">#</a></h3>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv415MFXCloneSession10mfxSessionP10mfxSession">
+<span id="_CPPv315MFXCloneSession10mfxSessionP10mfxSession"></span><span id="_CPPv215MFXCloneSession10mfxSessionP10mfxSession"></span><span id="MFXCloneSession__mfxSession.mfxSessionP"></span><span class="target" id="mfxsession_8h_1a85a44498c35317fe9f4794a206200741"></span><a class="reference internal" href="VPL_enums.html#_CPPv49mfxStatus" title="mfxStatus"><span class="n"><span class="pre">mfxStatus</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">MFXCloneSession</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="VPL_ref_types.html#_CPPv410mfxSession" title="mfxSession"><span class="n"><span class="pre">mfxSession</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">session</span></span>, <a class="reference internal" href="VPL_ref_types.html#_CPPv410mfxSession" title="mfxSession"><span class="n"><span class="pre">mfxSession</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">clone</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv415MFXCloneSession10mfxSessionP10mfxSession" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Creates a clean copy of the current session. </p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>   <span class="n">The</span> <span class="n">cloned</span> <span class="n">session</span> <span class="ow">is</span> <span class="n">an</span> <span class="n">independent</span> <span class="n">session</span> <span class="ow">and</span> <span class="n">does</span> <span class="ow">not</span> <span class="n">inherit</span> <span class="nb">any</span> <span class="n">user</span><span class="o">-</span><span class="n">defined</span> <span class="n">buffer</span><span class="p">,</span> <span class="n">frame</span> <span class="n">allocator</span><span class="p">,</span> <span class="ow">or</span> <span class="n">device</span> <span class="n">manager</span> <span class="n">handles</span> <span class="kn">from</span> <span class="nn">the</span> <span class="n">current</span> <span class="n">session</span><span class="o">.</span>
+   <span class="n">This</span> <span class="n">function</span> <span class="ow">is</span> <span class="n">a</span> <span class="n">light</span><span class="o">-</span><span class="n">weight</span> <span class="n">equivalent</span> <span class="n">of</span> <span class="n">MFXJoinSession</span> <span class="n">after</span> <span class="n">MFXInit</span><span class="o">.</span>
+</pre></div>
+</div>
+<p><dl class="simple">
+<dt><strong>Since</strong></dt><dd><p>This function is available since API version 1.1. </p>
+</dd>
+</dl>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>session</strong> – <strong>[in]</strong> The current session handle. </p></li>
+<li><p><strong>clone</strong> – <strong>[out]</strong> Pointer to the cloned session handle.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>MFX_ERR_NONE The function completed successfully.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="mfxsetpriority">
+<h3><a class="toc-backref" href="#id10" role="doc-backlink">MFXSetPriority</a><a class="headerlink" href="#mfxsetpriority" title="Permalink to this heading">#</a></h3>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv414MFXSetPriority10mfxSession11mfxPriority">
+<span id="_CPPv314MFXSetPriority10mfxSession11mfxPriority"></span><span id="_CPPv214MFXSetPriority10mfxSession11mfxPriority"></span><span id="MFXSetPriority__mfxSession.mfxPriority"></span><span class="target" id="mfxsession_8h_1a61e630cb226e3342d7550c1a12e3ac7f"></span><a class="reference internal" href="VPL_enums.html#_CPPv49mfxStatus" title="mfxStatus"><span class="n"><span class="pre">mfxStatus</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">MFXSetPriority</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="VPL_ref_types.html#_CPPv410mfxSession" title="mfxSession"><span class="n"><span class="pre">mfxSession</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">session</span></span>, <a class="reference internal" href="VPL_enums.html#_CPPv411mfxPriority" title="mfxPriority"><span class="n"><span class="pre">mfxPriority</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">priority</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv414MFXSetPriority10mfxSession11mfxPriority" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Sets the current session priority. </p>
+<p><dl class="simple">
+<dt><strong>Since</strong></dt><dd><p>This function is available since API version 1.1. </p>
+</dd>
+</dl>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>session</strong> – <strong>[in]</strong> The current session handle. </p></li>
+<li><p><strong>priority</strong> – <strong>[in]</strong> Priority value.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>MFX_ERR_NONE The function completed successfully.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="mfxgetpriority">
+<h3><a class="toc-backref" href="#id11" role="doc-backlink">MFXGetPriority</a><a class="headerlink" href="#mfxgetpriority" title="Permalink to this heading">#</a></h3>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv414MFXGetPriority10mfxSessionP11mfxPriority">
+<span id="_CPPv314MFXGetPriority10mfxSessionP11mfxPriority"></span><span id="_CPPv214MFXGetPriority10mfxSessionP11mfxPriority"></span><span id="MFXGetPriority__mfxSession.mfxPriorityP"></span><span class="target" id="mfxsession_8h_1a0282ad27cd2ead0b046000fd8f5370b7"></span><a class="reference internal" href="VPL_enums.html#_CPPv49mfxStatus" title="mfxStatus"><span class="n"><span class="pre">mfxStatus</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">MFXGetPriority</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="VPL_ref_types.html#_CPPv410mfxSession" title="mfxSession"><span class="n"><span class="pre">mfxSession</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">session</span></span>, <a class="reference internal" href="VPL_enums.html#_CPPv411mfxPriority" title="mfxPriority"><span class="n"><span class="pre">mfxPriority</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">priority</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv414MFXGetPriority10mfxSessionP11mfxPriority" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Returns the current session priority. </p>
+<p><dl class="simple">
+<dt><strong>Since</strong></dt><dd><p>This function is available since API version 1.1. </p>
+</dd>
+</dl>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>session</strong> – <strong>[in]</strong> The current session handle. </p></li>
+<li><p><strong>priority</strong> – <strong>[out]</strong> Pointer to the priority value.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>MFX_ERR_NONE The function completed successfully.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="VPL_func_vidcore.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">VideoCORE</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="VPL_func_mem.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Memory</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxinit">MFXInit</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxinitex">MFXInitEx</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxinitialize">MFXInitialize</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxclose">MFXClose</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxqueryimpl">MFXQueryIMPL</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxqueryversion">MFXQueryVersion</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxjoinsession">MFXJoinSession</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxdisjoinsession">MFXDisjoinSession</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxclonesession">MFXCloneSession</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxsetpriority">MFXSetPriority</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxgetpriority">MFXGetPriority</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023, Intel.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=5b4479735964841361fd"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
