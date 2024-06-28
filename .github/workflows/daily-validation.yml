@@ -159,7 +159,7 @@ jobs:
     secrets: inherit
 
   sdl:
-    if: ${{ github.event.inputs.upload_sdl == true}}
+    if: ${{ github.event.inputs.upload_sdl == 'true' }}
     needs:
       - linux-build
       - windows-build
