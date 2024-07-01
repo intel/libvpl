@@ -1,0 +1,24 @@
+# ==============================================================================
+# Copyright (C) Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+# ==============================================================================
+
+ARG DOCKER_REGISTRY
+
+FROM ${DOCKER_REGISTRY}ubuntu:22.04
+
+WORKDIR /setup
+COPY requirements.txt requirements.txt
+COPY packages.txt packages.txt
+
+ARG DEBIAN_FRONTEND=noninteractive
+ENV PIP_ROOT_USER_ACTION=ignore
+
+RUN apt-get update \
+ && xargs -a packages.txt apt-get install -y --no-install-recommends \
+ && rm -rf /var/lib/apt/lists/* \
+ && pip3 install --no-cache-dir -U -r requirements.txt \
+ && git config --global safe.directory '*'
+
+HEALTHCHECK CMD python3 --version || exit 1

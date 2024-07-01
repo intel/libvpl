@@ -49,92 +49,103 @@ jobs:
         with:
           path: artifacts
 
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          path: source
+          ref: ${{ github.event.pull_request.head.sha }}
+
+
       - name: BOM artifacts
         if: >
           !cancelled()
         run: |
-          mkdir -p summary/bom/Linux
-          mkdir -p summary/bom/Windows
+          . source/.github/workflows/summary/tools.sh
 
-          cp -r artifacts/$DIFF_L/. summary/bom/Linux/
-          cp -r artifacts/$DIFF_W/. summary/bom/Windows/
+          export source_root=artifacts
+          export dest_root=summary/bom
+
+          copy_all_artifacts "$DIFF_L" Linux
+          copy_all_artifacts "$DIFF_W" Windows
 
       - name: SDL artifacts
         if: >
           !cancelled()
         run: |
-          mkdir -p summary/sdl/CT7-KnownVulnerabilities
-          mkdir -p summary/sdl/CT37-MalwareScan
-          mkdir -p summary/sdl/CT39-StaticAnalysis
-          mkdir -p summary/sdl/CT151-CompilerFlags
-          mkdir -p summary/sdl/CT222-DockerScan
-          mkdir -p summary/sdl/CT247-Trivy
+          . source/.github/workflows/summary/tools.sh
 
-          cp artifacts/$BDBA/vulns.csv \
-             summary/sdl/CT7-KnownVulnerabilities/vulns.csv
-          cp artifacts/$AV_S/report.txt \
-             summary/sdl/CT37-MalwareScan/source-report.txt
-          cp artifacts/$AV_L/report.txt \
-             summary/sdl/CT37-MalwareScan/linux-report.txt
-          cp artifacts/$AV_W/report.txt \
-             summary/sdl/CT37-MalwareScan/windows-report.txt
-          cp artifacts/$COVERITY_L/json/errors_v9_full.json \
-             summary/sdl/CT39-StaticAnalysis/linux-coverity.json
-          cp artifacts/$COVERITY_L/cvss_report.pdf \
-             summary/sdl/CT39-StaticAnalysis/linux-cvss_report.pdf
-          cp artifacts/$COVERITY_L/security_report.pdf \
-             summary/sdl/CT39-StaticAnalysis/linux-security_report.pdf
-          cp artifacts/$COVERITY_W/json/errors_v9_full.json \
-             summary/sdl/CT39-StaticAnalysis/windows-coverity.json
-          cp artifacts/$COVERITY_W/cvss_report.pdf \
-             summary/sdl/CT39-StaticAnalysis/windows-cvss_report.pdf
-          cp artifacts/$COVERITY_W/security_report.pdf \
-             summary/sdl/CT39-StaticAnalysis/windows-security_report.pdf
-          cp -r artifacts/$SSCB_L/. summary/sdl/CT151-CompilerFlags/
-          cp -r artifacts/$SSCB_W/. summary/sdl/CT151-CompilerFlags/
-          cp -r artifacts/$TRIVY/ct222-report.json \
-           summary/sdl/CT222-DockerScan/
-          cp -r artifacts/$TRIVY/trivy-report.csv summary/sdl/CT247-Trivy/
+          export source_root=artifacts
+          export dest_root=summary/sdl
+
+          copy_artifact "$BDBA" vulns.csv CT7-KnownVulnerabilities
+          copy_artifact "$AV_S" report.txt CT37-MalwareScan source-report.txt
+          copy_artifact "$AV_L" report.txt CT37-MalwareScan linux-report.txt
+          copy_artifact "$AV_W" report.txt CT37-MalwareScan windows-report.txt
+          copy_artifact "$COVERITY_L/json" errors_v9_full.json \
+                        CT39-StaticAnalysis linux-coverity.json
+          copy_artifact "$COVERITY_L" cvss_report.pdf \
+                        CT39-StaticAnalysis linux-cvss_report.pdf
+          copy_artifact "$COVERITY_L" security_report.pdf \
+                        CT39-StaticAnalysis linux-security_report.pdf
+          copy_artifact "$COVERITY_W/json" errors_v9_full.json \
+                        CT39-StaticAnalysis windows-coverity.json
+          copy_artifact "$COVERITY_W" cvss_report.pdf \
+                        CT39-StaticAnalysis windows-cvss_report.pdf
+          copy_artifact "$COVERITY_W" security_report.pdf \
+                        CT39-StaticAnalysis windows-security_report.pdf
+          copy_artifact "$TRIVY" ct222-report.json CT222-DockerScan
+          copy_artifact "$TRIVY" trivy-report.csv CT247-Trivy
+          copy_all_artifacts $SSCB_L CT151-CompilerFlags
+          copy_all_artifacts $SSCB_W CT151-CompilerFlags
 
       - name: SWLC artifacts
         run: |
-          mkdir -p summary/swlc/ip_leaks
+          . source/.github/workflows/summary/tools.sh
 
-          cp -r artifacts/$IPLEAKS/. summary/swlc/ip_leaks/
+          export source_root=artifacts
+          export dest_root=summary/swlc
+
+          copy_all_artifacts "$IPLEAKS" ip_leaks
 
       - name: Quality artifacts
         if: >
           !cancelled()
         run: |
-          mkdir -p summary/quality/acceptance/Ubuntu22.04/gen9.5
-          mkdir -p summary/quality/acceptance/Ubuntu22.04/gen12.5
-          mkdir -p summary/quality/acceptance/Win11/gen9.5
-          mkdir -p summary/quality/acceptance/Win11/gen12.5
-          mkdir -p summary/quality/acceptance/SLES15.4/gen12.5
-          mkdir -p summary/quality/acceptance/RHEL8.6/gen12.5
-          mkdir -p summary/quality/unit
-          mkdir -p summary/quality/performance
+          . source/.github/workflows/summary/tools.sh
 
-          cp artifacts/$UTEST_L/*/Test.xml \
-             summary/quality/unit/linux.xml
-          cp artifacts/$UTEST_W/*/Test.xml \
-             summary/quality/unit/windows.xml
-          cp -r artifacts/$U2204_GEN95/. \
-             summary/quality/acceptance/Ubuntu22.04/gen9.5/
-          cp -r artifacts/$U2204/. \
-            summary/quality/acceptance/Ubuntu22.04/gen12.5/
-          cp -r artifacts/$WIN11_GEN95/. \
-             summary/quality/acceptance/Win11/gen9.5/
-          cp -r artifacts/$WIN11/. \
-             summary/quality/acceptance/Win11/gen12.5/
-          cp -r artifacts/$SLES154/. \
-             summary/quality/acceptance/SLES15.4/gen12.5/
-          cp -r artifacts/$RHEL86/. \
-             summary/quality/acceptance/RHEL8.6/gen12.5/
-          cp artifacts/linux-performance/summary.csv \
-             summary/quality/performance/linux-performance-summary.csv
-          cp artifacts/linux-performance/summary.md \
-             summary/quality/performance/linux-performance-summary.md
+          export source_root=artifacts
+          export dest_root=summary/quality
+
+          copy_glob_artifact "$UTEST_L/*/Test.xml" unit linux.xml
+          copy_glob_artifact "$UTEST_W/*/Test.xml" unit windows.xml
+          copy_all_artifacts "$U2204_GEN95" acceptance/Ubuntu22.04/gen9.5
+          copy_all_artifacts "$U2204" acceptance/Ubuntu22.04/gen12.5
+          copy_all_artifacts "$WIN11_GEN95" acceptance/Win11/gen9.5
+          copy_all_artifacts "$WIN11" acceptance/Win11/gen12.5
+          copy_all_artifacts "$SLES154" acceptance/SLES15.4/gen12.5
+          copy_all_artifacts "$RHEL86" acceptance/RHEL8.6/gen12.5
+          copy_artifact linux-performance summary.csv \
+                        performance linux-performance-summary.csv
+          copy_artifact linux-performance summary.md \
+                        performance linux-performance-summary.md
+
+      - name: Build Docker image
+        run: >
+          docker build ${{ inputs.docker_opts }}
+          -f "source/.github/workflows/summary/Dockerfile.ubuntu.summary"
+          -t vpl_summary:ubuntu
+          "source/.github/workflows/summary"
+
+      - name: Evaluate Results
+        run: |
+          if [ -d summary/quality ]
+          then
+            docker run --rm -v $(pwd):/tmp/work -w /tmp/work  \
+            vpl_summary:ubuntu \
+            python3 \
+            "/tmp/work/source/.github/workflows/summary/summarize_testing.py" \
+            /tmp/work/summary/quality
+          fi
 
       - name: Upload Summary
         if: success() || failure()

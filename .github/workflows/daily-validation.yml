@@ -434,7 +434,7 @@ jobs:
       artifact_name: linux-performance
 
   summary:
-    if: true
+    if: "always()"
     needs:
       - hadolint
       - trivy
