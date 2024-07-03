@@ -15,6 +15,8 @@ cases.
 > Intel® VPL Tools are no longer in this repository. They have all been moved to
 > https://github.com/intel/libvpl-tools
 
+## [Unreleased]
+
 ## [2.12.0] - 2024-06-28
 
 ### Added
@@ -382,7 +384,8 @@ cases.
 - hello-transcode sample
 
 
-[Unreleased]: https://github.com/intel/libvpl/compare/v2.11.0...HEAD
+[Unreleased]: https://github.com/intel/libvpl/compare/v2.12.0...HEAD
+[2.12.0]: https://github.com/intel/libvpl/compare/v2.11.0...v2.12.0
 [2.11.0]: https://github.com/intel/libvpl/compare/v2.10.2...v2.11.0
 [2.10.2]: https://github.com/intel/libvpl/compare/v2.10.1...v2.10.2
 [2.10.1]: https://github.com/intel/libvpl/compare/v2023.4.0...v2.10.1
