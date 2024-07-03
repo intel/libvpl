@@ -141,8 +141,8 @@ jobs:
         if: always() && runner.os == 'Linux'
         run: >
           docker build ${{ inputs.docker_opts }}
-          -f "source/script/Dockerfile.centos7.build"
-          -t vpl_build:centos
+          -f "source/script/Dockerfile.rhel.build"
+          -t vpl_build:rhel
           "source/script"
 
       - name: Install dependencies (Windows)
@@ -186,7 +186,7 @@ jobs:
           EOL
           chmod +x configure.sh
 
-          docker run --rm -v $(pwd):/tmp -w /tmp vpl_build:centos ./configure.sh
+          docker run --rm -v $(pwd):/tmp -w /tmp vpl_build:rhel ./configure.sh
 
       - name: Configure (Windows)
         if: always() && runner.os == 'Windows'
@@ -221,7 +221,7 @@ jobs:
           EOL
           chmod +x build.sh
 
-          docker run --rm -v $(pwd):/tmp -w /tmp vpl_build:centos ./build.sh
+          docker run --rm -v $(pwd):/tmp -w /tmp vpl_build:rhel ./build.sh
 
       - name: Build (Windows)
         if: runner.os == 'Windows'
@@ -268,7 +268,7 @@ jobs:
           -T test
           EOL
           chmod +x test.sh
-          docker run --rm -v $(pwd):/tmp -w /tmp vpl_build:centos ./test.sh
+          docker run --rm -v $(pwd):/tmp -w /tmp vpl_build:rhel ./test.sh
 
       - name: Test (Windows)
         if: runner.os == 'Windows' && inputs.run_tests

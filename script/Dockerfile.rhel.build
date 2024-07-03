@@ -1,0 +1,18 @@
+FROM registry.access.redhat.com/ubi8/ubi:8.6
+
+WORKDIR /setup
+COPY bootstrap bootstrap
+
+ENV PIP_ROOT_USER_ACTION=ignore
+
+RUN dnf install -y git-2.43.5 && \
+    ./bootstrap && \
+    yum clean all && \
+    rm -rf /var/cache/yum
+
+RUN git config --global safe.directory '*'
+
+ENV LC_ALL C.UTF-8
+ENV LANG en_US.utf8
+
+HEALTHCHECK CMD gcc --version || exit 1

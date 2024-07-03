@@ -37,7 +37,40 @@ if [ "$ID_LIKE" == "debian" ]; then
   apt-get install -y --no-install-recommends \
     git \
     python3-pip
-
+elif [ "$ID_LIKE" == "fedora" ]; then
+  # Add media driver repositories
+  dnf install -y 'dnf-command(config-manager)'
+  dnf config-manager --add-repo \
+      https://repositories.intel.com/gpu/rhel/${VERSION_ID}/lts/2350/unified/intel-gpu-${VERSION_ID}.repo
+  dnf clean all && dnf makecache && dnf upgrade -y
+  # basic build tools
+  dnf install -y cmake gcc-c++
+  # prerequsites to build examples
+  dnf install -y libva-devel
+  dnf install -y libX11-devel
+  dnf install -y wayland-protocols-devel
+  dnf install -y python3-pip
+  # libdrm from source
+  dnf install -y python3-pip git
+  pip3 install meson ninja
+  pushd /tmp
+  if [ ! "$(pkg-config --modversion pciaccess)" = "0.17" ]; then
+    git clone -b libpciaccess-0.17 https://gitlab.freedesktop.org/xorg/lib/libpciaccess.git
+    pushd libpciaccess
+    meson builddir --prefix=/usr
+    ninja -C builddir install
+    popd
+    rm -rf /libpciaccess
+  fi
+  if [ ! "$(pkg-config --modversion libdrm)" = "2.4.113" ]; then
+    git clone -b libdrm-2.4.113 https://gitlab.freedesktop.org/mesa/drm.git
+    pushd drm
+    meson builddir --prefix=/usr
+    ninja -C builddir install
+    popd
+    rm -rf drm
+  fi
+  popd
 elif [ "$ID_LIKE" == "rhel fedora" ]; then
   # basic build tools
   yum install -y centos-release-scl
@@ -90,7 +123,7 @@ elif [ "$ID_LIKE" == "rhel fedora" ]; then
     make install
   fi
 
-  # lint prerequisites
+  # pre-commit prerequisites
   yum install -y git
   yum install -y \
       openssl-devel \
@@ -105,6 +138,8 @@ elif [ "$ID_LIKE" == "rhel fedora" ]; then
     tar xvf Python-3.8.9.tgz
     source /opt/rh/devtoolset-9/enable
     cd Python-3.*/
+    ./configure --enable-optimizations --enable-loadable-sqlite-extensions \
+                --prefix=/usr --with-openssl=/etc/pki/tls --with-openssl-rpath=auto
     ./configure --enable-optimizations --enable-loadable-sqlite-extensions
     make install
   fi
@@ -120,4 +155,3 @@ fi
 
 # lint dependencies
 pip3 install pre-commit
-pip3 install virtualenv==v20.24.5

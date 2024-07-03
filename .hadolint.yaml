@@ -10,3 +10,4 @@ ignored:
 trustedRegistries:
   - docker.io
   - gcr.io
+  - "*.redhat.com"
