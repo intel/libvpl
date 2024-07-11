@@ -19,6 +19,7 @@ if(BUILD_EXAMPLES)
   endif()
   add_subdirectory(api2x/hello-decvpp)
   add_subdirectory(api2x/hello-encode)
+  add_subdirectory(api2x/hello-encode-jpeg)
   add_subdirectory(api2x/hello-transcode)
   add_subdirectory(api2x/hello-vpp)
   add_subdirectory(tutorials/01_transition/VPL)
@@ -43,7 +44,7 @@ if(INSTALL_DEV)
 
   install(
     DIRECTORY api2x/hello-decode api2x/hello-decvpp api2x/hello-encode
-              api2x/hello-transcode api2x/hello-vpp
+              api2x/hello-transcode api2x/hello-vpp api2x/hello-encode-jpeg
     DESTINATION ${VPL_INSTALL_EXAMPLEDIR}/api2x
     COMPONENT ${VPL_COMPONENT_DEV})
 

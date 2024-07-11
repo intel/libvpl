@@ -17,6 +17,9 @@ cases.
 
 ## [Unreleased]
 
+### Added
+- Add hello-encode-jpeg api2x example
+
 ## [2.12.0] - 2024-06-28
 
 ### Added
