@@ -99,11 +99,30 @@ include(CTest)
 set(VPL_CONTENT_DIR
     ${CMAKE_CURRENT_SOURCE_DIR}/../../content
     CACHE PATH "Path to content.")
-if(IMPL_ARG EQUAL -hw)
-  set(content_file cars_320x240.nv12)
-else()
-  set(content_file cars_320x240.i420)
+
+if(${IMPL_ARG} MATCHES "-hw")
+  # nv12 jpeg enc
+  add_test(NAME ${TARGET}-nv12-test
+           COMMAND ${TARGET} -i "${VPL_CONTENT_DIR}/cars_320x240.nv12" -w 320
+                   -h 240)
+  set(passRegex "Encoded 30 frames" "^All ok")
+  set_property(TEST ${TARGET}-nv12-test PROPERTY PASS_REGULAR_EXPRESSION
+                                                 "${passRegex}")
+  # bgr4 jpeg enc
+  add_test(NAME ${TARGET}-bgr4-test
+           COMMAND ${TARGET} -i "${VPL_CONTENT_DIR}/cars_320x240.bgra" -w 320
+                   -h 240 -bgr4)
+  set(passRegex "Encoded 30 frames" "^All ok")
+  set_property(TEST ${TARGET}-bgr4-test PROPERTY PASS_REGULAR_EXPRESSION
+                                                 "${passRegex}")
+
+  if(NOT WIN32)
+    # yuv400 jpeg enc
+    add_test(NAME ${TARGET}-yuv400-test
+             COMMAND ${TARGET} -i "${VPL_CONTENT_DIR}/cars_320x240.y8" -w 320
+                     -h 240 -yuv400)
+    set(passRegex "Encoded 30 frames" "^All ok")
+    set_property(TEST ${TARGET}-yuv400-test PROPERTY PASS_REGULAR_EXPRESSION
+                                                     "${passRegex}")
+  endif()
 endif()
-add_test(NAME ${TARGET}-test
-         COMMAND ${TARGET} -i "${VPL_CONTENT_DIR}/${content_file}" -w 320 -h
-                 240)
