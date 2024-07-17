@@ -418,8 +418,7 @@ jobs:
       run_tests: true
       no_artifacts: true
       configure_options: >-
-        -DBUILD_DISPATCHER_ONEVPL_EXPERIMENTAL=OFF
-        -DBUILD_TOOLS_ONEVPL_EXPERIMENTAL=OFF
+        -DBUILD_EXPERIMENTAL=OFF
       docker_opts: ${{ inputs.docker_opts }}
 
   linux-performance:

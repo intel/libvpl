@@ -200,6 +200,24 @@ jobs:
       distro_version: ${{ matrix.distro.version }}
       test_ref: ${{ needs.setup-variables.outputs.test_ref }}
 
+  experimental-off:
+    if: true
+    uses: ./.github/workflows/cmake.yml
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - windows
+          - linux
+    with:
+      os: ${{ matrix.os }}
+      build_type: release
+      run_tests: true
+      no_artifacts: true
+      configure_options: >-
+        -DBUILD_EXPERIMENTAL=OFF
+      docker_opts: ${{ inputs.docker_opts }}
+
   required:
     if: '! github.event.pull_request.draft'
     needs:
@@ -214,6 +232,7 @@ jobs:
       - bdba
       - windows-acceptance
       - linux-acceptance
+      - experimental-off
     runs-on: [self-hosted]
     steps:
       - name: Required Checks
