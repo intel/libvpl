@@ -1,6 +1,6 @@
 ---
 Checks:
-  Binary-Artifacts: -1
+  Binary-Artifacts: 10
   Branch-Protection: -1
   CI-Tests: -1
   CII-Best-Practices: -1

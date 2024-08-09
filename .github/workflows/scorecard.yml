@@ -28,7 +28,7 @@ jobs:
         run: >
           docker run --rm -v $(pwd):/tmp/work -w /tmp/work
           gcr.io/openssf/scorecard:stable
-          --checks=Token-Permissions,Dangerous-Workflow
+          --checks=Token-Permissions,Dangerous-Workflow,Binary-Artifacts
           --show-details
           --verbosity warn
           --local /tmp/work/source
