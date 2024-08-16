@@ -13,6 +13,25 @@ This section describes the API evolution from version to version.
    :depth: 1
 
 ------------
+Version 2.13
+------------
+
+New in this release:
+
+* Moved to production API:
+
+    * :cpp:struct:`mfxExtQualityInfoMode`
+    * :cpp:struct:`mfxExtQualityInfoOutput`
+    * :cpp:enum:`mfxQualityInfoMode`
+    * :cpp:struct:`mfxExtAV1ScreenContentTools`
+    * :cpp:struct:`mfxExtAlphaChannelEncCtrl`
+    * :cpp:struct:`mfxExtAlphaChannelSurface`
+
+* Added code name for the platform: Battlemage:
+
+    * :cpp:enum:`MFX_DEPRECATED_ENUM_FIELD_INSIDE(MFX_PLATFORM_BATTLEMAGE)`
+
+------------
 Version 2.12
 ------------
 
@@ -107,7 +126,7 @@ New in this release:
 
 * Experimental API: Introduced capabilities query for supported surface import and export operations. Added new structures and enumerated types:
 
-    * :cpp:enum:`mfxImplCapsDeliveryFormat`
+    * :cpp:enumerator:`mfxImplCapsDeliveryFormat::MFX_IMPLCAPS_SURFACE_TYPES`
     * :cpp:struct:`mfxSurfaceTypesSupported`
 
 * Experimental API: Introduced new interface for configuring initialization parameters. Added new structures and enumerated types:

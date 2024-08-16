@@ -584,7 +584,6 @@ if (MFX_ERR_NONE) {
 /*end8*/
 #endif
 
-#ifdef ONEVPL_EXPERIMENTAL
 static void AttachBufferForQualityInfoOutput(mfxBitstream* bs, mfxExtQualityInfoOutput* qualityInfoOutput)
 {
    UNUSED_PARAM(bs);
@@ -627,9 +626,7 @@ if (sts == MFX_ERR_NONE) {
 }
 /*end9*/
 }
-#endif
 
-#ifdef ONEVPL_EXPERIMENTAL
 static void prg_encoding10() {
 /*beg10*/
 /* mfxExtScreenContentTools Init */
@@ -659,9 +656,7 @@ for (;;) {
 }
 /*end10*/
 }
-#endif
 
-#ifdef ONEVPL_EXPERIMENTAL
 typedef enum {NV12_SYS = 1, NV12_VIDEO, RGBA_SYS, RGBA_VIDEO} UserDataType;
 UserDataType userDataType;
 mfxU8* alphaSysData;
@@ -779,4 +774,3 @@ free_pool_of_frame_surfaces();
 
 /*end11*/
 }
-#endif

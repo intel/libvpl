@@ -2946,37 +2946,32 @@ MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxConfigInterface, 76)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxConfigInterface, reserved,                      12)
 #endif
 
-#ifdef ONEVPL_EXPERIMENTAL
 MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxExtQualityInfoMode, 32)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtQualityInfoMode, Header,                      0)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtQualityInfoMode, QualityInfoMode,             8)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtQualityInfoMode, reserved,                    12)
 #if defined(_x86_64)
 MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxExtQualityInfoOutput, 256)
-    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtQualityInfoOutput, Header,                     0)
-    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtQualityInfoOutput, FrameOrder,                 8)
-    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtQualityInfoOutput, MSE,                        12)
-    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtQualityInfoOutput, reserved1,                  24)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtQualityInfoOutput, Header,                    0)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtQualityInfoOutput, FrameOrder,                8)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtQualityInfoOutput, MSE,                       12)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtQualityInfoOutput, reserved1,                 24)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtQualityInfoOutput, reserved2,                 224)
 #elif defined(_x86)
 MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxExtQualityInfoOutput, 240)
-    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtQualityInfoOutput, Header,                     0)
-    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtQualityInfoOutput, FrameOrder,                 8)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtQualityInfoOutput, Header,                    0)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtQualityInfoOutput, FrameOrder,                8)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtQualityInfoOutput, MSE,                       12)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtQualityInfoOutput, reserved1,                 24)
-    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtQualityInfoOutput, reserved2,                 224)  
-#endif
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtQualityInfoOutput, reserved2,                 224)
 #endif
 
-#ifdef ONEVPL_EXPERIMENTAL
 MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxExtAV1ScreenContentTools, 32)
-    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtAV1ScreenContentTools, Header,                 0)
-    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtAV1ScreenContentTools, Palette,                8)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtAV1ScreenContentTools, Header,                0)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtAV1ScreenContentTools, Palette,               8)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtAV1ScreenContentTools, IntraBlockCopy,        10)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtAV1ScreenContentTools, reserved,              12)
-#endif    
 
-#ifdef ONEVPL_EXPERIMENTAL
 MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxExtAlphaChannelEncCtrl, 32)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtAlphaChannelEncCtrl, Header,                     0)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtAlphaChannelEncCtrl, EnableAlphaChannelEncoding, 8)
@@ -2993,7 +2988,6 @@ MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxExtAlphaChannelSurface, 28)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtAlphaChannelSurface, Header,                     0)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtAlphaChannelSurface, AlphaSurface,               8)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtAlphaChannelSurface, reserved,                   12)
-#endif
 #endif
 
 #ifdef ONEVPL_EXPERIMENTAL

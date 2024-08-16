@@ -345,3 +345,30 @@ with multiple input data formats:
    :start-after: /*beg11*/
    :end-before: /*end11*/
    :lineno-start: 1
+
+Note the following key points about the example:
+
+API Definition:
+
+- :cpp:struct:`mfxExtAlphaChannelEncCtrl`: This structure configures the alpha channel encoding. It includes fields like EnableAlphaChannelEncoding, AlphaChannelMode, and AlphaChannelBitrateRatio.
+- :cpp:member:`mfxExtAlphaChannelEncCtrl::EnableAlphaChannelEncoding`: Set to :cpp:enumerator:`MFX_CODINGOPTION_ON` to enable alpha channel encoding.
+- :cpp:member:`mfxExtAlphaChannelEncCtrl::AlphaChannelMode`: Defines whether the alpha is straight or pre-multiplied.
+
+   - :cpp:enumerator:`MFX_ALPHA_MODE_PREMULTIPLIED`: RGB and alpha are independent.
+   - :cpp:enumerator:`MFX_ALPHA_MODE_STRAIGHT`: RGB and alpha are linked.
+- :cpp:member:`mfxExtAlphaChannelEncCtrl::AlphaChannelBitrateRatio`: Indicates the percentage of the bitrate allocated to the alpha channel.
+
+Usage Instructions:
+
+- At present, Internal Memory Allocation as described in `Memory Allocation and External Allocators <https://intel.github.io/libvpl/latest/programming_guide/VPL_prg_mem.html>`_ is not yet supported.
+- The application queries encoding capabilities (:cpp:func:`MFXVideoENCODE_Query`) and surface requirements (:cpp:func:`MFXVideoENCODE_QueryIOSurf`).
+- The application initializes(:cpp:func:`MFXVideoENCODE_Init`) the encoder with alpha channel encoding enabled.
+- Alpha channel data can be provided separately or embedded within the main surface data depending on the format.
+- For each input data type, the application configures the alpha surface accordingly before calling :cpp:func:`MFXVideoENCODE_EncodeFrameAsync` for encoding.
+
+   - NV12_VIDEO: Uses video memory for NV12 data, with a mfxExtAlphaChannelSurface structure for video memory handle.
+   - NV12_SYS: Uses system memory for NV12 data, with a mfxExtAlphaChannelSurface structure attached to the surface.
+   - RGBA_VIDEO: Directly uses shared resources for RGBA video textures.
+   - RGBA_SYS: Not yet supported.
+
+- The application must use the :cpp:func:`MFXVideoCORE_SyncOperation` function to synchronize the encoding operation before retrieving the encoded bitstream.

@@ -191,7 +191,7 @@ The following is a list of experimental interfaces, starting from API version
      - 2.10
      -
      -
-   * - :cpp:enum:`mfxImplCapsDeliveryFormat`
+   * - :cpp:enumerator:`mfxImplCapsDeliveryFormat::MFX_IMPLCAPS_SURFACE_TYPES`
      - 2.10
      -
      -
@@ -237,32 +237,32 @@ The following is a list of experimental interfaces, starting from API version
      -
    * - :cpp:struct:`mfxExtQualityInfoMode`
      - 2.11
-     -
-     -
+     - 2.13
+     - Moved to production
    * - :cpp:struct:`mfxExtQualityInfoOutput`
      - 2.11
-     -
-     -
+     - 2.13
+     - Moved to production
    * - :cpp:enum:`mfxQualityInfoMode`
      - 2.11
-     -
-     -
+     - 2.13
+     - Moved to production
    * - :cpp:enumerator:`MFX_GPUCOPY_FAST`
      - 2.11
      -
      -
    * - :cpp:struct:`mfxExtAV1ScreenContentTools`
      - 2.11
-     -
-     -
+     - 2.13
+     - Moved to production
    * - :cpp:struct:`mfxExtAlphaChannelEncCtrl`
      - 2.11
-     -
-     -
+     - 2.13
+     - Moved to production
    * - :cpp:struct:`mfxExtAlphaChannelSurface`
      - 2.11
-     -
-     -
+     - 2.13
+     - Moved to production
    * - :cpp:struct:`mfxSurfaceVulkanImg2D`
      - 2.12
      -

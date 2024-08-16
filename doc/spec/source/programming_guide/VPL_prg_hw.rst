@@ -155,6 +155,7 @@ acceleration device handle. This handle is also used by the |vpl_short_name| com
 query hardware capabilities. The application can share its device with |vpl_short_name|
 by passing the device handle through the :cpp:func:`MFXVideoCORE_SetHandle`
 function. It is recommended to share the handle before any actual usage of |vpl_short_name|.
+The shared handle must remain valid until after the application calls :cpp:func:`MFXClose`.
 
 .. _work_ms_directx_app:
 

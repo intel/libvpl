@@ -119,7 +119,8 @@ mfxStatus MFX_CDECL MFXVideoCORE_SetFrameAllocator(mfxSession session, mfxFrameA
 
 /*!
    @brief
-    Sets any essential system handle that the library might use.
+    Sets any essential system handle that the library might use. The handle must remain valid until after
+    the application calls the MFXClose function.
 
     If the specified system handle is a COM interface, the reference counter of the COM interface will increase.
     The counter will decrease when the session closes.
