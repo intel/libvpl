@@ -18,7 +18,10 @@ cases.
 ## [Unreleased]
 
 ### Added
-- Add hello-encode-jpeg api2x example
+- Intel® VPL API 2.13 support, including new APIs for AV1 screen content tools,
+  encoded picture quality information, alpha channel encoding,
+  and Battlemage platform
+- hello-encode-jpeg example
 
 ## [2.12.0] - 2024-06-28
 

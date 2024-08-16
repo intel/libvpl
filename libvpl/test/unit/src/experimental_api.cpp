@@ -19,7 +19,7 @@
 #include "vpl/mfx.h"
 
 #define MIN_VERSION_EXPECTED_MAJOR 2
-#define MIN_VERSION_EXPECTED_MINOR 11
+#define MIN_VERSION_EXPECTED_MINOR 13
 
 TEST(Experimental_API, CheckMinimumAPI) {
     if ((MFX_VERSION_MAJOR < MIN_VERSION_EXPECTED_MAJOR) ||
@@ -217,4 +217,62 @@ TEST(Experimental_API, PromotedEnumsAvailable_2_11) {
     mfxU32 t_u32 = 0x27272727;
     t_u32        = MFX_HANDLE_CONFIG_INTERFACE;
     EXPECT_EQ(t_u32, MFX_HANDLE_CONFIG_INTERFACE);
+}
+
+// if unavailable in headers, this should fail at compile time
+TEST(Experimental_API, PromotedEnumsAvailable_2_13) {
+    // mfxstructures.h - new enums
+    mfxQualityInfoMode t_mfxQualityInfoMode = (mfxQualityInfoMode)0x2626;
+
+    t_mfxQualityInfoMode = MFX_QUALITY_INFO_DISABLE;
+    EXPECT_EQ(t_mfxQualityInfoMode, MFX_QUALITY_INFO_DISABLE);
+
+    t_mfxQualityInfoMode = MFX_QUALITY_INFO_LEVEL_FRAME;
+    EXPECT_EQ(t_mfxQualityInfoMode, MFX_QUALITY_INFO_LEVEL_FRAME);
+
+    mfxU32 t_alphaMode = 0x3535;
+
+    t_alphaMode = MFX_ALPHA_MODE_PREMULTIPLIED;
+    EXPECT_EQ(t_alphaMode, MFX_ALPHA_MODE_PREMULTIPLIED);
+
+    t_alphaMode = MFX_ALPHA_MODE_STRAIGHT;
+    EXPECT_EQ(t_alphaMode, MFX_ALPHA_MODE_STRAIGHT);
+
+    mfxU32 t_extBufID = 0;
+
+    t_extBufID = MFX_EXTBUFF_ENCODED_QUALITY_INFO_MODE;
+    EXPECT_EQ(t_extBufID, MFX_EXTBUFF_ENCODED_QUALITY_INFO_MODE);
+
+    t_extBufID = MFX_EXTBUFF_ENCODED_QUALITY_INFO_OUTPUT;
+    EXPECT_EQ(t_extBufID, MFX_EXTBUFF_ENCODED_QUALITY_INFO_OUTPUT);
+
+    t_extBufID = MFX_EXTBUFF_AV1_SCREEN_CONTENT_TOOLS;
+    EXPECT_EQ(t_extBufID, MFX_EXTBUFF_AV1_SCREEN_CONTENT_TOOLS);
+
+    t_extBufID = MFX_EXTBUFF_ALPHA_CHANNEL_ENC_CTRL;
+    EXPECT_EQ(t_extBufID, MFX_EXTBUFF_ALPHA_CHANNEL_ENC_CTRL);
+
+    t_extBufID = MFX_EXTBUFF_ALPHA_CHANNEL_SURFACE;
+    EXPECT_EQ(t_extBufID, MFX_EXTBUFF_ALPHA_CHANNEL_SURFACE);
+
+    // mfxstructures.h - new extBufs
+    mfxExtQualityInfoMode t_mfxExtQualityInfoMode = {};
+    t_mfxExtQualityInfoMode.QualityInfoMode       = MFX_QUALITY_INFO_LEVEL_FRAME;
+    EXPECT_EQ(t_mfxExtQualityInfoMode.QualityInfoMode, MFX_QUALITY_INFO_LEVEL_FRAME);
+
+    mfxExtQualityInfoOutput t_mfxExtQualityInfoOutput = {};
+    t_mfxExtQualityInfoOutput.FrameOrder              = 12;
+    EXPECT_EQ(t_mfxExtQualityInfoOutput.FrameOrder, 12);
+
+    mfxExtAV1ScreenContentTools t_mfxExtAV1ScreenContentTools = {};
+    t_mfxExtAV1ScreenContentTools.Palette                     = MFX_CODINGOPTION_ON;
+    EXPECT_EQ(t_mfxExtAV1ScreenContentTools.Palette, MFX_CODINGOPTION_ON);
+
+    mfxExtAlphaChannelEncCtrl t_mfxExtAlphaChannelEncCtrl = {};
+    t_mfxExtAlphaChannelEncCtrl.AlphaChannelMode          = MFX_ALPHA_MODE_STRAIGHT;
+    EXPECT_EQ(t_mfxExtAlphaChannelEncCtrl.AlphaChannelMode, MFX_ALPHA_MODE_STRAIGHT);
+
+    mfxExtAlphaChannelSurface t_mfxExtAlphaChannelSurface;
+    t_mfxExtAlphaChannelSurface.AlphaSurface = (mfxFrameSurface1 *)0x1515;
+    EXPECT_EQ(t_mfxExtAlphaChannelSurface.AlphaSurface, (mfxFrameSurface1 *)0x1515);
 }
