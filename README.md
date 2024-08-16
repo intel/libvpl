@@ -41,7 +41,7 @@ the application to use the selected runtime.
 Runtime loaded by Intel® VPL Dispatcher and their Microsoft* DirectX* support:
 
 
-| GPU                                        | Media SDK        | Intel® VPL           | Microsoft* DirectX* Support |
+| GPU                                        | Media SDK        | Intel® VPL       | Microsoft* DirectX* Support |
 |--------------------------------------------|------------------|------------------|-----------------------------|
 | Earlier platforms, back to BDW (Broadwell) |:heavy_check_mark:|                  | DX9/DX11                    |
 | ICL (Ice Lake)                             |:heavy_check_mark:|                  | DX9/DX11                    |
@@ -53,8 +53,15 @@ Runtime loaded by Intel® VPL Dispatcher and their Microsoft* DirectX* support:
 | RKL (Rocket Lake)                          |                  |:heavy_check_mark:| DX11                        |
 | ADL-S (Alder Lake S)                       |                  |:heavy_check_mark:| DX11                        |
 | ADL-P (Alder Lake P)                       |                  |:heavy_check_mark:| DX11                        |
+| ADL-N (Alder Lake N)                       |                  |:heavy_check_mark:| DX11                        |
 | DG2 (Intel® Arc™ A-Series Graphics)        |                  |:heavy_check_mark:| DX11                        |
 | ATSM (Intel® Data Center GPU Flex Series)  |                  |:heavy_check_mark:| DX11                        |
+| RPL-S (Raptor Lake S)                      |                  |:heavy_check_mark:| DX11                        |
+| RPL-P (Raptor Lake P)                      |                  |:heavy_check_mark:| DX11                        |
+| MTL (Meteor Lake)                          |                  |:heavy_check_mark:| DX11                        |
+| ARL-S (Arrow Lake S)                       |                  |:heavy_check_mark:| DX11                        |
+| ARL-H (Arrow Lake H)                       |                  |:heavy_check_mark:| DX11                        |
+| LNL (Lunar Lake)                           |                  |:heavy_check_mark:| DX11                        |
 | Future platforms...                        |                  |:heavy_check_mark:| DX11                        |
 
 For TGL and DG1, if both Intel® VPL and Intel® Media SDK runtime are installed
