@@ -88,6 +88,7 @@ jobs:
               --usedb db/ipldt_results.ip.db \
               --usedb db/ipldt_results.ipevt.db \
               --usedb db/ipldt_results.tm.db \
+              -s db/stringfile.yaml.0 \
               --db-rel-path \
               --gendb _logs/ip-leak-scan/hits-linux.db \
               --r-overwrite \
