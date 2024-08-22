@@ -2251,7 +2251,7 @@ enum {
     */
     MFX_EXTBUFF_HEVC_REFLISTS                   = MFX_EXTBUFF_AVC_REFLISTS,
     /*!
-       This extended buffer configures the structure of temporal layers inside the encoded H.264 bitstream. See the mfxExtAvcTemporalLayers
+       This extended buffer configures the structure of temporal layers inside the encoded H.265 bitstream. See the mfxExtHEVCTemporalLayers
        structure for details. The application can attach this buffer to the mfxVideoParam structure for encoding initialization.
     */
     MFX_EXTBUFF_HEVC_TEMPORAL_LAYERS            = MFX_EXTBUFF_AVC_TEMPORAL_LAYERS,
