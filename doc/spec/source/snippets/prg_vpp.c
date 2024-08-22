@@ -417,7 +417,6 @@ lut3DConfig.InterpolationMethod     = MFX_3DLUT_INTERPOLATION_TETRAHEDRAL;
 
 static void prg_vpp12() {
 /*beg12*/
-#ifdef ONEVPL_EXPERIMENTAL
 // configure AI super resolution vpp filter
 mfxExtVPPAISuperResolution aiSuperResolution = {};
 aiSuperResolution.Header.BufferId      = MFX_EXTBUFF_VPP_AI_SUPER_RESOLUTION;
@@ -431,13 +430,11 @@ mfxVideoParam VPPParams = {};
 VPPParams.NumExtParam   = 1;
 VPPParams.ExtParam      = ExtParam;
 MFXVideoVPP_Init(session, &VPPParams);
-#endif
 /*end12*/
 }
 
 static void prg_vpp13() {
 /*beg13*/
-#ifdef ONEVPL_EXPERIMENTAL
 // configure AI frame interpolation vpp filter
 mfxExtVPPAIFrameInterpolation aiFrameInterpolation = {};
 aiFrameInterpolation.Header.BufferId      = MFX_EXTBUFF_VPP_AI_FRAME_INTERPOLATION;
@@ -479,7 +476,6 @@ for (;;) {
 MFXVideoVPP_Close(session);
 free_pool_of_surfaces(in_pool);
 free_pool_of_surfaces(out_pool);
-#endif
 /*end13*/
 }
 

@@ -95,6 +95,8 @@ static const ExtBufType extBufTypeTab[] = {
     { MFX_EXTBUFF_VPP_DETAIL, sizeof(mfxExtVPPDetail), "VPPDetail" },
     { MFX_EXTBUFF_VPP_DOUSE, sizeof(mfxExtVPPDoUse), "VPPDoUse" },
     { MFX_EXTBUFF_PICTURE_TIMING_SEI, sizeof(mfxExtPictureTimingSEI), "PictureTimingSEI" },
+    { MFX_EXTBUFF_VPP_AI_SUPER_RESOLUTION, sizeof(mfxExtVPPAISuperResolution), "VPPAISuperResolution" },
+    { MFX_EXTBUFF_VPP_AI_FRAME_INTERPOLATION, sizeof(mfxExtVPPAIFrameInterpolation), "VPPAIFrameInterpolation" },
 };
 
 // Example: extBuf = mfxExtHEVCParam, fourCC = MFX_EXTBUFF_HEVC_PARAM, element = PicWidthInLumaSamples

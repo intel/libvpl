@@ -2425,19 +2425,15 @@ enum {
     */
     MFX_EXTBUFF_EXPORT_SHARING_DESC_VULKAN = MFX_MAKEFOURCC('E', 'V', 'U', 'L'),
 #endif
-#ifdef ONEVPL_EXPERIMENTAL
     /*!
        See the mfxExtVPPAISuperResolution structure for details.
     */
     MFX_EXTBUFF_VPP_AI_SUPER_RESOLUTION = MFX_MAKEFOURCC('V','A','S','R'),
-#endif
-#ifdef ONEVPL_EXPERIMENTAL
     /*!
        See the mfxExtVPPAIFrameInterpolation structure for details.
     */
     MFX_EXTBUFF_VPP_AI_FRAME_INTERPOLATION = MFX_MAKEFOURCC('V', 'A', 'F', 'I'),
-#endif
-   /*!
+    /*!
       See the mfxExtQualityInfoMode structure for details.
    */
    MFX_EXTBUFF_ENCODED_QUALITY_INFO_MODE = MFX_MAKEFOURCC('E', 'N', 'Q', 'M'),
@@ -5136,7 +5132,6 @@ typedef struct {
 MFX_PACK_END()
 #endif
 
-#ifdef ONEVPL_EXPERIMENTAL
 /*! The mfxAISuperResolutionMode enumerator specifies the mode of AI based super resolution. */
 typedef enum {
     MFX_AI_SUPER_RESOLUTION_MODE_DISABLED = 0,        /*!< Super Resolution is disabled.*/
@@ -5163,9 +5158,7 @@ typedef struct {
     mfxHDL                      reserved2[4];          /*!< Reserved for future use. */
 } mfxExtVPPAISuperResolution;
 MFX_PACK_END()
-#endif
 
-#ifdef ONEVPL_EXPERIMENTAL
 /* The mfxAIFrameInterpolationMode enumerator specifies the mode of AI based frame interpolation. */
 typedef enum {
     MFX_AI_FRAME_INTERPOLATION_MODE_DISABLE = 0,         /*!< AI based frame interpolation is disabled. The library duplicates the frame if AI frame interpolation is disabled.*/
@@ -5203,7 +5196,6 @@ typedef struct {
     mfxHDL                              reserved2[8];                     /*!< Reserved for future use. */
 } mfxExtVPPAIFrameInterpolation;
 MFX_PACK_END()
-#endif
 
 /*! The mfxQualityInfoMode enumerator specifies the mode of Quality information. */
 typedef enum {

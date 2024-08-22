@@ -229,12 +229,12 @@ The following is a list of experimental interfaces, starting from API version
      -
    * - :cpp:struct:`mfxExtVPPAISuperResolution`
      - 2.11
-     -
-     -
+     - 2.13
+     - Moved to production
    * - :cpp:enum:`mfxAISuperResolutionMode`
      - 2.11
-     -
-     -
+     - 2.13
+     - Moved to production
    * - :cpp:struct:`mfxExtQualityInfoMode`
      - 2.11
      - 2.13
@@ -273,9 +273,9 @@ The following is a list of experimental interfaces, starting from API version
      -
    * - :cpp:struct:`mfxExtVPPAIFrameInterpolation`
      - 2.12
-     -
-     -
+     - 2.13
+     - Moved to production
    * - :cpp:enum:`mfxAIFrameInterpolationMode`
      - 2.12
-     -
-     -
+     - 2.13
+     - Moved to production
