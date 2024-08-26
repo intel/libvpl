@@ -76,7 +76,7 @@ jobs:
           --attach stderr --attach stdout \
           aquasec/trivy:0.51.1 \
             --ignorefile source/.trivyignore.yaml \
-            --format table --output artifact/ct222-report.txt \
+            --format table --output artifact/ct248-report.txt \
             config source
 
           docker run \
@@ -87,7 +87,7 @@ jobs:
           --attach stderr --attach stdout \
           aquasec/trivy:0.51.1 \
             --ignorefile source/.trivyignore.yaml \
-            --format json --output artifact/ct222-report.json \
+            --format json --output artifact/ct248-report.json \
             --exit-code 1 \
             config source
 
@@ -112,7 +112,7 @@ jobs:
         if: (failure())
         run: |
           echo '```' >> $GITHUB_STEP_SUMMARY
-          cat artifact/ct222-report.txt >> $GITHUB_STEP_SUMMARY
+          cat artifact/ct248-report.txt >> $GITHUB_STEP_SUMMARY
           cat artifact/trivy.txt >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
 
