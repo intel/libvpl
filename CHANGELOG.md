@@ -21,8 +21,8 @@ cases.
 
 ### Added
 - Intel® VPL API 2.13 support, including new APIs for AV1 screen content tools,
-  encoded picture quality information, alpha channel encoding, and Battlemage
-  platform
+  encoded picture quality information, alpha channel encoding, AI-based frame
+  interpolation, AI-based super resolution, and Battlemage platform
 - hello-encode-jpeg example
 
 ## [2.12.0] - 2024-06-28

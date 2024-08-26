@@ -26,6 +26,10 @@ New in this release:
     * :cpp:struct:`mfxExtAV1ScreenContentTools`
     * :cpp:struct:`mfxExtAlphaChannelEncCtrl`
     * :cpp:struct:`mfxExtAlphaChannelSurface`
+    * :cpp:struct:`mfxExtVPPAISuperResolution`
+    * :cpp:enum:`mfxAISuperResolutionMode`
+    * :cpp:struct:`mfxExtVPPAIFrameInterpolation`
+    * :cpp:enum:`mfxAIFrameInterpolationMode`
 
 * Added code name for the platform: Battlemage:
 
