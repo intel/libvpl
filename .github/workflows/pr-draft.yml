@@ -145,14 +145,3 @@ jobs:
       distro_family: ${{ matrix.distro.family }}
       distro_version: ${{ matrix.distro.version }}
       test_ref: ${{ needs.setup-variables.outputs.test_ref }}
-
-  summary:
-    if: "always()"
-    needs:
-      - hadolint
-      - trivy
-      - windows-acceptance
-      - linux-acceptance
-    uses: ./.github/workflows/summary.yml
-    with:
-      output_prefix: lib-
