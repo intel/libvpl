@@ -1,0 +1,1845 @@
+<!--
+SPDX-FileCopyrightText: 2019-2023 Intel Corporation
+
+SPDX-License-Identifier: MIT
+-->
+
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Intel® VPL Session &#8212; Intel® VPL  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=5b4479735964841361fd" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=5b4479735964841361fd" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd" />
+  <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=5b4479735964841361fd"></script>
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'programming_guide/VPL_prg_session';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Frame and Fields" href="VPL_prg_frame.html" />
+    <link rel="prev" title="Status Codes" href="VPL_prg_stc.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Intel® VPL  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../VPL_intel_media_sdk.html">Intel<sup>®</sup> VPL for Intel<sup>®</sup> Media Software Development Kit Users</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../architecture/index.html">Architecture</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/VPL_decoding.html">Video Decoding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/VPL_encoding.html">Video Encoding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/VPL_processing.html">Video Processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/VPL_decoding_vpp.html">Video Decoding with multiple video processing</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Programming Guide</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_stc.html">Status Codes</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Intel<sup>®</sup> VPL Session</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_frame.html">Frame and Fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_decoding.html">Decoding Procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_encoding.html">Encoding Procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_vpp.html">Video Processing Procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_transcoding.html">Transcoding Procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_config.html">Parameter Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_hw.html">Hardware Acceleration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_mem.html">Memory Allocation and External Allocators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_surface_sharing.html">Importing and Exporting Shared Surfaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_err.html">Hardware Device Error Handling</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../VPL_summary.html">Mandatory APIs and Functions</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../API_ref/VPL_api_ref.html">Intel<sup>®</sup> VPL API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../API_ref/VPL_functions.html">Function Reference</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_vid_decode.html">VideoDECODE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_vid_encode.html">VideoENCODE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_vid_vpp.html">VideoVPP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_vidcore.html">VideoCORE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_session.html">Session Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_mem.html">Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_capabilities.html">Implementation Capabilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_adapters.html">Adapters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_vid_decode_vpp.html">VideoDECODE_VPP</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../API_ref/VPL_structs.html">Structure Reference</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_type.html">Type Definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_memory.html">Memory Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_impl_manage.html">Implementation Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_cross_component.html">Cross-component Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_decode.html">Decode Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_encode.html">Encode Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_vpp.html">VPP Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_protected.html">Protected Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_decode_vpp.html">DECODE_VPP Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_camera.html">Camera Structures</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../API_ref/VPL_enums.html">Enumerator Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../API_ref/VPL_defines.html">Define Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../API_ref/VPL_ref_types.html">Type Reference</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../API_ref/VPL_disp_api.html">Dispatcher API</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_disp_api_func.html">Dispatcher API Function Reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_disp_api_struct.html">Dispatcher API Structure Reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_disp_api_enum.html">Dispatcher API Enumeration Reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_disp_api_def.html">Dispatcher API Define Reference</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../API_ref/VPL_guids.html">GUIDs Reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Versioning.html">Intel<sup>®</sup> VPL API Versioning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Experimental.html">Intel<sup>®</sup> VPL Experimental API</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../appendix/index.html">Appendices</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_a.html">Configuration Parameter Constraints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_b.html">Multiple-segment Encoding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_c.html">Streaming and Video Conferencing Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_d.html">Switchable Graphics and Multiple Monitors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_e.html">Working Directly with VA-API for Linux*</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_f.html">CQP HRD Mode Encoding</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../VPL_acronyms.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../VPL_deprecation.html">Deprecated API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../VPL_change_log.html">Change Log</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/programming_guide/VPL_prg_session.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Intel® VPL Session</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#msdk-full-name-dispatcher-legacy">Intel<sup>®</sup> Media Software Development Kit Dispatcher (Legacy)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#vpl-short-name-dispatcher">Intel<sup>®</sup> VPL Dispatcher</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#vpl-short-name-dispatcher-configuration-properties">Intel<sup>®</sup> VPL Dispatcher Configuration Properties</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#vpl-short-name-dispatcher-interactions">Intel<sup>®</sup> VPL Dispatcher Interactions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#vpl-short-name-dispatcher-debug-log">Intel<sup>®</sup> VPL Dispatcher Debug Log</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#examples-of-dispatcher-s-usage">Examples of Dispatcher’s Usage</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-check-if-function-is-implemented">How To Check If Function is Implemented</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-search-for-the-available-encoder-decoder-implementation">How To Search For The Available encoder/decoder implementation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-search-for-the-available-vpp-filter-implementation">How To Search For The Available VPP Filter implementation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-get-path-to-the-shared-library-with-the-implementation">How To Get Path to the Shared Library With the Implementation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#vpl-short-name-implementation-on-intel-r-platforms-with-xe-architecture-and-msdk-full-name-coexistence">Intel<sup>®</sup> VPL implementation on Intel<sup>®</sup> platforms with X<sup>e</sup> architecture and Intel<sup>®</sup> Media Software Development Kit Coexistence</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#multiple-sessions">Multiple Sessions</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="vpl-short-name-session">
+<span id="sdk-session"></span><h1>Intel<sup>®</sup> VPL Session<a class="headerlink" href="#vpl-short-name-session" title="Permalink to this heading">#</a></h1>
+<p>Before calling any Intel<sup>®</sup> VPL functions, the application must initialize the
+library and create a Intel<sup>®</sup> VPL session. A Intel<sup>®</sup> VPL session maintains context for the
+use of any of <a class="reference internal" href="../architecture/index.html#term-DECODE"><span class="xref std std-term">DECODE</span></a>, <a class="reference internal" href="../architecture/index.html#term-ENCODE"><span class="xref std std-term">ENCODE</span></a>, <a class="reference internal" href="../architecture/index.html#term-VPP"><span class="xref std std-term">VPP</span></a>, <a class="reference internal" href="../architecture/index.html#term-DECODE_VPP"><span class="xref std std-term">DECODE_VPP</span></a>
+functions.</p>
+<section id="msdk-full-name-dispatcher-legacy">
+<h2>Intel<sup>®</sup> Media Software Development Kit Dispatcher (Legacy)<a class="headerlink" href="#msdk-full-name-dispatcher-legacy" title="Permalink to this heading">#</a></h2>
+<p>The <a class="reference internal" href="../API_ref/VPL_func_session.html#_CPPv47MFXInit7mfxIMPLP10mfxVersionP10mfxSession" title="MFXInit"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXInit()</span></code></a> or <a class="reference internal" href="../API_ref/VPL_func_session.html#_CPPv49MFXInitEx12mfxInitParamP10mfxSession" title="MFXInitEx"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXInitEx()</span></code></a> function starts (initializes)
+a session. The <a class="reference internal" href="../API_ref/VPL_func_session.html#_CPPv48MFXClose10mfxSession" title="MFXClose"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXClose()</span></code></a> function closes (de-initializes) the
+session. To avoid memory leaks, always call <a class="reference internal" href="../API_ref/VPL_func_session.html#_CPPv48MFXClose10mfxSession" title="MFXClose"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXClose()</span></code></a> after
+<a class="reference internal" href="../API_ref/VPL_func_session.html#_CPPv47MFXInit7mfxIMPLP10mfxVersionP10mfxSession" title="MFXInit"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXInit()</span></code></a>.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p><a class="reference internal" href="../API_ref/VPL_func_session.html#_CPPv47MFXInit7mfxIMPLP10mfxVersionP10mfxSession" title="MFXInit"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXInit()</span></code></a> and <a class="reference internal" href="../API_ref/VPL_func_session.html#_CPPv49MFXInitEx12mfxInitParamP10mfxSession" title="MFXInitEx"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXInitEx()</span></code></a> are deprecated
+starting from API 2.0. Applications must use <a class="reference internal" href="../API_ref/VPL_disp_api_func.html#_CPPv47MFXLoadv" title="MFXLoad"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXLoad()</span></code></a>
+and <a class="reference internal" href="../API_ref/VPL_disp_api_func.html#_CPPv416MFXCreateSession9mfxLoader6mfxU32P10mfxSession" title="MFXCreateSession"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXCreateSession()</span></code></a> to initialize implementations.</p>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>For backward compatibility with existent Intel<sup>®</sup> Media Software Development Kit
+applications Intel<sup>®</sup> VPL session can be created and initialized by
+the legacy dispatcher through <a class="reference internal" href="../API_ref/VPL_func_session.html#_CPPv47MFXInit7mfxIMPLP10mfxVersionP10mfxSession" title="MFXInit"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXInit()</span></code></a> or
+<a class="reference internal" href="../API_ref/VPL_func_session.html#_CPPv49MFXInitEx12mfxInitParamP10mfxSession" title="MFXInitEx"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXInitEx()</span></code></a> calls. In this case, the reported API version
+will be 1.255 on Intel<sup>®</sup> platforms with X<sup>e</sup> architecture.</p>
+</div>
+<p>The application can initialize a session as a software-based session
+(<a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv417MFX_IMPL_SOFTWARE" title="MFX_IMPL_SOFTWARE"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">MFX_IMPL_SOFTWARE</span></code></a>) or a hardware-based session
+(<a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv417MFX_IMPL_HARDWARE" title="MFX_IMPL_HARDWARE"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">MFX_IMPL_HARDWARE</span></code></a>). In a software-based session, the SDK
+functions execute on a CPU. In a hardware-base session, the SDK functions
+use platform acceleration capabilities. For platforms that expose multiple
+graphic devices, the application can initialize a session on any
+alternative graphic device using the <a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv417MFX_IMPL_HARDWARE" title="MFX_IMPL_HARDWARE"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">MFX_IMPL_HARDWARE</span></code></a>,
+<a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv418MFX_IMPL_HARDWARE2" title="MFX_IMPL_HARDWARE2"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">MFX_IMPL_HARDWARE2</span></code></a>, <a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv418MFX_IMPL_HARDWARE3" title="MFX_IMPL_HARDWARE3"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">MFX_IMPL_HARDWARE3</span></code></a>, or
+<a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv418MFX_IMPL_HARDWARE4" title="MFX_IMPL_HARDWARE4"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">MFX_IMPL_HARDWARE4</span></code></a> values of <a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv47mfxIMPL" title="mfxIMPL"><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">mfxIMPL</span></code></a>.</p>
+<p>The application can also initialize a session to be automatic (
+<a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv413MFX_IMPL_AUTO" title="MFX_IMPL_AUTO"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">MFX_IMPL_AUTO</span></code></a> or <a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv417MFX_IMPL_AUTO_ANY" title="MFX_IMPL_AUTO_ANY"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">MFX_IMPL_AUTO_ANY</span></code></a>),
+instructing the dispatcher library to detect the platform capabilities and
+choose the best SDK library available. After initialization, the SDK returns the
+actual implementation through the <a class="reference internal" href="../API_ref/VPL_func_session.html#_CPPv412MFXQueryIMPL10mfxSessionP7mfxIMPL" title="MFXQueryIMPL"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXQueryIMPL()</span></code></a> function.</p>
+<p>Internally, the dispatcher works as follows:</p>
+<ol class="arabic">
+<li><p>Dispatcher searches for the shared library with the specific name:</p>
+<table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>OS</strong></p></th>
+<th class="head"><p><strong>Name</strong></p></th>
+<th class="head"><p><strong>Description</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Linux*</p></td>
+<td><p>libmfxsw64.so.1</p></td>
+<td><p>64-bit software-based implementation</p></td>
+</tr>
+<tr class="row-odd"><td><p>Linux</p></td>
+<td><p>libmfxsw32.so.1</p></td>
+<td><p>32-bit software-based implementation</p></td>
+</tr>
+<tr class="row-even"><td><p>Linux</p></td>
+<td><p>libmfxhw64.so.1</p></td>
+<td><p>64-bit hardware-based implementation</p></td>
+</tr>
+<tr class="row-odd"><td><p>Linux</p></td>
+<td><p>libmfxhw64.so.1</p></td>
+<td><p>32-bit hardware-based implementation</p></td>
+</tr>
+<tr class="row-even"><td><p>Windows*</p></td>
+<td><p>libmfxsw32.dll</p></td>
+<td><p>64-bit software-based implementation</p></td>
+</tr>
+<tr class="row-odd"><td><p>Windows</p></td>
+<td><p>libmfxsw32.dll</p></td>
+<td><p>32-bit software-based implementation</p></td>
+</tr>
+<tr class="row-even"><td><p>Windows</p></td>
+<td><p>libmfxhw64.dll</p></td>
+<td><p>64-bit hardware-based implementation</p></td>
+</tr>
+<tr class="row-odd"><td><p>Windows</p></td>
+<td><p>libmfxhw64.dll</p></td>
+<td><p>32-bit hardware-based implementation</p></td>
+</tr>
+</tbody>
+</table>
+</li>
+<li><p>Once the library is loaded, the dispatcher obtains addresses for each SDK
+function. See the
+<a class="reference internal" href="../VPL_summary.html#export-func-version-table-2x"><span class="std std-ref">Exported Functions/API Version table</span></a> for
+the list of functions to expose.</p></li>
+</ol>
+<p id="legacy-search-order">How the shared library is identified using the implementation search strategy
+will vary according to the OS.</p>
+<ul>
+<li><p>On Windows, the dispatcher searches the following locations, in the specified
+order, to find the correct implementation library:</p>
+<ol class="arabic simple">
+<li><p>The <code class="file docutils literal notranslate"><span class="pre">Driver</span> <span class="pre">Store</span></code> directory for the current adapter.
+All types of graphics drivers can install libraries in this directory. <a class="reference external" href="https://docs.microsoft.com/en-us/windows-hardware/drivers/install/driver-store">Learn more about Driver Store</a>.</p></li>
+<li><p>The directory specified for the current hardware under the registry key
+<code class="docutils literal notranslate"><span class="pre">HKEY_CURRENT_USER\Software\Intel\MediaSDK\Dispatch</span></code>.</p></li>
+<li><p>The directory specified for the current hardware under the registry key
+<code class="docutils literal notranslate"><span class="pre">HKEY_LOCAL_MACHINE\Software\Intel\MediaSDK\Dispatch</span></code>.</p></li>
+<li><p>The directory that is stored in these registry keys: <code class="file docutils literal notranslate"><span class="pre">C:Program</span> <span class="pre">FilesIntelMedia</span> <span class="pre">SDK</span></code>.
+This directory is where legacy graphics drivers install libraries.</p></li>
+<li><p>The directory where the current module (the module that links the dispatcher)
+is located (only if the current module is a dll).</p></li>
+</ol>
+<p>After the dispatcher completes the main search, it additionally checks:</p>
+<ol class="arabic simple">
+<li><p>The directory of the exe file of the current process, where it looks for
+software implementation only, regardless of which implementation the
+application requested.</p></li>
+<li><p>Default dll search. This provides loading from the directory of the
+application’s exe file and from the <code class="file docutils literal notranslate"><span class="pre">System32</span></code> and <code class="file docutils literal notranslate"><span class="pre">SysWOW64</span></code>
+directories. <a class="reference external" href="https://docs.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order?redirectedfrom=MSDN#search-order-for-desktop-applications">Learn more about default dll search order</a>.</p></li>
+<li><p>The <code class="file docutils literal notranslate"><span class="pre">System32</span></code> and <code class="file docutils literal notranslate"><span class="pre">SysWOW64</span></code> directories, which is where DCH
+graphics drivers install libraries.</p></li>
+</ol>
+</li>
+<li><p>On Linux, the dispatcher searches the following locations, in the specified
+order, to find the correct implementation library:</p>
+<ol class="arabic simple">
+<li><p>Directories provided by the environment variable <code class="docutils literal notranslate"><span class="pre">LD_LIBRARY_PATH</span></code>.</p></li>
+<li><p>Content of the <code class="file docutils literal notranslate"><span class="pre">/etc/ld.so.cache</span></code> cache file.</p></li>
+<li><p>Default path <code class="file docutils literal notranslate"><span class="pre">/lib</span></code>, then <code class="file docutils literal notranslate"><span class="pre">/usr/lib</span></code> or <code class="file docutils literal notranslate"><span class="pre">/lib64</span></code>, and then
+<code class="file docutils literal notranslate"><span class="pre">/usr/lib64</span></code> on some 64 bit OSs. On Debian: <code class="file docutils literal notranslate"><span class="pre">/usr/lib/x86_64-linux-gnu</span></code>.</p></li>
+<li><p>SDK installation folder.</p></li>
+</ol>
+</li>
+</ul>
+</section>
+<section id="vpl-short-name-dispatcher">
+<span id="vpl-dispatcher"></span><h2>Intel<sup>®</sup> VPL Dispatcher<a class="headerlink" href="#vpl-short-name-dispatcher" title="Permalink to this heading">#</a></h2>
+<p>The Intel<sup>®</sup> VPL dispatcher extends the legacy dispatcher by providing additional
+ability to select the appropriate implementation based on the implementation
+capabilities. Implementation capabilities include information about supported
+decoders, encoders, and VPP filters. For each supported encoder, decoder, and
+filter, capabilities include information about supported memory types, color
+formats, and image (frame) size in pixels.</p>
+<p>The recommended approach to configure the dispatcher’s capabilities
+search filters and to create a session based on a suitable implementation is as
+follows:</p>
+<ol class="arabic simple">
+<li><p>Create loader with <a class="reference internal" href="../API_ref/VPL_disp_api_func.html#_CPPv47MFXLoadv" title="MFXLoad"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXLoad()</span></code></a>.</p></li>
+<li><p>Create loader’s configuration with <a class="reference internal" href="../API_ref/VPL_disp_api_func.html#_CPPv415MFXCreateConfig9mfxLoader" title="MFXCreateConfig"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXCreateConfig()</span></code></a>.</p></li>
+<li><p>Add configuration properties with <a class="reference internal" href="../API_ref/VPL_disp_api_func.html#_CPPv426MFXSetConfigFilterProperty9mfxConfigPK5mfxU810mfxVariant" title="MFXSetConfigFilterProperty"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXSetConfigFilterProperty()</span></code></a>.</p></li>
+<li><p>Explore available implementations with <a class="reference internal" href="../API_ref/VPL_disp_api_func.html#_CPPv422MFXEnumImplementations9mfxLoader6mfxU3225mfxImplCapsDeliveryFormatP6mfxHDL" title="MFXEnumImplementations"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXEnumImplementations()</span></code></a>.</p></li>
+<li><p>Create a suitable session with <a class="reference internal" href="../API_ref/VPL_disp_api_func.html#_CPPv416MFXCreateSession9mfxLoader6mfxU32P10mfxSession" title="MFXCreateSession"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXCreateSession()</span></code></a>.</p></li>
+</ol>
+<p>The procedure to terminate an application is as follows:</p>
+<ol class="arabic simple">
+<li><p>Destroy session with <a class="reference internal" href="../API_ref/VPL_func_session.html#_CPPv48MFXClose10mfxSession" title="MFXClose"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXClose()</span></code></a>.</p></li>
+<li><p>Destroy loader with <a class="reference internal" href="../API_ref/VPL_disp_api_func.html#_CPPv49MFXUnload9mfxLoader" title="MFXUnload"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXUnload()</span></code></a>.</p></li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Multiple loader instances can be created.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Each loader may have multiple configuration objects associated with it.
+When a configuration object is modified through <a class="reference internal" href="../API_ref/VPL_disp_api_func.html#_CPPv426MFXSetConfigFilterProperty9mfxConfigPK5mfxU810mfxVariant" title="MFXSetConfigFilterProperty"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXSetConfigFilterProperty()</span></code></a>
+it implicitly impacts the state and configuration of the associated loader.</p>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>One configuration object can handle only one filter property.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Multiple sessions can be created by using one loader object.</p>
+</div>
+<p>When the dispatcher searches for the implementation, it uses the following
+priority rules:</p>
+<ol class="arabic simple">
+<li><p>Hardware implementation has priority over software implementation.</p></li>
+<li><p>General hardware implementation has priority over VSI hardware implementation.</p></li>
+<li><p>Highest API version has higher priority over lower API version.</p></li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Implementation has priority over the API version. In other words, the
+dispatcher must return the implementation with the highest API
+priority (greater than or equal to the implementation requested).</p>
+</div>
+<p>How the shared library is identified using the implementation search strategy
+will vary according to the OS.</p>
+<ul class="simple">
+<li><p>On Windows, the dispatcher searches the following locations, in the specified
+order, to find the correct implementation library:</p>
+<ol class="arabic simple">
+<li><p>The <code class="file docutils literal notranslate"><span class="pre">Driver</span> <span class="pre">Store</span></code> directory for all available adapters.
+All types of graphics drivers can install libraries in this directory. <a class="reference external" href="https://docs.microsoft.com/en-us/windows-hardware/drivers/install/driver-store">Learn more about Driver Store</a>.
+Applicable only for Intel implementations.</p></li>
+<li><p>The directory of the exe file of the current process.</p></li>
+<li><p><cite>PATH</cite> environmental variable.</p></li>
+<li><p>For backward compatibility with older spec versions, dispatcher also checks
+user-defined search folders which are provided by <cite>ONEVPL_SEARCH_PATH</cite>
+environmental variable.</p></li>
+</ol>
+</li>
+<li><p>On Linux, the dispatcher searches the following locations, in the specified
+order, to find the correct implementation library:</p>
+<ol class="arabic simple">
+<li><p>Directories provided by the environment variable <code class="docutils literal notranslate"><span class="pre">LD_LIBRARY_PATH</span></code>.</p></li>
+<li><p>Default path <code class="file docutils literal notranslate"><span class="pre">/lib</span></code>, then <code class="file docutils literal notranslate"><span class="pre">/usr/lib</span></code> or <code class="file docutils literal notranslate"><span class="pre">/lib64</span></code>, and then
+<code class="file docutils literal notranslate"><span class="pre">/usr/lib64</span></code> on some 64 bit OSs. On Debian: <code class="file docutils literal notranslate"><span class="pre">/usr/lib/x86_64-linux-gnu</span></code>.</p></li>
+<li><p>For backward compatibility with older spec versions, dispatcher also checks
+user-defined search folders which are provided by <cite>ONEVPL_SEARCH_PATH</cite>
+environmental variable.</p></li>
+<li><p>Optional: Library installation directory specified by <code class="docutils literal notranslate"><span class="pre">CMAKE_INSTALL_FULL_LIBDIR</span></code>,
+if and only if the project is configured with <code class="docutils literal notranslate"><span class="pre">-D</span> <span class="pre">ENABLE_LIBDIR_IN_RUNTIME_SEARCH=ON</span></code>
+during cmake configuration (default = OFF).</p></li>
+</ol>
+</li>
+</ul>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>To prioritize loading of custom Intel<sup>®</sup> VPL library, users may set environment variable
+<cite>ONEVPL_PRIORITY_PATH</cite> with the path to the user-defined folder.
+All libraries found in the ONEVPL_PRIORITY_PATH have the same priority
+(higher than any others, and HW/SW or API version rules are not applied) and
+should be loaded/filtered according to <a class="reference internal" href="../API_ref/VPL_disp_api_func.html#_CPPv426MFXSetConfigFilterProperty9mfxConfigPK5mfxU810mfxVariant" title="MFXSetConfigFilterProperty"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXSetConfigFilterProperty()</span></code></a>.</p>
+</div>
+<p>When Intel<sup>®</sup> VPL dispatcher searchers for the legacy Intel<sup>®</sup> Media Software Development Kit
+implementation it uses <a class="reference internal" href="#legacy-search-order"><span class="std std-ref">legacy dispatcher search order</span></a>,
+excluding the current working directory and <code class="file docutils literal notranslate"><span class="pre">/etc/ld.so.cache</span></code>.</p>
+<p>The dispatcher supports different software implementations. The user can use
+the <a class="reference internal" href="../API_ref/VPL_disp_api_struct.html#_CPPv4N18mfxImplDescription8VendorIDE" title="mfxImplDescription::VendorID"><code class="xref cpp cpp-member docutils literal notranslate"><span class="pre">mfxImplDescription::VendorID</span></code></a> field, the
+<a class="reference internal" href="../API_ref/VPL_disp_api_struct.html#_CPPv4N18mfxImplDescription12VendorImplIDE" title="mfxImplDescription::VendorImplID"><code class="xref cpp cpp-member docutils literal notranslate"><span class="pre">mfxImplDescription::VendorImplID</span></code></a> field, or the
+<a class="reference internal" href="../API_ref/VPL_disp_api_struct.html#_CPPv4N18mfxImplDescription8ImplNameE" title="mfxImplDescription::ImplName"><code class="xref cpp cpp-member docutils literal notranslate"><span class="pre">mfxImplDescription::ImplName</span></code></a> field to search for the specific
+implementation.</p>
+<p>Internally, the dispatcher works as follows:</p>
+<ol class="arabic">
+<li><p>Dispatcher loads all shared libraries in the given search folders, whose names
+match any of the patterns in the following table:</p>
+<table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Windows 64-bit</p></th>
+<th class="head"><p>Windows 32-bit</p></th>
+<th class="head"><p>Linux 64-bit</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>libvpl*.dll</p></td>
+<td><p>libvpl*.dll</p></td>
+<td><p>libvpl*.so*</p></td>
+<td><p>Runtime library for any platform</p></td>
+</tr>
+<tr class="row-odd"><td><p>libmfx64-gen.dll</p></td>
+<td><p>libmfx32-gen.dll</p></td>
+<td><p>libmfx-gen.so.1.2</p></td>
+<td><p>Runtime library for Intel<sup>®</sup> VPL for Intel<sup>®</sup> platforms with X<sup>e</sup> architecture</p></td>
+</tr>
+<tr class="row-even"><td><p>libmfxhw64.dll</p></td>
+<td><p>libmfxhw32.dll</p></td>
+<td><p>libmfxhw64.so.1</p></td>
+<td><p>Runtime library for Intel<sup>®</sup> Media Software Development Kit</p></td>
+</tr>
+</tbody>
+</table>
+</li>
+<li><p>For each loaded library, the dispatcher tries to resolve address of the
+<a class="reference internal" href="../API_ref/VPL_func_capabilities.html#_CPPv424MFXQueryImplsDescription25mfxImplCapsDeliveryFormatP6mfxU32" title="MFXQueryImplsDescription"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXQueryImplsDescription()</span></code></a> function to collect the implementation’s
+capabilities.</p></li>
+<li><p>Once the user has requested to create the session based on this implementation,
+the dispatcher obtains addresses of each Intel<sup>®</sup> VPL function. See the
+<a class="reference internal" href="../VPL_summary.html#export-func-version-table-2x"><span class="std std-ref">Exported Functions/API Version table</span></a> for
+the list of functions to export.</p></li>
+</ol>
+</section>
+<section id="vpl-short-name-dispatcher-configuration-properties">
+<h2>Intel<sup>®</sup> VPL Dispatcher Configuration Properties<a class="headerlink" href="#vpl-short-name-dispatcher-configuration-properties" title="Permalink to this heading">#</a></h2>
+<p>The <a class="reference internal" href="#dsp-conf-prop-table"><span class="std std-ref">Dispatcher Configuration Properties Table</span></a> shows property strings
+supported by the dispatcher. Table organized in the hierarchy way, to create the string, go from the
+left to right from column to column and concatenate strings by using <cite>.</cite> (dot) as the separator.</p>
+<div class="stripe-table docutils container" id="dsp-conf-prop-table">
+<table class="table" id="id1">
+<caption><span class="caption-text">Dispatcher Configuration Properties</span><a class="headerlink" href="#id1" title="Permalink to this table">#</a></caption>
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 30.0%" />
+<col style="width: 20.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Structure name</p></th>
+<th class="head"><p>Property</p></th>
+<th class="head"><p>Value Data Type</p></th>
+<th class="head"><p>Comment</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td rowspan="36"><p><a class="reference internal" href="../API_ref/VPL_disp_api_struct.html#_CPPv418mfxImplDescription" title="mfxImplDescription"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxImplDescription</span></code></a></p></td>
+<td><div class="line-block">
+<div class="line">mfxImplDescription</div>
+<div class="line">.Impl</div>
+</div>
+</td>
+<td><p>MFX_VARIANT_TYPE_U32</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">mfxImplDescription</div>
+<div class="line">.AccelerationMode</div>
+</div>
+</td>
+<td><p>MFX_VARIANT_TYPE_U32</p></td>
+<td><p>The mode will be used for
+session initialization</p></td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">mfxImplDescription</div>
+<div class="line">.ApiVersion</div>
+<div class="line">.Version</div>
+</div>
+</td>
+<td><p>MFX_VARIANT_TYPE_U32</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">mfxImplDescription</div>
+<div class="line">.ApiVersion</div>
+<div class="line">.Major</div>
+</div>
+</td>
+<td><p>MFX_VARIANT_TYPE_U16</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">mfxImplDescription</div>
+<div class="line">.ApiVersion</div>
+<div class="line">.Minor</div>
+</div>
+</td>
+<td><p>MFX_VARIANT_TYPE_U16</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">mfxImplDescription</div>
+<div class="line">.ImplName</div>
+</div>
+</td>
+<td><p>MFX_VARIANT_TYPE_PTR</p></td>
+<td><p>Pointer to the
+null-terminated string.</p></td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">mfxImplDescription</div>
+<div class="line">.License</div>
+</div>
+</td>
+<td><p>MFX_VARIANT_TYPE_PTR</p></td>
+<td><p>Pointer to the
+null-terminated string.</p></td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">mfxImplDescription</div>
+<div class="line">.Keywords</div>
+</div>
+</td>
+<td><p>MFX_VARIANT_TYPE_PTR</p></td>
+<td><p>Pointer to the
+null-terminated string.</p></td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">mfxImplDescription</div>
+<div class="line">.VendorID</div>
+</div>
+</td>
+<td><p>MFX_VARIANT_TYPE_U32</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">mfxImplDescription</div>
+<div class="line">.VendorImplID</div>
+</div>
+</td>
+<td><p>MFX_VARIANT_TYPE_U32</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">mfxImplDescription</div>
+<div class="line">.mfxSurfacePoolMode</div>
+</div>
+</td>
+<td><p>MFX_VARIANT_TYPE_U32</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">mfxImplDescription</div>
+<div class="line">.mfxDeviceDescription</div>
+<div class="line">.device</div>
+<div class="line">.DeviceID</div>
+</div>
+</td>
+<td><p>MFX_VARIANT_TYPE_PTR</p></td>
+<td><p>Pointer to the
+null-terminated string.</p></td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">mfxImplDescription</div>
+<div class="line">.mfxDeviceDescription</div>
+<div class="line">.device</div>
+<div class="line">.MediaAdapterType</div>
+</div>
+</td>
+<td><p>MFX_VARIANT_TYPE_U16</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">mfxImplDescription</div>
+<div class="line">.mfxDecoderDescription</div>
+<div class="line">.decoder</div>
+<div class="line">.CodecID</div>
+</div>
+</td>
+<td><p>MFX_VARIANT_TYPE_U32</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">mfxImplDescription</div>
+<div class="line">.mfxDecoderDescription</div>
+<div class="line">.decoder</div>
+<div class="line">.MaxcodecLevel</div>
+</div>
+</td>
+<td><p>MFX_VARIANT_TYPE_U16</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">mfxImplDescription</div>
+<div class="line">.mfxDecoderDescription</div>
+<div class="line">.decoder</div>
+<div class="line">.decprofile</div>
+<div class="line">.Profile</div>
+</div>
+</td>
+<td><p>MFX_VARIANT_TYPE_U32</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">mfxImplDescription</div>
+<div class="line">.mfxDecoderDescription</div>
+<div class="line">.decoder</div>
+<div class="line">.decprofile</div>
+<div class="line">.Profile</div>
+<div class="line">.decmemdesc</div>
+<div class="line">.MemHandleType</div>
+</div>
+</td>
+<td><p>MFX_VARIANT_TYPE_U32</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">mfxImplDescription</div>
+<div class="line">.mfxDecoderDescription</div>
+<div class="line">.decoder</div>
+<div class="line">.decprofile</div>
+<div class="line">.Profile</div>
+<div class="line">.decmemdesc</div>
+<div class="line">.Width</div>
+</div>
+</td>
+<td><p>MFX_VARIANT_TYPE_PTR</p></td>
+<td><p>Pointer to the
+<a class="reference internal" href="../API_ref/VPL_structs_type.html#_CPPv411mfxRange32U" title="mfxRange32U"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxRange32U</span></code></a>
+object</p></td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">mfxImplDescription</div>
+<div class="line">.mfxDecoderDescription</div>
+<div class="line">.decoder</div>
+<div class="line">.decprofile</div>
+<div class="line">.Profile</div>
+<div class="line">.decmemdesc</div>
+<div class="line">.Height</div>
+</div>
+</td>
+<td><p>MFX_VARIANT_TYPE_PTR</p></td>
+<td><p>Pointer to the
+<a class="reference internal" href="../API_ref/VPL_structs_type.html#_CPPv411mfxRange32U" title="mfxRange32U"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxRange32U</span></code></a>
+object</p></td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">mfxImplDescription</div>
+<div class="line">.mfxDecoderDescription</div>
+<div class="line">.decoder</div>
+<div class="line">.decprofile</div>
+<div class="line">.Profile</div>
+<div class="line">.decmemdesc</div>
+<div class="line">.ColorFormats</div>
+</div>
+</td>
+<td><p>MFX_VARIANT_TYPE_U32</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">mfxImplDescription</div>
+<div class="line">.mfxEncoderDescription</div>
+<div class="line">.encoder</div>
+<div class="line">.CodecID</div>
+</div>
+</td>
+<td><p>MFX_VARIANT_TYPE_U32</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">mfxImplDescription</div>
+<div class="line">.mfxEncoderDescription</div>
+<div class="line">.encoder</div>
+<div class="line">.MaxcodecLevel</div>
+</div>
+</td>
+<td><p>MFX_VARIANT_TYPE_U16</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">mfxImplDescription</div>
+<div class="line">.mfxEncoderDescription</div>
+<div class="line">.encoder</div>
+<div class="line">.BiDirectionalPrediction</div>
+</div>
+</td>
+<td><p>MFX_VARIANT_TYPE_U16</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">mfxImplDescription</div>
+<div class="line">.mfxEncoderDescription</div>
+<div class="line">.encoder</div>
+<div class="line">.ReportedStats</div>
+</div>
+</td>
+<td><p>MFX_VARIANT_TYPE_U16</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">mfxImplDescription</div>
+<div class="line">.mfxEncoderDescription</div>
+<div class="line">.encoder</div>
+<div class="line">.encprofile</div>
+<div class="line">.Profile</div>
+</div>
+</td>
+<td><p>MFX_VARIANT_TYPE_U32</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">mfxImplDescription</div>
+<div class="line">.mfxEncoderDescription</div>
+<div class="line">.encoder</div>
+<div class="line">.encprofile</div>
+<div class="line">.Profile</div>
+<div class="line">.encmemdesc</div>
+<div class="line">.MemHandleType</div>
+</div>
+</td>
+<td><p>MFX_VARIANT_TYPE_U32</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">mfxImplDescription</div>
+<div class="line">.mfxEncoderDescription</div>
+<div class="line">.encoder</div>
+<div class="line">.encprofile</div>
+<div class="line">.Profile</div>
+<div class="line">.encmemdesc</div>
+<div class="line">.Width</div>
+</div>
+</td>
+<td><p>MFX_VARIANT_TYPE_PTR</p></td>
+<td><p>Pointer to the
+<a class="reference internal" href="../API_ref/VPL_structs_type.html#_CPPv411mfxRange32U" title="mfxRange32U"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxRange32U</span></code></a>
+object</p></td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">mfxImplDescription</div>
+<div class="line">.mfxEncoderDescription</div>
+<div class="line">.encoder</div>
+<div class="line">.encprofile</div>
+<div class="line">.Profile</div>
+<div class="line">.encmemdesc</div>
+<div class="line">.Height</div>
+</div>
+</td>
+<td><p>MFX_VARIANT_TYPE_PTR</p></td>
+<td><p>Pointer to the
+<a class="reference internal" href="../API_ref/VPL_structs_type.html#_CPPv411mfxRange32U" title="mfxRange32U"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxRange32U</span></code></a>
+object</p></td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">mfxImplDescription</div>
+<div class="line">.mfxEncoderDescription</div>
+<div class="line">.encoder</div>
+<div class="line">.encprofile</div>
+<div class="line">.Profile</div>
+<div class="line">.encmemdesc</div>
+<div class="line">.ColorFormats</div>
+</div>
+</td>
+<td><p>MFX_VARIANT_TYPE_U32</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">mfxImplDescription</div>
+<div class="line">.mfxVPPDescription</div>
+<div class="line">.filter</div>
+<div class="line">.FilterFourCC</div>
+</div>
+</td>
+<td><p>MFX_VARIANT_TYPE_U32</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">mfxImplDescription</div>
+<div class="line">.mfxVPPDescription</div>
+<div class="line">.filter</div>
+<div class="line">.MaxDelayInFrames</div>
+</div>
+</td>
+<td><p>MFX_VARIANT_TYPE_U16</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">mfxImplDescription</div>
+<div class="line">.mfxVPPDescription</div>
+<div class="line">.filter</div>
+<div class="line">.memdesc</div>
+<div class="line">.MemHandleType</div>
+</div>
+</td>
+<td><p>MFX_VARIANT_TYPE_U32</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">mfxImplDescription</div>
+<div class="line">.mfxVPPDescription</div>
+<div class="line">.filter</div>
+<div class="line">.memdesc</div>
+<div class="line">.Width</div>
+</div>
+</td>
+<td><p>MFX_VARIANT_TYPE_PTR</p></td>
+<td><p>Pointer to the
+<a class="reference internal" href="../API_ref/VPL_structs_type.html#_CPPv411mfxRange32U" title="mfxRange32U"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxRange32U</span></code></a>
+object</p></td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">mfxImplDescription</div>
+<div class="line">.mfxVPPDescription</div>
+<div class="line">.filter</div>
+<div class="line">.memdesc</div>
+<div class="line">.Height</div>
+</div>
+</td>
+<td><p>MFX_VARIANT_TYPE_PTR</p></td>
+<td><p>Pointer to the
+<a class="reference internal" href="../API_ref/VPL_structs_type.html#_CPPv411mfxRange32U" title="mfxRange32U"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxRange32U</span></code></a>
+object</p></td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">mfxImplDescription</div>
+<div class="line">.mfxVPPDescription</div>
+<div class="line">.filter</div>
+<div class="line">.memdesc</div>
+<div class="line">.format</div>
+<div class="line">.InFormat</div>
+</div>
+</td>
+<td><p>MFX_VARIANT_TYPE_U32</p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line">mfxImplDescription</div>
+<div class="line">.mfxVPPDescription</div>
+<div class="line">.filter</div>
+<div class="line">.memdesc</div>
+<div class="line">.format</div>
+<div class="line">.OutFormats</div>
+</div>
+</td>
+<td><p>MFX_VARIANT_TYPE_U32</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../API_ref/VPL_disp_api_struct.html#_CPPv423mfxImplementedFunctions" title="mfxImplementedFunctions"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxImplementedFunctions</span></code></a></p></td>
+<td><div class="line-block">
+<div class="line">mfxImplementedFunctions</div>
+<div class="line">.FunctionsName</div>
+</div>
+</td>
+<td><p>MFX_VARIANT_TYPE_PTR</p></td>
+<td><p>Pointer to the buffer
+with string</p></td>
+</tr>
+<tr class="row-odd"><td><p>N/A</p></td>
+<td><div class="line-block">
+<div class="line">DXGIAdapterIndex</div>
+<div class="line"><br /></div>
+<div class="line"><br /></div>
+</div>
+</td>
+<td><p>MFX_VARIANT_TYPE_U32</p></td>
+<td><p>Adapter index according
+to
+IDXGIFactory::EnumAdapters</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>DXGIAdapterIndex property is available for Windows only and filters only hardware implementations.</p>
+</div>
+<p>Examples of the property name strings:</p>
+<ul class="simple">
+<li><p>mfxImplDescription.mfxDecoderDescription.decoder.decprofile.Profile</p></li>
+<li><p>mfxImplDescription.mfxDecoderDescription.decoder.decprofile.decmemdesc.MemHandleType</p></li>
+<li><p>mfxImplementedFunctions.FunctionsName</p></li>
+</ul>
+<p>Following properties are supported in a special manner: they are used to send
+additional data to the implementation through the dispatcher. Application needs
+to use <a class="reference internal" href="../API_ref/VPL_disp_api_func.html#_CPPv426MFXSetConfigFilterProperty9mfxConfigPK5mfxU810mfxVariant" title="MFXSetConfigFilterProperty"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXSetConfigFilterProperty()</span></code></a> to set them up but they don’t
+influence on the implementation selection. They are used during the
+<a class="reference internal" href="../API_ref/VPL_disp_api_func.html#_CPPv416MFXCreateSession9mfxLoader6mfxU32P10mfxSession" title="MFXCreateSession"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXCreateSession()</span></code></a> function call to fine tune the implementation.</p>
+<table class="table" id="id2">
+<caption><span class="caption-text">Dispatcher’s Special Properties</span><a class="headerlink" href="#id2" title="Permalink to this table">#</a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Property Name</strong></p></th>
+<th class="head"><p><strong>Property Value</strong></p></th>
+<th class="head"><p><strong>Value data type</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>mfxHandleType</p></td>
+<td><p><a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv413mfxHandleType" title="mfxHandleType"><code class="xref cpp cpp-enum docutils literal notranslate"><span class="pre">mfxHandleType</span></code></a></p></td>
+<td><p><a class="reference internal" href="../API_ref/VPL_disp_api_struct.html#_CPPv4N14mfxVariantType20MFX_VARIANT_TYPE_U32E" title="mfxVariantType::MFX_VARIANT_TYPE_U32"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">mfxVariantType::MFX_VARIANT_TYPE_U32</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>mfxHDL</p></td>
+<td><p><a class="reference internal" href="../API_ref/VPL_ref_types.html#_CPPv46mfxHDL" title="mfxHDL"><code class="xref cpp cpp-type docutils literal notranslate"><span class="pre">mfxHDL</span></code></a></p></td>
+<td><p><a class="reference internal" href="../API_ref/VPL_disp_api_struct.html#_CPPv4N14mfxVariantType20MFX_VARIANT_TYPE_PTRE" title="mfxVariantType::MFX_VARIANT_TYPE_PTR"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">mfxVariantType::MFX_VARIANT_TYPE_PTR</span></code></a></p></td>
+</tr>
+<tr class="row-even"><td><p>NumThread</p></td>
+<td><p>Unsigned fixed-point integer value</p></td>
+<td><p><a class="reference internal" href="../API_ref/VPL_disp_api_struct.html#_CPPv4N14mfxVariantType20MFX_VARIANT_TYPE_U32E" title="mfxVariantType::MFX_VARIANT_TYPE_U32"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">mfxVariantType::MFX_VARIANT_TYPE_U32</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>DeviceCopy</p></td>
+<td><p><a class="reference internal" href="../API_ref/VPL_enums.html#gpu-copy"><span class="std std-ref">Device copy</span></a></p></td>
+<td><p><a class="reference internal" href="../API_ref/VPL_disp_api_struct.html#_CPPv4N14mfxVariantType20MFX_VARIANT_TYPE_U16E" title="mfxVariantType::MFX_VARIANT_TYPE_U16"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">mfxVariantType::MFX_VARIANT_TYPE_U16</span></code></a></p></td>
+</tr>
+<tr class="row-even"><td><p>ExtBuffer</p></td>
+<td><p>Pointer to the extension buffer</p></td>
+<td><p><a class="reference internal" href="../API_ref/VPL_disp_api_struct.html#_CPPv4N14mfxVariantType20MFX_VARIANT_TYPE_PTRE" title="mfxVariantType::MFX_VARIANT_TYPE_PTR"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">mfxVariantType::MFX_VARIANT_TYPE_PTR</span></code></a></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="vpl-short-name-dispatcher-interactions">
+<span id="vpl-dispatcher-interactions"></span><h2>Intel<sup>®</sup> VPL Dispatcher Interactions<a class="headerlink" href="#vpl-short-name-dispatcher-interactions" title="Permalink to this heading">#</a></h2>
+<p>This sequence diagram visualize how application communicates with implementations
+via the dispatcher.</p>
+<dl class="simple">
+<dt>Dispatcher API</dt><dd><p>This API is implemented in the dispatcher.</p>
+</dd>
+<dt>Implementation API</dt><dd><p>This API is provided by the any implementation.</p>
+</dd>
+</dl>
+<p class="plantuml">
+<img src="../_images/plantuml-18016f1e785618e7811e245329b9c666150cc6da.png" alt="&#64;startuml
+actor Application as A
+participant &quot;Intel® VPL Dispatcher&quot; as D
+participant &quot;Intel® VPL Implementation 1&quot; as I1
+participant &quot;Intel® VPL Implementation 2&quot; as I2
+participant &quot;Intel® VPL Implementation 3&quot; as I3
+
+ref over A, D : Dispatcher API
+ref over D, I1, I2, I3 : Implementation API
+
+activate A
+== Initialization ==
+group Dispatcher API [Enumerate and load implementations]
+   A -&gt; D: mfxLoad()
+   activate D
+
+   D -&gt; D: Search for the available runtimes
+
+   A -&gt; D: MFXCreateConfig()
+   A -&gt; D: MFXSetConfigProperty()
+   A -&gt; D: MFXCreateConfig()
+   A -&gt; D: MFXSetConfigProperty()
+   A -&gt; D: MFXEnumImplementations()
+
+   note right of A
+   MFXEnumImplementations() may also be called
+   after MFXCreateSession().
+   end note
+
+   Activate I1
+
+   D -&gt; I1: MFXQueryImplsDescription()
+   I1 --&gt; D: mfxImplDescription
+
+   Activate I2
+   D -&gt; I2: MFXQueryImplsDescription()
+   I2 --&gt; D: mfxImplDescription
+
+   Activate I3
+   D -&gt; I3: MFXQueryImplsDescription()
+   I3 --&gt; D: mfxImplDescription
+
+   D --&gt; A: list of mfxImplDescription structures es for all implementations
+
+   A -&gt; D: MFXCreateSession(i=0)
+   D -&gt; I1: MFXInitilize()
+   Activate I1 #DarkSalmon
+   I1 --&gt; D: mfxSession1
+   D --&gt; A: mfxSession1
+
+   A -&gt; D: MFXCreateSession(i=1)
+   D -&gt; I2: MFXInitilize()
+   Activate I2 #DarkSalmon
+   I2 --&gt; D: mfxSession2
+   D --&gt; A: mfxSession2
+
+   A -&gt; D: MFXCreateSession(i=2)
+   D -&gt; I3: MFXInitilize()
+   I3 --&gt; D: mfxSession3
+   Activate I3 #DarkSalmon
+   D --&gt; A: mfxSession3
+
+   A -&gt; D: MFXDispReleaseImplDescription(hdl=0)
+   D -&gt; I1: MFXReleaseImplDescription()
+
+   A -&gt; D: MFXDispReleaseImplDescription(hdl=1)
+   D -&gt; I2: MFXReleaseImplDescription()
+
+   A -&gt; D: MFXDispReleaseImplDescription(hdl=2)
+   D -&gt; I3: MFXReleaseImplDescription()
+end
+== Processing ==
+group Implementation API [Process the data]
+   A -&gt; I1: MFXVideoDECODE_Init()
+   A -&gt; I1: MFXVideoDECODE_Query()
+   A -&gt; I1: MFXVideoDECODE_DecodeFrameAsync()
+   ...
+   A -&gt; I1: MFXVideoDECODE_Close()
+   |||
+   deactivate I1
+
+   A -&gt; I2: MFXVideoENCODE_Init()
+   A -&gt; I2: MFXVideoENCODE_Query()
+   A -&gt; I2: MFXVideoENCODE_EncodeFrameAsync()
+   ...
+   A -&gt; I2: MFXVideoENCODE_Close()
+   |||
+   deactivate I2
+
+   A -&gt; I3: MFXVideoENCODE_Init()
+   A -&gt; I3: MFXVideoENCODE_Query()
+   A -&gt; I3: MFXVideoENCODE_EncodeFrameAsync()
+   ...
+   A -&gt; I3: MFXVideoENCODE_Close()
+   |||
+   deactivate I3
+end
+== Finalization ==
+group Implementation API [Release the implementations]
+   A -&gt; I1: MFXClose()
+   deactivate I1
+   A -&gt; I2: MFXClose()
+   deactivate I2
+   A -&gt; I3: MFXClose()
+   deactivate I3
+group Dispatcher API [Release the dispatcher's instance]
+   A -&gt; D: MFXUnload()
+end
+
+deactivate D
+&#64;enduml"/>
+</p>
+<p>The Intel<sup>®</sup> VPL dispatcher is capable to load and initialize Intel<sup>®</sup> Media Software Development Kit legacy
+library. The sequence diagram below demonstrates the approach.</p>
+<p class="plantuml">
+<img src="../_images/plantuml-84bce07967607072b2c9ce7c87c3a14bb17e5dc3.png" alt="&#64;startuml
+actor Application as A
+participant &quot;Intel® VPL Dispatcher&quot; as D
+participant &quot;Intel® MediaSDK (legacy)&quot; as M
+A -&gt; D: MFXLoad
+activate D
+D -&gt; D: Search for the available runtimes
+A -&gt; D: MFXCreateConfig
+
+note left of D
+Setting properties to filter implementation.
+MediaSDK supports only general parameters,
+no filtering for Decode/VPP/Encoder details.
+end note
+
+group MediaSDK LegacyAPI
+   D -&gt; M: MFXInitEx
+   activate M
+
+   M --&gt; D: mfxSession
+   D -&gt; M: MFXQueryIMPL
+   M --&gt; D: Implementation speciefic
+
+   D -&gt; M: MFXQueryVersion
+   M --&gt; D: mfxVersion
+end
+
+D -&gt; D: Fill mfxImplDescription for MediaSDK impl
+
+A -&gt; D: mfxEnumImplementations
+D --&gt; A: MediaSDK caps description
+
+A -&gt; D: MFXCreateSession
+D --&gt; A: mfxSession
+
+A -&gt; M: MFXVideoDECODE_Init()
+A -&gt; M: MFXVideoDECODE_Query()
+A -&gt; M: MFXVideoDECODE_DecodeFrameAsync()
+...
+A -&gt; M: MFXVideoDECODE_Close()
+A -&gt; M: MFXClose()
+
+deactivate M
+
+A -&gt; D: MFXUnload()
+deactivate D
+&#64;enduml"/>
+</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>The dispatcher doesn’t filter and report
+<a class="reference internal" href="../API_ref/VPL_disp_api_struct.html#_CPPv420mfxDeviceDescription" title="mfxDeviceDescription"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxDeviceDescription</span></code></a>,
+<a class="reference internal" href="../API_ref/VPL_disp_api_struct.html#_CPPv421mfxDecoderDescription" title="mfxDecoderDescription"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxDecoderDescription</span></code></a>,
+<a class="reference internal" href="../API_ref/VPL_disp_api_struct.html#_CPPv421mfxEncoderDescription" title="mfxEncoderDescription"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxEncoderDescription</span></code></a>,
+<a class="reference internal" href="../API_ref/VPL_disp_api_struct.html#_CPPv417mfxVPPDescription" title="mfxVPPDescription"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxVPPDescription</span></code></a> when enumerates or creates
+Intel<sup>®</sup> Media Software Development Kit implementation. Once Intel<sup>®</sup> Media Software Development Kit is loaded
+applications have to use legacy approach to query capabilities.</p>
+</div>
+</section>
+<section id="vpl-short-name-dispatcher-debug-log">
+<h2>Intel<sup>®</sup> VPL Dispatcher Debug Log<a class="headerlink" href="#vpl-short-name-dispatcher-debug-log" title="Permalink to this heading">#</a></h2>
+<p>The debug output of the dispatcher is controlled with the <cite>ONEVPL_DISPATCHER_LOG</cite>
+environment variable. To enable log output, set the <cite>ONEVPL_DISPATCHER_LOG</cite>
+environment variable value equals to “ON”.</p>
+<p>By default, Intel<sup>®</sup> VPL dispatcher prints all log messages to the console.
+To redirect log output to the desired file, set the <cite>ONEVPL_DISPATCHER_LOG_FILE</cite>
+environmental variable with the file name of the log file.</p>
+</section>
+<section id="examples-of-dispatcher-s-usage">
+<h2>Examples of Dispatcher’s Usage<a class="headerlink" href="#examples-of-dispatcher-s-usage" title="Permalink to this heading">#</a></h2>
+<p>This code illustrates simple usage of dispatcher to load first available
+library:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="n">mfxLoader</span><span class="w"> </span><span class="n">loader</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFXLoad</span><span class="p">();</span>
+<span class="linenos">2</span><span class="n">MFXCreateSession</span><span class="p">(</span><span class="n">loader</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="o">&amp;</span><span class="n">session</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>This code illustrates simple usage of dispatcher to load first available HW
+accelerated library:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="n">mfxLoader</span><span class="w"> </span><span class="n">loader</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFXLoad</span><span class="p">();</span>
+<span class="linenos">2</span><span class="n">mfxConfig</span><span class="w"> </span><span class="n">cfg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFXCreateConfig</span><span class="p">(</span><span class="n">loader</span><span class="p">);</span>
+<span class="linenos">3</span><span class="n">mfxVariant</span><span class="w"> </span><span class="n">ImplValue</span><span class="p">;</span>
+<span class="linenos">4</span><span class="n">ImplValue</span><span class="p">.</span><span class="n">Type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_VARIANT_TYPE_U32</span><span class="p">;</span>
+<span class="linenos">5</span><span class="n">ImplValue</span><span class="p">.</span><span class="n">Data</span><span class="p">.</span><span class="n">U32</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_IMPL_TYPE_HARDWARE</span><span class="p">;</span>
+<span class="linenos">6</span><span class="n">MFXSetConfigFilterProperty</span><span class="p">(</span><span class="n">cfg</span><span class="p">,(</span><span class="k">const</span><span class="w"> </span><span class="n">mfxU8</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="s">&quot;mfxImplDescription.Impl&quot;</span><span class="p">,</span><span class="n">ImplValue</span><span class="p">);</span>
+<span class="linenos">7</span><span class="n">MFXCreateSession</span><span class="p">(</span><span class="n">loader</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="o">&amp;</span><span class="n">session</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>This code illustrates how multiple sessions from multiple loaders can be
+created:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c1">// Create session with software based implementation</span>
+<span class="linenos"> 2</span><span class="n">mfxLoader</span><span class="w"> </span><span class="n">loader1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFXLoad</span><span class="p">();</span>
+<span class="linenos"> 3</span><span class="n">mfxConfig</span><span class="w"> </span><span class="n">cfg1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFXCreateConfig</span><span class="p">(</span><span class="n">loader1</span><span class="p">);</span>
+<span class="linenos"> 4</span><span class="n">mfxVariant</span><span class="w"> </span><span class="n">ImplValueSW</span><span class="p">;</span>
+<span class="linenos"> 5</span><span class="n">ImplValueSW</span><span class="p">.</span><span class="n">Type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_VARIANT_TYPE_U32</span><span class="p">;</span>
+<span class="linenos"> 6</span><span class="n">ImplValueSW</span><span class="p">.</span><span class="n">Data</span><span class="p">.</span><span class="n">U32</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_IMPL_TYPE_SOFTWARE</span><span class="p">;</span>
+<span class="linenos"> 7</span><span class="n">MFXSetConfigFilterProperty</span><span class="p">(</span><span class="n">cfg1</span><span class="p">,(</span><span class="k">const</span><span class="w"> </span><span class="n">mfxU8</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="s">&quot;mfxImplDescription.Impl&quot;</span><span class="p">,</span><span class="n">ImplValueSW</span><span class="p">);</span>
+<span class="linenos"> 8</span><span class="n">MFXCreateSession</span><span class="p">(</span><span class="n">loader1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="o">&amp;</span><span class="n">sessionSW</span><span class="p">);</span>
+<span class="linenos"> 9</span>
+<span class="linenos">10</span><span class="c1">// Create session with hardware based implementation</span>
+<span class="linenos">11</span><span class="n">mfxLoader</span><span class="w"> </span><span class="n">loader2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFXLoad</span><span class="p">();</span>
+<span class="linenos">12</span><span class="n">mfxConfig</span><span class="w"> </span><span class="n">cfg2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFXCreateConfig</span><span class="p">(</span><span class="n">loader2</span><span class="p">);</span>
+<span class="linenos">13</span><span class="n">mfxVariant</span><span class="w"> </span><span class="n">ImplValueHW</span><span class="p">;</span>
+<span class="linenos">14</span><span class="n">ImplValueHW</span><span class="p">.</span><span class="n">Type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_VARIANT_TYPE_U32</span><span class="p">;</span>
+<span class="linenos">15</span><span class="n">ImplValueHW</span><span class="p">.</span><span class="n">Data</span><span class="p">.</span><span class="n">U32</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_IMPL_TYPE_HARDWARE</span><span class="p">;</span>
+<span class="linenos">16</span><span class="n">MFXSetConfigFilterProperty</span><span class="p">(</span><span class="n">cfg2</span><span class="p">,(</span><span class="k">const</span><span class="w"> </span><span class="n">mfxU8</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="s">&quot;mfxImplDescription.Impl&quot;</span><span class="p">,</span><span class="n">ImplValueHW</span><span class="p">);</span>
+<span class="linenos">17</span><span class="n">MFXCreateSession</span><span class="p">(</span><span class="n">loader2</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="o">&amp;</span><span class="n">sessionHW</span><span class="p">);</span>
+<span class="linenos">18</span>
+<span class="linenos">19</span><span class="c1">// use both sessionSW and sessionHW</span>
+<span class="linenos">20</span><span class="c1">// ...</span>
+<span class="linenos">21</span><span class="c1">// Close everything</span>
+<span class="linenos">22</span><span class="n">MFXClose</span><span class="p">(</span><span class="n">sessionSW</span><span class="p">);</span>
+<span class="linenos">23</span><span class="n">MFXClose</span><span class="p">(</span><span class="n">sessionHW</span><span class="p">);</span>
+<span class="linenos">24</span><span class="n">MFXUnload</span><span class="p">(</span><span class="n">loader1</span><span class="p">);</span><span class="w"> </span><span class="c1">// cfg1 will be destroyed here.</span>
+<span class="linenos">25</span><span class="n">MFXUnload</span><span class="p">(</span><span class="n">loader2</span><span class="p">);</span><span class="w"> </span><span class="c1">// cfg2 will be destroyed here.</span>
+</pre></div>
+</div>
+<p>This code illustrates how multiple decoders from single loader can be
+created:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="n">mfxLoader</span><span class="w"> </span><span class="n">loader</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFXLoad</span><span class="p">();</span>
+<span class="linenos"> 2</span>
+<span class="linenos"> 3</span><span class="c1">// We want to have AVC decoder supported.</span>
+<span class="linenos"> 4</span><span class="n">mfxConfig</span><span class="w"> </span><span class="n">cfg1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFXCreateConfig</span><span class="p">(</span><span class="n">loader</span><span class="p">);</span>
+<span class="linenos"> 5</span><span class="n">mfxVariant</span><span class="w"> </span><span class="n">ImplValue</span><span class="p">;</span>
+<span class="linenos"> 6</span><span class="n">ImplValue</span><span class="p">.</span><span class="n">Type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_VARIANT_TYPE_U32</span><span class="p">;</span>
+<span class="linenos"> 7</span><span class="n">ImplValue</span><span class="p">.</span><span class="n">Data</span><span class="p">.</span><span class="n">U32</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_CODEC_AVC</span><span class="p">;</span>
+<span class="linenos"> 8</span><span class="n">MFXSetConfigFilterProperty</span><span class="p">(</span><span class="n">cfg1</span><span class="p">,</span>
+<span class="linenos"> 9</span><span class="w">            </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">mfxU8</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="s">&quot;mfxImplDescription.mfxDecoderDescription.decoder.CodecID&quot;</span><span class="p">,</span><span class="n">ImplValue</span><span class="p">);</span>
+<span class="linenos">10</span>
+<span class="linenos">11</span><span class="c1">// And we want to have HEVC encoder supported by the same implementation.</span>
+<span class="linenos">12</span><span class="n">mfxConfig</span><span class="w"> </span><span class="n">cfg2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFXCreateConfig</span><span class="p">(</span><span class="n">loader</span><span class="p">);</span>
+<span class="linenos">13</span><span class="n">ImplValue</span><span class="p">.</span><span class="n">Type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_VARIANT_TYPE_U32</span><span class="p">;</span>
+<span class="linenos">14</span><span class="n">ImplValue</span><span class="p">.</span><span class="n">Data</span><span class="p">.</span><span class="n">U32</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_CODEC_HEVC</span><span class="p">;</span>
+<span class="linenos">15</span><span class="n">MFXSetConfigFilterProperty</span><span class="p">(</span><span class="n">cfg2</span><span class="p">,</span>
+<span class="linenos">16</span><span class="w">            </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">mfxU8</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="s">&quot;mfxImplDescription.mfxEncoderDescription.encoder.CodecID&quot;</span><span class="p">,</span><span class="n">ImplValue</span><span class="p">);</span>
+<span class="linenos">17</span>
+<span class="linenos">18</span><span class="c1">// To create single session with both capabilities.</span>
+<span class="linenos">19</span><span class="n">MFXCreateSession</span><span class="p">(</span><span class="n">loader</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="o">&amp;</span><span class="n">session</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+<section id="how-to-check-if-function-is-implemented">
+<h2>How To Check If Function is Implemented<a class="headerlink" href="#how-to-check-if-function-is-implemented" title="Permalink to this heading">#</a></h2>
+<p>There are two ways to check if particular function is implemented or not by the
+implementation.</p>
+<p>This code illustrates how application can iterate through the whole list of
+implemented functions:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="n">mfxHDL</span><span class="w"> </span><span class="n">h</span><span class="p">;</span>
+<span class="linenos"> 2</span><span class="c1">// request pointer to the list. Assume that implementation supports that.</span>
+<span class="linenos"> 3</span><span class="c1">// Assume that `loader` is configured before.</span>
+<span class="linenos"> 4</span><span class="n">mfxStatus</span><span class="w"> </span><span class="n">sts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFXEnumImplementations</span><span class="p">(</span><span class="n">loader</span><span class="p">,</span><span class="w"> </span><span class="n">idx</span><span class="p">,</span><span class="w"> </span><span class="n">MFX_IMPLCAPS_IMPLEMENTEDFUNCTIONS</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">h</span><span class="p">);</span>
+<span class="linenos"> 5</span><span class="c1">// break if no idx</span>
+<span class="linenos"> 6</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">sts</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">MFX_ERR_NOT_FOUND</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos"> 7</span><span class="w">  </span><span class="c1">// Cast typeless handle to structure pointer</span>
+<span class="linenos"> 8</span><span class="w">  </span><span class="n">mfxImplementedFunctions</span><span class="w"> </span><span class="o">*</span><span class="n">implemented_functions</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">mfxImplementedFunctions</span><span class="o">*</span><span class="p">)</span><span class="n">h</span><span class="p">;</span>
+<span class="linenos"> 9</span>
+<span class="linenos">10</span><span class="w">  </span><span class="c1">// print out list of functions&#39; name</span>
+<span class="linenos">11</span><span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">for_each</span><span class="p">(</span><span class="n">implemented_functions</span><span class="o">-&gt;</span><span class="n">FunctionsName</span><span class="p">,</span><span class="w"> </span><span class="n">implemented_functions</span><span class="o">-&gt;</span><span class="n">FunctionsName</span><span class="w"> </span><span class="o">+</span>
+<span class="linenos">12</span><span class="w">                                                      </span><span class="n">implemented_functions</span><span class="o">-&gt;</span><span class="n">NumFunctions</span><span class="p">,</span>
+<span class="linenos">13</span><span class="w">          </span><span class="p">[](</span><span class="n">mfxChar</span><span class="o">*</span><span class="w">  </span><span class="n">functionName</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos">14</span><span class="w">              </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">functionName</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot; is implemented&quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="linenos">15</span><span class="w">          </span><span class="p">});</span>
+<span class="linenos">16</span><span class="w">  </span><span class="c1">// Release resource</span>
+<span class="linenos">17</span><span class="w">  </span><span class="n">MFXDispReleaseImplDescription</span><span class="p">(</span><span class="n">loader</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="p">);</span>
+<span class="linenos">18</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>This code illustrates how application can check that specific functions are
+implemented:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="n">mfxSession</span><span class="w"> </span><span class="n">session_handle</span><span class="p">;</span>
+<span class="linenos"> 2</span><span class="n">loader</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mfxLoader</span><span class="p">();</span>
+<span class="linenos"> 3</span>
+<span class="linenos"> 4</span><span class="c1">// We want to search for the implementation with Decode+VPP domain functions support.</span>
+<span class="linenos"> 5</span><span class="c1">// i.e we search for the MFXVideoDECODE_VPP_Init and MFXVideoDECODE_VPP_DecodeFrameAsync</span>
+<span class="linenos"> 6</span><span class="c1">// implemented functions</span>
+<span class="linenos"> 7</span><span class="n">mfxConfig</span><span class="w"> </span><span class="n">init_funct_prop</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFXCreateConfig</span><span class="p">(</span><span class="n">loader</span><span class="p">);</span>
+<span class="linenos"> 8</span><span class="n">mfxVariant</span><span class="w"> </span><span class="n">value</span><span class="p">;</span>
+<span class="linenos"> 9</span>
+<span class="linenos">10</span><span class="c1">// Filter property for the Init function</span>
+<span class="linenos">11</span><span class="n">value</span><span class="p">.</span><span class="n">Type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mfxVariantType</span><span class="o">::</span><span class="n">MFX_VARIANT_TYPE_PTR</span><span class="p">;</span>
+<span class="linenos">12</span><span class="n">value</span><span class="p">.</span><span class="n">Data</span><span class="p">.</span><span class="n">Ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">mfxHDL</span><span class="p">)</span><span class="s">&quot;MFXVideoDECODE_VPP_Init&quot;</span><span class="p">;</span>
+<span class="linenos">13</span><span class="n">MFXSetConfigFilterProperty</span><span class="p">(</span><span class="n">init_funct_prop</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">mfxU8</span><span class="o">*</span><span class="p">)</span><span class="s">&quot;mfxImplementedFunctions.FunctionsName&quot;</span><span class="p">,</span>
+<span class="linenos">14</span><span class="w">                           </span><span class="n">value</span><span class="p">);</span>
+<span class="linenos">15</span>
+<span class="linenos">16</span><span class="c1">// Filter property for the Process function</span>
+<span class="linenos">17</span><span class="n">mfxConfig</span><span class="w"> </span><span class="n">process_func_prop</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFXCreateConfig</span><span class="p">(</span><span class="n">loader</span><span class="p">);</span>
+<span class="linenos">18</span><span class="n">value</span><span class="p">.</span><span class="n">Data</span><span class="p">.</span><span class="n">Ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">mfxHDL</span><span class="p">)</span><span class="s">&quot;MFXVideoDECODE_VPP_DecodeFrameAsync&quot;</span><span class="p">;</span>
+<span class="linenos">19</span><span class="n">MFXSetConfigFilterProperty</span><span class="p">(</span><span class="n">process_func_prop</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">mfxU8</span><span class="o">*</span><span class="p">)</span><span class="s">&quot;mfxImplementedFunctions.FunctionsName&quot;</span><span class="p">,</span>
+<span class="linenos">20</span><span class="w">                           </span><span class="n">value</span><span class="p">);</span>
+<span class="linenos">21</span>
+<span class="linenos">22</span><span class="c1">// create session from first matched implementation</span>
+<span class="linenos">23</span><span class="n">MFXCreateSession</span><span class="p">(</span><span class="n">loader</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">session_handle</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+<section id="how-to-search-for-the-available-encoder-decoder-implementation">
+<h2>How To Search For The Available encoder/decoder implementation<a class="headerlink" href="#how-to-search-for-the-available-encoder-decoder-implementation" title="Permalink to this heading">#</a></h2>
+<p>The <a class="reference internal" href="../API_ref/VPL_enums.html#codec-format-fourcc"><span class="std std-ref">CodecFormatFourCC</span></a> enum specifies codec’s FourCC
+values. Application needs to assign this value to the field of
+<a class="reference internal" href="../API_ref/VPL_disp_api_struct.html#_CPPv4N21mfxDecoderDescription7decoder7CodecIDE" title="mfxDecoderDescription::decoder::CodecID"><code class="xref cpp cpp-member docutils literal notranslate"><span class="pre">mfxDecoderDescription::decoder::CodecID</span></code></a> to search for the decoder
+or <a class="reference internal" href="../API_ref/VPL_disp_api_struct.html#_CPPv4N21mfxEncoderDescription7encoder7CodecIDE" title="mfxEncoderDescription::encoder::CodecID"><code class="xref cpp cpp-member docutils literal notranslate"><span class="pre">mfxEncoderDescription::encoder::CodecID</span></code></a> to search for the
+encoder.</p>
+<p>This code illustrates decoder’s implementation search procedure:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="n">mfxSession</span><span class="w"> </span><span class="n">hevc_session_handle</span><span class="p">;</span>
+<span class="linenos"> 2</span><span class="n">loader</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mfxLoader</span><span class="p">();</span>
+<span class="linenos"> 3</span>
+<span class="linenos"> 4</span><span class="c1">// We want to search for the HEVC decoder implementation</span>
+<span class="linenos"> 5</span><span class="n">mfxConfig</span><span class="w"> </span><span class="n">hevc_decoder_config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFXCreateConfig</span><span class="p">(</span><span class="n">loader</span><span class="p">);</span>
+<span class="linenos"> 6</span><span class="n">mfxVariant</span><span class="w"> </span><span class="n">value</span><span class="p">;</span>
+<span class="linenos"> 7</span>
+<span class="linenos"> 8</span><span class="c1">// Filter property for the implementations with HEVC decoder</span>
+<span class="linenos"> 9</span><span class="n">value</span><span class="p">.</span><span class="n">Type</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_VARIANT_TYPE_U32</span><span class="p">;</span>
+<span class="linenos">10</span><span class="n">value</span><span class="p">.</span><span class="n">Data</span><span class="p">.</span><span class="n">U32</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_CODEC_HEVC</span><span class="p">;</span>
+<span class="linenos">11</span>
+<span class="linenos">12</span><span class="n">MFXSetConfigFilterProperty</span><span class="p">(</span><span class="n">hevc_decoder_config</span>
+<span class="linenos">13</span><span class="w">      </span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">mfxU8</span><span class="o">*</span><span class="p">)</span><span class="s">&quot;mfxImplDescription.mfxDecoderDescription.decoder.CodecID&quot;</span>
+<span class="linenos">14</span><span class="w">      </span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">);</span>
+<span class="linenos">15</span>
+<span class="linenos">16</span><span class="c1">// create session from first matched implementation</span>
+<span class="linenos">17</span><span class="n">MFXCreateSession</span><span class="p">(</span><span class="n">loader</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">hevc_session_handle</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+<section id="how-to-search-for-the-available-vpp-filter-implementation">
+<h2>How To Search For The Available VPP Filter implementation<a class="headerlink" href="#how-to-search-for-the-available-vpp-filter-implementation" title="Permalink to this heading">#</a></h2>
+<p>Each VPP filter identified by the filter ID. Filter ID is defined by
+corresponding to the filter extension buffer ID value which is defined in a form
+of FourCC value.
+Filter ID values are subset of the general <a class="reference internal" href="../API_ref/VPL_enums.html#extendedbufferid"><span class="std std-ref">ExtendedBufferID</span></a>
+enum. The <a class="reference internal" href="#vpp-filters-ids"><span class="std std-ref">table</span></a> references available IDs of VPP filters
+to search. Application needs to assign this value to the field of
+<a class="reference internal" href="../API_ref/VPL_disp_api_struct.html#_CPPv4N17mfxVPPDescription6filter12FilterFourCCE" title="mfxVPPDescription::filter::FilterFourCC"><code class="xref cpp cpp-member docutils literal notranslate"><span class="pre">mfxVPPDescription::filter::FilterFourCC</span></code></a> to search for the needed
+VPP filter.</p>
+<span id="vpp-filters-ids"></span><table class="table" id="id3">
+<caption><span class="caption-text">VPP Filters ID</span><a class="headerlink" href="#id3" title="Permalink to this table">#</a></caption>
+<colgroup>
+<col style="width: 58.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Filter ID</strong></p></th>
+<th class="head"><p><strong>Description</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv424MFX_EXTBUFF_VPP_DENOISE2" title="MFX_EXTBUFF_VPP_DENOISE2"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">MFX_EXTBUFF_VPP_DENOISE2</span></code></a></p></td>
+<td><p>Denoise filter</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv420MFX_EXTBUFF_VPP_MCTF" title="MFX_EXTBUFF_VPP_MCTF"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">MFX_EXTBUFF_VPP_MCTF</span></code></a></p></td>
+<td><p>Motion-Compensated Temporal Filter (MCTF).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv422MFX_EXTBUFF_VPP_DETAIL" title="MFX_EXTBUFF_VPP_DETAIL"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">MFX_EXTBUFF_VPP_DETAIL</span></code></a></p></td>
+<td><p>Detail/edge enhancement filter.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv437MFX_EXTBUFF_VPP_FRAME_RATE_CONVERSION" title="MFX_EXTBUFF_VPP_FRAME_RATE_CONVERSION"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">MFX_EXTBUFF_VPP_FRAME_RATE_CONVERSION</span></code></a></p></td>
+<td><p>Frame rate conversion filter</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv435MFX_EXTBUFF_VPP_IMAGE_STABILIZATION" title="MFX_EXTBUFF_VPP_IMAGE_STABILIZATION"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">MFX_EXTBUFF_VPP_IMAGE_STABILIZATION</span></code></a></p></td>
+<td><p>Image stabilization filter</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv423MFX_EXTBUFF_VPP_PROCAMP" title="MFX_EXTBUFF_VPP_PROCAMP"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">MFX_EXTBUFF_VPP_PROCAMP</span></code></a></p></td>
+<td><p>ProcAmp filter</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv432MFX_EXTBUFF_VPP_FIELD_PROCESSING" title="MFX_EXTBUFF_VPP_FIELD_PROCESSING"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">MFX_EXTBUFF_VPP_FIELD_PROCESSING</span></code></a></p></td>
+<td><p>Field processing filter</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv432MFX_EXTBUFF_VPP_COLOR_CONVERSION" title="MFX_EXTBUFF_VPP_COLOR_CONVERSION"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">MFX_EXTBUFF_VPP_COLOR_CONVERSION</span></code></a></p></td>
+<td><p>Color Conversion filter</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv423MFX_EXTBUFF_VPP_SCALING" title="MFX_EXTBUFF_VPP_SCALING"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">MFX_EXTBUFF_VPP_SCALING</span></code></a></p></td>
+<td><p>Resize filter</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv425MFX_EXTBUFF_VPP_COMPOSITE" title="MFX_EXTBUFF_VPP_COMPOSITE"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">MFX_EXTBUFF_VPP_COMPOSITE</span></code></a></p></td>
+<td><p>Surfaces composition filter</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv429MFX_EXTBUFF_VPP_DEINTERLACING" title="MFX_EXTBUFF_VPP_DEINTERLACING"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">MFX_EXTBUFF_VPP_DEINTERLACING</span></code></a></p></td>
+<td><p>Deinterlace filter</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv424MFX_EXTBUFF_VPP_ROTATION" title="MFX_EXTBUFF_VPP_ROTATION"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">MFX_EXTBUFF_VPP_ROTATION</span></code></a></p></td>
+<td><p>Rotation filter</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv425MFX_EXTBUFF_VPP_MIRRORING" title="MFX_EXTBUFF_VPP_MIRRORING"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">MFX_EXTBUFF_VPP_MIRRORING</span></code></a></p></td>
+<td><p>Mirror filter</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv425MFX_EXTBUFF_VPP_COLORFILL" title="MFX_EXTBUFF_VPP_COLORFILL"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">MFX_EXTBUFF_VPP_COLORFILL</span></code></a></p></td>
+<td><p>ColorFill filter</p></td>
+</tr>
+</tbody>
+</table>
+<p>This code illustrates VPP mirror filter implementation search procedure:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="n">mfxSession</span><span class="w"> </span><span class="n">mirror_session_handle</span><span class="p">;</span>
+<span class="linenos"> 2</span><span class="n">loader</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mfxLoader</span><span class="p">();</span>
+<span class="linenos"> 3</span>
+<span class="linenos"> 4</span><span class="c1">// We want to search for the VPP mirror implementation</span>
+<span class="linenos"> 5</span><span class="n">mfxConfig</span><span class="w">  </span><span class="n">mirror_flt_config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFXCreateConfig</span><span class="p">(</span><span class="n">loader</span><span class="p">);</span>
+<span class="linenos"> 6</span><span class="n">mfxVariant</span><span class="w"> </span><span class="n">value</span><span class="p">;</span>
+<span class="linenos"> 7</span>
+<span class="linenos"> 8</span><span class="c1">// Filter property for the implementations with VPP mirror</span>
+<span class="linenos"> 9</span><span class="n">value</span><span class="p">.</span><span class="n">Type</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_VARIANT_TYPE_U32</span><span class="p">;</span>
+<span class="linenos">10</span><span class="n">value</span><span class="p">.</span><span class="n">Data</span><span class="p">.</span><span class="n">U32</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_EXTBUFF_VPP_MIRRORING</span><span class="p">;</span>
+<span class="linenos">11</span>
+<span class="linenos">12</span><span class="n">MFXSetConfigFilterProperty</span><span class="p">(</span><span class="n">mirror_flt_config</span>
+<span class="linenos">13</span><span class="w">      </span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">mfxU8</span><span class="o">*</span><span class="p">)</span><span class="s">&quot;mfxImplDescription.mfxVPPDescription.filter.FilterFourCC&quot;</span>
+<span class="linenos">14</span><span class="w">      </span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">);</span>
+<span class="linenos">15</span>
+<span class="linenos">16</span><span class="c1">// create session from first matched implementation</span>
+<span class="linenos">17</span><span class="n">MFXCreateSession</span><span class="p">(</span><span class="n">loader</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">mirror_session_handle</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+<section id="how-to-get-path-to-the-shared-library-with-the-implementation">
+<h2>How To Get Path to the Shared Library With the Implementation<a class="headerlink" href="#how-to-get-path-to-the-shared-library-with-the-implementation" title="Permalink to this heading">#</a></h2>
+<p>Sessions can be created from different implementations, each implementations can
+be located in different shared libraries. To get path of the shared library with
+the implementation from which session can be or was created, application can use
+<a class="reference internal" href="../API_ref/VPL_disp_api_func.html#_CPPv422MFXEnumImplementations9mfxLoader6mfxU3225mfxImplCapsDeliveryFormatP6mfxHDL" title="MFXEnumImplementations"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXEnumImplementations()</span></code></a> and pass <a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv4N25mfxImplCapsDeliveryFormat21MFX_IMPLCAPS_IMPLPATHE" title="MFX_IMPLCAPS_IMPLPATH"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">MFX_IMPLCAPS_IMPLPATH</span></code></a>
+value as the output data request.</p>
+<p>This code illustrates collection and print out path of implementations’s
+shared library:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="n">mfxHDL</span><span class="w"> </span><span class="n">h</span><span class="p">;</span>
+<span class="linenos"> 2</span><span class="n">mfxSession</span><span class="w"> </span><span class="n">def_session</span><span class="p">;</span>
+<span class="linenos"> 3</span>
+<span class="linenos"> 4</span><span class="n">loader</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mfxLoader</span><span class="p">();</span>
+<span class="linenos"> 5</span>
+<span class="linenos"> 6</span><span class="c1">// Create session from the first available implementation.</span>
+<span class="linenos"> 7</span><span class="c1">// That&#39;s why we no any filters need to be set.</span>
+<span class="linenos"> 8</span><span class="c1">// First available implementation has index equal to the 0.</span>
+<span class="linenos"> 9</span><span class="n">MFXCreateSession</span><span class="p">(</span><span class="n">loader</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">def_session</span><span class="p">);</span>
+<span class="linenos">10</span>
+<span class="linenos">11</span><span class="c1">// Get and print out OS path to the loaded shared library</span>
+<span class="linenos">12</span><span class="c1">// with the implementation. It is absolutely OK to call</span>
+<span class="linenos">13</span><span class="c1">// MFXEnumImplementations after session creation just need to make</span>
+<span class="linenos">14</span><span class="c1">// sure that the same index of implementation is provided to the</span>
+<span class="linenos">15</span><span class="c1">// function call.</span>
+<span class="linenos">16</span><span class="n">MFXEnumImplementations</span><span class="p">(</span><span class="n">loader</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">MFX_IMPLCAPS_IMPLPATH</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">h</span><span class="p">);</span>
+<span class="linenos">17</span><span class="n">mfxChar</span><span class="o">*</span><span class="w"> </span><span class="n">path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="n">mfxChar</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">h</span><span class="p">);</span>
+<span class="linenos">18</span>
+<span class="linenos">19</span><span class="c1">// Print out the path</span>
+<span class="linenos">20</span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Loaded shared library: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">path</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="linenos">21</span>
+<span class="linenos">22</span><span class="c1">// Release the memory for the string with path.</span>
+<span class="linenos">23</span><span class="n">MFXDispReleaseImplDescription</span><span class="p">(</span><span class="n">loader</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+<section id="vpl-short-name-implementation-on-intel-r-platforms-with-xe-architecture-and-msdk-full-name-coexistence">
+<span id="vpl-coexistense"></span><h2>Intel<sup>®</sup> VPL implementation on Intel<sup>®</sup> platforms with X<sup>e</sup> architecture and Intel<sup>®</sup> Media Software Development Kit Coexistence<a class="headerlink" href="#vpl-short-name-implementation-on-intel-r-platforms-with-xe-architecture-and-msdk-full-name-coexistence" title="Permalink to this heading">#</a></h2>
+<p>Intel<sup>®</sup> VPL supersedes Intel<sup>®</sup> Media Software Development Kit and is partially binary compatible with
+Intel<sup>®</sup> Media Software Development Kit. Both Intel<sup>®</sup> VPL and Intel<sup>®</sup> Media Software Development Kit includes own dispatcher and
+implementation. Coexistence of Intel<sup>®</sup> VPL and Intel<sup>®</sup> Media Software Development Kit dispatchers and
+implementations on single system is allowed until Intel<sup>®</sup> Media Software Development Kit is not EOL.</p>
+<p>Usage of the following combinations of dispatchers and implementations within
+the single application is permitted for the legacy purposes only. In that
+scenario legacy applications developed with Intel<sup>®</sup> Media Software Development Kit will continue to
+work on any HW supported either by Intel<sup>®</sup> Media Software Development Kit or by the Intel<sup>®</sup> VPL.</p>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>Any application to work with the Intel<sup>®</sup> VPL API starting from version
+2.0 must use only Intel<sup>®</sup> VPL dispatcher.</p>
+</div>
+<dl class="simple">
+<dt>Intel<sup>®</sup> Media Software Development Kit API</dt><dd><p>Intel<sup>®</sup> Media Software Development Kit API of 1.x version.</p>
+</dd>
+<dt>Removed API</dt><dd><p>Intel<sup>®</sup> Media Software Development Kit <a class="reference internal" href="../VPL_intel_media_sdk.html#deprecated-api"><span class="std std-ref">API</span></a> which is removed from Intel<sup>®</sup> VPL.</p>
+</dd>
+<dt>Core API</dt><dd><p>Intel<sup>®</sup> Media Software Development Kit API without removed API.</p>
+</dd>
+<dt>Intel<sup>®</sup> VPL API</dt><dd><p>New <a class="reference internal" href="../VPL_intel_media_sdk.html#new-api"><span class="std std-ref">API</span></a> introduced in Intel<sup>®</sup> VPL only started from API 2.0
+version.</p>
+</dd>
+<dt>Intel<sup>®</sup> VPL Dispatcher API</dt><dd><p>Dispatcher <a class="reference internal" href="../VPL_intel_media_sdk.html#dispatcher-api"><span class="std std-ref">API</span></a> introduced in Intel<sup>®</sup> VPL in 2.0
+API version. This is subset of Intel<sup>®</sup> VPL API.</p>
+</dd>
+</dl>
+<table class="table" id="id4">
+<caption><span class="caption-text">Intel<sup>®</sup> VPL for Intel<sup>®</sup> platforms with X<sup>e</sup> architecture and Intel<sup>®</sup> Media Software Development Kit</span><a class="headerlink" href="#id4" title="Permalink to this table">#</a></caption>
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Dispatcher</strong></p></th>
+<th class="head"><p><strong>Installed on the device</strong></p></th>
+<th class="head"><p><strong>Loaded</strong></p></th>
+<th class="head"><p><strong>Allowed API</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Intel<sup>®</sup> VPL</p></td>
+<td><p>Intel<sup>®</sup> VPL for Intel<sup>®</sup> platforms with X<sup>e</sup> architecture</p></td>
+<td><p>Intel<sup>®</sup> VPL for Intel<sup>®</sup> platforms with X<sup>e</sup> architecture</p></td>
+<td><p>Usage of any API except removed API is allowed.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Intel<sup>®</sup> VPL</p></td>
+<td><p>Intel<sup>®</sup> Media Software Development Kit</p></td>
+<td><p>Intel<sup>®</sup> Media Software Development Kit</p></td>
+<td><p>Usage of core API plus dispatcher API is allowed only.</p></td>
+</tr>
+<tr class="row-even"><td><p>Intel<sup>®</sup> VPL</p></td>
+<td><p>Intel<sup>®</sup> VPL for Intel<sup>®</sup> platforms with X<sup>e</sup> architecture and Intel<sup>®</sup> Media Software Development Kit</p></td>
+<td><p>Intel<sup>®</sup> VPL for Intel<sup>®</sup> platforms with X<sup>e</sup> architecture</p></td>
+<td><p>Usage of any API except removed API is allowed.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Intel<sup>®</sup> Media Software Development Kit</p></td>
+<td><p>Intel<sup>®</sup> VPL for Intel<sup>®</sup> platforms with X<sup>e</sup> architecture</p></td>
+<td><p>Intel<sup>®</sup> VPL for Intel<sup>®</sup> platforms with X<sup>e</sup> architecture</p></td>
+<td><p>Usage of core API is allowed only.</p></td>
+</tr>
+<tr class="row-even"><td><p>Intel<sup>®</sup> Media Software Development Kit</p></td>
+<td><p>Intel<sup>®</sup> VPL for Intel<sup>®</sup> platforms with X<sup>e</sup> architecture and Intel<sup>®</sup> Media Software Development Kit</p></td>
+<td><p>Intel<sup>®</sup> Media Software Development Kit</p></td>
+<td><p>Usage of Intel<sup>®</sup> Media Software Development Kit API is allowed.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Intel<sup>®</sup> Media Software Development Kit</p></td>
+<td><p>Intel<sup>®</sup> Media Software Development Kit</p></td>
+<td><p>Intel<sup>®</sup> Media Software Development Kit</p></td>
+<td><p>Usage of Intel<sup>®</sup> Media Software Development Kit API is allowed.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>if system has multiple devices the logic of selection and loading implementations
+will be applied to each device accordingly to the system enumeration.</p>
+</div>
+</section>
+<section id="multiple-sessions">
+<h2>Multiple Sessions<a class="headerlink" href="#multiple-sessions" title="Permalink to this heading">#</a></h2>
+<p>Each Intel<sup>®</sup> VPL session can run exactly one instance of the DECODE, ENCODE, and
+VPP functions. This is adequate for a simple transcoding operation. If the
+application needs more than one instance of DECODE, ENCODE, or VPP
+in a complex transcoding setting or needs more simultaneous transcoding
+operations, the application can initialize multiple
+Intel<sup>®</sup> VPL sessions created from one or several Intel<sup>®</sup> VPL implementations.</p>
+<p>The application can use multiple Intel<sup>®</sup> VPL sessions independently or run a “joined”
+session. To join two sessions together, the application can use the function
+<a class="reference internal" href="../API_ref/VPL_func_session.html#_CPPv414MFXJoinSession10mfxSession10mfxSession" title="MFXJoinSession"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXJoinSession()</span></code></a>. Alternatively, the application can use the
+<a class="reference internal" href="../API_ref/VPL_func_session.html#_CPPv415MFXCloneSession10mfxSessionP10mfxSession" title="MFXCloneSession"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXCloneSession()</span></code></a> function to duplicate an existing session. Joined
+Intel<sup>®</sup> VPL sessions work together as a single session, sharing all session
+resources, threading control, and prioritization operations except hardware
+acceleration devices and external allocators. When joined, the first session
+(first join) serves as the parent session and will schedule execution resources
+with all other child sessions. Child sessions rely on the parent session for
+resource management.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Applications can join sessions created from the same Intel<sup>®</sup> VPL
+implementation only.</p>
+</div>
+<p>With joined sessions, the application can set the priority of session operations
+through the <a class="reference internal" href="../API_ref/VPL_func_session.html#_CPPv414MFXSetPriority10mfxSession11mfxPriority" title="MFXSetPriority"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXSetPriority()</span></code></a> function. A lower priority session
+receives fewer CPU cycles. Session priority does not affect hardware accelerated
+processing.</p>
+<p>After the completion of all session operations, the application can use the
+<a class="reference internal" href="../API_ref/VPL_func_session.html#_CPPv417MFXDisjoinSession10mfxSession" title="MFXDisjoinSession"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXDisjoinSession()</span></code></a> function to remove the joined state of a session.
+Do not close the parent session until all child sessions are disjoined or
+closed.</p>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="VPL_prg_stc.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Status Codes</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="VPL_prg_frame.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Frame and Fields</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#msdk-full-name-dispatcher-legacy">Intel<sup>®</sup> Media Software Development Kit Dispatcher (Legacy)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#vpl-short-name-dispatcher">Intel<sup>®</sup> VPL Dispatcher</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#vpl-short-name-dispatcher-configuration-properties">Intel<sup>®</sup> VPL Dispatcher Configuration Properties</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#vpl-short-name-dispatcher-interactions">Intel<sup>®</sup> VPL Dispatcher Interactions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#vpl-short-name-dispatcher-debug-log">Intel<sup>®</sup> VPL Dispatcher Debug Log</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#examples-of-dispatcher-s-usage">Examples of Dispatcher’s Usage</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-check-if-function-is-implemented">How To Check If Function is Implemented</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-search-for-the-available-encoder-decoder-implementation">How To Search For The Available encoder/decoder implementation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-search-for-the-available-vpp-filter-implementation">How To Search For The Available VPP Filter implementation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-get-path-to-the-shared-library-with-the-implementation">How To Get Path to the Shared Library With the Implementation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#vpl-short-name-implementation-on-intel-r-platforms-with-xe-architecture-and-msdk-full-name-coexistence">Intel<sup>®</sup> VPL implementation on Intel<sup>®</sup> platforms with X<sup>e</sup> architecture and Intel<sup>®</sup> Media Software Development Kit Coexistence</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#multiple-sessions">Multiple Sessions</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023, Intel.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=5b4479735964841361fd"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
