@@ -359,6 +359,9 @@ HEVC Levels
 .. doxygenenumvalue:: MFX_LEVEL_HEVC_62
    :project: DEF_BREATHE_PROJECT
 
+.. doxygenenumvalue:: MFX_LEVEL_HEVC_85
+   :project: DEF_BREATHE_PROJECT
+
 .. _codec_profile:
 
 AV1 Levels
@@ -2551,6 +2554,13 @@ mfxAISuperResolutionMode
 ------------------------
 
 .. doxygenenum:: mfxAISuperResolutionMode
+   :project: DEF_BREATHE_PROJECT
+
+-----------------------------
+mfxAISuperResolutionAlgorithm
+-----------------------------
+
+.. doxygenenum:: mfxAISuperResolutionAlgorithm
    :project: DEF_BREATHE_PROJECT
 
 ---------------------------

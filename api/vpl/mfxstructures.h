@@ -98,7 +98,19 @@ typedef struct {
         Specify the frame rate with the following formula: FrameRateExtN / FrameRateExtD.
 
         For encoding, frame rate must be specified. For decoding, frame rate may be unspecified (FrameRateExtN and FrameRateExtD
-        are all zeros.) In this case, the frame rate is defaulted to 30 frames per second.
+        are all zeros.) In this case, the frame rate is defaulted to 0 frames per second, and timestamp will be calculated by 30fps in SDK.
+
+        In decoding process:
+
+        If there is frame rate information in bitstream, MFXVideoDECODE_DecodeHeader will carry actual frame rate in FrameRateExtN and FrameRateExtD parameters.
+        MFXVideoDECODE_Init, MFXVideoDECODE_Query, MFXVideoDECODE_DecodeFrameAsync and MFXVideoDECODE_GetVideoParam will also carry these values for frame rate.
+        Timestamp will be calculated by the actual frame rate.
+
+        If there is no frame rate information in bitstream, MFXVideoDECODE_DecodeHeader will assign 0 for frame rate in FrameRateExtN and FrameRateExtD parameters.
+        MFXVideoDECODE_Init, MFXVideoDECODE_Query, MFXVideoDECODE_DecodeFrameAsync and MFXVideoDECODE_GetVideoParam will also assign 0 for frame rate. Timestamp will be calculated by 30fps.
+
+        If these two parameters are modified through MFXVideoDECODE_Init, then the modified values for frame rate will be used in
+        MFXVideoDECODE_Query, MFXVideoDECODE_DecodeFrameAsync and MFXVideoDECODE_GetVideoParam. Timestamps will be calculated using the modified values.
     */
     mfxU32  FrameRateExtN; /*!< Frame rate numerator. */
     mfxU32  FrameRateExtD; /*!< Frame rate denominator. */
@@ -1205,6 +1217,7 @@ enum {
     MFX_LEVEL_HEVC_6   = 60,
     MFX_LEVEL_HEVC_61  = 61,
     MFX_LEVEL_HEVC_62  = 62,
+    MFX_LEVEL_HEVC_85  = 85,
     /*! @} */
 
     /*! @{ */
@@ -1756,7 +1769,7 @@ typedef struct {
                                 @note Not all codecs and implementations support these values. Use the Query API function to check if this feature is supported */
 
     /*!
-       When rate control method is MFX_RATECONTROL_CBR, MFX_RATECONTROL_VBR, MFX_RATECONTROL_LA, MFX_RATECONTROL_LA_HRD, or MFX_RATECONTROL_QVBR 
+       When rate control method is MFX_RATECONTROL_CBR, MFX_RATECONTROL_VBR, MFX_RATECONTROL_LA, MFX_RATECONTROL_LA_HRD, or MFX_RATECONTROL_QVBR
        this parameter specifies the maximum bitrate averaged over a sliding window specified by WinBRCSize.
     */
     mfxU16      WinBRCMaxAvgKbps;
@@ -5136,7 +5149,21 @@ MFX_PACK_END()
 typedef enum {
     MFX_AI_SUPER_RESOLUTION_MODE_DISABLED = 0,        /*!< Super Resolution is disabled.*/
     MFX_AI_SUPER_RESOLUTION_MODE_DEFAULT = 1,         /*!< Default super resolution mode. The library selects the most appropriate super resolution mode.*/
+#ifdef ONEVPL_EXPERIMENTAL
+    MFX_AI_SUPER_RESOLUTION_MODE_SHARPEN = 2,         /*!< In this mode, super Resolution is optimized or trained to have high sharpness level. This mode is recommended to be used in video conference(camera
+                                                           noise) or similar usage scenario.*/
+    MFX_AI_SUPER_RESOLUTION_MODE_ARTIFACTREMOVAL= 3,  /*!< In this mode, Super Resolution is optimized or trained to remove encoding artifacts with medium sharpness level. This mode is recommended to be used in
+                                                           video surveillance or similar usage scenarios which may have camera noise and encoding artifacts due to limited network bandwidth.*/
+#endif
 } mfxAISuperResolutionMode;
+
+#ifdef ONEVPL_EXPERIMENTAL
+typedef enum {
+    MFX_AI_SUPER_RESOLUTION_ALGORITHM_DEFAULT = 0,        /*!< Super Resolution algorithm by default. The library selects the most appropriate super resolution algorithm.*/
+    MFX_AI_SUPER_RESOLUTION_ALGORITHM_1       = 1,        /*!< Super Resolution algorithm1.*/
+    MFX_AI_SUPER_RESOLUTION_ALGORITHM_2       = 2,        /*!< Super Resolution algorithm2, MFX_AI_SUPER_RESOLUTION_ALGORITHM_2 video quality is expected to be better than MFX_AI_SUPER_RESOLUTION_ALGORITHM_1.*/
+} mfxAISuperResolutionAlgorithm;
+#endif
 
 MFX_PACK_BEGIN_STRUCT_W_PTR()
 /*!
@@ -5153,8 +5180,12 @@ MFX_PACK_BEGIN_STRUCT_W_PTR()
 typedef struct {
     mfxExtBuffer                Header;               /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_VPP_AI_SUPER_RESOLUTION.*/
     mfxAISuperResolutionMode    SRMode;               /*!< Indicates Super Resolution Mode. mfxAISuperResolutionMode enumerator.*/
-
+#ifdef ONEVPL_EXPERIMENTAL
+    mfxAISuperResolutionAlgorithm SRAlgorithm;        /*!< Indicates Super Resolution Algorithm. mfxAISuperResolutionAlgorithm enumerator.*/
+    mfxU32                      reserved1[15];         /*!< Reserved for future use. */
+#else
     mfxU32                      reserved1[16];         /*!< Reserved for future use. */
+#endif
     mfxHDL                      reserved2[4];          /*!< Reserved for future use. */
 } mfxExtVPPAISuperResolution;
 MFX_PACK_END()
@@ -5163,6 +5194,11 @@ MFX_PACK_END()
 typedef enum {
     MFX_AI_FRAME_INTERPOLATION_MODE_DISABLE = 0,         /*!< AI based frame interpolation is disabled. The library duplicates the frame if AI frame interpolation is disabled.*/
     MFX_AI_FRAME_INTERPOLATION_MODE_DEFAULT = 1,         /*!< Default AI based frame interpolation mode. The library selects the most appropriate AI based frame interpolation mode.*/
+
+#ifdef ONEVPL_EXPERIMENTAL
+    MFX_AI_FRAME_INTERPOLATION_MODE_BEST_SPEED = 2,      /*!< AI based frame interpolation in best speed.*/
+    MFX_AI_FRAME_INTERPOLATION_MODE_BEST_QUALITY = 3,    /*!< AI based frame interpolation in best quality.*/
+#endif
 } mfxAIFrameInterpolationMode;
 
 /*!
@@ -5226,7 +5262,7 @@ MFX_PACK_BEGIN_STRUCT_W_PTR()
 typedef struct {
     mfxExtBuffer        Header;         /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_ENCODED_QUALITY_INFO_OUTPUT. */
     mfxU32              FrameOrder;     /*!< Frame display order of encoded picture. */
-    mfxU32              MSE[3];         /*!< Frame level mean squared errors (MSE) for Y/U/V channel. 
+    mfxU32              MSE[3];         /*!< Frame level mean squared errors (MSE) for Y/U/V channel.
                                              @note MSE is stored in U24.8 format. The calculation formula is: PSNR = 10 * log10(256.0 * (2^bitDepth - 1)^2 / (double)MSE)). */
     mfxU32              reserved1[50];  /*!< Reserved for future use. */
     mfxHDL              reserved2[4];   /*!< Reserved for future use. */

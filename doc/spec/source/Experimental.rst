@@ -279,3 +279,23 @@ The following is a list of experimental interfaces, starting from API version
      - 2.12
      - 2.13
      - Moved to production
+   * - :cpp:enumerator:`MFX_AI_FRAME_INTERPOLATION_MODE_BEST_SPEED`
+     - 2.14
+     -
+     -
+   * - :cpp:enumerator:`MFX_AI_FRAME_INTERPOLATION_MODE_BEST_QUALITY`
+     - 2.14
+     -
+     -
+   * - :cpp:enumerator:`MFX_AI_SUPER_RESOLUTION_MODE_SHARPEN`
+     - 2.14
+     -
+     -
+   * - :cpp:enumerator:`MFX_AI_SUPER_RESOLUTION_MODE_ARTIFACTREMOVAL`
+     - 2.14
+     -
+     -
+   * - :cpp:enum:`mfxAISuperResolutionAlgorithm`
+     - 2.14
+     -
+     -

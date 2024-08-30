@@ -94,7 +94,6 @@ public:
 class MFXVideoVPPBase {
 public:
     virtual ~MFXVideoVPPBase() {}
-
     virtual mfxStatus Query(mfxVideoParam* in, mfxVideoParam* out) = 0;
     virtual mfxStatus QueryIOSurf(mfxVideoParam* par, mfxFrameAllocRequest request[2]) = 0;
     virtual mfxStatus Init(mfxVideoParam* par) = 0;
@@ -423,6 +422,9 @@ public:
 
 protected:
     mfxSession m_session; // (mfxSession) handle to the owning session
+private:
+    MFXVideoENCODE(const MFXVideoENCODE& other);
+    MFXVideoENCODE& operator=(const MFXVideoENCODE& other);
 };
 
 class MFXVideoDECODE : public MFXVideoDECODEBase {
@@ -479,6 +481,9 @@ public:
 
 protected:
     mfxSession m_session; // (mfxSession) handle to the owning session
+private:
+    MFXVideoDECODE(const MFXVideoDECODE& other);
+    MFXVideoDECODE& operator=(const MFXVideoDECODE& other);
 };
 
 class MFXVideoVPP : public MFXVideoVPPBase {
@@ -532,6 +537,9 @@ public:
 
 protected:
     mfxSession m_session; // (mfxSession) handle to the owning session
+private:
+    MFXVideoVPP(const MFXVideoVPP& other);
+    MFXVideoVPP& operator=(const MFXVideoVPP& other);
 };
 
 class MFXVideoDECODE_VPP
@@ -578,6 +586,9 @@ public:
 
 protected:
     mfxSession m_session; // (mfxSession) handle to the owning session
+private:
+    MFXVideoDECODE_VPP(const MFXVideoDECODE_VPP& other);
+    MFXVideoDECODE_VPP& operator=(const MFXVideoDECODE_VPP& other);
 };
 
 #endif //__MFXVIDEOPLUSPLUS_H

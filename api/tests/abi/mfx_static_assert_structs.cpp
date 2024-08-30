@@ -1239,7 +1239,12 @@
 
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPPAISuperResolution         ,Header                        ,0    )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPPAISuperResolution         ,SRMode                        ,8    )
+#ifdef ONEVPL_EXPERIMENTAL
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPPAISuperResolution         ,SRAlgorithm                   ,12   )
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPPAISuperResolution         ,reserved1                     ,16   )
+#else
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPPAISuperResolution         ,reserved1                     ,12   )
+#endif
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPPAISuperResolution         ,reserved2                     ,80   )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPPAIFrameInterpolation      ,Header                        ,0    )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPPAIFrameInterpolation      ,FIMode                        ,8    )
@@ -2021,7 +2026,12 @@
 
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPPAISuperResolution         ,Header                        ,0    )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPPAISuperResolution         ,SRMode                        ,8    )
+#ifdef ONEVPL_EXPERIMENTAL
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPPAISuperResolution         ,SRAlgorithm                   ,12   )
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPPAISuperResolution         ,reserved1                     ,16   )
+#else
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPPAISuperResolution         ,reserved1                     ,12   )
+#endif
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPPAISuperResolution         ,reserved2                     ,76   )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPPAIFrameInterpolation      ,Header                         ,0      )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPPAIFrameInterpolation      ,FIMode                         ,8      )

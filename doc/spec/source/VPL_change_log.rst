@@ -13,6 +13,36 @@ This section describes the API evolution from version to version.
    :depth: 1
 
 ------------
+Version 2.14
+------------
+
+New in this release:
+
+* Added decode HEVC level8.5 (general_level_idc=255) support:
+
+    * :cpp:enumerator:`MFX_LEVEL_HEVC_85`
+
+* Experimental API: Introduced best quality and best speed mode for AI based video frame interpolation:
+
+    * :cpp:enumerator:`MFX_AI_FRAME_INTERPOLATION_MODE_BEST_SPEED`
+    * :cpp:enumerator:`MFX_AI_FRAME_INTERPOLATION_MODE_BEST_QUALITY`
+
+* Updated description for decode FrameRate in :cpp:struct:`mfxFrameInfo`
+
+* Experimental API: Introduced sharpen, artifact removal mode and algorithm setting for AI based super resolution:
+
+    * :cpp:enumerator:`MFX_AI_SUPER_RESOLUTION_MODE_SHARPEN`
+    * :cpp:enumerator:`MFX_AI_SUPER_RESOLUTION_MODE_ARTIFACTREMOVAL`
+    * :cpp:enum:`mfxAISuperResolutionAlgorithm`
+
+* Made mfxvideo++.h session wrappers explicitly non-copyable:
+
+    * MFXVideoENCODE
+    * MFXVideoDECODE
+    * MFXVideoVPP
+    * MFXVideoDECODE_VPP
+
+------------
 Version 2.13
 ------------
 
