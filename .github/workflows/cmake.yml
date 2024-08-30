@@ -265,7 +265,7 @@ jobs:
           -C ${{ inputs.build_type || 'Release' }} \
           --output-on-failure \
           -E .*-test \
-          -T test
+          --output-junit Testing/linux.xml
           EOL
           chmod +x test.sh
           docker run --rm -v $(pwd):/tmp -w /tmp vpl_build:rhel ./test.sh
@@ -280,7 +280,7 @@ jobs:
           -C ${{ inputs.build_type || 'Release' }} ^
           --output-on-failure ^
           -E .*-test ^
-          -T test
+          --output-junit Testing/windows.xml
 
           if %errorlevel% neq 0 exit /b %errorlevel%
 
@@ -291,7 +291,7 @@ jobs:
         with:
           name: >
             ${{ format('{0}-utests', inputs.artifact_name ) }}
-          path: source/_build/Testing/*/Test.xml
+          path: source/_build/Testing/*.xml
 
       - name: Cleanup workspace (Linux)
         if: always() && runner.os == 'Linux'

@@ -114,8 +114,8 @@ jobs:
           export source_root=artifacts
           export dest_root=summary/quality
 
-          copy_glob_artifact "$UTEST_L/*/Test.xml" unit linux.xml
-          copy_glob_artifact "$UTEST_W/*/Test.xml" unit windows.xml
+          copy_glob_artifact "$UTEST_L/linux.xml" unit linux.xml
+          copy_glob_artifact "$UTEST_W/windows.xml" unit windows.xml
           copy_all_artifacts "$U2204" acceptance/Ubuntu22.04/gen12.5
           copy_all_artifacts "$WIN11" acceptance/Win11/gen12.5
           copy_all_artifacts "$SLES154" acceptance/SLES15.4/gen12.5
