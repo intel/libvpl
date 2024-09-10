@@ -123,6 +123,8 @@ jobs:
           publish CT39 CT39-StaticAnalysis/windows-coverity.json
           publish CT39 CT39-StaticAnalysis/windows-cvss_report.pdf
           publish CT39 CT39-StaticAnalysis/windows-security_report.pdf
+          publish CT40 CT40-SecurityValidation/linux.csv
+          publish CT40 CT40-SecurityValidation/windows.csv
           publish CT151 CT151-CompilerFlags/SSCB_SCAN_results-Windows.html
           publish CT151 CT151-CompilerFlags/SSCB_SCAN_results-Linux.html
           publish CT248 CT248-DockerScan/ct248-report.json

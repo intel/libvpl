@@ -144,6 +144,28 @@ jobs:
             /tmp/work/summary/quality
           fi
 
+      - name: Report security related tests
+        run: |
+          if [ -d summary/quality/unit/lib ]
+          then
+            mkdir -p -v summary/sdl/lib/CT40-SecurityValidation
+            docker run --rm -v $(pwd):/tmp/work -w /tmp/work  \
+            vpl_summary:ubuntu \
+            python3 \
+            "/tmp/work/source/.github/workflows/summary/filter_xunit.py" \
+            "/tmp/work/summary/quality/unit/lib/linux.xml" \
+            -o "/tmp/work/summary/sdl/lib/CT40-SecurityValidation/linux.csv" \
+            -i Double Null Unsupported Invalid
+
+            docker run --rm -v $(pwd):/tmp/work -w /tmp/work  \
+            vpl_summary:ubuntu \
+            python3 \
+            "/tmp/work/source/.github/workflows/summary/filter_xunit.py" \
+            "/tmp/work/summary/quality/unit/lib/windows.xml" \
+            -o "/tmp/work/summary/sdl/lib/CT40-SecurityValidation/windows.csv" \
+            -i Double Null Unsupported Invalid
+          fi
+
       - name: Upload Summary
         if: success() || failure()
         uses: actions/upload-artifact@v4
