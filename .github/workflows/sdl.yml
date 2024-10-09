@@ -127,7 +127,6 @@ jobs:
           publish CT40 CT40-SecurityValidation/windows.csv
           publish CT151 CT151-CompilerFlags/SSCB_SCAN_results-Windows.html
           publish CT151 CT151-CompilerFlags/SSCB_SCAN_results-Linux.html
-          publish CT248 CT248-DockerScan/ct248-report.json
           publish CT247 CT247-Trivy/trivy-report.csv
 
           EOL

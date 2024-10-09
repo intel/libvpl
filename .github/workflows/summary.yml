@@ -92,7 +92,6 @@ jobs:
                         CT39-StaticAnalysis windows-cvss_report.pdf
           copy_artifact "$COVERITY_W" security_report.pdf \
                         CT39-StaticAnalysis windows-security_report.pdf
-          copy_artifact "$TRIVY" ct248-report.json CT248-DockerScan
           copy_artifact "$TRIVY" trivy-report.csv CT247-Trivy
           copy_all_artifacts $SSCB_L CT151-CompilerFlags
           copy_all_artifacts $SSCB_W CT151-CompilerFlags
