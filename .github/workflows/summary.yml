@@ -77,6 +77,7 @@ jobs:
 
           copy_artifact "$BDBA" vulns.csv CT7-KnownVulnerabilities
           copy_artifact "$BDBA" results.pdf CT7-KnownVulnerabilities
+          copy_artifact "$BDBA" components.csv CT36-RegisterComponents
           copy_artifact "$AV_S" report.txt CT37-MalwareScan source-report.txt
           copy_artifact "$AV_L" report.txt CT37-MalwareScan linux-report.txt
           copy_artifact "$AV_W" report.txt CT37-MalwareScan windows-report.txt

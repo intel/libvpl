@@ -115,6 +115,7 @@ jobs:
 
           publish CT7 CT7-KnownVulnerabilities/vulns.csv
           publish CT7 CT7-KnownVulnerabilities/results.pdf
+          publish CT36 CT36-RegisterComponents/components.csv
           publish CT37 CT37-MalwareScan/source-report.txt
           publish CT37 CT37-MalwareScan/windows-report.txt
           publish CT39 CT39-StaticAnalysis/linux-coverity.json
