@@ -15,6 +15,9 @@ set -o errexit
 if [ -f "/etc/os-release" ]; then
   . /etc/os-release
 fi
+if [ -z "$ID_LIKE" ]; then
+  ID_LIKE="$ID"
+fi
 if [ "$ID_LIKE" == "debian" ]; then
   apt-get update
   # basic build tools
