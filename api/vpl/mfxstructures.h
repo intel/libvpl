@@ -137,7 +137,7 @@ enum {
     MFX_FOURCC_YV12         = MFX_MAKEFOURCC('Y','V','1','2'),   /*!< YV12 color planes. */
     MFX_FOURCC_NV16         = MFX_MAKEFOURCC('N','V','1','6'),   /*!< 4:2:2 color format with similar to NV12 layout. */
     MFX_FOURCC_YUY2         = MFX_MAKEFOURCC('Y','U','Y','2'),   /*!< YUY2 color planes. */
-    MFX_FOURCC_RGB565       = MFX_MAKEFOURCC('R','G','B','2'),   /*!< 2 bytes per pixel, uint16 in little-endian format, where 0-4 bits are blue, bits 5-10 are green and bits 11-15 are red. */
+    MFX_FOURCC_RGB565       = MFX_MAKEFOURCC('R','G','B','2'),   /*!< 2 bytes per pixel, uint16 in little-endian format, where 0-4 bits are red, bits 5-10 are green and bits 11-15 are blue. */
     /*! RGB 24 bit planar layout (3 separate channels, 8-bits per sample each). This format should be mapped to D3DFMT_R8G8B8 or VA_FOURCC_RGBP. */
     MFX_FOURCC_RGBP         = MFX_MAKEFOURCC('R','G','B','P'),
     MFX_DEPRECATED_ENUM_FIELD_INSIDE(MFX_FOURCC_RGB3)         = MFX_MAKEFOURCC('R','G','B','3'),   /* Deprecated. */
