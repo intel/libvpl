@@ -52,7 +52,8 @@ common bad patterns, such as words ending in ed or ing."""
         """Validate that the title is imperative"""
         violations = []
         bad_suffixes = ('ed', 'ing')
-        with open(os.path.join(__location__, 'verbs.txt')) as verbfile:
+        with open(os.path.join(__location__, 'verbs.txt'),
+                  encoding="utf-8") as verbfile:
             verbs_ending_with_s = [line.rstrip() for line in verbfile]
         for word in line.split():
             if word.endswith(bad_suffixes) or (word.endswith('s')
