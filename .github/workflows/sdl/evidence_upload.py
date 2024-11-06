@@ -20,6 +20,7 @@ def upload_file(api_key, user_id, project_id, task_id, file_path, labels,
                 output_prefix):
     # pylint: disable=too-many-locals
     # pylint: disable=too-many-arguments
+    # pylint: disable=too-many-positional-arguments
     """
     Upload a file for a specific task.
 
@@ -55,7 +56,8 @@ def upload_file(api_key, user_id, project_id, task_id, file_path, labels,
     # Prepare files for upload in multipart/form-data format
     try:
         file_name_with_prefix = f"{output_prefix}{os.path.basename(file_path)}"
-        files = {'file': (file_name_with_prefix, open(file_path, 'rb'))}
+        with open(file_path, 'rb') as file:
+            files = {'file': (file_name_with_prefix, file)}
     except OSError as exception:
         print(f"Failed to open file {file_path}: {exception}")
         sys.exit(1)

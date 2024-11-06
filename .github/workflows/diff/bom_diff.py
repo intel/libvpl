@@ -14,6 +14,7 @@ import filecmp
 
 
 # pylint: disable=too-many-instance-attributes
+# pylint: disable=consider-using-dict-items
 class DiffInfo:
     """Diff information for a single tree node"""
     def log(self, msg):
@@ -21,7 +22,7 @@ class DiffInfo:
         print("  " * self.depth, end='')
         print(msg)
 
-    # pylint: disable=too-many-arguments
+    # pylint: disable=too-many-arguments,too-many-positional-arguments
     def __init__(self, left, right, path='', name='', depth=0):
         self._cmp = None
         self._has_diff = False
@@ -34,7 +35,7 @@ class DiffInfo:
             'left': os.path.join(left, self.rel_path),
             'right': os.path.join(right, self.rel_path)
         }
-        self.children = dict()
+        self.children = {}
         for side in self._path:
             self._extend(self._path[side])
 
@@ -180,7 +181,7 @@ def open_output(filename=None):
         output = sys.stdout
         yield output
     else:
-        with open(filename, 'w') as output:
+        with open(filename, 'w', encoding="utf-8") as output:
             yield output
 
 

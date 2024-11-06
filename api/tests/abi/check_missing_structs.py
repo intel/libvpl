@@ -6,7 +6,7 @@
 """
 Check for structures which are not present in ABI tests.
 """
-# pylint: disable=invalid-name
+# pylint: disable=invalid-name,consider-using-f-string
 
 # To run this script:
 # 1. Install clang

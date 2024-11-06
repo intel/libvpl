@@ -7,7 +7,7 @@
 """
 Build specification.
 """
-# pylint: disable=invalid-name
+# pylint: disable=invalid-name,consider-using-f-string
 
 # Main script to build the specification. Derived from:
 # github.com/oneapi-src/oneAPI-spec/blob/main/scripts/oneapi.py
@@ -161,8 +161,8 @@ def dockerrun(_root, _target=None):
               get_env('http_proxy'),
               get_env('https_proxy'),
               get_env('no_proxy'),
-              os.getuid(),
-              os.getgid(),
+              os.getuid(),  # pylint: disable=no-member
+              os.getgid(),  # pylint: disable=no-member
               os.getcwd(),
           ))
 

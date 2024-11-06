@@ -28,18 +28,19 @@
 # does not support input video (typically - resolution), we need to skip scenario
 # and avoid error to let other scenarios execute.
 ##################################################################################
-#pylint: disable=line-too-long,superfluous-parens,anomalous-backslash-in-string
-#pylint: disable=invalid-name,missing-module-docstring,global-at-module-level
-#pylint: disable=missing-class-docstring,too-many-instance-attributes,too-many-lines
-#pylint: disable=missing-function-docstring,method-hidden,function-redefined
-#pylint: disable=too-many-locals,consider-using-with,raise-missing-from
-#pylint: disable=consider-using-sys-exit,import-outside-toplevel,used-before-assignment
-#pylint: disable=consider-using-in,multiple-statements,global-variable-undefined
-#pylint: disable=simplifiable-if-expression,too-many-nested-blocks,too-many-statements
-#pylint: disable=condition-evals-to-constant,unused-variable,too-many-branches
-#pylint: disable=redefined-builtin,too-many-arguments,no-else-continue,unneeded-not
-#pylint: disable=unidiomatic-typecheck,unused-argument,redefined-outer-name,eval-used
-#pylint: disable=unused-import
+# pylint: disable=line-too-long,superfluous-parens,anomalous-backslash-in-string
+# pylint: disable=invalid-name,missing-module-docstring,global-at-module-level
+# pylint: disable=missing-class-docstring,too-many-instance-attributes,too-many-lines
+# pylint: disable=missing-function-docstring,method-hidden,function-redefined
+# pylint: disable=too-many-locals,consider-using-with,raise-missing-from
+# pylint: disable=consider-using-sys-exit,import-outside-toplevel,used-before-assignment
+# pylint: disable=consider-using-in,multiple-statements,global-variable-undefined
+# pylint: disable=simplifiable-if-expression,too-many-nested-blocks,too-many-statements
+# pylint: disable=condition-evals-to-constant,unused-variable,too-many-branches
+# pylint: disable=redefined-builtin,too-many-arguments,no-else-continue,unneeded-not
+# pylint: disable=unidiomatic-typecheck,unused-argument,redefined-outer-name,eval-used
+# pylint: disable=unused-import
+# pylint: disable=unspecified-encoding,inconsistent-return-statements,redundant-u-string-prefix,consider-using-max-builtin,too-many-positional-arguments,use-implicit-booleaness-not-comparison,consider-using-dict-items,consider-using-f-string
 import subprocess  # nosec
 import sys
 import os
@@ -1983,7 +1984,7 @@ def selectLinuxPerfMetrics(temp_path, graphic_model):
 
 def sudo_password_request():
     status = 0
-    if os.geteuid() != 0:
+    if os.geteuid() != 0:  # pylint: disable=no-member
         msg = "Request password for enabling CPU/GPU analysis: %u:"
         status = subprocess.check_call("sudo -v -p '%s'" % msg, shell=True)
     return status

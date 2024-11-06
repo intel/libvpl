@@ -18,7 +18,7 @@ import os
 import sys
 import json
 import xml.etree.ElementTree as ET  # nosec
-import xml.dom.minidom as minidom  # nosec
+from xml.dom import minidom  # nosec
 
 from cmdline import run_command, md, capture_command
 
@@ -111,7 +111,6 @@ class ReportSummary:
         test_info["summary"] = build_summary(test_info)
         test_info["message"] = build_message(test_info)
 
-    # pylint: disable=too-many-branches
     def summarize_report(self, report):
         """summarize a report"""
         if "issues" in report and report["issues"]:
@@ -146,7 +145,7 @@ def xunit_from_report(xunit, summary):
     testsuites.attrib["tests"] = str(len(summary.suite))
 
     pretty_xunit_report = pretty_print_xml(testsuites)
-    with open(xunit, "w") as xml_file:
+    with open(xunit, "w", encoding="utf-8") as xml_file:
         xml_file.write(pretty_xunit_report)
 
 
@@ -260,7 +259,8 @@ def build_under_coverity(intermediate_dir, command, strip_path):
                 "SECURE_CODING")
 
 
-# pylint: disable=too-many-arguments,too-many-locals
+# pylint: disable=too-many-arguments,too-many-positional-arguments
+# pylint: disable=too-many-locals
 def get_preview_report(intermediate_dir,
                        url,
                        stream,
@@ -324,7 +324,7 @@ def get_preview_report(intermediate_dir,
                 active_html_report_path)
 
     if text_output:
-        with open(text_output, 'w') as dest:
+        with open(text_output, 'w', encoding="utf-8") as dest:
             dest.write(
                 capture_command("cov-format-errors", "--dir", intermediate_dir,
                                 "--preview-report-v2", preview_report_v2_path,
@@ -333,7 +333,7 @@ def get_preview_report(intermediate_dir,
                                 "multiline")[0])
 
 
-# pylint: disable=too-many-arguments
+# pylint: disable=too-many-arguments,too-many-positional-arguments
 def publish_to_coverity_connect(intermediate_dir,
                                 url,
                                 stream,
@@ -648,7 +648,7 @@ disa-stig:
 
     version: V5
 """
-    with open("_covreport.yml", "w") as file:
+    with open("_covreport.yml", "w", encoding="utf-8") as file:
         file.write(cfg)
 
     # Special environment with Coverity user information
@@ -716,7 +716,7 @@ def run(args):
                        auth_key_file=args.auth_key_file)
 
     error_count = 0
-    with open(json_report_path, "r") as json_file:
+    with open(json_report_path, "r", encoding="utf-8") as json_file:
         report = json.load(json_file)
         summary = ReportSummary(report, ['undecided'])
         error_count = summary.problems
@@ -734,7 +734,8 @@ def run(args):
                                     password=args.password,
                                     auth_key_file=args.auth_key_file)
 
-        with open("_snapshot_id.txt", "r") as snapshot_id_file:
+        with open("_snapshot_id.txt", "r",
+                  encoding="utf-8") as snapshot_id_file:
             snapshot_id = snapshot_id_file.read().strip()
     snapshot_info = {}
     if snapshot_id is not None:
@@ -742,7 +743,8 @@ def run(args):
     snapshot_info["stream"] = args.stream
     snapshot_info["version"] = args.code_version
     with open(os.path.join(args.report_dir, "json", "info.json"),
-              "w") as info_file:
+              "w",
+              encoding="utf-8") as info_file:
         json.dump(snapshot_info, info_file, indent=2)
 
     if snapshot_id is not None:

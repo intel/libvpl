@@ -120,7 +120,7 @@ def run_command(*args, no_throw=False, env=None):
     with subprocess.Popen(cmd, shell=True, env=env) as proc:  # nosec
         proc.communicate()
         if not no_throw and proc.returncode != 0:
-            raise Exception("Error running command: " + cmd)
+            raise RuntimeError("Error running command: " + cmd)
         return proc.returncode
 
 
@@ -136,7 +136,7 @@ def run_commands(*args, no_throw=False, env=None):
         script_file = "temp.bat"
     else:
         script_file = "temp.sh"
-    with open(script_file, "w") as script:
+    with open(script_file, "w", encoding="utf-8") as script:
         log('echo "')
         for cmd in commands:
             log(f'{cmd}')
@@ -151,7 +151,7 @@ def run_commands(*args, no_throw=False, env=None):
         proc.communicate()
         rm(script_file)
         if not no_throw and proc.returncode != 0:
-            raise Exception("Error running: \n" + "\n".join(commands))
+            raise RuntimeError("Error running: \n" + "\n".join(commands))
         return proc.returncode
 
 
@@ -190,7 +190,7 @@ def capture_commands(*args, env=None):
         script_file = "temp.bat"
     else:
         script_file = "temp.sh"
-    with open(script_file, "w") as script:
+    with open(script_file, "w", encoding="utf-8") as script:
         log('echo "')
         for cmd in commands:
             log(f'{cmd}')

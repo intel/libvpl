@@ -86,7 +86,7 @@ import json
 from xml.etree.ElementTree import SubElement  # nosec
 from xml.etree.ElementTree import Element  # nosec
 import xlsxwriter
-import defusedxml.minidom as minidom
+from defusedxml import minidom
 import defusedxml.ElementTree as DET
 
 SCRIPT_PATH = os.path.realpath(
@@ -622,7 +622,7 @@ class TestSuite(TestContainer):
     def _read_csv_result(self, result: str):
         """Read in results from a TeamCity test format csv file"""
         tests_found = 0
-        with open(result, newline='') as csv_file:
+        with open(result, newline='', encoding="utf8") as csv_file:
             try:
                 dialect = csv.Sniffer().sniff(csv_file.readline(),
                                               delimiters=';,\t')
@@ -764,11 +764,12 @@ class TestPackage:
             suite = TestSuite(suite_name, source)
 
         for result_format, result_file in test_result_files:
+            tests_found = None
             if suite_per_file:
                 suite = TestSuite(
                     suite_name + "/" + os.path.basename(result_file),
                     result_file)
-            tests_found = suite.read_result(result_file, result_format)
+                tests_found = suite.read_result(result_file, result_format)
             if tests_found:
                 count += 1
                 if suite_per_file:
@@ -1065,7 +1066,7 @@ def write_excel_package_summary(workbook, dashboard, package, row):
     dashboard.write(f"M{row}", summary.unique_skip_count)
 
 
-# pylint: disable=too-many-arguments
+# pylint: disable=too-many-arguments,too-many-positional-arguments
 def write_excel_suite_summary(workbook, dashboard, suite, row, target_folder,
                               package_defects):
     """Write summary for one suite on dashboard"""
@@ -1156,7 +1157,7 @@ def load_defects(db_path):
     """Load defect database"""
     if not db_path or not os.path.isfile(db_path):
         return {}
-    with open(db_path, newline='') as db_file:
+    with open(db_path, newline='', encoding="utf8") as db_file:
         json_data = json.load(db_file)
         return json_data
 
@@ -1176,7 +1177,7 @@ def run(args):
                 validation_summary_path,
                 report_all_tests=args.report_all_tests,
                 defects=defects)
-    with open(xunit_path, "w") as xml_file:
+    with open(xunit_path, "w", encoding="utf8") as xml_file:
         xunit_report = report.as_xunit()
         pretty_xunit_report = pretty_print_xml(xunit_report)
         xml_file.write(pretty_xunit_report)

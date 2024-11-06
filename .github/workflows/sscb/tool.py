@@ -20,7 +20,7 @@ def load_json(file_name):
     Returns:
         dict: The data loaded from the JSON file.
     """
-    with open(file_name, 'r') as file:
+    with open(file_name, 'r', encoding="utf-8") as file:
         return json.load(file)
 
 
@@ -35,7 +35,7 @@ def load_yaml(file_name):
     Returns:
         dict: The data loaded from the YAML file.
     """
-    with open(file_name, 'r') as file:
+    with open(file_name, 'r', encoding="utf-8") as file:
         return yaml.safe_load(file)
 
 

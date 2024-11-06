@@ -6,7 +6,7 @@
 """
 Check for expected structure packing.
 """
-# pylint: disable=invalid-name
+# pylint: disable=invalid-name,consider-using-f-string
 
 import argparse
 import os
@@ -33,11 +33,11 @@ def CheckPtr(p_line):
     return 0
 
 
-def CheckTypedefWithPtr(_line):
+def CheckTypedefWithPtr(p_line):
     """Check typedef"""
     for typedef in typedefs_with_ptr_list:
         p_result = re.search(
-            typedef, newline
+            typedef, p_line
         )  # search for the field with the type defines through the typedef
         if p_result:
             return 1
