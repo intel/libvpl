@@ -119,6 +119,9 @@ jobs:
   cmake:
     name: CMake ${{ inputs.os }} ${{ inputs.build_type }}
     runs-on: [self-hosted, "${{ inputs.os || 'Linux' }}"]
+    env:
+      dockerfile: 'docker-env/script/Dockerfile.rhel.build'
+      container_name: 'vpl_build:rhel'
     steps:
 
       - name: Cleanup workspace (Linux)
@@ -128,6 +131,12 @@ jobs:
       - name: Cleanup workspace (Windows)
         if: always() && runner.os == 'Windows'
         run: Remove-Item -Recurse -Force .\*
+
+      - name: Checkout docker environment (Linux)
+        if: always() && runner.os == 'Linux'
+        uses: actions/checkout@v4
+        with:
+          path: docker-env
 
       - name: Checkout PR branch
         uses: actions/checkout@v4
@@ -141,9 +150,15 @@ jobs:
         if: always() && runner.os == 'Linux'
         run: >
           docker build ${{ inputs.docker_opts }}
-          -f "source/script/Dockerfile.rhel.build"
-          -t vpl_build:rhel
+          -f "$dockerfile"
+          -t $container_name
           "source/script"
+
+      - name: Checkout docker environment (Linux)
+        if: always() && runner.os == 'Linux'
+        uses: actions/checkout@v4
+        with:
+          path: docker-env
 
       - name: Install dependencies (Windows)
         if: always() && runner.os == 'Windows'
@@ -186,7 +201,7 @@ jobs:
           EOL
           chmod +x configure.sh
 
-          docker run --rm -v $(pwd):/tmp -w /tmp vpl_build:rhel ./configure.sh
+          docker run --rm -v $(pwd):/tmp -w /tmp $container_name ./configure.sh
 
       - name: Configure (Windows)
         if: always() && runner.os == 'Windows'
@@ -221,7 +236,7 @@ jobs:
           EOL
           chmod +x build.sh
 
-          docker run --rm -v $(pwd):/tmp -w /tmp vpl_build:rhel ./build.sh
+          docker run --rm -v $(pwd):/tmp -w /tmp $container_name ./build.sh
 
       - name: Build (Windows)
         if: runner.os == 'Windows'
@@ -268,7 +283,7 @@ jobs:
           --output-junit Testing/linux.xml
           EOL
           chmod +x test.sh
-          docker run --rm -v $(pwd):/tmp -w /tmp vpl_build:rhel ./test.sh
+          docker run --rm -v $(pwd):/tmp -w /tmp $container_name ./test.sh
 
       - name: Test (Windows)
         if: runner.os == 'Windows' && inputs.run_tests
