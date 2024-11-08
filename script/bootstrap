@@ -36,7 +36,9 @@ if [ "$ID_LIKE" == "debian" ]; then
   # lint prerequisites
   apt-get install -y --no-install-recommends \
     git \
-    python3-pip
+    pipx
+  pipx ensurepath --force
+  pipx install pre-commit
 elif [ "$ID_LIKE" == "fedora" ]; then
   # Add media driver repositories
   dnf install -y 'dnf-command(config-manager)'
@@ -71,6 +73,8 @@ elif [ "$ID_LIKE" == "fedora" ]; then
     rm -rf drm
   fi
   popd
+  # lint dependencies
+  pip3 install pre-commit
 elif [ "$ID_LIKE" == "rhel fedora" ]; then
   # basic build tools
   yum install -y centos-release-scl
@@ -143,7 +147,8 @@ elif [ "$ID_LIKE" == "rhel fedora" ]; then
     ./configure --enable-optimizations --enable-loadable-sqlite-extensions
     make install
   fi
-
+  # lint dependencies
+  pip3 install pre-commit
 else
   if [ -z ${ID_LIKE+x} ]; then
     echo "Error: unknown OS distribution"
@@ -152,6 +157,3 @@ else
   fi
   exit 1
 fi
-
-# lint dependencies
-pip3 install pre-commit
