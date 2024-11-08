@@ -180,6 +180,27 @@ TEST_F(StringAPITest, SetCodecIdWithFourCC) {
     sts = this->SetVideoParameter(key, value, &param, &extbuf);
     EXPECT_EQ(sts, MFX_ERR_NONE);
     EXPECT_EQ(param.mfx.CodecId, 842094158);
+
+    key   = (mfxU8 *)"CodecId";
+    value = (mfxU8 *)"1111";
+
+    sts = this->SetVideoParameter(key, value, &param, &extbuf);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+    EXPECT_EQ(param.mfx.CodecId, 825307441);
+
+    key   = (mfxU8 *)"CodecId";
+    value = (mfxU8 *)"+1111";
+
+    sts = this->SetVideoParameter(key, value, &param, &extbuf);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+    EXPECT_EQ(param.mfx.CodecId, 1111);
+
+    key   = (mfxU8 *)"CodecId";
+    value = (mfxU8 *)"AVC ";
+
+    sts = this->SetVideoParameter(key, value, &param, &extbuf);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+    EXPECT_EQ(param.mfx.CodecId, 541283905);
 }
 
 TEST_F(StringAPITest, SetFourCCWithFourCC) {

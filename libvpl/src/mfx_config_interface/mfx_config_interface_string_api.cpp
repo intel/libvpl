@@ -217,6 +217,8 @@ struct value_converter<VType, typename std::enable_if<std::is_unsigned<VType>::v
         trim(value);
         if (value.find_first_of('-', 0) != std::string::npos)
             return MFX_ERR_UNSUPPORTED;
+        if (value.find_first_of('+', 0) == 0)
+            value = value.substr(1, value.size() - 1);
 
         uint64_t converted_value = 0;
         try {
@@ -243,6 +245,8 @@ struct value_converter<VType, typename std::enable_if<std::is_signed<VType>::val
     static mfxStatus str_to_value(std::string value, VType &t) {
         trim(value);
         int64_t converted_value = 0;
+        if (value.find_first_of('+', 0) == 0)
+            value = value.substr(1, value.size() - 1);
         try {
             converted_value = std::stoll(value, 0);
         }
@@ -267,6 +271,8 @@ struct value_converter<VType, typename std::enable_if<std::is_floating_point<VTy
     static mfxStatus str_to_value(std::string value, VType &t) {
         trim(value);
         long double converted_value = 0;
+        if (value.find_first_of('+', 0) == 0)
+            value = value.substr(1, value.size() - 1);
         try {
             converted_value = std::stold(value);
         }
@@ -303,16 +309,17 @@ struct value_converter<VType, typename std::enable_if<std::is_enum<VType>::value
 // fourcc string otherwise it is treated as an integer
 // representation of a fourcc
 mfxStatus ConvertStrToFourCC(std::string value, mfxU32 &t) {
-    trim(value);
     uint32_t converted_value = 0;
     if (value.size() == 4) {
         converted_value = static_cast<uint32_t>((((uint32_t)value[0]) << 0) + (((uint32_t)value[1]) << 8) + (((uint32_t)value[2]) << 16) +
                                                 (((uint32_t)value[3]) << 24));
     }
     else {
+        trim(value);
         if (value.find_first_of('-', 0) != std::string::npos)
             return MFX_ERR_UNSUPPORTED;
-
+        if (value.find_first_of('+', 0) == 0)
+            value = value.substr(1, value.size() - 1);
         try {
             converted_value = std::stoul(value);
         }

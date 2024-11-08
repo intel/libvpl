@@ -12,7 +12,7 @@
 setlocal ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
 
 for %%Q in ("%~dp0\.") DO set "script_dir=%%~fQ"
-pushd %script_dir%\..
+pushd "%script_dir%\.."
   set "source_dir=%cd%"
 popd
 set "build_dir=%source_dir%\_build"
@@ -32,7 +32,7 @@ if not "%~1"=="" goto loop
 
 
 if "%do_lint%" == "1" (
-  call %source_dir%\script\lint.bat
+  call "%source_dir%\script\lint.bat"
   if !errorlevel! neq 0 exit /b !errorlevel!
 )
 
