@@ -479,10 +479,12 @@ struct LibInfo {
               msdkVersion(),
               implCapsPath() {}
 
+    virtual ~LibInfo() {}
+
 private:
     // make this class non-copyable
     LibInfo(const LibInfo &);
-    void operator=(const LibInfo &);
+    LibInfo &operator=(const LibInfo &);
 };
 
 struct ImplInfo {

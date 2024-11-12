@@ -96,7 +96,8 @@ struct VectorHandleGuard {
     HandleVector &m_vector;
 
 private:
-    void operator=(const VectorHandleGuard &);
+    VectorHandleGuard &operator=(const VectorHandleGuard &);
+    VectorHandleGuard(const VectorHandleGuard &other);
 };
 
 static int HandleSort(const void *plhs, const void *prhs) {

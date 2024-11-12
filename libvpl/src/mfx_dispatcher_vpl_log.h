@@ -7,11 +7,11 @@
 #ifndef LIBVPL_SRC_MFX_DISPATCHER_VPL_LOG_H_
 #define LIBVPL_SRC_MFX_DISPATCHER_VPL_LOG_H_
 
-/* Intel® Video Processing Library (Intel® VPL) Dispatcher Debug Log
+/* IntelÂ® Video Processing Library (IntelÂ® VPL) Dispatcher Debug Log
  * The debug output of the dispatcher is controlled with the ONEVPL_DISPATCHER_LOG environment variable.
  * To enable log output, set the ONEVPL_DISPATCHER_LOG environment variable value equals to "ON".
  * 
- * By default, Intel® VPL dispatcher prints all log messages to the console.
+ * By default, IntelÂ® VPL dispatcher prints all log messages to the console.
  * To redirect log output to the desired file, set the ONEVPL_DISPATCHER_LOG_FILE environmental 
  *   variable with the file name of the log file.
  */
@@ -45,6 +45,8 @@ public:
 private:
     std::string m_logFileName;
     FILE *m_logFile;
+    DispatcherLogVPL(const DispatcherLogVPL &other);
+    DispatcherLogVPL &operator=(const DispatcherLogVPL &other);
 };
 
 class DispatcherLogVPLFunction {
@@ -68,6 +70,8 @@ public:
 private:
     DispatcherLogVPL *m_dispLog;
     std::string m_fnName;
+    DispatcherLogVPLFunction(const DispatcherLogVPLFunction &other);
+    DispatcherLogVPLFunction &operator=(const DispatcherLogVPLFunction &other);
 };
 
 #define DISP_LOG_FUNCTION(dispLog) DispatcherLogVPLFunction _dispLogFn(dispLog, __FUNC_NAME__);

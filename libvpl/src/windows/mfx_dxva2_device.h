@@ -116,6 +116,10 @@ protected:
     void *m_pD3D9;
     // Pointer to the D3D v9 extended interface
     void *m_pD3D9Ex;
+
+private:
+    D3D9Device(const D3D9Device &other);
+    D3D9Device &operator=(const D3D9Device &other);
 };
 #endif // MFX_D3D9_ENABLED
 
@@ -140,6 +144,10 @@ protected:
     void *m_pDXGIFactory1;
     // Pointer to the current DXGI1 adapter
     void *m_pDXGIAdapter1;
+
+private:
+    DXGI1Device(const DXGI1Device &other);
+    DXGI1Device &operator=(const DXGI1Device &other);
 };
 
 class DXVA2Device {

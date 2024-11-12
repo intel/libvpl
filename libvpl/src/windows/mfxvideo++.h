@@ -123,6 +123,9 @@ public:
 
 protected:
     mfxSession m_session; // (mfxSession) handle to the owning session
+private:
+    MFXVideoENCODE(const MFXVideoENCODE &other);
+    MFXVideoENCODE &operator=(const MFXVideoENCODE &other);
 };
 
 class MFXVideoDECODE {
@@ -175,6 +178,9 @@ public:
 
 protected:
     mfxSession m_session; // (mfxSession) handle to the owning session
+private:
+    MFXVideoDECODE(const MFXVideoDECODE &other);
+    MFXVideoDECODE &operator=(const MFXVideoDECODE &other);
 };
 
 class MFXVideoVPP {
@@ -217,6 +223,9 @@ public:
 
 protected:
     mfxSession m_session; // (mfxSession) handle to the owning session
+private:
+    MFXVideoVPP(const MFXVideoVPP &other);
+    MFXVideoVPP &operator=(const MFXVideoVPP &other);
 };
 
 #endif // LIBVPL_SRC_WINDOWS_MFXVIDEO___H_
