@@ -6,10 +6,6 @@ permissions: read-all
 on:
   workflow_call:
     inputs:
-      image:
-        description: 'Docker image to test in'
-        required: true
-        type: string
       ref_lib_artifact:
         description: 'name of artifact for refrence lib'
         required: true
@@ -108,11 +104,24 @@ jobs:
           popd
         # yamllint enable rule:line-length
 
+      - name: Checkout media delivery repo
+        uses: actions/checkout@v4
+        with:
+          path: media-delivery
+          repository: intel/media-delivery
+
+      - name: Build media-delivery intel-gfx Docker image
+        run: >
+          docker build
+          -t intel-media-delivery
+          --file media-delivery/docker/ubuntu22.04/intel-gfx/Dockerfile
+          media-delivery/
+
       - name: Build Docker image
         run: |
           docker build source/.github/workflows/performance \
             -f source/.github/workflows/performance/Dockerfile \
-            --build-arg BASE_IMAGE="${{ inputs.image }}" \
+            --build-arg BASE_IMAGE="intel-media-delivery" \
             --build-arg USER_ID=$(id -u) \
             --build-arg GROUP_ID=$(id -g) \
             -t vpl_performance:linux

@@ -426,7 +426,6 @@ jobs:
       - ref-build
     uses: ./.github/workflows/performance.yml
     with:
-      image: ${{ vars.PERF_DOCKER_IMAGE }}
       ref_lib_artifact: linux-ref-build
       lib_artifact: linux-release-build
       artifact_name: linux-performance
