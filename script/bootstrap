@@ -157,4 +157,4 @@ else
 fi
 
 # lint dependencies
-pip3 install pre-commit
+pipx install pre-commit
