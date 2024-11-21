@@ -1837,6 +1837,9 @@ void Dispatcher_CreateSession_RequestPoolAllocationPolicyInvalidReturnsErrNotFou
 }
 
 void Dispatcher_CreateSession_RequestImplNameValidReturnsErrNone(mfxImplType implType) {
+    if (implType != MFX_IMPL_TYPE_HARDWARE)
+        GTEST_SKIP();
+
     mfxLoader loader = MFXLoad();
     EXPECT_FALSE(loader == nullptr);
 
@@ -1844,14 +1847,9 @@ void Dispatcher_CreateSession_RequestImplNameValidReturnsErrNone(mfxImplType imp
     EXPECT_EQ(sts, MFX_ERR_NONE);
 
     // pass the correct ImplName for RT
-    if (implType == MFX_IMPL_TYPE_HARDWARE) {
-        SetConfigFilterProperty<mfxHDL>(loader,
-                                        "mfxImplDescription.ImplName",
-                                        const_cast<char *>("mfx-gen"));
-    }
-    else {
-        GTEST_SKIP();
-    }
+    SetConfigFilterProperty<mfxHDL>(loader,
+                                    "mfxImplDescription.ImplName",
+                                    const_cast<char *>("mfx-gen"));
 
     // create session with first implementation
     mfxSession session = nullptr;
