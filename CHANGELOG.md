@@ -17,6 +17,18 @@ cases.
 
 ## [Unreleased]
 
+## [2.14.0] - 2024-12-13
+
+### Added
+- Intel® VPL API 2.14 support, including new quality and speed settings for AI
+  based video frame interpolation, new algorithm and mode selection options for
+  AI based super resolution, and HEVC level 8.5 decode support.
+
+- Improved support for Python 3.12 development environments.
+
+### Fixed
+- Bootstrap to support Debian distributions that do not define `ID_LIKE`.
+
 ## [2.13.0] - 2024-08-30
 
 ### Added
@@ -392,7 +404,8 @@ cases.
 - hello-transcode sample
 
 
-[Unreleased]: https://github.com/intel/libvpl/compare/v2.13.0...HEAD
+[Unreleased]: https://github.com/intel/libvpl/compare/v2.14.0...HEAD
+[2.14.0]: https://github.com/intel/libvpl/compare/v2.13.0...v2.14.0
 [2.13.0]: https://github.com/intel/libvpl/compare/v2.12.0...v2.13.0
 [2.12.0]: https://github.com/intel/libvpl/compare/v2.11.0...v2.12.0
 [2.11.0]: https://github.com/intel/libvpl/compare/v2.10.2...v2.11.0
