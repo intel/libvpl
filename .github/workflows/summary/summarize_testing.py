@@ -759,9 +759,7 @@ class TestPackage:
             test_result_files.extend([('csv', os.path.abspath(match))
                                       for match in glob("*.csv")])
         count = 0
-
-        if not suite_per_file:
-            suite = TestSuite(suite_name, source)
+        suite = TestSuite(suite_name, source)
 
         for result_format, result_file in test_result_files:
             tests_found = None
@@ -769,7 +767,7 @@ class TestPackage:
                 suite = TestSuite(
                     suite_name + "/" + os.path.basename(result_file),
                     result_file)
-                tests_found = suite.read_result(result_file, result_format)
+            tests_found = suite.read_result(result_file, result_format)
             if tests_found:
                 count += 1
                 if suite_per_file:
