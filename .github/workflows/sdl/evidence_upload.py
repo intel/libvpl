@@ -43,7 +43,6 @@ def upload_file(api_key, user_id, project_id, task_id, file_path, labels,
     base_url = "https://sdl-e.app.intel.com/uploader/v1/evidence/uploads/documents/creators"
     upload_url = (f"{base_url}/{user_id_encoded}"
                   f"?projectId={project_id_encoded}&taskId={task_id_encoded}")
-
     if labels:
         for label in labels:
             if label:
@@ -58,36 +57,36 @@ def upload_file(api_key, user_id, project_id, task_id, file_path, labels,
         file_name_with_prefix = f"{output_prefix}{os.path.basename(file_path)}"
         with open(file_path, 'rb') as file:
             files = {'file': (file_name_with_prefix, file)}
-    except OSError as exception:
-        print(f"Failed to open file {file_path}: {exception}")
-        sys.exit(1)
 
-    try:
-        # Make the request
-        response = requests.post(upload_url,
-                                 headers=headers,
-                                 files=files,
-                                 verify=False)
-        print(f" Response Content: {response.text}")
+            # Make the request
+            response = requests.post(upload_url,
+                                     headers=headers,
+                                     files=files,
+                                     verify=False)
+            print(f"Response Content: {response.text}")
 
-        # Check for success
-        if response.status_code == 200:
-            response_text = response.text
-            if 'Documents were uploaded correctly.' in response_text:
-                print(f"File for Task {task_id}  uploaded successfully!")
+            # Check for success
+            if response.status_code == 200:
+                response_text = response.text
+                if 'Documents were uploaded correctly.' in response_text:
+                    print(f"File for Task {task_id}  uploaded successfully!")
+                else:
+                    print(
+                        f"Failed to upload file  for Task {task_id}. Response: {response_text}"
+                    )
+                    sys.exit(response.status_code)
             else:
-                print(f"Failed to upload file for Task {task_id}."
-                      "Response: {response_text}")
+                print(
+                    f"Failed to upload file  for Task {task_id}. "
+                    f"Status Code: {response.status_code}, Response: {response.text}"
+                )
                 sys.exit(response.status_code)
-        else:
-            print(
-                f"Failed to upload file  for Task {task_id}. "
-                f"Status Code: {response.status_code}, Response: {response.text}"
-            )
-            sys.exit(response.status_code)
 
     except requests.RequestException as exception:
         print(f"Request failed for Task {task_id}: {exception}")
+        sys.exit(1)
+    except OSError as exception:
+        print(f"Failed to open file {file_path}: {exception}")
         sys.exit(1)
 
 
@@ -122,7 +121,7 @@ def main():
                         nargs="+",
                         help="List of file paths")
     parser.add_argument("--label",
-                        required=True,
+                        required=False,
                         nargs="*",
                         help="Label or tags for this file upload")
     parser.add_argument("--output_prefix",
