@@ -154,12 +154,6 @@ jobs:
           -t $container_name
           "source/script"
 
-      - name: Checkout docker environment (Linux)
-        if: always() && runner.os == 'Linux'
-        uses: actions/checkout@v4
-        with:
-          path: docker-env
-
       - name: Install dependencies (Windows)
         if: always() && runner.os == 'Windows'
         shell: cmd

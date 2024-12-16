@@ -24,6 +24,9 @@ cases.
 ### Fixed
 - `BUILD_EXAMPLES` build option requiring `INSTALL_DEV` to have any effect.
 
+### Changed
+- Default Ubuntu build to 24.04.
+
 ## [2.14.0] - 2024-12-13
 
 ### Added
