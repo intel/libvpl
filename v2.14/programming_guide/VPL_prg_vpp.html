@@ -1,0 +1,1099 @@
+<!--
+SPDX-FileCopyrightText: 2019-2023 Intel Corporation
+
+SPDX-License-Identifier: MIT
+-->
+
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Video Processing Procedures &#8212; Intel® VPL  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=5b4479735964841361fd" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=5b4479735964841361fd" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd" />
+  <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=5b4479735964841361fd"></script>
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'programming_guide/VPL_prg_vpp';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Transcoding Procedures" href="VPL_prg_transcoding.html" />
+    <link rel="prev" title="Encoding Procedures" href="VPL_prg_encoding.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Intel® VPL  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../VPL_intel_media_sdk.html">Intel<sup>®</sup> VPL for Intel<sup>®</sup> Media Software Development Kit Users</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../architecture/index.html">Architecture</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/VPL_decoding.html">Video Decoding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/VPL_encoding.html">Video Encoding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/VPL_processing.html">Video Processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/VPL_decoding_vpp.html">Video Decoding with multiple video processing</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Programming Guide</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_stc.html">Status Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_session.html">Intel<sup>®</sup> VPL Session</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_frame.html">Frame and Fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_decoding.html">Decoding Procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_encoding.html">Encoding Procedures</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Video Processing Procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_transcoding.html">Transcoding Procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_config.html">Parameter Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_hw.html">Hardware Acceleration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_mem.html">Memory Allocation and External Allocators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_surface_sharing.html">Importing and Exporting Shared Surfaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_err.html">Hardware Device Error Handling</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../VPL_summary.html">Mandatory APIs and Functions</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../API_ref/VPL_api_ref.html">Intel<sup>®</sup> VPL API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../API_ref/VPL_functions.html">Function Reference</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_vid_decode.html">VideoDECODE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_vid_encode.html">VideoENCODE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_vid_vpp.html">VideoVPP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_vidcore.html">VideoCORE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_session.html">Session Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_mem.html">Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_capabilities.html">Implementation Capabilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_adapters.html">Adapters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_vid_decode_vpp.html">VideoDECODE_VPP</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../API_ref/VPL_structs.html">Structure Reference</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_type.html">Type Definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_memory.html">Memory Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_impl_manage.html">Implementation Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_cross_component.html">Cross-component Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_decode.html">Decode Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_encode.html">Encode Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_vpp.html">VPP Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_protected.html">Protected Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_decode_vpp.html">DECODE_VPP Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_camera.html">Camera Structures</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../API_ref/VPL_enums.html">Enumerator Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../API_ref/VPL_defines.html">Define Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../API_ref/VPL_ref_types.html">Type Reference</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../API_ref/VPL_disp_api.html">Dispatcher API</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_disp_api_func.html">Dispatcher API Function Reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_disp_api_struct.html">Dispatcher API Structure Reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_disp_api_enum.html">Dispatcher API Enumeration Reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_disp_api_def.html">Dispatcher API Define Reference</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../API_ref/VPL_guids.html">GUIDs Reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Versioning.html">Intel<sup>®</sup> VPL API Versioning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Experimental.html">Intel<sup>®</sup> VPL Experimental API</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../appendix/index.html">Appendices</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_a.html">Configuration Parameter Constraints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_b.html">Multiple-segment Encoding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_c.html">Streaming and Video Conferencing Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_d.html">Switchable Graphics and Multiple Monitors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_e.html">Working Directly with VA-API for Linux*</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_f.html">CQP HRD Mode Encoding</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../VPL_acronyms.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../VPL_deprecation.html">Deprecated API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../VPL_change_log.html">Change Log</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/programming_guide/VPL_prg_vpp.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Video Processing Procedures</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration">Configuration</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#region-of-interest">Region of Interest</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#multi-view-video-processing">Multi-view Video Processing</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#video-processing-3dlut">Video Processing 3DLUT</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#hdr-tone-mapping">HDR Tone Mapping</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#camera-raw-acceleration">Camera RAW acceleration</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ai-powered-video-processing">AI Powered Video Processing</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="video-processing-procedures">
+<span id="vid-process-procedure"></span><h1>Video Processing Procedures<a class="headerlink" href="#video-processing-procedures" title="Permalink to this heading">#</a></h1>
+<p>The following pseudo code shows the video processing procedure:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="n">MFXVideoVPP_QueryIOSurf</span><span class="p">(</span><span class="n">session</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">init_param</span><span class="p">,</span><span class="w"> </span><span class="n">response</span><span class="p">);</span>
+<span class="linenos"> 2</span><span class="n">allocate_pool_of_surfaces</span><span class="p">(</span><span class="n">in_pool</span><span class="p">,</span><span class="w"> </span><span class="n">response</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">NumFrameSuggested</span><span class="p">);</span>
+<span class="linenos"> 3</span><span class="n">allocate_pool_of_surfaces</span><span class="p">(</span><span class="n">out_pool</span><span class="p">,</span><span class="w"> </span><span class="n">response</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">NumFrameSuggested</span><span class="p">);</span>
+<span class="linenos"> 4</span><span class="n">MFXVideoVPP_Init</span><span class="p">(</span><span class="n">session</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">init_param</span><span class="p">);</span>
+<span class="linenos"> 5</span><span class="n">mfxFrameSurface1</span><span class="w"> </span><span class="o">*</span><span class="n">in</span><span class="o">=</span><span class="n">find_unlocked_surface_and_fill_content</span><span class="p">(</span><span class="n">in_pool</span><span class="p">);</span>
+<span class="linenos"> 6</span><span class="n">mfxFrameSurface1</span><span class="w"> </span><span class="o">*</span><span class="n">out</span><span class="o">=</span><span class="n">find_unlocked_surface_from_the_pool</span><span class="p">(</span><span class="n">out_pool</span><span class="p">);</span>
+<span class="linenos"> 7</span><span class="k">for</span><span class="w"> </span><span class="p">(;;)</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos"> 8</span><span class="w">   </span><span class="n">sts</span><span class="o">=</span><span class="n">MFXVideoVPP_RunFrameVPPAsync</span><span class="p">(</span><span class="n">session</span><span class="p">,</span><span class="n">in</span><span class="p">,</span><span class="n">out</span><span class="p">,</span><span class="nb">NULL</span><span class="p">,</span><span class="o">&amp;</span><span class="n">syncp</span><span class="p">);</span>
+<span class="linenos"> 9</span><span class="w">   </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">sts</span><span class="o">==</span><span class="n">MFX_ERR_MORE_SURFACE</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">sts</span><span class="o">==</span><span class="n">MFX_ERR_NONE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos">10</span><span class="w">      </span><span class="n">MFXVideoCORE_SyncOperation</span><span class="p">(</span><span class="n">session</span><span class="p">,</span><span class="n">syncp</span><span class="p">,</span><span class="n">INFINITE</span><span class="p">);</span>
+<span class="linenos">11</span><span class="w">      </span><span class="n">process_output_frame</span><span class="p">(</span><span class="n">out</span><span class="p">);</span>
+<span class="linenos">12</span><span class="w">      </span><span class="n">out</span><span class="o">=</span><span class="n">find_unlocked_surface_from_the_pool</span><span class="p">(</span><span class="n">out_pool</span><span class="p">);</span>
+<span class="linenos">13</span><span class="w">   </span><span class="p">}</span>
+<span class="linenos">14</span><span class="w">   </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">sts</span><span class="o">==</span><span class="n">MFX_ERR_MORE_DATA</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">in</span><span class="o">==</span><span class="nb">NULL</span><span class="p">)</span>
+<span class="linenos">15</span><span class="w">      </span><span class="k">break</span><span class="p">;</span>
+<span class="linenos">16</span><span class="w">   </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">sts</span><span class="o">==</span><span class="n">MFX_ERR_NONE</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">sts</span><span class="o">==</span><span class="n">MFX_ERR_MORE_DATA</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos">17</span><span class="w">      </span><span class="n">in</span><span class="o">=</span><span class="n">find_unlocked_surface_from_the_pool</span><span class="p">(</span><span class="n">in_pool</span><span class="p">);</span>
+<span class="linenos">18</span><span class="w">      </span><span class="n">fill_content_for_video_processing</span><span class="p">(</span><span class="n">in</span><span class="p">);</span>
+<span class="linenos">19</span><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">end_of_stream</span><span class="p">())</span>
+<span class="linenos">20</span><span class="w">         </span><span class="n">in</span><span class="o">=</span><span class="nb">NULL</span><span class="p">;</span>
+<span class="linenos">21</span><span class="w">   </span><span class="p">}</span>
+<span class="linenos">22</span><span class="p">}</span>
+<span class="linenos">23</span><span class="n">MFXVideoVPP_Close</span><span class="p">(</span><span class="n">session</span><span class="p">);</span>
+<span class="linenos">24</span><span class="n">free_pool_of_surfaces</span><span class="p">(</span><span class="n">in_pool</span><span class="p">);</span>
+<span class="linenos">25</span><span class="n">free_pool_of_surfaces</span><span class="p">(</span><span class="n">out_pool</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Note the following key points about the example:</p>
+<ul class="simple">
+<li><p>The application uses the <a class="reference internal" href="../API_ref/VPL_func_vid_vpp.html#_CPPv423MFXVideoVPP_QueryIOSurf10mfxSessionP13mfxVideoParamAL2E_20mfxFrameAllocRequest" title="MFXVideoVPP_QueryIOSurf"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoVPP_QueryIOSurf()</span></code></a> function to
+obtain the number of frame surfaces needed for input and output. The application
+must allocate two frame surface pools: one for the input and one for the output.</p></li>
+<li><p>The video processing function <a class="reference internal" href="../API_ref/VPL_func_vid_vpp.html#_CPPv428MFXVideoVPP_RunFrameVPPAsync10mfxSessionP16mfxFrameSurface1P16mfxFrameSurface1P16mfxExtVppAuxDataP12mfxSyncPoint" title="MFXVideoVPP_RunFrameVPPAsync"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoVPP_RunFrameVPPAsync()</span></code></a> is
+asynchronous. The application must use the <a class="reference internal" href="../API_ref/VPL_func_vidcore.html#_CPPv426MFXVideoCORE_SyncOperation10mfxSession12mfxSyncPoint6mfxU32" title="MFXVideoCORE_SyncOperation"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoCORE_SyncOperation()</span></code></a>
+function to synchronize in order to make the output result ready.</p></li>
+<li><p>The body of the video processing procedure covers the following three scenarios:</p>
+<ul>
+<li><p>If the number of frames consumed at input is equal to the number of frames
+generated at output, <a class="reference internal" href="../architecture/index.html#term-VPP"><span class="xref std std-term">VPP</span></a> returns <a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv4N9mfxStatus12MFX_ERR_NONEE" title="mfxStatus::MFX_ERR_NONE"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">mfxStatus::MFX_ERR_NONE</span></code></a> when an
+output is ready. The application must process the output frame after
+synchronization, as the <a class="reference internal" href="../API_ref/VPL_func_vid_vpp.html#_CPPv428MFXVideoVPP_RunFrameVPPAsync10mfxSessionP16mfxFrameSurface1P16mfxFrameSurface1P16mfxExtVppAuxDataP12mfxSyncPoint" title="MFXVideoVPP_RunFrameVPPAsync"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoVPP_RunFrameVPPAsync()</span></code></a> function is
+asynchronous. The application must provide a NULL input at the end of the
+sequence to drain any remaining frames.</p></li>
+<li><p>If the number of frames consumed at input is more than the number of frames
+generated at output, VPP returns <a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv4N9mfxStatus17MFX_ERR_MORE_DATAE" title="mfxStatus::MFX_ERR_MORE_DATA"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">mfxStatus::MFX_ERR_MORE_DATA</span></code></a> for
+additional input until an output is ready. When the output is ready, VPP
+returns <a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv4N9mfxStatus12MFX_ERR_NONEE" title="mfxStatus::MFX_ERR_NONE"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">mfxStatus::MFX_ERR_NONE</span></code></a>. The application must process the
+output frame after synchronization and provide a NULL input at the end of the
+sequence to drain any remaining frames.</p></li>
+<li><p>If the number of frames consumed at input is less than the number of frames
+generated at output, VPP returns either <a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv4N9mfxStatus20MFX_ERR_MORE_SURFACEE" title="mfxStatus::MFX_ERR_MORE_SURFACE"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">mfxStatus::MFX_ERR_MORE_SURFACE</span></code></a>
+(when more than one output is ready), or <a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv4N9mfxStatus12MFX_ERR_NONEE" title="mfxStatus::MFX_ERR_NONE"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">mfxStatus::MFX_ERR_NONE</span></code></a>
+(when one output is ready and VPP expects new input). In both cases, the
+application must process the output frame after synchronization and provide
+a NULL input at the end of the sequence to drain any remaining frames.</p></li>
+</ul>
+</li>
+</ul>
+<section id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this heading">#</a></h2>
+<p>Intel<sup>®</sup> VPL configures the video processing pipeline operation based on the
+difference between the input and output formats, specified in the
+<a class="reference internal" href="../API_ref/VPL_structs_cross_component.html#_CPPv413mfxVideoParam" title="mfxVideoParam"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxVideoParam</span></code></a> structure. The following list shows several examples:</p>
+<ul class="simple">
+<li><p>When the input color format is <a class="reference internal" href="../VPL_acronyms.html#term-YUY2"><span class="xref std std-term">YUY2</span></a> and the output color format is
+<a class="reference internal" href="../VPL_acronyms.html#term-NV12"><span class="xref std std-term">NV12</span></a>, Intel<sup>®</sup> VPL enables color conversion from YUY2 to NV12.</p></li>
+<li><p>When the input is interleaved and the output is progressive, Intel<sup>®</sup> VPL enables
+deinterlacing.</p></li>
+<li><p>When the input is single field and the output is interlaced or progressive,
+Intel<sup>®</sup> VPL enables field weaving, optionally with deinterlacing.</p></li>
+<li><p>When the input is interlaced and the output is single field, Intel<sup>®</sup> VPL enables
+field splitting.</p></li>
+</ul>
+<p>In addition to specifying the input and output formats, the application can
+provide hints to fine-tune the video processing pipeline operation. The
+application can disable filters in the pipeline by using the
+<a class="reference internal" href="../API_ref/VPL_structs_vpp.html#_CPPv417mfxExtVPPDoNotUse" title="mfxExtVPPDoNotUse"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxExtVPPDoNotUse</span></code></a> structure, enable filters by using the
+<a class="reference internal" href="../API_ref/VPL_structs_vpp.html#_CPPv414mfxExtVPPDoUse" title="mfxExtVPPDoUse"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxExtVPPDoUse</span></code></a> structure, and configure filters by using dedicated
+configuration structures. See the <a class="reference internal" href="#vpp-filters-table"><span class="std std-ref">Configurable VPP Filters table</span></a>
+for a complete list of configurable video processing filters, their IDs, and
+configuration structures. See the <a class="reference internal" href="../API_ref/VPL_enums.html#extendedbufferid"><span class="std std-ref">ExtendedBufferID enumerator</span></a>
+for more details.</p>
+<p>Intel<sup>®</sup> VPL ensures that all filters necessary to convert the input format to the
+output format are included in the pipeline. Intel<sup>®</sup> VPL may skip some optional
+filters even if they are explicitly requested by the application, for example
+due to limitations of the underlying hardware. To notify the application about
+skipped optional filters, Intel<sup>®</sup> VPL returns the <a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv4N9mfxStatus22MFX_WRN_FILTER_SKIPPEDE" title="mfxStatus::MFX_WRN_FILTER_SKIPPED"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">mfxStatus::MFX_WRN_FILTER_SKIPPED</span></code></a>
+warning. The application can retrieve the list of active filters by attaching
+the <a class="reference internal" href="../API_ref/VPL_structs_vpp.html#_CPPv414mfxExtVPPDoUse" title="mfxExtVPPDoUse"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxExtVPPDoUse</span></code></a> structure to the <a class="reference internal" href="../API_ref/VPL_structs_cross_component.html#_CPPv413mfxVideoParam" title="mfxVideoParam"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxVideoParam</span></code></a>
+structure and calling the <a class="reference internal" href="../API_ref/VPL_func_vid_vpp.html#_CPPv425MFXVideoVPP_GetVideoParam10mfxSessionP13mfxVideoParam" title="MFXVideoVPP_GetVideoParam"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoVPP_GetVideoParam()</span></code></a> function. The
+application must allocate enough memory for the filter list.</p>
+<p>See the <a class="reference internal" href="#vpp-filters-table"><span class="std std-ref">Configurable VPP Filters table</span></a> for a full
+list of configurable filters.</p>
+<span id="vpp-filters-table"></span><table class="table" id="id1">
+<caption><span class="caption-text">Configurable VPP Filters</span><a class="headerlink" href="#id1" title="Permalink to this table">#</a></caption>
+<colgroup>
+<col style="width: 58.0%" />
+<col style="width: 42.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Filter ID</strong></p></th>
+<th class="head"><p><strong>Configuration Structure</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv424MFX_EXTBUFF_VPP_DENOISE2" title="MFX_EXTBUFF_VPP_DENOISE2"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">MFX_EXTBUFF_VPP_DENOISE2</span></code></a></p></td>
+<td><p><a class="reference internal" href="../API_ref/VPL_structs_vpp.html#_CPPv417mfxExtVPPDenoise2" title="mfxExtVPPDenoise2"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxExtVPPDenoise2</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv420MFX_EXTBUFF_VPP_MCTF" title="MFX_EXTBUFF_VPP_MCTF"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">MFX_EXTBUFF_VPP_MCTF</span></code></a></p></td>
+<td><p><a class="reference internal" href="../API_ref/VPL_structs_vpp.html#_CPPv413mfxExtVppMctf" title="mfxExtVppMctf"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxExtVppMctf</span></code></a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv422MFX_EXTBUFF_VPP_DETAIL" title="MFX_EXTBUFF_VPP_DETAIL"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">MFX_EXTBUFF_VPP_DETAIL</span></code></a></p></td>
+<td><p><a class="reference internal" href="../API_ref/VPL_structs_vpp.html#_CPPv415mfxExtVPPDetail" title="mfxExtVPPDetail"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxExtVPPDetail</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv437MFX_EXTBUFF_VPP_FRAME_RATE_CONVERSION" title="MFX_EXTBUFF_VPP_FRAME_RATE_CONVERSION"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">MFX_EXTBUFF_VPP_FRAME_RATE_CONVERSION</span></code></a></p></td>
+<td><p><a class="reference internal" href="../API_ref/VPL_structs_vpp.html#_CPPv428mfxExtVPPFrameRateConversion" title="mfxExtVPPFrameRateConversion"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxExtVPPFrameRateConversion</span></code></a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv435MFX_EXTBUFF_VPP_IMAGE_STABILIZATION" title="MFX_EXTBUFF_VPP_IMAGE_STABILIZATION"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">MFX_EXTBUFF_VPP_IMAGE_STABILIZATION</span></code></a></p></td>
+<td><p><a class="reference internal" href="../API_ref/VPL_structs_vpp.html#_CPPv418mfxExtVPPImageStab" title="mfxExtVPPImageStab"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxExtVPPImageStab</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv423MFX_EXTBUFF_VPP_PROCAMP" title="MFX_EXTBUFF_VPP_PROCAMP"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">MFX_EXTBUFF_VPP_PROCAMP</span></code></a></p></td>
+<td><p><a class="reference internal" href="../API_ref/VPL_structs_vpp.html#_CPPv416mfxExtVPPProcAmp" title="mfxExtVPPProcAmp"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxExtVPPProcAmp</span></code></a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv432MFX_EXTBUFF_VPP_FIELD_PROCESSING" title="MFX_EXTBUFF_VPP_FIELD_PROCESSING"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">MFX_EXTBUFF_VPP_FIELD_PROCESSING</span></code></a></p></td>
+<td><p><a class="reference internal" href="../API_ref/VPL_structs_vpp.html#_CPPv424mfxExtVPPFieldProcessing" title="mfxExtVPPFieldProcessing"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxExtVPPFieldProcessing</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv421MFX_EXTBUFF_VPP_3DLUT" title="MFX_EXTBUFF_VPP_3DLUT"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">MFX_EXTBUFF_VPP_3DLUT</span></code></a></p></td>
+<td><p><a class="reference internal" href="../API_ref/VPL_structs_vpp.html#_CPPv414mfxExtVPP3DLut" title="mfxExtVPP3DLut"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxExtVPP3DLut</span></code></a></p></td>
+</tr>
+</tbody>
+</table>
+<p>The following example shows video processing configuration:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="cm">/* enable image stabilization filter with default settings */</span>
+<span class="linenos"> 2</span><span class="n">mfxExtVPPDoUse</span><span class="w"> </span><span class="n">du</span><span class="p">;</span>
+<span class="linenos"> 3</span><span class="n">mfxU32</span><span class="w"> </span><span class="n">al</span><span class="o">=</span><span class="n">MFX_EXTBUFF_VPP_IMAGE_STABILIZATION</span><span class="p">;</span>
+<span class="linenos"> 4</span>
+<span class="linenos"> 5</span><span class="n">du</span><span class="p">.</span><span class="n">Header</span><span class="p">.</span><span class="n">BufferId</span><span class="o">=</span><span class="n">MFX_EXTBUFF_VPP_DOUSE</span><span class="p">;</span>
+<span class="linenos"> 6</span><span class="n">du</span><span class="p">.</span><span class="n">Header</span><span class="p">.</span><span class="n">BufferSz</span><span class="o">=</span><span class="k">sizeof</span><span class="p">(</span><span class="n">mfxExtVPPDoUse</span><span class="p">);</span>
+<span class="linenos"> 7</span><span class="n">du</span><span class="p">.</span><span class="n">NumAlg</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span>
+<span class="linenos"> 8</span><span class="n">du</span><span class="p">.</span><span class="n">AlgList</span><span class="o">=&amp;</span><span class="n">al</span><span class="p">;</span>
+<span class="linenos"> 9</span>
+<span class="linenos">10</span><span class="cm">/* configure the mfxVideoParam structure */</span>
+<span class="linenos">11</span><span class="n">mfxVideoParam</span><span class="w"> </span><span class="n">conf</span><span class="p">;</span>
+<span class="linenos">12</span><span class="n">mfxExtBuffer</span><span class="w"> </span><span class="o">*</span><span class="n">eb</span><span class="o">=</span><span class="p">(</span><span class="n">mfxExtBuffer</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">du</span><span class="p">;</span>
+<span class="linenos">13</span>
+<span class="linenos">14</span><span class="n">memset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">conf</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="k">sizeof</span><span class="p">(</span><span class="n">conf</span><span class="p">));</span>
+<span class="linenos">15</span><span class="n">conf</span><span class="p">.</span><span class="n">IOPattern</span><span class="o">=</span><span class="n">MFX_IOPATTERN_IN_SYSTEM_MEMORY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">MFX_IOPATTERN_OUT_SYSTEM_MEMORY</span><span class="p">;</span>
+<span class="linenos">16</span><span class="n">conf</span><span class="p">.</span><span class="n">NumExtParam</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span>
+<span class="linenos">17</span><span class="n">conf</span><span class="p">.</span><span class="n">ExtParam</span><span class="o">=&amp;</span><span class="n">eb</span><span class="p">;</span>
+<span class="linenos">18</span>
+<span class="linenos">19</span><span class="n">conf</span><span class="p">.</span><span class="n">vpp</span><span class="p">.</span><span class="n">In</span><span class="p">.</span><span class="n">FourCC</span><span class="o">=</span><span class="n">MFX_FOURCC_YV12</span><span class="p">;</span>
+<span class="linenos">20</span><span class="n">conf</span><span class="p">.</span><span class="n">vpp</span><span class="p">.</span><span class="n">Out</span><span class="p">.</span><span class="n">FourCC</span><span class="o">=</span><span class="n">MFX_FOURCC_NV12</span><span class="p">;</span>
+<span class="linenos">21</span><span class="n">conf</span><span class="p">.</span><span class="n">vpp</span><span class="p">.</span><span class="n">In</span><span class="p">.</span><span class="n">Width</span><span class="o">=</span><span class="n">conf</span><span class="p">.</span><span class="n">vpp</span><span class="p">.</span><span class="n">Out</span><span class="p">.</span><span class="n">Width</span><span class="o">=</span><span class="mi">1920</span><span class="p">;</span>
+<span class="linenos">22</span><span class="n">conf</span><span class="p">.</span><span class="n">vpp</span><span class="p">.</span><span class="n">In</span><span class="p">.</span><span class="n">Height</span><span class="o">=</span><span class="n">conf</span><span class="p">.</span><span class="n">vpp</span><span class="p">.</span><span class="n">Out</span><span class="p">.</span><span class="n">Height</span><span class="o">=</span><span class="mi">1088</span><span class="p">;</span>
+<span class="linenos">23</span>
+<span class="linenos">24</span><span class="cm">/* video processing initialization */</span>
+<span class="linenos">25</span><span class="n">MFXVideoVPP_Init</span><span class="p">(</span><span class="n">session</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">conf</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+<section id="region-of-interest">
+<h2>Region of Interest<a class="headerlink" href="#region-of-interest" title="Permalink to this heading">#</a></h2>
+<p>During video processing operations, the application can specify a region of
+interest for each frame as shown in the following figure:</p>
+<figure class="align-default" id="id2">
+<img alt="VPP region of interest operation" src="../_images/vpp_region_of_interest_operation.png" />
+<figcaption>
+<p><span class="caption-text">VPP region of interest operation</span><a class="headerlink" href="#id2" title="Permalink to this image">#</a></p>
+</figcaption>
+</figure>
+<p>Specifying a region of interest guides the resizing function to achieve special
+effects, such as resizing from 16:9 to 4:3, while keeping the aspect ratio intact.
+Use the <code class="docutils literal notranslate"><span class="pre">CropX</span></code>, <code class="docutils literal notranslate"><span class="pre">CropY</span></code>, <code class="docutils literal notranslate"><span class="pre">CropW</span></code>, and <code class="docutils literal notranslate"><span class="pre">CropH</span></code> parameters in the
+<a class="reference internal" href="../API_ref/VPL_structs_cross_component.html#_CPPv413mfxVideoParam" title="mfxVideoParam"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxVideoParam</span></code></a> structure to specify a region of interest for each frame
+when calling <a class="reference internal" href="../API_ref/VPL_func_vid_vpp.html#_CPPv428MFXVideoVPP_RunFrameVPPAsync10mfxSessionP16mfxFrameSurface1P16mfxFrameSurface1P16mfxExtVppAuxDataP12mfxSyncPoint" title="MFXVideoVPP_RunFrameVPPAsync"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoVPP_RunFrameVPPAsync()</span></code></a>. Note: For per-frame dynamic
+change, the application should set the <code class="docutils literal notranslate"><span class="pre">CropX</span></code>, <code class="docutils literal notranslate"><span class="pre">CropY</span></code>, <code class="docutils literal notranslate"><span class="pre">CropW</span></code>, and <code class="docutils literal notranslate"><span class="pre">CropH</span></code>
+parameters when calling <a class="reference internal" href="../API_ref/VPL_func_vid_vpp.html#_CPPv428MFXVideoVPP_RunFrameVPPAsync10mfxSessionP16mfxFrameSurface1P16mfxFrameSurface1P16mfxExtVppAuxDataP12mfxSyncPoint" title="MFXVideoVPP_RunFrameVPPAsync"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoVPP_RunFrameVPPAsync()</span></code></a> per frame.</p>
+<p>The <a class="reference internal" href="#vpp-region-op-table"><span class="std std-ref">VPP Region of Interest Operations table</span></a> shows
+examples of VPP operations applied to a region of interest.</p>
+<span id="vpp-region-op-table"></span><table class="table" id="id3">
+<caption><span class="caption-text">VPP Region of Interest Operations</span><a class="headerlink" href="#id3" title="Permalink to this table">#</a></caption>
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 15.0%" />
+<col style="width: 20.0%" />
+<col style="width: 15.0%" />
+<col style="width: 20.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><div class="line-block">
+<div class="line"><strong>Operation</strong></div>
+<div class="line"><br /></div>
+<div class="line"><br /></div>
+</div>
+</th>
+<th class="head"><div class="line-block">
+<div class="line"><strong>VPP Input</strong></div>
+<div class="line"><em>Width X Height</em></div>
+<div class="line"><br /></div>
+</div>
+</th>
+<th class="head"><div class="line-block">
+<div class="line"><strong>VPP Input</strong></div>
+<div class="line"><em>CropX, CropY,</em></div>
+<div class="line"><em>CropW, CropH</em></div>
+</div>
+</th>
+<th class="head"><div class="line-block">
+<div class="line"><strong>VPP Output</strong></div>
+<div class="line"><em>Width X Height</em></div>
+<div class="line"><br /></div>
+</div>
+</th>
+<th class="head"><div class="line-block">
+<div class="line"><strong>VPP Output</strong></div>
+<div class="line"><em>CropX, CropY,</em></div>
+<div class="line"><em>CropW, CropH</em></div>
+</div>
+</th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Cropping</p></td>
+<td><p>720 x 480</p></td>
+<td><p>16, 16, 688, 448</p></td>
+<td><p>720 x 480</p></td>
+<td><p>16, 16, 688, 448</p></td>
+</tr>
+<tr class="row-odd"><td><p>Resizing</p></td>
+<td><p>720 x 480</p></td>
+<td><p>0, 0, 720, 480</p></td>
+<td><p>1440 x 960</p></td>
+<td><p>0, 0, 1440, 960</p></td>
+</tr>
+<tr class="row-even"><td><p>Horizontal stretching</p></td>
+<td><p>720 x 480</p></td>
+<td><p>0, 0, 720, 480</p></td>
+<td><p>640 x 480</p></td>
+<td><p>0, 0, 640, 480</p></td>
+</tr>
+<tr class="row-odd"><td><p>16:9 4:3 with letter boxing at the top and bottom</p></td>
+<td><p>1920 x 1088</p></td>
+<td><p>0, 0, 1920, 1088</p></td>
+<td><p>720 x 480</p></td>
+<td><p>0, 36, 720, 408</p></td>
+</tr>
+<tr class="row-even"><td><p>4:3 16:9 with pillar boxing at the left and right</p></td>
+<td><p>720 x 480</p></td>
+<td><p>0, 0, 720, 480</p></td>
+<td><p>1920 x 1088</p></td>
+<td><p>144, 0, 1632, 1088</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="multi-view-video-processing">
+<h2>Multi-view Video Processing<a class="headerlink" href="#multi-view-video-processing" title="Permalink to this heading">#</a></h2>
+<p>Intel<sup>®</sup> VPL video processing supports processing multiple views. For video processing
+initialization, the application needs to attach the <a class="reference internal" href="../API_ref/VPL_structs_cross_component.html#_CPPv416mfxExtMVCSeqDesc" title="mfxExtMVCSeqDesc"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxExtMVCSeqDesc</span></code></a>
+structure to the <a class="reference internal" href="../API_ref/VPL_structs_cross_component.html#_CPPv413mfxVideoParam" title="mfxVideoParam"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxVideoParam</span></code></a> structure and call the
+<a class="reference internal" href="../API_ref/VPL_func_vid_vpp.html#_CPPv416MFXVideoVPP_Init10mfxSessionP13mfxVideoParam" title="MFXVideoVPP_Init"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoVPP_Init()</span></code></a> function. The function saves the view identifiers.
+During video processing, Intel<sup>®</sup> VPL processes each view individually. Intel<sup>®</sup> VPL refers
+to the <code class="docutils literal notranslate"><span class="pre">FrameID</span></code> field of the <a class="reference internal" href="../API_ref/VPL_structs_memory.html#_CPPv412mfxFrameInfo" title="mfxFrameInfo"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxFrameInfo</span></code></a> structure to configure
+each view according to its processing pipeline. If the video processing source
+frame is not the output from the Intel<sup>®</sup> VPL MVC decoder, then the application needs to
+fill the the <code class="docutils literal notranslate"><span class="pre">FrameID</span></code> field before calling the <a class="reference internal" href="../API_ref/VPL_func_vid_vpp.html#_CPPv428MFXVideoVPP_RunFrameVPPAsync10mfxSessionP16mfxFrameSurface1P16mfxFrameSurface1P16mfxExtVppAuxDataP12mfxSyncPoint" title="MFXVideoVPP_RunFrameVPPAsync"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoVPP_RunFrameVPPAsync()</span></code></a>
+function. This is shown in the following pseudo code:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="n">mfxExtBuffer</span><span class="w"> </span><span class="o">*</span><span class="n">eb</span><span class="p">;</span>
+<span class="linenos"> 2</span><span class="n">mfxExtMVCSeqDesc</span><span class="w">  </span><span class="n">seq_desc</span><span class="p">;</span>
+<span class="linenos"> 3</span><span class="n">mfxVideoParam</span><span class="w"> </span><span class="n">init_param</span><span class="p">;</span>
+<span class="linenos"> 4</span>
+<span class="linenos"> 5</span><span class="n">init_param</span><span class="p">.</span><span class="n">ExtParam</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">&amp;</span><span class="n">eb</span><span class="p">;</span>
+<span class="linenos"> 6</span><span class="n">init_param</span><span class="p">.</span><span class="n">NumExtParam</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span>
+<span class="linenos"> 7</span><span class="n">eb</span><span class="o">=</span><span class="p">(</span><span class="n">mfxExtBuffer</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">seq_desc</span><span class="p">;</span>
+<span class="linenos"> 8</span>
+<span class="linenos"> 9</span><span class="cm">/* init VPP */</span>
+<span class="linenos">10</span><span class="n">MFXVideoVPP_Init</span><span class="p">(</span><span class="n">session</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">init_param</span><span class="p">);</span>
+<span class="linenos">11</span>
+<span class="linenos">12</span><span class="cm">/* perform processing */</span>
+<span class="linenos">13</span><span class="k">for</span><span class="w"> </span><span class="p">(;;)</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos">14</span><span class="w">    </span><span class="n">MFXVideoVPP_RunFrameVPPAsync</span><span class="p">(</span><span class="n">session</span><span class="p">,</span><span class="n">in</span><span class="p">,</span><span class="n">out</span><span class="p">,</span><span class="nb">NULL</span><span class="p">,</span><span class="o">&amp;</span><span class="n">syncp</span><span class="p">);</span>
+<span class="linenos">15</span><span class="w">    </span><span class="n">MFXVideoCORE_SyncOperation</span><span class="p">(</span><span class="n">session</span><span class="p">,</span><span class="n">syncp</span><span class="p">,</span><span class="n">INFINITE</span><span class="p">);</span>
+<span class="linenos">16</span><span class="p">}</span>
+<span class="linenos">17</span>
+<span class="linenos">18</span><span class="cm">/* close VPP */</span>
+<span class="linenos">19</span><span class="n">MFXVideoVPP_Close</span><span class="p">(</span><span class="n">session</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+<section id="video-processing-3dlut">
+<h2>Video Processing 3DLUT<a class="headerlink" href="#video-processing-3dlut" title="Permalink to this heading">#</a></h2>
+<p>Intel<sup>®</sup> VPL video processing supports 3DLUT with Intel HW specific memory layout. The following pseudo code
+shows how to create a <a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv4N20mfx3DLutMemoryLayout35MFX_3DLUT_MEMORY_LAYOUT_INTEL_65LUTE" title="MFX_3DLUT_MEMORY_LAYOUT_INTEL_65LUT"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">MFX_3DLUT_MEMORY_LAYOUT_INTEL_65LUT</span></code></a> 3DLUT surface.</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="n">VADisplay</span><span class="w"> </span><span class="n">va_dpy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="linenos"> 2</span><span class="n">VASurfaceID</span><span class="w"> </span><span class="n">surface_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="linenos"> 3</span>
+<span class="linenos"> 4</span><span class="n">vaInitialize</span><span class="p">(</span><span class="n">va_dpy</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+<span class="linenos"> 5</span>
+<span class="linenos"> 6</span><span class="c1">// MFX_3DLUT_MEMORY_LAYOUT_INTEL_65LUT indicate 65*65*128*8bytes.</span>
+<span class="linenos"> 7</span><span class="n">mfxU32</span><span class="w"> </span><span class="n">seg_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">65</span><span class="p">,</span><span class="w"> </span><span class="n">mul_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">128</span><span class="p">;</span>
+<span class="linenos"> 8</span><span class="n">mfxMemId</span><span class="w"> </span><span class="n">memId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="linenos"> 9</span>
+<span class="linenos">10</span><span class="c1">// create 3DLUT surface (MFX_3DLUT_MEMORY_LAYOUT_INTEL_65LUT)</span>
+<span class="linenos">11</span><span class="n">VASurfaceAttrib</span><span class="w">    </span><span class="n">surface_attrib</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{};</span>
+<span class="linenos">12</span><span class="n">surface_attrib</span><span class="p">.</span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="n">VASurfaceAttribPixelFormat</span><span class="p">;</span>
+<span class="linenos">13</span><span class="n">surface_attrib</span><span class="p">.</span><span class="n">flags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">VA_SURFACE_ATTRIB_SETTABLE</span><span class="p">;</span>
+<span class="linenos">14</span><span class="n">surface_attrib</span><span class="p">.</span><span class="n">value</span><span class="p">.</span><span class="n">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">VAGenericValueTypeInteger</span><span class="p">;</span>
+<span class="linenos">15</span><span class="n">surface_attrib</span><span class="p">.</span><span class="n">value</span><span class="p">.</span><span class="n">value</span><span class="p">.</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">VA_FOURCC_RGBA</span><span class="p">;</span>
+<span class="linenos">16</span>
+<span class="linenos">17</span><span class="n">vaCreateSurfaces</span><span class="p">(</span><span class="n">va_dpy</span><span class="p">,</span>
+<span class="linenos">18</span><span class="w">                 </span><span class="n">VA_RT_FORMAT_RGB32</span><span class="p">,</span><span class="w">   </span><span class="c1">// 4 bytes</span>
+<span class="linenos">19</span><span class="w">                 </span><span class="n">seg_size</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">mul_size</span><span class="p">,</span><span class="w">  </span><span class="c1">// 65*128</span>
+<span class="linenos">20</span><span class="w">                 </span><span class="n">seg_size</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">         </span><span class="c1">// 65*2</span>
+<span class="linenos">21</span><span class="w">                 </span><span class="o">&amp;</span><span class="n">surface_id</span><span class="p">,</span>
+<span class="linenos">22</span><span class="w">                 </span><span class="mi">1</span><span class="p">,</span>
+<span class="linenos">23</span><span class="w">                 </span><span class="o">&amp;</span><span class="n">surface_attrib</span><span class="p">,</span>
+<span class="linenos">24</span><span class="w">                 </span><span class="mi">1</span><span class="p">);</span>
+<span class="linenos">25</span>
+<span class="linenos">26</span><span class="o">*</span><span class="p">((</span><span class="n">VASurfaceID</span><span class="o">*</span><span class="p">)</span><span class="n">memId</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">surface_id</span><span class="p">;</span>
+<span class="linenos">27</span>
+<span class="linenos">28</span><span class="c1">// configure 3DLUT parameters</span>
+<span class="linenos">29</span><span class="n">mfxExtVPP3DLut</span><span class="w"> </span><span class="n">lut3DConfig</span><span class="p">;</span>
+<span class="linenos">30</span><span class="n">memset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">lut3DConfig</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">lut3DConfig</span><span class="p">));</span>
+<span class="linenos">31</span><span class="n">lut3DConfig</span><span class="p">.</span><span class="n">Header</span><span class="p">.</span><span class="n">BufferId</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_EXTBUFF_VPP_3DLUT</span><span class="p">;</span>
+<span class="linenos">32</span><span class="n">lut3DConfig</span><span class="p">.</span><span class="n">Header</span><span class="p">.</span><span class="n">BufferSz</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">mfxExtVPP3DLut</span><span class="p">);</span>
+<span class="linenos">33</span><span class="n">lut3DConfig</span><span class="p">.</span><span class="n">ChannelMapping</span><span class="w">          </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_3DLUT_CHANNEL_MAPPING_RGB_RGB</span><span class="p">;</span><span class="w">    </span>
+<span class="linenos">34</span><span class="n">lut3DConfig</span><span class="p">.</span><span class="n">BufferType</span><span class="w">              </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_RESOURCE_VA_SURFACE</span><span class="p">;</span>
+<span class="linenos">35</span><span class="n">lut3DConfig</span><span class="p">.</span><span class="n">VideoBuffer</span><span class="p">.</span><span class="n">DataType</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_DATA_TYPE_U16</span><span class="p">;</span>
+<span class="linenos">36</span><span class="n">lut3DConfig</span><span class="p">.</span><span class="n">VideoBuffer</span><span class="p">.</span><span class="n">MemLayout</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_3DLUT_MEMORY_LAYOUT_INTEL_65LUT</span><span class="p">;</span>
+<span class="linenos">37</span><span class="n">lut3DConfig</span><span class="p">.</span><span class="n">VideoBuffer</span><span class="p">.</span><span class="n">MemId</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="n">memId</span><span class="p">;</span>
+<span class="linenos">38</span>
+<span class="linenos">39</span><span class="c1">// release 3DLUT surface</span>
+<span class="linenos">40</span><span class="n">vaDestroySurfaces</span><span class="p">(</span><span class="n">va_dpy</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">surface_id</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The following pseudo code shows how to create a system memory <a class="reference internal" href="../API_ref/VPL_structs_vpp.html#_CPPv420mfx3DLutSystemBuffer" title="mfx3DLutSystemBuffer"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfx3DLutSystemBuffer</span></code></a> 3DLUT surface.</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c1">// 64 size 3DLUT(3 dimension look up table)</span>
+<span class="linenos"> 2</span><span class="c1">// The buffer size(in bytes) for every channel is 64*64*64*sizeof(DataType)</span>
+<span class="linenos"> 3</span><span class="n">mfxU16</span><span class="w"> </span><span class="n">dataR</span><span class="p">[</span><span class="mi">64</span><span class="o">*</span><span class="mi">64</span><span class="o">*</span><span class="mi">64</span><span class="p">],</span><span class="w"> </span><span class="n">dataG</span><span class="p">[</span><span class="mi">64</span><span class="o">*</span><span class="mi">64</span><span class="o">*</span><span class="mi">64</span><span class="p">],</span><span class="w"> </span><span class="n">dataB</span><span class="p">[</span><span class="mi">64</span><span class="o">*</span><span class="mi">64</span><span class="o">*</span><span class="mi">64</span><span class="p">];</span>
+<span class="linenos"> 4</span><span class="n">mfxChannel</span><span class="w"> </span><span class="n">channelR</span><span class="p">,</span><span class="w"> </span><span class="n">channelG</span><span class="p">,</span><span class="w"> </span><span class="n">channelB</span><span class="p">;</span>
+<span class="linenos"> 5</span><span class="n">channelR</span><span class="p">.</span><span class="n">DataType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_DATA_TYPE_U16</span><span class="p">;</span>
+<span class="linenos"> 6</span><span class="n">channelR</span><span class="p">.</span><span class="n">Size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">64</span><span class="p">;</span>
+<span class="linenos"> 7</span><span class="n">channelR</span><span class="p">.</span><span class="n">Data16</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dataR</span><span class="p">;</span>
+<span class="linenos"> 8</span><span class="n">channelG</span><span class="p">.</span><span class="n">DataType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_DATA_TYPE_U16</span><span class="p">;</span>
+<span class="linenos"> 9</span><span class="n">channelG</span><span class="p">.</span><span class="n">Size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">64</span><span class="p">;</span>
+<span class="linenos">10</span><span class="n">channelG</span><span class="p">.</span><span class="n">Data16</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dataG</span><span class="p">;</span>
+<span class="linenos">11</span><span class="n">channelB</span><span class="p">.</span><span class="n">DataType</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_DATA_TYPE_U16</span><span class="p">;</span>
+<span class="linenos">12</span><span class="n">channelB</span><span class="p">.</span><span class="n">Size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">64</span><span class="p">;</span>
+<span class="linenos">13</span><span class="n">channelB</span><span class="p">.</span><span class="n">Data16</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dataB</span><span class="p">;</span>
+<span class="linenos">14</span>
+<span class="linenos">15</span><span class="c1">// configure 3DLUT parameters</span>
+<span class="linenos">16</span><span class="n">mfxExtVPP3DLut</span><span class="w"> </span><span class="n">lut3DConfig</span><span class="p">;</span>
+<span class="linenos">17</span><span class="n">memset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">lut3DConfig</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">lut3DConfig</span><span class="p">));</span>
+<span class="linenos">18</span><span class="n">lut3DConfig</span><span class="p">.</span><span class="n">Header</span><span class="p">.</span><span class="n">BufferId</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_EXTBUFF_VPP_3DLUT</span><span class="p">;</span>
+<span class="linenos">19</span><span class="n">lut3DConfig</span><span class="p">.</span><span class="n">Header</span><span class="p">.</span><span class="n">BufferSz</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">mfxExtVPP3DLut</span><span class="p">);</span>
+<span class="linenos">20</span><span class="n">lut3DConfig</span><span class="p">.</span><span class="n">ChannelMapping</span><span class="w">          </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_3DLUT_CHANNEL_MAPPING_RGB_RGB</span><span class="p">;</span><span class="w">    </span>
+<span class="linenos">21</span><span class="n">lut3DConfig</span><span class="p">.</span><span class="n">BufferType</span><span class="w">              </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_RESOURCE_SYSTEM_SURFACE</span><span class="p">;</span>
+<span class="linenos">22</span><span class="n">lut3DConfig</span><span class="p">.</span><span class="n">SystemBuffer</span><span class="p">.</span><span class="n">Channel</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">channelR</span><span class="p">;</span>
+<span class="linenos">23</span><span class="n">lut3DConfig</span><span class="p">.</span><span class="n">SystemBuffer</span><span class="p">.</span><span class="n">Channel</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">channelG</span><span class="p">;</span>
+<span class="linenos">24</span><span class="n">lut3DConfig</span><span class="p">.</span><span class="n">SystemBuffer</span><span class="p">.</span><span class="n">Channel</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">channelB</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>The following pseudo code shows how to specify 3DLUT interpolation method <a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv427mfx3DLutInterpolationMethod" title="mfx3DLutInterpolationMethod"><code class="xref cpp cpp-enum docutils literal notranslate"><span class="pre">mfx3DLutInterpolationMethod</span></code></a>.</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="cp">#ifdef ONEVPL_EXPERIMENTAL</span>
+<span class="linenos"> 2</span><span class="c1">// configure 3DLUT parameters</span>
+<span class="linenos"> 3</span><span class="n">mfxExtVPP3DLut</span><span class="w"> </span><span class="n">lut3DConfig</span><span class="p">;</span>
+<span class="linenos"> 4</span><span class="n">memset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">lut3DConfig</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">lut3DConfig</span><span class="p">));</span>
+<span class="linenos"> 5</span><span class="n">lut3DConfig</span><span class="p">.</span><span class="n">Header</span><span class="p">.</span><span class="n">BufferId</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_EXTBUFF_VPP_3DLUT</span><span class="p">;</span>
+<span class="linenos"> 6</span><span class="n">lut3DConfig</span><span class="p">.</span><span class="n">Header</span><span class="p">.</span><span class="n">BufferSz</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">mfxExtVPP3DLut</span><span class="p">);</span>
+<span class="linenos"> 7</span><span class="n">lut3DConfig</span><span class="p">.</span><span class="n">ChannelMapping</span><span class="w">          </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_3DLUT_CHANNEL_MAPPING_RGB_RGB</span><span class="p">;</span>
+<span class="linenos"> 8</span><span class="n">lut3DConfig</span><span class="p">.</span><span class="n">BufferType</span><span class="w">              </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_RESOURCE_SYSTEM_SURFACE</span><span class="p">;</span>
+<span class="linenos"> 9</span><span class="n">lut3DConfig</span><span class="p">.</span><span class="n">InterpolationMethod</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_3DLUT_INTERPOLATION_TETRAHEDRAL</span><span class="p">;</span>
+<span class="linenos">10</span><span class="cp">#endif</span>
+</pre></div>
+</div>
+</section>
+<section id="hdr-tone-mapping">
+<h2>HDR Tone Mapping<a class="headerlink" href="#hdr-tone-mapping" title="Permalink to this heading">#</a></h2>
+<p>Intel<sup>®</sup> VPL video processing supports HDR Tone Mapping with Intel HW. The following pseudo code
+shows how to perform HDR Tone Mapping.</p>
+<p>The following pseudo code shows HDR to SDR.</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c1">// HDR to SDR (e.g P010 HDR signal -&gt; NV12 SDR signal) in transcoding pipeline</span>
+<span class="linenos"> 2</span><span class="c1">// Attach input external buffers as the below for HDR input. SDR is by default, hence no</span>
+<span class="linenos"> 3</span><span class="c1">// extra output external buffer.</span>
+<span class="linenos"> 4</span><span class="c1">// The input Video Signal Information</span>
+<span class="linenos"> 5</span><span class="n">mfxExtVideoSignalInfo</span><span class="w"> </span><span class="n">inSignalInfo</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="p">{};</span>
+<span class="linenos"> 6</span><span class="n">inSignalInfo</span><span class="p">.</span><span class="n">Header</span><span class="p">.</span><span class="n">BufferId</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_EXTBUFF_VIDEO_SIGNAL_INFO_IN</span><span class="p">;</span>
+<span class="linenos"> 7</span><span class="n">inSignalInfo</span><span class="p">.</span><span class="n">Header</span><span class="p">.</span><span class="n">BufferSz</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">mfxExtVideoSignalInfo</span><span class="p">);</span>
+<span class="linenos"> 8</span><span class="n">inSignalInfo</span><span class="p">.</span><span class="n">VideoFullRange</span><span class="w">          </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="c1">// Limited range P010</span>
+<span class="linenos"> 9</span><span class="n">inSignalInfo</span><span class="p">.</span><span class="n">ColourPrimaries</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="mi">9</span><span class="p">;</span><span class="w"> </span><span class="c1">// BT.2020</span>
+<span class="linenos">10</span><span class="n">inSignalInfo</span><span class="p">.</span><span class="n">TransferCharacteristics</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">16</span><span class="p">;</span><span class="w"> </span><span class="c1">// ST2084</span>
+<span class="linenos">11</span>
+<span class="linenos">12</span><span class="c1">// The content Light Level Information</span>
+<span class="linenos">13</span><span class="n">mfxExtContentLightLevelInfo</span><span class="w"> </span><span class="n">inContentLight</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{};</span>
+<span class="linenos">14</span><span class="n">inContentLight</span><span class="p">.</span><span class="n">Header</span><span class="p">.</span><span class="n">BufferId</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_EXTBUFF_CONTENT_LIGHT_LEVEL_INFO</span><span class="p">;</span>
+<span class="linenos">15</span><span class="n">inContentLight</span><span class="p">.</span><span class="n">Header</span><span class="p">.</span><span class="n">BufferSz</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">mfxExtContentLightLevelInfo</span><span class="p">);</span>
+<span class="linenos">16</span><span class="n">inContentLight</span><span class="p">.</span><span class="n">MaxContentLightLevel</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="mi">4000</span><span class="p">;</span><span class="w"> </span><span class="c1">// nits</span>
+<span class="linenos">17</span><span class="n">inContentLight</span><span class="p">.</span><span class="n">MaxPicAverageLightLevel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1000</span><span class="p">;</span><span class="w"> </span><span class="c1">// nits</span>
+<span class="linenos">18</span>
+<span class="linenos">19</span><span class="c1">// The mastering display colour volume</span>
+<span class="linenos">20</span><span class="n">mfxExtMasteringDisplayColourVolume</span><span class="w"> </span><span class="n">inColourVolume</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{};</span>
+<span class="linenos">21</span><span class="n">inColourVolume</span><span class="p">.</span><span class="n">Header</span><span class="p">.</span><span class="n">BufferId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_EXTBUFF_MASTERING_DISPLAY_COLOUR_VOLUME_IN</span><span class="p">;</span>
+<span class="linenos">22</span><span class="n">inColourVolume</span><span class="p">.</span><span class="n">Header</span><span class="p">.</span><span class="n">BufferSz</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">mfxExtMasteringDisplayColourVolume</span><span class="p">);</span>
+<span class="linenos">23</span><span class="c1">// Based on the needs, Please set DisplayPrimaryX/Y[3], WhitePointX/Y, and MaxDisplayMasteringLuminance,</span>
+<span class="linenos">24</span><span class="c1">// MinDisplayMasteringLuminance</span>
+<span class="linenos">25</span>
+<span class="linenos">26</span><span class="n">mfxExtBuffer</span><span class="w"> </span><span class="o">*</span><span class="n">ExtBufferIn</span><span class="p">[</span><span class="mi">3</span><span class="p">];</span>
+<span class="linenos">27</span><span class="n">ExtBufferIn</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">mfxExtBuffer</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">inSignalInfo</span><span class="p">;</span>
+<span class="linenos">28</span><span class="n">ExtBufferIn</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">mfxExtBuffer</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">inContentLight</span><span class="p">;</span>
+<span class="linenos">29</span><span class="n">ExtBufferIn</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">mfxExtBuffer</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">inColourVolume</span><span class="p">;</span>
+<span class="linenos">30</span>
+<span class="linenos">31</span><span class="n">mfxSession</span><span class="w"> </span><span class="n">session</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">mfxSession</span><span class="p">)</span><span class="mi">0</span><span class="p">;</span>
+<span class="linenos">32</span><span class="n">mfxVideoParam</span><span class="w"> </span><span class="n">VPPParams</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{};</span>
+<span class="linenos">33</span><span class="n">VPPParams</span><span class="p">.</span><span class="n">NumExtParam</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="p">;</span>
+<span class="linenos">34</span><span class="n">VPPParams</span><span class="p">.</span><span class="n">ExtParam</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">mfxExtBuffer</span><span class="w"> </span><span class="o">**</span><span class="p">)</span><span class="o">&amp;</span><span class="n">ExtBufferIn</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+<span class="linenos">35</span><span class="n">MFXVideoVPP_Init</span><span class="p">(</span><span class="n">session</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">VPPParams</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The following pseudo code shows SDR to HDR.</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c1">// SDR to HDR (e.g NV12 SDR signal -&gt; P010 HDR signal) in transcoding pipeline</span>
+<span class="linenos"> 2</span><span class="c1">// Attach output external buffers as the below for HDR output. SDR is by default, hence no</span>
+<span class="linenos"> 3</span><span class="c1">// extra input external buffer.</span>
+<span class="linenos"> 4</span><span class="c1">// The output Video Signal Information</span>
+<span class="linenos"> 5</span><span class="n">mfxExtVideoSignalInfo</span><span class="w"> </span><span class="n">outSignalInfo</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="p">{};</span>
+<span class="linenos"> 6</span><span class="n">outSignalInfo</span><span class="p">.</span><span class="n">Header</span><span class="p">.</span><span class="n">BufferId</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_EXTBUFF_VIDEO_SIGNAL_INFO_OUT</span><span class="p">;</span>
+<span class="linenos"> 7</span><span class="n">outSignalInfo</span><span class="p">.</span><span class="n">Header</span><span class="p">.</span><span class="n">BufferSz</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">mfxExtVideoSignalInfo</span><span class="p">);</span>
+<span class="linenos"> 8</span><span class="n">outSignalInfo</span><span class="p">.</span><span class="n">VideoFullRange</span><span class="w">          </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="c1">// Limited range P010</span>
+<span class="linenos"> 9</span><span class="n">outSignalInfo</span><span class="p">.</span><span class="n">ColourPrimaries</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="mi">9</span><span class="p">;</span><span class="w"> </span><span class="c1">// BT.2020</span>
+<span class="linenos">10</span><span class="n">outSignalInfo</span><span class="p">.</span><span class="n">TransferCharacteristics</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">16</span><span class="p">;</span><span class="w"> </span><span class="c1">// ST2084</span>
+<span class="linenos">11</span>
+<span class="linenos">12</span><span class="c1">// The mastering display colour volume</span>
+<span class="linenos">13</span><span class="n">mfxExtMasteringDisplayColourVolume</span><span class="w"> </span><span class="n">outColourVolume</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{};</span>
+<span class="linenos">14</span><span class="n">outColourVolume</span><span class="p">.</span><span class="n">Header</span><span class="p">.</span><span class="n">BufferId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_EXTBUFF_MASTERING_DISPLAY_COLOUR_VOLUME_OUT</span><span class="p">;</span>
+<span class="linenos">15</span><span class="n">outColourVolume</span><span class="p">.</span><span class="n">Header</span><span class="p">.</span><span class="n">BufferSz</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">mfxExtMasteringDisplayColourVolume</span><span class="p">);</span>
+<span class="linenos">16</span><span class="c1">// Based on the needs, Please set DisplayPrimaryX/Y[3], WhitePointX/Y, and MaxDisplayMasteringLuminance,</span>
+<span class="linenos">17</span><span class="c1">// MinDisplayMasteringLuminance</span>
+<span class="linenos">18</span>
+<span class="linenos">19</span><span class="n">mfxExtBuffer</span><span class="w"> </span><span class="o">*</span><span class="n">ExtBufferOut</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+<span class="linenos">20</span><span class="n">ExtBufferOut</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">mfxExtBuffer</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">outSignalInfo</span><span class="p">;</span>
+<span class="linenos">21</span><span class="n">ExtBufferOut</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">mfxExtBuffer</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">outColourVolume</span><span class="p">;</span>
+<span class="linenos">22</span>
+<span class="linenos">23</span><span class="n">mfxSession</span><span class="w"> </span><span class="n">session</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">mfxSession</span><span class="p">)</span><span class="mi">0</span><span class="p">;</span>
+<span class="linenos">24</span><span class="n">mfxVideoParam</span><span class="w"> </span><span class="n">VPPParams</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{};</span>
+<span class="linenos">25</span><span class="n">VPPParams</span><span class="p">.</span><span class="n">NumExtParam</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+<span class="linenos">26</span><span class="n">VPPParams</span><span class="p">.</span><span class="n">ExtParam</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">mfxExtBuffer</span><span class="w"> </span><span class="o">**</span><span class="p">)</span><span class="o">&amp;</span><span class="n">ExtBufferOut</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+<span class="linenos">27</span><span class="n">MFXVideoVPP_Init</span><span class="p">(</span><span class="n">session</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">VPPParams</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The following pseudo code shows HDR to HDR.</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c1">// HDR to HDR (e.g P010 HDR signal -&gt; P010 HDR signal) in transcoding pipeline</span>
+<span class="linenos"> 2</span><span class="c1">// Attach in/output external buffers as the below for HDR input/output. </span>
+<span class="linenos"> 3</span><span class="c1">// The input Video Signal Information</span>
+<span class="linenos"> 4</span><span class="n">mfxExtVideoSignalInfo</span><span class="w"> </span><span class="n">inSignalInfo</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="p">{};</span>
+<span class="linenos"> 5</span><span class="n">inSignalInfo</span><span class="p">.</span><span class="n">Header</span><span class="p">.</span><span class="n">BufferId</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_EXTBUFF_VIDEO_SIGNAL_INFO_IN</span><span class="p">;</span>
+<span class="linenos"> 6</span><span class="n">inSignalInfo</span><span class="p">.</span><span class="n">Header</span><span class="p">.</span><span class="n">BufferSz</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">mfxExtVideoSignalInfo</span><span class="p">);</span>
+<span class="linenos"> 7</span><span class="n">inSignalInfo</span><span class="p">.</span><span class="n">VideoFullRange</span><span class="w">          </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="c1">// Limited range P010</span>
+<span class="linenos"> 8</span><span class="n">inSignalInfo</span><span class="p">.</span><span class="n">ColourPrimaries</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="mi">9</span><span class="p">;</span><span class="w"> </span><span class="c1">// BT.2020</span>
+<span class="linenos"> 9</span><span class="n">inSignalInfo</span><span class="p">.</span><span class="n">TransferCharacteristics</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">16</span><span class="p">;</span><span class="w"> </span><span class="c1">// ST2084</span>
+<span class="linenos">10</span>
+<span class="linenos">11</span><span class="c1">// The content Light Level Information</span>
+<span class="linenos">12</span><span class="n">mfxExtContentLightLevelInfo</span><span class="w"> </span><span class="n">inContentLight</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{};</span>
+<span class="linenos">13</span><span class="n">inContentLight</span><span class="p">.</span><span class="n">Header</span><span class="p">.</span><span class="n">BufferId</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_EXTBUFF_CONTENT_LIGHT_LEVEL_INFO</span><span class="p">;</span>
+<span class="linenos">14</span><span class="n">inContentLight</span><span class="p">.</span><span class="n">Header</span><span class="p">.</span><span class="n">BufferSz</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">mfxExtContentLightLevelInfo</span><span class="p">);</span>
+<span class="linenos">15</span><span class="n">inContentLight</span><span class="p">.</span><span class="n">MaxContentLightLevel</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="mi">4000</span><span class="p">;</span><span class="w"> </span><span class="c1">// nits</span>
+<span class="linenos">16</span><span class="n">inContentLight</span><span class="p">.</span><span class="n">MaxPicAverageLightLevel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1000</span><span class="p">;</span><span class="w"> </span><span class="c1">// nits</span>
+<span class="linenos">17</span>
+<span class="linenos">18</span><span class="c1">// The mastering display colour volume</span>
+<span class="linenos">19</span><span class="n">mfxExtMasteringDisplayColourVolume</span><span class="w"> </span><span class="n">inColourVolume</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{};</span>
+<span class="linenos">20</span><span class="n">inColourVolume</span><span class="p">.</span><span class="n">Header</span><span class="p">.</span><span class="n">BufferId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_EXTBUFF_MASTERING_DISPLAY_COLOUR_VOLUME_IN</span><span class="p">;</span>
+<span class="linenos">21</span><span class="n">inColourVolume</span><span class="p">.</span><span class="n">Header</span><span class="p">.</span><span class="n">BufferSz</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">mfxExtMasteringDisplayColourVolume</span><span class="p">);</span>
+<span class="linenos">22</span><span class="c1">// Based on the needs, Please set DisplayPrimaryX/Y[3], WhitePointX/Y, and MaxDisplayMasteringLuminance,</span>
+<span class="linenos">23</span><span class="c1">// MinDisplayMasteringLuminance</span>
+<span class="linenos">24</span>
+<span class="linenos">25</span><span class="n">mfxExtVideoSignalInfo</span><span class="w"> </span><span class="n">outSignalInfo</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="p">{};</span>
+<span class="linenos">26</span><span class="n">outSignalInfo</span><span class="p">.</span><span class="n">Header</span><span class="p">.</span><span class="n">BufferId</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_EXTBUFF_VIDEO_SIGNAL_INFO_OUT</span><span class="p">;</span>
+<span class="linenos">27</span><span class="n">outSignalInfo</span><span class="p">.</span><span class="n">Header</span><span class="p">.</span><span class="n">BufferSz</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">mfxExtVideoSignalInfo</span><span class="p">);</span>
+<span class="linenos">28</span><span class="n">outSignalInfo</span><span class="p">.</span><span class="n">VideoFullRange</span><span class="w">          </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="c1">// Limited range P010</span>
+<span class="linenos">29</span><span class="n">outSignalInfo</span><span class="p">.</span><span class="n">ColourPrimaries</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="mi">9</span><span class="p">;</span><span class="w"> </span><span class="c1">// BT.2020</span>
+<span class="linenos">30</span><span class="n">outSignalInfo</span><span class="p">.</span><span class="n">TransferCharacteristics</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">16</span><span class="p">;</span><span class="w"> </span><span class="c1">// ST2084</span>
+<span class="linenos">31</span>
+<span class="linenos">32</span><span class="c1">// The mastering display colour volume</span>
+<span class="linenos">33</span><span class="n">mfxExtMasteringDisplayColourVolume</span><span class="w"> </span><span class="n">outColourVolume</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{};</span>
+<span class="linenos">34</span><span class="n">outColourVolume</span><span class="p">.</span><span class="n">Header</span><span class="p">.</span><span class="n">BufferId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_EXTBUFF_MASTERING_DISPLAY_COLOUR_VOLUME_OUT</span><span class="p">;</span>
+<span class="linenos">35</span><span class="n">outColourVolume</span><span class="p">.</span><span class="n">Header</span><span class="p">.</span><span class="n">BufferSz</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">mfxExtMasteringDisplayColourVolume</span><span class="p">);</span>
+<span class="linenos">36</span><span class="c1">// Based on the needs, Please set DisplayPrimaryX/Y[3], WhitePointX/Y, and MaxDisplayMasteringLuminance,</span>
+<span class="linenos">37</span><span class="c1">// MinDisplayMasteringLuminance</span>
+<span class="linenos">38</span>
+<span class="linenos">39</span><span class="n">mfxExtBuffer</span><span class="w"> </span><span class="o">*</span><span class="n">ExtBuffer</span><span class="p">[</span><span class="mi">5</span><span class="p">];</span>
+<span class="linenos">40</span><span class="n">ExtBuffer</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">mfxExtBuffer</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">inSignalInfo</span><span class="p">;</span>
+<span class="linenos">41</span><span class="n">ExtBuffer</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">mfxExtBuffer</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">inContentLight</span><span class="p">;</span>
+<span class="linenos">42</span><span class="n">ExtBuffer</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">mfxExtBuffer</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">inColourVolume</span><span class="p">;</span>
+<span class="linenos">43</span><span class="n">ExtBuffer</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">mfxExtBuffer</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">outSignalInfo</span><span class="p">;</span>
+<span class="linenos">44</span><span class="n">ExtBuffer</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">mfxExtBuffer</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">outColourVolume</span><span class="p">;</span>
+<span class="linenos">45</span>
+<span class="linenos">46</span><span class="n">mfxSession</span><span class="w"> </span><span class="n">session</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">mfxSession</span><span class="p">)</span><span class="mi">0</span><span class="p">;</span>
+<span class="linenos">47</span><span class="n">mfxVideoParam</span><span class="w"> </span><span class="n">VPPParams</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{};</span>
+<span class="linenos">48</span><span class="n">VPPParams</span><span class="p">.</span><span class="n">NumExtParam</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+<span class="linenos">49</span><span class="n">VPPParams</span><span class="p">.</span><span class="n">ExtParam</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">mfxExtBuffer</span><span class="w"> </span><span class="o">**</span><span class="p">)</span><span class="o">&amp;</span><span class="n">ExtBuffer</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+<span class="linenos">50</span><span class="n">MFXVideoVPP_Init</span><span class="p">(</span><span class="n">session</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">VPPParams</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+<section id="camera-raw-acceleration">
+<h2>Camera RAW acceleration<a class="headerlink" href="#camera-raw-acceleration" title="Permalink to this heading">#</a></h2>
+<p>Intel<sup>®</sup> VPL supports camera raw format processing with Intel HW. The following pseudo code
+shows how to perform camera raw hardware acceleration. For pipeline processing initialization,
+the application needs to attach the camera structures to the <a class="reference internal" href="../API_ref/VPL_structs_cross_component.html#_CPPv413mfxVideoParam" title="mfxVideoParam"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxVideoParam</span></code></a> structure
+and call the <a class="reference internal" href="../API_ref/VPL_func_vid_vpp.html#_CPPv416MFXVideoVPP_Init10mfxSessionP13mfxVideoParam" title="MFXVideoVPP_Init"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoVPP_Init()</span></code></a> function.</p>
+<p>The following pseudo code shows camera raw processing.</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="cp">#ifdef ONEVPL_EXPERIMENTAL</span>
+<span class="linenos"> 2</span><span class="c1">// Camera Raw Format</span>
+<span class="linenos"> 3</span><span class="n">mfxExtCamPipeControl</span><span class="w"> </span><span class="n">pipeControl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{};</span>
+<span class="linenos"> 4</span><span class="n">pipeControl</span><span class="p">.</span><span class="n">Header</span><span class="p">.</span><span class="n">BufferId</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_EXTBUF_CAM_PIPECONTROL</span><span class="p">;</span>
+<span class="linenos"> 5</span><span class="n">pipeControl</span><span class="p">.</span><span class="n">Header</span><span class="p">.</span><span class="n">BufferSz</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">mfxExtCamPipeControl</span><span class="p">);</span>
+<span class="linenos"> 6</span><span class="n">pipeControl</span><span class="p">.</span><span class="n">RawFormat</span><span class="w">            </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">mfxU16</span><span class="p">)</span><span class="n">MFX_CAM_BAYER_BGGR</span><span class="p">;</span>
+<span class="linenos"> 7</span>
+<span class="linenos"> 8</span><span class="c1">// Black level correction</span>
+<span class="linenos"> 9</span><span class="n">mfxExtCamBlackLevelCorrection</span><span class="w"> </span><span class="n">blackLevelCorrection</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="p">{};</span>
+<span class="linenos">10</span><span class="n">blackLevelCorrection</span><span class="p">.</span><span class="n">Header</span><span class="p">.</span><span class="n">BufferId</span><span class="w">                 </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_EXTBUF_CAM_BLACK_LEVEL_CORRECTION</span><span class="p">;</span>
+<span class="linenos">11</span><span class="n">blackLevelCorrection</span><span class="p">.</span><span class="n">Header</span><span class="p">.</span><span class="n">BufferSz</span><span class="w">                 </span><span class="o">=</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">mfxExtCamBlackLevelCorrection</span><span class="p">);</span>
+<span class="linenos">12</span><span class="n">mfxU16</span><span class="w"> </span><span class="n">black_level_B</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="n">black_level_G0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="n">black_level_G1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">16</span><span class="p">,</span><span class="w"> </span><span class="n">black_level_R</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">16</span><span class="p">;</span>
+<span class="linenos">13</span><span class="c1">// Initialize the value for black level B, G0, G1, R as needed</span>
+<span class="linenos">14</span><span class="n">blackLevelCorrection</span><span class="p">.</span><span class="n">B</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">black_level_B</span><span class="p">;</span>
+<span class="linenos">15</span><span class="n">blackLevelCorrection</span><span class="p">.</span><span class="n">G0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">black_level_G0</span><span class="p">;</span>
+<span class="linenos">16</span><span class="n">blackLevelCorrection</span><span class="p">.</span><span class="n">G1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">black_level_G1</span><span class="p">;</span>
+<span class="linenos">17</span><span class="n">blackLevelCorrection</span><span class="p">.</span><span class="n">R</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">black_level_R</span><span class="p">;</span>
+<span class="linenos">18</span>
+<span class="linenos">19</span><span class="n">mfxExtBuffer</span><span class="w"> </span><span class="o">*</span><span class="n">ExtBufferIn</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+<span class="linenos">20</span><span class="n">ExtBufferIn</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">mfxExtBuffer</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">pipeControl</span><span class="p">;</span>
+<span class="linenos">21</span><span class="n">ExtBufferIn</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">mfxExtBuffer</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">blackLevelCorrection</span><span class="p">;</span>
+<span class="linenos">22</span>
+<span class="linenos">23</span><span class="n">mfxSession</span><span class="w"> </span><span class="n">session</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">mfxSession</span><span class="p">)</span><span class="mi">0</span><span class="p">;</span>
+<span class="linenos">24</span><span class="n">mfxVideoParam</span><span class="w"> </span><span class="n">VPPParams</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{};</span>
+<span class="linenos">25</span><span class="n">VPPParams</span><span class="p">.</span><span class="n">NumExtParam</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+<span class="linenos">26</span><span class="n">VPPParams</span><span class="p">.</span><span class="n">ExtParam</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">mfxExtBuffer</span><span class="w"> </span><span class="o">**</span><span class="p">)</span><span class="o">&amp;</span><span class="n">ExtBufferIn</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+<span class="linenos">27</span><span class="n">MFXVideoVPP_Init</span><span class="p">(</span><span class="n">session</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">VPPParams</span><span class="p">);</span>
+<span class="linenos">28</span><span class="cp">#endif</span>
+</pre></div>
+</div>
+<p>Intel<sup>®</sup> VPL supports AI based super resolution with Intel HW. The following pseudo code
+shows how to perform AI based super resolution.</p>
+</section>
+<section id="ai-powered-video-processing">
+<h2>AI Powered Video Processing<a class="headerlink" href="#ai-powered-video-processing" title="Permalink to this heading">#</a></h2>
+<p>The following pseudo code shows AI super resolution video processing.</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c1">// configure AI super resolution vpp filter</span>
+<span class="linenos"> 2</span><span class="n">mfxExtVPPAISuperResolution</span><span class="w"> </span><span class="n">aiSuperResolution</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{};</span>
+<span class="linenos"> 3</span><span class="n">aiSuperResolution</span><span class="p">.</span><span class="n">Header</span><span class="p">.</span><span class="n">BufferId</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_EXTBUFF_VPP_AI_SUPER_RESOLUTION</span><span class="p">;</span>
+<span class="linenos"> 4</span><span class="n">aiSuperResolution</span><span class="p">.</span><span class="n">Header</span><span class="p">.</span><span class="n">BufferSz</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">mfxExtVPPAISuperResolution</span><span class="p">);</span>
+<span class="linenos"> 5</span><span class="n">aiSuperResolution</span><span class="p">.</span><span class="n">SRMode</span><span class="w">               </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_AI_SUPER_RESOLUTION_MODE_DEFAULT</span><span class="p">;</span>
+<span class="linenos"> 6</span>
+<span class="linenos"> 7</span><span class="n">mfxExtBuffer</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">ExtParam</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">(</span><span class="n">mfxExtBuffer</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">aiSuperResolution</span><span class="w"> </span><span class="p">};</span>
+<span class="linenos"> 8</span>
+<span class="linenos"> 9</span><span class="n">mfxSession</span><span class="w"> </span><span class="n">session</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">mfxSession</span><span class="p">)</span><span class="mi">0</span><span class="p">;</span>
+<span class="linenos">10</span><span class="n">mfxVideoParam</span><span class="w"> </span><span class="n">VPPParams</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{};</span>
+<span class="linenos">11</span><span class="n">VPPParams</span><span class="p">.</span><span class="n">NumExtParam</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="linenos">12</span><span class="n">VPPParams</span><span class="p">.</span><span class="n">ExtParam</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="n">ExtParam</span><span class="p">;</span>
+<span class="linenos">13</span><span class="n">MFXVideoVPP_Init</span><span class="p">(</span><span class="n">session</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">VPPParams</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The following pseudo code shows AI frame interpolation video processing.</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c1">// configure AI frame interpolation vpp filter</span>
+<span class="linenos"> 2</span><span class="n">mfxExtVPPAIFrameInterpolation</span><span class="w"> </span><span class="n">aiFrameInterpolation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{};</span>
+<span class="linenos"> 3</span><span class="n">aiFrameInterpolation</span><span class="p">.</span><span class="n">Header</span><span class="p">.</span><span class="n">BufferId</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_EXTBUFF_VPP_AI_FRAME_INTERPOLATION</span><span class="p">;</span>
+<span class="linenos"> 4</span><span class="n">aiFrameInterpolation</span><span class="p">.</span><span class="n">Header</span><span class="p">.</span><span class="n">BufferSz</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">mfxExtVPPAIFrameInterpolation</span><span class="p">);</span>
+<span class="linenos"> 5</span><span class="n">aiFrameInterpolation</span><span class="p">.</span><span class="n">FIMode</span><span class="w">               </span><span class="o">=</span><span class="w"> </span><span class="n">MFX_AI_FRAME_INTERPOLATION_MODE_DEFAULT</span><span class="p">;</span>
+<span class="linenos"> 6</span><span class="n">aiFrameInterpolation</span><span class="p">.</span><span class="n">EnableScd</span><span class="w">            </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="linenos"> 7</span><span class="n">mfxExtBuffer</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">ExtParam</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">(</span><span class="n">mfxExtBuffer</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">aiFrameInterpolation</span><span class="w"> </span><span class="p">};</span>
+<span class="linenos"> 8</span>
+<span class="linenos"> 9</span><span class="n">init_param</span><span class="p">.</span><span class="n">NumExtParam</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="linenos">10</span><span class="n">init_param</span><span class="p">.</span><span class="n">ExtParam</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="n">ExtParam</span><span class="p">;</span>
+<span class="linenos">11</span><span class="n">init_param</span><span class="p">.</span><span class="n">vpp</span><span class="p">.</span><span class="n">In</span><span class="p">.</span><span class="n">FrameRateExtN</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">30</span><span class="p">;</span>
+<span class="linenos">12</span><span class="n">init_param</span><span class="p">.</span><span class="n">vpp</span><span class="p">.</span><span class="n">In</span><span class="p">.</span><span class="n">FrameRateExtD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="linenos">13</span><span class="n">init_param</span><span class="p">.</span><span class="n">vpp</span><span class="p">.</span><span class="n">Out</span><span class="p">.</span><span class="n">FrameRateExtN</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">60</span><span class="p">;</span>
+<span class="linenos">14</span><span class="n">init_param</span><span class="p">.</span><span class="n">vpp</span><span class="p">.</span><span class="n">Out</span><span class="p">.</span><span class="n">FrameRateExtD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="linenos">15</span><span class="n">sts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFXVideoVPP_QueryIOSurf</span><span class="p">(</span><span class="n">session</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">init_param</span><span class="p">,</span><span class="w"> </span><span class="n">response</span><span class="p">);</span>
+<span class="linenos">16</span><span class="n">sts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFXVideoVPP_Init</span><span class="p">(</span><span class="n">session</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">init_param</span><span class="p">);</span>
+<span class="linenos">17</span>
+<span class="linenos">18</span><span class="c1">// The below code follows the video processing procedure, not specific to AI frame interpolation.</span>
+<span class="linenos">19</span><span class="n">allocate_pool_of_surfaces</span><span class="p">(</span><span class="n">in_pool</span><span class="p">,</span><span class="w"> </span><span class="n">response</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">NumFrameSuggested</span><span class="p">);</span>
+<span class="linenos">20</span><span class="n">allocate_pool_of_surfaces</span><span class="p">(</span><span class="n">out_pool</span><span class="p">,</span><span class="w"> </span><span class="n">response</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">NumFrameSuggested</span><span class="p">);</span>
+<span class="linenos">21</span><span class="n">mfxFrameSurface1</span><span class="w"> </span><span class="o">*</span><span class="n">in</span><span class="o">=</span><span class="n">find_unlocked_surface_and_fill_content</span><span class="p">(</span><span class="n">in_pool</span><span class="p">);</span>
+<span class="linenos">22</span><span class="n">mfxFrameSurface1</span><span class="w"> </span><span class="o">*</span><span class="n">out</span><span class="o">=</span><span class="n">find_unlocked_surface_from_the_pool</span><span class="p">(</span><span class="n">out_pool</span><span class="p">);</span>
+<span class="linenos">23</span><span class="k">for</span><span class="w"> </span><span class="p">(;;)</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos">24</span><span class="w">   </span><span class="n">sts</span><span class="o">=</span><span class="n">MFXVideoVPP_RunFrameVPPAsync</span><span class="p">(</span><span class="n">session</span><span class="p">,</span><span class="n">in</span><span class="p">,</span><span class="n">out</span><span class="p">,</span><span class="nb">NULL</span><span class="p">,</span><span class="o">&amp;</span><span class="n">syncp</span><span class="p">);</span>
+<span class="linenos">25</span><span class="w">   </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">sts</span><span class="o">==</span><span class="n">MFX_ERR_MORE_SURFACE</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">sts</span><span class="o">==</span><span class="n">MFX_ERR_NONE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos">26</span><span class="w">      </span><span class="n">MFXVideoCORE_SyncOperation</span><span class="p">(</span><span class="n">session</span><span class="p">,</span><span class="n">syncp</span><span class="p">,</span><span class="n">INFINITE</span><span class="p">);</span>
+<span class="linenos">27</span><span class="w">      </span><span class="n">process_output_frame</span><span class="p">(</span><span class="n">out</span><span class="p">);</span>
+<span class="linenos">28</span><span class="w">      </span><span class="n">out</span><span class="o">=</span><span class="n">find_unlocked_surface_from_the_pool</span><span class="p">(</span><span class="n">out_pool</span><span class="p">);</span>
+<span class="linenos">29</span><span class="w">   </span><span class="p">}</span>
+<span class="linenos">30</span><span class="w">   </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">sts</span><span class="o">==</span><span class="n">MFX_ERR_MORE_DATA</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">in</span><span class="o">==</span><span class="nb">NULL</span><span class="p">)</span>
+<span class="linenos">31</span><span class="w">      </span><span class="k">break</span><span class="p">;</span>
+<span class="linenos">32</span><span class="w">   </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">sts</span><span class="o">==</span><span class="n">MFX_ERR_NONE</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">sts</span><span class="o">==</span><span class="n">MFX_ERR_MORE_DATA</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos">33</span><span class="w">      </span><span class="n">in</span><span class="o">=</span><span class="n">find_unlocked_surface_from_the_pool</span><span class="p">(</span><span class="n">in_pool</span><span class="p">);</span>
+<span class="linenos">34</span><span class="w">      </span><span class="n">fill_content_for_video_processing</span><span class="p">(</span><span class="n">in</span><span class="p">);</span>
+<span class="linenos">35</span><span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">end_of_stream</span><span class="p">())</span>
+<span class="linenos">36</span><span class="w">         </span><span class="n">in</span><span class="o">=</span><span class="nb">NULL</span><span class="p">;</span>
+<span class="linenos">37</span><span class="w">   </span><span class="p">}</span>
+<span class="linenos">38</span><span class="p">}</span>
+<span class="linenos">39</span><span class="n">MFXVideoVPP_Close</span><span class="p">(</span><span class="n">session</span><span class="p">);</span>
+<span class="linenos">40</span><span class="n">free_pool_of_surfaces</span><span class="p">(</span><span class="n">in_pool</span><span class="p">);</span>
+<span class="linenos">41</span><span class="n">free_pool_of_surfaces</span><span class="p">(</span><span class="n">out_pool</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="VPL_prg_encoding.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Encoding Procedures</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="VPL_prg_transcoding.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Transcoding Procedures</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration">Configuration</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#region-of-interest">Region of Interest</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#multi-view-video-processing">Multi-view Video Processing</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#video-processing-3dlut">Video Processing 3DLUT</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#hdr-tone-mapping">HDR Tone Mapping</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#camera-raw-acceleration">Camera RAW acceleration</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ai-powered-video-processing">AI Powered Video Processing</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023, Intel.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=5b4479735964841361fd"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
