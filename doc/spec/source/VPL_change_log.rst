@@ -13,6 +13,38 @@ This section describes the API evolution from version to version.
    :depth: 1
 
 ------------
+Version 2.15
+------------
+
+New in this release:
+
+* Experimental API: Introduced property-based capabilities query for the implementation description:
+
+    * :cpp:func:`MFXQueryImplsProperties`
+    * :cpp:struct:`mfxQueryProperty`
+    * :cpp:enumerator:`mfxVariantType::MFX_VARIANT_TYPE_QUERY`
+
+* Updated description of :cpp:func:`MFXReleaseImplDescription` to clarify that it is also used to destroy the handle allocated by :cpp:func:`MFXQueryImplsProperties`.
+
+* Experimental API: Removed ``mfxEncoderDescription::encoder::ReportedStats``
+
+* Introduced the description of AsyncDepth for decoder usage.
+
+* Updated description of :cpp:member:`mfxFrameInfo::Shift` to clarify its valid values and supported settings for codecs.
+
+* Experimental API: Extended :cpp:struct:`mfxDecoderDescription` to report more capabilities of decoders for the implementation description:
+
+    * :cpp:struct:`mfxDecExtDescription`
+    * :cpp:struct:`mfxDecMemExtDescription`
+
+* Experimental API: Extended :cpp:struct:`mfxEncoderDescription` to report more capabilities of encoders for the implementation description:
+
+    * :cpp:struct:`mfxEncExtDescription`
+    * :cpp:struct:`mfxEncMemExtDescription`
+
+* Added VVC profile :cpp:enumerator:`MFX_PROFILE_VVC_MAIN10_STILL_PICTURE` and :cpp:enumerator:`MFX_LEVEL_VVC_63` enums.
+
+------------
 Version 2.14
 ------------
 

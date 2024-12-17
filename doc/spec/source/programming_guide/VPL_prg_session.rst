@@ -352,11 +352,6 @@ left to right from column to column and concatenate strings by using `.` (dot) a
       |                                       | | .encoder                 |                      |                           |
       |                                       | | .BiDirectionalPrediction |                      |                           |
       |                                       +----------------------------+----------------------+---------------------------+
-      |                                       | | mfxImplDescription       | MFX_VARIANT_TYPE_U16 |                           |
-      |                                       | | .mfxEncoderDescription   |                      |                           |
-      |                                       | | .encoder                 |                      |                           |
-      |                                       | | .ReportedStats           |                      |                           |
-      |                                       +----------------------------+----------------------+---------------------------+
       |                                       | | mfxImplDescription       | MFX_VARIANT_TYPE_U32 |                           |
       |                                       | | .mfxEncoderDescription   |                      |                           |
       |                                       | | .encoder                 |                      |                           |
@@ -843,6 +838,195 @@ shared library:
    :start-after: /*beg5*/
    :end-before: /*end5*/
    :lineno-start: 1
+
+--------------------------------------------------------------
+How To Get Extended Capability Information for encoder/decoder
+--------------------------------------------------------------
+
+From |vpl_short_name| API 2.15 applications can get more capabilities information
+for encoder/decoder with the help of the :cpp:func:`MFXEnumImplementations`
+function, including list of supported extension buffers, list of supported
+Bitrate Control for encoders, supported bit depth and chroma subsamplings.
+
+:cpp:struct:`mfxDecoderDescription` is extended to contain
+:cpp:struct:`mfxDecExtDescription` and :cpp:struct:`mfxDecMemExtDescription` from
+the struct version 1.1. :cpp:struct:`mfxEncoderDescription` is extended to contain
+:cpp:struct:`mfxEncExtDescription` and :cpp:struct:`mfxEncMemExtDescription` from
+the struct version 1.1.
+
+Applications can check the struct version and correspondent pointers in extended
+:cpp:struct:`mfxDecoderDescription` and :cpp:struct:`mfxEncExtDescription` to
+get the extended capability information.
+
+This code illustrates how to get the extended capability information for one
+encoder before session creation:
+
+.. literalinclude:: ../snippets/prg_session.cpp
+   :language: c++
+   :start-after: /*beg11*/
+   :end-before: /*end11*/
+   :lineno-start: 1
+
+.. note:: :cpp:struct:`mfxEncExtDescription` and
+          :cpp:struct:`mfxEncMemExtDescription` report capabilities only
+          for VDEnc.
+
+---------------------------------------------------------------
+How To Do Property-Based Query For The Available Implementation
+---------------------------------------------------------------
+
+Applications must use the data type
+:cpp:enumerator:`mfxVariantType::MFX_VARIANT_TYPE_QUERY` as bitmask to
+OR with other variant data types to do property-based query.
+
+Applications can get only shallow information for session creation without
+filling out the following structures:
+:cpp:struct:`mfxDecoderDescription`,
+:cpp:struct:`mfxEncoderDescription`,
+:cpp:struct:`mfxVPPDescription`.
+This will result in faster session creation as compared with full query of
+the implementation’s capabilities.
+
+This code illustrates how application can use the shallow information for
+session creation:
+
+.. literalinclude:: ../snippets/prg_session.cpp
+   :language: c++
+   :start-after: /*beg6*/
+   :end-before: /*end6*/
+   :lineno-start: 1
+
+Applications can get only shallow information with
+:cpp:func:`MFXEnumImplementations`.
+
+This code illustrates how application can use the shallow information to
+explore available implementations:
+
+.. literalinclude:: ../snippets/prg_session.cpp
+   :language: c++
+   :start-after: /*beg7*/
+   :end-before: /*end7*/
+   :lineno-start: 1
+
+Applications can also use :cpp:enumerator:`mfxVariantType::MFX_VARIANT_TYPE_QUERY`
+to find decoders or encoders or VPP filters.
+This code illustrates how application can find decoders for session creation:
+
+.. literalinclude:: ../snippets/prg_session.cpp
+   :language: c++
+   :start-after: /*beg8*/
+   :end-before: /*end8*/
+   :lineno-start: 1
+
+This code illustrates how application can find one encoder for session creation:
+
+.. literalinclude:: ../snippets/prg_session.cpp
+   :language: c++
+   :start-after: /*beg9*/
+   :end-before: /*end9*/
+   :lineno-start: 1
+
+This code illustrates how application can find VPP filters for session
+creation:
+
+.. literalinclude:: ../snippets/prg_session.cpp
+   :language: c++
+   :start-after: /*beg10*/
+   :end-before: /*end10*/
+   :lineno-start: 1
+
+Applications can use :cpp:enumerator:`mfxVariantType::MFX_VARIANT_TYPE_QUERY`
+to get decoder or encoder or VPP filter information with
+:cpp:func:`MFXEnumImplementations`.
+
+The :ref:`Query-able Properties Table <query-able-prop-table>` shows property
+strings supported by property-based query. Applying the bitmask
+:cpp:enumerator:`mfxVariantType::MFX_VARIANT_TYPE_QUERY` to properties not
+listed in this table will cause :cpp:func:`MFXSetConfigFilterProperty` to return
+MFX_ERR_UNSUPPORTED.
+
+.. _query-able-prop-table:
+
+.. container:: stripe-table
+
+   .. table:: Query-able Properties
+      :widths: 25 30 20
+
+      +----------------------------+------------------------+---------------------------+
+      | Property                   | Value Data Type        | Comment                   |
+      +============================+========================+===========================+
+      | | mfxImplDescription       | MFX_VARIANT_TYPE_U32 | | Query for shallow         |
+      |                            | MFX_VARIANT_TYPE_QUERY | information               |
+      +----------------------------+------------------------+---------------------------+
+      | | mfxImplDescription       | MFX_VARIANT_TYPE_U32 | | Query for decoder         |
+      | | .mfxDecoderDescription   | MFX_VARIANT_TYPE_QUERY |                           |
+      | | .decoder                 |                        |                           |
+      | | .CodecID                 |                        |                           |
+      +----------------------------+------------------------+---------------------------+
+      | | mfxImplDescription       | MFX_VARIANT_TYPE_U32 | | Query for encoder         |
+      | | .mfxEncoderDescription   | MFX_VARIANT_TYPE_QUERY |                           |
+      | | .encoder                 |                        |                           |
+      | | .CodecID                 |                        |                           |
+      +----------------------------+------------------------+---------------------------+
+      | | mfxImplDescription       | MFX_VARIANT_TYPE_U32 | | Query for VPP filter      |
+      | | .mfxVPPDescription       | MFX_VARIANT_TYPE_QUERY |                           |
+      | | .filter                  |                        |                           |
+      | | .FilterFourCC            |                        |                           |
+      +----------------------------+------------------------+---------------------------+
+      | | mfxImplDescription       | MFX_VARIANT_TYPE_U32 | | Query for all decoders    |
+      | | .mfxDecoderDescription   | MFX_VARIANT_TYPE_QUERY |                           |
+      +----------------------------+------------------------+---------------------------+
+      | | mfxImplDescription       | MFX_VARIANT_TYPE_U32 | | Query for all encoders    |
+      | | .mfxEncoderDescription   | MFX_VARIANT_TYPE_QUERY |                           |
+      +----------------------------+------------------------+---------------------------+
+      | | mfxImplDescription       | MFX_VARIANT_TYPE_U32 | | Query for all VPP filters |
+      | | .mfxVPPDescription       | MFX_VARIANT_TYPE_QUERY |                           |
+      +----------------------------+------------------------+---------------------------+
+
+Examples of valid property name strings for query:
+
+- mfxImplDescription
+- mfxImplDescription.mfxEncoderDescription.encoder.CodecID
+- mfxImplDescription.mfxDecoderDescription
+
+.. important::
+   To use property-based query, the application needs to configure at least
+   one of the properties in the
+   :ref:`Query-able Properties Table <query-able-prop-table>`.
+   For example, if application wants to query a particular AV1 profile,
+   it needs to set at least:
+
+   * mfxImplDescription.mfxEncoderDescription.encoder.CodecID and value data :cpp:enumerator:`MFX_CODEC_AV1` (to get all AV1 encoder properties)
+
+   or
+
+   * mfxImplDescription.mfxEncoderDescription (to get all encoder properties for all encoders)
+
+No matter what property is queried, below shallow information will be filled in
+:cpp:struct:`mfxImplDescription`:
+
+.. code-block:: c++
+
+   mfxStructVersion       Version;
+   mfxImplType            Impl;
+   mfxAccelerationMode    AccelerationMode;
+   mfxVersion             ApiVersion;
+   mfxChar                ImplName[MFX_IMPL_NAME_LEN];
+   mfxChar                License[MFX_STRFIELD_LEN];
+   mfxChar                Keywords[MFX_STRFIELD_LEN];
+   mfxU32                 VendorID;
+   mfxU32                 VendorImplID;
+   mfxDeviceDescription   Dev;
+   mfxAccelerationModeDescription   AccelerationModeDescription;
+   mfxPoolPolicyDescription  PoolPolicies;
+
+.. note:: The data type
+          :cpp:enumerator:`mfxVariantType::MFX_VARIANT_TYPE_QUERY`
+          is an experimental feature from API version 2.15.
+
+.. note:: When using property-based queries, all of the desired properties must be
+          configured before the first call to either :cpp:func:`MFXCreateSession`
+          or :cpp:func:`MFXEnumImplementations`.
 
 .. _vpl_coexistense:
 

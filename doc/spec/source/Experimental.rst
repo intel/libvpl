@@ -299,3 +299,35 @@ The following is a list of experimental interfaces, starting from API version
      - 2.14
      -
      -
+   * - :cpp:func:`MFXQueryImplsProperties`
+     - 2.15
+     -
+     -
+   * - :cpp:struct:`mfxQueryProperty`
+     - 2.15
+     -
+     -
+   * - :cpp:enumerator:`mfxVariantType::MFX_VARIANT_TYPE_QUERY`
+     - 2.15
+     -
+     -
+   * - ``mfxEncoderDescription::encoder::ReportedStats``
+     - 2.7
+     - 2.15
+     - Removed from API
+   * - :cpp:struct:`mfxDecExtDescription`
+     - 2.15
+     -
+     -
+   * - :cpp:struct:`mfxDecMemExtDescription`
+     - 2.15
+     -
+     -
+   * - :cpp:struct:`mfxEncExtDescription`
+     - 2.15
+     -
+     -
+   * - :cpp:struct:`mfxEncMemExtDescription`
+     - 2.15
+     -
+     -

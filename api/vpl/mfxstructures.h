@@ -53,10 +53,14 @@ typedef struct {
     /*! Number of bits used to represent chroma samples.
         @note Not all codecs and implementations support this value. Use the Query API function to check if this feature is supported. */
     mfxU16  BitDepthChroma;
-    /*! When the value is not zero, indicates that values of luma and chroma samples are shifted. Use BitDepthLuma and BitDepthChroma to calculate
-        shift size. Use zero value to indicate absence of shift. See example data alignment below.
-
-        @note Not all codecs and implementations support this value. Use the Query API  function to check if this feature is supported.
+    /*! The Shift flag indicates whether the values of luma and chroma samples are shifted. For the decoding process, the recommended value
+        is specified by the DecodeHeader or GetVideoParam API. A value of one indicates that the luma and chroma sample values are shifted, 
+        while a value of zero indicates that there is no shift. Please refer to the example data alignment provided below.
+        
+        @note Not all codecs and implementations support this flag. Use the Query API function to check if this feature is supported. 
+        AVC and HEVC allow users to set the Shift flag to either 0 or 1. However, setting the Shift flag to a value different from the 
+        recommended one may lead to increased CPU utilization. For other codecs, attempting to set the Shift flag to a value other than 
+        the recommended one will result in an error status.
     */
     mfxU16  Shift;
     mfxFrameId FrameId; /*!< Describes the view and layer of a frame picture. */
@@ -1272,6 +1276,7 @@ enum {
     /*! @{ */
     /* VVC Profiles */
     MFX_PROFILE_VVC_MAIN10                  = 1,
+    MFX_PROFILE_VVC_MAIN10_STILL_PICTURE    = 65,
     /*! @} */
 
     /*! @{ */
@@ -1289,6 +1294,7 @@ enum {
     MFX_LEVEL_VVC_6                         = 96,
     MFX_LEVEL_VVC_61                        = 99,
     MFX_LEVEL_VVC_62                        = 102,
+    MFX_LEVEL_VVC_63                        = 105,
     MFX_LEVEL_VVC_155                       = 255,
     /*! @} */
 

@@ -108,3 +108,35 @@ extDeviceUUID
    :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
+
+mfxDecExtDescription
+--------------------
+
+.. doxygenstruct:: mfxDecExtDescription
+   :project: DEF_BREATHE_PROJECT
+   :members:
+   :protected-members:
+
+mfxDecMemExtDescription
+-----------------------
+
+.. doxygenstruct:: mfxDecMemExtDescription
+   :project: DEF_BREATHE_PROJECT
+   :members:
+   :protected-members:
+
+mfxEncExtDescription
+--------------------
+
+.. doxygenstruct:: mfxEncExtDescription
+   :project: DEF_BREATHE_PROJECT
+   :members:
+   :protected-members:
+
+mfxEncMemExtDescription
+-----------------------
+
+.. doxygenstruct:: mfxEncMemExtDescription
+   :project: DEF_BREATHE_PROJECT
+   :members:
+   :protected-members:

@@ -146,4 +146,9 @@
 
 #define MFXVideoVPP_ProcessFrameAsync                disp_MFXVideoVPP_ProcessFrameAsync
 
+// API 2.15 functions
+#ifdef ONEVPL_EXPERIMENTAL
+#define MFXQueryImplsProperties          disp_MFXQueryImplsProperties
+#endif
+
 #endif

@@ -481,6 +481,9 @@ VVC Levels
 .. doxygenenumvalue:: MFX_LEVEL_VVC_62
    :project: DEF_BREATHE_PROJECT
 
+.. doxygenenumvalue:: MFX_LEVEL_VVC_63
+   :project: DEF_BREATHE_PROJECT
+   
 .. doxygenenumvalue:: MFX_LEVEL_VVC_155
    :project: DEF_BREATHE_PROJECT
 
@@ -537,6 +540,9 @@ VVC Profiles
 -------------
 
 .. doxygenenumvalue:: MFX_PROFILE_VVC_MAIN10
+   :project: DEF_BREATHE_PROJECT
+   
+.. doxygenenumvalue:: MFX_PROFILE_VVC_MAIN10_STILL_PICTURE
    :project: DEF_BREATHE_PROJECT
 
 VVC Tiers

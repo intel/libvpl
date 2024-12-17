@@ -23,6 +23,52 @@ mfxStatus sts;
 mfxFrameSurface1* work, *disp;
 mfxSyncPoint syncp;
 
+// Define a structure to encapsulate both the linked list node and the size of the list
+typedef struct SyncPointList {
+    mfxSyncPoint syncPoint;            // Store sync point
+    mfxFrameSurface1* frameSurface;    // Store frame surface pointer
+    struct SyncPointList* next;        // Pointer to the next node in the list
+    int size;                       // Size of the linked list
+} SyncPointList;
+
+// Initialize the list
+void init_sync_point_list(SyncPointList* list) {
+    list->next = NULL;    // Set the next pointer to NULL (empty list)
+    list->size = 0;       // Initialize the size to 0
+}
+
+// Add a sync point and frame surface to the end of the list
+void push_sync_point(SyncPointList* list, mfxSyncPoint syncPoint, mfxFrameSurface1* frameSurface) {
+    // Traverse the list to find the last node
+    SyncPointList* temp = list;
+    while (temp->next != NULL) {
+        temp = temp->next;
+    }
+
+    // Allocate memory for the new node
+    SyncPointList* newNode = (SyncPointList*)malloc(sizeof(SyncPointList));
+    newNode->syncPoint = syncPoint;
+    newNode->frameSurface = frameSurface;
+    newNode->next = NULL;  // The new node's next pointer is NULL
+
+    // Link the new node to the end of the list
+    temp->next = newNode;
+
+    // Update the size of the list
+    list->size++;
+}
+
+// Remove a sync point and frame surface from the head of the list
+void pop_sync_point(SyncPointList* list) {
+    if (list->next != NULL) {  // If the list is not empty
+        SyncPointList* temp = list->next;
+        list->next = list->next->next;  // Update the head to the next node
+        free(temp);  // Free the old head node
+
+        // Update the size of the list
+        list->size--;
+    }
+}
 
 static void allocate_pool_of_frame_surfaces(int nFrames)
 {
@@ -236,3 +282,38 @@ MFXVideoDECODE_Close(session);
 /*end6*/
 }
 
+static void prg_decoding7 () {
+/*beg7*/
+SyncPointList syncPointsList;
+init_sync_point_list(&syncPointsList); // Initialize the list
+/* initialize decoder */
+MFXVideoDECODE_Init(session, &init_param);
+/* perform decoding */
+for (;;) {
+   // Asynchronously decode a frame
+   sts = MFXVideoDECODE_DecodeFrameAsync(session, bits, work, &disp, &syncp);
+   if (sts == MFX_ERR_NONE) {
+
+        // Add the sync point to the linked list
+        if(disp != NULL)
+             push_sync_point(&syncPointsList, syncp, disp);
+
+        // If the number of elements in the list exceeds AsyncDepth or there is no more data to decode
+        if (syncPointsList.size >= init_param.AsyncDepth || !bits) {
+            while (syncPointsList.next != NULL) {
+                // Wait for the sync point to complete
+                sts = MFXVideoCORE_SyncOperation(session, syncPointsList.next->syncPoint, MFX_INFINITE);
+                if (sts == MFX_ERR_NONE) {
+                    pop_sync_point(&syncPointsList);  // Remove the processed item
+                } else {
+                    // If synchronization fails, exit the loop
+                    break;
+                }
+            }
+        }
+    }
+}
+/* close decoder */
+MFXVideoDECODE_Close(session);
+/*end7*/
+}

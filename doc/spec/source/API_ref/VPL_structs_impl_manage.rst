@@ -86,3 +86,11 @@ mfxInitializationParam
    :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
+
+mfxQueryProperty
+----------------------
+
+.. doxygenstruct:: mfxQueryProperty
+   :project: DEF_BREATHE_PROJECT
+   :members:
+   :protected-members:

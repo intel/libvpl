@@ -33,6 +33,12 @@ MFXQueryImplsDescription
 
 .. important:: The :cpp:func:`MFXQueryImplsDescription` function is mandatory for any implementation.
 
+MFXQueryImplsProperties
+------------------------
+
+.. doxygenfunction:: MFXQueryImplsProperties
+   :project: DEF_BREATHE_PROJECT
+
 MFXReleaseImplDescription
 -------------------------
 

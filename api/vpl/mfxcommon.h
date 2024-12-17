@@ -158,6 +158,7 @@ typedef struct {
             mfxEncryptedData* EncryptedData; /*!< Reserved and must be zero. */
             mfxExtBuffer **ExtParam;         /*!< Array of extended buffers for additional bitstream configuration. See the ExtendedBufferID enumerator for a complete list of extended buffers. */
             mfxU16  NumExtParam;             /*!< The number of extended buffers attached to this structure. */
+            mfxU16  reserved1;               /*!< Reserved for future use. */
             mfxU32  CodecId;                 /*!< Specifies the codec format identifier in the FourCC code. See the CodecFormatFourCC enumerator for details. This optional parameter is required for the simplified decode initialization.  */
 
         };
@@ -310,7 +311,40 @@ typedef enum {
 /*! Maximum allowed length of the implementation name. */
 #define MFX_STRFIELD_LEN          128
 
+#ifdef ONEVPL_EXPERIMENTAL
+
+#define MFX_DECEXTDESCRIPTION_VERSION MFX_STRUCT_VERSION(1, 0)
+
+MFX_PACK_BEGIN_STRUCT_W_PTR()
+/*! The mfxDecExtDescription structure represents the extended description of a decoder. */
+typedef struct {
+    mfxStructVersion Version;                       /*!< Version of the structure. */
+    mfxU16 reserved[14];                            /*!< Reserved for future use. */
+    mfxU16 NumExtBufferIDs;                         /*!< Number of supported extended buffer IDs. */
+    mfxU32* ExtBufferIDs;                           /*!< Pointer to the array of supported extended buffer IDs. */
+} mfxDecExtDescription;
+MFX_PACK_END()
+
+#define MFX_DECMEMEXTDESCRIPTION_VERSION MFX_STRUCT_VERSION(1, 0)
+
+MFX_PACK_BEGIN_STRUCT_W_PTR()
+/*! The mfxDecMemExtDescription structure represents the extended description for decoder memory. */
+typedef struct {
+    mfxStructVersion Version;                       /*!< Version of the structure. */
+    mfxU16 reserved[13];                            /*!< Reserved for future use. */
+    mfxU16 MaxBitDepth;                             /*!< Maximum supported bit depth. */
+    mfxU16 NumChromaSubsamplings;                   /*!< Number of supported output chroma subsamplings. */
+    mfxU16* ChromaSubsamplings;                     /*!< Pointer to the array of supported output chroma subsamplings. */
+} mfxDecMemExtDescription;
+MFX_PACK_END()
+
+#endif
+
+#ifdef ONEVPL_EXPERIMENTAL
+#define MFX_DECODERDESCRIPTION_VERSION MFX_STRUCT_VERSION(1, 1)
+#else
 #define MFX_DECODERDESCRIPTION_VERSION MFX_STRUCT_VERSION(1, 0)
+#endif
 
 MFX_PACK_BEGIN_STRUCT_W_PTR()
 /*! The mfxDecoderDescription structure represents the description of a decoder. */
@@ -321,7 +355,16 @@ typedef struct {
     /*! This structure represents the decoder description. */
     struct decoder {
         mfxU32 CodecID;                                  /*!< Decoder ID in FourCC format. */
+#ifdef ONEVPL_EXPERIMENTAL
+        mfxU16 reserved[2];                              /*!< Reserved for future use. */
+        union {
+           mfxDecExtDescription* DecExtDesc;             /*!< Pointer to the extended descriptions of the decoder. */
+           mfxU16 reserved2[4];                          /*!< Reserved for future use. */
+        };
+        mfxU16 reserved3[2];                             /*!< Reserved for future use. */
+#else
         mfxU16 reserved[8];                              /*!< Reserved for future use. */
+#endif
         mfxU16 MaxcodecLevel;                            /*!< Maximum supported codec level. See the CodecProfile enumerator for possible values. */
         mfxU16 NumProfiles;                              /*!< Number of supported profiles. */
         /*! This structure represents the codec profile description. */
@@ -334,7 +377,16 @@ typedef struct {
               mfxResourceType MemHandleType;             /*!< Memory handle type. */
               mfxRange32U Width;                         /*!< Range of supported image widths. */
               mfxRange32U Height;                        /*!< Range of supported image heights. */
+#ifdef ONEVPL_EXPERIMENTAL
+              mfxU16 reserved[2];                        /*!< Reserved for future use. */
+              union {
+                 mfxDecMemExtDescription* MemExtDesc;    /*!< Pointer to the extended descriptions for decoder memory. */
+                 mfxU16 reserved2[4];                    /*!< Reserved for future use. */
+              };
+              mfxU16 reserved3;                          /*!< Reserved for future use. */
+#else
               mfxU16 reserved[7];                        /*!< Reserved for future use. */
+#endif
               mfxU16 NumColorFormats;                    /*!< Number of supported output color formats. */
               mfxU32* ColorFormats;                      /*!< Pointer to the array of supported output color formats (in FOURCC). */
            } * MemDesc;                                  /*!< Pointer to the array of memory types. */
@@ -343,7 +395,43 @@ typedef struct {
 } mfxDecoderDescription;
 MFX_PACK_END()
 
+#ifdef ONEVPL_EXPERIMENTAL
+
+#define MFX_ENCEXTDESCRIPTION_VERSION MFX_STRUCT_VERSION(1, 0)
+
+MFX_PACK_BEGIN_STRUCT_W_PTR()
+/*! The mfxEncExtDescription structure represents the extended description of an encoder. */
+typedef struct {
+    mfxStructVersion Version;                       /*!< Version of the structure. */
+    mfxU16 reserved[10];                            /*!< Reserved for future use. */
+    mfxU16 NumRateControlMethods;                   /*!< Number of supported bitrate control methods. */
+    mfxU16* RateControlMethods;                     /*!< Pointer to the array of supported bitrate control methods. */
+    mfxU16 reserved2[11];                           /*!< Reserved for future use. */
+    mfxU16 NumExtBufferIDs;                         /*!< Number of supported extended buffer IDs. */
+    mfxU32* ExtBufferIDs;                           /*!< Pointer to the array of supported extended buffer IDs. */
+} mfxEncExtDescription;
+MFX_PACK_END()
+
+#define MFX_ENCMEMEXTDESCRIPTION_VERSION MFX_STRUCT_VERSION(1, 0)
+
+MFX_PACK_BEGIN_STRUCT_W_PTR()
+/*! The mfxEncMemExtDescription structure represents the extended description for encoder memory. */
+typedef struct {
+    mfxStructVersion Version;                       /*!< Version of the structure. */
+    mfxU16 reserved[13];                            /*!< Reserved for future use. */
+    mfxU16 TargetMaxBitDepth;                       /*!< Maximum supported bit depth. */
+    mfxU16 NumTargetChromaSubsamplings;             /*!< Number of supported target chroma subsamplings. */
+    mfxU16* TargetChromaSubsamplings;               /*!< Pointer to the array of supported target chroma subsamplings. */
+} mfxEncMemExtDescription;
+MFX_PACK_END()
+
+#endif
+
+#ifdef ONEVPL_EXPERIMENTAL
+#define MFX_ENCODERDESCRIPTION_VERSION MFX_STRUCT_VERSION(1, 1)
+#else
 #define MFX_ENCODERDESCRIPTION_VERSION MFX_STRUCT_VERSION(1, 0)
+#endif
 
 MFX_PACK_BEGIN_STRUCT_W_PTR()
 /*! This structure represents an encoder description. */
@@ -357,8 +445,11 @@ typedef struct {
         mfxU16 MaxcodecLevel;                            /*!< Maximum supported codec level. See the CodecProfile enumerator for possible values. */
         mfxU16 BiDirectionalPrediction;                  /*!< Indicates B-frames support. */
 #ifdef ONEVPL_EXPERIMENTAL
-        mfxU16 ReportedStats;                            /*!< Indicates what type of statistics can be reported: block/slice/tile/frame. */
-        mfxU16 reserved[6];                              /*!< Reserved for future use. */
+        union {
+           mfxEncExtDescription* EncExtDesc;             /*!< Pointer to the extended descriptions of the encoder. */
+           mfxU16 reserved2[4];                          /*!< Reserved for future use. */
+        };
+        mfxU16 reserved[3];                              /*!< Reserved for future use. */
 #else
         mfxU16 reserved[7];                              /*!< Reserved for future use. */
 #endif
@@ -373,7 +464,16 @@ typedef struct {
               mfxResourceType MemHandleType;             /*!< Memory handle type. */
               mfxRange32U Width;                         /*!< Range of supported image widths. */
               mfxRange32U Height;                        /*!< Range of supported image heights. */
+#ifdef ONEVPL_EXPERIMENTAL
+              mfxU16 reserved[2];                        /*!< Reserved for future use. */
+              union {
+                 mfxEncMemExtDescription* MemExtDesc;    /*!< Pointer to the extended descriptions for encoder memory. */
+                 mfxU16 reserved2[4];                    /*!< Reserved for future use. */
+              };
+              mfxU16 reserved3;                          /*!< Reserved for future use. */
+#else
               mfxU16 reserved[7];                        /*!< Reserved for future use. */
+#endif
               mfxU16 NumColorFormats;                    /*!< Number of supported input color formats. */
               mfxU32* ColorFormats;                      /*!< Pointer to the array of supported input color formats (in FOURCC). */
            } * MemDesc;                                  /*!< Pointer to the array of memory types. */
@@ -622,6 +722,16 @@ typedef struct {
     mfxU32      reserved2[3];                /*!< Reserved for future use. */
 } mfxInitializationParam;
 MFX_PACK_END()
+
+#ifdef ONEVPL_EXPERIMENTAL
+MFX_PACK_BEGIN_STRUCT_W_PTR()
+/*! Represents a name/value pair to indicate requested properties. For use with MFXQueryImplsProperties() */
+typedef struct {
+    mfxU8* PropName;       /*!< Property name string to indicate the requested Property. */
+    mfxVariant PropVar;    /*!< Property value corresponding to the property name. */
+} mfxQueryProperty;
+MFX_PACK_END()
+#endif
 
 #ifdef __cplusplus
 }

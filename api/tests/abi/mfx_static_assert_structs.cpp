@@ -349,6 +349,7 @@
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxBitstream                       ,EncryptedData                 ,0    )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxBitstream                       ,ExtParam                      ,8    )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxBitstream                       ,NumExtParam                   ,16   )
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxBitstream                       ,CodecId                       ,20   )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxBitstream                       ,DecodeTimeStamp               ,24   )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxBitstream                       ,TimeStamp                     ,32   )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxBitstream                       ,Data                          ,40   )
@@ -385,6 +386,7 @@
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxBitstream                       ,EncryptedData                 ,0    )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxBitstream                       ,ExtParam                      ,4    )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxBitstream                       ,NumExtParam                   ,8    )
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxBitstream                       ,CodecId                       ,12   )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxBitstream                       ,DecodeTimeStamp               ,24   )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxBitstream                       ,TimeStamp                     ,32   )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxBitstream                       ,Data                          ,40   )
@@ -2288,6 +2290,19 @@ MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxRange32U ,12)
 // mfxcommon.h
 
 #if defined(_x86_64)
+#ifdef ONEVPL_EXPERIMENTAL
+MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxDecExtDescription, 40)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxDecExtDescription, Version, 0)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxDecExtDescription, NumExtBufferIDs, 30)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxDecExtDescription, ExtBufferIDs, 32)
+
+MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxDecMemExtDescription, 40)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxDecMemExtDescription, Version, 0)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxDecMemExtDescription, MaxBitDepth, 28)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxDecMemExtDescription, NumChromaSubsamplings, 30)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxDecMemExtDescription, ChromaSubsamplings, 32)
+#endif
+
 MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxDecoderDescription              ,32    )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxDecoderDescription, Version  ,0)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxDecoderDescription, NumCodecs  ,16)
@@ -2295,6 +2310,9 @@ MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxDecoderDescription              ,32    )
 
 MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxDecoderDescription::decoder              ,32    )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxDecoderDescription::decoder, CodecID  ,0)
+#ifdef ONEVPL_EXPERIMENTAL
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxDecoderDescription::decoder, DecExtDesc  ,8)
+#endif
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxDecoderDescription::decoder, MaxcodecLevel  ,20)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxDecoderDescription::decoder, NumProfiles ,22)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxDecoderDescription::decoder, Profiles ,24)
@@ -2308,9 +2326,25 @@ MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxDecoderDescription::decoder::decprofile::decme
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxDecoderDescription::decoder::decprofile::decmemdesc, MemHandleType  ,0)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxDecoderDescription::decoder::decprofile::decmemdesc, Width  ,4)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxDecoderDescription::decoder::decprofile::decmemdesc, Height ,16)
+#ifdef ONEVPL_EXPERIMENTAL
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxDecoderDescription::decoder::decprofile::decmemdesc, MemExtDesc ,32)
+#endif
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxDecoderDescription::decoder::decprofile::decmemdesc, NumColorFormats ,42)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxDecoderDescription::decoder::decprofile::decmemdesc, ColorFormats ,48)
 #elif defined(_x86)
+#ifdef ONEVPL_EXPERIMENTAL
+MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxDecExtDescription, 36)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxDecExtDescription, Version, 0)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxDecExtDescription, NumExtBufferIDs, 30)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxDecExtDescription, ExtBufferIDs, 32)
+
+MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxDecMemExtDescription, 36)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxDecMemExtDescription, Version, 0)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxDecMemExtDescription, MaxBitDepth, 28)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxDecMemExtDescription, NumChromaSubsamplings, 30)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxDecMemExtDescription, ChromaSubsamplings, 32)
+#endif
+
 MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxDecoderDescription              ,24    )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxDecoderDescription, Version  ,0)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxDecoderDescription, NumCodecs  ,16)
@@ -2318,6 +2352,9 @@ MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxDecoderDescription              ,24    )
 
 MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxDecoderDescription::decoder              ,28    )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxDecoderDescription::decoder, CodecID  ,0)
+#ifdef ONEVPL_EXPERIMENTAL
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxDecoderDescription::decoder, DecExtDesc  ,8)
+#endif
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxDecoderDescription::decoder, MaxcodecLevel  ,20)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxDecoderDescription::decoder, NumProfiles ,22)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxDecoderDescription::decoder, Profiles ,24)
@@ -2331,11 +2368,29 @@ MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxDecoderDescription::decoder::decprofile::decme
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxDecoderDescription::decoder::decprofile::decmemdesc, MemHandleType  ,0)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxDecoderDescription::decoder::decprofile::decmemdesc, Width  ,4)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxDecoderDescription::decoder::decprofile::decmemdesc, Height ,16)
+#ifdef ONEVPL_EXPERIMENTAL
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxDecoderDescription::decoder::decprofile::decmemdesc, MemExtDesc ,32)
+#endif
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxDecoderDescription::decoder::decprofile::decmemdesc, NumColorFormats ,42)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxDecoderDescription::decoder::decprofile::decmemdesc, ColorFormats ,44)
 #endif
 
 #if defined(_x86_64)
+#ifdef ONEVPL_EXPERIMENTAL
+MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxEncExtDescription, 64)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncExtDescription, Version, 0)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncExtDescription, NumRateControlMethods, 22)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncExtDescription, RateControlMethods, 24)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncExtDescription, NumExtBufferIDs, 54)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncExtDescription, ExtBufferIDs, 56)
+
+MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxEncMemExtDescription, 40)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncMemExtDescription, Version, 0)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncMemExtDescription, TargetMaxBitDepth, 28)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncMemExtDescription, NumTargetChromaSubsamplings, 30)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncMemExtDescription, TargetChromaSubsamplings, 32)
+#endif
+
 MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxEncoderDescription              ,32    )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncoderDescription, Version  ,0)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncoderDescription, NumCodecs  ,16)
@@ -2346,7 +2401,7 @@ MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxEncoderDescription::encoder              ,32  
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncoderDescription::encoder, MaxcodecLevel  ,4)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncoderDescription::encoder, BiDirectionalPrediction  ,6)
 #ifdef ONEVPL_EXPERIMENTAL
-    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncoderDescription::encoder, ReportedStats  ,8)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncoderDescription::encoder, EncExtDesc  ,8)
 #endif
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncoderDescription::encoder, NumProfiles ,22)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncoderDescription::encoder, Profiles ,24)
@@ -2360,9 +2415,26 @@ MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxEncoderDescription::encoder::encprofile::encme
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncoderDescription::encoder::encprofile::encmemdesc, MemHandleType  ,0)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncoderDescription::encoder::encprofile::encmemdesc, Width  ,4)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncoderDescription::encoder::encprofile::encmemdesc, Height ,16)
+#ifdef ONEVPL_EXPERIMENTAL
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncoderDescription::encoder::encprofile::encmemdesc, MemExtDesc ,32)
+#endif
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncoderDescription::encoder::encprofile::encmemdesc, NumColorFormats ,42)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncoderDescription::encoder::encprofile::encmemdesc, ColorFormats ,48)
 #elif defined(_x86)
+#ifdef ONEVPL_EXPERIMENTAL
+MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxEncExtDescription, 56)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncExtDescription, Version, 0)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncExtDescription, NumRateControlMethods, 22)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncExtDescription, RateControlMethods, 24)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncExtDescription, NumExtBufferIDs, 50)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncExtDescription, ExtBufferIDs, 52)
+
+MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxEncMemExtDescription, 36)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncMemExtDescription, Version, 0)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncMemExtDescription, TargetMaxBitDepth, 28)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncMemExtDescription, NumTargetChromaSubsamplings, 30)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncMemExtDescription, TargetChromaSubsamplings, 32)
+#endif
 MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxEncoderDescription              ,24    )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncoderDescription, Version  ,0)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncoderDescription, NumCodecs  ,16)
@@ -2373,7 +2445,7 @@ MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxEncoderDescription::encoder              ,28  
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncoderDescription::encoder, MaxcodecLevel  ,4)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncoderDescription::encoder, BiDirectionalPrediction  ,6)
 #ifdef ONEVPL_EXPERIMENTAL
-    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncoderDescription::encoder, ReportedStats  ,8)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncoderDescription::encoder, EncExtDesc  ,8)
 #endif
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncoderDescription::encoder, NumProfiles ,22)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncoderDescription::encoder, Profiles ,24)
@@ -2387,6 +2459,9 @@ MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxEncoderDescription::encoder::encprofile::encme
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncoderDescription::encoder::encprofile::encmemdesc, MemHandleType  ,0)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncoderDescription::encoder::encprofile::encmemdesc, Width  ,4)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncoderDescription::encoder::encprofile::encmemdesc, Height ,16)
+#ifdef ONEVPL_EXPERIMENTAL
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncoderDescription::encoder::encprofile::encmemdesc, MemExtDesc ,32)
+#endif
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncoderDescription::encoder::encprofile::encmemdesc, NumColorFormats ,42)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncoderDescription::encoder::encprofile::encmemdesc, ColorFormats ,44)
 #endif
@@ -2511,6 +2586,12 @@ MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxInitializationParam ,40)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxInitializationParam, NumExtParam,     10)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxInitializationParam, ExtParam,        16)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxInitializationParam, VendorImplID,    24)
+
+#ifdef ONEVPL_EXPERIMENTAL
+MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxQueryProperty       ,24)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxQueryProperty, PropName, 0)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxQueryProperty, PropVar,  8)
+#endif
 #elif defined(_x86)
 MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxImplDescription              ,608    )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxImplDescription, Version  ,0)
@@ -2539,6 +2620,12 @@ MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxInitializationParam ,32)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxInitializationParam, NumExtParam,     10)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxInitializationParam, ExtParam,        12)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxInitializationParam, VendorImplID,    16)
+
+#ifdef ONEVPL_EXPERIMENTAL
+MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxQueryProperty       ,20)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxQueryProperty, PropName, 0)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxQueryProperty, PropVar,  4)
+#endif
 #endif
 
 // mfxstructures.h

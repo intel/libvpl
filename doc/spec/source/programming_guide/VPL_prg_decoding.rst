@@ -420,3 +420,27 @@ bitstreams with resolution change without need of :cpp:func:`MFXVideoDECODE_VPP_
 .. note:: Even if more than one input compressed frame is consumed, the
   :cpp:func:`MFXVideoDECODE_VPP_DecodeFrameAsync` produces only one decoded
   frame and correspondent frames from VPP channels.
+
+---------------------------------------------------
+AsyncDepth Specific Details
+---------------------------------------------------
+
+`AsyncDepth` means how many asynchronous operations an application performs before the application explicitly
+synchronizes the result, application will set this parameter and call :cpp:func:`MFXVideoDECODE_DecodeFrameAsync`,
+the number of submitted frames is specified by `AsyncDepth`, then call :cpp:func:`MFXVideoCORE_SyncOperation` to synchronize
+the result of all frames. 
+
+The following pseudo code shows the simplified asynchronous and synchronous procedure:
+
+.. literalinclude:: ../snippets/prg_decoding.c
+   :language: c++
+   :start-after: /*beg7*/
+   :end-before: /*end7*/
+   :lineno-start: 1
+
+According to memory utilization and performance, two modes are recommend for decoder pipeline:
+
+- For smallest memory footprint: the application should set AsyncDepth to 1 and then call :cpp:func:`MFXVideoCORE_SyncOperation`
+  after each frame. This will have poor performance, since the GPU will not be kept fully occupied.
+- For best performance: the application should set AsyncDepth to 4 and plan to :cpp:func:`MFXVideoCORE_SyncOperation` after every
+  4th frame, which generally will keep the GPU close to fully occupied.
