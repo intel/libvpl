@@ -75,9 +75,6 @@ if(UNIX)
   endif()
 endif()
 
-install(TARGETS ${TARGET} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-                                  COMPONENT ${VPL_COMPONENT_DEV})
-
 # copy dependent dlls to target location
 if(WIN32)
   if(${CMAKE_VERSION} VERSION_LESS "3.26")

@@ -96,9 +96,9 @@ endif()
 
 add_subdirectory(api)
 add_subdirectory(libvpl)
+add_subdirectory(examples)
 if(INSTALL_DEV)
   add_subdirectory(env)
-  add_subdirectory(examples)
 endif()
 
 install(

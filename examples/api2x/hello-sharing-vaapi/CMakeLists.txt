@@ -79,8 +79,6 @@ foreach(target IN LISTS VAAPI_TARGETS)
     endif()
   endif()
 
-  install(TARGETS ${target} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-                                    COMPONENT ${VPL_COMPONENT_DEV})
 endforeach()
 
 include(CTest)

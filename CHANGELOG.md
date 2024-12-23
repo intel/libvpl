@@ -17,6 +17,9 @@ cases.
 
 ## [Unreleased]
 
+### Fixed
+- `BUILD_EXAMPLES` build option requiring `INSTALL_DEV` to have any effect.
+
 ## [2.14.0] - 2024-12-13
 
 ### Added
