@@ -25,7 +25,7 @@ if(BUILD_EXAMPLES)
   add_subdirectory(tutorials/01_transition/VPL)
 endif()
 
-if(INSTALL_DEV)
+if(INSTALL_EXAMPLES)
   install(
     DIRECTORY content
     DESTINATION ${VPL_INSTALL_EXAMPLEDIR}

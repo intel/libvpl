@@ -52,6 +52,9 @@ set(INSTALL_DEV
 set(INSTALL_LIB
     ON
     CACHE BOOL "Install dispatcher library.")
+set(INSTALL_EXAMPLES
+    ON
+    CACHE BOOL "Install example source code and content.")
 set(BUILD_EXAMPLES
     OFF
     CACHE BOOL "Build examples when building dev package.")
@@ -175,6 +178,7 @@ message(
   STATUS "  VPL_INSTALL_FULL_LICENSEDIR     : ${VPL_INSTALL_FULL_LICENSEDIR}")
 message(STATUS "  INSTALL_DEV                     : ${INSTALL_DEV}")
 message(STATUS "  INSTALL_LIB                     : ${INSTALL_LIB}")
+message(STATUS "  INSTALL_EXAMPLES                : ${INSTALL_EXAMPLES}")
 message(STATUS "Build:")
 message(STATUS "  BUILD_SHARED_LIBS               : ${BUILD_SHARED_LIBS}")
 message(STATUS "  BUILD_TESTS                     : ${BUILD_TESTS}")

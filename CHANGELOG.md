@@ -17,6 +17,10 @@ cases.
 
 ## [Unreleased]
 
+### Added
+- Explicit `INSTALL_EXAMPLES` build option to control installation of example
+  source code and content.
+
 ### Fixed
 - `BUILD_EXAMPLES` build option requiring `INSTALL_DEV` to have any effect.
 
