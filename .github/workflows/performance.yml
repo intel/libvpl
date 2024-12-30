@@ -135,7 +135,7 @@ jobs:
             -v "$(realpath _install_ref):/package" \
             -e DEVICE=/dev/dri/renderD128 \
             --device /dev/dri/renderD128 \
-            --group-add=109 \
+            --group-add=$(getent group render | cut -d: -f3) \
             --cap-add SYS_ADMIN \
             -p 8080:8080 \
             vpl_performance:linux \
@@ -150,7 +150,7 @@ jobs:
             -v "$(realpath _install_test):/package" \
             -e DEVICE=/dev/dri/renderD128 \
             --device /dev/dri/renderD128 \
-            --group-add=109 \
+            --group-add=$(getent group render | cut -d: -f3) \
             --cap-add SYS_ADMIN \
             -p 8080:8080 \
             vpl_performance:linux \
