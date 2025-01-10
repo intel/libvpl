@@ -190,7 +190,9 @@ if(INSTALL_DEV)
     # WIN32 in general
     set(MINGW_LIBS "-lole32 -lgdi32 -luuid")
   endif()
-  if(NOT MSVC)
+  if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    set(CXX_LIB "-lc++")
+  elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(CXX_LIB "-lstdc++")
   endif()
   set(VPL_PKGCONFIG_DEPENDENT_LIBS
