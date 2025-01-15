@@ -190,9 +190,6 @@ if(INSTALL_DEV)
     # WIN32 in general
     set(MINGW_LIBS "-lole32 -lgdi32 -luuid")
   endif()
-  if(NOT MSVC)
-    set(CXX_LIB "-lstdc++")
-  endif()
   set(VPL_PKGCONFIG_DEPENDENT_LIBS
       "${DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${MINGW_LIBS} ${CXX_LIB}")
   configure_file("pkgconfig/vpl.pc.in" "pkgconfig/vpl.pc" @ONLY)
