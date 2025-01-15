@@ -1,2 +1,2 @@
-virtualenv==v20.24.5
+virtualenv==v20.26.6
 pre-commit
