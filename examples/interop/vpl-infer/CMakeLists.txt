@@ -112,22 +112,40 @@ if(WIN32)
 endif()
 
 include(CTest)
-if(WIN32)
-  set(VPL_MODEL_DIR "C:/OpenVINO/public/mobilenet-ssd/FP32")
-else()
-  set(VPL_MODEL_DIR "/OpenVINO/public/mobilenet-ssd/FP32")
-endif()
 
+set(VPL_EXAMPLE_MODEL
+    "vehicle-detection-0200.xml"
+    CACHE PATH "Model to use.")
 set(VPL_CONTENT_DIR
     ${CMAKE_CURRENT_SOURCE_DIR}/../../content
     CACHE PATH "Path to content.")
+
+add_test(
+  NAME downloadModelXml
+  COMMAND
+    curl -LJO
+    "https://storage.openvinotoolkit.org/repositories/open_model_zoo/2023.0/models_bin/1/vehicle-detection-0200/FP16/vehicle-detection-0200.xml"
+)
+add_test(
+  NAME downloadModelBin
+  COMMAND
+    curl -LJO
+    "https://storage.openvinotoolkit.org/repositories/open_model_zoo/2023.0/models_bin/1/vehicle-detection-0200/FP16/vehicle-detection-0200.bin"
+)
+set_tests_properties(downloadModelXml PROPERTIES FIXTURES_SETUP DL)
+set_tests_properties(downloadModelBin PROPERTIES FIXTURES_SETUP DL)
+
 if("${TEST_ZERO_COPY}")
   add_test(NAME ${TARGET}-zerocopy-test
            COMMAND ${TARGET} -i "${VPL_CONTENT_DIR}/cars_320x240.h265"
-                   -zerocopy -m "${VPL_MODEL_DIR}/mobilenet-ssd.xml")
+                   -zerocopy -m "${VPL_EXAMPLE_MODEL}")
+
+  set_tests_properties(${TARGET}-zerocopy-test PROPERTIES FIXTURES_REQUIRED DL)
 endif()
 if("${TEST_LEGACY_API}")
   add_test(NAME ${TARGET}-legacyapi-test
            COMMAND ${TARGET} -i "${VPL_CONTENT_DIR}/cars_320x240.h265" -legacy
-                   -m "${VPL_MODEL_DIR}/mobilenet-ssd.xml")
+                   -m "${VPL_EXAMPLE_MODEL}")
+
+  set_tests_properties(${TARGET}-legacyapi-test PROPERTIES FIXTURES_REQUIRED DL)
 endif()

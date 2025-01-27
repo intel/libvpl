@@ -19,16 +19,19 @@ cases.
 
 ### Added
 - Explicit `INSTALL_EXAMPLES` build option to control installation of example
-  source code and content.
+  source code and content
+
+### Changed
+- Model demonstrated interop example to a vehicle detection model
 
 ### Fixed
-- `BUILD_EXAMPLES` build option requiring `INSTALL_DEV` to have any effect.
+- `BUILD_EXAMPLES` build option requiring `INSTALL_DEV` to have any effect
 
 ### Changed
 - Default Ubuntu build to 24.04.
 
 ### Removed
-- Outdated Dockerfiles provided with examples.
+- Outdated Dockerfiles provided with examples
 
 ## [2.14.0] - 2024-12-13
 
@@ -36,7 +39,6 @@ cases.
 - Intel® VPL API 2.14 support, including new quality and speed settings for AI
   based video frame interpolation, new algorithm and mode selection options for
   AI based super resolution, and HEVC level 8.5 decode support.
-
 - Improved support for Python 3.12 development environments.
 
 ### Fixed
