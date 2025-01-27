@@ -287,8 +287,9 @@ mfxStatus ReadEncodedStream(mfxBitstream &bs, FILE *f) {
         *(p0++) = *(p1++);
     }
     bs.DataOffset = 0;
-    bs.DataLength += (mfxU32)fread(bs.Data + bs.DataLength, 1, bs.MaxLength - bs.DataLength, f);
-    if (bs.DataLength == 0)
+    mfxU32 readSize = (mfxU32)fread(bs.Data + bs.DataLength, 1, bs.MaxLength - bs.DataLength, f);
+    bs.DataLength += readSize;
+    if (readSize == 0)
         return MFX_ERR_MORE_DATA;
 
     return MFX_ERR_NONE;
