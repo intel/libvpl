@@ -55,7 +55,7 @@ This code sample is licensed under MIT license.
 ## Building and Executing the `vpl-infer` Program
 
 The first step is to set up a build environment with prerequisites installed.
-This can be set up in a bare metal Ubuntu 22.04 system or with Docker for Linux, and in Windows.
+This can be set up on a Ubuntu or Windows system.
 
 
 ### On a Linux* System
@@ -136,63 +136,6 @@ This can be set up in a bare metal Ubuntu 22.04 system or with Docker for Linux,
     ./vpl-infer -i cars_320x240.h265 -m mobilenet-ssd.xml -legacy
     ```
 
-
-### Using a Docker Container (Linux)
-
-These instructions assume that Docker is already set up on your system.
-
-
-
-1. Build docker image:
-
-    These steps start from vpl-infer sample directory:
-    ```
-    examples/interop/vpl-infer
-    ```
-    Build Dockerfile
-
-    ```
-    docker build -t interop docker
-    ```
-
-    If needed, pass proxy information with “--build-arg”:
-
-    ```
-    docker build -t interop $(env | grep -E '(_proxy=|_PROXY)' | sed 's/^/--build-arg /') docker
-    ```
-
-
-2. Start the container
-
-    Mount `examples` directory as `/work` directory, and current directory is `vpl-infer` example directory.
-    ```
-    docker run -it --rm --privileged -v `pwd`/../../:/work -w /work/interop/vpl-infer interop:latest
-    ```
-
-
-3. Build and run the program in the container:
-
-
-    Build steps:
-
-    ```
-    source /opt/intel/openvino/setupvars.sh
-
-    mkdir build && cd build
-    cmake .. && cmake --build . --config release
-    ```
-
-    To run with 2.x API zero copy on GPU
-
-    ```
-    ./vpl-infer -i /work/content/cars_320x240.h265 -m /OpenVINO/public/mobilenet-ssd/FP32/mobilenet-ssd.xml -zerocopy
-    ```
-
-    To run with 1.x API (and extra copy) on GPU
-
-    ```
-    ./vpl-infer -i /work/content/cars_320x240.h265 -m /OpenVINO/public/mobilenet-ssd/FP32/mobilenet-ssd.xml -legacy
-    ```
 
 ### On a Windows* System
 

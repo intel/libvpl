@@ -27,6 +27,9 @@ cases.
 ### Changed
 - Default Ubuntu build to 24.04.
 
+### Removed
+- Outdated Dockerfiles provided with examples.
+
 ## [2.14.0] - 2024-12-13
 
 ### Added
