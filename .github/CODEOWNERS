@@ -7,3 +7,6 @@
 /api/vpl/                          @varistar @jonrecker @mgonchar @tletnes @intel-innersource/onevpl-maintainer
 /api/tests/                        @varistar @jonrecker @mgonchar @tletnes @intel-innersource/onevpl-maintainer
 /doc/spec/                         @varistar @jonrecker @mgonchar @tletnes @intel-innersource/onevpl-maintainer
+
+# Third party programs
+/third-party-programs.txt          @akwrobel @tletnes
