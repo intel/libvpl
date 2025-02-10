@@ -31,6 +31,7 @@ env:
   RHEL86: rhel8.6-release-gen12.5-acceptance
   SLES154: sles15.4-release-gen12.5-acceptance
   U2204: ubuntu22.04-release-gen12.5-acceptance
+  U2404: ubuntu24.04-release-gen12.5-acceptance
   WIN11: windows11-release-gen12.5-acceptance
 
 
@@ -118,6 +119,7 @@ jobs:
           copy_artifact "$UTEST_L" linux.xml unit/lib linux.xml
           copy_artifact "$UTEST_W" windows.xml unit/lib windows.xml
           copy_all_artifacts "$U2204" acceptance/Ubuntu22.04/gen12.5
+          copy_all_artifacts "$U2404" acceptance/Ubuntu24.04/gen12.5
           copy_all_artifacts "$WIN11" acceptance/Win11/gen12.5
           copy_all_artifacts "$SLES154" acceptance/SLES15.4/gen12.5
           copy_all_artifacts "$RHEL86" acceptance/RHEL8.6/gen12.5
@@ -130,6 +132,8 @@ jobs:
         run: >
           docker build ${{ inputs.docker_opts }}
           -f "source/.github/workflows/summary/Dockerfile.ubuntu.summary"
+          --build-arg USER_ID=$(id -u)
+          --build-arg GROUP_ID=$(id -g)
           -t vpl_summary:ubuntu
           "source/.github/workflows/summary"
 

@@ -55,6 +55,8 @@ jobs:
         run: >
           docker build ${{ inputs.docker_opts }}
           -f "source/.github/workflows/bdba/Dockerfile.ubuntu.bdba"
+          --build-arg USER_ID=$(id -u)
+          --build-arg GROUP_ID=$(id -g)
           -t vpl_bdba:ubuntu
           "source/.github/workflows/bdba"
 

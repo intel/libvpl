@@ -88,6 +88,8 @@ jobs:
         run: >
           docker build ${{ inputs.docker_opts }}
           -f "source/.github/workflows/sdl/Dockerfile.ubuntu.sdl"
+          --build-arg USER_ID=$(id -u)
+          --build-arg GROUP_ID=$(id -g)
           -t vpl_sdl:ubuntu
           "source/.github/workflows/sdl"
 

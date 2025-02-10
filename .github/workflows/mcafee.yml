@@ -89,7 +89,7 @@ jobs:
         if: success() && !inputs.caas
         run: |
           pushd av-scanning
-          sed -i 's|FROM.*ubuntu:latest|FROM public.ecr.aws/lts/ubuntu:22.04|' \
+          sed -i 's|FROM.*ubuntu:latest|FROM public.ecr.aws/lts/ubuntu:24.04|' \
                  Dockerfile
           docker build ${{ inputs.docker_opts }} -t mcafee:latest .
           popd
