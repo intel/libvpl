@@ -759,17 +759,6 @@ mfxStatus ConfigCtxVPL::GetFlatDescriptionsEnc(const mfxImplDescription *libImpl
     EncProfile *encProfile = nullptr;
     EncMemDesc *encMemDesc = nullptr;
 
-#ifdef ONEVPL_EXPERIMENTAL
-    // ReportedStats was added with API 2.7 under ONEVPL_EXPERIMENTAL.
-    // When it is promoted to production API, MFX_ENCODERDESCRIPTION_VERSION should be bumped up
-    //   and we should check mfxEncoderDescription.Version instead to know whether ReportedStats
-    //   is a valid field (taken from reserved[] space).
-    // Until then, best we can do is to check the overall API version for this impl.
-    mfxVersion reqApiVersionReportedStats = {};
-    reqApiVersionReportedStats.Major      = 2;
-    reqApiVersionReportedStats.Minor      = 7;
-#endif
-
     while (codecIdx < libImplDesc->Enc.NumCodecs) {
         EncConfig ec = {};
 
@@ -777,13 +766,6 @@ mfxStatus ConfigCtxVPL::GetFlatDescriptionsEnc(const mfxImplDescription *libImpl
         ec.CodecID                 = encCodec->CodecID;
         ec.MaxcodecLevel           = encCodec->MaxcodecLevel;
         ec.BiDirectionalPrediction = encCodec->BiDirectionalPrediction;
-
-#ifdef ONEVPL_EXPERIMENTAL
-        // see comment above about checking mfxEncoderDescription version once this is moved out
-        //   of experimental API
-        if (libImplDesc->ApiVersion.Version >= reqApiVersionReportedStats.Version)
-            ec.ReportedStats = encCodec->ReportedStats;
-#endif
 
         CHECK_IDX(codecIdx, profileIdx, encCodec->NumProfiles);
 
