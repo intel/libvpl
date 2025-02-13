@@ -183,7 +183,7 @@ jobs:
           - gen12.5
         distro:
           - family: ubuntu
-            version: 22.04
+            version: 24.04
         config:
           - release
         os:

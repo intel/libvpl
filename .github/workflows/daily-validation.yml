@@ -285,7 +285,7 @@ jobs:
           - gen12.5
         distro:
           - family: ubuntu
-            version: 22.04
+            version: 24.04
         config:
           - release
         os:
@@ -314,6 +314,8 @@ jobs:
             version: 8.6
           - family: sles
             version: 15.4
+          - family: ubuntu
+            version: 22.04
         gpu:
           - gen12.5
         os:
@@ -397,7 +399,7 @@ jobs:
       tools_artifact: ${{ matrix.os }}-tools-debug-build
       gpu: ${{ matrix.gpu }}
       distro_family: ${{ matrix.os == 'linux' && 'ubuntu' || 'windows' }}
-      distro_version: ${{ matrix.os == 'linux' && '22.04' || '11'}}
+      distro_version: ${{ matrix.os == 'linux' && '24.04' || '11'}}
       test_ref: ${{ needs.setup-variables.outputs.test_ref }}
       docker_opts: ${{ inputs.docker_opts }}
 
