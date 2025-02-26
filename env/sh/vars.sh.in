@@ -211,6 +211,6 @@ export LD_LIBRARY_PATH
 CMAKE_PREFIX_PATH=$(prepend_path "$vpl_prefix" "${CMAKE_PREFIX_PATH:-}")
 export CMAKE_PREFIX_PATH
 PKG_CONFIG_PATH=$(prepend_path "$vpl_pkgconfig" "${PKG_CONFIG_PATH:-}")
-
+export PKG_CONFIG_PATH
 VPL_EXAMPLES_PATH="$vpl_prefix/@_install_exampledir@"
 export VPL_EXAMPLES_PATH
