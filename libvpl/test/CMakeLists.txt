@@ -7,6 +7,7 @@ cmake_minimum_required(VERSION 3.13.0)
 
 add_subdirectory(runtimes/stub)
 add_subdirectory(runtimes/stub1x)
+add_subdirectory(runtimes/stub-nofn)
 
 # Build googletest
 set(BUILD_SHARED_LIBS OFF)

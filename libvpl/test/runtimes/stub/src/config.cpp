@@ -12,14 +12,15 @@
 
 // the auto-generated capabilities structs
 // only include one time in this library
-#include "src/caps_dec_none.h"
-#include "src/caps_vpp_none.h"
-
 #ifdef ENABLE_STUB_1X
+    #include "src/caps_dec_none.h"
     #include "src/caps_enc_none.h"
+    #include "src/caps_vpp_none.h"
 #else
-    // include some actual stub encoder caps
+    // include some actual stub caps
+    #include "src/caps_dec.h"
     #include "src/caps_enc.h"
+    #include "src/caps_vpp.h"
 #endif
 
 #include "src/caps_surface.h"
@@ -264,6 +265,9 @@ static const mfxImplDescription minImplDesc = {
 #ifdef ENABLE_STUB_1X
     {{ 99, 1}},                                     // ApiVersion
     "Stub Implementation 1X",                       // ImplName
+#elif SKIP_NEW_FUNCTIONS
+    {{ MFX_VERSION_MINOR, MFX_VERSION_MAJOR }},     // ApiVersion
+    "Stub Implementation - no fn",                  // ImplName
 #else
     {{ MFX_VERSION_MINOR, MFX_VERSION_MAJOR }},     // ApiVersion
     "Stub Implementation",                          // ImplName
