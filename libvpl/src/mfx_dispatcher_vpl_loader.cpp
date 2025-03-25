@@ -33,6 +33,10 @@ static const VPLFunctionDesc FunctionDesc2[NumVPLFunctions] = {
     { "MFXVideoVPP_ProcessFrameAsync",          { {  1, 2 } } },
 };
 
+static const VPLFunctionDesc FunctionDescOptional[NumVPLOptionalFunctions] = {
+    { "MFXQueryImplsProperties",                { { 15, 2 } } },
+};
+
 static const VPLFunctionDesc MSDKCompatFunctions[NumMSDKFunctions] = {
     { "MFXInitEx",                              { { 14, 1 } } },
     { "MFXClose" ,                              { {  0, 1 } } },
@@ -49,6 +53,9 @@ LoaderCtxVPL::LoaderCtxVPL()
           m_implInfoList(),
           m_configCtxList(),
           m_gpuAdapterInfo(),
+#ifdef ONEVPL_EXPERIMENTAL
+          m_queryProps(),
+#endif
           m_specialConfig(),
           m_implIdxNext(0),
           m_bKeepCapsUntilUnload(true),
@@ -71,6 +78,10 @@ LoaderCtxVPL::LoaderCtxVPL()
     m_bNeedFullQuery        = true;
     m_bNeedLowLatencyQuery  = true;
     m_bPriorityPathEnabled  = false;
+
+#ifdef ONEVPL_EXPERIMENTAL
+    m_bEnablePropsQuery = false;
+#endif
 
     return;
 }
@@ -840,6 +851,16 @@ mfxU32 LoaderCtxVPL::LoadAPIExports(LibInfo *libInfo, LibType libType) {
                 numFunctions++;
             }
         }
+
+#ifdef ONEVPL_EXPERIMENTAL
+        // load optional functions - if RT does not export these, dispatcher must not attempt to call them
+        for (i = 0; i < NumVPLOptionalFunctions; i += 1) {
+            VPLFunctionPtr pProc =
+                (VPLFunctionPtr)GetFunctionAddr(libInfo->hModuleVPL, FunctionDescOptional[i].pName);
+            // pProc might be null - that's okay
+            libInfo->vplOptionalFuncTable[i] = pProc;
+        }
+#endif
     }
     else if (libType == LibTypeMSDK) {
         // don't actually need to save the function pointers for MSDK, just check if they are defined
@@ -929,6 +950,10 @@ mfxStatus LoaderCtxVPL::QueryLibraryCaps() {
         if (libInfo->libType == LibTypeVPL) {
             VPLFunctionPtr pFunc = libInfo->vplFuncTable[IdxMFXQueryImplsDescription];
 
+#ifdef ONEVPL_EXPERIMENTAL
+            VPLFunctionPtr pFuncProps = libInfo->vplOptionalFuncTable[IdxMFXQueryImplsProperties];
+#endif
+
             // handle to implDesc structure, null in low-latency mode (no query)
             mfxHDL *hImpl   = nullptr;
             mfxU32 numImpls = 0;
@@ -942,11 +967,28 @@ mfxStatus LoaderCtxVPL::QueryLibraryCaps() {
 #endif
 
             if (m_bLowLatency == false) {
-                // call MFXQueryImplsDescription() for this implementation
-                // return handle to description in requested format
-                hImpl = (*(mfxHDL * (MFX_CDECL *)(mfxImplCapsDeliveryFormat, mfxU32 *))
-                             pFunc)(MFX_IMPLCAPS_IMPLDESCSTRUCTURE, &numImpls);
+#ifdef ONEVPL_EXPERIMENTAL
+                // attempt property-based query if requested by application and RT supports the function
+                // otherwise just do full query
+                if (m_bEnablePropsQuery == true && pFuncProps != nullptr) {
+                    // create temporary array of pointers to each mfxQueryProperty for C RT API
+                    std::vector<mfxQueryProperty *> queryProps;
+                    for (mfxU32 i = 0; i < m_queryProps.size(); i++)
+                        queryProps.push_back(&m_queryProps[i]);
 
+                    hImpl =
+                        (*(mfxHDL * (MFX_CDECL *)(mfxQueryProperty **, mfxU32, mfxU32 *))
+                             pFuncProps)(queryProps.data(), (mfxU32)queryProps.size(), &numImpls);
+                }
+                else {
+#endif
+                    // call MFXQueryImplsDescription() for this implementation
+                    // return handle to description in requested format
+                    hImpl = (*(mfxHDL * (MFX_CDECL *)(mfxImplCapsDeliveryFormat, mfxU32 *))
+                                 pFunc)(MFX_IMPLCAPS_IMPLDESCSTRUCTURE, &numImpls);
+#ifdef ONEVPL_EXPERIMENTAL
+                }
+#endif
                 // validate description pointer for each implementation
                 bool b_isValidDesc = true;
                 if (!hImpl) {
@@ -1435,6 +1477,18 @@ mfxStatus LoaderCtxVPL::UpdateLowLatency() {
 
     return MFX_ERR_NONE;
 }
+
+#ifdef ONEVPL_EXPERIMENTAL
+mfxStatus LoaderCtxVPL::UpdatePropsQuery() {
+    // property-based query disabled by default
+    m_bEnablePropsQuery = false;
+    m_queryProps.clear();
+
+    m_bEnablePropsQuery = ConfigCtxVPL::UpdatePropsQueryConfig(m_configCtxList, m_queryProps);
+
+    return MFX_ERR_NONE;
+}
+#endif
 
 mfxStatus LoaderCtxVPL::UpdateValidImplList(void) {
     DISP_LOG_FUNCTION(&m_dispLog);

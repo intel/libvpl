@@ -82,6 +82,12 @@ mfxStatus MFXSetConfigFilterProperty(mfxConfig config, const mfxU8 *name, mfxVar
     loaderCtx->m_bNeedUpdateValidImpls = true;
 
     sts = loaderCtx->UpdateLowLatency();
+    if (sts)
+        return sts;
+
+#ifdef ONEVPL_EXPERIMENTAL
+    sts = loaderCtx->UpdatePropsQuery();
+#endif
 
     return sts;
 }

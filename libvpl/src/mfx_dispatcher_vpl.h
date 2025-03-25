@@ -118,6 +118,13 @@ enum VPLFunctionIdx {
     NumVPLFunctions
 };
 
+enum VPLOptionalFunctionIdx {
+    // 2.15
+    IdxMFXQueryImplsProperties = 0,
+
+    NumVPLOptionalFunctions
+};
+
 // select MSDK functions for 1.x style caps query
 enum MSDKCompatFunctionIdx {
     IdxMFXInitEx = 0,
@@ -174,7 +181,11 @@ enum PropRanges {
 
 // must match eProp_TotalProps, is checked with static_assert in _config.cpp
 //   (should throw error at compile time if !=)
-#define NUM_TOTAL_FILTER_PROPS 59
+#ifdef ONEVPL_EXPERIMENTAL
+    #define NUM_TOTAL_FILTER_PROPS 63
+#else
+    #define NUM_TOTAL_FILTER_PROPS 59
+#endif
 
 // typedef child structures for easier reading
 typedef struct mfxDecoderDescription::decoder DecCodec;
@@ -259,6 +270,11 @@ struct SpecialConfig {
     std::vector<mfxExtBuffer *> ExtBuffers;
 };
 
+struct mfxVariantWrapper : mfxVariant {
+public:
+    bool bPropsQuery = false;
+};
+
 // config class implementation
 class ConfigCtxVPL {
 public:
@@ -270,6 +286,11 @@ public:
 
     static bool CheckLowLatencyConfig(std::list<ConfigCtxVPL *> configCtxList,
                                       SpecialConfig *specialConfig);
+
+#ifdef ONEVPL_EXPERIMENTAL
+    static bool UpdatePropsQueryConfig(std::list<ConfigCtxVPL *> configCtxList,
+                                       std::vector<mfxQueryProperty> &queryProps);
+#endif
 
     // compare library caps vs. set of configuration filters
     static mfxStatus ValidateConfig(const mfxImplDescription *libImplDesc,
@@ -340,7 +361,7 @@ private:
                                        std::list<SurfaceConfig> surfaceConfigList);
 #endif
 
-    mfxVariant m_propVar[NUM_TOTAL_FILTER_PROPS];
+    mfxVariantWrapper m_propVar[NUM_TOTAL_FILTER_PROPS];
 
     // special containers for properties which are passed by pointer
     //   (save a copy of the whole object based on property name)
@@ -459,6 +480,9 @@ struct LibInfo {
     void *hModuleVPL;
     VPLFunctionPtr vplFuncTable[NumVPLFunctions]; // NOLINT
 
+    // optional functions which RT may or may not export
+    VPLFunctionPtr vplOptionalFuncTable[NumVPLOptionalFunctions]; // NOLINT
+
     // loader context for legacy MSDK
     LoaderCtxMSDK msdkCtx[MAX_NUM_IMPL_MSDK];
 
@@ -475,6 +499,7 @@ struct LibInfo {
               libType(LibTypeUnknown),
               hModuleVPL(nullptr),
               vplFuncTable(),
+              vplOptionalFuncTable(),
               msdkCtx(),
               msdkVersion(),
               implCapsPath() {}
@@ -579,6 +604,11 @@ public:
     bool m_bNeedLowLatencyQuery;
     bool m_bPriorityPathEnabled;
 
+#ifdef ONEVPL_EXPERIMENTAL
+    bool m_bEnablePropsQuery;
+    mfxStatus UpdatePropsQuery();
+#endif
+
 private:
     // helper functions
     mfxStatus LoadSingleLibrary(LibInfo *libInfo);
@@ -622,6 +652,10 @@ private:
     std::list<ImplInfo *> m_implInfoList;
     std::list<ConfigCtxVPL *> m_configCtxList;
     std::vector<DXGI1DeviceInfo> m_gpuAdapterInfo;
+
+#ifdef ONEVPL_EXPERIMENTAL
+    std::vector<mfxQueryProperty> m_queryProps;
+#endif
 
     SpecialConfig m_specialConfig;
 
