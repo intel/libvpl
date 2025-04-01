@@ -67,7 +67,7 @@ jobs:
           set -o errexit ; set -o nounset
           python3 source/.github/workflows/bdba/bdba.py \
           -u ${{ vars.AD_USR }} -p ${{ secrets.AD_PW }} \
-          -g 32 -r results.pdf \
+          -g ${{ vars.BDBA_GROUP }} -r results.pdf \
           -c components.csv \
           -v vulns.csv \
           -V ${{ inputs.version }} *.zip \
