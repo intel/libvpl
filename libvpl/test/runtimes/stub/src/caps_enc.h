@@ -18,7 +18,13 @@ const EncMemDesc encMemDesc_c00_p00[] = {
         MFX_RESOURCE_SYSTEM_SURFACE,
         { 64, 4096, 8 },
         { 64, 4096, 8 },
+#ifdef ONEVPL_EXPERIMENTAL
         {},
+        nullptr,
+        0,
+#else
+        {},
+#endif
         2,
         (mfxU32 *)encColorFmt_c00_p00_m00,
     },
@@ -42,7 +48,13 @@ const EncMemDesc encMemDesc_c01_p00[] = {
         MFX_RESOURCE_SYSTEM_SURFACE,
         { 64, 4096, 8 },
         { 64, 4096, 8 },
+#ifdef ONEVPL_EXPERIMENTAL
         {},
+        nullptr,
+        0,
+#else
+        {},
+#endif
         1,
         (mfxU32 *)encColorFmt_c01_p00_m00,
     },
@@ -57,7 +69,13 @@ const EncMemDesc encMemDesc_c01_p01[] = {
         MFX_RESOURCE_SYSTEM_SURFACE,
         { 64, 4096, 8 },
         { 64, 4096, 8 },
+#ifdef ONEVPL_EXPERIMENTAL
         {},
+        nullptr,
+        0,
+#else
+        {},
+#endif
         1,
         (mfxU32 *)encColorFmt_c01_p01_m00,
     },
@@ -87,7 +105,13 @@ const EncMemDesc encMemDesc_c02_p00[] = {
         MFX_RESOURCE_SYSTEM_SURFACE,
         { 64, 4096, 8 },
         { 64, 4096, 8 },
+#ifdef ONEVPL_EXPERIMENTAL
         {},
+        nullptr,
+        0,
+#else
+        {},
+#endif
         1,
         (mfxU32 *)encColorFmt_c02_p00_m00,
     },
@@ -102,7 +126,13 @@ const EncMemDesc encMemDesc_c02_p01[] = {
         MFX_RESOURCE_SYSTEM_SURFACE,
         { 64, 4096, 8 },
         { 64, 4096, 8 },
+#ifdef ONEVPL_EXPERIMENTAL
         {},
+        nullptr,
+        0,
+#else
+        {},
+#endif
         1,
         (mfxU32 *)encColorFmt_c02_p01_m00,
     },
@@ -129,9 +159,11 @@ const EncCodec encCodec[] = {
         MFX_LEVEL_AV1_53,
         1,
 #ifdef ONEVPL_EXPERIMENTAL
-        0,
-#endif
+        nullptr,
         {},
+#else
+        {},
+#endif
         1,
         (EncProfile *)encProfile_c00,
     },
@@ -140,9 +172,11 @@ const EncCodec encCodec[] = {
         MFX_LEVEL_AVC_52,
         1,
 #ifdef ONEVPL_EXPERIMENTAL
-        MFX_ENCODESTATS_LEVEL_BLK | MFX_ENCODESTATS_LEVEL_TILE | MFX_ENCODESTATS_LEVEL_FRAME,
-#endif
+        nullptr,
         {},
+#else
+        {},
+#endif
         2,
         (EncProfile *)encProfile_c01,
     },
@@ -151,9 +185,11 @@ const EncCodec encCodec[] = {
         MFX_LEVEL_HEVC_51,
         1,
 #ifdef ONEVPL_EXPERIMENTAL
-        MFX_ENCODESTATS_LEVEL_FRAME,
-#endif
+        nullptr,
         {},
+#else
+        {},
+#endif
         2,
         (EncProfile *)encProfile_c02,
     },

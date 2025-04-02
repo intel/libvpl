@@ -18,6 +18,9 @@ cases.
 ## [Unreleased]
 
 ### Added
+- Intel® VPL API 2.15 support, including new property-based capabilities query
+  interface, extended decoder and encoder capabilities reporting, and definitions
+  for VVC Main 10 Still Picture profile and level 6.3.
 - Explicit `INSTALL_EXAMPLES` build option to control installation of example
   source code and content
 

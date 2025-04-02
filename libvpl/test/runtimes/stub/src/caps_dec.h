@@ -18,7 +18,13 @@ const DecMemDesc decMemDesc_c00_p00[] = {
         MFX_RESOURCE_SYSTEM_SURFACE,
         { 64, 4096, 8 },
         { 64, 4096, 8 },
+#ifdef ONEVPL_EXPERIMENTAL
         {},
+        nullptr,
+        0,
+#else
+        {},
+#endif
         2,
         (mfxU32 *)decColorFmt_c00_p00_m00,
     },
@@ -42,7 +48,13 @@ const DecMemDesc decMemDesc_c01_p00[] = {
         MFX_RESOURCE_SYSTEM_SURFACE,
         { 64, 4096, 8 },
         { 64, 4096, 8 },
+#ifdef ONEVPL_EXPERIMENTAL
         {},
+        nullptr,
+        0,
+#else
+        {},
+#endif
         1,
         (mfxU32 *)decColorFmt_c01_p00_m00,
     },
@@ -57,7 +69,13 @@ const DecMemDesc decMemDesc_c01_p01[] = {
         MFX_RESOURCE_SYSTEM_SURFACE,
         { 64, 4096, 8 },
         { 64, 4096, 8 },
+#ifdef ONEVPL_EXPERIMENTAL
         {},
+        nullptr,
+        0,
+#else
+        {},
+#endif
         1,
         (mfxU32 *)decColorFmt_c01_p01_m00,
     },
@@ -87,7 +105,13 @@ const DecMemDesc decMemDesc_c02_p00[] = {
         MFX_RESOURCE_SYSTEM_SURFACE,
         { 64, 4096, 8 },
         { 64, 4096, 8 },
+#ifdef ONEVPL_EXPERIMENTAL
         {},
+        nullptr,
+        0,
+#else
+        {},
+#endif
         1,
         (mfxU32 *)decColorFmt_c02_p00_m00,
     },
@@ -102,7 +126,13 @@ const DecMemDesc decMemDesc_c02_p01[] = {
         MFX_RESOURCE_SYSTEM_SURFACE,
         { 64, 4096, 8 },
         { 64, 4096, 8 },
+#ifdef ONEVPL_EXPERIMENTAL
         {},
+        nullptr,
+        0,
+#else
+        {},
+#endif
         1,
         (mfxU32 *)decColorFmt_c02_p01_m00,
     },
@@ -126,21 +156,39 @@ const DecProfile decProfile_c02[] = {
 const DecCodec decCodec[] = {
     {
         MFX_CODEC_AV1,
+#ifdef ONEVPL_EXPERIMENTAL
         {},
+        nullptr,
+        {},
+#else
+        {},
+#endif
         MFX_LEVEL_AV1_53,
         1,
         (DecProfile *)decProfile_c00,
     },
     {
         MFX_CODEC_MPEG2,
+#ifdef ONEVPL_EXPERIMENTAL
         {},
+        nullptr,
+        {},
+#else
+        {},
+#endif
         MFX_LEVEL_MPEG2_HIGH,
         2,
         (DecProfile *)decProfile_c01,
     },
     {
         MFX_CODEC_HEVC,
+#ifdef ONEVPL_EXPERIMENTAL
         {},
+        nullptr,
+        {},
+#else
+        {},
+#endif
         MFX_LEVEL_HEVC_51,
         2,
         (DecProfile *)decProfile_c02,
