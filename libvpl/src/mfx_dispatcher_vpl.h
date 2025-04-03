@@ -182,9 +182,9 @@ enum PropRanges {
 // must match eProp_TotalProps, is checked with static_assert in _config.cpp
 //   (should throw error at compile time if !=)
 #ifdef ONEVPL_EXPERIMENTAL
-    #define NUM_TOTAL_FILTER_PROPS 63
+    #define NUM_TOTAL_FILTER_PROPS 62
 #else
-    #define NUM_TOTAL_FILTER_PROPS 59
+    #define NUM_TOTAL_FILTER_PROPS 58
 #endif
 
 // typedef child structures for easier reading
@@ -217,7 +217,6 @@ struct EncConfig {
     mfxU32 CodecID;
     mfxU16 MaxcodecLevel;
     mfxU16 BiDirectionalPrediction;
-    mfxU16 ReportedStats;
     mfxU32 Profile;
     mfxResourceType MemHandleType;
     mfxRange32U Width;

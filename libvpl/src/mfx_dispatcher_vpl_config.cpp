@@ -82,7 +82,6 @@ enum PropIdx {
     ePropEnc_CodecID,
     ePropEnc_MaxcodecLevel,
     ePropEnc_BiDirectionalPrediction,
-    ePropEnc_ReportedStats,
     ePropEnc_Profile,
     ePropEnc_MemHandleType,
     ePropEnc_Width,
@@ -173,7 +172,6 @@ static const PropVariant PropIdxTab[] = {
     { "ePropEnc_CodecID",                   MFX_VARIANT_TYPE_U32 },
     { "ePropEnc_MaxcodecLevel",             MFX_VARIANT_TYPE_U16 },
     { "ePropEnc_BiDirectionalPrediction",   MFX_VARIANT_TYPE_U16 },
-    { "ePropEnc_ReportedStats",             MFX_VARIANT_TYPE_U16 },
     { "ePropEnc_Profile",                   MFX_VARIANT_TYPE_U32 },
     { "ePropEnc_MemHandleType",             MFX_VARIANT_TYPE_U32 },
     { "ePropEnc_Width",                     MFX_VARIANT_TYPE_PTR },
@@ -505,11 +503,6 @@ mfxStatus ConfigCtxVPL::SetFilterPropertyEnc(std::list<std::string> &propParsedS
     else if (nextProp == "BiDirectionalPrediction") {
         return ValidateAndSetProp(ePropEnc_BiDirectionalPrediction, value);
     }
-#ifdef ONEVPL_EXPERIMENTAL
-    else if (nextProp == "ReportedStats") {
-        return ValidateAndSetProp(ePropEnc_ReportedStats, value);
-    }
-#endif
     else if (nextProp != "encprofile") {
         return MFX_ERR_NOT_FOUND;
     }
@@ -1207,14 +1200,6 @@ mfxStatus ConfigCtxVPL::CheckPropsEnc(const mfxVariant cfgPropsAll[],
 
             if ((height.Max > ec.Height.Max) || (height.Min < ec.Height.Min) ||
                 (height.Step < ec.Height.Step))
-                isCompatible = false;
-        }
-
-        if (cfgPropsAll[ePropEnc_ReportedStats].Type != MFX_VARIANT_TYPE_UNSET) {
-            mfxU16 requestedStats = cfgPropsAll[ePropEnc_ReportedStats].Data.U16;
-
-            // ReportedStats is a logical OR of one or more flags: MFX_ENCODESTATS_LEVEL_xxx
-            if ((requestedStats & ec.ReportedStats) != requestedStats)
                 isCompatible = false;
         }
 
