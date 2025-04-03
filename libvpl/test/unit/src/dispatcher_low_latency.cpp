@@ -351,3 +351,124 @@ TEST(Dispatcher_LowLatency, Get_ImplDesc_MFXEnumImplementations_AfterSessionCrea
     MFXClose(session);
     MFXUnload(loader);
 }
+
+#ifdef ONEVPL_EXPERIMENTAL
+
+TEST(Dispatcher_LowLatency, Get_ImplDesc_WithPropQuery_BeforeSession) {
+    SKIP_IF_DISP_GPU_DISABLED();
+
+    // capture dispatcher log
+    CaptureOutputLog(CAPTURE_LOG_DISPATCHER);
+
+    mfxLoader loader = MFXLoad();
+    EXPECT_FALSE(loader == nullptr);
+
+    mfxStatus sts = EnableLowLatency(loader, LL_SINGLE_CONFIG, LL_CONFIG_ONLY);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // now try props-based query (shallow info only)
+    // this should trigger caps query for the first time since session was created in LL mode
+    // whether or not the loaded RT supports props-based query, the shallow data should be the same
+    // (will fall back to full query for older RT's)
+    mfxConfig cfg = MFXCreateConfig(loader);
+
+    // query property - impl only
+    std::string propStr = "mfxImplDescription";
+
+    mfxVariant var      = {};
+    var.Version.Version = MFX_VARIANT_VERSION;
+    var.Type     = static_cast<mfxVariantType>(MFX_VARIANT_TYPE_U32 | MFX_VARIANT_TYPE_QUERY);
+    var.Data.U32 = 0;
+
+    sts = MFXSetConfigFilterProperty(cfg, (const mfxU8 *)(propStr.c_str()), var);
+
+    mfxImplDescription *idesc = nullptr;
+    sts                       = MFXEnumImplementations(loader,
+                                 0,
+                                 MFX_IMPLCAPS_IMPLDESCSTRUCTURE,
+                                 reinterpret_cast<mfxHDL *>(&idesc));
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+    ASSERT_NE(idesc, nullptr);
+
+    bool bIsImplNameCorrect =
+        ((strcmp(idesc->ImplName, "mfxhw64") == 0) || (strcmp(idesc->ImplName, "mfx-gen") == 0))
+            ? true
+            : false;
+    EXPECT_EQ(bIsImplNameCorrect, true);
+
+    sts = MFXDispReleaseImplDescription(loader, idesc);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    // create a session
+    mfxSession session = nullptr;
+    sts                = MFXCreateSession(loader, 0, &session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+    EXPECT_NE(session, nullptr);
+
+    MFXClose(session);
+    MFXUnload(loader);
+
+    // because we triggered caps query before calling MFXCreateSession(), it disabled low-latency
+    CheckOutputLog("message:  low latency mode disabled");
+    CleanupOutputLog();
+}
+
+TEST(Dispatcher_LowLatency, Get_ImplDesc_WithPropQuery_AfterSession) {
+    SKIP_IF_DISP_GPU_DISABLED();
+
+    // capture dispatcher log
+    CaptureOutputLog(CAPTURE_LOG_DISPATCHER);
+
+    mfxLoader loader = MFXLoad();
+    EXPECT_FALSE(loader == nullptr);
+
+    mfxStatus sts = EnableLowLatency(loader, LL_SINGLE_CONFIG, LL_CONFIG_ONLY);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    mfxSession session = nullptr;
+    sts                = MFXCreateSession(loader, 0, &session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+    EXPECT_NE(session, nullptr);
+
+    // now try props-based query (shallow info only)
+    // this should trigger caps query for the first time since session was created in LL mode
+    // whether or not the loaded RT supports props-based query, the shallow data should be the same
+    // (will fall back to full query for older RT's)
+    mfxConfig cfg = MFXCreateConfig(loader);
+
+    // query property - impl only
+    std::string propStr = "mfxImplDescription";
+
+    mfxVariant var      = {};
+    var.Version.Version = MFX_VARIANT_VERSION;
+    var.Type     = static_cast<mfxVariantType>(MFX_VARIANT_TYPE_U32 | MFX_VARIANT_TYPE_QUERY);
+    var.Data.U32 = 0;
+
+    sts = MFXSetConfigFilterProperty(cfg, (const mfxU8 *)(propStr.c_str()), var);
+
+    mfxImplDescription *idesc = nullptr;
+    sts                       = MFXEnumImplementations(loader,
+                                 0,
+                                 MFX_IMPLCAPS_IMPLDESCSTRUCTURE,
+                                 reinterpret_cast<mfxHDL *>(&idesc));
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+    ASSERT_NE(idesc, nullptr);
+
+    bool bIsImplNameCorrect =
+        ((strcmp(idesc->ImplName, "mfxhw64") == 0) || (strcmp(idesc->ImplName, "mfx-gen") == 0))
+            ? true
+            : false;
+    EXPECT_EQ(bIsImplNameCorrect, true);
+
+    sts = MFXDispReleaseImplDescription(loader, idesc);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    MFXClose(session);
+    MFXUnload(loader);
+
+    // here we called MFXCreateSession() in low latency mode, then ran the caps query afterwards
+    CheckOutputLog("message:  low latency mode enabled");
+    CleanupOutputLog();
+}
+
+#endif

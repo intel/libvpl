@@ -2412,7 +2412,7 @@ TEST(Dispatcher_Common_SetConfigFilterProperty, PartialFilterReturnsErrNotFound)
     ImplValue.Version.Version = (mfxU16)MFX_VARIANT_VERSION;
     ImplValue.Type            = MFX_VARIANT_TYPE_U32;
     ImplValue.Data.U32        = 0;
-    sts = MFXSetConfigFilterProperty(cfg, (const mfxU8 *)"mfxImplDescription", ImplValue);
+    sts = MFXSetConfigFilterProperty(cfg, (const mfxU8 *)"mfxImplementedFunctions", ImplValue);
     EXPECT_EQ(sts, MFX_ERR_NOT_FOUND);
 
     // free internal resources

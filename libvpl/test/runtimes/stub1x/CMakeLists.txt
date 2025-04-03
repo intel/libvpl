@@ -51,8 +51,11 @@ set_target_properties(
 target_sources(${PROJECT_NAME} PRIVATE ../stub/src/stubs.cpp
                                        ../stub/src/config.cpp)
 
+# use .def file without new query function exported because 1.x stub does not
+# have codec/filter props
 if(WIN32)
-  target_sources(${PROJECT_NAME} PRIVATE ../stub/src/windows/libvplminrt.def)
+  target_sources(${PROJECT_NAME}
+                 PRIVATE ../stub-nofn/src/windows/libvplminrt-nofn.def)
 endif()
 
 find_package(VPL 2.2 REQUIRED COMPONENTS api)

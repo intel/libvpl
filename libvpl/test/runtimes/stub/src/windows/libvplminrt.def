@@ -65,3 +65,5 @@ EXPORTS
     MFXVideoDECODE_VPP_GetChannelParam
     MFXVideoDECODE_VPP_Close
     MFXVideoVPP_ProcessFrameAsync
+
+    MFXQueryImplsProperties

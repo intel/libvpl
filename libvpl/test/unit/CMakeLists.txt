@@ -22,13 +22,19 @@ set(test_sources
     src/dispatcher_util.cpp
     src/dispatcher_gpu_stringapi.cpp
     src/dispatcher_stub_stringapi.cpp
+    src/dispatcher_stub_propquery.cpp
     src/experimental_api.cpp)
 add_executable(${TARGET} ${test_sources})
 
 find_package(VPL REQUIRED)
 target_link_libraries(${TARGET} PUBLIC GTest::gtest VPL::dispatcher)
 
-target_include_directories(${TARGET} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+# Include the stub runtime src dir so we can load the stub RT capabilities to
+# check test results. Because of how relative paths are used in the caps*.h
+# files, we can't just hardcode this path in the test code.
+target_include_directories(
+  ${TARGET} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../runtimes/stub)
 
 if(WIN32)
   target_link_libraries(${TARGET} PUBLIC shlwapi.lib)

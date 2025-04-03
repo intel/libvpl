@@ -36,8 +36,9 @@
 #define CPU_VERSION_MINOR 9
 
 // define special stub impl types for testing only
-#define MFX_IMPL_TYPE_STUB    ((mfxImplType)0xFFFF)
-#define MFX_IMPL_TYPE_STUB_1X ((mfxImplType)0xAAAA)
+#define MFX_IMPL_TYPE_STUB      ((mfxImplType)0xFFFF)
+#define MFX_IMPL_TYPE_STUB_1X   ((mfxImplType)0xAAAA)
+#define MFX_IMPL_TYPE_STUB_NOFN ((mfxImplType)0xBBBB)
 
 #define CAPTURE_LOG_DEF_FILENAME "utestLogFile_vpl.txt"
 
