@@ -139,16 +139,9 @@ MFXDispReleaseImplDescription(loader, h);
 
 mfxSession session;
 
-static void prg_session11 () {
-/*beg11*/
+static void prg_session6 () {
+/*beg6*/
 mfxLoader loader = MFXLoad();
-mfxConfig cfg = MFXCreateConfig(loader);
-mfxVariant ImplValue;
-ImplValue.Type = static_cast<mfxVariantType>(MFX_VARIANT_TYPE_U32 | MFX_VARIANT_TYPE_QUERY);
-ImplValue.Data.U32 = MFX_CODEC_HEVC;
-
-//To get HEVC encoder capabilities
-MFXSetConfigFilterProperty(cfg,(const mfxU8 *)"mfxImplDescription.mfxEncoderDescription.encoder.CodecID",ImplValue);
 
 int i = 0;
 mfxImplDescription *idesc;
@@ -244,14 +237,13 @@ while (MFX_ERR_NONE == MFXEnumImplementations(loader, i, MFX_IMPLCAPS_IMPLDESCST
 }
 
 // create session from first matched implementation
-// which supports HEVC encoder
 MFXCreateSession(loader, 0, &session);
 
-/*end11*/
+/*end6*/
 }
 
-static void prg_session6 () {
-/*beg6*/
+static void prg_session7 () {
+/*beg7*/
 mfxLoader loader = MFXLoad();
 mfxConfig cfg = MFXCreateConfig(loader);
 mfxVariant ImplValue;
@@ -263,11 +255,11 @@ MFXSetConfigFilterProperty(cfg,(const mfxU8 *)"mfxImplDescription",ImplValue);
 
 // create session from first matched implementation
 MFXCreateSession(loader, 0, &session);
-/*end6*/
+/*end7*/
 }
 
-static void prg_session7 () {
-/*beg7*/
+static void prg_session8 () {
+/*beg8*/
 mfxLoader loader = MFXLoad();
 mfxConfig cfg = MFXCreateConfig(loader);
 mfxVariant ImplValue;
@@ -297,22 +289,6 @@ while (MFX_ERR_NONE == MFXEnumImplementations(loader, i, MFX_IMPLCAPS_IMPLDESCST
 
     i++;
   }
-/*end7*/
-}
-
-static void prg_session8 () {
-/*beg8*/
-mfxLoader loader = MFXLoad();
-mfxConfig cfg = MFXCreateConfig(loader);
-mfxVariant ImplValue;
-ImplValue.Type = static_cast<mfxVariantType>(MFX_VARIANT_TYPE_U32 | MFX_VARIANT_TYPE_QUERY);
-ImplValue.Data.U32 = 0;
-
-//To find decoders for session creation
-MFXSetConfigFilterProperty(cfg,(const mfxU8 *)"mfxImplDescription.mfxDecoderDescription",ImplValue);
-
-// create session from first matched implementation
-MFXCreateSession(loader, 0, &session);
 /*end8*/
 }
 
@@ -322,10 +298,10 @@ mfxLoader loader = MFXLoad();
 mfxConfig cfg = MFXCreateConfig(loader);
 mfxVariant ImplValue;
 ImplValue.Type = static_cast<mfxVariantType>(MFX_VARIANT_TYPE_U32 | MFX_VARIANT_TYPE_QUERY);
-ImplValue.Data.U32 = MFX_CODEC_AV1;
+ImplValue.Data.U32 = 0;
 
-//To find AV1 encoder for session creation
-MFXSetConfigFilterProperty(cfg,(const mfxU8 *)"mfxImplDescription.mfxEncoderDescription.encoder.CodecID",ImplValue);
+//To find decoders for session creation
+MFXSetConfigFilterProperty(cfg,(const mfxU8 *)"mfxImplDescription.mfxDecoderDescription",ImplValue);
 
 // create session from first matched implementation
 MFXCreateSession(loader, 0, &session);
@@ -338,6 +314,23 @@ mfxLoader loader = MFXLoad();
 mfxConfig cfg = MFXCreateConfig(loader);
 mfxVariant ImplValue;
 ImplValue.Type = static_cast<mfxVariantType>(MFX_VARIANT_TYPE_U32 | MFX_VARIANT_TYPE_QUERY);
+ImplValue.Data.U32 = MFX_CODEC_AV1;
+
+//To find AV1 encoder for session creation
+MFXSetConfigFilterProperty(cfg,(const mfxU8 *)"mfxImplDescription.mfxEncoderDescription.encoder.CodecID",ImplValue);
+
+// create session from first matched implementation
+// which supports AV1 encoder
+MFXCreateSession(loader, 0, &session);
+/*end10*/
+}
+
+static void prg_session11 () {
+/*beg11*/
+mfxLoader loader = MFXLoad();
+mfxConfig cfg = MFXCreateConfig(loader);
+mfxVariant ImplValue;
+ImplValue.Type = static_cast<mfxVariantType>(MFX_VARIANT_TYPE_U32 | MFX_VARIANT_TYPE_QUERY);
 ImplValue.Data.U32 = 0;
 
 //To find VPP filters for session creation
@@ -345,5 +338,43 @@ MFXSetConfigFilterProperty(cfg,(const mfxU8 *)"mfxImplDescription.mfxVPPDescript
 
 // create session from first matched implementation
 MFXCreateSession(loader, 0, &session);
-/*end10*/
+/*end11*/
+}
+
+static void prg_session12 () {
+/*beg12*/
+mfxLoader loader = MFXLoad();
+mfxConfig cfg = MFXCreateConfig(loader);
+mfxVariant ImplValue;
+ImplValue.Type = static_cast<mfxVariantType>(MFX_VARIANT_TYPE_U32 | MFX_VARIANT_TYPE_QUERY);
+ImplValue.Data.U32 = MFX_CODEC_AV1;
+
+//To get AV1 encoder capabilities
+MFXSetConfigFilterProperty(cfg,(const mfxU8 *)"mfxImplDescription.mfxEncoderDescription.encoder.CodecID",ImplValue);
+
+int i = 0;
+mfxImplDescription *idesc;
+while (MFX_ERR_NONE == MFXEnumImplementations(loader, i, MFX_IMPLCAPS_IMPLDESCSTRUCTURE,
+                                              reinterpret_cast<mfxHDL *>(&idesc))) {
+    mfxEncoderDescription *enc = &idesc->Enc;
+    for (int codec = 0; codec < enc->NumCodecs; codec++) {
+        printf("%4sCodecID: %u\n", "", enc->Codecs[codec].CodecID);
+        printf("%4sMaxcodecLevel: %hu\n", "", enc->Codecs[codec].MaxcodecLevel);
+        printf("%4sBiDirectionalPrediction: %hu\n", "",
+               enc->Codecs[codec].BiDirectionalPrediction);
+        for (int profile = 0; profile < enc->Codecs[codec].NumProfiles; profile++) {
+            printf("%6sProfile: %u\n", "", enc->Codecs[codec].Profiles[profile].Profile);
+        }
+    }
+
+    // Release resource
+    MFXDispReleaseImplDescription(loader, idesc);
+
+    i++;
+}
+
+// create session from first matched implementation
+// which supports AV1 encoder
+MFXCreateSession(loader, 0, &session);
+/*end12*/
 }

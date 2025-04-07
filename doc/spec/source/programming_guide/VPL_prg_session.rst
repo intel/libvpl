@@ -858,13 +858,13 @@ Applications can check the struct version and correspondent pointers in extended
 :cpp:struct:`mfxDecoderDescription` and :cpp:struct:`mfxEncExtDescription` to
 get the extended capability information.
 
-This code illustrates how to get the extended capability information for one
-encoder before session creation:
+This code illustrates how to get the extended capability information using
+:cpp:func:`MFXEnumImplementations` before session creation:
 
 .. literalinclude:: ../snippets/prg_session.cpp
    :language: c++
-   :start-after: /*beg11*/
-   :end-before: /*end11*/
+   :start-after: /*beg6*/
+   :end-before: /*end6*/
    :lineno-start: 1
 
 .. note:: :cpp:struct:`mfxEncExtDescription` and
@@ -875,25 +875,28 @@ encoder before session creation:
 How To Do Property-Based Query For The Available Implementation
 ---------------------------------------------------------------
 
-Applications must use the data type
-:cpp:enumerator:`mfxVariantType::MFX_VARIANT_TYPE_QUERY` as bitmask to
-OR with other variant data types to do property-based query.
-
-Applications can get only shallow information for session creation without
+From |vpl_short_name| API 2.15 applications can use property-based query
+to search for the available implementation. Applications can get only
+shallow information for session creation without
 filling out the following structures:
 :cpp:struct:`mfxDecoderDescription`,
 :cpp:struct:`mfxEncoderDescription`,
 :cpp:struct:`mfxVPPDescription`.
-This will result in faster session creation as compared with full query of
-the implementation’s capabilities.
+Applications can also query specific encoder or decoder or VPP filter
+before session creation. This will result in faster session creation
+as compared with full query of all encoders, decoders and VPP filters.
+
+Applications must use the data type
+:cpp:enumerator:`mfxVariantType::MFX_VARIANT_TYPE_QUERY` as bitmask to
+OR with other variant data types to do property-based query.
 
 This code illustrates how application can use the shallow information for
 session creation:
 
 .. literalinclude:: ../snippets/prg_session.cpp
    :language: c++
-   :start-after: /*beg6*/
-   :end-before: /*end6*/
+   :start-after: /*beg7*/
+   :end-before: /*end7*/
    :lineno-start: 1
 
 Applications can get only shallow information with
@@ -904,21 +907,21 @@ explore available implementations:
 
 .. literalinclude:: ../snippets/prg_session.cpp
    :language: c++
-   :start-after: /*beg7*/
-   :end-before: /*end7*/
-   :lineno-start: 1
-
-Applications can also use :cpp:enumerator:`mfxVariantType::MFX_VARIANT_TYPE_QUERY`
-to find decoders or encoders or VPP filters.
-This code illustrates how application can find decoders for session creation:
-
-.. literalinclude:: ../snippets/prg_session.cpp
-   :language: c++
    :start-after: /*beg8*/
    :end-before: /*end8*/
    :lineno-start: 1
 
+Applications can also use :cpp:enumerator:`mfxVariantType::MFX_VARIANT_TYPE_QUERY`
+to find decoders or encoders or VPP filters.
 This code illustrates how application can find one encoder for session creation:
+
+.. literalinclude:: ../snippets/prg_session.cpp
+   :language: c++
+   :start-after: /*beg10*/
+   :end-before: /*end10*/
+   :lineno-start: 1
+
+This code illustrates how application can find decoders for session creation:
 
 .. literalinclude:: ../snippets/prg_session.cpp
    :language: c++
@@ -931,13 +934,21 @@ creation:
 
 .. literalinclude:: ../snippets/prg_session.cpp
    :language: c++
-   :start-after: /*beg10*/
-   :end-before: /*end10*/
+   :start-after: /*beg11*/
+   :end-before: /*end11*/
    :lineno-start: 1
 
 Applications can use :cpp:enumerator:`mfxVariantType::MFX_VARIANT_TYPE_QUERY`
 to get decoder or encoder or VPP filter information with
 :cpp:func:`MFXEnumImplementations`.
+This code illustrates how application can query one encoder using
+:cpp:func:`MFXEnumImplementations`:
+
+.. literalinclude:: ../snippets/prg_session.cpp
+   :language: c++
+   :start-after: /*beg12*/
+   :end-before: /*end12*/
+   :lineno-start: 1
 
 The :ref:`Query-able Properties Table <query-able-prop-table>` shows property
 strings supported by property-based query. Applying the bitmask
@@ -1019,10 +1030,6 @@ No matter what property is queried, below shallow information will be filled in
    mfxDeviceDescription   Dev;
    mfxAccelerationModeDescription   AccelerationModeDescription;
    mfxPoolPolicyDescription  PoolPolicies;
-
-.. note:: The data type
-          :cpp:enumerator:`mfxVariantType::MFX_VARIANT_TYPE_QUERY`
-          is an experimental feature from API version 2.15.
 
 .. note:: When using property-based queries, all of the desired properties must be
           configured before the first call to either :cpp:func:`MFXCreateSession`
