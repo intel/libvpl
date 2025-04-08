@@ -17,10 +17,12 @@ cases.
 
 ## [Unreleased]
 
+## [2.14.0] - 2025-04-11
+
 ### Added
 - Intel® VPL API 2.15 support, including new property-based capabilities query
-  interface, extended decoder and encoder capabilities reporting, and definitions
-  for VVC Main 10 Still Picture profile and level 6.3.
+  interface, extended decoder and encoder capabilities reporting, and
+  definitions for VVC Main 10 Still Picture profile and level 6.3.
 - Explicit `INSTALL_EXAMPLES` build option to control installation of example
   source code and content
 
@@ -31,7 +33,7 @@ cases.
 - `BUILD_EXAMPLES` build option requiring `INSTALL_DEV` to have any effect
 
 ### Changed
-- Default Ubuntu build to 24.04.
+- Default Ubuntu build to 24.04
 
 ### Removed
 - Outdated Dockerfiles provided with examples
@@ -41,11 +43,11 @@ cases.
 ### Added
 - Intel® VPL API 2.14 support, including new quality and speed settings for AI
   based video frame interpolation, new algorithm and mode selection options for
-  AI based super resolution, and HEVC level 8.5 decode support.
-- Improved support for Python 3.12 development environments.
+  AI based super resolution, and HEVC level 8.5 decode support
+- Improved support for Python 3.12 development environments
 
 ### Fixed
-- Bootstrap to support Debian distributions that do not define `ID_LIKE`.
+- Bootstrap to support Debian distributions that do not define `ID_LIKE`
 
 ## [2.13.0] - 2024-08-30
 
@@ -59,7 +61,7 @@ cases.
 
 ### Added
 - Intel® VPL API 2.12 support, including new APIs for AI-based frame
-  interpolation and Vulkan zero-copy surface sharing.
+  interpolation and Vulkan zero-copy surface sharing
 
 ## [2.11.0] - 2024-04-26
 
@@ -422,7 +424,8 @@ cases.
 - hello-transcode sample
 
 
-[Unreleased]: https://github.com/intel/libvpl/compare/v2.14.0...HEAD
+[Unreleased]: https://github.com/intel/libvpl/compare/v2.15.0...HEAD
+[2.15.0]: https://github.com/intel/libvpl/compare/v2.14.0...v2.15.0
 [2.14.0]: https://github.com/intel/libvpl/compare/v2.13.0...v2.14.0
 [2.13.0]: https://github.com/intel/libvpl/compare/v2.12.0...v2.13.0
 [2.12.0]: https://github.com/intel/libvpl/compare/v2.11.0...v2.12.0
