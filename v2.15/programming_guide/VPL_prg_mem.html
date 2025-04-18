@@ -1,0 +1,636 @@
+<!--
+SPDX-FileCopyrightText: 2019-2023 Intel Corporation
+
+SPDX-License-Identifier: MIT
+-->
+
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Memory Allocation and External Allocators &#8212; Intel® VPL  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=5b4479735964841361fd" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=5b4479735964841361fd" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd" />
+  <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=5b4479735964841361fd"></script>
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'programming_guide/VPL_prg_mem';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Importing and Exporting Shared Surfaces" href="VPL_prg_surface_sharing.html" />
+    <link rel="prev" title="Hardware Acceleration" href="VPL_prg_hw.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Intel® VPL  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../VPL_intel_media_sdk.html">Intel<sup>®</sup> VPL for Intel<sup>®</sup> Media Software Development Kit Users</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../architecture/index.html">Architecture</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/VPL_decoding.html">Video Decoding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/VPL_encoding.html">Video Encoding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/VPL_processing.html">Video Processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/VPL_decoding_vpp.html">Video Decoding with multiple video processing</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Programming Guide</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_stc.html">Status Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_session.html">Intel<sup>®</sup> VPL Session</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_frame.html">Frame and Fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_decoding.html">Decoding Procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_encoding.html">Encoding Procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_vpp.html">Video Processing Procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_transcoding.html">Transcoding Procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_config.html">Parameter Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_hw.html">Hardware Acceleration</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Memory Allocation and External Allocators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_surface_sharing.html">Importing and Exporting Shared Surfaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_err.html">Hardware Device Error Handling</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../VPL_summary.html">Mandatory APIs and Functions</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../API_ref/VPL_api_ref.html">Intel<sup>®</sup> VPL API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../API_ref/VPL_functions.html">Function Reference</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_vid_decode.html">VideoDECODE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_vid_encode.html">VideoENCODE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_vid_vpp.html">VideoVPP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_vidcore.html">VideoCORE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_session.html">Session Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_mem.html">Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_capabilities.html">Implementation Capabilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_adapters.html">Adapters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_vid_decode_vpp.html">VideoDECODE_VPP</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../API_ref/VPL_structs.html">Structure Reference</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_type.html">Type Definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_memory.html">Memory Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_impl_manage.html">Implementation Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_cross_component.html">Cross-component Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_decode.html">Decode Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_encode.html">Encode Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_vpp.html">VPP Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_protected.html">Protected Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_decode_vpp.html">DECODE_VPP Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_camera.html">Camera Structures</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../API_ref/VPL_enums.html">Enumerator Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../API_ref/VPL_defines.html">Define Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../API_ref/VPL_ref_types.html">Type Reference</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../API_ref/VPL_disp_api.html">Dispatcher API</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_disp_api_func.html">Dispatcher API Function Reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_disp_api_struct.html">Dispatcher API Structure Reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_disp_api_enum.html">Dispatcher API Enumeration Reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_disp_api_def.html">Dispatcher API Define Reference</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../API_ref/VPL_guids.html">GUIDs Reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Versioning.html">Intel<sup>®</sup> VPL API Versioning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Experimental.html">Intel<sup>®</sup> VPL Experimental API</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../appendix/index.html">Appendices</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_a.html">Configuration Parameter Constraints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_b.html">Multiple-segment Encoding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_c.html">Streaming and Video Conferencing Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_d.html">Switchable Graphics and Multiple Monitors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_e.html">Working Directly with VA-API for Linux*</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_f.html">CQP HRD Mode Encoding</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../VPL_acronyms.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../VPL_deprecation.html">Deprecated API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../VPL_change_log.html">Change Log</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/programming_guide/VPL_prg_mem.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Memory Allocation and External Allocators</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#external-memory-management">External Memory Management</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#internal-memory-management">Internal Memory Management</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxframesurfaceinterface">mfxFrameSurfaceInterface</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="memory-allocation-and-external-allocators">
+<span id="mem-alloc-ext-alloc"></span><h1>Memory Allocation and External Allocators<a class="headerlink" href="#memory-allocation-and-external-allocators" title="Permalink to this heading">#</a></h1>
+<p>There are two models of memory management in Intel<sup>®</sup> VPL: internal and external.</p>
+<section id="external-memory-management">
+<h2>External Memory Management<a class="headerlink" href="#external-memory-management" title="Permalink to this heading">#</a></h2>
+<p>In the external memory model, the application must allocate sufficient memory for
+input and output parameters and buffers and deallocate it when Intel<sup>®</sup> VPL functions
+complete their operations. During execution, the Intel<sup>®</sup> VPL functions use callback
+functions to the application to manage memory for video frames through the
+external allocator interface <a class="reference internal" href="../API_ref/VPL_structs_memory.html#_CPPv417mfxFrameAllocator" title="mfxFrameAllocator"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxFrameAllocator</span></code></a>.</p>
+<p>If an application needs to control the allocation of video frames, it can use
+callback functions through the <a class="reference internal" href="../API_ref/VPL_structs_memory.html#_CPPv417mfxFrameAllocator" title="mfxFrameAllocator"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxFrameAllocator</span></code></a> interface. If an
+application does not specify an allocator, an internal allocator is used. However,
+if an application uses video memory surfaces for input and output, it must specify
+the hardware acceleration device and an external frame allocator using
+<a class="reference internal" href="../API_ref/VPL_structs_memory.html#_CPPv417mfxFrameAllocator" title="mfxFrameAllocator"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxFrameAllocator</span></code></a>.</p>
+<p>The external frame allocator can allocate different frame types:</p>
+<ul class="simple">
+<li><p>In-system memory.</p></li>
+<li><p>In-video memory, as ‘Decoder Render Targets’ or ‘Processor Render Targets.’
+See <a class="reference internal" href="VPL_prg_hw.html#hw-acceleration"><span class="std std-ref">Working with Hardware Acceleration</span></a> for additional
+details.</p></li>
+</ul>
+<p>The external frame allocator responds only to frame allocation requests for the
+requested memory type and returns <a class="reference internal" href="../API_ref/VPL_enums.html#_CPPv4N9mfxStatus19MFX_ERR_UNSUPPORTEDE" title="mfxStatus::MFX_ERR_UNSUPPORTED"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">mfxStatus::MFX_ERR_UNSUPPORTED</span></code></a>
+for all other types. The allocation request uses flags (part of the memory type
+field) to indicate which Intel<sup>®</sup> VPL class initiated the request so that the external
+frame allocator can respond accordingly.</p>
+<p>The following example shows a simple external frame allocator:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="cp">#define ALIGN32(X) (((mfxU32)((X)+31)) &amp; (~ (mfxU32)31))</span>
+<span class="linenos"> 2</span>
+<span class="linenos"> 3</span><span class="k">typedef</span><span class="w"> </span><span class="k">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos"> 4</span><span class="w">   </span><span class="n">mfxU16</span><span class="w"> </span><span class="n">width</span><span class="p">,</span><span class="w"> </span><span class="n">height</span><span class="p">;</span>
+<span class="linenos"> 5</span><span class="w">   </span><span class="n">mfxU8</span><span class="w"> </span><span class="o">*</span><span class="n">base</span><span class="p">;</span>
+<span class="linenos"> 6</span><span class="p">}</span><span class="w"> </span><span class="n">mid_struct</span><span class="p">;</span>
+<span class="linenos"> 7</span>
+<span class="linenos"> 8</span><span class="n">mfxStatus</span><span class="w"> </span><span class="nf">fa_alloc</span><span class="p">(</span><span class="n">mfxHDL</span><span class="w"> </span><span class="n">pthis</span><span class="p">,</span><span class="w"> </span><span class="n">mfxFrameAllocRequest</span><span class="w"> </span><span class="o">*</span><span class="n">request</span><span class="p">,</span><span class="w"> </span><span class="n">mfxFrameAllocResponse</span><span class="w"> </span><span class="o">*</span><span class="n">response</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos"> 9</span><span class="w">   </span><span class="n">UNUSED_PARAM</span><span class="p">(</span><span class="n">pthis</span><span class="p">);</span>
+<span class="linenos">10</span><span class="w">   </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">request</span><span class="o">-&gt;</span><span class="n">Type</span><span class="o">&amp;</span><span class="n">MFX_MEMTYPE_SYSTEM_MEMORY</span><span class="p">))</span>
+<span class="linenos">11</span><span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="n">MFX_ERR_UNSUPPORTED</span><span class="p">;</span>
+<span class="linenos">12</span><span class="w">   </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">request</span><span class="o">-&gt;</span><span class="n">Info</span><span class="p">.</span><span class="n">FourCC</span><span class="o">!=</span><span class="n">MFX_FOURCC_NV12</span><span class="p">)</span>
+<span class="linenos">13</span><span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="n">MFX_ERR_UNSUPPORTED</span><span class="p">;</span>
+<span class="linenos">14</span><span class="w">   </span><span class="n">response</span><span class="o">-&gt;</span><span class="n">NumFrameActual</span><span class="o">=</span><span class="n">request</span><span class="o">-&gt;</span><span class="n">NumFrameMin</span><span class="p">;</span>
+<span class="linenos">15</span><span class="w">   </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">request</span><span class="o">-&gt;</span><span class="n">NumFrameMin</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos">16</span><span class="w">      </span><span class="n">mid_struct</span><span class="w"> </span><span class="o">*</span><span class="n">mmid</span><span class="o">=</span><span class="p">(</span><span class="n">mid_struct</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">malloc</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">mid_struct</span><span class="p">));</span>
+<span class="linenos">17</span><span class="w">      </span><span class="n">mmid</span><span class="o">-&gt;</span><span class="n">width</span><span class="o">=</span><span class="n">ALIGN32</span><span class="p">(</span><span class="n">request</span><span class="o">-&gt;</span><span class="n">Info</span><span class="p">.</span><span class="n">Width</span><span class="p">);</span>
+<span class="linenos">18</span><span class="w">      </span><span class="n">mmid</span><span class="o">-&gt;</span><span class="n">height</span><span class="o">=</span><span class="n">ALIGN32</span><span class="p">(</span><span class="n">request</span><span class="o">-&gt;</span><span class="n">Info</span><span class="p">.</span><span class="n">Height</span><span class="p">);</span>
+<span class="linenos">19</span><span class="w">      </span><span class="n">mmid</span><span class="o">-&gt;</span><span class="n">base</span><span class="o">=</span><span class="p">(</span><span class="n">mfxU8</span><span class="o">*</span><span class="p">)</span><span class="n">malloc</span><span class="p">(</span><span class="n">mmid</span><span class="o">-&gt;</span><span class="n">width</span><span class="o">*</span><span class="n">mmid</span><span class="o">-&gt;</span><span class="n">height</span><span class="o">*</span><span class="mi">3</span><span class="o">/</span><span class="mi">2</span><span class="p">);</span>
+<span class="linenos">20</span><span class="w">      </span><span class="n">response</span><span class="o">-&gt;</span><span class="n">mids</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="n">mmid</span><span class="p">;</span>
+<span class="linenos">21</span><span class="w">   </span><span class="p">}</span>
+<span class="linenos">22</span><span class="w">   </span><span class="k">return</span><span class="w"> </span><span class="n">MFX_ERR_NONE</span><span class="p">;</span>
+<span class="linenos">23</span><span class="p">}</span>
+<span class="linenos">24</span>
+<span class="linenos">25</span><span class="n">mfxStatus</span><span class="w"> </span><span class="nf">fa_lock</span><span class="p">(</span><span class="n">mfxHDL</span><span class="w"> </span><span class="n">pthis</span><span class="p">,</span><span class="w"> </span><span class="n">mfxMemId</span><span class="w"> </span><span class="n">mid</span><span class="p">,</span><span class="w"> </span><span class="n">mfxFrameData</span><span class="w"> </span><span class="o">*</span><span class="n">ptr</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos">26</span><span class="w">   </span><span class="n">UNUSED_PARAM</span><span class="p">(</span><span class="n">pthis</span><span class="p">);</span>
+<span class="linenos">27</span><span class="w">   </span><span class="n">mid_struct</span><span class="w"> </span><span class="o">*</span><span class="n">mmid</span><span class="o">=</span><span class="p">(</span><span class="n">mid_struct</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">mid</span><span class="p">;</span>
+<span class="linenos">28</span><span class="w">   </span><span class="n">ptr</span><span class="o">-&gt;</span><span class="n">Pitch</span><span class="o">=</span><span class="n">mmid</span><span class="o">-&gt;</span><span class="n">width</span><span class="p">;</span>
+<span class="linenos">29</span><span class="w">   </span><span class="n">ptr</span><span class="o">-&gt;</span><span class="n">Y</span><span class="o">=</span><span class="n">mmid</span><span class="o">-&gt;</span><span class="n">base</span><span class="p">;</span>
+<span class="linenos">30</span><span class="w">   </span><span class="n">ptr</span><span class="o">-&gt;</span><span class="n">U</span><span class="o">=</span><span class="n">ptr</span><span class="o">-&gt;</span><span class="n">Y</span><span class="o">+</span><span class="n">mmid</span><span class="o">-&gt;</span><span class="n">width</span><span class="o">*</span><span class="n">mmid</span><span class="o">-&gt;</span><span class="n">height</span><span class="p">;</span>
+<span class="linenos">31</span><span class="w">   </span><span class="n">ptr</span><span class="o">-&gt;</span><span class="n">V</span><span class="o">=</span><span class="n">ptr</span><span class="o">-&gt;</span><span class="n">U</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span>
+<span class="linenos">32</span><span class="w">   </span><span class="k">return</span><span class="w"> </span><span class="n">MFX_ERR_NONE</span><span class="p">;</span>
+<span class="linenos">33</span><span class="p">}</span>
+<span class="linenos">34</span>
+<span class="linenos">35</span><span class="n">mfxStatus</span><span class="w"> </span><span class="nf">fa_unlock</span><span class="p">(</span><span class="n">mfxHDL</span><span class="w"> </span><span class="n">pthis</span><span class="p">,</span><span class="w"> </span><span class="n">mfxMemId</span><span class="w"> </span><span class="n">mid</span><span class="p">,</span><span class="w"> </span><span class="n">mfxFrameData</span><span class="w"> </span><span class="o">*</span><span class="n">ptr</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos">36</span><span class="w">   </span><span class="n">UNUSED_PARAM</span><span class="p">(</span><span class="n">pthis</span><span class="p">);</span>
+<span class="linenos">37</span><span class="w">   </span><span class="n">UNUSED_PARAM</span><span class="p">(</span><span class="n">mid</span><span class="p">);</span>
+<span class="linenos">38</span><span class="w">   </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ptr</span><span class="p">)</span><span class="w"> </span><span class="n">ptr</span><span class="o">-&gt;</span><span class="n">Y</span><span class="o">=</span><span class="n">ptr</span><span class="o">-&gt;</span><span class="n">U</span><span class="o">=</span><span class="n">ptr</span><span class="o">-&gt;</span><span class="n">V</span><span class="o">=</span><span class="n">ptr</span><span class="o">-&gt;</span><span class="n">A</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+<span class="linenos">39</span><span class="w">   </span><span class="k">return</span><span class="w"> </span><span class="n">MFX_ERR_NONE</span><span class="p">;</span>
+<span class="linenos">40</span><span class="p">}</span>
+<span class="linenos">41</span>
+<span class="linenos">42</span><span class="n">mfxStatus</span><span class="w"> </span><span class="nf">fa_gethdl</span><span class="p">(</span><span class="n">mfxHDL</span><span class="w"> </span><span class="n">pthis</span><span class="p">,</span><span class="w"> </span><span class="n">mfxMemId</span><span class="w"> </span><span class="n">mid</span><span class="p">,</span><span class="w"> </span><span class="n">mfxHDL</span><span class="w"> </span><span class="o">*</span><span class="n">handle</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos">43</span><span class="w">   </span><span class="n">UNUSED_PARAM</span><span class="p">(</span><span class="n">pthis</span><span class="p">);</span>
+<span class="linenos">44</span><span class="w">   </span><span class="n">UNUSED_PARAM</span><span class="p">(</span><span class="n">mid</span><span class="p">);</span>
+<span class="linenos">45</span><span class="w">   </span><span class="n">UNUSED_PARAM</span><span class="p">(</span><span class="n">handle</span><span class="p">);</span>
+<span class="linenos">46</span><span class="w">   </span><span class="k">return</span><span class="w"> </span><span class="n">MFX_ERR_UNSUPPORTED</span><span class="p">;</span>
+<span class="linenos">47</span><span class="p">}</span>
+<span class="linenos">48</span>
+<span class="linenos">49</span><span class="n">mfxStatus</span><span class="w"> </span><span class="nf">fa_free</span><span class="p">(</span><span class="n">mfxHDL</span><span class="w"> </span><span class="n">pthis</span><span class="p">,</span><span class="w"> </span><span class="n">mfxFrameAllocResponse</span><span class="w"> </span><span class="o">*</span><span class="n">response</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos">50</span><span class="w">   </span><span class="n">UNUSED_PARAM</span><span class="p">(</span><span class="n">pthis</span><span class="p">);</span>
+<span class="linenos">51</span><span class="w">   </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">response</span><span class="o">-&gt;</span><span class="n">NumFrameActual</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos">52</span><span class="w">      </span><span class="n">mid_struct</span><span class="w"> </span><span class="o">*</span><span class="n">mmid</span><span class="o">=</span><span class="p">(</span><span class="n">mid_struct</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">response</span><span class="o">-&gt;</span><span class="n">mids</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="linenos">53</span><span class="w">      </span><span class="n">free</span><span class="p">(</span><span class="n">mmid</span><span class="o">-&gt;</span><span class="n">base</span><span class="p">);</span><span class="w"> </span><span class="n">free</span><span class="p">(</span><span class="n">mmid</span><span class="p">);</span>
+<span class="linenos">54</span><span class="w">   </span><span class="p">}</span>
+<span class="linenos">55</span><span class="w">   </span><span class="k">return</span><span class="w"> </span><span class="n">MFX_ERR_NONE</span><span class="p">;</span>
+<span class="linenos">56</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>For system memory, it is highly recommended to allocate memory for all
+planes of the same frame as a single buffer (using one single malloc call).</p>
+</section>
+<section id="internal-memory-management">
+<span id="internal-mem-manage"></span><h2>Internal Memory Management<a class="headerlink" href="#internal-memory-management" title="Permalink to this heading">#</a></h2>
+<p>In the internal memory management model, Intel<sup>®</sup> VPL provides interface functions for
+frames allocation:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../API_ref/VPL_func_mem.html#_CPPv426MFXMemory_GetSurfaceForVPP10mfxSessionPP16mfxFrameSurface1" title="MFXMemory_GetSurfaceForVPP"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXMemory_GetSurfaceForVPP()</span></code></a></p></li>
+<li><p><a class="reference internal" href="../API_ref/VPL_func_mem.html#_CPPv429MFXMemory_GetSurfaceForVPPOut10mfxSessionPP16mfxFrameSurface1" title="MFXMemory_GetSurfaceForVPPOut"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXMemory_GetSurfaceForVPPOut()</span></code></a></p></li>
+<li><p><a class="reference internal" href="../API_ref/VPL_func_mem.html#_CPPv429MFXMemory_GetSurfaceForEncode10mfxSessionPP16mfxFrameSurface1" title="MFXMemory_GetSurfaceForEncode"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXMemory_GetSurfaceForEncode()</span></code></a></p></li>
+<li><p><a class="reference internal" href="../API_ref/VPL_func_mem.html#_CPPv429MFXMemory_GetSurfaceForDecode10mfxSessionPP16mfxFrameSurface1" title="MFXMemory_GetSurfaceForDecode"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXMemory_GetSurfaceForDecode()</span></code></a></p></li>
+</ul>
+<p>These functions are used together with <a class="reference internal" href="../API_ref/VPL_structs_memory.html#_CPPv424mfxFrameSurfaceInterface" title="mfxFrameSurfaceInterface"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxFrameSurfaceInterface</span></code></a>
+for surface management. The surface returned by these functions is a reference
+counted object and the application must call <a class="reference internal" href="../API_ref/VPL_structs_memory.html#_CPPv4N24mfxFrameSurfaceInterface7ReleaseE" title="mfxFrameSurfaceInterface::Release"><code class="xref cpp cpp-member docutils literal notranslate"><span class="pre">mfxFrameSurfaceInterface::Release</span></code></a>
+after finishing all operations with the surface. In this model the application
+does not need to create and set the external allocator to Intel<sup>®</sup> VPL.</p>
+<p>Another method to obtain an internally allocated surface is to call
+<a class="reference internal" href="../API_ref/VPL_func_vid_decode.html#_CPPv431MFXVideoDECODE_DecodeFrameAsync10mfxSessionP12mfxBitstreamP16mfxFrameSurface1PP16mfxFrameSurface1P12mfxSyncPoint" title="MFXVideoDECODE_DecodeFrameAsync"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoDECODE_DecodeFrameAsync()</span></code></a> with a working surface equal to NULL
+(see <a class="reference internal" href="VPL_prg_decoding.html#simplified-decoding-procedure"><span class="std std-ref">Simplified decoding procedure</span></a>). In
+this scenario, the decoder will allocate a new refcountable
+<a class="reference internal" href="../API_ref/VPL_structs_memory.html#_CPPv416mfxFrameSurface1" title="mfxFrameSurface1"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxFrameSurface1</span></code></a> and return it to the user. All assumed contracts
+with the user are similar to the <strong>MFXMemory_GetSurfaceForXXX</strong> functions.</p>
+</section>
+<section id="mfxframesurfaceinterface">
+<h2>mfxFrameSurfaceInterface<a class="headerlink" href="#mfxframesurfaceinterface" title="Permalink to this heading">#</a></h2>
+<p>Intel<sup>®</sup> VPL API version 2.0 introduces <a class="reference internal" href="../API_ref/VPL_structs_memory.html#_CPPv424mfxFrameSurfaceInterface" title="mfxFrameSurfaceInterface"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxFrameSurfaceInterface</span></code></a>. This
+interface is a set of callback functions to manage the lifetime of allocated
+surfaces, get access to pixel data, and obtain native handles and device
+abstractions (if suitable). Instead of directly accessing
+<a class="reference internal" href="../API_ref/VPL_structs_memory.html#_CPPv416mfxFrameSurface1" title="mfxFrameSurface1"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxFrameSurface1</span></code></a> structure members, it’s recommended to use
+the <a class="reference internal" href="../API_ref/VPL_structs_memory.html#_CPPv424mfxFrameSurfaceInterface" title="mfxFrameSurfaceInterface"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxFrameSurfaceInterface</span></code></a> if present or call external
+allocator callback functions if set.</p>
+<p>The following pseudo code shows the usage of <a class="reference internal" href="../API_ref/VPL_structs_memory.html#_CPPv424mfxFrameSurfaceInterface" title="mfxFrameSurfaceInterface"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxFrameSurfaceInterface</span></code></a>
+for memory sharing:</p>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c1">// lets decode frame and try to access output in an optimal way.</span>
+<span class="linenos"> 2</span><span class="n">sts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MFXVideoDECODE_DecodeFrameAsync</span><span class="p">(</span><span class="n">session</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">outsurface</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">syncp</span><span class="p">);</span>
+<span class="linenos"> 3</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">MFX_ERR_NONE</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">sts</span><span class="p">)</span>
+<span class="linenos"> 4</span><span class="p">{</span>
+<span class="linenos"> 5</span><span class="w">    </span><span class="n">mfxStatus</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">outsurface</span><span class="o">-&gt;</span><span class="n">FrameInterface</span><span class="o">-&gt;</span><span class="n">GetDeviceHandle</span><span class="p">(</span><span class="n">outsurface</span><span class="p">,</span>
+<span class="linenos"> 6</span><span class="w">                                                  </span><span class="o">&amp;</span><span class="n">device_handle</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">device_type</span><span class="p">);</span>
+<span class="linenos"> 7</span><span class="w">    </span><span class="c1">// if application or component is familar with mfxHandleType and it&#39;s</span>
+<span class="linenos"> 8</span><span class="w">    </span><span class="c1">// possible to share memory created by device_handle.</span>
+<span class="linenos"> 9</span><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">MFX_ERR_NONE</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">isDeviceTypeCompatible</span><span class="p">(</span><span class="n">device_type</span><span class="p">)</span>
+<span class="linenos">10</span><span class="w">                          </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">isPossibleForMemorySharing</span><span class="p">(</span><span class="n">device_handle</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos">11</span><span class="w">        </span><span class="c1">// get native handle and type</span>
+<span class="linenos">12</span><span class="w">        </span><span class="n">outsurface</span><span class="o">-&gt;</span><span class="n">FrameInterface</span><span class="o">-&gt;</span><span class="n">GetNativeHandle</span><span class="p">(</span><span class="n">outsurface</span><span class="p">,</span>
+<span class="linenos">13</span><span class="w">                                                      </span><span class="o">&amp;</span><span class="n">resource</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">resource_type</span><span class="p">);</span>
+<span class="linenos">14</span><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">isResourceTypeCompatible</span><span class="p">(</span><span class="n">resource_type</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos">15</span><span class="w">            </span><span class="c1">//use memory directly</span>
+<span class="linenos">16</span><span class="w">            </span><span class="n">ProcessNativeMemory</span><span class="p">(</span><span class="n">resource</span><span class="p">);</span>
+<span class="linenos">17</span><span class="w">            </span><span class="n">outsurface</span><span class="o">-&gt;</span><span class="n">FrameInterface</span><span class="o">-&gt;</span><span class="n">Release</span><span class="p">(</span><span class="n">outsurface</span><span class="p">);</span>
+<span class="linenos">18</span><span class="w">        </span><span class="p">}</span>
+<span class="linenos">19</span><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="linenos">20</span><span class="w">      </span><span class="c1">// Application or component is not aware about such DeviceHandle or</span>
+<span class="linenos">21</span><span class="w">      </span><span class="c1">// Resource type need to map to system memory.</span>
+<span class="linenos">22</span><span class="w">      </span><span class="n">outsurface</span><span class="o">-&gt;</span><span class="n">FrameInterface</span><span class="o">-&gt;</span><span class="n">Map</span><span class="p">(</span><span class="n">outsurface</span><span class="p">,</span><span class="w"> </span><span class="n">MFX_MAP_READ</span><span class="p">);</span>
+<span class="linenos">23</span><span class="w">      </span><span class="n">ProcessSystemMemory</span><span class="p">(</span><span class="n">outsurface</span><span class="p">);</span>
+<span class="linenos">24</span><span class="w">      </span><span class="n">outsurface</span><span class="o">-&gt;</span><span class="n">FrameInterface</span><span class="o">-&gt;</span><span class="n">Unmap</span><span class="p">(</span><span class="n">outsurface</span><span class="p">);</span>
+<span class="linenos">25</span><span class="w">      </span><span class="n">outsurface</span><span class="o">-&gt;</span><span class="n">FrameInterface</span><span class="o">-&gt;</span><span class="n">Release</span><span class="p">(</span><span class="n">outsurface</span><span class="p">);</span>
+<span class="linenos">26</span><span class="w">    </span><span class="p">}</span>
+<span class="linenos">27</span><span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="VPL_prg_hw.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Hardware Acceleration</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="VPL_prg_surface_sharing.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Importing and Exporting Shared Surfaces</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#external-memory-management">External Memory Management</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#internal-memory-management">Internal Memory Management</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxframesurfaceinterface">mfxFrameSurfaceInterface</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023, Intel.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=5b4479735964841361fd"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
