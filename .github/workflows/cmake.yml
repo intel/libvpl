@@ -55,10 +55,6 @@ on:
         description: 'extra options for docker build'
         required: false
         type: string
-    secrets:
-      token:
-        description: 'Personal access token (PAT) used to fetch the repository'
-        required: false
 
   workflow_call:
     inputs:

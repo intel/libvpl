@@ -51,10 +51,11 @@ repos:
       - id: bandit
         args: ["-c", "bandit.yaml"]
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.23.2
+    rev: 0.32.1
     hooks:
       - id: check-github-actions
       - id: check-github-workflows
+        args: ["--verbose"]
   - repo: https://github.com/adrienverge/yamllint.git
     rev: v1.33.0
     hooks:

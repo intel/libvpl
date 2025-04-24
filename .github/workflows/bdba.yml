@@ -51,42 +51,16 @@ jobs:
           zip --symlinks -r ../vpl-${{ inputs.output_prefix }}.zip .
           popd
 
-      - name: Build Docker image
-        run: >
-          docker build ${{ inputs.docker_opts }}
-          -f "source/.github/workflows/bdba/Dockerfile.ubuntu.bdba"
-          --build-arg USER_ID=$(id -u)
-          --build-arg GROUP_ID=$(id -g)
-          -t vpl_bdba:ubuntu
-          "source/.github/workflows/bdba"
-
       - name: Scan package
-        run: |
-          cat >scan.sh <<EOL
-          #!/bin/bash
-          set -o errexit ; set -o nounset
-          python3 source/.github/workflows/bdba/bdba.py \
-          -u ${{ vars.AD_USR }} -p ${{ secrets.AD_PW }} \
-          -g ${{ vars.BDBA_GROUP }} -r results.pdf \
-          -c components.csv \
-          -v vulns.csv \
-          -V ${{ inputs.version }} *.zip \
-          > ${{ inputs.output_prefix }}results.json
-
-          EOL
-          chmod a+x scan.sh
-          docker run --rm -v $(pwd):/tmp/work -w /tmp/work  \
-          vpl_bdba:ubuntu ./scan.sh
-
-      - name: Upload scan results
-        uses: actions/upload-artifact@v4
-        if: success() || failure()
+        uses: intel-innersource/frameworks.actions.bdba-scan@v4
         with:
-          name: ${{ inputs.output_prefix }}bdba-scan
-          path: |
-            *.csv
-            *.json
-            *.pdf
+          path: '*.zip'
+          artifact-name: ${{ inputs.output_prefix }}bdba-scan
+          version: ${{ inputs.version }}
+          scan-name: vpl-${{ inputs.output_prefix }}
+          ignore-ssl-error: ${{ vars.BDBA_IGNORE_SSL_ERROR }}
+          group: ${{ vars.BDBA_GROUP }}
+          token: ${{ secrets.BDBA_TOKEN }}
 
       - name: Cleanup workspace
         run: sudo rm -rf ..?* .[!.]* *
