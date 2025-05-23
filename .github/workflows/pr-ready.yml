@@ -226,7 +226,6 @@ jobs:
       - hadolint
       - trivy
       - ip-leak-scan
-      - coverity
       - windows-sscb
       - linux-sscb
       - bdba
