@@ -1,0 +1,32 @@
+---
+name: Workflow tester
+on:
+  workflow_dispatch:
+    inputs:
+      do_checkout:
+        description: 'Perform checkout'
+        required: true
+        type: boolean
+      runner:
+        description: 'Runner to run on'
+        default: "innersource.prod.amr.dind"
+        type: string
+      command:
+        description: 'command to run'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  run-input-command:
+    runs-on: ["${{ inputs.runner }}"]
+    steps:
+      - name: Check out code
+        if: ${{ inputs.do_checkout }}
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # with history for git lint
+      - name: Run command
+        run: ${{ inputs.command }}
