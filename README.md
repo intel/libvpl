@@ -138,7 +138,7 @@ Center](https://www.intel.com/content/www/us/en/security-center/default.html)
 for information on how to report a potential security issue or vulnerability.
 
 
-# Backward Compatibility
+## Backward Compatibility
 
 No code changes may be introduced that would regress support for any currently supported hardware.
 All contributions must ensure continued compatibility and functionality across all supported hardware platforms.
