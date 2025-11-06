@@ -722,21 +722,20 @@ def run(args):
         error_count = summary.problems
         xunit_from_report(os.path.join(args.report_dir, "xunit.xml"), summary)
     snapshot_id = None
-    if args.report or error_count > 0:
-        publish_to_coverity_connect(args.intermediate_dir,
-                                    args.url,
-                                    args.stream,
-                                    args.code_version,
-                                    args.strip_path,
-                                    args.description,
-                                    "_snapshot_id.txt",
-                                    user=args.user,
-                                    password=args.password,
-                                    auth_key_file=args.auth_key_file)
 
-        with open("_snapshot_id.txt", "r",
-                  encoding="utf-8") as snapshot_id_file:
-            snapshot_id = snapshot_id_file.read().strip()
+    publish_to_coverity_connect(args.intermediate_dir,
+                                args.url,
+                                args.stream,
+                                args.code_version,
+                                args.strip_path,
+                                args.description,
+                                "_snapshot_id.txt",
+                                user=args.user,
+                                password=args.password,
+                                auth_key_file=args.auth_key_file)
+
+    with open("_snapshot_id.txt", "r", encoding="utf-8") as snapshot_id_file:
+        snapshot_id = snapshot_id_file.read().strip()
     snapshot_info = {}
     if snapshot_id is not None:
         snapshot_info["id"] = snapshot_id
@@ -747,7 +746,7 @@ def run(args):
               encoding="utf-8") as info_file:
         json.dump(snapshot_info, info_file, indent=2)
 
-    if snapshot_id is not None:
+    if args.report and snapshot_id is not None:
         write_reports(args, snapshot_id)
     return error_count
 

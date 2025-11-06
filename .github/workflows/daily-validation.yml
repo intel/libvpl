@@ -81,7 +81,11 @@ jobs:
     with:
       os: ${{ matrix.os }}
       output_prefix: lib-
-      extra_opts: --report
+      # disable local report generation pending update to new tool
+      #   old method no longer supported
+      #   this may not be necessary to run locally,
+      #     and can collect evidence report from the server instead
+      # extra_opts: --report
       docker_opts: ${{ inputs.docker_opts }}
 
   linux-build:
