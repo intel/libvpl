@@ -339,11 +339,19 @@ mfxU32 LoaderCtxVPL::GetSearchPathsCurrentExe(std::list<STRING_TYPE> &searchDirs
 #if defined(_WIN32) || defined(_WIN64)
     // get path to location of current executable
     wchar_t implPath[MFX::msdk_disp_path_len];
-    MFX::GetImplPath(MFX::MFX_APP_FOLDER, implPath);
+    bool ret            = MFX::GetImplPath(MFX::MFX_APP_FOLDER, implPath);
     STRING_TYPE exePath = implPath;
+
+    // failed to get executable path
+    if (!ret)
+        return 0;
 
     // strip trailing backslash
     size_t exePathLen = exePath.find_last_of(L"\\");
+
+    if (exePathLen == std::wstring::npos)
+        return 0;
+
     if (exePathLen > 0)
         exePath.erase(exePathLen);
 

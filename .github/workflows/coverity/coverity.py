@@ -253,10 +253,16 @@ def build_under_coverity(intermediate_dir, command, strip_path):
     run_command("cov-build", "--dir", intermediate_dir, *command)
     # Analyze
     run_command("cov-analyze", "--dir", intermediate_dir, "--strip-path",
-                strip_path, "--enable-constraint-fpp", "--ticker-mode", "none",
-                "--disable-default", "--concurrency", "--security", "--rule",
-                "--enable-fnptr", "--enable-virtual", "--enable",
-                "SECURE_CODING")
+                strip_path, "--ticker-mode", "none", "--security",
+                "--concurrency", "--enable-constraint-fpp", "--enable-fnptr",
+                "--enable-virtual", "--disable", "ASSERT_SIDE_EFFECT",
+                "--disable", "AUTO_CAUSES_COPY", "--disable",
+                "BAD_CHECK_OF_WAIT_COND", "--disable", "BAD_SHIFT",
+                "--disable", "COPY_INSTEAD_OF_MOVE", "--disable",
+                "INEFFICIENT_RESERVE", "--disable", "MISSING_COMMA",
+                "--disable", "MISSING_MOVE_ASSIGNMENT", "--disable",
+                "OVERLAPPING_COPY", "--disable", "STREAM_FORMAT_STATE",
+                "--disable", "UNINTENDED_INTEGER_DIVISION")
 
 
 # pylint: disable=too-many-arguments,too-many-positional-arguments
