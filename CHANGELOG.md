@@ -17,7 +17,11 @@ cases.
 
 ## [Unreleased]
 
-## [2.14.0] - 2025-04-11
+### Added
+- Intel® VPL API 2.16 support, including new AI-assisted encoder APIs and
+  documentation updates
+
+## [2.15.0] - 2025-04-11
 
 ### Added
 - Intel® VPL API 2.15 support, including new property-based capabilities query
