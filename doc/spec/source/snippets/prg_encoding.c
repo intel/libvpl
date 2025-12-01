@@ -774,3 +774,35 @@ free_pool_of_frame_surfaces();
 
 /*end11*/
 }
+
+#ifdef ONEVPL_EXPERIMENTAL
+static void prg_encoding12() {
+/*beg12*/
+/* mfxExtAIEncCtrl Init */
+mfxExtAIEncCtrl aiEncCtrl     = {};
+aiEncCtrl.Header.BufferId     = MFX_EXTBUFF_AI_ENC_CTRL;
+aiEncCtrl.Header.BufferSz     = sizeof(mfxExtAIEncCtrl);
+aiEncCtrl.SaliencyEncoder     = MFX_CODINGOPTION_ON;
+aiEncCtrl.AdaptiveTargetUsage = MFX_CODINGOPTION_ON;
+
+mfxExtBuffer * ExtParam[1]    = { (mfxExtBuffer *)&aiEncCtrl };
+
+mfxSession session            = (mfxSession)0;
+mfxVideoParam encodeParams    = {};
+encodeParams.NumExtParam      = 1;
+encodeParams.ExtParam         = ExtParam;
+
+/* perform check screen content tools support status */
+MFXVideoENCODE_Query(session, &encodeParams, &encodeParams);
+
+/* init encode */
+MFXVideoENCODE_Init(session, &encodeParams);
+
+/* perform encoding */
+for (;;) {
+    MFXVideoENCODE_EncodeFrameAsync(session, NULL, surface, bits, &syncp);
+    MFXVideoCORE_SyncOperation(session, syncp, INFINITE);
+}
+/*end12*/
+}
+#endif

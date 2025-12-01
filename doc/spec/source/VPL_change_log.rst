@@ -13,6 +13,25 @@ This section describes the API evolution from version to version.
    :depth: 1
 
 ------------
+Version 2.16
+------------
+
+New in this release:
+
+* Updated the description of FourCC RGB format to clarify the format layout and mapping information:
+
+    * :cpp:enumerator:`MFX_FOURCC_RGB4`
+    * :cpp:enumerator:`MFX_FOURCC_BGR4`
+    * :cpp:enumerator:`MFX_FOURCC_ARGB16`
+    * :cpp:enumerator:`MFX_FOURCC_ABGR16`
+
+* Experimental API: introduced :cpp:struct:`mfxExtAIEncCtrl` to support control of AI assisted encoder solutions.
+
+* Updated description of :cpp:struct:`mfxFrameAllocator` to add some critical details for implementation.
+
+* Updated description of :cpp:func:`MFXQueryImplsDescription`, :cpp:func:`MFXQueryImplsProperties`, and :cpp:func:`MFXReleaseImplDescription` with information on recommended usage.
+
+------------
 Version 2.15
 ------------
 

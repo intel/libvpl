@@ -125,7 +125,7 @@ MFX_PACK_BEGIN_STRUCT_W_PTR()
 typedef struct {
     mfxSurfaceInterface SurfaceInterface;
 
-    mfxHDL texture2D;                           /*!< Pointer to texture, type ID3D11Texture2D */
+    mfxHDL texture2D;                           /*!< Pointer to texture, type ID3D11Texture2D* */
     mfxHDL reserved[7];
 } mfxSurfaceD3D11Tex2D;
 MFX_PACK_END()
@@ -152,8 +152,8 @@ MFX_PACK_BEGIN_STRUCT_W_PTR()
 typedef struct {
     mfxExtBuffer    Header;                     /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_EXPORT_SHARING_DESC_OCL. */
 
-    mfxHDL ocl_context;                         /*!< Pointer to OpenCL context, type cl_context */
-    mfxHDL ocl_command_queue;                   /*!< Pointer to OpenCL command queue, type cl_command_queue */
+    mfxHDL ocl_context;                         /*!< Object of type cl_context (OpenCL context). */
+    mfxHDL ocl_command_queue;                   /*!< Object of type cl_command_queue (OpenCL command queue). */
 
     mfxHDL reserved[8];
 } mfxExtSurfaceOpenCLImg2DExportDescription;
@@ -163,11 +163,11 @@ MFX_PACK_BEGIN_STRUCT_W_PTR()
 typedef struct {
     mfxSurfaceInterface SurfaceInterface;
 
-    mfxHDL ocl_context;                         /*!< Pointer to OpenCL context, type cl_context */
-    mfxHDL ocl_command_queue;                   /*!< Pointer to OpenCL command queue, type cl_command_queue */
+    mfxHDL ocl_context;                         /*!< Object of type cl_context (OpenCL context). */
+    mfxHDL ocl_command_queue;                   /*!< Object of type cl_command_queue (OpenCL command queue). */
 
-    mfxHDL ocl_image[4];                        /*!< Pointer to OpenCL 2D images, type cl_mem */
-    mfxU32 ocl_image_num;                       /*!< Number of valid images (planes), depends on color format */
+    mfxHDL ocl_image[4];                        /*!< Object of type cl_mem[4] (array of 4 OpenCL 2D images). */
+    mfxU32 ocl_image_num;                       /*!< Number of valid images (planes), depends on color format. */
 
     mfxHDL reserved[8];
 } mfxSurfaceOpenCLImg2D;
@@ -183,7 +183,7 @@ MFX_PACK_BEGIN_STRUCT_W_PTR()
 typedef struct {
     mfxExtBuffer    Header;                     /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_EXPORT_SHARING_DESC_D3D12. */
 
-    mfxHDL d3d12Device;                         /*!< Pointer to D3D12 Device, type ID3D12Device */
+    mfxHDL d3d12Device;                         /*!< Pointer to D3D12 Device, type ID3D12Device*. */
 
     mfxHDL reserved[9];
 } mfxExtSurfaceD3D12Tex2DExportDescription;
@@ -193,7 +193,7 @@ MFX_PACK_BEGIN_STRUCT_W_PTR()
 typedef struct {
     mfxSurfaceInterface SurfaceInterface;
 
-    mfxHDL texture2D;                           /*!< Pointer to D3D12 resource, type ID3D12Resource */
+    mfxHDL texture2D;                           /*!< Pointer to D3D12 resource, type ID3D12Resource*. */
 
     mfxHDL reserved[7];
 } mfxSurfaceD3D12Tex2D;
@@ -209,9 +209,9 @@ MFX_PACK_BEGIN_STRUCT_W_PTR()
 typedef struct {
     mfxExtBuffer    Header;                     /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_EXPORT_SHARING_DESC_VULKAN. */
 
-    mfxHDL instance;                            /*!< Pointer to Vulkan instance, type VkInstance */
-    mfxHDL physicalDevice;                      /*!< Pointer to Vulkan physical device, type VkPhysicalDevice */
-    mfxHDL device;                              /*!< Pointer to Vulkan device, type VkDevice */
+    mfxHDL instance;                            /*!< Object of type VkInstance (Vulkan instance). */
+    mfxHDL physicalDevice;                      /*!< Object of type VkPhysicalDevice (Vulkan physical device). */
+    mfxHDL device;                              /*!< Object of type VkDevice (Vulkan device). */
 
     mfxHDL reserved[7];
 } mfxExtSurfaceVulkanImg2DExportDescription;
@@ -221,12 +221,12 @@ MFX_PACK_BEGIN_STRUCT_W_PTR()
 typedef struct {
     mfxSurfaceInterface SurfaceInterface;
 
-    mfxHDL instance;                            /*!< Pointer to Vulkan instance, type VkInstance */
-    mfxHDL physicalDevice;                      /*!< Pointer to Vulkan physical device, type VkPhysicalDevice */
-    mfxHDL device;                              /*!< Pointer to Vulkan device, type VkDevice */
+    mfxHDL instance;                            /*!< Object of type VkInstance (Vulkan instance). */
+    mfxHDL physicalDevice;                      /*!< Object of type VkPhysicalDevice (Vulkan physical device). */
+    mfxHDL device;                              /*!< Object of type VkDevice (Vulkan device). */
 
-    mfxHDL image2D;                             /*!< Pointer to Vulkan 2D images, type VkImage */
-    mfxHDL image2DMemory;                       /*!< Pointer to Vulkan device memory, VkDeviceMemory*/
+    mfxHDL image2D;                             /*!< Object of type VkImage (Vulkan 2D images). */
+    mfxHDL image2DMemory;                       /*!< Object of type VkDeviceMemory (Vulkan device memory). */
 
     mfxHDL reserved[10];
 } mfxSurfaceVulkanImg2D;

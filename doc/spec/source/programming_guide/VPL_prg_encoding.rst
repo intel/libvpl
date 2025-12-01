@@ -372,3 +372,30 @@ Usage Instructions:
    - RGBA_SYS: Not yet supported.
 
 - The application must use the :cpp:func:`MFXVideoCORE_SyncOperation` function to synchronize the encoding operation before retrieving the encoded bitstream.
+
+------------------------
+AI Assisted Encoder Ctrl
+------------------------
+
+The following pseudo code shows an example of encoding with AI Assited Encoder Options:
+
+.. literalinclude:: ../snippets/prg_encoding.c
+   :language: c++
+   :start-after: /*beg12*/
+   :end-before: /*end12*/
+   :lineno-start: 1
+
+Note the following key points about the example:
+
+- The application must attach the :cpp:struct:`mfxExtAIEncCtrl` structure to the 
+  :cpp:struct:`mfxVideoParam` structure and call the :cpp:func:`MFXVideoENCODE_Query` 
+  to check the support status of the request. The function returns 
+  :cpp:enumerator:`mfxStatus::MFX_ERR_NONE` if support is successful, issues a warning 
+  :cpp:enumerator:`mfxStatus::MFX_WRN_INCOMPATIBLE_VIDEO_PARAM` due to platform limitations 
+  and updates the :cpp:struct:`mfxExtAIEncCtrl` structure values to the default, or returns 
+  the error :cpp:enumerator:`mfxStatus::MFX_ERR_UNSUPPORTED` if not support.
+- The application uses the :cpp:func:`MFXVideoENCODE_Init` to initialize the encoder.
+- The application calls the :cpp:func:`MFXVideoENCODE_EncodeFrameAsync` function to perform 
+  the encoding operation.
+- The application must use the :cpp:func:`MFXVideoCORE_SyncOperation` function to 
+  synchronize the encoding operation before retrieving the encoded bitstream.

@@ -331,3 +331,7 @@ The following is a list of experimental interfaces, starting from API version
      - 2.15
      -
      -
+   * - :cpp:struct:`mfxExtAIEncCtrl`
+     - 2.16
+     -
+     -

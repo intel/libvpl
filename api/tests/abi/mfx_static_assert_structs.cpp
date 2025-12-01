@@ -3072,6 +3072,14 @@ MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxExtAlphaChannelSurface, 28)
 #endif
 
 #ifdef ONEVPL_EXPERIMENTAL
+MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxExtAIEncCtrl, 64)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtAIEncCtrl, Header,               0)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtAIEncCtrl, SaliencyEncoder,      8)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtAIEncCtrl, AdaptiveTargetUsage,  10)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtAIEncCtrl, reserved,             12)
+#endif
+
+#ifdef ONEVPL_EXPERIMENTAL
 // The solution for compiler-time check of bitfields. Requires C++20 and supported only by latest MSVC. 
 // Disabled for now.
 #if (_MSC_VER >= 1929) && defined(MFX_ASSERT_BITFIELD_CMPL_TIME)

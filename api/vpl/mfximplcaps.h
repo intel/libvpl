@@ -18,7 +18,8 @@ extern "C"
 
 /*!
    @brief
-      Delivers implementation capabilities in the requested format according to the format value.
+      Delivers implementation capabilities in the requested format according to the format value. Calling this
+      function directly is not recommended. Instead, applications must call the MFXEnumImplementations function.
 
    @param[in]  format      Format in which capabilities must be delivered. See mfxImplCapsDeliveryFormat for more details.
    @param[out] num_impls   Number of the implementations.
@@ -35,7 +36,8 @@ mfxHDL* MFX_CDECL MFXQueryImplsDescription(mfxImplCapsDeliveryFormat format, mfx
    @brief
       Destroys the handle allocated by the MFXQueryImplsDescription function or the MFXQueryImplsProperties function.
       Implementation must remember which handles are released. Once the last handle is released, this function must release memory
-      allocated for the array of handles.
+      allocated for the array of handles. Calling this function directly is not recommended. Instead, applications must call
+      the MFXDispReleaseImplDescription function.
 
    @param[in] hdl   Handle to destroy. Can be equal to NULL.
 
@@ -51,7 +53,9 @@ mfxStatus MFX_CDECL MFXReleaseImplDescription(mfxHDL hdl);
    @brief
       Delivers implementation capabilities for configured properties.
       The returned capability report will be sparsely filled out, with only properties available which
-      were set via MFXSetConfigFilterProperty().
+      were set via MFXSetConfigFilterProperty(). Calling this function directly is not recommended.
+      Instead, applications must call the MFXEnumImplementations function.
+
 
    @param[in]  properties      Array of property name/value pairs indicating which properties to populate in the capability report.
    @param[in]  num_properties  Number of property name/value pairs.

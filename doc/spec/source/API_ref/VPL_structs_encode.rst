@@ -549,3 +549,11 @@ mfxExtAlphaChannelSurface
    :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
+
+mfxExtAIEncCtrl
+-------------------------
+
+.. doxygenstruct:: mfxExtAIEncCtrl
+   :project: DEF_BREATHE_PROJECT
+   :members:
+   :protected-members:

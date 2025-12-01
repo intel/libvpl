@@ -94,7 +94,7 @@ MFX_DEPRECATED mfxStatus MFX_CDECL MFXInitEx(mfxInitParam par, mfxSession *sessi
    @brief
    Creates and initializes a session starting from API version 2.0. This function is used by the dispatcher.
    The dispatcher creates and fills the mfxInitializationParam structure according to mfxConfig values set by an application.
-   Calling this function directly is not recommended. Instead, applications must call the mfxCreateSession function.
+   Calling this function directly is not recommended. Instead, applications must call the MFXCreateSession function.
 
 
    @param[in]  par     mfxInitializationParam structure that indicates the minimum library version and acceleration type.

@@ -37,7 +37,8 @@ typedef struct {
     /*!
        @brief Allocates surface frames. For decoders, MFXVideoDECODE_Init calls Alloc only once. That call
               includes all frame allocation requests. For encoders, MFXVideoENCODE_Init calls Alloc twice: once for the
-              input surfaces and again for the internal reconstructed surfaces.
+              input surfaces and again for the internal reconstructed surfaces. If application also calls this function explicitly, 
+              it should have the logic to avoid duplicated allocation for the same request.
 
               If two library components must share DirectX* surfaces, this function should pass the pre-allocated surface
               chain to the library instead of allocating new DirectX surfaces.
@@ -85,11 +86,14 @@ typedef struct {
        @return
              MFX_ERR_NONE               The function successfully returned the OS-specific handle. \n
              MFX_ERR_UNSUPPORTED        The function does not support obtaining OS-specific handle..
+       @note For D3D11 surfaces, GetHDL should return an mfxHDLPair instead of an mfxHDL. In the mfxHDLPair struct,
+       mfxHDLPair.first should be is set to the Texture2D address, and mfxHDLPair.second should be set to the array index. 
     */
     mfxStatus  (MFX_CDECL  *GetHDL)   (mfxHDL pthis, mfxMemId mid, mfxHDL *handle);
 
     /*!
-       @brief De-allocates all allocated frames.
+       @brief De-allocates all allocated frames. 
+              MFXClose will call this function. If application also calls this function, it should have logic to avoid double free.
        @param[in]  pthis    Pointer to the allocator object.
        @param[in]  response Pointer to the mfxFrameAllocResponse structure returned by the Alloc function.
        @return
