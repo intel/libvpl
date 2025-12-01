@@ -330,8 +330,6 @@ mfxStatus ConvertStrToFourCC(std::string value, mfxU32 &t) {
     // error if input was out of range
     if (converted_value > std::numeric_limits<mfxU32>::max())
         return MFX_ERR_UNSUPPORTED;
-    if (converted_value < std::numeric_limits<mfxU32>::lowest())
-        return MFX_ERR_UNSUPPORTED;
     t = static_cast<mfxU32>(converted_value);
     return MFX_ERR_NONE;
 }

@@ -91,6 +91,10 @@ bool WinRegKey::Query(const wchar_t *pValueName, DWORD type, LPBYTE pData, LPDWO
     LONG lRes;
     DWORD dstSize = (pcbData) ? (*pcbData) : (0);
 
+    // According to docs for RegQueryValueExW: "The lpcbData parameter can be NULL only if lpData is NULL."
+    if (pData && !pcbData)
+        return false;
+
     // query the value
     lRes = RegQueryValueExW(m_hKey, pValueName, NULL, &keyType, pData, pcbData);
     if (ERROR_SUCCESS != lRes) {
