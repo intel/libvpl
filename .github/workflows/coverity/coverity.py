@@ -197,6 +197,9 @@ def read_command_line(cmd_line):
         '--report',
         action="store_true",
         help='Force reporting, even if no new issues were found')
+    parser.add_argument('--report-tool',
+                        default=None,
+                        help='Name of tool to use for generating report')
     #build options
     parser.add_argument('--dir',
                         dest='intermediate_dir',
@@ -659,36 +662,14 @@ disa-stig:
 
     # Special environment with Coverity user information
     env = os.environ.copy()
-    if args.password:
-        env["COVERITY_PASSPHRASE"] = args.password
-    if args.user:
-        env["COV_USER"] = args.user
 
-    report_path = os.path.join(args.report_dir, "cvss_report.pdf")
-    arguments = [
-        "_covreport.yml",
-        "--output",
-        report_path,
-        "--report",
-    ]
-    if args.password:
-        arguments.extend([
-            "--password",
-            "env:COVERITY_PASSPHRASE",
-        ])
-    run_command("cov-generate-cvss-report", *arguments, env=env)
-    report_path = os.path.join(args.report_dir, "security_report.pdf")
-    arguments = [
-        "_covreport.yml",
-        "--output",
-        report_path,
-    ]
-    if args.password:
-        arguments.extend([
-            "--password",
-            "env:COVERITY_PASSPHRASE",
-        ])
-    run_command("cov-generate-security-report", *arguments, env=env)
+    if args.report_tool:
+        report_path = os.path.join(args.report_dir, "cov_report.html")
+        arguments = [
+            "_covreport.yml", "--output", report_path, "--auth-key-file",
+            args.auth_key_file
+        ]
+        run_command(args.report_tool, *arguments, env=env)
 
 
 def run(args):

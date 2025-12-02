@@ -134,6 +134,8 @@ jobs:
           --build-arg \
           "COV_REPORTS_LINUX_URL=${{ vars.COV_REPORTS_LINUX_URL }}" \
           --build-arg "COV_LICENSE_URL=${{ vars.COV_LICENSE_URL }}" \
+          --build-arg "COV_TOOLS_URL=${{ vars.COV_TOOLS_URL }}" \
+          --build-arg "COV_REPORT_TOOL=${{ vars.COV_REPORT_TOOL }}" \
           "source/.github/workflows/coverity"
 
 
@@ -172,7 +174,9 @@ jobs:
             --project "${{ vars.COVERITY_PROJECT }}" \
             --project-name "oneVPL" \
             --dir "int_dir" \
+            --report \
             --report-dir "\${REPORT_DIR}" \
+            --report-tool "${{ vars.COV_REPORT_TOOL }}" \
             --strip-path "\${STRIP_DIR}" \
             --code-version "${{ github.sha }}" \
             --bu "AXG" \
@@ -190,6 +194,11 @@ jobs:
       - name: Run Scan (Windows)
         if: success() && runner.os == 'Windows'
         run: |
+          py -m venv venv
+          venv\Scripts\activate
+          py -m pip install --upgrade pip
+          py -m pip install --extra-index-url `
+          ${{ vars.COV_TOOLS_URL }} ${{ vars.COV_REPORT_TOOL }}
           $env:CMAKE_PREFIX_PATH `
           = $(if (Test-Path _deps) {(Get-Item _deps).FullName})
           pushd source
@@ -212,7 +221,9 @@ jobs:
             --project "${{ vars.COVERITY_PROJECT }}" `
             --project-name "oneVPL" `
             --dir "int_dir" `
+            --report `
             --report-dir "_reports" `
+            --report-tool "${{ vars.COV_REPORT_TOOL }}" `
             --strip-path "." `
             --code-version "${{ github.sha }}" `
             --bu "AXG" `

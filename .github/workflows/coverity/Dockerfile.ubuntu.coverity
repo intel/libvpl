@@ -50,4 +50,9 @@ RUN apt-get update \
 ENV PATH="/opt/coverity/analysis/bin:/opt/coverity/reports/bin:${PATH}"
 COPY --from=coverity_install /opt/coverity /opt/coverity
 
+ARG COV_TOOLS_URL
+ARG COV_REPORT_TOOL
+RUN pipx install --pip-args="--extra-index-url ${COV_TOOLS_URL}" ${COV_REPORT_TOOL}
+ENV PATH="${PATH}:/root/.local/bin"
+
 HEALTHCHECK CMD gcc --version || exit 1
