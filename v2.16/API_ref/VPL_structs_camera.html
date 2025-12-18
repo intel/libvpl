@@ -1,0 +1,1262 @@
+<!--
+SPDX-FileCopyrightText: 2019-2023 Intel Corporation
+
+SPDX-License-Identifier: MIT
+-->
+
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Camera Structures &#8212; Intel® VPL  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=5b4479735964841361fd" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=5b4479735964841361fd" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd" />
+  <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=5b4479735964841361fd"></script>
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'API_ref/VPL_structs_camera';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Enumerator Reference" href="VPL_enums.html" />
+    <link rel="prev" title="DECODE_VPP Structures" href="VPL_structs_decode_vpp.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Intel® VPL  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../VPL_intel_media_sdk.html">Intel<sup>®</sup> VPL for Intel<sup>®</sup> Media Software Development Kit Users</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../architecture/index.html">Architecture</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/VPL_decoding.html">Video Decoding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/VPL_encoding.html">Video Encoding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/VPL_processing.html">Video Processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/VPL_decoding_vpp.html">Video Decoding with multiple video processing</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../programming_guide/index.html">Programming Guide</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_stc.html">Status Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_session.html">Intel<sup>®</sup> VPL Session</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_frame.html">Frame and Fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_decoding.html">Decoding Procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_encoding.html">Encoding Procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_vpp.html">Video Processing Procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_transcoding.html">Transcoding Procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_config.html">Parameter Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_hw.html">Hardware Acceleration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_mem.html">Memory Allocation and External Allocators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_surface_sharing.html">Importing and Exporting Shared Surfaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_err.html">Hardware Device Error Handling</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../VPL_summary.html">Mandatory APIs and Functions</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="VPL_api_ref.html">Intel<sup>®</sup> VPL API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="VPL_functions.html">Function Reference</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="VPL_func_vid_decode.html">VideoDECODE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_func_vid_encode.html">VideoENCODE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_func_vid_vpp.html">VideoVPP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_func_vidcore.html">VideoCORE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_func_session.html">Session Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_func_mem.html">Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_func_capabilities.html">Implementation Capabilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_func_adapters.html">Adapters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_func_vid_decode_vpp.html">VideoDECODE_VPP</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="VPL_structs.html">Structure Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="VPL_structs_type.html">Type Definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_structs_memory.html">Memory Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_structs_impl_manage.html">Implementation Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_structs_cross_component.html">Cross-component Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_structs_decode.html">Decode Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_structs_encode.html">Encode Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_structs_vpp.html">VPP Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_structs_protected.html">Protected Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_structs_decode_vpp.html">DECODE_VPP Structures</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">Camera Structures</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_enums.html">Enumerator Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_defines.html">Define Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_ref_types.html">Type Reference</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="VPL_disp_api.html">Dispatcher API</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="VPL_disp_api_func.html">Dispatcher API Function Reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_disp_api_struct.html">Dispatcher API Structure Reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_disp_api_enum.html">Dispatcher API Enumeration Reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_disp_api_def.html">Dispatcher API Define Reference</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_guids.html">GUIDs Reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Versioning.html">Intel<sup>®</sup> VPL API Versioning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Experimental.html">Intel<sup>®</sup> VPL Experimental API</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../appendix/index.html">Appendices</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_a.html">Configuration Parameter Constraints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_b.html">Multiple-segment Encoding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_c.html">Streaming and Video Conferencing Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_d.html">Switchable Graphics and Multiple Monitors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_e.html">Working Directly with VA-API for Linux*</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_f.html">CQP HRD Mode Encoding</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../VPL_acronyms.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../VPL_deprecation.html">Deprecated API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../VPL_change_log.html">Change Log</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/API_ref/VPL_structs_camera.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Camera Structures</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxextcamwhitebalance">mfxExtCamWhiteBalance</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxextcamtotalcolorcontrol">mfxExtCamTotalColorControl</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxextcamcscyuvrgb">mfxExtCamCscYuvRgb</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxextcamhotpixelremoval">mfxExtCamHotPixelRemoval</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxextcamblacklevelcorrection">mfxExtCamBlackLevelCorrection</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxcamvignettecorrectionelement">mfxCamVignetteCorrectionElement</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxcamvignettecorrectionparam">mfxCamVignetteCorrectionParam</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxextcamvignettecorrection">mfxExtCamVignetteCorrection</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxextcambayerdenoise">mfxExtCamBayerDenoise</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxextcamcolorcorrection3x3">mfxExtCamColorCorrection3x3</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxextcampadding">mfxExtCamPadding</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxextcampipecontrol">mfxExtCamPipeControl</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxcamfwdgammasegment">mfxCamFwdGammaSegment</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxextcamfwdgamma">mfxExtCamFwdGamma</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxextcamlensgeomdistcorrection">mfxExtCamLensGeomDistCorrection</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxcam3dlutentry">mfxCam3DLutEntry</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxextcam3dlut">mfxExtCam3DLut</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="camera-structures">
+<span id="struct-camera"></span><h1>Camera Structures<a class="headerlink" href="#camera-structures" title="Permalink to this heading">#</a></h1>
+<p id="struct-camera-begin">Structures used by Camera Raw Acceleration Processing.</p>
+<section id="api">
+<span id="struct-camera-end"></span><h2>API<a class="headerlink" href="#api" title="Permalink to this heading">#</a></h2>
+<nav class="contents local" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#mfxextcamwhitebalance" id="id1">mfxExtCamWhiteBalance</a></p></li>
+<li><p><a class="reference internal" href="#mfxextcamtotalcolorcontrol" id="id2">mfxExtCamTotalColorControl</a></p></li>
+<li><p><a class="reference internal" href="#mfxextcamcscyuvrgb" id="id3">mfxExtCamCscYuvRgb</a></p></li>
+<li><p><a class="reference internal" href="#mfxextcamhotpixelremoval" id="id4">mfxExtCamHotPixelRemoval</a></p></li>
+<li><p><a class="reference internal" href="#mfxextcamblacklevelcorrection" id="id5">mfxExtCamBlackLevelCorrection</a></p></li>
+<li><p><a class="reference internal" href="#mfxcamvignettecorrectionelement" id="id6">mfxCamVignetteCorrectionElement</a></p></li>
+<li><p><a class="reference internal" href="#mfxcamvignettecorrectionparam" id="id7">mfxCamVignetteCorrectionParam</a></p></li>
+<li><p><a class="reference internal" href="#mfxextcamvignettecorrection" id="id8">mfxExtCamVignetteCorrection</a></p></li>
+<li><p><a class="reference internal" href="#mfxextcambayerdenoise" id="id9">mfxExtCamBayerDenoise</a></p></li>
+<li><p><a class="reference internal" href="#mfxextcamcolorcorrection3x3" id="id10">mfxExtCamColorCorrection3x3</a></p></li>
+<li><p><a class="reference internal" href="#mfxextcampadding" id="id11">mfxExtCamPadding</a></p></li>
+<li><p><a class="reference internal" href="#mfxextcampipecontrol" id="id12">mfxExtCamPipeControl</a></p></li>
+<li><p><a class="reference internal" href="#mfxcamfwdgammasegment" id="id13">mfxCamFwdGammaSegment</a></p></li>
+<li><p><a class="reference internal" href="#mfxextcamfwdgamma" id="id14">mfxExtCamFwdGamma</a></p></li>
+<li><p><a class="reference internal" href="#mfxextcamlensgeomdistcorrection" id="id15">mfxExtCamLensGeomDistCorrection</a></p></li>
+<li><p><a class="reference internal" href="#mfxcam3dlutentry" id="id16">mfxCam3DLutEntry</a></p></li>
+<li><p><a class="reference internal" href="#mfxextcam3dlut" id="id17">mfxExtCam3DLut</a></p></li>
+</ul>
+</nav>
+<section id="mfxextcamwhitebalance">
+<h3><a class="toc-backref" href="#id1" role="doc-backlink">mfxExtCamWhiteBalance</a><a class="headerlink" href="#mfxextcamwhitebalance" title="Permalink to this heading">#</a></h3>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv421mfxExtCamWhiteBalance">
+<span id="_CPPv321mfxExtCamWhiteBalance"></span><span id="_CPPv221mfxExtCamWhiteBalance"></span><span id="mfxExtCamWhiteBalance"></span><span class="target" id="structmfx_ext_cam_white_balance"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mfxExtCamWhiteBalance</span></span></span><a class="headerlink" href="#_CPPv421mfxExtCamWhiteBalance" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>A hint structure that configures Camera White Balance filter. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N21mfxExtCamWhiteBalance6HeaderE">
+<span id="_CPPv3N21mfxExtCamWhiteBalance6HeaderE"></span><span id="_CPPv2N21mfxExtCamWhiteBalance6HeaderE"></span><span id="mfxExtCamWhiteBalance::Header__mfxExtBuffer"></span><span class="target" id="structmfx_ext_cam_white_balance_1adcdb45994ca97cea2cbcdddddb0ae90d"></span><a class="reference internal" href="VPL_structs_type.html#_CPPv412mfxExtBuffer" title="mfxExtBuffer"><span class="n"><span class="pre">mfxExtBuffer</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Header</span></span></span><a class="headerlink" href="#_CPPv4N21mfxExtCamWhiteBalance6HeaderE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Extension buffer header. Header.BufferId must be equal to MFX_EXTBUF_CAM_WHITE_BALANCE. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N21mfxExtCamWhiteBalance4ModeE">
+<span id="_CPPv3N21mfxExtCamWhiteBalance4ModeE"></span><span id="_CPPv2N21mfxExtCamWhiteBalance4ModeE"></span><span id="mfxExtCamWhiteBalance::Mode__mfxU32"></span><span class="target" id="structmfx_ext_cam_white_balance_1a30d4365d128469000e660cc2f7dc3365"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU32" title="mfxU32"><span class="n"><span class="pre">mfxU32</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Mode</span></span></span><a class="headerlink" href="#_CPPv4N21mfxExtCamWhiteBalance4ModeE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Specifies one of White Balance operation modes defined in enumeration mfxCamWhiteBalanceMode. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N21mfxExtCamWhiteBalance1RE">
+<span id="_CPPv3N21mfxExtCamWhiteBalance1RE"></span><span id="_CPPv2N21mfxExtCamWhiteBalance1RE"></span><span id="mfxExtCamWhiteBalance::R__mfxF64"></span><span class="target" id="structmfx_ext_cam_white_balance_1a66a533f103c497132db064ad7c77fff7"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxF64" title="mfxF64"><span class="n"><span class="pre">mfxF64</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">R</span></span></span><a class="headerlink" href="#_CPPv4N21mfxExtCamWhiteBalance1RE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>White Balance Red correction. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N21mfxExtCamWhiteBalance2G0E">
+<span id="_CPPv3N21mfxExtCamWhiteBalance2G0E"></span><span id="_CPPv2N21mfxExtCamWhiteBalance2G0E"></span><span id="mfxExtCamWhiteBalance::G0__mfxF64"></span><span class="target" id="structmfx_ext_cam_white_balance_1a6bdcf2a32d82565940283d86649f84e8"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxF64" title="mfxF64"><span class="n"><span class="pre">mfxF64</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G0</span></span></span><a class="headerlink" href="#_CPPv4N21mfxExtCamWhiteBalance2G0E" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>White Balance Green Top correction. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N21mfxExtCamWhiteBalance1BE">
+<span id="_CPPv3N21mfxExtCamWhiteBalance1BE"></span><span id="_CPPv2N21mfxExtCamWhiteBalance1BE"></span><span id="mfxExtCamWhiteBalance::B__mfxF64"></span><span class="target" id="structmfx_ext_cam_white_balance_1ace84c8a72cdcb89daa82629b9a2585f4"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxF64" title="mfxF64"><span class="n"><span class="pre">mfxF64</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">B</span></span></span><a class="headerlink" href="#_CPPv4N21mfxExtCamWhiteBalance1BE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>White Balance Blue correction. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N21mfxExtCamWhiteBalance2G1E">
+<span id="_CPPv3N21mfxExtCamWhiteBalance2G1E"></span><span id="_CPPv2N21mfxExtCamWhiteBalance2G1E"></span><span id="mfxExtCamWhiteBalance::G1__mfxF64"></span><span class="target" id="structmfx_ext_cam_white_balance_1ac1bb0b26af03df4a98bb4cd6fd2d4394"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxF64" title="mfxF64"><span class="n"><span class="pre">mfxF64</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G1</span></span></span><a class="headerlink" href="#_CPPv4N21mfxExtCamWhiteBalance2G1E" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>White Balance Green Bottom correction. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N21mfxExtCamWhiteBalance8reservedE">
+<span id="_CPPv3N21mfxExtCamWhiteBalance8reservedE"></span><span id="_CPPv2N21mfxExtCamWhiteBalance8reservedE"></span><span id="mfxExtCamWhiteBalance::reserved__mfxU32A"></span><span class="target" id="structmfx_ext_cam_white_balance_1a87a98679a0cde4158aa191158f4eea6b"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU32" title="mfxU32"><span class="n"><span class="pre">mfxU32</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">reserved</span></span></span><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">8</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#_CPPv4N21mfxExtCamWhiteBalance8reservedE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Reserved for future extension. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+<section id="mfxextcamtotalcolorcontrol">
+<h3><a class="toc-backref" href="#id2" role="doc-backlink">mfxExtCamTotalColorControl</a><a class="headerlink" href="#mfxextcamtotalcolorcontrol" title="Permalink to this heading">#</a></h3>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv426mfxExtCamTotalColorControl">
+<span id="_CPPv326mfxExtCamTotalColorControl"></span><span id="_CPPv226mfxExtCamTotalColorControl"></span><span id="mfxExtCamTotalColorControl"></span><span class="target" id="structmfx_ext_cam_total_color_control"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mfxExtCamTotalColorControl</span></span></span><a class="headerlink" href="#_CPPv426mfxExtCamTotalColorControl" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>A hint structure that configures Camera Total Color Control filter. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N26mfxExtCamTotalColorControl6HeaderE">
+<span id="_CPPv3N26mfxExtCamTotalColorControl6HeaderE"></span><span id="_CPPv2N26mfxExtCamTotalColorControl6HeaderE"></span><span id="mfxExtCamTotalColorControl::Header__mfxExtBuffer"></span><span class="target" id="structmfx_ext_cam_total_color_control_1aec99b8d0836329df2defa76eb521cc9c"></span><a class="reference internal" href="VPL_structs_type.html#_CPPv412mfxExtBuffer" title="mfxExtBuffer"><span class="n"><span class="pre">mfxExtBuffer</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Header</span></span></span><a class="headerlink" href="#_CPPv4N26mfxExtCamTotalColorControl6HeaderE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Extension buffer header. Header.BufferId must be equal to MFX_EXTBUF_CAM_TOTAL_COLOR_CONTROL. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N26mfxExtCamTotalColorControl1RE">
+<span id="_CPPv3N26mfxExtCamTotalColorControl1RE"></span><span id="_CPPv2N26mfxExtCamTotalColorControl1RE"></span><span id="mfxExtCamTotalColorControl::R__mfxU16"></span><span class="target" id="structmfx_ext_cam_total_color_control_1a8cac60c53db3e99ad9752a2c07954909"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">R</span></span></span><a class="headerlink" href="#_CPPv4N26mfxExtCamTotalColorControl1RE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Red element. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N26mfxExtCamTotalColorControl1GE">
+<span id="_CPPv3N26mfxExtCamTotalColorControl1GE"></span><span id="_CPPv2N26mfxExtCamTotalColorControl1GE"></span><span id="mfxExtCamTotalColorControl::G__mfxU16"></span><span class="target" id="structmfx_ext_cam_total_color_control_1a3ff3793755f31df4d37c07930876bf51"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G</span></span></span><a class="headerlink" href="#_CPPv4N26mfxExtCamTotalColorControl1GE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Green element. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N26mfxExtCamTotalColorControl1BE">
+<span id="_CPPv3N26mfxExtCamTotalColorControl1BE"></span><span id="_CPPv2N26mfxExtCamTotalColorControl1BE"></span><span id="mfxExtCamTotalColorControl::B__mfxU16"></span><span class="target" id="structmfx_ext_cam_total_color_control_1a4865fcdf65ff0128d1623a14989edc7a"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">B</span></span></span><a class="headerlink" href="#_CPPv4N26mfxExtCamTotalColorControl1BE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Blue element. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N26mfxExtCamTotalColorControl1CE">
+<span id="_CPPv3N26mfxExtCamTotalColorControl1CE"></span><span id="_CPPv2N26mfxExtCamTotalColorControl1CE"></span><span id="mfxExtCamTotalColorControl::C__mfxU16"></span><span class="target" id="structmfx_ext_cam_total_color_control_1a977226b9d34b74dffe11021ce947d8f0"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">C</span></span></span><a class="headerlink" href="#_CPPv4N26mfxExtCamTotalColorControl1CE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Cyan element. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N26mfxExtCamTotalColorControl1ME">
+<span id="_CPPv3N26mfxExtCamTotalColorControl1ME"></span><span id="_CPPv2N26mfxExtCamTotalColorControl1ME"></span><span id="mfxExtCamTotalColorControl::M__mfxU16"></span><span class="target" id="structmfx_ext_cam_total_color_control_1aa0a0124bdfa8d5536175a1a5383f9de0"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">M</span></span></span><a class="headerlink" href="#_CPPv4N26mfxExtCamTotalColorControl1ME" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Magenta element. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N26mfxExtCamTotalColorControl1YE">
+<span id="_CPPv3N26mfxExtCamTotalColorControl1YE"></span><span id="_CPPv2N26mfxExtCamTotalColorControl1YE"></span><span id="mfxExtCamTotalColorControl::Y__mfxU16"></span><span class="target" id="structmfx_ext_cam_total_color_control_1a1f7afa359dc15e1675dbfb34ff548066"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Y</span></span></span><a class="headerlink" href="#_CPPv4N26mfxExtCamTotalColorControl1YE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Yellow element. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N26mfxExtCamTotalColorControl8reservedE">
+<span id="_CPPv3N26mfxExtCamTotalColorControl8reservedE"></span><span id="_CPPv2N26mfxExtCamTotalColorControl8reservedE"></span><span id="mfxExtCamTotalColorControl::reserved__mfxU16A"></span><span class="target" id="structmfx_ext_cam_total_color_control_1a5c398c60cf64a4c83cfa033c5b7ee494"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">reserved</span></span></span><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">6</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#_CPPv4N26mfxExtCamTotalColorControl8reservedE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Reserved for future extension. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+<section id="mfxextcamcscyuvrgb">
+<h3><a class="toc-backref" href="#id3" role="doc-backlink">mfxExtCamCscYuvRgb</a><a class="headerlink" href="#mfxextcamcscyuvrgb" title="Permalink to this heading">#</a></h3>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv418mfxExtCamCscYuvRgb">
+<span id="_CPPv318mfxExtCamCscYuvRgb"></span><span id="_CPPv218mfxExtCamCscYuvRgb"></span><span id="mfxExtCamCscYuvRgb"></span><span class="target" id="structmfx_ext_cam_csc_yuv_rgb"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mfxExtCamCscYuvRgb</span></span></span><a class="headerlink" href="#_CPPv418mfxExtCamCscYuvRgb" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>A hint structure that configures Camera YUV to RGB format conversion. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N18mfxExtCamCscYuvRgb6HeaderE">
+<span id="_CPPv3N18mfxExtCamCscYuvRgb6HeaderE"></span><span id="_CPPv2N18mfxExtCamCscYuvRgb6HeaderE"></span><span id="mfxExtCamCscYuvRgb::Header__mfxExtBuffer"></span><span class="target" id="structmfx_ext_cam_csc_yuv_rgb_1aa34c27409664a38564fdc556f10cc9d9"></span><a class="reference internal" href="VPL_structs_type.html#_CPPv412mfxExtBuffer" title="mfxExtBuffer"><span class="n"><span class="pre">mfxExtBuffer</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Header</span></span></span><a class="headerlink" href="#_CPPv4N18mfxExtCamCscYuvRgb6HeaderE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Extension buffer header. Header.BufferId must be equal to MFX_EXTBUF_CAM_CSC_YUV_RGB. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N18mfxExtCamCscYuvRgb9PreOffsetE">
+<span id="_CPPv3N18mfxExtCamCscYuvRgb9PreOffsetE"></span><span id="_CPPv2N18mfxExtCamCscYuvRgb9PreOffsetE"></span><span id="mfxExtCamCscYuvRgb::PreOffset__mfxF32A"></span><span class="target" id="structmfx_ext_cam_csc_yuv_rgb_1ab3f12955c702589ae843e934dcbcd736"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxF32" title="mfxF32"><span class="n"><span class="pre">mfxF32</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">PreOffset</span></span></span><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">3</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#_CPPv4N18mfxExtCamCscYuvRgb9PreOffsetE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Specifies offset for conversion from full range RGB input to limited range YUV for input color coordinate. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N18mfxExtCamCscYuvRgb6MatrixE">
+<span id="_CPPv3N18mfxExtCamCscYuvRgb6MatrixE"></span><span id="_CPPv2N18mfxExtCamCscYuvRgb6MatrixE"></span><span id="mfxExtCamCscYuvRgb::Matrix__mfxF32AA"></span><span class="target" id="structmfx_ext_cam_csc_yuv_rgb_1af581ca91cf5f5ef807a64baf409fcb4e"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxF32" title="mfxF32"><span class="n"><span class="pre">mfxF32</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Matrix</span></span></span><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">3</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">3</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#_CPPv4N18mfxExtCamCscYuvRgb6MatrixE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Specifies conversion matrix with CSC coefficients. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N18mfxExtCamCscYuvRgb10PostOffsetE">
+<span id="_CPPv3N18mfxExtCamCscYuvRgb10PostOffsetE"></span><span id="_CPPv2N18mfxExtCamCscYuvRgb10PostOffsetE"></span><span id="mfxExtCamCscYuvRgb::PostOffset__mfxF32A"></span><span class="target" id="structmfx_ext_cam_csc_yuv_rgb_1a35a538f433cf2148ecb4309bb778d35a"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxF32" title="mfxF32"><span class="n"><span class="pre">mfxF32</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">PostOffset</span></span></span><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">3</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#_CPPv4N18mfxExtCamCscYuvRgb10PostOffsetE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Specifies offset for conversion from full range RGB input to limited range YUV for output color coordinate. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N18mfxExtCamCscYuvRgb8reservedE">
+<span id="_CPPv3N18mfxExtCamCscYuvRgb8reservedE"></span><span id="_CPPv2N18mfxExtCamCscYuvRgb8reservedE"></span><span id="mfxExtCamCscYuvRgb::reserved__mfxU16A"></span><span class="target" id="structmfx_ext_cam_csc_yuv_rgb_1a9e8496e8c3fac1b48fa94693163784d5"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">reserved</span></span></span><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">30</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#_CPPv4N18mfxExtCamCscYuvRgb8reservedE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Reserved for future extension. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+<section id="mfxextcamhotpixelremoval">
+<h3><a class="toc-backref" href="#id4" role="doc-backlink">mfxExtCamHotPixelRemoval</a><a class="headerlink" href="#mfxextcamhotpixelremoval" title="Permalink to this heading">#</a></h3>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv424mfxExtCamHotPixelRemoval">
+<span id="_CPPv324mfxExtCamHotPixelRemoval"></span><span id="_CPPv224mfxExtCamHotPixelRemoval"></span><span id="mfxExtCamHotPixelRemoval"></span><span class="target" id="structmfx_ext_cam_hot_pixel_removal"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mfxExtCamHotPixelRemoval</span></span></span><a class="headerlink" href="#_CPPv424mfxExtCamHotPixelRemoval" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>A hint structure that configures Camera Hot Pixel Removal filter. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N24mfxExtCamHotPixelRemoval6HeaderE">
+<span id="_CPPv3N24mfxExtCamHotPixelRemoval6HeaderE"></span><span id="_CPPv2N24mfxExtCamHotPixelRemoval6HeaderE"></span><span id="mfxExtCamHotPixelRemoval::Header__mfxExtBuffer"></span><span class="target" id="structmfx_ext_cam_hot_pixel_removal_1a1a927b99d1f02cebe0fa0ec8dd1beffe"></span><a class="reference internal" href="VPL_structs_type.html#_CPPv412mfxExtBuffer" title="mfxExtBuffer"><span class="n"><span class="pre">mfxExtBuffer</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Header</span></span></span><a class="headerlink" href="#_CPPv4N24mfxExtCamHotPixelRemoval6HeaderE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Extension buffer header. Header.BufferId must be equal to MFX_EXTBUF_CAM_HOT_PIXEL_REMOVAL. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N24mfxExtCamHotPixelRemoval24PixelThresholdDifferenceE">
+<span id="_CPPv3N24mfxExtCamHotPixelRemoval24PixelThresholdDifferenceE"></span><span id="_CPPv2N24mfxExtCamHotPixelRemoval24PixelThresholdDifferenceE"></span><span id="mfxExtCamHotPixelRemoval::PixelThresholdDifference__mfxU16"></span><span class="target" id="structmfx_ext_cam_hot_pixel_removal_1ae3cdf9860abdab8aca5e0573d37e63c4"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">PixelThresholdDifference</span></span></span><a class="headerlink" href="#_CPPv4N24mfxExtCamHotPixelRemoval24PixelThresholdDifferenceE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Threshold for Hot Pixel difference. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N24mfxExtCamHotPixelRemoval19PixelCountThresholdE">
+<span id="_CPPv3N24mfxExtCamHotPixelRemoval19PixelCountThresholdE"></span><span id="_CPPv2N24mfxExtCamHotPixelRemoval19PixelCountThresholdE"></span><span id="mfxExtCamHotPixelRemoval::PixelCountThreshold__mfxU16"></span><span class="target" id="structmfx_ext_cam_hot_pixel_removal_1a13c6da1fb5b3dee406854062521fd646"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">PixelCountThreshold</span></span></span><a class="headerlink" href="#_CPPv4N24mfxExtCamHotPixelRemoval19PixelCountThresholdE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Count pixel detection. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N24mfxExtCamHotPixelRemoval8reservedE">
+<span id="_CPPv3N24mfxExtCamHotPixelRemoval8reservedE"></span><span id="_CPPv2N24mfxExtCamHotPixelRemoval8reservedE"></span><span id="mfxExtCamHotPixelRemoval::reserved__mfxU16A"></span><span class="target" id="structmfx_ext_cam_hot_pixel_removal_1a91d6a43b2c9dcd894509e83fff7a448c"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">reserved</span></span></span><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">32</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#_CPPv4N24mfxExtCamHotPixelRemoval8reservedE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Reserved for future extension. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+<section id="mfxextcamblacklevelcorrection">
+<h3><a class="toc-backref" href="#id5" role="doc-backlink">mfxExtCamBlackLevelCorrection</a><a class="headerlink" href="#mfxextcamblacklevelcorrection" title="Permalink to this heading">#</a></h3>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv429mfxExtCamBlackLevelCorrection">
+<span id="_CPPv329mfxExtCamBlackLevelCorrection"></span><span id="_CPPv229mfxExtCamBlackLevelCorrection"></span><span id="mfxExtCamBlackLevelCorrection"></span><span class="target" id="structmfx_ext_cam_black_level_correction"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mfxExtCamBlackLevelCorrection</span></span></span><a class="headerlink" href="#_CPPv429mfxExtCamBlackLevelCorrection" title="Permalink to this definition">#</a><br /></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N29mfxExtCamBlackLevelCorrection6HeaderE">
+<span id="_CPPv3N29mfxExtCamBlackLevelCorrection6HeaderE"></span><span id="_CPPv2N29mfxExtCamBlackLevelCorrection6HeaderE"></span><span id="mfxExtCamBlackLevelCorrection::Header__mfxExtBuffer"></span><span class="target" id="structmfx_ext_cam_black_level_correction_1a056c7573e954cf82b84fccf65a3d3c4a"></span><a class="reference internal" href="VPL_structs_type.html#_CPPv412mfxExtBuffer" title="mfxExtBuffer"><span class="n"><span class="pre">mfxExtBuffer</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Header</span></span></span><a class="headerlink" href="#_CPPv4N29mfxExtCamBlackLevelCorrection6HeaderE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>A hint structure that configures Camera black level correction. Extension buffer header. Header.BufferId must be equal to MFX_EXTBUF_CAM_BLACK_LEVEL_CORRECTION. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N29mfxExtCamBlackLevelCorrection1RE">
+<span id="_CPPv3N29mfxExtCamBlackLevelCorrection1RE"></span><span id="_CPPv2N29mfxExtCamBlackLevelCorrection1RE"></span><span id="mfxExtCamBlackLevelCorrection::R__mfxU16"></span><span class="target" id="structmfx_ext_cam_black_level_correction_1a906ca8e225eebc4257000c368a0475e9"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">R</span></span></span><a class="headerlink" href="#_CPPv4N29mfxExtCamBlackLevelCorrection1RE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Black Level Red correction. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N29mfxExtCamBlackLevelCorrection2G0E">
+<span id="_CPPv3N29mfxExtCamBlackLevelCorrection2G0E"></span><span id="_CPPv2N29mfxExtCamBlackLevelCorrection2G0E"></span><span id="mfxExtCamBlackLevelCorrection::G0__mfxU16"></span><span class="target" id="structmfx_ext_cam_black_level_correction_1a32d9974116993045cc362e0888876d01"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G0</span></span></span><a class="headerlink" href="#_CPPv4N29mfxExtCamBlackLevelCorrection2G0E" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Black Level Green Top correction. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N29mfxExtCamBlackLevelCorrection1BE">
+<span id="_CPPv3N29mfxExtCamBlackLevelCorrection1BE"></span><span id="_CPPv2N29mfxExtCamBlackLevelCorrection1BE"></span><span id="mfxExtCamBlackLevelCorrection::B__mfxU16"></span><span class="target" id="structmfx_ext_cam_black_level_correction_1aceb3eaec0c4a4d9271cc9d47ccf74a2e"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">B</span></span></span><a class="headerlink" href="#_CPPv4N29mfxExtCamBlackLevelCorrection1BE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Black Level Blue correction. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N29mfxExtCamBlackLevelCorrection2G1E">
+<span id="_CPPv3N29mfxExtCamBlackLevelCorrection2G1E"></span><span id="_CPPv2N29mfxExtCamBlackLevelCorrection2G1E"></span><span id="mfxExtCamBlackLevelCorrection::G1__mfxU16"></span><span class="target" id="structmfx_ext_cam_black_level_correction_1ab122a78143fce0a6962d0fa68505616d"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G1</span></span></span><a class="headerlink" href="#_CPPv4N29mfxExtCamBlackLevelCorrection2G1E" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Black Level Green Bottom correction. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N29mfxExtCamBlackLevelCorrection8reservedE">
+<span id="_CPPv3N29mfxExtCamBlackLevelCorrection8reservedE"></span><span id="_CPPv2N29mfxExtCamBlackLevelCorrection8reservedE"></span><span id="mfxExtCamBlackLevelCorrection::reserved__mfxU32A"></span><span class="target" id="structmfx_ext_cam_black_level_correction_1a91129fd1e5fb7df3114eae672ee36935"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU32" title="mfxU32"><span class="n"><span class="pre">mfxU32</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">reserved</span></span></span><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">4</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#_CPPv4N29mfxExtCamBlackLevelCorrection8reservedE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Reserved for future extension. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+<section id="mfxcamvignettecorrectionelement">
+<h3><a class="toc-backref" href="#id6" role="doc-backlink">mfxCamVignetteCorrectionElement</a><a class="headerlink" href="#mfxcamvignettecorrectionelement" title="Permalink to this heading">#</a></h3>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv431mfxCamVignetteCorrectionElement">
+<span id="_CPPv331mfxCamVignetteCorrectionElement"></span><span id="_CPPv231mfxCamVignetteCorrectionElement"></span><span id="mfxCamVignetteCorrectionElement"></span><span class="target" id="structmfx_cam_vignette_correction_element"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mfxCamVignetteCorrectionElement</span></span></span><a class="headerlink" href="#_CPPv431mfxCamVignetteCorrectionElement" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>A structure that defines Camera Vignette Correction Element. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N31mfxCamVignetteCorrectionElement7integerE">
+<span id="_CPPv3N31mfxCamVignetteCorrectionElement7integerE"></span><span id="_CPPv2N31mfxCamVignetteCorrectionElement7integerE"></span><span id="mfxCamVignetteCorrectionElement::integer__mfxU8"></span><span class="target" id="structmfx_cam_vignette_correction_element_1a4739845e48e2fd07ba90591cc19a756f"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv45mfxU8" title="mfxU8"><span class="n"><span class="pre">mfxU8</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">integer</span></span></span><a class="headerlink" href="#_CPPv4N31mfxCamVignetteCorrectionElement7integerE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Integer part of correction element. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N31mfxCamVignetteCorrectionElement8mantissaE">
+<span id="_CPPv3N31mfxCamVignetteCorrectionElement8mantissaE"></span><span id="_CPPv2N31mfxCamVignetteCorrectionElement8mantissaE"></span><span id="mfxCamVignetteCorrectionElement::mantissa__mfxU8"></span><span class="target" id="structmfx_cam_vignette_correction_element_1a4dd55f35395c5622595a983caa60e98f"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv45mfxU8" title="mfxU8"><span class="n"><span class="pre">mfxU8</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mantissa</span></span></span><a class="headerlink" href="#_CPPv4N31mfxCamVignetteCorrectionElement8mantissaE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Fractional part of correction element. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N31mfxCamVignetteCorrectionElement8reservedE">
+<span id="_CPPv3N31mfxCamVignetteCorrectionElement8reservedE"></span><span id="_CPPv2N31mfxCamVignetteCorrectionElement8reservedE"></span><span id="mfxCamVignetteCorrectionElement::reserved__mfxU8A"></span><span class="target" id="structmfx_cam_vignette_correction_element_1a715f61659c84e73f94dda1d66035de72"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv45mfxU8" title="mfxU8"><span class="n"><span class="pre">mfxU8</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">reserved</span></span></span><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">6</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#_CPPv4N31mfxCamVignetteCorrectionElement8reservedE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Reserved for future extension. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+<section id="mfxcamvignettecorrectionparam">
+<h3><a class="toc-backref" href="#id7" role="doc-backlink">mfxCamVignetteCorrectionParam</a><a class="headerlink" href="#mfxcamvignettecorrectionparam" title="Permalink to this heading">#</a></h3>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv429mfxCamVignetteCorrectionParam">
+<span id="_CPPv329mfxCamVignetteCorrectionParam"></span><span id="_CPPv229mfxCamVignetteCorrectionParam"></span><span id="mfxCamVignetteCorrectionParam"></span><span class="target" id="structmfx_cam_vignette_correction_param"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mfxCamVignetteCorrectionParam</span></span></span><a class="headerlink" href="#_CPPv429mfxCamVignetteCorrectionParam" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>A structure that defines Camera Vignette Correction Parameters. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N29mfxCamVignetteCorrectionParam1RE">
+<span id="_CPPv3N29mfxCamVignetteCorrectionParam1RE"></span><span id="_CPPv2N29mfxCamVignetteCorrectionParam1RE"></span><span id="mfxCamVignetteCorrectionParam::R__mfxCamVignetteCorrectionElement"></span><span class="target" id="structmfx_cam_vignette_correction_param_1af7ecf8fff01182c73899b34a030a7f94"></span><a class="reference internal" href="#_CPPv431mfxCamVignetteCorrectionElement" title="mfxCamVignetteCorrectionElement"><span class="n"><span class="pre">mfxCamVignetteCorrectionElement</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">R</span></span></span><a class="headerlink" href="#_CPPv4N29mfxCamVignetteCorrectionParam1RE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Red correction element. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N29mfxCamVignetteCorrectionParam2G0E">
+<span id="_CPPv3N29mfxCamVignetteCorrectionParam2G0E"></span><span id="_CPPv2N29mfxCamVignetteCorrectionParam2G0E"></span><span id="mfxCamVignetteCorrectionParam::G0__mfxCamVignetteCorrectionElement"></span><span class="target" id="structmfx_cam_vignette_correction_param_1abc42adb9e0bd57eb2fac9ae668553bac"></span><a class="reference internal" href="#_CPPv431mfxCamVignetteCorrectionElement" title="mfxCamVignetteCorrectionElement"><span class="n"><span class="pre">mfxCamVignetteCorrectionElement</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G0</span></span></span><a class="headerlink" href="#_CPPv4N29mfxCamVignetteCorrectionParam2G0E" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Green top correction element. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N29mfxCamVignetteCorrectionParam1BE">
+<span id="_CPPv3N29mfxCamVignetteCorrectionParam1BE"></span><span id="_CPPv2N29mfxCamVignetteCorrectionParam1BE"></span><span id="mfxCamVignetteCorrectionParam::B__mfxCamVignetteCorrectionElement"></span><span class="target" id="structmfx_cam_vignette_correction_param_1a598d5bb9825ed6d4cf9206871fe2573f"></span><a class="reference internal" href="#_CPPv431mfxCamVignetteCorrectionElement" title="mfxCamVignetteCorrectionElement"><span class="n"><span class="pre">mfxCamVignetteCorrectionElement</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">B</span></span></span><a class="headerlink" href="#_CPPv4N29mfxCamVignetteCorrectionParam1BE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Blue Correction element. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N29mfxCamVignetteCorrectionParam2G1E">
+<span id="_CPPv3N29mfxCamVignetteCorrectionParam2G1E"></span><span id="_CPPv2N29mfxCamVignetteCorrectionParam2G1E"></span><span id="mfxCamVignetteCorrectionParam::G1__mfxCamVignetteCorrectionElement"></span><span class="target" id="structmfx_cam_vignette_correction_param_1a1f8cc65fc17dc488335c7596d7d6bd5e"></span><a class="reference internal" href="#_CPPv431mfxCamVignetteCorrectionElement" title="mfxCamVignetteCorrectionElement"><span class="n"><span class="pre">mfxCamVignetteCorrectionElement</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G1</span></span></span><a class="headerlink" href="#_CPPv4N29mfxCamVignetteCorrectionParam2G1E" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Green bottom correction element. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N29mfxCamVignetteCorrectionParam8reservedE">
+<span id="_CPPv3N29mfxCamVignetteCorrectionParam8reservedE"></span><span id="_CPPv2N29mfxCamVignetteCorrectionParam8reservedE"></span><span id="mfxCamVignetteCorrectionParam::reserved__mfxU32A"></span><span class="target" id="structmfx_cam_vignette_correction_param_1ae07dc77ae987731718b89e481199775a"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU32" title="mfxU32"><span class="n"><span class="pre">mfxU32</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">reserved</span></span></span><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">4</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#_CPPv4N29mfxCamVignetteCorrectionParam8reservedE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Reserved for future extension. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+<section id="mfxextcamvignettecorrection">
+<h3><a class="toc-backref" href="#id8" role="doc-backlink">mfxExtCamVignetteCorrection</a><a class="headerlink" href="#mfxextcamvignettecorrection" title="Permalink to this heading">#</a></h3>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv427mfxExtCamVignetteCorrection">
+<span id="_CPPv327mfxExtCamVignetteCorrection"></span><span id="_CPPv227mfxExtCamVignetteCorrection"></span><span id="mfxExtCamVignetteCorrection"></span><span class="target" id="structmfx_ext_cam_vignette_correction"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mfxExtCamVignetteCorrection</span></span></span><a class="headerlink" href="#_CPPv427mfxExtCamVignetteCorrection" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>A hint structure that configures Camera Vignette Correction filter. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N27mfxExtCamVignetteCorrection6HeaderE">
+<span id="_CPPv3N27mfxExtCamVignetteCorrection6HeaderE"></span><span id="_CPPv2N27mfxExtCamVignetteCorrection6HeaderE"></span><span id="mfxExtCamVignetteCorrection::Header__mfxExtBuffer"></span><span class="target" id="structmfx_ext_cam_vignette_correction_1a3210f92a3d4e9d63bb27e9d62a21dcc8"></span><a class="reference internal" href="VPL_structs_type.html#_CPPv412mfxExtBuffer" title="mfxExtBuffer"><span class="n"><span class="pre">mfxExtBuffer</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Header</span></span></span><a class="headerlink" href="#_CPPv4N27mfxExtCamVignetteCorrection6HeaderE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Extension buffer header. Header.BufferId must be equal to MFX_EXTBUF_CAM_VIGNETTE_CORRECTION. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N27mfxExtCamVignetteCorrection5WidthE">
+<span id="_CPPv3N27mfxExtCamVignetteCorrection5WidthE"></span><span id="_CPPv2N27mfxExtCamVignetteCorrection5WidthE"></span><span id="mfxExtCamVignetteCorrection::Width__mfxU32"></span><span class="target" id="structmfx_ext_cam_vignette_correction_1ae756c1eb43ca9f7f33d41489d06177a5"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU32" title="mfxU32"><span class="n"><span class="pre">mfxU32</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Width</span></span></span><a class="headerlink" href="#_CPPv4N27mfxExtCamVignetteCorrection5WidthE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Width of Correction Map 2D buffer in <a class="reference internal" href="#structmfx_cam_vignette_correction_param"><span class="std std-ref">mfxCamVignetteCorrectionParam</span></a> elements. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N27mfxExtCamVignetteCorrection6HeightE">
+<span id="_CPPv3N27mfxExtCamVignetteCorrection6HeightE"></span><span id="_CPPv2N27mfxExtCamVignetteCorrection6HeightE"></span><span id="mfxExtCamVignetteCorrection::Height__mfxU32"></span><span class="target" id="structmfx_ext_cam_vignette_correction_1a7f78f1611564351b8ef36c48ad8ef4de"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU32" title="mfxU32"><span class="n"><span class="pre">mfxU32</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Height</span></span></span><a class="headerlink" href="#_CPPv4N27mfxExtCamVignetteCorrection6HeightE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Height of Correction Map 2D buffer in <a class="reference internal" href="#structmfx_cam_vignette_correction_param"><span class="std std-ref">mfxCamVignetteCorrectionParam</span></a> elements. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N27mfxExtCamVignetteCorrection5PitchE">
+<span id="_CPPv3N27mfxExtCamVignetteCorrection5PitchE"></span><span id="_CPPv2N27mfxExtCamVignetteCorrection5PitchE"></span><span id="mfxExtCamVignetteCorrection::Pitch__mfxU32"></span><span class="target" id="structmfx_ext_cam_vignette_correction_1a2bee4d693380b2400354a7d3fd3dbdd1"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU32" title="mfxU32"><span class="n"><span class="pre">mfxU32</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Pitch</span></span></span><a class="headerlink" href="#_CPPv4N27mfxExtCamVignetteCorrection5PitchE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Pitch of Correction Map 2D buffer in <a class="reference internal" href="#structmfx_cam_vignette_correction_param"><span class="std std-ref">mfxCamVignetteCorrectionParam</span></a> elements. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N27mfxExtCamVignetteCorrection8reservedE">
+<span id="_CPPv3N27mfxExtCamVignetteCorrection8reservedE"></span><span id="_CPPv2N27mfxExtCamVignetteCorrection8reservedE"></span><span id="mfxExtCamVignetteCorrection::reserved__mfxU32A"></span><span class="target" id="structmfx_ext_cam_vignette_correction_1aff2f99486776fdf3ff8c69cd7db69c1d"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU32" title="mfxU32"><span class="n"><span class="pre">mfxU32</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">reserved</span></span></span><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">7</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#_CPPv4N27mfxExtCamVignetteCorrection8reservedE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Reserved for future extension. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N27mfxExtCamVignetteCorrection13CorrectionMapE">
+<span id="_CPPv3N27mfxExtCamVignetteCorrection13CorrectionMapE"></span><span id="_CPPv2N27mfxExtCamVignetteCorrection13CorrectionMapE"></span><span id="mfxExtCamVignetteCorrection::CorrectionMap__mfxCamVignetteCorrectionParamP"></span><span class="target" id="structmfx_ext_cam_vignette_correction_1a256783f0d696e40ddf2ee02f3e2a70ef"></span><a class="reference internal" href="#_CPPv429mfxCamVignetteCorrectionParam" title="mfxCamVignetteCorrectionParam"><span class="n"><span class="pre">mfxCamVignetteCorrectionParam</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">CorrectionMap</span></span></span><a class="headerlink" href="#_CPPv4N27mfxExtCamVignetteCorrection13CorrectionMapE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>2D buffer of <a class="reference internal" href="#structmfx_cam_vignette_correction_param"><span class="std std-ref">mfxCamVignetteCorrectionParam</span></a> elements. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N27mfxExtCamVignetteCorrection9reserved1E">
+<span id="_CPPv3N27mfxExtCamVignetteCorrection9reserved1E"></span><span id="_CPPv2N27mfxExtCamVignetteCorrection9reserved1E"></span><span id="mfxExtCamVignetteCorrection::reserved1__mfxU64"></span><span class="target" id="structmfx_ext_cam_vignette_correction_1a733700da685ebd2a15c0a15dd7c64eb7"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU64" title="mfxU64"><span class="n"><span class="pre">mfxU64</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">reserved1</span></span></span><a class="headerlink" href="#_CPPv4N27mfxExtCamVignetteCorrection9reserved1E" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Reserved for alignment on 32bit and 64bit. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N27mfxExtCamVignetteCorrectionUt1_5E">
+<span id="_CPPv3N27mfxExtCamVignetteCorrectionUt1_5E"></span><span class="target" id="structmfx_ext_cam_vignette_correction_1a3a67710a45c5d28f5a508def8fdfa853"></span><span class="k"><span class="pre">union</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv427mfxExtCamVignetteCorrection" title="mfxExtCamVignetteCorrection"><span class="n"><span class="pre">mfxExtCamVignetteCorrection</span></span></a><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">[anonymous]</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">[anonymous]</span></span></span><a class="headerlink" href="#_CPPv4N27mfxExtCamVignetteCorrectionUt1_5E" title="Permalink to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+<section id="mfxextcambayerdenoise">
+<h3><a class="toc-backref" href="#id9" role="doc-backlink">mfxExtCamBayerDenoise</a><a class="headerlink" href="#mfxextcambayerdenoise" title="Permalink to this heading">#</a></h3>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv421mfxExtCamBayerDenoise">
+<span id="_CPPv321mfxExtCamBayerDenoise"></span><span id="_CPPv221mfxExtCamBayerDenoise"></span><span id="mfxExtCamBayerDenoise"></span><span class="target" id="structmfx_ext_cam_bayer_denoise"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mfxExtCamBayerDenoise</span></span></span><a class="headerlink" href="#_CPPv421mfxExtCamBayerDenoise" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>A hint structure that configures Camera Bayer denoise filter. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N21mfxExtCamBayerDenoise6HeaderE">
+<span id="_CPPv3N21mfxExtCamBayerDenoise6HeaderE"></span><span id="_CPPv2N21mfxExtCamBayerDenoise6HeaderE"></span><span id="mfxExtCamBayerDenoise::Header__mfxExtBuffer"></span><span class="target" id="structmfx_ext_cam_bayer_denoise_1a454f37d6b6d309e155e8408519b639e6"></span><a class="reference internal" href="VPL_structs_type.html#_CPPv412mfxExtBuffer" title="mfxExtBuffer"><span class="n"><span class="pre">mfxExtBuffer</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Header</span></span></span><a class="headerlink" href="#_CPPv4N21mfxExtCamBayerDenoise6HeaderE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Extension buffer header. Header.BufferId must be equal to MFX_EXTBUF_CAM_BAYER_DENOISE. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N21mfxExtCamBayerDenoise9ThresholdE">
+<span id="_CPPv3N21mfxExtCamBayerDenoise9ThresholdE"></span><span id="_CPPv2N21mfxExtCamBayerDenoise9ThresholdE"></span><span id="mfxExtCamBayerDenoise::Threshold__mfxU16"></span><span class="target" id="structmfx_ext_cam_bayer_denoise_1a0bcca0cef910f00b2064a9c9616f8784"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Threshold</span></span></span><a class="headerlink" href="#_CPPv4N21mfxExtCamBayerDenoise9ThresholdE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Level of denoise, legal values: [0:63]. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N21mfxExtCamBayerDenoise8reservedE">
+<span id="_CPPv3N21mfxExtCamBayerDenoise8reservedE"></span><span id="_CPPv2N21mfxExtCamBayerDenoise8reservedE"></span><span id="mfxExtCamBayerDenoise::reserved__mfxU16A"></span><span class="target" id="structmfx_ext_cam_bayer_denoise_1a1ea09f01bef4ba1b551447288fef151f"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">reserved</span></span></span><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">27</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#_CPPv4N21mfxExtCamBayerDenoise8reservedE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Reserved for future extension. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+<section id="mfxextcamcolorcorrection3x3">
+<h3><a class="toc-backref" href="#id10" role="doc-backlink">mfxExtCamColorCorrection3x3</a><a class="headerlink" href="#mfxextcamcolorcorrection3x3" title="Permalink to this heading">#</a></h3>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv427mfxExtCamColorCorrection3x3">
+<span id="_CPPv327mfxExtCamColorCorrection3x3"></span><span id="_CPPv227mfxExtCamColorCorrection3x3"></span><span id="mfxExtCamColorCorrection3x3"></span><span class="target" id="structmfx_ext_cam_color_correction3x3"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mfxExtCamColorCorrection3x3</span></span></span><a class="headerlink" href="#_CPPv427mfxExtCamColorCorrection3x3" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>A hint structure that configures Camera Color correction filter. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N27mfxExtCamColorCorrection3x36HeaderE">
+<span id="_CPPv3N27mfxExtCamColorCorrection3x36HeaderE"></span><span id="_CPPv2N27mfxExtCamColorCorrection3x36HeaderE"></span><span id="mfxExtCamColorCorrection3x3::Header__mfxExtBuffer"></span><span class="target" id="structmfx_ext_cam_color_correction3x3_1ac118aedc670599156a1425cb4dd92e15"></span><a class="reference internal" href="VPL_structs_type.html#_CPPv412mfxExtBuffer" title="mfxExtBuffer"><span class="n"><span class="pre">mfxExtBuffer</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Header</span></span></span><a class="headerlink" href="#_CPPv4N27mfxExtCamColorCorrection3x36HeaderE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Extension buffer header. Header.BufferId must be equal to MFX_EXTBUF_CAM_COLOR_CORRECTION_3X3. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N27mfxExtCamColorCorrection3x33CCME">
+<span id="_CPPv3N27mfxExtCamColorCorrection3x33CCME"></span><span id="_CPPv2N27mfxExtCamColorCorrection3x33CCME"></span><span id="mfxExtCamColorCorrection3x3::CCM__mfxF32AA"></span><span class="target" id="structmfx_ext_cam_color_correction3x3_1ab53010480472dbb0014deba8e83d50cf"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxF32" title="mfxF32"><span class="n"><span class="pre">mfxF32</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">CCM</span></span></span><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">3</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">3</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#_CPPv4N27mfxExtCamColorCorrection3x33CCME" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>3x3 dimension matrix providing RGB Color Correction coefficients. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N27mfxExtCamColorCorrection3x38reservedE">
+<span id="_CPPv3N27mfxExtCamColorCorrection3x38reservedE"></span><span id="_CPPv2N27mfxExtCamColorCorrection3x38reservedE"></span><span id="mfxExtCamColorCorrection3x3::reserved__mfxU32A"></span><span class="target" id="structmfx_ext_cam_color_correction3x3_1af203564020a8f8ed1117aa722e033a14"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU32" title="mfxU32"><span class="n"><span class="pre">mfxU32</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">reserved</span></span></span><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">32</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#_CPPv4N27mfxExtCamColorCorrection3x38reservedE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Reserved for future extension. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+<section id="mfxextcampadding">
+<h3><a class="toc-backref" href="#id11" role="doc-backlink">mfxExtCamPadding</a><a class="headerlink" href="#mfxextcampadding" title="Permalink to this heading">#</a></h3>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv416mfxExtCamPadding">
+<span id="_CPPv316mfxExtCamPadding"></span><span id="_CPPv216mfxExtCamPadding"></span><span id="mfxExtCamPadding"></span><span class="target" id="structmfx_ext_cam_padding"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mfxExtCamPadding</span></span></span><a class="headerlink" href="#_CPPv416mfxExtCamPadding" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>A hint structure that configures Camera Padding. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N16mfxExtCamPadding6HeaderE">
+<span id="_CPPv3N16mfxExtCamPadding6HeaderE"></span><span id="_CPPv2N16mfxExtCamPadding6HeaderE"></span><span id="mfxExtCamPadding::Header__mfxExtBuffer"></span><span class="target" id="structmfx_ext_cam_padding_1a9ca35d7951e29bf7cc00cf83dc040672"></span><a class="reference internal" href="VPL_structs_type.html#_CPPv412mfxExtBuffer" title="mfxExtBuffer"><span class="n"><span class="pre">mfxExtBuffer</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Header</span></span></span><a class="headerlink" href="#_CPPv4N16mfxExtCamPadding6HeaderE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Extension buffer header. Header.BufferId must be equal to MFX_EXTBUF_CAM_PADDING. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N16mfxExtCamPadding3TopE">
+<span id="_CPPv3N16mfxExtCamPadding3TopE"></span><span id="_CPPv2N16mfxExtCamPadding3TopE"></span><span id="mfxExtCamPadding::Top__mfxU16"></span><span class="target" id="structmfx_ext_cam_padding_1af84afb1cc7b90eaf60de9f0bbc5c75bf"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Top</span></span></span><a class="headerlink" href="#_CPPv4N16mfxExtCamPadding3TopE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Specify number of padded columns respectively. Currently only 8 pixels supported for all dimensions. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N16mfxExtCamPadding6BottomE">
+<span id="_CPPv3N16mfxExtCamPadding6BottomE"></span><span id="_CPPv2N16mfxExtCamPadding6BottomE"></span><span id="mfxExtCamPadding::Bottom__mfxU16"></span><span class="target" id="structmfx_ext_cam_padding_1ac6853d791d52b24124a6e27c3ca9249e"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Bottom</span></span></span><a class="headerlink" href="#_CPPv4N16mfxExtCamPadding6BottomE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Specify number of padded columns respectively. Currently only 8 pixels supported for all dimensions. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N16mfxExtCamPadding4LeftE">
+<span id="_CPPv3N16mfxExtCamPadding4LeftE"></span><span id="_CPPv2N16mfxExtCamPadding4LeftE"></span><span id="mfxExtCamPadding::Left__mfxU16"></span><span class="target" id="structmfx_ext_cam_padding_1a28ccaa192a606f3b9bf29c5fd8ff9e43"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Left</span></span></span><a class="headerlink" href="#_CPPv4N16mfxExtCamPadding4LeftE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Specify number of padded rows respectively. Currently only 8 pixels supported for all dimensions. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N16mfxExtCamPadding5RightE">
+<span id="_CPPv3N16mfxExtCamPadding5RightE"></span><span id="_CPPv2N16mfxExtCamPadding5RightE"></span><span id="mfxExtCamPadding::Right__mfxU16"></span><span class="target" id="structmfx_ext_cam_padding_1a30ec7370e00d3216e0070a5a44d5d36a"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Right</span></span></span><a class="headerlink" href="#_CPPv4N16mfxExtCamPadding5RightE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Specify number of padded rows respectively. Currently only 8 pixels supported for all dimensions. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N16mfxExtCamPadding8reservedE">
+<span id="_CPPv3N16mfxExtCamPadding8reservedE"></span><span id="_CPPv2N16mfxExtCamPadding8reservedE"></span><span id="mfxExtCamPadding::reserved__mfxU32A"></span><span class="target" id="structmfx_ext_cam_padding_1a214999760262418c264f79a36b68ddd8"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU32" title="mfxU32"><span class="n"><span class="pre">mfxU32</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">reserved</span></span></span><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">4</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#_CPPv4N16mfxExtCamPadding8reservedE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Reserved for future extension. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+<section id="mfxextcampipecontrol">
+<h3><a class="toc-backref" href="#id12" role="doc-backlink">mfxExtCamPipeControl</a><a class="headerlink" href="#mfxextcampipecontrol" title="Permalink to this heading">#</a></h3>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv420mfxExtCamPipeControl">
+<span id="_CPPv320mfxExtCamPipeControl"></span><span id="_CPPv220mfxExtCamPipeControl"></span><span id="mfxExtCamPipeControl"></span><span class="target" id="structmfx_ext_cam_pipe_control"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mfxExtCamPipeControl</span></span></span><a class="headerlink" href="#_CPPv420mfxExtCamPipeControl" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>A hint structure that configures camera pipe control. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N20mfxExtCamPipeControl6HeaderE">
+<span id="_CPPv3N20mfxExtCamPipeControl6HeaderE"></span><span id="_CPPv2N20mfxExtCamPipeControl6HeaderE"></span><span id="mfxExtCamPipeControl::Header__mfxExtBuffer"></span><span class="target" id="structmfx_ext_cam_pipe_control_1adee9dfae3f206cf995f52b3666ae764e"></span><a class="reference internal" href="VPL_structs_type.html#_CPPv412mfxExtBuffer" title="mfxExtBuffer"><span class="n"><span class="pre">mfxExtBuffer</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Header</span></span></span><a class="headerlink" href="#_CPPv4N20mfxExtCamPipeControl6HeaderE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Extension buffer header. Header.BufferId must be equal to MFX_EXTBUF_CAM_PIPECONTROL. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N20mfxExtCamPipeControl9RawFormatE">
+<span id="_CPPv3N20mfxExtCamPipeControl9RawFormatE"></span><span id="_CPPv2N20mfxExtCamPipeControl9RawFormatE"></span><span id="mfxExtCamPipeControl::RawFormat__mfxU16"></span><span class="target" id="structmfx_ext_cam_pipe_control_1afe05a3d8a14f5f6605995d032a05b714"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">RawFormat</span></span></span><a class="headerlink" href="#_CPPv4N20mfxExtCamPipeControl9RawFormatE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Specifies one of the four Bayer patterns defined in mfxCamBayerFormat enumeration. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N20mfxExtCamPipeControl9reserved1E">
+<span id="_CPPv3N20mfxExtCamPipeControl9reserved1E"></span><span id="_CPPv2N20mfxExtCamPipeControl9reserved1E"></span><span id="mfxExtCamPipeControl::reserved1__mfxU16"></span><span class="target" id="structmfx_ext_cam_pipe_control_1a1741dbe06f603b242c54545274f71b6e"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">reserved1</span></span></span><a class="headerlink" href="#_CPPv4N20mfxExtCamPipeControl9reserved1E" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Reserved for future extension. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N20mfxExtCamPipeControl8reservedE">
+<span id="_CPPv3N20mfxExtCamPipeControl8reservedE"></span><span id="_CPPv2N20mfxExtCamPipeControl8reservedE"></span><span id="mfxExtCamPipeControl::reserved__mfxU32A"></span><span class="target" id="structmfx_ext_cam_pipe_control_1a62ca5d6f1c6fccfbcbedd61a4be09802"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU32" title="mfxU32"><span class="n"><span class="pre">mfxU32</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">reserved</span></span></span><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">5</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#_CPPv4N20mfxExtCamPipeControl8reservedE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Reserved for future extension. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+<section id="mfxcamfwdgammasegment">
+<h3><a class="toc-backref" href="#id13" role="doc-backlink">mfxCamFwdGammaSegment</a><a class="headerlink" href="#mfxcamfwdgammasegment" title="Permalink to this heading">#</a></h3>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv421mfxCamFwdGammaSegment">
+<span id="_CPPv321mfxCamFwdGammaSegment"></span><span id="_CPPv221mfxCamFwdGammaSegment"></span><span id="mfxCamFwdGammaSegment"></span><span class="target" id="structmfx_cam_fwd_gamma_segment"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mfxCamFwdGammaSegment</span></span></span><a class="headerlink" href="#_CPPv421mfxCamFwdGammaSegment" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>A structure that specifies forward gamma segment. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N21mfxCamFwdGammaSegment5PixelE">
+<span id="_CPPv3N21mfxCamFwdGammaSegment5PixelE"></span><span id="_CPPv2N21mfxCamFwdGammaSegment5PixelE"></span><span id="mfxCamFwdGammaSegment::Pixel__mfxU16"></span><span class="target" id="structmfx_cam_fwd_gamma_segment_1ad0a55f6de5167f53461df55baf81cb76"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Pixel</span></span></span><a class="headerlink" href="#_CPPv4N21mfxCamFwdGammaSegment5PixelE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Pixel value. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N21mfxCamFwdGammaSegment3RedE">
+<span id="_CPPv3N21mfxCamFwdGammaSegment3RedE"></span><span id="_CPPv2N21mfxCamFwdGammaSegment3RedE"></span><span id="mfxCamFwdGammaSegment::Red__mfxU16"></span><span class="target" id="structmfx_cam_fwd_gamma_segment_1ab8880696c42cbf02450c5ffa4eee6710"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Red</span></span></span><a class="headerlink" href="#_CPPv4N21mfxCamFwdGammaSegment3RedE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Corrected Red value. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N21mfxCamFwdGammaSegment5GreenE">
+<span id="_CPPv3N21mfxCamFwdGammaSegment5GreenE"></span><span id="_CPPv2N21mfxCamFwdGammaSegment5GreenE"></span><span id="mfxCamFwdGammaSegment::Green__mfxU16"></span><span class="target" id="structmfx_cam_fwd_gamma_segment_1a5e1880f01f779de8ef39df7d75e35bc5"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Green</span></span></span><a class="headerlink" href="#_CPPv4N21mfxCamFwdGammaSegment5GreenE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Corrected Green value. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N21mfxCamFwdGammaSegment4BlueE">
+<span id="_CPPv3N21mfxCamFwdGammaSegment4BlueE"></span><span id="_CPPv2N21mfxCamFwdGammaSegment4BlueE"></span><span id="mfxCamFwdGammaSegment::Blue__mfxU16"></span><span class="target" id="structmfx_cam_fwd_gamma_segment_1a3774921304475d50ce29a23d40b68ec9"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Blue</span></span></span><a class="headerlink" href="#_CPPv4N21mfxCamFwdGammaSegment4BlueE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Corrected Blue value. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+<section id="mfxextcamfwdgamma">
+<h3><a class="toc-backref" href="#id14" role="doc-backlink">mfxExtCamFwdGamma</a><a class="headerlink" href="#mfxextcamfwdgamma" title="Permalink to this heading">#</a></h3>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv417mfxExtCamFwdGamma">
+<span id="_CPPv317mfxExtCamFwdGamma"></span><span id="_CPPv217mfxExtCamFwdGamma"></span><span id="mfxExtCamFwdGamma"></span><span class="target" id="structmfx_ext_cam_fwd_gamma"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mfxExtCamFwdGamma</span></span></span><a class="headerlink" href="#_CPPv417mfxExtCamFwdGamma" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>A hint structure that configures Camera Forward Gamma Correction filter. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N17mfxExtCamFwdGamma6HeaderE">
+<span id="_CPPv3N17mfxExtCamFwdGamma6HeaderE"></span><span id="_CPPv2N17mfxExtCamFwdGamma6HeaderE"></span><span id="mfxExtCamFwdGamma::Header__mfxExtBuffer"></span><span class="target" id="structmfx_ext_cam_fwd_gamma_1a1d69b575f05bec5bb7dfe90296525c90"></span><a class="reference internal" href="VPL_structs_type.html#_CPPv412mfxExtBuffer" title="mfxExtBuffer"><span class="n"><span class="pre">mfxExtBuffer</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Header</span></span></span><a class="headerlink" href="#_CPPv4N17mfxExtCamFwdGamma6HeaderE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Extension buffer header. Header.BufferId must be equal to MFX_EXTBUF_CAM_FORWARD_GAMMA_CORRECTION. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N17mfxExtCamFwdGamma8reservedE">
+<span id="_CPPv3N17mfxExtCamFwdGamma8reservedE"></span><span id="_CPPv2N17mfxExtCamFwdGamma8reservedE"></span><span id="mfxExtCamFwdGamma::reserved__mfxU16A"></span><span class="target" id="structmfx_ext_cam_fwd_gamma_1aa4adc934b94e52bb2fe9bbc21a835bce"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">reserved</span></span></span><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">19</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#_CPPv4N17mfxExtCamFwdGamma8reservedE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Reserved for future extension. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N17mfxExtCamFwdGamma11NumSegmentsE">
+<span id="_CPPv3N17mfxExtCamFwdGamma11NumSegmentsE"></span><span id="_CPPv2N17mfxExtCamFwdGamma11NumSegmentsE"></span><span id="mfxExtCamFwdGamma::NumSegments__mfxU16"></span><span class="target" id="structmfx_ext_cam_fwd_gamma_1a70accd3eb23a1f6001b7ab0c45e6e713"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">NumSegments</span></span></span><a class="headerlink" href="#_CPPv4N17mfxExtCamFwdGamma11NumSegmentsE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Number of Gamma segments. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N17mfxExtCamFwdGamma7SegmentE">
+<span id="_CPPv3N17mfxExtCamFwdGamma7SegmentE"></span><span id="_CPPv2N17mfxExtCamFwdGamma7SegmentE"></span><span id="mfxExtCamFwdGamma::Segment__mfxCamFwdGammaSegmentP"></span><span class="target" id="structmfx_ext_cam_fwd_gamma_1abb759068090dd7dc2e44c931443c6b3c"></span><a class="reference internal" href="#_CPPv421mfxCamFwdGammaSegment" title="mfxCamFwdGammaSegment"><span class="n"><span class="pre">mfxCamFwdGammaSegment</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">Segment</span></span></span><a class="headerlink" href="#_CPPv4N17mfxExtCamFwdGamma7SegmentE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Pointer to Gamma segments array. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N17mfxExtCamFwdGamma9reserved1E">
+<span id="_CPPv3N17mfxExtCamFwdGamma9reserved1E"></span><span id="_CPPv2N17mfxExtCamFwdGamma9reserved1E"></span><span id="mfxExtCamFwdGamma::reserved1__mfxU64"></span><span class="target" id="structmfx_ext_cam_fwd_gamma_1a8b6f8a3d9ea533e1a1610725f2f4b370"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU64" title="mfxU64"><span class="n"><span class="pre">mfxU64</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">reserved1</span></span></span><a class="headerlink" href="#_CPPv4N17mfxExtCamFwdGamma9reserved1E" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Reserved for future extension. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+<section id="mfxextcamlensgeomdistcorrection">
+<h3><a class="toc-backref" href="#id15" role="doc-backlink">mfxExtCamLensGeomDistCorrection</a><a class="headerlink" href="#mfxextcamlensgeomdistcorrection" title="Permalink to this heading">#</a></h3>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv431mfxExtCamLensGeomDistCorrection">
+<span id="_CPPv331mfxExtCamLensGeomDistCorrection"></span><span id="_CPPv231mfxExtCamLensGeomDistCorrection"></span><span id="mfxExtCamLensGeomDistCorrection"></span><span class="target" id="structmfx_ext_cam_lens_geom_dist_correction"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mfxExtCamLensGeomDistCorrection</span></span></span><a class="headerlink" href="#_CPPv431mfxExtCamLensGeomDistCorrection" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>A hint structure that configures Camera Lens Geometry Distortion and Chroma Aberration Correction filter. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N31mfxExtCamLensGeomDistCorrection6HeaderE">
+<span id="_CPPv3N31mfxExtCamLensGeomDistCorrection6HeaderE"></span><span id="_CPPv2N31mfxExtCamLensGeomDistCorrection6HeaderE"></span><span id="mfxExtCamLensGeomDistCorrection::Header__mfxExtBuffer"></span><span class="target" id="structmfx_ext_cam_lens_geom_dist_correction_1ad81f49a0c8e964d923f0c9368c64f16a"></span><a class="reference internal" href="VPL_structs_type.html#_CPPv412mfxExtBuffer" title="mfxExtBuffer"><span class="n"><span class="pre">mfxExtBuffer</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Header</span></span></span><a class="headerlink" href="#_CPPv4N31mfxExtCamLensGeomDistCorrection6HeaderE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Extension buffer header. Header.BufferId must be equal to MFX_EXTBUF_CAM_LENS_GEOM_DIST_CORRECTION. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N31mfxExtCamLensGeomDistCorrection1aE">
+<span id="_CPPv3N31mfxExtCamLensGeomDistCorrection1aE"></span><span id="_CPPv2N31mfxExtCamLensGeomDistCorrection1aE"></span><span id="mfxExtCamLensGeomDistCorrection::a__mfxF32A"></span><span class="target" id="structmfx_ext_cam_lens_geom_dist_correction_1af961d058388db42984cd4c98a4bdc360"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxF32" title="mfxF32"><span class="n"><span class="pre">mfxF32</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">a</span></span></span><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">3</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#_CPPv4N31mfxExtCamLensGeomDistCorrection1aE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Polynomial coefficients a for R/G/B </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N31mfxExtCamLensGeomDistCorrection1bE">
+<span id="_CPPv3N31mfxExtCamLensGeomDistCorrection1bE"></span><span id="_CPPv2N31mfxExtCamLensGeomDistCorrection1bE"></span><span id="mfxExtCamLensGeomDistCorrection::b__mfxF32A"></span><span class="target" id="structmfx_ext_cam_lens_geom_dist_correction_1ae782a57061ffb58327686360b0787f98"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxF32" title="mfxF32"><span class="n"><span class="pre">mfxF32</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">b</span></span></span><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">3</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#_CPPv4N31mfxExtCamLensGeomDistCorrection1bE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Polynomial coefficients b for R/G/B </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N31mfxExtCamLensGeomDistCorrection1cE">
+<span id="_CPPv3N31mfxExtCamLensGeomDistCorrection1cE"></span><span id="_CPPv2N31mfxExtCamLensGeomDistCorrection1cE"></span><span id="mfxExtCamLensGeomDistCorrection::c__mfxF32A"></span><span class="target" id="structmfx_ext_cam_lens_geom_dist_correction_1a9bd7626eb42473092189257dc28a2fc1"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxF32" title="mfxF32"><span class="n"><span class="pre">mfxF32</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">c</span></span></span><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">3</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#_CPPv4N31mfxExtCamLensGeomDistCorrection1cE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Polynomial coefficients c for R/G/B </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N31mfxExtCamLensGeomDistCorrection1dE">
+<span id="_CPPv3N31mfxExtCamLensGeomDistCorrection1dE"></span><span id="_CPPv2N31mfxExtCamLensGeomDistCorrection1dE"></span><span id="mfxExtCamLensGeomDistCorrection::d__mfxF32A"></span><span class="target" id="structmfx_ext_cam_lens_geom_dist_correction_1a8a5fa018a8171f93f90e89212cd3c229"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxF32" title="mfxF32"><span class="n"><span class="pre">mfxF32</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">d</span></span></span><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">3</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#_CPPv4N31mfxExtCamLensGeomDistCorrection1dE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Polynomial coefficients d for R/G/B </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N31mfxExtCamLensGeomDistCorrection8reservedE">
+<span id="_CPPv3N31mfxExtCamLensGeomDistCorrection8reservedE"></span><span id="_CPPv2N31mfxExtCamLensGeomDistCorrection8reservedE"></span><span id="mfxExtCamLensGeomDistCorrection::reserved__mfxU16A"></span><span class="target" id="structmfx_ext_cam_lens_geom_dist_correction_1a667154d359828114e661e79ef86d215b"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">reserved</span></span></span><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">36</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#_CPPv4N31mfxExtCamLensGeomDistCorrection8reservedE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Reserved for future extension. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+<section id="mfxcam3dlutentry">
+<h3><a class="toc-backref" href="#id16" role="doc-backlink">mfxCam3DLutEntry</a><a class="headerlink" href="#mfxcam3dlutentry" title="Permalink to this heading">#</a></h3>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv416mfxCam3DLutEntry">
+<span id="_CPPv316mfxCam3DLutEntry"></span><span id="_CPPv216mfxCam3DLutEntry"></span><span id="mfxCam3DLutEntry"></span><span class="target" id="structmfx_cam3_d_lut_entry"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mfxCam3DLutEntry</span></span></span><a class="headerlink" href="#_CPPv416mfxCam3DLutEntry" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>A structure that defines 3DLUT entry. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N16mfxCam3DLutEntry1RE">
+<span id="_CPPv3N16mfxCam3DLutEntry1RE"></span><span id="_CPPv2N16mfxCam3DLutEntry1RE"></span><span id="mfxCam3DLutEntry::R__mfxU16"></span><span class="target" id="structmfx_cam3_d_lut_entry_1a21ad7068097a83693bfe233b8f5012a4"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">R</span></span></span><a class="headerlink" href="#_CPPv4N16mfxCam3DLutEntry1RE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>R channel </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N16mfxCam3DLutEntry1GE">
+<span id="_CPPv3N16mfxCam3DLutEntry1GE"></span><span id="_CPPv2N16mfxCam3DLutEntry1GE"></span><span id="mfxCam3DLutEntry::G__mfxU16"></span><span class="target" id="structmfx_cam3_d_lut_entry_1a66f73042105a43758e9b5fbe29722193"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">G</span></span></span><a class="headerlink" href="#_CPPv4N16mfxCam3DLutEntry1GE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>G channel </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N16mfxCam3DLutEntry1BE">
+<span id="_CPPv3N16mfxCam3DLutEntry1BE"></span><span id="_CPPv2N16mfxCam3DLutEntry1BE"></span><span id="mfxCam3DLutEntry::B__mfxU16"></span><span class="target" id="structmfx_cam3_d_lut_entry_1af5203303415dd5d3317f180570a5f393"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">B</span></span></span><a class="headerlink" href="#_CPPv4N16mfxCam3DLutEntry1BE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>B channel </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N16mfxCam3DLutEntry8ReservedE">
+<span id="_CPPv3N16mfxCam3DLutEntry8ReservedE"></span><span id="_CPPv2N16mfxCam3DLutEntry8ReservedE"></span><span id="mfxCam3DLutEntry::Reserved__mfxU16"></span><span class="target" id="structmfx_cam3_d_lut_entry_1a7cc50feacffb34f0911eb959c41b8a13"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Reserved</span></span></span><a class="headerlink" href="#_CPPv4N16mfxCam3DLutEntry8ReservedE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Reserved for future extension. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+<section id="mfxextcam3dlut">
+<h3><a class="toc-backref" href="#id17" role="doc-backlink">mfxExtCam3DLut</a><a class="headerlink" href="#mfxextcam3dlut" title="Permalink to this heading">#</a></h3>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv414mfxExtCam3DLut">
+<span id="_CPPv314mfxExtCam3DLut"></span><span id="_CPPv214mfxExtCam3DLut"></span><span id="mfxExtCam3DLut"></span><span class="target" id="structmfx_ext_cam3_d_lut"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mfxExtCam3DLut</span></span></span><a class="headerlink" href="#_CPPv414mfxExtCam3DLut" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>A hint structure that configures Camera 3DLUT filter. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N14mfxExtCam3DLut6HeaderE">
+<span id="_CPPv3N14mfxExtCam3DLut6HeaderE"></span><span id="_CPPv2N14mfxExtCam3DLut6HeaderE"></span><span id="mfxExtCam3DLut::Header__mfxExtBuffer"></span><span class="target" id="structmfx_ext_cam3_d_lut_1a778ab119f9cb18c993737535ef6ee6f6"></span><a class="reference internal" href="VPL_structs_type.html#_CPPv412mfxExtBuffer" title="mfxExtBuffer"><span class="n"><span class="pre">mfxExtBuffer</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Header</span></span></span><a class="headerlink" href="#_CPPv4N14mfxExtCam3DLut6HeaderE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Extension buffer header. Header.BufferId must be equal to MFX_EXTBUF_CAM_3DLUT. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N14mfxExtCam3DLut8reservedE">
+<span id="_CPPv3N14mfxExtCam3DLut8reservedE"></span><span id="_CPPv2N14mfxExtCam3DLut8reservedE"></span><span id="mfxExtCam3DLut::reserved__mfxU16A"></span><span class="target" id="structmfx_ext_cam3_d_lut_1a4e88eedbe5f51630a10f71e73d40514e"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">reserved</span></span></span><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">10</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#_CPPv4N14mfxExtCam3DLut8reservedE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Reserved for future extension. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N14mfxExtCam3DLut4SizeE">
+<span id="_CPPv3N14mfxExtCam3DLut4SizeE"></span><span id="_CPPv2N14mfxExtCam3DLut4SizeE"></span><span id="mfxExtCam3DLut::Size__mfxU32"></span><span class="target" id="structmfx_ext_cam3_d_lut_1a69885400bc452ee3462809e5583f89b1"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU32" title="mfxU32"><span class="n"><span class="pre">mfxU32</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Size</span></span></span><a class="headerlink" href="#_CPPv4N14mfxExtCam3DLut4SizeE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>LUT size, defined in MFX_CAM_3DLUT17/33/65_SIZE enumeration. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N14mfxExtCam3DLut5TableE">
+<span id="_CPPv3N14mfxExtCam3DLut5TableE"></span><span id="_CPPv2N14mfxExtCam3DLut5TableE"></span><span id="mfxExtCam3DLut::Table__mfxCam3DLutEntryP"></span><span class="target" id="structmfx_ext_cam3_d_lut_1a2a2fda1c5b219dbe9ab2c4254a86ff59"></span><a class="reference internal" href="#_CPPv416mfxCam3DLutEntry" title="mfxCam3DLutEntry"><span class="n"><span class="pre">mfxCam3DLutEntry</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">Table</span></span></span><a class="headerlink" href="#_CPPv4N14mfxExtCam3DLut5TableE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Pointer to <a class="reference internal" href="#structmfx_cam3_d_lut_entry"><span class="std std-ref">mfxCam3DLutEntry</span></a>, size of each dimension depends on LUT size, e.g. LUT[17][17][17] for 17x17x17 look up table. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N14mfxExtCam3DLut9reserved1E">
+<span id="_CPPv3N14mfxExtCam3DLut9reserved1E"></span><span id="_CPPv2N14mfxExtCam3DLut9reserved1E"></span><span id="mfxExtCam3DLut::reserved1__mfxU64"></span><span class="target" id="structmfx_ext_cam3_d_lut_1adc36a8ee0ba49d0575c1507f475f214f"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU64" title="mfxU64"><span class="n"><span class="pre">mfxU64</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">reserved1</span></span></span><a class="headerlink" href="#_CPPv4N14mfxExtCam3DLut9reserved1E" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Reserved for future extension. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="VPL_structs_decode_vpp.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">DECODE_VPP Structures</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="VPL_enums.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Enumerator Reference</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxextcamwhitebalance">mfxExtCamWhiteBalance</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxextcamtotalcolorcontrol">mfxExtCamTotalColorControl</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxextcamcscyuvrgb">mfxExtCamCscYuvRgb</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxextcamhotpixelremoval">mfxExtCamHotPixelRemoval</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxextcamblacklevelcorrection">mfxExtCamBlackLevelCorrection</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxcamvignettecorrectionelement">mfxCamVignetteCorrectionElement</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxcamvignettecorrectionparam">mfxCamVignetteCorrectionParam</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxextcamvignettecorrection">mfxExtCamVignetteCorrection</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxextcambayerdenoise">mfxExtCamBayerDenoise</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxextcamcolorcorrection3x3">mfxExtCamColorCorrection3x3</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxextcampadding">mfxExtCamPadding</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxextcampipecontrol">mfxExtCamPipeControl</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxcamfwdgammasegment">mfxCamFwdGammaSegment</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxextcamfwdgamma">mfxExtCamFwdGamma</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxextcamlensgeomdistcorrection">mfxExtCamLensGeomDistCorrection</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxcam3dlutentry">mfxCam3DLutEntry</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxextcam3dlut">mfxExtCam3DLut</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023, Intel.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=5b4479735964841361fd"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
