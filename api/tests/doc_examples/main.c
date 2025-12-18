@@ -12,6 +12,6 @@ int main(int argc, char* argv[])
     UNUSED_PARAM(argc);
     UNUSED_PARAM(argv);
 
-    printf("I don't supposed to be executed!\n");
+    printf("I'm not supposed to be executed!\n");
     return 0;
 }
