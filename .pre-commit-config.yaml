@@ -13,6 +13,8 @@ repos:
     rev: v5.0.0
     hooks:
       - id: check-yaml
+        additional_dependencies:
+          - "ruamel.yaml==0.18.7"
   - repo: https://github.com/google/yapf
     rev: v0.40.2
     hooks:
