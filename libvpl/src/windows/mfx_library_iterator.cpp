@@ -619,9 +619,13 @@ mfxStatus MFXLibraryIterator::GetRegkeyDir(std::wstring &regDir, size_t length, 
     mfxStatus sts = MFX_ERR_UNSUPPORTED;
     MFX::MFXLibraryIterator libIterator;
     wchar_t wRegDir[MFX_MAX_DLL_PATH];
+    int adapterNum = 0;
 
     regDir.clear();
-    sts = libIterator.Init(MFX_LIB_HARDWARE, MFX_IMPL_VIA_D3D11, 0, storageID);
+    do {
+        sts = libIterator.Init(MFX_LIB_HARDWARE, MFX_IMPL_VIA_D3D11, adapterNum, storageID);
+        adapterNum++;
+    } while (sts == MFX_ERR_NONE && !libIterator.isIntelAdapter());
     if (sts)
         return MFX_ERR_UNSUPPORTED;
 
