@@ -229,7 +229,7 @@ struct value_converter<VType, typename std::enable_if<std::is_unsigned<VType>::v
         }
 
         // error if input was out of range
-        if (converted_value > std::numeric_limits<VType>::max()) {
+        if (sizeof(VType) < sizeof(uint64_t) && converted_value > std::numeric_limits<VType>::max()) {
             return MFX_ERR_UNSUPPORTED;
         }
         if (converted_value < std::numeric_limits<VType>::lowest()) {
@@ -327,9 +327,6 @@ mfxStatus ConvertStrToFourCC(std::string value, mfxU32 &t) {
             return MFX_ERR_UNSUPPORTED;
         }
     }
-    // error if input was out of range
-    if (converted_value > std::numeric_limits<mfxU32>::max())
-        return MFX_ERR_UNSUPPORTED;
     t = static_cast<mfxU32>(converted_value);
     return MFX_ERR_NONE;
 }
