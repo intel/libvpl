@@ -8,6 +8,9 @@
 
 #include "src/caps.h"
 
+// leave table formatting alone
+// clang-format off
+
 const mfxU32 vppFormatOut_f00_m00_i00[] = {
     MFX_FOURCC_I420,
     MFX_FOURCC_RGB4,
@@ -111,3 +114,6 @@ const mfxVPPDescription vppDesc = {
     2,
     (VPPFilter *)vppFilter,
 };
+
+// end table formatting
+// clang-format on
