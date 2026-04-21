@@ -20,6 +20,6 @@ sphinxcontrib-spelling
 sphinxcontrib-svg2pdfconverter
 sphinxmark
 graphviz
-lxml==4.9.4
+lxml==6.1.0
 sphinxcontrib.plantuml
 
