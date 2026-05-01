@@ -17,10 +17,6 @@ on:
         required: false
         default: ''
         type: string
-  # Run on schedule
-  schedule:
-    # daily at 8:00 UTC (1:00 MST)
-    - cron: '0 8 * * *'
 
 concurrency:
   # Cancel any existing jobs related to the target branch
