@@ -166,7 +166,7 @@ mfxStatus LoaderCtxVPL::SearchDirForLibs(STRING_TYPE searchDir,
 #if defined(_WIN32) || defined(_WIN64)
     HANDLE hTestFile = nullptr;
     WIN32_FIND_DATAW testFileData;
-    DWORD err;
+    DWORD ret;
     STRING_TYPE testFileName[NUM_LIB_PREFIXES] = {
         searchDir + MAKE_STRING("/libvpl*.dll"),
     #if defined _M_IX86
@@ -203,12 +203,12 @@ mfxStatus LoaderCtxVPL::SearchDirForLibs(STRING_TYPE searchDir,
                 testFileFull += MAKE_STRING("/");
                 testFileFull += testFileData.cFileName;
 
-                err = GetFullPathNameW(testFileFull.c_str(),
+                ret = GetFullPathNameW(testFileFull.c_str(),
                                        MAX_VPL_SEARCH_PATH,
                                        libNameFull,
                                        &libNameBase);
                 // unknown error - skip it and move on to next file
-                if (!err)
+                if (!ret || ret > MAX_VPL_SEARCH_PATH)
                     continue;
 
                 // skip duplicates
