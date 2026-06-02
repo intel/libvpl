@@ -471,4 +471,27 @@ TEST(Dispatcher_LowLatency, Get_ImplDesc_WithPropQuery_AfterSession) {
     CleanupOutputLog();
 }
 
+TEST(Dispatcher_LowLatency, Release_Invalid_ImplDesc) {
+    SKIP_IF_DISP_GPU_DISABLED();
+
+    mfxLoader loader = MFXLoad();
+    EXPECT_FALSE(loader == nullptr);
+
+    mfxStatus sts = EnableLowLatency(loader, LL_SINGLE_CONFIG, LL_CONFIG_ONLY);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+
+    mfxSession session = nullptr;
+    sts                = MFXCreateSession(loader, 0, &session);
+    EXPECT_EQ(sts, MFX_ERR_NONE);
+    EXPECT_NE(session, nullptr);
+
+    // try to release a non-null but empty description struct
+    mfxImplDescription desc = {};
+    sts                     = MFXDispReleaseImplDescription(loader, &desc);
+    EXPECT_EQ(sts, MFX_ERR_INVALID_HANDLE);
+
+    MFXClose(session);
+    MFXUnload(loader);
+}
+
 #endif

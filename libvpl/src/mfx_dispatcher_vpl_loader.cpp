@@ -1408,10 +1408,6 @@ mfxStatus LoaderCtxVPL::ReleaseImpl(mfxHDL idesc) {
         ImplInfo *implInfo                   = (*it);
         mfxImplCapsDeliveryFormat capsFormat = (mfxImplCapsDeliveryFormat)0; // unknown format
 
-        // in low latency mode implDesc will be empty
-        if (implInfo->implDesc == nullptr)
-            continue;
-
         // determine type of descriptor so we know which handle to
         //   invalidate in the Loader context
         if (implInfo->implDesc == idesc) {
