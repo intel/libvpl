@@ -79,8 +79,25 @@ jobs:
           EOL
           chmod +x action.sh
 
+          # sscb process returns the number of issues found (>=0)
+          #   or -1 (which becomes 255)
+          #  if there was some other error during the scan
+          # we disable immediate exit on non-zero return codes, because the next
+          #   step will filter dispositioned issues
+          set +e
           docker run --rm -v $PWD:/work -w /work vpl_sscb:ubuntu \
                  /work/action.sh
+          EXIT_CODE=$?
+          set -e
+
+          echo "Exit code = ${EXIT_CODE}."
+          if [ $EXIT_CODE -ne 255 ]; then
+            echo "Continuing to next step - filter dispositioned issues"
+            exit 0
+          else
+            echo "Existing - sscb run failed"
+            exit $EXIT_CODE
+          fi
 
       - name: Run SSCB Scan (Windows)
         if: success() && runner.os == 'Windows'
@@ -89,7 +106,19 @@ jobs:
           venv\Scripts\activate
           py -m pip install --upgrade pip
           py -m pip install ${{ vars.COMPILER_SETTINGS_TOOL_URL }} --use-pep517
+
+          # see comment in previous step regarding handling of exit codes
           sscb run --path "_install" --outpath "_logs" --report_name Windows
+          $EXIT_CODE = $LASTEXITCODE
+
+          echo "Exit code = ${EXIT_CODE}."
+          if ($EXIT_CODE -ne 255) {
+            echo "Continuing to next step - filter dispositioned issues"
+            exit 0
+          } else {
+            echo "Existing - sscb run failed"
+            exit $EXIT_CODE
+          }
 
       - name: Filter dispositioned issues (Linux)
         if: success() && runner.os == 'Linux'
@@ -100,7 +129,7 @@ jobs:
           echo "$output"
           if [[ "$output" == "Fail" ]]; then
             echo "Failure detected."
-          exit 1
+            exit 1
           else
             echo "No failure detected."
           fi
