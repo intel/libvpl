@@ -1283,6 +1283,7 @@ mfxStatus UpdateSingleExtBuf(const std::string& param, const std::string& value,
     UPDATE_VIDEO_PARAM_ARRAY_OF_STRUCT(eb, param, value, SystemBuffer.Channel[].Size, SystemBuffer.Channel, 3, Size);
     UPDATE_VIDEO_PARAM_VALUE(eb, param, value, VideoBuffer.DataType, VideoBuffer.DataType);
     UPDATE_VIDEO_PARAM_VALUE(eb, param, value, VideoBuffer.MemLayout, VideoBuffer.MemLayout);
+    UPDATE_VIDEO_PARAM_VALUE(eb, param, value, InterpolationMethod, InterpolationMethod);
 
     return MFX_ERR_INVALID_VIDEO_PARAM;
 }

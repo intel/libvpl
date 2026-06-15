@@ -19,7 +19,7 @@
 #include "vpl/mfx.h"
 
 #define MIN_VERSION_EXPECTED_MAJOR 2
-#define MIN_VERSION_EXPECTED_MINOR 13
+#define MIN_VERSION_EXPECTED_MINOR 17
 
 TEST(Experimental_API, CheckMinimumAPI) {
     if ((MFX_VERSION_MAJOR < MIN_VERSION_EXPECTED_MAJOR) ||
@@ -275,4 +275,19 @@ TEST(Experimental_API, PromotedEnumsAvailable_2_13) {
     mfxExtAlphaChannelSurface t_mfxExtAlphaChannelSurface;
     t_mfxExtAlphaChannelSurface.AlphaSurface = (mfxFrameSurface1 *)0x1515;
     EXPECT_EQ(t_mfxExtAlphaChannelSurface.AlphaSurface, (mfxFrameSurface1 *)0x1515);
+}
+
+// if unavailable in headers, this should fail at compile time
+TEST(Experimental_API, PromotedEnumsAvailable_2_17) {
+    // mfxstructures.h - new enums
+    mfx3DLutInterpolationMethod t_mfx3DLutInterpolationMethod = (mfx3DLutInterpolationMethod)0x1313;
+
+    t_mfx3DLutInterpolationMethod = MFX_3DLUT_INTERPOLATION_DEFAULT;
+    EXPECT_EQ(t_mfx3DLutInterpolationMethod, MFX_3DLUT_INTERPOLATION_DEFAULT);
+
+    t_mfx3DLutInterpolationMethod = MFX_3DLUT_INTERPOLATION_TRILINEAR;
+    EXPECT_EQ(t_mfx3DLutInterpolationMethod, MFX_3DLUT_INTERPOLATION_TRILINEAR);
+
+    t_mfx3DLutInterpolationMethod = MFX_3DLUT_INTERPOLATION_TETRAHEDRAL;
+    EXPECT_EQ(t_mfx3DLutInterpolationMethod, MFX_3DLUT_INTERPOLATION_TETRAHEDRAL);
 }
