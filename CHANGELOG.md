@@ -15,6 +15,13 @@ cases.
 > Intel® VPL Tools are no longer in this repository. They have all been moved to
 > https://github.com/intel/libvpl-tools
 
+## [Unreleased]
+
+### Added
+- Intel® VPL API 2.17 support, including new APIs for reporting decoder
+  capabilities, accessing bitstream buffers in video memory, configuring
+  encoder pre-processing, and documentation updates
+
 ## [2.16.0] - 2025-12-08
 
 ### Added
