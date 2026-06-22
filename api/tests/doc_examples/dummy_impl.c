@@ -223,7 +223,7 @@ mfxStatus MFX_CDECL MFXVideoDECODE_Query(mfxSession session, mfxVideoParam *in, 
     UNUSED_PARAM(out);
     return MFX_ERR_NONE;
 }
-   
+
 mfxStatus MFX_CDECL MFXVideoDECODE_DecodeHeader(mfxSession session, mfxBitstream *bs, mfxVideoParam *par)
 {
     UNUSED_PARAM(session);
@@ -298,7 +298,7 @@ mfxStatus MFX_CDECL MFXVideoDECODE_DecodeFrameAsync(mfxSession session, mfxBitst
     UNUSED_PARAM(syncp);
     return MFX_ERR_NONE;
 }
- 
+
 mfxStatus MFX_CDECL MFXVideoVPP_Query(mfxSession session, mfxVideoParam *in, mfxVideoParam *out)
 {
     UNUSED_PARAM(session);

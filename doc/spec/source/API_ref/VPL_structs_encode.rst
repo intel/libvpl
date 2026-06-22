@@ -557,3 +557,11 @@ mfxExtAIEncCtrl
    :project: DEF_BREATHE_PROJECT
    :members:
    :protected-members:
+
+mfxExtEncPreProcessing
+----------------------
+
+.. doxygenstruct:: mfxExtEncPreProcessing
+   :project: DEF_BREATHE_PROJECT
+   :members:
+   :protected-members:

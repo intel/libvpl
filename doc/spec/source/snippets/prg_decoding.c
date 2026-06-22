@@ -6,6 +6,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 #include "mfxdefs.h"
 #include "mfxvideo.h"
@@ -16,12 +17,14 @@
 #define UNUSED_PARAM(x) (void)(x)
 
 mfxSession session;
-mfxBitstream *bitstream, *bits;
+mfxBitstream *bitstream, *bits, *bitstream_smem, *bitstream_vmem;
 mfxVideoParam init_param, param;
 mfxFrameAllocRequest request;
 mfxStatus sts;
 mfxFrameSurface1* work, *disp;
 mfxSyncPoint syncp;
+mfxU32 desired_fourcc;
+mfxU16 desired_downscale_ratioh, desired_downscale_ratiow;
 
 // Define a structure to encapsulate both the linked list node and the size of the list
 typedef struct SyncPointList {
@@ -73,6 +76,12 @@ void pop_sync_point(SyncPointList* list) {
 static void allocate_pool_of_frame_surfaces(int nFrames)
 {
     UNUSED_PARAM(nFrames);
+    return;
+}
+
+static void allocate_surface_pool(mfxFrameAllocRequest* request)
+{
+    UNUSED_PARAM(request);
     return;
 }
 
@@ -316,4 +325,197 @@ for (;;) {
 /* close decoder */
 MFXVideoDECODE_Close(session);
 /*end7*/
+}
+
+/*beg8*/
+static mfxBitstream* get_bitstream_buffer(mfxMemoryInterface *memoryInterface)
+{
+    if (memoryInterface && memoryInterface->GetBitstreamBuffer && memoryInterface->GetBitstreamBuffer(memoryInterface, bitstream_vmem) == MFX_ERR_NONE)
+    {
+        //bitstream buffer in video memory will be allocated and update to bitstream_vmem.
+        //MFX_BITSTREAM_IN_VIDEO_MEMORY bit of bitstream_vmem->DataFlag will be set by runtime.
+        //MFX_BITSTREAM_COMPLETE_FRAME should be set by App. App should be aware about this requirement.
+        //This will achieve optimal performance for the supported-codec.
+        bitstream_vmem->DataFlag |= MFX_BITSTREAM_COMPLETE_FRAME;
+        return bitstream_vmem;
+    }
+    else
+        return bitstream_smem; //fallback to system memory if video memory is not supported, managed by App.
+}
+/*end8*/
+
+static void prg_decoding9 () {
+/*beg9*/
+/*get memory interface with GetBitstreamBuffer function*/
+mfxMemoryInterface *memoryInterface = NULL;
+MFXGetMemoryInterface(session, &memoryInterface);
+
+/* initialize decoder */
+MFXVideoDECODE_Init(session, &init_param);
+
+sts=MFX_ERR_MORE_DATA;
+
+/* perform decoding */
+for (;;) {
+    if ((sts==MFX_ERR_MORE_DATA || !bitstream || !bitstream->Data) && !end_of_stream())
+    {
+      bitstream = get_bitstream_buffer(memoryInterface);
+      //Same process for updating the bitstream for video memory and system memory.
+      //The video memory bitstream buffer has been mapped for CPU access in the runtime.
+      append_more_bitstream(bitstream);
+    }
+   // Asynchronously decode a frame
+   sts = MFXVideoDECODE_DecodeFrameAsync(session, bitstream, work, &disp, &syncp);
+   if (sts == MFX_ERR_NONE) {
+       //if bitstream is in video memory, bitstream->Data will be set to nullptr by MFXVideoDECODE_DecodeFrameAsync.
+       //do other things such as MFXVideoCORE_SyncOperation.
+    }
+}
+/* close decoder */
+MFXVideoDECODE_Close(session);
+/*end9*/
+}
+
+/*beg10*/
+static void update_csc_scaling_param(mfxVideoParam *p_video_param, mfxExtBuffer **pp_ext_params, mfxExtDecVideoProcessing *p_dec_vp_param)
+{
+    /*****check whether desired_fourcc is supported*****/
+    /*init the output fourcc to original default foucc*/
+    mfxU32 output_fourcc = p_video_param->mfx.FrameInfo.FourCC;
+    mfxU32 output_chromaformat = p_video_param->mfx.FrameInfo.ChromaFormat;
+    mfxU32 csc_caps = (p_video_param->mfx.OutputCscCapsHigh << 16) + p_video_param->mfx.OutputCscCapsLow;
+    bool is_fourcc_supported = false;
+
+    switch (desired_fourcc)
+    {
+        case MFX_FOURCC_Y216:
+            is_fourcc_supported = csc_caps & DEC_CSC_Y216_SUPPORTED_BIT;
+            if (is_fourcc_supported)
+            {
+                output_fourcc = MFX_FOURCC_Y216;
+                output_chromaformat = MFX_CHROMAFORMAT_YUV422;
+            }
+            break;
+        case MFX_FOURCC_YUY2:
+            is_fourcc_supported = csc_caps & DEC_CSC_YUY2_SUPPORTED_BIT;
+            if (is_fourcc_supported)
+            {
+                output_fourcc = MFX_FOURCC_YUY2;
+                output_chromaformat = MFX_CHROMAFORMAT_YUV422;
+            }
+            break;
+        //...other FourCC
+        default:
+            is_fourcc_supported = false;
+            break;
+    }
+
+    /*****check whether desired_downscale_ratio is supported*****/
+    bool is_downscale_ratio_supported = false;
+    /*init the ratio to 1 which means no scaling is needed*/
+    mfxU16 output_downscale_ratiow = 1;
+    mfxU16 output_downscale_ratioh = 1;
+
+    if (desired_downscale_ratiow == 2 && desired_downscale_ratioh == 2)
+    {
+        is_downscale_ratio_supported = p_video_param->mfx.OutputScalingRatioCaps & DEC_DOWNSCALING_RATIO_W2_H2_SUPPORTED_BIT;
+        if (is_downscale_ratio_supported)
+        {
+            output_downscale_ratiow = 2;
+            output_downscale_ratioh = 2;
+        }
+    }
+    else if (desired_downscale_ratiow == 4 && desired_downscale_ratioh == 4)
+    {
+        is_downscale_ratio_supported = p_video_param->mfx.OutputScalingRatioCaps & DEC_DOWNSCALING_RATIO_W4_H4_SUPPORTED_BIT;
+        if (is_downscale_ratio_supported)
+        {
+            output_downscale_ratiow = 4;
+            output_downscale_ratioh = 4;
+        }
+    }
+    //....other ratio check
+
+    /*****Set the desired fourcc and desired downscale ratio after the caps check*****/
+    /*Csc or/and downscaling is needed. video_param should be updated. The desired fourcc and ratio should be set to mfxExtDecVideoProcessing extension buffer to tell runtime*/
+    if (is_fourcc_supported || is_downscale_ratio_supported)
+    {
+        //input is original size
+        p_dec_vp_param->In.CropW = p_video_param->mfx.FrameInfo.CropW;
+        p_dec_vp_param->In.CropH = p_video_param->mfx.FrameInfo.CropH;
+        p_dec_vp_param->In.CropX = p_video_param->mfx.FrameInfo.CropX;
+        p_dec_vp_param->In.CropY = p_video_param->mfx.FrameInfo.CropY;
+
+        //output is set according to the above check
+        p_dec_vp_param->Out.FourCC = output_fourcc;
+        p_dec_vp_param->Out.ChromaFormat = output_chromaformat;
+        p_dec_vp_param->Out.CropW = p_video_param->mfx.FrameInfo.CropW / output_downscale_ratiow;
+        p_dec_vp_param->Out.CropH = p_video_param->mfx.FrameInfo.CropH / output_downscale_ratioh;
+        p_dec_vp_param->Out.CropX = p_video_param->mfx.FrameInfo.CropX / output_downscale_ratiow;
+        p_dec_vp_param->Out.CropY = p_video_param->mfx.FrameInfo.CropY / output_downscale_ratioh;
+        p_dec_vp_param->Out.Width = p_video_param->mfx.FrameInfo.Width / output_downscale_ratiow;
+        p_dec_vp_param->Out.Height = p_video_param->mfx.FrameInfo.Height / output_downscale_ratioh;
+        p_dec_vp_param->Header.BufferId = MFX_EXTBUFF_DEC_VIDEO_PROCESSING;
+        p_dec_vp_param->Header.BufferSz = sizeof(mfxExtDecVideoProcessing);
+
+        pp_ext_params[0] = ((mfxExtBuffer*)(p_dec_vp_param));
+        p_video_param->NumExtParam = 1;
+        p_video_param->ExtParam = &(pp_ext_params[0]);
+    }
+    //else do nothing as no csc and scaling are supported or needed. video_param keeps unchanged.
+}
+/*end10*/
+
+static void prg_decoding11 () {
+/*beg11*/
+/*get memory interface with GetBitstreamBuffer function*/
+mfxMemoryInterface *memoryInterface = NULL;
+MFXGetMemoryInterface(session, &memoryInterface);
+
+//get bitstream for MFXVideoDECODE_DecodeHeader
+bitstream = get_bitstream_buffer(memoryInterface);
+append_more_bitstream(bitstream);
+
+mfxExtBuffer *ext_buffer[1];
+mfxExtDecVideoProcessing  dec_vp_param;
+mfxVideoParam init_param = {0};
+
+/*need set IOPatern before MFXVideoDECODE_DecodeHeader to get the correct CSC and Scaling Ratio capabilities*/
+/*MFX_IOPATTERN_OUT_VIDEO_MEMORY and MFX_IOPATTERN_OUT_SYSTEM_MEMORY may have different capabilities*/
+init_param.IOPattern = MFX_IOPATTERN_OUT_VIDEO_MEMORY; // or MFX_IOPATTERN_OUT_SYSTEM_MEMORY
+MFXVideoDECODE_DecodeHeader(session, bitstream, &init_param);
+
+//init_param should be updated if the desired_fourcc and desired_downscale_ratio are supported.
+update_csc_scaling_param(&init_param, ext_buffer, &dec_vp_param);
+MFXVideoDECODE_Query(session, &init_param, &init_param);
+
+//the request will be updated by the runtime according to the information of init_param
+//if there is extension buffer mfxExtDecVideoProcessing in it, the request will be updated according to the mfxExtDecVideoProcessing which includes the desired_fourcc and desired resolution.
+//if no extension buffer in it, the request is default fourcc and original resolution.
+MFXVideoDECODE_QueryIOSurf(session, &init_param, &request);
+
+//allocate surfaces according to the request from MFXVideoDECODE_QueryIOSurf
+allocate_surface_pool(&request);
+
+/* initialize decoder */
+MFXVideoDECODE_Init(session, &init_param);
+
+sts = MFX_ERR_NONE;
+
+/* perform decoding */
+for (;;) {
+    if ((sts==MFX_ERR_MORE_DATA || !bitstream || !bitstream->Data) && !end_of_stream())
+    {
+      bitstream = get_bitstream_buffer(memoryInterface);
+      append_more_bitstream(bitstream);
+    }
+    // Asynchronously decode a frame
+    sts = MFXVideoDECODE_DecodeFrameAsync(session, bitstream, work, &disp, &syncp);
+    if (sts == MFX_ERR_NONE) {
+    //do other things such as MFXVideoCORE_SyncOperation.
+    }
+}
+/* close decoder */
+MFXVideoDECODE_Close(session);
+/*end11*/
 }

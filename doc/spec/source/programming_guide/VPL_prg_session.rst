@@ -855,7 +855,7 @@ the struct version 1.1. :cpp:struct:`mfxEncoderDescription` is extended to conta
 the struct version 1.1.
 
 Applications can check the struct version and correspondent pointers in extended
-:cpp:struct:`mfxDecoderDescription` and :cpp:struct:`mfxEncExtDescription` to
+:cpp:struct:`mfxDecoderDescription` and :cpp:struct:`mfxEncoderDescription` to
 get the extended capability information.
 
 This code illustrates how to get the extended capability information using
@@ -870,6 +870,13 @@ This code illustrates how to get the extended capability information using
 .. note:: :cpp:struct:`mfxEncExtDescription` and
           :cpp:struct:`mfxEncMemExtDescription` report capabilities only
           for VDEnc.
+
+.. note:: Not all codec implementations support extended capability reporting.
+          To confirm support, applications must check the structure versions of
+          :cpp:struct:`mfxDecoderDescription` or :cpp:struct:`mfxEncoderDescription`,
+          and must check for non-null values for :cpp:struct:`mfxDecExtDescription`,
+          :cpp:struct:`mfxDecMemExtDescription`, :cpp:struct:`mfxEncExtDescription`,
+          or :cpp:struct:`mfxEncMemExtDescription` (as appropriate).
 
 ---------------------------------------------------------------
 How To Do Property-Based Query For The Available Implementation

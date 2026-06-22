@@ -444,3 +444,47 @@ According to memory utilization and performance, two modes are recommend for dec
   after each frame. This will have poor performance, since the GPU will not be kept fully occupied.
 - For best performance: the application should set AsyncDepth to 4 and plan to :cpp:func:`MFXVideoCORE_SyncOperation` after every
   4th frame, which generally will keep the GPU close to fully occupied.
+  
+  
+----------------------------------------------
+Accessing the Bitstream Buffer in Video Memory
+----------------------------------------------
+
+For high-bitrate streams, applications can copy the input frames directly into the runtime's video memory buffer, avoiding extra copies from system memory to video memory in runtime.
+It can achieve the optimal performance for the codecs that support :cpp:member:`mfxMemoryInterface::GetBitstreamBuffer`.
+The following pseudo code shows an example of using :cpp:member:`mfxMemoryInterface::GetBitstreamBuffer` for decoding:
+
+.. literalinclude:: ../snippets/prg_decoding.c
+   :language: c++
+   :start-after: /*beg8*/
+   :end-before: /*end8*/
+   :lineno-start: 1
+   
+.. literalinclude:: ../snippets/prg_decoding.c
+   :language: c++
+   :start-after: /*beg9*/
+   :end-before: /*end9*/
+   :lineno-start: 1
+
+
+---------------------------------------------------
+Decode With Color Space Conversion And Downscaling
+---------------------------------------------------
+
+For some codecs and platforms, decode can support the features of color space conversion and downscaling.
+:cpp:member:`mfxInfoMFX::OutputCscCapsLow`, :cpp:member:`mfxInfoMFX::OutputCscCapsHigh` and :cpp:member:`mfxInfoMFX::OutputScalingRatioCaps` will reflect the capabilities for current bitstream
+after calling :cpp:func:`MFXVideoDECODE_DecodeHeader`.
+:cpp:struct:`mfxExtDecVideoProcessing` is used to set the target output fourcc and resolution after checking the capbilities.
+The following pseudo code shows an example of enabling csc and downscaling for decoding:
+
+.. literalinclude:: ../snippets/prg_decoding.c
+   :language: c++
+   :start-after: /*beg10*/
+   :end-before: /*end10*/
+   :lineno-start: 1
+   
+.. literalinclude:: ../snippets/prg_decoding.c
+   :language: c++
+   :start-after: /*beg11*/
+   :end-before: /*end11*/
+   :lineno-start: 1   

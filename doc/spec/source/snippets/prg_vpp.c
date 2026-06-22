@@ -193,7 +193,7 @@ mfxExtVPP3DLut lut3DConfig;
 memset(&lut3DConfig, 0, sizeof(lut3DConfig));
 lut3DConfig.Header.BufferId         = MFX_EXTBUFF_VPP_3DLUT;
 lut3DConfig.Header.BufferSz         = sizeof(mfxExtVPP3DLut);
-lut3DConfig.ChannelMapping          = MFX_3DLUT_CHANNEL_MAPPING_RGB_RGB;    
+lut3DConfig.ChannelMapping          = MFX_3DLUT_CHANNEL_MAPPING_RGB_RGB;
 lut3DConfig.BufferType              = MFX_RESOURCE_VA_SURFACE;
 lut3DConfig.VideoBuffer.DataType    = MFX_DATA_TYPE_U16;
 lut3DConfig.VideoBuffer.MemLayout   = MFX_3DLUT_MEMORY_LAYOUT_INTEL_65LUT;
@@ -226,7 +226,7 @@ mfxExtVPP3DLut lut3DConfig;
 memset(&lut3DConfig, 0, sizeof(lut3DConfig));
 lut3DConfig.Header.BufferId         = MFX_EXTBUFF_VPP_3DLUT;
 lut3DConfig.Header.BufferSz         = sizeof(mfxExtVPP3DLut);
-lut3DConfig.ChannelMapping          = MFX_3DLUT_CHANNEL_MAPPING_RGB_RGB;    
+lut3DConfig.ChannelMapping          = MFX_3DLUT_CHANNEL_MAPPING_RGB_RGB;
 lut3DConfig.BufferType              = MFX_RESOURCE_SYSTEM_SURFACE;
 lut3DConfig.SystemBuffer.Channel[0] = channelR;
 lut3DConfig.SystemBuffer.Channel[1] = channelG;
@@ -314,7 +314,7 @@ static void prg_vpp8() {
 /*beg8*/
 
 // HDR to HDR (e.g P010 HDR signal -> P010 HDR signal) in transcoding pipeline
-// Attach in/output external buffers as the below for HDR input/output. 
+// Attach in/output external buffers as the below for HDR input/output.
 // The input Video Signal Information
 mfxExtVideoSignalInfo inSignalInfo   = {};
 inSignalInfo.Header.BufferId         = MFX_EXTBUFF_VIDEO_SIGNAL_INFO_IN;
@@ -402,7 +402,6 @@ MFXVideoVPP_Init(session, &VPPParams);
 
 static void prg_vpp11() {
 /*beg11*/
-#ifdef ONEVPL_EXPERIMENTAL
 // configure 3DLUT parameters
 mfxExtVPP3DLut lut3DConfig;
 memset(&lut3DConfig, 0, sizeof(lut3DConfig));
@@ -411,7 +410,6 @@ lut3DConfig.Header.BufferSz         = sizeof(mfxExtVPP3DLut);
 lut3DConfig.ChannelMapping          = MFX_3DLUT_CHANNEL_MAPPING_RGB_RGB;
 lut3DConfig.BufferType              = MFX_RESOURCE_SYSTEM_SURFACE;
 lut3DConfig.InterpolationMethod     = MFX_3DLUT_INTERPOLATION_TETRAHEDRAL;
-#endif
 /*end11*/
 }
 

@@ -13,6 +13,56 @@ This section describes the API evolution from version to version.
    :depth: 1
 
 ------------
+Version 2.17
+------------
+
+New in this release:
+
+* Experimental API: added new function :cpp:member:`mfxMemoryInterface::GetBitstreamBuffer` and enumerator :cpp:enumerator:`MFX_BITSTREAM_IN_VIDEO_MEMORY` for accessing the bitstream buffer in video memory.
+* Updated the description of :cpp:struct:`mfxFrameInfo` to clarify the alignment of Width and Height.
+
+* Updated the description of :cpp:member:`mfxFrameData::PitchLow` and :cpp:member:`mfxFrameData::PitchHigh`.
+
+* Experimental API: added new member in :cpp:struct:`mfxInfoMFX` and new enumerators to report the csc and scaling capabilities of decode.
+
+   * :cpp:member:`mfxInfoMFX::OutputCscCapsLow`
+   * :cpp:member:`mfxInfoMFX::OutputCscCapsHigh`
+   * :cpp:member:`mfxInfoMFX::OutputScalingRatioCaps`
+   * :cpp:enumerator:`DEC_CSC_NOT_SUPPORTED`
+   * :cpp:enumerator:`DEC_CSC_NV12_SUPPORTED_BIT`
+   * :cpp:enumerator:`DEC_CSC_P016_SUPPORTED_BIT`
+   * :cpp:enumerator:`DEC_CSC_YUY2_SUPPORTED_BIT`
+   * :cpp:enumerator:`DEC_CSC_Y216_SUPPORTED_BIT`
+   * :cpp:enumerator:`DEC_CSC_AYUV_SUPPORTED_BIT`
+   * :cpp:enumerator:`DEC_CSC_Y416_SUPPORTED_BIT`
+   * :cpp:enumerator:`DEC_CSC_AYUV_RGBA8_SUPPORTED_BIT`
+   * :cpp:enumerator:`DEC_CSC_Y416_RGBA16_SUPPORTED_BIT`
+   * :cpp:enumerator:`DEC_CSC_RGBA8_SUPPORTED_BIT`
+   * :cpp:enumerator:`DEC_CSC_RGBA16_SUPPORTED_BIT`
+   * :cpp:enumerator:`DEC_CSC_RGBA16F_SUPPORTED_BIT`
+   * :cpp:enumerator:`DEC_SCALING_NOT_SUPPORTED`
+   * :cpp:enumerator:`DEC_DOWNSCALING_RATIO_W2_H2_SUPPORTED_BIT`
+   * :cpp:enumerator:`DEC_DOWNSCALING_RATIO_W4_H4_SUPPORTED_BIT`   
+
+* Added new fourcc enumerators.
+
+   * :cpp:enumerator:`MFX_FOURCC_AYUV_RGBA8`
+   * :cpp:enumerator:`MFX_FOURCC_Y416_RGBA16`
+   * :cpp:enumerator:`MFX_FOURCC_ARGB16F`
+
+* Experimental API: added new members in :cpp:struct:`mfxInfoMFX` to report alpha channel information detected by the decoder during bitstream header parsing.
+
+   * :cpp:member:`mfxInfoMFX::AlphaChannelExist`
+   * :cpp:member:`mfxInfoMFX::LosslessAlpha`
+   * :cpp:member:`mfxInfoMFX::PreMultipliedAlpha`
+
+* Experimental API: introduced :cpp:struct:`mfxExtEncPreProcessing` to configure encoder pre-processing presets (temporal filter) applied before encoding.
+
+* Moved to production API:
+
+   * :cpp:enum:`mfx3DLutInterpolationMethod`
+
+------------
 Version 2.16
 ------------
 

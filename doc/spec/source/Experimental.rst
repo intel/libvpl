@@ -217,8 +217,8 @@ The following is a list of experimental interfaces, starting from API version
      - Moved to production
    * - :cpp:enum:`mfx3DLutInterpolationMethod`
      - 2.11
-     -
-     -
+     - 2.17
+     - Moved to production
    * - :cpp:struct:`mfxSurfaceD3D12Tex2D`
      - 2.11
      -
@@ -333,5 +333,122 @@ The following is a list of experimental interfaces, starting from API version
      -
    * - :cpp:struct:`mfxExtAIEncCtrl`
      - 2.16
+     -
+     -
+   * - :cpp:struct:`mfxExtEncPreProcessing`
+     - 2.17
+     -
+     -
+   * - :cpp:member:`mfxMemoryInterface::GetBitstreamBuffer`
+     - 2.17
+     -
+     -
+   * - :cpp:enumerator:`MFX_BITSTREAM_IN_VIDEO_MEMORY`
+     - 2.17
+     -
+     -
+	 
+   * - :cpp:member:`mfxInfoMFX::OutputCscCapsLow`
+     - 2.17
+     -
+     -  
+	 
+   * - :cpp:member:`mfxInfoMFX::OutputCscCapsHigh`
+     - 2.17
+     -
+     - 
+	 
+   * - :cpp:member:`mfxInfoMFX::OutputScalingRatioCaps`
+     - 2.17
+     -
+     - 
+	 
+   * - :cpp:enumerator:`DEC_CSC_NOT_SUPPORTED`
+     - 2.17
+     -
+     - 
+	 
+   * - :cpp:enumerator:`DEC_CSC_NV12_SUPPORTED_BIT`
+     - 2.17
+     -
+     - 
+	 
+   * - :cpp:enumerator:`DEC_CSC_P016_SUPPORTED_BIT`
+     - 2.17
+     -
+     - 
+	 
+   * - :cpp:enumerator:`DEC_CSC_YUY2_SUPPORTED_BIT`
+     - 2.17
+     -
+     - 
+	 
+   * - :cpp:enumerator:`DEC_CSC_Y216_SUPPORTED_BIT`
+     - 2.17
+     -
+     - 
+	 
+   * - :cpp:enumerator:`DEC_CSC_AYUV_SUPPORTED_BIT`
+     - 2.17
+     -
+     - 
+	 
+   * - :cpp:enumerator:`DEC_CSC_Y416_SUPPORTED_BIT`
+     - 2.17
+     -
+     - 
+	 
+   * - :cpp:enumerator:`DEC_CSC_AYUV_RGBA8_SUPPORTED_BIT`
+     - 2.17
+     -
+     - 
+	 
+   * - :cpp:enumerator:`DEC_CSC_Y416_RGBA16_SUPPORTED_BIT`
+     - 2.17
+     -
+     - 
+	 
+   * - :cpp:enumerator:`DEC_CSC_RGBA8_SUPPORTED_BIT`
+     - 2.17
+     -
+     - 
+	 
+   * - :cpp:enumerator:`DEC_CSC_RGBA16_SUPPORTED_BIT`
+     - 2.17
+     -
+     - 
+	 
+   * - :cpp:enumerator:`DEC_CSC_RGBA16F_SUPPORTED_BIT`
+     - 2.17
+     -
+     - 
+	 
+   * - :cpp:enumerator:`DEC_SCALING_NOT_SUPPORTED`
+     - 2.17
+     -
+     - 
+	 
+   * - :cpp:enumerator:`DEC_DOWNSCALING_RATIO_W2_H2_SUPPORTED_BIT`
+     - 2.17
+     -
+     - 
+	 
+   * - :cpp:enumerator:`DEC_DOWNSCALING_RATIO_W4_H4_SUPPORTED_BIT`
+     - 2.17
+     -
+     -
+
+   * - :cpp:member:`mfxInfoMFX::AlphaChannelExist`
+     - 2.17
+     -
+     -
+
+   * - :cpp:member:`mfxInfoMFX::LosslessAlpha`
+     - 2.17
+     -
+     -
+
+   * - :cpp:member:`mfxInfoMFX::PreMultipliedAlpha`
+     - 2.17
      -
      -

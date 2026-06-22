@@ -134,7 +134,7 @@
     MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxQPandMode                 ,4    )
     MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxExtInsertHeaders          ,28   )
     MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxExtEncoderIPCMArea        ,40   )
-    MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxExtEncoderIPCMArea::area  ,32   ) 
+    MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxExtEncoderIPCMArea::area  ,32   )
     MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxExtMBForceIntra           ,64   )
     MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxExtHEVCTiles              ,160  )
     MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxExtMBDisableSkipMap       ,64   )
@@ -429,7 +429,7 @@
 
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxHDLPair                         ,first                         ,0    )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxHDLPair                         ,second                        ,4    )
-        
+
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxGUID                            ,Data                         ,0    )
 #endif
     MSDK_STATIC_COMPARE(MFX_DATA_TYPE_UNSET                             , 0)
@@ -559,6 +559,11 @@
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxInfoMFX                         ,EnableReallocRequest          ,120  )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxInfoMFX                         ,FilmGrain                     ,122  )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxInfoMFX                         ,IgnoreLevelConstrain          ,124  )
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxInfoMFX                         ,SkipOutput                    ,126  )
+#ifdef ONEVPL_EXPERIMENTAL
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxInfoMFX                         ,OutputCscCapsLow              ,128  )
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxInfoMFX                         ,OutputCscCapsHigh             ,130  )
+#endif
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxInfoMFX                         ,JPEGChromaFormat              ,110  )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxInfoMFX                         ,Rotation                      ,112  )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxInfoMFX                         ,JPEGColorFormat               ,114  )
@@ -712,9 +717,7 @@
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPP3DLut                     ,BufferType                    ,12    )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPP3DLut                     ,SystemBuffer                  ,16   )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPP3DLut                     ,VideoBuffer                   ,16   )
-#ifdef ONEVPL_EXPERIMENTAL
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPP3DLut                     ,InterpolationMethod           ,144  )
-#endif
 
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPPDetail                    ,Header                        ,0    )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPPDetail                    ,DetailFactor                  ,8    )
@@ -1167,7 +1170,8 @@
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxMemoryInterface              ,Context                        ,  0 )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxMemoryInterface              ,Version                        ,  8 )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxMemoryInterface              ,ImportFrameSurface             , 16 )
-    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxMemoryInterface              ,reserved                       , 24 )
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxMemoryInterface              ,GetBitstreamBuffer             , 24 )
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxMemoryInterface              ,reserved                       , 32 )
 
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxSurfaceInterface             ,Header                         ,  0 )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxSurfaceInterface             ,Version                        , 48 )
@@ -1217,7 +1221,7 @@
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxSurfaceTypesSupported::surftype    ,reserved                     , 4 )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxSurfaceTypesSupported::surftype    ,NumSurfaceComponents         ,28 )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxSurfaceTypesSupported::surftype    ,SurfaceComponents            ,32 )
-             
+
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxSurfaceTypesSupported::surftype::surfcomp    ,SurfaceComponent      , 0 )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxSurfaceTypesSupported::surftype::surfcomp    ,SurfaceFlags          , 4 )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxSurfaceTypesSupported::surftype::surfcomp    ,reserved              , 8 )
@@ -1346,6 +1350,13 @@
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxInfoMFX                         ,SliceGroupsPresent            ,116  )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxInfoMFX                         ,MaxDecFrameBuffering          ,118  )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxInfoMFX                         ,EnableReallocRequest          ,120  )
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxInfoMFX                         ,FilmGrain                     ,122  )
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxInfoMFX                         ,IgnoreLevelConstrain          ,124  )
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxInfoMFX                         ,SkipOutput                    ,126  )
+#ifdef ONEVPL_EXPERIMENTAL
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxInfoMFX                         ,OutputCscCapsLow              ,128  )
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxInfoMFX                         ,OutputCscCapsHigh             ,130  )
+#endif
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxInfoMFX                         ,JPEGChromaFormat              ,110  )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxInfoMFX                         ,Rotation                      ,112  )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxInfoMFX                         ,JPEGColorFormat               ,114  )
@@ -1480,8 +1491,8 @@
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPPDenoise                   ,Header                        ,0    )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPPDenoise                   ,DenoiseFactor                 ,8    )
 
-    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPPDenoise2                  ,Header                        ,0	 )
-    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPPDenoise2                  ,Mode                          ,8	 )
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPPDenoise2                  ,Header                        ,0    )
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPPDenoise2                  ,Mode                          ,8    )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPPDenoise2                  ,Strength                      ,12   )
 
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxChannel                         ,DataType                      ,0    )
@@ -1499,9 +1510,7 @@
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPP3DLut                     ,BufferType                    ,12   )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPP3DLut                     ,SystemBuffer                  ,16   )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPP3DLut                     ,VideoBuffer                   ,16   )
-#ifdef ONEVPL_EXPERIMENTAL
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPP3DLut                     ,InterpolationMethod           ,132  )
-#endif
 
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPPDetail                    ,Header                        ,0    )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtVPPDetail                    ,DetailFactor                  ,8    )
@@ -1954,7 +1963,8 @@
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxMemoryInterface              ,Context                        ,  0 )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxMemoryInterface              ,Version                        ,  4 )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxMemoryInterface              ,ImportFrameSurface             ,  8 )
-    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxMemoryInterface              ,reserved                       , 12 )
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxMemoryInterface              ,GetBitstreamBuffer             , 12 )
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxMemoryInterface              ,reserved                       , 16 )
 
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxSurfaceInterface             ,Header                         ,  0 )
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxSurfaceInterface             ,Version                        , 44 )
@@ -2891,7 +2901,7 @@ MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxEncodeBlkStats, 48)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncodeBlkStats, AVCMBArray,            8)
 
 
-MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxEncodeHighLevelStats, 80)     
+MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxEncodeHighLevelStats, 80)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncodeHighLevelStats, PSNRLuma,      0)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncodeHighLevelStats, PSNRCb,     4)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncodeHighLevelStats, PSNRCr,          8)
@@ -2919,14 +2929,14 @@ MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxEncodeStatsContainer, 208)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncodeStatsContainer, EncodeSliceStats,         152)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncodeStatsContainer, EncodeTileStats,          160)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncodeStatsContainer, EncodeFrameStats,         168)
- 
+
 MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxRefInterface , 72)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxRefInterface, Context,         0)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxRefInterface, Version,         8)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxRefInterface, AddRef,          16)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxRefInterface, Release,         24)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxRefInterface, GetRefCounter,   32)
- 
+
 #elif defined(_x86)
 MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxEncodeBlkStats, 40)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncodeBlkStats, NumMB,      0)
@@ -2934,7 +2944,7 @@ MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxEncodeBlkStats, 40)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncodeBlkStats, HEVCCTUArray,          4)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncodeBlkStats, AVCMBArray,            4)
 
-MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxEncodeHighLevelStats, 80)     
+MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxEncodeHighLevelStats, 80)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncodeHighLevelStats, PSNRLuma,      0)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncodeHighLevelStats, PSNRCb,     4)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxEncodeHighLevelStats, PSNRCr,          8)
@@ -2969,7 +2979,7 @@ MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxRefInterface , 36)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxRefInterface, AddRef,          8)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxRefInterface, Release,         12)
     MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxRefInterface, GetRefCounter,   16)
- 
+
 #endif
 
 #endif
@@ -3080,7 +3090,14 @@ MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxExtAIEncCtrl, 64)
 #endif
 
 #ifdef ONEVPL_EXPERIMENTAL
-// The solution for compiler-time check of bitfields. Requires C++20 and supported only by latest MSVC. 
+MSDK_STATIC_ASSERT_STRUCT_SIZE(mfxExtEncPreProcessing, 64)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtEncPreProcessing, Header,           0)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtEncPreProcessing, TFLevel,          8)
+    MSDK_STATIC_ASSERT_STRUCT_OFFSET(mfxExtEncPreProcessing, reserved,         10)
+#endif
+
+#ifdef ONEVPL_EXPERIMENTAL
+// The solution for compiler-time check of bitfields. Requires C++20 and supported only by latest MSVC.
 // Disabled for now.
 #if (_MSC_VER >= 1929) && defined(MFX_ASSERT_BITFIELD_CMPL_TIME)
 #include <bit>
@@ -3091,8 +3108,8 @@ constexpr STRUCT var = [](){ \
     var.BITFIELD = 0xFFFFFFFF;     \
     return var;
 }(); \
-MSDK_STATIC_ASSERT(std::bit_cast<uint32_t>(var) == PATTERN, "ABI violation in "#STRUCT"."#BITFIELD" "); 
-#endif 
+MSDK_STATIC_ASSERT(std::bit_cast<uint32_t>(var) == PATTERN, "ABI violation in "#STRUCT"."#BITFIELD" ");
+#endif
 
 #define MSDK_BITFIELD_ASSERT_CHECK(STRUCT, BITFIELD, DWORD, PATTERN, STS) \
         { \
@@ -3232,6 +3249,24 @@ int main()
     MSDK_BITFIELD_ASSERT_CHECK(mfxMBInfo, bitfields0.SubMBShapes, dword0, 0x3FC00, sts);
     MSDK_BITFIELD_ASSERT_CHECK(mfxMBInfo, bitfields0.SubMBShapeMode, dword0, 0x3FC0000, sts);
     MSDK_BITFIELD_ASSERT_CHECK(mfxMBInfo, bitfields0.ChromaIntraPredMode, dword0, 0xC000000, sts);
+
+    /* mfxInfoMFX */
+    /*Check OutputScalingRatioCaps are set correctly*/
+    MSDK_BITFIELD_ASSERT_CHECK(mfxInfoMFX, OutputScalingRatioCaps, OutputScalingRatioCaps, 0xFF, sts);
+    /*Check OutputScalingRatioCaps setting not affect reservedByte0*/
+    MSDK_BITFIELD_ASSERT_CHECK(mfxInfoMFX, OutputScalingRatioCaps, reservedByte0, 0x00, sts);
+    /*Check AlphaChannelExist is 1 bit wide*/
+    MSDK_BITFIELD_ASSERT_CHECK(mfxInfoMFX, AlphaChannelExist, AlphaChannelExist, 0x1, sts);
+    /*Check AlphaChannelExist setting not affect reservedByte0*/
+    MSDK_BITFIELD_ASSERT_CHECK(mfxInfoMFX, AlphaChannelExist, reservedByte0, 0x00, sts);
+    /*Check LosslessAlpha is 1 bit wide*/
+    MSDK_BITFIELD_ASSERT_CHECK(mfxInfoMFX, LosslessAlpha, LosslessAlpha, 0x1, sts);
+    /*Check LosslessAlpha setting not affect reservedByte0*/
+    MSDK_BITFIELD_ASSERT_CHECK(mfxInfoMFX, LosslessAlpha, reservedByte0, 0x00, sts);
+    /*Check PreMultipliedAlpha is 1 bit wide*/
+    MSDK_BITFIELD_ASSERT_CHECK(mfxInfoMFX, PreMultipliedAlpha, PreMultipliedAlpha, 0x1, sts);
+    /*Check PreMultipliedAlpha setting not affect reservedByte0*/
+    MSDK_BITFIELD_ASSERT_CHECK(mfxInfoMFX, PreMultipliedAlpha, reservedByte0, 0x00, sts);
 
     printf("...Done with experimental API.\n");
 

@@ -67,10 +67,20 @@ typedef struct {
     mfxU32  FourCC;     /*!< FourCC code of the color format. See the ColorFourCC enumerator for details. */
     union {
         struct { /* Frame parameters */
-            /*! Width of the video frame in pixels. Must be a multiple of 16.
+            /*! Width of the video frame in pixels. 
+                Actual alignment requirements depend on the installed runtime (driver) version and specific codec/vpp implementation.
+                Applications should use the query interface (e.g., MFXVideoENCODE_Query, MFXVideoDECODE_Query, MFXVideoVPP_Query) 
+                to determine if a specific resolution is supported before attempting to use it.
+                Applications may also call MFXEnumImplementations() to access detailed capabilities and alignment requirements for codecs and filters.
+                Minimum alignment: multiples of 8 in all cases.
                 In case of fused operation of decode plus VPP it can be set to zero to signalize that scaling operation is not requested. */
             mfxU16  Width;
-            /*! Height of the video frame in pixels. Must be a multiple of 16 for progressive frame sequence and a multiple of 32 otherwise.
+            /*! Height of the video frame in pixels. 
+                Actual alignment requirements depend on the installed runtime (driver) version and specific codec/vpp implementation.
+                Applications should use the query interface (e.g., MFXVideoENCODE_Query, MFXVideoDECODE_Query, MFXVideoVPP_Query) 
+                to determine if a specific resolution is supported before attempting to use it.
+                Applications may also call MFXEnumImplementations() to access detailed capabilities and alignment requirements for codecs and filters.
+                Minimum alignment: multiples of 8 in all cases.
                 In case of fused operation of decode plus VPP it can be set to zero to signalize that scaling operation is not requested. */
             mfxU16  Height;
 
@@ -201,7 +211,35 @@ enum {
     /*! 8bit per sample 4:4:4 format packed in 32 bits, X=unused/undefined, 'X' channel is 8 MSBs, then 'Y', then 'U', and then 'V' channels. This format should be mapped to VA_FOURCC_XYUV. */
     MFX_FOURCC_XYUV         = MFX_MAKEFOURCC('X','Y','U','V'),
     MFX_FOURCC_ABGR16F      = MFX_MAKEFOURCC('B', 'G', 'R', 'F'),  /*!< 16 bits float point ABGR color format packed in 64 bits. 'A' channel is 16 MSBs, then 'B', then 'G' and then 'R' channels. This format should be mapped to DXGI_FORMAT_R16G16B16A16_FLOAT or D3DFMT_A16B16G16R16F formats.. */
+    MFX_FOURCC_ARGB16F      = MFX_MAKEFOURCC('R', 'G', 'B', 'F'),  /*!< 16 bits float point ARGB color format packed in 64 bits. 'A' channel is 16 MSBs, then 'R', then 'G' and then 'B' channels. Memory layout is B(LSB), G, R, A(MSB). This format should be mapped to DXGI_FORMAT_R16G16B16A16_FLOAT with RB channels swapped.*/
+    MFX_FOURCC_AYUV_RGBA8   = MFX_MAKEFOURCC('Y', 'R', 'A', '8'), /*!< R8G8B8A8 stored in AYUV surface, `R` channel is the LSB. This format should be mapped to DXGI_FORMAT_AYUV. */
+    MFX_FOURCC_Y416_RGBA16  = MFX_MAKEFOURCC('Y', 'R', 'A', '6'), /*!< R16G16B16A16 stored in Y416 surface, `R` channel is the LSB. This format should be mapped to DXGI_FORMAT_Y416. */
 };
+
+#if defined(ONEVPL_EXPERIMENTAL)
+/*! The OutputCscCaps enumerator, bit-wise. */
+enum {
+    DEC_CSC_NOT_SUPPORTED = 0,                 /*!< color space conversion is not supported. */
+    DEC_CSC_NV12_SUPPORTED_BIT = 0x1,          /*!< support color space conversion to MFX_FOURCC_NV12. */
+    DEC_CSC_P016_SUPPORTED_BIT = 0x2,          /*!< support color space conversion to MFX_FOURCC_P016. */
+    DEC_CSC_YUY2_SUPPORTED_BIT = 0x4,          /*!< support color space conversion to MFX_FOURCC_YUY2. */
+    DEC_CSC_Y216_SUPPORTED_BIT = 0x8,          /*!< support color space conversion to MFX_FOURCC_Y216. */
+    DEC_CSC_AYUV_SUPPORTED_BIT = 0x10,         /*!< support color space conversion to MFX_FOURCC_AYUV. */
+    DEC_CSC_Y416_SUPPORTED_BIT = 0x20,         /*!< support color space conversion to MFX_FOURCC_Y416. */
+    DEC_CSC_AYUV_RGBA8_SUPPORTED_BIT = 0x40,   /*!< support color space conversion to MFX_FOURCC_AYUV_RGBA8. */
+    DEC_CSC_Y416_RGBA16_SUPPORTED_BIT = 0x80,  /*!< support color space conversion to MFX_FOURCC_Y416_RGBA16. */
+    DEC_CSC_RGBA8_SUPPORTED_BIT = 0x100,       /*!< support color space conversion to MFX_FOURCC_BGR4. */
+    DEC_CSC_RGBA16_SUPPORTED_BIT = 0x200,      /*!< support color space conversion to MFX_FOURCC_ABGR16. */
+    DEC_CSC_RGBA16F_SUPPORTED_BIT = 0x400,     /*!< support color space conversion to MFX_FOURCC_ABGR16F. */
+};
+
+/*! The OutputScalingRatioCaps enumerator, bit-wise. */
+enum {
+    DEC_SCALING_NOT_SUPPORTED = 0,                   /*!< resolution scaling is not supported. */
+    DEC_DOWNSCALING_RATIO_W2_H2_SUPPORTED_BIT = 0x1,  /*!< support downscaling ratio width = 2, height = 2. */
+    DEC_DOWNSCALING_RATIO_W4_H4_SUPPORTED_BIT = 0x2,  /*!< support downscaling ratio width = 4, height = 4. */
+};
+#endif
 
 /* PicStruct */
 enum {
@@ -327,7 +365,9 @@ typedef struct {
     mfxU16      reserved[9]; /*!< Reserved for future use. */
     mfxU16      MemType;     /*!< Allocated memory type. See the ExtMemFrameType enumerator for details. Used for better integration of
                                   3rd party plugins into the pipeline. */
-    mfxU16      PitchHigh;   /*!< Distance in bytes between the start of two consecutive rows in a frame. */
+    mfxU16      PitchHigh;   /*!< High 16 bits of the Distance in bytes between the start of two consecutive rows in a frame.
+                                  App should combine with the low 16 bits which is stored in PitchLow to get the final Pitch.
+                                  finalPitch = (PitchHigh << 16) + PitchLow. */
 
     mfxU64      TimeStamp;   /*!< Time stamp of the video frame in units of 90KHz. Divide TimeStamp by 90,000 (90 KHz) to obtain the time in seconds.
                                   A value of MFX_TIMESTAMP_UNKNOWN indicates that there is no time stamp. */
@@ -337,7 +377,9 @@ typedef struct {
                                   Do not move, alter or delete the frame. */
     union{
         mfxU16  Pitch;
-        mfxU16  PitchLow;    /*!< Distance in bytes between the start of two consecutive rows in a frame. */
+        mfxU16  PitchLow;    /*!< Low 16 bits of the Distance in bytes between the start of two consecutive rows in a frame.
+                                  App should combine with the high 16 bits which is stored in PitchHigh to get the final Pitch.
+                                  finalPitch = (PitchHigh << 16) + PitchLow. */
     };
     /*! @} */
 
@@ -993,7 +1035,26 @@ typedef struct {
             mfxU16  IgnoreLevelConstrain;
             /*! This flag is used to disable output of main decoding channel. When it's ON SkipOutput = MFX_CODINGOPTION_ON decoder outputs only video processed channels. For pure decode this flag should be always disabled. */
             mfxU16  SkipOutput;
+#if defined(ONEVPL_EXPERIMENTAL)
+            /*! Output CSC Cap list low 16bit, it's bit-wise and will be updated by MFXVideoDECODE_DecodeHeader, see OutputCscCaps enumerator for the definition. */
+            mfxU16  OutputCscCapsLow;
+            /*! Output CSC Cap list high 16bit, it's bit-wise and will be updated by MFXVideoDECODE_DecodeHeader, see OutputCscCaps enumerator for the definition. */
+            mfxU16  OutputCscCapsHigh;
+            struct {
+                /*! Output ScalingRatio Cap list, it's bit-wise and will be updated by MFXVideoDECODE_DecodeHeader, see OutputScalingRatioCaps enumerator for the definition. */
+                mfxU16  OutputScalingRatioCaps : 8;
+                /*! Set by MFXVideoDECODE_DecodeHeader. Nonzero value indicates that the input bitstream carries an alpha channel. */
+                mfxU16  AlphaChannelExist     : 1;
+                /*! Set by MFXVideoDECODE_DecodeHeader. Nonzero value indicates that the alpha channel is encoded losslessly. Valid only when AlphaChannelExist is nonzero. */
+                mfxU16  LosslessAlpha         : 1;
+                /*! Set by MFXVideoDECODE_DecodeHeader. Nonzero value indicates that the video channels have been pre-multiplied with alpha prior to encoding. */
+                mfxU16  PreMultipliedAlpha    : 1;
+                mfxU16  reservedByte0         : 5;
+            };
+            mfxU16  reserved2[1];
+#else
             mfxU16  reserved2[4];
+#endif
         };
         struct {   /* JPEG Decoding Options */
             /*! Specify the chroma sampling format that has been used to encode a JPEG picture. See the ChromaFormat enumerator for details. */
@@ -2033,6 +2094,14 @@ enum {
        this means that the application does not have any additional bitstream data to send to decoder.
     */
     MFX_BITSTREAM_EOS               = 0x0002
+#if defined(ONEVPL_EXPERIMENTAL)
+    /*!
+       The bitstream buffer is in video memory. This flag is set by runtime internally when the bitstream buffer is from the mfxMemoryInterface::GetBitstreamBuffer.
+       @note When this flag is set, app shouldn't alloc/release the buffer. It is managed by runtime internally.
+       It will be allocated when app calls mfxMemoryInterface::GetBitstreamBuffer successfully and released automatically when corresponding DecodeFrameAsync succeeds.
+    */
+    , MFX_BITSTREAM_IN_VIDEO_MEMORY = 0x0004
+#endif
 };
 /*! The ExtendedBufferID enumerator itemizes and defines identifiers (BufferId) for extended buffers or video processing algorithm identifiers. */
 enum {
@@ -2477,6 +2546,10 @@ enum {
         See the mfxExtAIEncCtrl structure for more details.
     */
     MFX_EXTBUFF_AI_ENC_CTRL = MFX_MAKEFOURCC('A', 'I', 'E', 'C'),
+    /*!
+        See the mfxExtEncPreProcessing structure for more details.
+    */
+    MFX_EXTBUFF_ENC_PREPROCESSING = MFX_MAKEFOURCC('E', 'P', 'P', 'C'),
 #endif
 };
 
@@ -2606,14 +2679,12 @@ typedef struct {
 } mfx3DLutVideoBuffer;
 MFX_PACK_END()
 
-#ifdef ONEVPL_EXPERIMENTAL
 /*! The mfx3DLutInterpolationMethod enumerator specifies the 3DLUT interpolation method. */
 typedef enum {
     MFX_3DLUT_INTERPOLATION_DEFAULT              = 0,   /*!< Default 3DLUT interpolation Method. The library selects the most appropriate 3DLUT interpolation method. */
     MFX_3DLUT_INTERPOLATION_TRILINEAR            = 1,   /*!< 3DLUT Trilinear interpolation method. */
     MFX_3DLUT_INTERPOLATION_TETRAHEDRAL          = 2,   /*!< 3DLUT Tetrahedral interpolation method. */
 } mfx3DLutInterpolationMethod;
-#endif
 
 MFX_PACK_BEGIN_USUAL_STRUCT()
 /*!
@@ -2628,12 +2699,8 @@ typedef struct {
         mfx3DLutSystemBuffer SystemBuffer;     /*!< The 3DLUT system buffer. mfx3DLutSystemBuffer structure describes the details of the buffer.*/
         mfx3DLutVideoBuffer  VideoBuffer;      /*!< The 3DLUT video buffer. mfx3DLutVideoBuffer describes the details of 3DLUT video buffer.*/
     };
-#ifdef ONEVPL_EXPERIMENTAL
     mfx3DLutInterpolationMethod     InterpolationMethod;       /*!< Indicates 3DLUT Interpolation Method. mfx3DLutInterpolationMethod enumerator.*/
     mfxU32                          reserved[3];               /*!< Reserved for future extension.*/
-#else
-    mfxU32                   reserved[4];      /*!< Reserved for future extension.*/
-#endif
 } mfxExtVPP3DLut;
 MFX_PACK_END()
 
@@ -5387,6 +5454,22 @@ typedef struct {
     mfxU16              AdaptiveTargetUsage;
     mfxU16              reserved[26];   /*!< Reserved for future use. */
 } mfxExtAIEncCtrl;
+MFX_PACK_END()
+
+MFX_PACK_BEGIN_USUAL_STRUCT()
+/*! The structure is used to configure encoder pre-processing presets (temporal filter) applied before encoding. */
+typedef struct {
+    mfxExtBuffer        Header;         /*!< Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_ENC_PREPROCESSING. */
+    /*!
+        Temporal filter (TF) preset level. Value range of 0 to 4 (inclusive). Zero means the filter is disabled;
+        values from 1 to 4 represent the filtering level, where a higher value yields better encoding quality
+        at the cost of increased latency, which may vary across platform configurations.
+        This feature is not supported in constant QP mode (CQP), or when reference frames are managed by
+        the external application.
+    */
+    mfxU16              TFLevel;
+    mfxU16              reserved[27];   /*!< Reserved for future use. */
+} mfxExtEncPreProcessing;
 MFX_PACK_END()
 #endif
 

@@ -3,7 +3,7 @@
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
-  
+
 #include "va/va.h"
 
 /* These macro required for code compilation. */

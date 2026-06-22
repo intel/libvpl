@@ -3,7 +3,7 @@
   #
   # SPDX-License-Identifier: MIT
   ############################################################################*/
-  
+
 #include "mfxdefs.h"
 #include "mfxvideo.h"
 

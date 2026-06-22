@@ -40,6 +40,9 @@ information about the bitstream buffer.
 
 .. doxygenenumvalue:: MFX_BITSTREAM_EOS
    :project: DEF_BREATHE_PROJECT
+   
+.. doxygenenumvalue:: MFX_BITSTREAM_IN_VIDEO_MEMORY
+   :project: DEF_BREATHE_PROJECT
 
 ------------
 BPSEIControl
@@ -750,6 +753,72 @@ The ColorFourCC enumerator itemizes color formats.
    :project: DEF_BREATHE_PROJECT
 
 .. doxygenenumvalue:: MFX_FOURCC_ABGR16F
+   :project: DEF_BREATHE_PROJECT
+
+.. doxygenenumvalue:: MFX_FOURCC_ARGB16F
+   :project: DEF_BREATHE_PROJECT
+
+.. doxygenenumvalue:: MFX_FOURCC_AYUV_RGBA8
+   :project: DEF_BREATHE_PROJECT
+   
+.. doxygenenumvalue:: MFX_FOURCC_Y416_RGBA16
+   :project: DEF_BREATHE_PROJECT
+   
+-------------
+OutputCscCaps
+-------------
+
+The OutputCscCaps enumerator itemizes what target surface formats are supported. It is a bit-wise value of following.
+
+.. doxygenenumvalue:: DEC_CSC_NOT_SUPPORTED
+   :project: DEF_BREATHE_PROJECT
+
+.. doxygenenumvalue:: DEC_CSC_NV12_SUPPORTED_BIT
+   :project: DEF_BREATHE_PROJECT
+   
+.. doxygenenumvalue:: DEC_CSC_P016_SUPPORTED_BIT
+   :project: DEF_BREATHE_PROJECT
+   
+.. doxygenenumvalue:: DEC_CSC_YUY2_SUPPORTED_BIT
+   :project: DEF_BREATHE_PROJECT
+   
+.. doxygenenumvalue:: DEC_CSC_Y216_SUPPORTED_BIT
+   :project: DEF_BREATHE_PROJECT
+   
+.. doxygenenumvalue:: DEC_CSC_AYUV_SUPPORTED_BIT
+   :project: DEF_BREATHE_PROJECT
+   
+.. doxygenenumvalue:: DEC_CSC_Y416_SUPPORTED_BIT
+   :project: DEF_BREATHE_PROJECT
+   
+.. doxygenenumvalue:: DEC_CSC_AYUV_RGBA8_SUPPORTED_BIT
+   :project: DEF_BREATHE_PROJECT
+   
+.. doxygenenumvalue:: DEC_CSC_Y416_RGBA16_SUPPORTED_BIT
+   :project: DEF_BREATHE_PROJECT
+   
+.. doxygenenumvalue:: DEC_CSC_RGBA8_SUPPORTED_BIT
+   :project: DEF_BREATHE_PROJECT
+   
+.. doxygenenumvalue:: DEC_CSC_RGBA16_SUPPORTED_BIT
+   :project: DEF_BREATHE_PROJECT
+   
+.. doxygenenumvalue:: DEC_CSC_RGBA16F_SUPPORTED_BIT
+   :project: DEF_BREATHE_PROJECT
+   
+----------------------
+OutputScalingRatioCaps
+----------------------
+
+The OutputScalingRatioCaps enumerator itemizes what target scaling ratios are supported. It is a bit-wise value of following.
+
+.. doxygenenumvalue:: DEC_SCALING_NOT_SUPPORTED
+   :project: DEF_BREATHE_PROJECT
+   
+.. doxygenenumvalue:: DEC_DOWNSCALING_RATIO_W2_H2_SUPPORTED_BIT
+   :project: DEF_BREATHE_PROJECT
+   
+.. doxygenenumvalue:: DEC_DOWNSCALING_RATIO_W4_H4_SUPPORTED_BIT
    :project: DEF_BREATHE_PROJECT
 
 -----------

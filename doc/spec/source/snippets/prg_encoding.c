@@ -469,7 +469,7 @@ if (sts == MFX_ERR_NONE) {
 
    /* release memory */
    stats.EncodeStatsContainer->RefInterface.Release(&stats.EncodeStatsContainer->RefInterface);
-   
+
 }
 
 }
@@ -490,10 +490,10 @@ sts = MFXVideoENCODE_EncodeFrameAsync(session, NULL, surface, bits, &syncp);
 if (MFX_ERR_NONE == sts) {
    /* to synchronize bitstream. */
    stats_frame.EncodeStatsContainer->SynchronizeBitstream(&stats_frame.EncodeStatsContainer->RefInterface, INFINITE);
-   
+
    /* to synchronize frame level statistics. */
    stats_frame.EncodeStatsContainer->SynchronizeStatistics(&stats_frame.EncodeStatsContainer->RefInterface, INFINITE);
-   
+
    /* to synchronize block level statistics. */
    stats_blk.EncodeStatsContainer->SynchronizeStatistics(&stats_blk.EncodeStatsContainer->RefInterface, INFINITE);
 
@@ -518,10 +518,10 @@ sts = MFXVideoENCODE_EncodeFrameAsync(session, NULL, surface, bits, &syncp);
 if (MFX_ERR_NONE == sts) {
    /* to synchronize bitstream. */
    stats.EncodeStatsContainer->SynchronizeBitstream(&stats.EncodeStatsContainer->RefInterface, INFINITE);
-   
+
    /* to synchronize frame and block level statistics. */
    stats.EncodeStatsContainer->SynchronizeStatistics(&stats.EncodeStatsContainer->RefInterface, INFINITE);
-   
+
    /* process stats */
 
    /* release memory */
@@ -692,7 +692,7 @@ for (;;) {
    {
       case NV12_SYS:
       {
-         
+
          /* sys mem data for alpha channel */
          mfxFrameSurface1 alphaSurfSys    = {};
          alphaSurfSys.Info                = surface->Info; // same as the surface.Info(base)
@@ -740,7 +740,7 @@ for (;;) {
       break;
       case RGBA_SYS:
       {
-         
+
          /* no need for mfxExtAlphaChannelSurface, put alpha channel data into the mfxFrameSurface1.Data.A */
          surface->Data.A = alphaSysData;
 
@@ -804,5 +804,36 @@ for (;;) {
     MFXVideoCORE_SyncOperation(session, syncp, INFINITE);
 }
 /*end12*/
+}
+#endif
+
+#ifdef ONEVPL_EXPERIMENTAL
+static void prg_encoding13() {
+/*beg13*/
+/* mfxExtEncPreProcessing Init */
+mfxExtEncPreProcessing preProc   = {};
+preProc.Header.BufferId       = MFX_EXTBUFF_ENC_PREPROCESSING;
+preProc.Header.BufferSz       = sizeof(mfxExtEncPreProcessing);
+preProc.TFLevel               = 1;
+
+mfxExtBuffer * ExtParam[1]    = { (mfxExtBuffer *)&preProc };
+
+mfxSession session            = (mfxSession)0;
+mfxVideoParam encodeParams    = {};
+encodeParams.NumExtParam      = 1;
+encodeParams.ExtParam         = ExtParam;
+
+/* perform check pre-processing support status */
+MFXVideoENCODE_Query(session, &encodeParams, &encodeParams);
+
+/* init encode */
+MFXVideoENCODE_Init(session, &encodeParams);
+
+/* perform encoding */
+for (;;) {
+    MFXVideoENCODE_EncodeFrameAsync(session, NULL, surface, bits, &syncp);
+    MFXVideoCORE_SyncOperation(session, syncp, INFINITE);
+}
+/*end13*/
 }
 #endif

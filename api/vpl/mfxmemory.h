@@ -266,7 +266,7 @@ typedef struct {
 } mfxSurfaceTypesSupported;
 MFX_PACK_END()
 
-#define MFX_MEMORYINTERFACE_VERSION MFX_STRUCT_VERSION(1, 0)
+#define MFX_MEMORYINTERFACE_VERSION MFX_STRUCT_VERSION(1, 1)
 
 MFX_PACK_BEGIN_STRUCT_W_PTR()
 /* Specifies memory interface. */
@@ -306,7 +306,33 @@ typedef struct mfxMemoryInterface {
     /* For reference with Export flow please search for mfxFrameSurfaceInterface::Export. */
     mfxStatus (MFX_CDECL *ImportFrameSurface)(struct mfxMemoryInterface* memory_interface, mfxSurfaceComponent surf_component, mfxSurfaceHeader* external_surface, mfxFrameSurface1** imported_surface);
 
-    mfxHDL     reserved[16];
+    /*!
+       @brief
+        Get a buffer in video memory into mfxBitstream which is used to store bitstream data for video decoding.
+       @param[in]       memory_interface  Valid memory interface.
+       @param[in,out]   queried_bsBuffer  Pointer to a valid mfxBitstream object. 
+                                          When the call succeeds, the Data, DataOffset, DataLength, MaxLength, DataFlag of the queried_bsBuffer will be updated.
+
+       @return
+       MFX_ERR_NONE The function completed successfully. The Data, DataOffset, DataLength, MaxLength, DataFlag of the queried_bsBuffer will be updated.\n
+       MFX_ERR_NOT_INITIALIZED The function is called before MFXVideoDECODE_Init.\n
+       MFX_ERR_INVALID_HANDLE The input memory_interface is an invalid interface.\n
+       MFX_ERR_NULL_PTR The input queried_bsBuffer is a null pointer.\n
+       MFX_ERR_UNSUPPORTED The function is not supported for this codec.\n
+       MFX_ERR_DEVICE_FAILED The function fails to get the bitstream buffer in video memory.\n
+
+       @note This function should be called after MFXVideoDECODE_Init succeeds.
+       The bitstream buffer returned in queried_bsBuffer will be managed by the runtime and has been mapped for CPU access. The application does not need to allocate or delete memory for this buffer.
+       It will be allocated by runtime when the codec supports this function. It will be released automatically when the corresponding DecodeFrameAsync succeeds.
+       The mfxBitstream::Data will be reset to nullptr by DecodeFrameAsync when the buffer is released internally.
+       The MFX_BITSTREAM_IN_VIDEO_MEMORY bit of mfxBitstream::DataFlag will be set if this function succeeds, indicating the bitstream buffer is in video memory.
+       It is required for app to ensure the bitstream is a single complete frame (set the MFX_BITSTREAM_COMPLETE_FRAME of queried_bsBuffer->DataFlag) when using this function.
+       If the bitstream is not a complete frame, the mfxFrameData::Corrupted of the output surface will be set with MFX_CORRUPTION_MAJOR or MFX_CORRUPTION_MINOR according to the hardware decoding status.
+
+       @since This function is available since API version 2.17.
+    */
+    mfxStatus (MFX_CDECL* GetBitstreamBuffer)(struct mfxMemoryInterface* memory_interface, mfxBitstream* queried_bsBuffer);
+    mfxHDL     reserved[15];
 } mfxMemoryInterface;
 MFX_PACK_END()
 
