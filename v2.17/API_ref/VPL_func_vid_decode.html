@@ -1,0 +1,898 @@
+<!--
+SPDX-FileCopyrightText: 2019-2023 Intel Corporation
+
+SPDX-License-Identifier: MIT
+-->
+
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>VideoDECODE &#8212; Intel® VPL  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=5b4479735964841361fd" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=5b4479735964841361fd" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd" />
+  <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=5b4479735964841361fd"></script>
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'API_ref/VPL_func_vid_decode';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="VideoENCODE" href="VPL_func_vid_encode.html" />
+    <link rel="prev" title="Function Reference" href="VPL_functions.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Intel® VPL  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../VPL_intel_media_sdk.html">Intel<sup>®</sup> VPL for Intel<sup>®</sup> Media Software Development Kit Users</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../architecture/index.html">Architecture</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/VPL_decoding.html">Video Decoding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/VPL_encoding.html">Video Encoding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/VPL_processing.html">Video Processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/VPL_decoding_vpp.html">Video Decoding with multiple video processing</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../programming_guide/index.html">Programming Guide</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_stc.html">Status Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_session.html">Intel<sup>®</sup> VPL Session</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_frame.html">Frame and Fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_decoding.html">Decoding Procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_encoding.html">Encoding Procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_vpp.html">Video Processing Procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_transcoding.html">Transcoding Procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_config.html">Parameter Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_hw.html">Hardware Acceleration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_mem.html">Memory Allocation and External Allocators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_surface_sharing.html">Importing and Exporting Shared Surfaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_err.html">Hardware Device Error Handling</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../VPL_summary.html">Mandatory APIs and Functions</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="VPL_api_ref.html">Intel<sup>®</sup> VPL API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="VPL_functions.html">Function Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">VideoDECODE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_func_vid_encode.html">VideoENCODE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_func_vid_vpp.html">VideoVPP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_func_vidcore.html">VideoCORE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_func_session.html">Session Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_func_mem.html">Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_func_capabilities.html">Implementation Capabilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_func_adapters.html">Adapters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_func_vid_decode_vpp.html">VideoDECODE_VPP</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="VPL_structs.html">Structure Reference</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="VPL_structs_type.html">Type Definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_structs_memory.html">Memory Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_structs_impl_manage.html">Implementation Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_structs_cross_component.html">Cross-component Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_structs_decode.html">Decode Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_structs_encode.html">Encode Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_structs_vpp.html">VPP Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_structs_protected.html">Protected Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_structs_decode_vpp.html">DECODE_VPP Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_structs_camera.html">Camera Structures</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_enums.html">Enumerator Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_defines.html">Define Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_ref_types.html">Type Reference</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="VPL_disp_api.html">Dispatcher API</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="VPL_disp_api_func.html">Dispatcher API Function Reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_disp_api_struct.html">Dispatcher API Structure Reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_disp_api_enum.html">Dispatcher API Enumeration Reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_disp_api_def.html">Dispatcher API Define Reference</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_guids.html">GUIDs Reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Versioning.html">Intel<sup>®</sup> VPL API Versioning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Experimental.html">Intel<sup>®</sup> VPL Experimental API</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../appendix/index.html">Appendices</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_a.html">Configuration Parameter Constraints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_b.html">Multiple-segment Encoding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_c.html">Streaming and Video Conferencing Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_d.html">Switchable Graphics and Multiple Monitors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_e.html">Working Directly with VA-API for Linux*</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_f.html">CQP HRD Mode Encoding</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../VPL_acronyms.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../VPL_deprecation.html">Deprecated API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../VPL_change_log.html">Change Log</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/API_ref/VPL_func_vid_decode.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>VideoDECODE</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxvideodecode-query">MFXVideoDECODE_Query</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxvideodecode-decodeheader">MFXVideoDECODE_DecodeHeader</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxvideodecode-queryiosurf">MFXVideoDECODE_QueryIOSurf</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxvideodecode-init">MFXVideoDECODE_Init</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxvideodecode-reset">MFXVideoDECODE_Reset</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxvideodecode-close">MFXVideoDECODE_Close</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxvideodecode-getvideoparam">MFXVideoDECODE_GetVideoParam</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxvideodecode-getdecodestat">MFXVideoDECODE_GetDecodeStat</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxvideodecode-setskipmode">MFXVideoDECODE_SetSkipMode</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxvideodecode-getpayload">MFXVideoDECODE_GetPayload</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxvideodecode-decodeframeasync">MFXVideoDECODE_DecodeFrameAsync</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="videodecode">
+<span id="func-video-decode"></span><h1>VideoDECODE<a class="headerlink" href="#videodecode" title="Permalink to this heading">#</a></h1>
+<p id="func-vid-decode-begin">Functions that implement a complete decoder that decompresses input bitstreams
+directly to output frame surfaces.</p>
+<section id="api">
+<span id="func-vid-decode-end"></span><h2>API<a class="headerlink" href="#api" title="Permalink to this heading">#</a></h2>
+<nav class="contents local" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#mfxvideodecode-query" id="id1">MFXVideoDECODE_Query</a></p></li>
+<li><p><a class="reference internal" href="#mfxvideodecode-decodeheader" id="id2">MFXVideoDECODE_DecodeHeader</a></p></li>
+<li><p><a class="reference internal" href="#mfxvideodecode-queryiosurf" id="id3">MFXVideoDECODE_QueryIOSurf</a></p></li>
+<li><p><a class="reference internal" href="#mfxvideodecode-init" id="id4">MFXVideoDECODE_Init</a></p></li>
+<li><p><a class="reference internal" href="#mfxvideodecode-reset" id="id5">MFXVideoDECODE_Reset</a></p></li>
+<li><p><a class="reference internal" href="#mfxvideodecode-close" id="id6">MFXVideoDECODE_Close</a></p></li>
+<li><p><a class="reference internal" href="#mfxvideodecode-getvideoparam" id="id7">MFXVideoDECODE_GetVideoParam</a></p></li>
+<li><p><a class="reference internal" href="#mfxvideodecode-getdecodestat" id="id8">MFXVideoDECODE_GetDecodeStat</a></p></li>
+<li><p><a class="reference internal" href="#mfxvideodecode-setskipmode" id="id9">MFXVideoDECODE_SetSkipMode</a></p></li>
+<li><p><a class="reference internal" href="#mfxvideodecode-getpayload" id="id10">MFXVideoDECODE_GetPayload</a></p></li>
+<li><p><a class="reference internal" href="#mfxvideodecode-decodeframeasync" id="id11">MFXVideoDECODE_DecodeFrameAsync</a></p></li>
+</ul>
+</nav>
+<section id="mfxvideodecode-query">
+<h3><a class="toc-backref" href="#id1" role="doc-backlink">MFXVideoDECODE_Query</a><a class="headerlink" href="#mfxvideodecode-query" title="Permalink to this heading">#</a></h3>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv420MFXVideoDECODE_Query10mfxSessionP13mfxVideoParamP13mfxVideoParam">
+<span id="_CPPv320MFXVideoDECODE_Query10mfxSessionP13mfxVideoParamP13mfxVideoParam"></span><span id="_CPPv220MFXVideoDECODE_Query10mfxSessionP13mfxVideoParamP13mfxVideoParam"></span><span id="MFXVideoDECODE_Query__mfxSession.mfxVideoParamP.mfxVideoParamP"></span><span class="target" id="mfxvideo_8h_1a375e7291457a1d21b61b68217ad40bdd"></span><a class="reference internal" href="VPL_enums.html#_CPPv49mfxStatus" title="mfxStatus"><span class="n"><span class="pre">mfxStatus</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">MFXVideoDECODE_Query</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="VPL_ref_types.html#_CPPv410mfxSession" title="mfxSession"><span class="n"><span class="pre">mfxSession</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">session</span></span>, <a class="reference internal" href="VPL_structs_cross_component.html#_CPPv413mfxVideoParam" title="mfxVideoParam"><span class="n"><span class="pre">mfxVideoParam</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">in</span></span>, <a class="reference internal" href="VPL_structs_cross_component.html#_CPPv413mfxVideoParam" title="mfxVideoParam"><span class="n"><span class="pre">mfxVideoParam</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">out</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv420MFXVideoDECODE_Query10mfxSessionP13mfxVideoParamP13mfxVideoParam" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Works in one of two modes: </p>
+<p><ul class="simple">
+<li><p>If the <code class="docutils literal notranslate"><span class="pre">in</span></code> parameter is zero, the function returns the class configurability in the output structure. A non-zero value in each field of the output structure indicates that the field is configurable by the implementation with the MFXVideoDECODE_Init function.</p></li>
+</ul>
+<ul class="simple">
+<li><p>If the <code class="docutils literal notranslate"><span class="pre">in</span></code> parameter is non-zero, the function checks the validity of the fields in the input structure. Then the function returns the corrected values to the output structure. If there is insufficient information to determine the validity or correction is impossible, the function zeros the fields. This feature can verify whether the implementation supports certain profiles, levels, or bitrates.</p></li>
+</ul>
+
+The application can call this function before or after it initializes the decoder. The <code class="docutils literal notranslate"><span class="pre">CodecId</span></code> field of the output structure is a mandated field (to be filled by the application) to identify the coding standard.</p>
+<p><dl class="simple">
+<dt><strong>Since</strong></dt><dd><p>This function is available since API version 1.0. </p>
+</dd>
+</dl>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>session</strong> – <strong>[in]</strong> Session handle. </p></li>
+<li><p><strong>in</strong> – <strong>[in]</strong> Pointer to the <a class="reference internal" href="VPL_structs_cross_component.html#structmfx_video_param"><span class="std std-ref">mfxVideoParam</span></a> structure as input. </p></li>
+<li><p><strong>out</strong> – <strong>[out]</strong> Pointer to the <a class="reference internal" href="VPL_structs_cross_component.html#structmfx_video_param"><span class="std std-ref">mfxVideoParam</span></a> structure as output.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>MFX_ERR_NONE The function completed successfully.</p>
+<p>MFX_ERR_UNSUPPORTED The function failed to identify a specific implementation for the required features.</p>
+<p>MFX_WRN_PARTIAL_ACCELERATION The underlying hardware does not fully support the specified video parameters. The decoding may be partially accelerated. Only hardware implementations may return this status code.</p>
+<p>MFX_WRN_INCOMPATIBLE_VIDEO_PARAM The function detected some video parameters were incompatible with others; incompatibility resolved.</p>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>The <a class="reference internal" href="#_CPPv420MFXVideoDECODE_Query10mfxSessionP13mfxVideoParamP13mfxVideoParam" title="MFXVideoDECODE_Query"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoDECODE_Query()</span></code></a> is mandatory when implementing a decoder.</p>
+</div>
+</section>
+<section id="mfxvideodecode-decodeheader">
+<h3><a class="toc-backref" href="#id2" role="doc-backlink">MFXVideoDECODE_DecodeHeader</a><a class="headerlink" href="#mfxvideodecode-decodeheader" title="Permalink to this heading">#</a></h3>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv427MFXVideoDECODE_DecodeHeader10mfxSessionP12mfxBitstreamP13mfxVideoParam">
+<span id="_CPPv327MFXVideoDECODE_DecodeHeader10mfxSessionP12mfxBitstreamP13mfxVideoParam"></span><span id="_CPPv227MFXVideoDECODE_DecodeHeader10mfxSessionP12mfxBitstreamP13mfxVideoParam"></span><span id="MFXVideoDECODE_DecodeHeader__mfxSession.mfxBitstreamP.mfxVideoParamP"></span><span class="target" id="mfxvideo_8h_1af79b577711e8a7ae33ea9a1806359940"></span><a class="reference internal" href="VPL_enums.html#_CPPv49mfxStatus" title="mfxStatus"><span class="n"><span class="pre">mfxStatus</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">MFXVideoDECODE_DecodeHeader</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="VPL_ref_types.html#_CPPv410mfxSession" title="mfxSession"><span class="n"><span class="pre">mfxSession</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">session</span></span>, <a class="reference internal" href="VPL_structs_memory.html#_CPPv412mfxBitstream" title="mfxBitstream"><span class="n"><span class="pre">mfxBitstream</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">bs</span></span>, <a class="reference internal" href="VPL_structs_cross_component.html#_CPPv413mfxVideoParam" title="mfxVideoParam"><span class="n"><span class="pre">mfxVideoParam</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">par</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv427MFXVideoDECODE_DecodeHeader10mfxSessionP12mfxBitstreamP13mfxVideoParam" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Parses the input bitstream and fills the <a class="reference internal" href="VPL_structs_cross_component.html#structmfx_video_param"><span class="std std-ref">mfxVideoParam</span></a> structure with appropriate values, such as resolution and frame rate, for the Init API function. </p>
+<p>The application can then pass the resulting structure to the MFXVideoDECODE_Init function for decoder initialization.</p>
+<p>An application can call this API function at any time before or after decoder initialization. If the library finds a sequence header in the bitstream, the function moves the bitstream pointer to the first bit of the sequence header. Otherwise, the function moves the bitstream pointer close to the end of the bitstream buffer but leaves enough data in the buffer to avoid possible loss of start code.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">CodecId</span></code> field of the <a class="reference internal" href="VPL_structs_cross_component.html#structmfx_video_param"><span class="std std-ref">mfxVideoParam</span></a> structure is a mandated field (to be filled by the application) to identify the coding standard.</p>
+<p>The application can retrieve a copy of the bitstream header, by attaching the <a class="reference internal" href="VPL_structs_encode.html#structmfx_ext_coding_option_s_p_s_p_p_s"><span class="std std-ref">mfxExtCodingOptionSPSPPS</span></a> structure to the <a class="reference internal" href="VPL_structs_cross_component.html#structmfx_video_param"><span class="std std-ref">mfxVideoParam</span></a> structure.</p>
+<p><dl class="simple">
+<dt><strong>Since</strong></dt><dd><p>This function is available since API version 1.0. </p>
+</dd>
+</dl>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>session</strong> – <strong>[in]</strong> Session handle. </p></li>
+<li><p><strong>bs</strong> – <strong>[in]</strong> Pointer to the bitstream. </p></li>
+<li><p><strong>par</strong> – <strong>[in]</strong> Pointer to the <a class="reference internal" href="VPL_structs_cross_component.html#structmfx_video_param"><span class="std std-ref">mfxVideoParam</span></a> structure.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p>MFX_ERR_NONE The function successfully filled the structure. It does not mean that the stream can be decoded by the library. The application should call MFXVideoDECODE_Query function to check if decoding of the stream is supported. </p></li>
+<li><p>MFX_ERR_MORE_DATA The function requires more bitstream data. </p></li>
+<li><p>MFX_ERR_UNSUPPORTED <code class="docutils literal notranslate"><span class="pre">CodecId</span></code> field of the <a class="reference internal" href="VPL_structs_cross_component.html#structmfx_video_param"><span class="std std-ref">mfxVideoParam</span></a> structure indicates some unsupported codec. </p></li>
+<li><p>MFX_ERR_INVALID_HANDLE Session is not initialized. </p></li>
+<li><p>MFX_ERR_NULL_PTR <code class="docutils literal notranslate"><span class="pre">bs</span></code> or <code class="docutils literal notranslate"><span class="pre">par</span></code> pointer is NULL.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="mfxvideodecode-queryiosurf">
+<h3><a class="toc-backref" href="#id3" role="doc-backlink">MFXVideoDECODE_QueryIOSurf</a><a class="headerlink" href="#mfxvideodecode-queryiosurf" title="Permalink to this heading">#</a></h3>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv426MFXVideoDECODE_QueryIOSurf10mfxSessionP13mfxVideoParamP20mfxFrameAllocRequest">
+<span id="_CPPv326MFXVideoDECODE_QueryIOSurf10mfxSessionP13mfxVideoParamP20mfxFrameAllocRequest"></span><span id="_CPPv226MFXVideoDECODE_QueryIOSurf10mfxSessionP13mfxVideoParamP20mfxFrameAllocRequest"></span><span id="MFXVideoDECODE_QueryIOSurf__mfxSession.mfxVideoParamP.mfxFrameAllocRequestP"></span><span class="target" id="mfxvideo_8h_1ac29df4d457402b428895044630fb0394"></span><a class="reference internal" href="VPL_enums.html#_CPPv49mfxStatus" title="mfxStatus"><span class="n"><span class="pre">mfxStatus</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">MFXVideoDECODE_QueryIOSurf</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="VPL_ref_types.html#_CPPv410mfxSession" title="mfxSession"><span class="n"><span class="pre">mfxSession</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">session</span></span>, <a class="reference internal" href="VPL_structs_cross_component.html#_CPPv413mfxVideoParam" title="mfxVideoParam"><span class="n"><span class="pre">mfxVideoParam</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">par</span></span>, <a class="reference internal" href="VPL_structs_memory.html#_CPPv420mfxFrameAllocRequest" title="mfxFrameAllocRequest"><span class="n"><span class="pre">mfxFrameAllocRequest</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">request</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv426MFXVideoDECODE_QueryIOSurf10mfxSessionP13mfxVideoParamP20mfxFrameAllocRequest" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Returns minimum and suggested numbers of the output frame surfaces required for decoding initialization and their type. </p>
+<p>Init will call the external allocator for the required frames with the same set of numbers. The use of this function is recommended. <p>For more information, see the <a class="reference internal" href="../programming_guide/VPL_prg_hw.html#hw-acceleration"><span class="std std-ref">Working with Hardware Acceleration section</span></a>.</p>
+</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">CodecId</span></code> field of the <a class="reference internal" href="VPL_structs_cross_component.html#structmfx_video_param"><span class="std std-ref">mfxVideoParam</span></a> structure is a mandated field (to be filled by the application) to identify the coding standard. This function does not validate I/O parameters except those used in calculating the number of output surfaces.</p>
+<p><dl class="simple">
+<dt><strong>Since</strong></dt><dd><p>This function is available since API version 1.0. </p>
+</dd>
+</dl>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>session</strong> – <strong>[in]</strong> Session handle. </p></li>
+<li><p><strong>par</strong> – <strong>[in]</strong> Pointer to the <a class="reference internal" href="VPL_structs_cross_component.html#structmfx_video_param"><span class="std std-ref">mfxVideoParam</span></a> structure as input. </p></li>
+<li><p><strong>request</strong> – <strong>[in]</strong> Pointer to the <a class="reference internal" href="VPL_structs_memory.html#structmfx_frame_alloc_request"><span class="std std-ref">mfxFrameAllocRequest</span></a> structure as output.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>MFX_ERR_NONE The function completed successfully.</p>
+<p>MFX_ERR_INVALID_VIDEO_PARAM The function detected invalid video parameters. These parameters may be out of the valid range, or the combination of them resulted in incompatibility. Incompatibility not resolved.</p>
+<p>MFX_WRN_PARTIAL_ACCELERATION The underlying hardware does not fully support the specified video parameters. The encoding may be partially accelerated. Only hardware implementations may return this status code.</p>
+<p>MFX_WRN_INCOMPATIBLE_VIDEO_PARAM The function detected some video parameters were incompatible with others; incompatibility resolved.</p>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="mfxvideodecode-init">
+<h3><a class="toc-backref" href="#id4" role="doc-backlink">MFXVideoDECODE_Init</a><a class="headerlink" href="#mfxvideodecode-init" title="Permalink to this heading">#</a></h3>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv419MFXVideoDECODE_Init10mfxSessionP13mfxVideoParam">
+<span id="_CPPv319MFXVideoDECODE_Init10mfxSessionP13mfxVideoParam"></span><span id="_CPPv219MFXVideoDECODE_Init10mfxSessionP13mfxVideoParam"></span><span id="MFXVideoDECODE_Init__mfxSession.mfxVideoParamP"></span><span class="target" id="mfxvideo_8h_1ad918d639c85687a8565be432cc03d979"></span><a class="reference internal" href="VPL_enums.html#_CPPv49mfxStatus" title="mfxStatus"><span class="n"><span class="pre">mfxStatus</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">MFXVideoDECODE_Init</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="VPL_ref_types.html#_CPPv410mfxSession" title="mfxSession"><span class="n"><span class="pre">mfxSession</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">session</span></span>, <a class="reference internal" href="VPL_structs_cross_component.html#_CPPv413mfxVideoParam" title="mfxVideoParam"><span class="n"><span class="pre">mfxVideoParam</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">par</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv419MFXVideoDECODE_Init10mfxSessionP13mfxVideoParam" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Allocates memory and prepares tables and necessary structures for encoding. </p>
+<p>This function also does extensive validation to ensure if the configuration, as specified in the input parameters, is supported.</p>
+<p><dl class="simple">
+<dt><strong>Since</strong></dt><dd><p>This function is available since API version 1.0. </p>
+</dd>
+</dl>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>session</strong> – <strong>[in]</strong> Session handle. </p></li>
+<li><p><strong>par</strong> – <strong>[in]</strong> Pointer to the <a class="reference internal" href="VPL_structs_cross_component.html#structmfx_video_param"><span class="std std-ref">mfxVideoParam</span></a> structure.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>MFX_ERR_NONE The function completed successfully.</p>
+<p>MFX_ERR_INVALID_VIDEO_PARAM The function detected invalid video parameters. These parameters may be out of the valid range, or the combination of them resulted in incompatibility. Incompatibility not resolved.</p>
+<p>MFX_WRN_PARTIAL_ACCELERATION The underlying hardware does not fully support the specified video parameters. The encoding may be partially accelerated. Only hardware implementations may return this status code.</p>
+<p>MFX_WRN_INCOMPATIBLE_VIDEO_PARAM The function detected some video parameters were incompatible with others; incompatibility resolved.</p>
+
+MFX_ERR_UNDEFINED_BEHAVIOR The function is called twice without a close.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>The <a class="reference internal" href="#_CPPv419MFXVideoDECODE_Init10mfxSessionP13mfxVideoParam" title="MFXVideoDECODE_Init"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoDECODE_Init()</span></code></a> is mandatory when implementing a decoder.</p>
+</div>
+</section>
+<section id="mfxvideodecode-reset">
+<h3><a class="toc-backref" href="#id5" role="doc-backlink">MFXVideoDECODE_Reset</a><a class="headerlink" href="#mfxvideodecode-reset" title="Permalink to this heading">#</a></h3>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv420MFXVideoDECODE_Reset10mfxSessionP13mfxVideoParam">
+<span id="_CPPv320MFXVideoDECODE_Reset10mfxSessionP13mfxVideoParam"></span><span id="_CPPv220MFXVideoDECODE_Reset10mfxSessionP13mfxVideoParam"></span><span id="MFXVideoDECODE_Reset__mfxSession.mfxVideoParamP"></span><span class="target" id="mfxvideo_8h_1add427e6f6ec9e7870ec3c97a52516ddc"></span><a class="reference internal" href="VPL_enums.html#_CPPv49mfxStatus" title="mfxStatus"><span class="n"><span class="pre">mfxStatus</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">MFXVideoDECODE_Reset</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="VPL_ref_types.html#_CPPv410mfxSession" title="mfxSession"><span class="n"><span class="pre">mfxSession</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">session</span></span>, <a class="reference internal" href="VPL_structs_cross_component.html#_CPPv413mfxVideoParam" title="mfxVideoParam"><span class="n"><span class="pre">mfxVideoParam</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">par</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv420MFXVideoDECODE_Reset10mfxSessionP13mfxVideoParam" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Stops the current decoding operation and restores internal structures or parameters for a new decoding operation. </p>
+<p>Reset serves two purposes:</p>
+<p><ul class="simple">
+<li><p>It recovers the decoder from errors. </p></li>
+<li><p>It restarts decoding from a new position</p></li>
+</ul>
+
+The function resets the old sequence header (sequence parameter set in H.264, or sequence header in MPEG-2 and VC-1). The decoder will expect a new sequence header before it decodes the next frame and will skip any bitstream before encountering the new sequence header.</p>
+<p><dl class="simple">
+<dt><strong>Since</strong></dt><dd><p>This function is available since API version 1.0. </p>
+</dd>
+</dl>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>session</strong> – <strong>[in]</strong> Session handle. </p></li>
+<li><p><strong>par</strong> – <strong>[in]</strong> Pointer to the <a class="reference internal" href="VPL_structs_cross_component.html#structmfx_video_param"><span class="std std-ref">mfxVideoParam</span></a> structure.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>MFX_ERR_NONE The function completed successfully.</p>
+<p>MFX_ERR_INVALID_VIDEO_PARAM The function detected that video parameters are wrong or they conflict with initialization parameters. Reset is impossible.</p>
+<p>MFX_ERR_INCOMPATIBLE_VIDEO_PARAM The function detected that video parameters provided by the application are incompatible with initialization parameters. Reset requires additional memory allocation and cannot be executed. The application should close the component and then reinitialize it.</p>
+<p>MFX_WRN_INCOMPATIBLE_VIDEO_PARAM The function detected some video parameters were incompatible with others; incompatibility resolved.</p>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="mfxvideodecode-close">
+<h3><a class="toc-backref" href="#id6" role="doc-backlink">MFXVideoDECODE_Close</a><a class="headerlink" href="#mfxvideodecode-close" title="Permalink to this heading">#</a></h3>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv420MFXVideoDECODE_Close10mfxSession">
+<span id="_CPPv320MFXVideoDECODE_Close10mfxSession"></span><span id="_CPPv220MFXVideoDECODE_Close10mfxSession"></span><span id="MFXVideoDECODE_Close__mfxSession"></span><span class="target" id="mfxvideo_8h_1a8795f364006b51d463cc7b879a63f4eb"></span><a class="reference internal" href="VPL_enums.html#_CPPv49mfxStatus" title="mfxStatus"><span class="n"><span class="pre">mfxStatus</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">MFXVideoDECODE_Close</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="VPL_ref_types.html#_CPPv410mfxSession" title="mfxSession"><span class="n"><span class="pre">mfxSession</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">session</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv420MFXVideoDECODE_Close10mfxSession" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Terminates the current decoding operation and de-allocates any internal tables or structures. </p>
+<p><dl class="simple">
+<dt><strong>Since</strong></dt><dd><p>This function is available since API version 1.0. </p>
+</dd>
+</dl>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>session</strong> – <strong>[in]</strong> Session handle.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>MFX_ERR_NONE The function completed successfully. </p>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>The <a class="reference internal" href="#_CPPv420MFXVideoDECODE_Close10mfxSession" title="MFXVideoDECODE_Close"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoDECODE_Close()</span></code></a> is mandatory when implementing a decoder.</p>
+</div>
+</section>
+<section id="mfxvideodecode-getvideoparam">
+<h3><a class="toc-backref" href="#id7" role="doc-backlink">MFXVideoDECODE_GetVideoParam</a><a class="headerlink" href="#mfxvideodecode-getvideoparam" title="Permalink to this heading">#</a></h3>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv428MFXVideoDECODE_GetVideoParam10mfxSessionP13mfxVideoParam">
+<span id="_CPPv328MFXVideoDECODE_GetVideoParam10mfxSessionP13mfxVideoParam"></span><span id="_CPPv228MFXVideoDECODE_GetVideoParam10mfxSessionP13mfxVideoParam"></span><span id="MFXVideoDECODE_GetVideoParam__mfxSession.mfxVideoParamP"></span><span class="target" id="mfxvideo_8h_1a9387bb0f8bbbf8c49d3d936ecdf16c48"></span><a class="reference internal" href="VPL_enums.html#_CPPv49mfxStatus" title="mfxStatus"><span class="n"><span class="pre">mfxStatus</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">MFXVideoDECODE_GetVideoParam</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="VPL_ref_types.html#_CPPv410mfxSession" title="mfxSession"><span class="n"><span class="pre">mfxSession</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">session</span></span>, <a class="reference internal" href="VPL_structs_cross_component.html#_CPPv413mfxVideoParam" title="mfxVideoParam"><span class="n"><span class="pre">mfxVideoParam</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">par</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv428MFXVideoDECODE_GetVideoParam10mfxSessionP13mfxVideoParam" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Retrieves current working parameters to the specified output structure. </p>
+<p>If extended buffers are to be returned, the application must allocate those extended buffers and attach them as part of the output structure. The application can retrieve a copy of the bitstream header, by attaching the <a class="reference internal" href="VPL_structs_encode.html#structmfx_ext_coding_option_s_p_s_p_p_s"><span class="std std-ref">mfxExtCodingOptionSPSPPS</span></a> structure to the <a class="reference internal" href="VPL_structs_cross_component.html#structmfx_video_param"><span class="std std-ref">mfxVideoParam</span></a> structure.</p>
+<p><dl class="simple">
+<dt><strong>Since</strong></dt><dd><p>This function is available since API version 1.0. </p>
+</dd>
+</dl>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>session</strong> – <strong>[in]</strong> Session handle. </p></li>
+<li><p><strong>par</strong> – <strong>[in]</strong> Pointer to the corresponding parameter structure.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>MFX_ERR_NONE The function completed successfully. </p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="mfxvideodecode-getdecodestat">
+<h3><a class="toc-backref" href="#id8" role="doc-backlink">MFXVideoDECODE_GetDecodeStat</a><a class="headerlink" href="#mfxvideodecode-getdecodestat" title="Permalink to this heading">#</a></h3>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv428MFXVideoDECODE_GetDecodeStat10mfxSessionP13mfxDecodeStat">
+<span id="_CPPv328MFXVideoDECODE_GetDecodeStat10mfxSessionP13mfxDecodeStat"></span><span id="_CPPv228MFXVideoDECODE_GetDecodeStat10mfxSessionP13mfxDecodeStat"></span><span id="MFXVideoDECODE_GetDecodeStat__mfxSession.mfxDecodeStatP"></span><span class="target" id="mfxvideo_8h_1aa943114d53bf2822947a381fc183f1b0"></span><a class="reference internal" href="VPL_enums.html#_CPPv49mfxStatus" title="mfxStatus"><span class="n"><span class="pre">mfxStatus</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">MFXVideoDECODE_GetDecodeStat</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="VPL_ref_types.html#_CPPv410mfxSession" title="mfxSession"><span class="n"><span class="pre">mfxSession</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">session</span></span>, <a class="reference internal" href="VPL_structs_decode.html#_CPPv413mfxDecodeStat" title="mfxDecodeStat"><span class="n"><span class="pre">mfxDecodeStat</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">stat</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv428MFXVideoDECODE_GetDecodeStat10mfxSessionP13mfxDecodeStat" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Obtains statistics collected during decoding. </p>
+<p><dl class="simple">
+<dt><strong>Since</strong></dt><dd><p>This function is available since API version 1.0. </p>
+</dd>
+</dl>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>session</strong> – <strong>[in]</strong> Session handle. </p></li>
+<li><p><strong>stat</strong> – <strong>[in]</strong> Pointer to the <a class="reference internal" href="VPL_structs_decode.html#structmfx_decode_stat"><span class="std std-ref">mfxDecodeStat</span></a> structure.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>MFX_ERR_NONE The function completed successfully. </p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="mfxvideodecode-setskipmode">
+<h3><a class="toc-backref" href="#id9" role="doc-backlink">MFXVideoDECODE_SetSkipMode</a><a class="headerlink" href="#mfxvideodecode-setskipmode" title="Permalink to this heading">#</a></h3>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv426MFXVideoDECODE_SetSkipMode10mfxSession11mfxSkipMode">
+<span id="_CPPv326MFXVideoDECODE_SetSkipMode10mfxSession11mfxSkipMode"></span><span id="_CPPv226MFXVideoDECODE_SetSkipMode10mfxSession11mfxSkipMode"></span><span id="MFXVideoDECODE_SetSkipMode__mfxSession.mfxSkipMode"></span><span class="target" id="mfxvideo_8h_1a87680dac16669d27c6bc2e543475c513"></span><a class="reference internal" href="VPL_enums.html#_CPPv49mfxStatus" title="mfxStatus"><span class="n"><span class="pre">mfxStatus</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">MFXVideoDECODE_SetSkipMode</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="VPL_ref_types.html#_CPPv410mfxSession" title="mfxSession"><span class="n"><span class="pre">mfxSession</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">session</span></span>, <a class="reference internal" href="VPL_enums.html#_CPPv411mfxSkipMode" title="mfxSkipMode"><span class="n"><span class="pre">mfxSkipMode</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">mode</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv426MFXVideoDECODE_SetSkipMode10mfxSession11mfxSkipMode" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Sets the decoder skip mode. </p>
+<p>The application may use this API function to increase decoding performance by sacrificing output quality. Increasing the skip level first results in skipping of some decoding operations like deblocking and then leads to frame skipping; first B, then P. Particular details are platform dependent.</p>
+<p><dl class="simple">
+<dt><strong>Since</strong></dt><dd><p>This function is available since API version 1.0. </p>
+</dd>
+</dl>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>session</strong> – <strong>[in]</strong> Session handle. </p></li>
+<li><p><strong>mode</strong> – <strong>[in]</strong> Decoder skip mode. See the mfxSkipMode enumerator for details.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>MFX_ERR_NONE The function completed successfully and the output surface is ready for decoding</p>
+<p>MFX_WRN_VALUE_NOT_CHANGED The skip mode is not affected as the maximum or minimum skip range is reached.</p>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="mfxvideodecode-getpayload">
+<h3><a class="toc-backref" href="#id10" role="doc-backlink">MFXVideoDECODE_GetPayload</a><a class="headerlink" href="#mfxvideodecode-getpayload" title="Permalink to this heading">#</a></h3>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv425MFXVideoDECODE_GetPayload10mfxSessionP6mfxU64P10mfxPayload">
+<span id="_CPPv325MFXVideoDECODE_GetPayload10mfxSessionP6mfxU64P10mfxPayload"></span><span id="_CPPv225MFXVideoDECODE_GetPayload10mfxSessionP6mfxU64P10mfxPayload"></span><span id="MFXVideoDECODE_GetPayload__mfxSession.mfxU64P.mfxPayloadP"></span><span class="target" id="mfxvideo_8h_1aed90569a9f32e487d53403a1bf0f16e1"></span><a class="reference internal" href="VPL_enums.html#_CPPv49mfxStatus" title="mfxStatus"><span class="n"><span class="pre">mfxStatus</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">MFXVideoDECODE_GetPayload</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="VPL_ref_types.html#_CPPv410mfxSession" title="mfxSession"><span class="n"><span class="pre">mfxSession</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">session</span></span>, <a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU64" title="mfxU64"><span class="n"><span class="pre">mfxU64</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">ts</span></span>, <a class="reference internal" href="VPL_structs_cross_component.html#_CPPv410mfxPayload" title="mfxPayload"><span class="n"><span class="pre">mfxPayload</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">payload</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv425MFXVideoDECODE_GetPayload10mfxSessionP6mfxU64P10mfxPayload" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Extracts user data (MPEG-2) or SEI (H.264) messages from the bitstream. </p>
+<p>Internally, the decoder implementation stores encountered user data or SEI messages. The application may call this API function multiple times to retrieve the user data or SEI messages, one at a time.</p>
+<p>If there is no payload available, the function returns with payload-&gt;NumBit=0.</p>
+<p><dl class="simple">
+<dt><strong>Since</strong></dt><dd><p>This function is available since API version 1.0. </p>
+</dd>
+</dl>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>session</strong> – <strong>[in]</strong> Session handle. </p></li>
+<li><p><strong>ts</strong> – <strong>[in]</strong> Pointer to the user data time stamp in units of 90 KHz; divide ts by 90,000 (90 KHz) to obtain the time in seconds; the time stamp matches the payload with a specific decoded frame. </p></li>
+<li><p><strong>payload</strong> – <strong>[in]</strong> Pointer to the <a class="reference internal" href="VPL_structs_cross_component.html#structmfx_payload"><span class="std std-ref">mfxPayload</span></a> structure; the payload contains user data in MPEG-2 or SEI messages in H.264.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>MFX_ERR_NONE The function completed successfully and the output buffer is ready for decoding.</p>
+<p>MFX_ERR_NOT_ENOUGH_BUFFER The payload buffer size is insufficient.</p>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="mfxvideodecode-decodeframeasync">
+<h3><a class="toc-backref" href="#id11" role="doc-backlink">MFXVideoDECODE_DecodeFrameAsync</a><a class="headerlink" href="#mfxvideodecode-decodeframeasync" title="Permalink to this heading">#</a></h3>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv431MFXVideoDECODE_DecodeFrameAsync10mfxSessionP12mfxBitstreamP16mfxFrameSurface1PP16mfxFrameSurface1P12mfxSyncPoint">
+<span id="_CPPv331MFXVideoDECODE_DecodeFrameAsync10mfxSessionP12mfxBitstreamP16mfxFrameSurface1PP16mfxFrameSurface1P12mfxSyncPoint"></span><span id="_CPPv231MFXVideoDECODE_DecodeFrameAsync10mfxSessionP12mfxBitstreamP16mfxFrameSurface1PP16mfxFrameSurface1P12mfxSyncPoint"></span><span id="MFXVideoDECODE_DecodeFrameAsync__mfxSession.mfxBitstreamP.mfxFrameSurface1P.mfxFrameSurface1PP.mfxSyncPointP"></span><span class="target" id="mfxvideo_8h_1a6eed247b1fcce2cdfe313b95b59f3159"></span><a class="reference internal" href="VPL_enums.html#_CPPv49mfxStatus" title="mfxStatus"><span class="n"><span class="pre">mfxStatus</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">MFXVideoDECODE_DecodeFrameAsync</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="VPL_ref_types.html#_CPPv410mfxSession" title="mfxSession"><span class="n"><span class="pre">mfxSession</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">session</span></span>, <a class="reference internal" href="VPL_structs_memory.html#_CPPv412mfxBitstream" title="mfxBitstream"><span class="n"><span class="pre">mfxBitstream</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">bs</span></span>, <a class="reference internal" href="VPL_structs_memory.html#_CPPv416mfxFrameSurface1" title="mfxFrameSurface1"><span class="n"><span class="pre">mfxFrameSurface1</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">surface_work</span></span>, <a class="reference internal" href="VPL_structs_memory.html#_CPPv416mfxFrameSurface1" title="mfxFrameSurface1"><span class="n"><span class="pre">mfxFrameSurface1</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">surface_out</span></span>, <a class="reference internal" href="VPL_ref_types.html#_CPPv412mfxSyncPoint" title="mfxSyncPoint"><span class="n"><span class="pre">mfxSyncPoint</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">syncp</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv431MFXVideoDECODE_DecodeFrameAsync10mfxSessionP12mfxBitstreamP16mfxFrameSurface1PP16mfxFrameSurface1P12mfxSyncPoint" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Decodes the input bitstream to a single output frame. </p>
+<p>The <code class="docutils literal notranslate"><span class="pre">surface_work</span></code> parameter provides a working frame buffer for the decoder. The application should allocate the working frame buffer, which stores decoded frames. If the function requires caching frames after decoding, it locks the frames and the application must provide a new frame buffer in the next call.</p>
+<p>If, and only if, the function returns MFX_ERR_NONE, the pointer <code class="docutils literal notranslate"><span class="pre">surface_out</span></code> points to the output frame in the display order. If there are no further frames, the function will reset the pointer to zero and return the appropriate status code.</p>
+<p>Before decoding the first frame, a sequence header (sequence parameter set in H.264 or sequence header in MPEG-2 and VC-1) must be present. The function skips any bitstreams before it encounters the new sequence header.</p>
+<p>The input bitstream <code class="docutils literal notranslate"><span class="pre">bs</span></code> can be of any size. If there are not enough bits to decode a frame, the function returns MFX_ERR_MORE_DATA, and consumes all input bits except if a partial start code or sequence header is at the end of the buffer. In this case, the function leaves the last few bytes in the bitstream buffer. If there is more incoming bitstream, the application should append the incoming bitstream to the bitstream buffer. Otherwise, the application should ignore the remaining bytes in the bitstream buffer and apply the end of stream procedure described below.</p>
+<p>The application must set <code class="docutils literal notranslate"><span class="pre">bs</span></code> to NULL to signal end of stream. The application may need to call this API function several times to drain any internally cached frames until the function returns MFX_ERR_MORE_DATA.</p>
+<p>If more than one frame is in the bitstream buffer, the function decodes until the buffer is consumed. The decoding process can be interrupted for events such as if the decoder needs additional working buffers, is readying a frame for retrieval, or encountering a new header. In these cases, the function returns appropriate status code and moves the bitstream pointer to the remaining data.</p>
+<p>The decoder may return MFX_ERR_NONE without taking any data from the input bitstream buffer. If the application appends additional data to the bitstream buffer, it is possible that the bitstream buffer may contain more than one frame. It is recommended that the application invoke the function repeatedly until the function returns MFX_ERR_MORE_DATA, before appending any more data to the bitstream buffer.</p>
+<p>Starting from API 2.0 it is possible to pass NULL instead of surface_work. In such case runtime will allocate output frames internally.</p>
+<p>This function is asynchronous.</p>
+<p><dl class="simple">
+<dt><strong>Since</strong></dt><dd><p>This function is available since API version 1.0. </p>
+</dd>
+</dl>
+</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>session</strong> – <strong>[in]</strong> Session handle. </p></li>
+<li><p><strong>bs</strong> – <strong>[in]</strong> Pointer to the input bitstream. </p></li>
+<li><p><strong>surface_work</strong> – <strong>[in]</strong> Pointer to the working frame buffer for the decoder. </p></li>
+<li><p><strong>surface_out</strong> – <strong>[out]</strong> Pointer to the output frame in the display order. </p></li>
+<li><p><strong>syncp</strong> – <strong>[out]</strong> Pointer to the sync point associated with this operation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>MFX_ERR_NONE The function completed successfully and the output surface is ready for decoding.</p>
+<p>MFX_ERR_MORE_DATA The function requires more bitstream at input before decoding can proceed.</p>
+<p>MFX_ERR_MORE_SURFACE The function requires more frame surface at output before decoding can proceed.</p>
+<p>MFX_ERR_DEVICE_LOST Hardware device was lost.</p>
+<p><p>See the <a class="reference internal" href="../programming_guide/VPL_prg_hw.html#work-ms-directx-app"><span class="std std-ref">Working with Microsoft* DirectX* Applications section</span></a> for further information.</p>
+</p>
+<p>MFX_WRN_DEVICE_BUSY Hardware device is currently busy. Call this function again after MFXVideoCORE_SyncOperation or in a few milliseconds.</p>
+<p>MFX_WRN_VIDEO_PARAM_CHANGED The decoder detected a new sequence header in the bitstream. Video parameters may have changed.</p>
+<p>MFX_ERR_INCOMPATIBLE_VIDEO_PARAM The decoder detected incompatible video parameters in the bitstream and failed to follow them.</p>
+<p>MFX_ERR_REALLOC_SURFACE Bigger surface_work required. May be returned only if</p>
+<a class="reference internal" href="VPL_structs_cross_component.html#structmfx_info_m_f_x_1a937913a028d969c06e3e66603b7febb0"><span class="std std-ref">mfxInfoMFX::EnableReallocRequest</span></a><p>was set to ON during initialization.</p>
+<p>MFX_WRN_ALLOC_TIMEOUT_EXPIRED Timeout expired for internal output frame allocation (if set with</p>
+<a class="reference internal" href="VPL_structs_cross_component.html#structmfx_ext_allocation_hints"><span class="std std-ref">mfxExtAllocationHints</span></a> and NULL passed as surface_work). Repeat the call in a few milliseconds or re-initialize decoder with higher surface limit.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>The <a class="reference internal" href="#_CPPv431MFXVideoDECODE_DecodeFrameAsync10mfxSessionP12mfxBitstreamP16mfxFrameSurface1PP16mfxFrameSurface1P12mfxSyncPoint" title="MFXVideoDECODE_DecodeFrameAsync"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoDECODE_DecodeFrameAsync()</span></code></a> is mandatory when implementing a decoder.</p>
+</div>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="VPL_functions.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Function Reference</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="VPL_func_vid_encode.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">VideoENCODE</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxvideodecode-query">MFXVideoDECODE_Query</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxvideodecode-decodeheader">MFXVideoDECODE_DecodeHeader</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxvideodecode-queryiosurf">MFXVideoDECODE_QueryIOSurf</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxvideodecode-init">MFXVideoDECODE_Init</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxvideodecode-reset">MFXVideoDECODE_Reset</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxvideodecode-close">MFXVideoDECODE_Close</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxvideodecode-getvideoparam">MFXVideoDECODE_GetVideoParam</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxvideodecode-getdecodestat">MFXVideoDECODE_GetDecodeStat</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxvideodecode-setskipmode">MFXVideoDECODE_SetSkipMode</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxvideodecode-getpayload">MFXVideoDECODE_GetPayload</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxvideodecode-decodeframeasync">MFXVideoDECODE_DecodeFrameAsync</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023, Intel.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=5b4479735964841361fd"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

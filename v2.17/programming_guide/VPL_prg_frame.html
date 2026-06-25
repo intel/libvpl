@@ -1,0 +1,553 @@
+<!--
+SPDX-FileCopyrightText: 2019-2023 Intel Corporation
+
+SPDX-License-Identifier: MIT
+-->
+
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Frame and Fields &#8212; Intel® VPL  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=5b4479735964841361fd" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=5b4479735964841361fd" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd" />
+  <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=5b4479735964841361fd"></script>
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'programming_guide/VPL_prg_frame';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Decoding Procedures" href="VPL_prg_decoding.html" />
+    <link rel="prev" title="Intel® VPL Session" href="VPL_prg_session.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Intel® VPL  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../VPL_intel_media_sdk.html">Intel<sup>®</sup> VPL for Intel<sup>®</sup> Media Software Development Kit Users</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../architecture/index.html">Architecture</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/VPL_decoding.html">Video Decoding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/VPL_encoding.html">Video Encoding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/VPL_processing.html">Video Processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/VPL_decoding_vpp.html">Video Decoding with multiple video processing</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Programming Guide</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_stc.html">Status Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_session.html">Intel<sup>®</sup> VPL Session</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Frame and Fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_decoding.html">Decoding Procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_encoding.html">Encoding Procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_vpp.html">Video Processing Procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_transcoding.html">Transcoding Procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_config.html">Parameter Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_hw.html">Hardware Acceleration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_mem.html">Memory Allocation and External Allocators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_surface_sharing.html">Importing and Exporting Shared Surfaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_prg_err.html">Hardware Device Error Handling</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../VPL_summary.html">Mandatory APIs and Functions</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../API_ref/VPL_api_ref.html">Intel<sup>®</sup> VPL API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../API_ref/VPL_functions.html">Function Reference</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_vid_decode.html">VideoDECODE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_vid_encode.html">VideoENCODE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_vid_vpp.html">VideoVPP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_vidcore.html">VideoCORE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_session.html">Session Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_mem.html">Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_capabilities.html">Implementation Capabilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_adapters.html">Adapters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_func_vid_decode_vpp.html">VideoDECODE_VPP</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../API_ref/VPL_structs.html">Structure Reference</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_type.html">Type Definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_memory.html">Memory Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_impl_manage.html">Implementation Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_cross_component.html">Cross-component Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_decode.html">Decode Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_encode.html">Encode Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_vpp.html">VPP Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_protected.html">Protected Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_decode_vpp.html">DECODE_VPP Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_structs_camera.html">Camera Structures</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../API_ref/VPL_enums.html">Enumerator Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../API_ref/VPL_defines.html">Define Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../API_ref/VPL_ref_types.html">Type Reference</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../API_ref/VPL_disp_api.html">Dispatcher API</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_disp_api_func.html">Dispatcher API Function Reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_disp_api_struct.html">Dispatcher API Structure Reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_disp_api_enum.html">Dispatcher API Enumeration Reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../API_ref/VPL_disp_api_def.html">Dispatcher API Define Reference</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../API_ref/VPL_guids.html">GUIDs Reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Versioning.html">Intel<sup>®</sup> VPL API Versioning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Experimental.html">Intel<sup>®</sup> VPL Experimental API</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../appendix/index.html">Appendices</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_a.html">Configuration Parameter Constraints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_b.html">Multiple-segment Encoding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_c.html">Streaming and Video Conferencing Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_d.html">Switchable Graphics and Multiple Monitors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_e.html">Working Directly with VA-API for Linux*</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_f.html">CQP HRD Mode Encoding</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../VPL_acronyms.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../VPL_deprecation.html">Deprecated API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../VPL_change_log.html">Change Log</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/programming_guide/VPL_prg_frame.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Frame and Fields</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#frame-surface-management">Frame Surface Management</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="frame-and-fields">
+<h1>Frame and Fields<a class="headerlink" href="#frame-and-fields" title="Permalink to this heading">#</a></h1>
+<p>In Intel<sup>®</sup> VPL terminology, a frame (also referred to as frame surface) contains either
+a progressive frame or a complementary field pair. If the frame is a
+complementary field pair, the odd lines of the surface buffer store the top
+fields and the even lines of the surface buffer store the bottom fields.</p>
+<section id="frame-surface-management">
+<span id="frame-surface-manag"></span><h2>Frame Surface Management<a class="headerlink" href="#frame-surface-management" title="Permalink to this heading">#</a></h2>
+<p>During encoding, decoding, or video processing, cases arise that require reserving
+input or output frames for future use. For example, when decoding, a frame that
+is ready for output must remain as a reference frame until the current sequence
+pattern ends. The usual method to manage this is to cache the frames internally.
+This method requires a copy operation, which can significantly reduce performance.</p>
+<p>Intel<sup>®</sup> VPL has two approaches to avoid the need for copy operations. The legacy approach
+uses a frame-locking mechanism that works as follows:</p>
+<ol class="arabic simple">
+<li><p>The application allocates a pool of frame surfaces large enough to include Intel<sup>®</sup> VPL
+function I/O frame surfaces and internal cache needs. Each frame surface
+maintains a <code class="docutils literal notranslate"><span class="pre">Locked</span></code> counter, which is part of the <a class="reference internal" href="../API_ref/VPL_structs_memory.html#_CPPv412mfxFrameData" title="mfxFrameData"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxFrameData</span></code></a>
+structure. The <code class="docutils literal notranslate"><span class="pre">Locked</span></code> counter is initially set to zero.</p></li>
+<li><p>The application calls a Intel<sup>®</sup> VPL function with frame surfaces from the pool whose
+<code class="docutils literal notranslate"><span class="pre">Locked</span></code> counter is set as appropriate for the desired operation. For decoding
+or video processing operations, where Intel<sup>®</sup> VPL uses the surfaces to write, the
+<code class="docutils literal notranslate"><span class="pre">Locked</span></code> counter should be equal to zero. If the Intel<sup>®</sup> VPL function needs to reserve
+any frame surface, the Intel<sup>®</sup> VPL function increases the <code class="docutils literal notranslate"><span class="pre">Locked</span></code> counter of the frame
+surface. A non-zero <code class="docutils literal notranslate"><span class="pre">Locked</span></code> counter indicates that the calling application must
+treat the frame surface as “in use.” When the frame surface is in use, the
+application can read but cannot alter, move, delete, or free the frame surface.</p></li>
+<li><p>In subsequent Intel<sup>®</sup> VPL executions, if the frame surface is no longer in use,
+Intel<sup>®</sup> VPL decreases the <code class="docutils literal notranslate"><span class="pre">Locked</span></code> counter. When the <code class="docutils literal notranslate"><span class="pre">Locked</span></code> counter reaches zero, the
+application is free to do as it wishes with the frame surface.</p></li>
+</ol>
+<p>In general, the application should not increase or decrease the <code class="docutils literal notranslate"><span class="pre">Locked</span></code> counter
+since Intel<sup>®</sup> VPL manages this field. If, for some reason, the application needs to
+modify the <code class="docutils literal notranslate"><span class="pre">Locked</span></code> counter, the operation must be atomic to avoid a race condition.</p>
+<p>Intel<sup>®</sup> VPL API version 2.0 introduces the <a class="reference internal" href="../API_ref/VPL_structs_memory.html#_CPPv424mfxFrameSurfaceInterface" title="mfxFrameSurfaceInterface"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxFrameSurfaceInterface</span></code></a> structure
+which provides a set of callback functions for the <a class="reference internal" href="../API_ref/VPL_structs_memory.html#_CPPv416mfxFrameSurface1" title="mfxFrameSurface1"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxFrameSurface1</span></code></a>
+structure to work with frame surfaces. This interface defines <a class="reference internal" href="../API_ref/VPL_structs_memory.html#_CPPv416mfxFrameSurface1" title="mfxFrameSurface1"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxFrameSurface1</span></code></a> as a
+reference counted object which can be allocated by Intel<sup>®</sup> VPL or the application. The
+application must follow the general rules of operation with reference counted
+objects. For example, when surfaces are allocated by Intel<sup>®</sup> VPL during
+<a class="reference internal" href="../API_ref/VPL_func_vid_decode.html#_CPPv431MFXVideoDECODE_DecodeFrameAsync10mfxSessionP12mfxBitstreamP16mfxFrameSurface1PP16mfxFrameSurface1P12mfxSyncPoint" title="MFXVideoDECODE_DecodeFrameAsync"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoDECODE_DecodeFrameAsync()</span></code></a> or with the help of
+<a class="reference internal" href="../API_ref/VPL_func_mem.html#_CPPv426MFXMemory_GetSurfaceForVPP10mfxSessionPP16mfxFrameSurface1" title="MFXMemory_GetSurfaceForVPP"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXMemory_GetSurfaceForVPP()</span></code></a> or <a class="reference internal" href="../API_ref/VPL_func_mem.html#_CPPv429MFXMemory_GetSurfaceForVPPOut10mfxSessionPP16mfxFrameSurface1" title="MFXMemory_GetSurfaceForVPPOut"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXMemory_GetSurfaceForVPPOut()</span></code></a> or
+<a class="reference internal" href="../API_ref/VPL_func_mem.html#_CPPv429MFXMemory_GetSurfaceForEncode10mfxSessionPP16mfxFrameSurface1" title="MFXMemory_GetSurfaceForEncode"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXMemory_GetSurfaceForEncode()</span></code></a>, the application must call the corresponding
+<a class="reference internal" href="../API_ref/VPL_structs_memory.html#_CPPv4N24mfxFrameSurfaceInterface7ReleaseE" title="mfxFrameSurfaceInterface::Release"><code class="xref cpp cpp-member docutils literal notranslate"><span class="pre">mfxFrameSurfaceInterface::Release</span></code></a>
+function for the surfaces that are no longer in use.</p>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>Note that the <code class="docutils literal notranslate"><span class="pre">Locked</span></code> counter defines read/write access policies
+and the reference counter is responsible for managing a frame’s
+lifetime.</p>
+</div>
+<p>The second approach to avoid the need for copy operations is based on the
+<a class="reference internal" href="../API_ref/VPL_structs_memory.html#_CPPv424mfxFrameSurfaceInterface" title="mfxFrameSurfaceInterface"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxFrameSurfaceInterface</span></code></a> and works as follows:</p>
+<ol class="arabic simple">
+<li><p>Intel<sup>®</sup> VPL or the application allocates a frame surface and the application stores
+a value of reference counter obtained through
+<a class="reference internal" href="../API_ref/VPL_structs_memory.html#_CPPv4N24mfxFrameSurfaceInterface13GetRefCounterE" title="mfxFrameSurfaceInterface::GetRefCounter"><code class="xref cpp cpp-member docutils literal notranslate"><span class="pre">mfxFrameSurfaceInterface::GetRefCounter</span></code></a>.</p></li>
+<li><p>The application calls a Intel<sup>®</sup> VPL function with the frame surface. If Intel<sup>®</sup> VPL needs
+to reserve the frame surface it increments the reference counter through the
+<a class="reference internal" href="../API_ref/VPL_structs_memory.html#_CPPv4N24mfxFrameSurfaceInterface6AddRefE" title="mfxFrameSurfaceInterface::AddRef"><code class="xref cpp cpp-member docutils literal notranslate"><span class="pre">mfxFrameSurfaceInterface::AddRef</span></code></a> call.
+When the frame surface is no longer in use by the Intel<sup>®</sup> VPL it decrements reference counter through
+the <a class="reference internal" href="../API_ref/VPL_structs_memory.html#_CPPv4N24mfxFrameSurfaceInterface7ReleaseE" title="mfxFrameSurfaceInterface::Release"><code class="xref cpp cpp-member docutils literal notranslate"><span class="pre">mfxFrameSurfaceInterface::Release</span></code></a> call
+which returns the reference counter to the original value.</p></li>
+<li><p>The application checks the reference counter of the frame surface and when it is equal
+to the original value after allocation, it can reuse the reference counter for subsequent operations.</p></li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>All <a class="reference internal" href="../API_ref/VPL_structs_memory.html#_CPPv416mfxFrameSurface1" title="mfxFrameSurface1"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxFrameSurface1</span></code></a> structures starting from
+mfxFrameSurface1::mfxStructVersion = {1,1} support the
+<a class="reference internal" href="../API_ref/VPL_structs_memory.html#_CPPv424mfxFrameSurfaceInterface" title="mfxFrameSurfaceInterface"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxFrameSurfaceInterface</span></code></a>.</p>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="VPL_prg_session.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Intel<sup>®</sup> VPL Session</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="VPL_prg_decoding.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Decoding Procedures</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#frame-surface-management">Frame Surface Management</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023, Intel.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=5b4479735964841361fd"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

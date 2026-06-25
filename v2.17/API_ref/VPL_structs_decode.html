@@ -1,0 +1,638 @@
+<!--
+SPDX-FileCopyrightText: 2019-2023 Intel Corporation
+
+SPDX-License-Identifier: MIT
+-->
+
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Decode Structures &#8212; Intel® VPL  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=5b4479735964841361fd" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=5b4479735964841361fd" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd" />
+  <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=5b4479735964841361fd"></script>
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'API_ref/VPL_structs_decode';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Encode Structures" href="VPL_structs_encode.html" />
+    <link rel="prev" title="Cross-component Structures" href="VPL_structs_cross_component.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Intel® VPL  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../VPL_intel_media_sdk.html">Intel<sup>®</sup> VPL for Intel<sup>®</sup> Media Software Development Kit Users</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../architecture/index.html">Architecture</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/VPL_decoding.html">Video Decoding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/VPL_encoding.html">Video Encoding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/VPL_processing.html">Video Processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/VPL_decoding_vpp.html">Video Decoding with multiple video processing</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../programming_guide/index.html">Programming Guide</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_stc.html">Status Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_session.html">Intel<sup>®</sup> VPL Session</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_frame.html">Frame and Fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_decoding.html">Decoding Procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_encoding.html">Encoding Procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_vpp.html">Video Processing Procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_transcoding.html">Transcoding Procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_config.html">Parameter Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_hw.html">Hardware Acceleration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_mem.html">Memory Allocation and External Allocators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_surface_sharing.html">Importing and Exporting Shared Surfaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../programming_guide/VPL_prg_err.html">Hardware Device Error Handling</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../VPL_summary.html">Mandatory APIs and Functions</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="VPL_api_ref.html">Intel<sup>®</sup> VPL API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="VPL_functions.html">Function Reference</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="VPL_func_vid_decode.html">VideoDECODE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_func_vid_encode.html">VideoENCODE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_func_vid_vpp.html">VideoVPP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_func_vidcore.html">VideoCORE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_func_session.html">Session Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_func_mem.html">Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_func_capabilities.html">Implementation Capabilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_func_adapters.html">Adapters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_func_vid_decode_vpp.html">VideoDECODE_VPP</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="VPL_structs.html">Structure Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="VPL_structs_type.html">Type Definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_structs_memory.html">Memory Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_structs_impl_manage.html">Implementation Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_structs_cross_component.html">Cross-component Structures</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">Decode Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_structs_encode.html">Encode Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_structs_vpp.html">VPP Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_structs_protected.html">Protected Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_structs_decode_vpp.html">DECODE_VPP Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_structs_camera.html">Camera Structures</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_enums.html">Enumerator Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_defines.html">Define Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_ref_types.html">Type Reference</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="VPL_disp_api.html">Dispatcher API</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="VPL_disp_api_func.html">Dispatcher API Function Reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_disp_api_struct.html">Dispatcher API Structure Reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_disp_api_enum.html">Dispatcher API Enumeration Reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="VPL_disp_api_def.html">Dispatcher API Define Reference</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="VPL_guids.html">GUIDs Reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../Versioning.html">Intel<sup>®</sup> VPL API Versioning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Experimental.html">Intel<sup>®</sup> VPL Experimental API</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../appendix/index.html">Appendices</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_a.html">Configuration Parameter Constraints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_b.html">Multiple-segment Encoding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_c.html">Streaming and Video Conferencing Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_d.html">Switchable Graphics and Multiple Monitors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_e.html">Working Directly with VA-API for Linux*</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../appendix/VPL_apnds_f.html">CQP HRD Mode Encoding</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../VPL_acronyms.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../VPL_deprecation.html">Deprecated API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../VPL_change_log.html">Change Log</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/API_ref/VPL_structs_decode.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Decode Structures</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxdecodestat">mfxDecodeStat</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxextdecodeerrorreport">mfxExtDecodeErrorReport</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxextdecodedframeinfo">mfxExtDecodedFrameInfo</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxexttimecode">mfxExtTimeCode</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="decode-structures">
+<span id="struct-decode"></span><h1>Decode Structures<a class="headerlink" href="#decode-structures" title="Permalink to this heading">#</a></h1>
+<p id="struct-decode-begin">Structures used by Decode only.</p>
+<section id="api">
+<span id="struct-decode-end"></span><h2>API<a class="headerlink" href="#api" title="Permalink to this heading">#</a></h2>
+<nav class="contents local" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#mfxdecodestat" id="id1">mfxDecodeStat</a></p></li>
+<li><p><a class="reference internal" href="#mfxextdecodeerrorreport" id="id2">mfxExtDecodeErrorReport</a></p></li>
+<li><p><a class="reference internal" href="#mfxextdecodedframeinfo" id="id3">mfxExtDecodedFrameInfo</a></p></li>
+<li><p><a class="reference internal" href="#mfxexttimecode" id="id4">mfxExtTimeCode</a></p></li>
+</ul>
+</nav>
+<section id="mfxdecodestat">
+<h3><a class="toc-backref" href="#id1" role="doc-backlink">mfxDecodeStat</a><a class="headerlink" href="#mfxdecodestat" title="Permalink to this heading">#</a></h3>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv413mfxDecodeStat">
+<span id="_CPPv313mfxDecodeStat"></span><span id="_CPPv213mfxDecodeStat"></span><span id="mfxDecodeStat"></span><span class="target" id="structmfx_decode_stat"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mfxDecodeStat</span></span></span><a class="headerlink" href="#_CPPv413mfxDecodeStat" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Returns statistics collected during decoding. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N13mfxDecodeStat8NumFrameE">
+<span id="_CPPv3N13mfxDecodeStat8NumFrameE"></span><span id="_CPPv2N13mfxDecodeStat8NumFrameE"></span><span id="mfxDecodeStat::NumFrame__mfxU32"></span><span class="target" id="structmfx_decode_stat_1a22daf7d9b338c5373176c1820b6d481d"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU32" title="mfxU32"><span class="n"><span class="pre">mfxU32</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">NumFrame</span></span></span><a class="headerlink" href="#_CPPv4N13mfxDecodeStat8NumFrameE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Number of total decoded frames. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N13mfxDecodeStat15NumSkippedFrameE">
+<span id="_CPPv3N13mfxDecodeStat15NumSkippedFrameE"></span><span id="_CPPv2N13mfxDecodeStat15NumSkippedFrameE"></span><span id="mfxDecodeStat::NumSkippedFrame__mfxU32"></span><span class="target" id="structmfx_decode_stat_1a495fd9cd336c2b8138cd7fdc435ed864"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU32" title="mfxU32"><span class="n"><span class="pre">mfxU32</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">NumSkippedFrame</span></span></span><a class="headerlink" href="#_CPPv4N13mfxDecodeStat15NumSkippedFrameE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Number of skipped frames. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N13mfxDecodeStat8NumErrorE">
+<span id="_CPPv3N13mfxDecodeStat8NumErrorE"></span><span id="_CPPv2N13mfxDecodeStat8NumErrorE"></span><span id="mfxDecodeStat::NumError__mfxU32"></span><span class="target" id="structmfx_decode_stat_1ab197eccfcdeb0e45869cab8c3011f003"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU32" title="mfxU32"><span class="n"><span class="pre">mfxU32</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">NumError</span></span></span><a class="headerlink" href="#_CPPv4N13mfxDecodeStat8NumErrorE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Number of errors recovered. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N13mfxDecodeStat14NumCachedFrameE">
+<span id="_CPPv3N13mfxDecodeStat14NumCachedFrameE"></span><span id="_CPPv2N13mfxDecodeStat14NumCachedFrameE"></span><span id="mfxDecodeStat::NumCachedFrame__mfxU32"></span><span class="target" id="structmfx_decode_stat_1a77afbcb72546a803df50740509d19897"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU32" title="mfxU32"><span class="n"><span class="pre">mfxU32</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">NumCachedFrame</span></span></span><a class="headerlink" href="#_CPPv4N13mfxDecodeStat14NumCachedFrameE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Number of internally cached frames. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+<section id="mfxextdecodeerrorreport">
+<h3><a class="toc-backref" href="#id2" role="doc-backlink">mfxExtDecodeErrorReport</a><a class="headerlink" href="#mfxextdecodeerrorreport" title="Permalink to this heading">#</a></h3>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv423mfxExtDecodeErrorReport">
+<span id="_CPPv323mfxExtDecodeErrorReport"></span><span id="_CPPv223mfxExtDecodeErrorReport"></span><span id="mfxExtDecodeErrorReport"></span><span class="target" id="structmfx_ext_decode_error_report"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mfxExtDecodeErrorReport</span></span></span><a class="headerlink" href="#_CPPv423mfxExtDecodeErrorReport" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Used by the decoders to report bitstream error information right after DecodeHeader or DecodeFrameAsync. The application can attach this extended buffer to the <a class="reference internal" href="VPL_structs_memory.html#structmfx_bitstream"><span class="std std-ref">mfxBitstream</span></a> structure at runtime. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N23mfxExtDecodeErrorReport6HeaderE">
+<span id="_CPPv3N23mfxExtDecodeErrorReport6HeaderE"></span><span id="_CPPv2N23mfxExtDecodeErrorReport6HeaderE"></span><span id="mfxExtDecodeErrorReport::Header__mfxExtBuffer"></span><span class="target" id="structmfx_ext_decode_error_report_1a4835ef32725217118edc66c36895202e"></span><a class="reference internal" href="VPL_structs_type.html#_CPPv412mfxExtBuffer" title="mfxExtBuffer"><span class="n"><span class="pre">mfxExtBuffer</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Header</span></span></span><a class="headerlink" href="#_CPPv4N23mfxExtDecodeErrorReport6HeaderE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_DECODE_ERROR_REPORT. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N23mfxExtDecodeErrorReport10ErrorTypesE">
+<span id="_CPPv3N23mfxExtDecodeErrorReport10ErrorTypesE"></span><span id="_CPPv2N23mfxExtDecodeErrorReport10ErrorTypesE"></span><span id="mfxExtDecodeErrorReport::ErrorTypes__mfxU32"></span><span class="target" id="structmfx_ext_decode_error_report_1ac08e0dcba99d6ca65c4c9905ba356762"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU32" title="mfxU32"><span class="n"><span class="pre">mfxU32</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ErrorTypes</span></span></span><a class="headerlink" href="#_CPPv4N23mfxExtDecodeErrorReport10ErrorTypesE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Bitstream error types (bit-ORed values). See ErrorTypes enumerator for the list of types. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+<section id="mfxextdecodedframeinfo">
+<h3><a class="toc-backref" href="#id3" role="doc-backlink">mfxExtDecodedFrameInfo</a><a class="headerlink" href="#mfxextdecodedframeinfo" title="Permalink to this heading">#</a></h3>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv422mfxExtDecodedFrameInfo">
+<span id="_CPPv322mfxExtDecodedFrameInfo"></span><span id="_CPPv222mfxExtDecodedFrameInfo"></span><span id="mfxExtDecodedFrameInfo"></span><span class="target" id="structmfx_ext_decoded_frame_info"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mfxExtDecodedFrameInfo</span></span></span><a class="headerlink" href="#_CPPv422mfxExtDecodedFrameInfo" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Used by the decoders to report additional information about a decoded frame. The application can attach this extended buffer to the mfxFrameSurface1::mfxFrameData structure at runtime. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N22mfxExtDecodedFrameInfo6HeaderE">
+<span id="_CPPv3N22mfxExtDecodedFrameInfo6HeaderE"></span><span id="_CPPv2N22mfxExtDecodedFrameInfo6HeaderE"></span><span id="mfxExtDecodedFrameInfo::Header__mfxExtBuffer"></span><span class="target" id="structmfx_ext_decoded_frame_info_1af7e2dab7a083b61fe123561e885b1dd1"></span><a class="reference internal" href="VPL_structs_type.html#_CPPv412mfxExtBuffer" title="mfxExtBuffer"><span class="n"><span class="pre">mfxExtBuffer</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Header</span></span></span><a class="headerlink" href="#_CPPv4N22mfxExtDecodedFrameInfo6HeaderE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_DECODED_FRAME_INFO. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N22mfxExtDecodedFrameInfo9FrameTypeE">
+<span id="_CPPv3N22mfxExtDecodedFrameInfo9FrameTypeE"></span><span id="_CPPv2N22mfxExtDecodedFrameInfo9FrameTypeE"></span><span id="mfxExtDecodedFrameInfo::FrameType__mfxU16"></span><span class="target" id="structmfx_ext_decoded_frame_info_1a2456e3ba50bcff985acd9a1d26f7e60d"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">FrameType</span></span></span><a class="headerlink" href="#_CPPv4N22mfxExtDecodedFrameInfo9FrameTypeE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Frame type. See FrameType enumerator for the list of types. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+<section id="mfxexttimecode">
+<h3><a class="toc-backref" href="#id4" role="doc-backlink">mfxExtTimeCode</a><a class="headerlink" href="#mfxexttimecode" title="Permalink to this heading">#</a></h3>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv414mfxExtTimeCode">
+<span id="_CPPv314mfxExtTimeCode"></span><span id="_CPPv214mfxExtTimeCode"></span><span id="mfxExtTimeCode"></span><span class="target" id="structmfx_ext_time_code"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mfxExtTimeCode</span></span></span><a class="headerlink" href="#_CPPv414mfxExtTimeCode" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Used by the library to pass MPEG 2 specific timing information.</p>
+<p>See ISO/IEC 13818-2 and ITU-T H.262, MPEG-2 Part 2 for the definition of these parameters. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N14mfxExtTimeCode6HeaderE">
+<span id="_CPPv3N14mfxExtTimeCode6HeaderE"></span><span id="_CPPv2N14mfxExtTimeCode6HeaderE"></span><span id="mfxExtTimeCode::Header__mfxExtBuffer"></span><span class="target" id="structmfx_ext_time_code_1adaca1c793b5df490d5335132a3512b70"></span><a class="reference internal" href="VPL_structs_type.html#_CPPv412mfxExtBuffer" title="mfxExtBuffer"><span class="n"><span class="pre">mfxExtBuffer</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Header</span></span></span><a class="headerlink" href="#_CPPv4N14mfxExtTimeCode6HeaderE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Extension buffer header. Header.BufferId must be equal to MFX_EXTBUFF_TIME_CODE. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N14mfxExtTimeCode13DropFrameFlagE">
+<span id="_CPPv3N14mfxExtTimeCode13DropFrameFlagE"></span><span id="_CPPv2N14mfxExtTimeCode13DropFrameFlagE"></span><span id="mfxExtTimeCode::DropFrameFlag__mfxU16"></span><span class="target" id="structmfx_ext_time_code_1a95d9ff549a56b68192edbe4bcb923200"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">DropFrameFlag</span></span></span><a class="headerlink" href="#_CPPv4N14mfxExtTimeCode13DropFrameFlagE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Indicated dropped frame. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N14mfxExtTimeCode13TimeCodeHoursE">
+<span id="_CPPv3N14mfxExtTimeCode13TimeCodeHoursE"></span><span id="_CPPv2N14mfxExtTimeCode13TimeCodeHoursE"></span><span id="mfxExtTimeCode::TimeCodeHours__mfxU16"></span><span class="target" id="structmfx_ext_time_code_1a4f22af1e16df19cf9af6a286ccb2c9de"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TimeCodeHours</span></span></span><a class="headerlink" href="#_CPPv4N14mfxExtTimeCode13TimeCodeHoursE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Hours. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N14mfxExtTimeCode15TimeCodeMinutesE">
+<span id="_CPPv3N14mfxExtTimeCode15TimeCodeMinutesE"></span><span id="_CPPv2N14mfxExtTimeCode15TimeCodeMinutesE"></span><span id="mfxExtTimeCode::TimeCodeMinutes__mfxU16"></span><span class="target" id="structmfx_ext_time_code_1acf2c1f46ab4bad6aafd3902d3053acb6"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TimeCodeMinutes</span></span></span><a class="headerlink" href="#_CPPv4N14mfxExtTimeCode15TimeCodeMinutesE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Minutes. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N14mfxExtTimeCode15TimeCodeSecondsE">
+<span id="_CPPv3N14mfxExtTimeCode15TimeCodeSecondsE"></span><span id="_CPPv2N14mfxExtTimeCode15TimeCodeSecondsE"></span><span id="mfxExtTimeCode::TimeCodeSeconds__mfxU16"></span><span class="target" id="structmfx_ext_time_code_1abc4e569b01367dfab7873efa808bc176"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TimeCodeSeconds</span></span></span><a class="headerlink" href="#_CPPv4N14mfxExtTimeCode15TimeCodeSecondsE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Seconds. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N14mfxExtTimeCode16TimeCodePicturesE">
+<span id="_CPPv3N14mfxExtTimeCode16TimeCodePicturesE"></span><span id="_CPPv2N14mfxExtTimeCode16TimeCodePicturesE"></span><span id="mfxExtTimeCode::TimeCodePictures__mfxU16"></span><span class="target" id="structmfx_ext_time_code_1a3970ab3c4f0ec451e691ed1e6a04385c"></span><a class="reference internal" href="VPL_ref_types.html#_CPPv46mfxU16" title="mfxU16"><span class="n"><span class="pre">mfxU16</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TimeCodePictures</span></span></span><a class="headerlink" href="#_CPPv4N14mfxExtTimeCode16TimeCodePicturesE" title="Permalink to this definition">#</a><br /></dt>
+<dd><p>Pictures. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="VPL_structs_cross_component.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Cross-component Structures</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="VPL_structs_encode.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Encode Structures</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxdecodestat">mfxDecodeStat</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxextdecodeerrorreport">mfxExtDecodeErrorReport</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxextdecodedframeinfo">mfxExtDecodedFrameInfo</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#mfxexttimecode">mfxExtTimeCode</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023, Intel.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=5b4479735964841361fd"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

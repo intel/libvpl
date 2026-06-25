@@ -1,0 +1,848 @@
+<!--
+SPDX-FileCopyrightText: 2019-2023 Intel Corporation
+
+SPDX-License-Identifier: MIT
+-->
+
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Mandatory APIs and Functions &#8212; Intel® VPL  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=5b4479735964841361fd" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" href="_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=5b4479735964841361fd" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd" />
+  <script src="_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=5b4479735964841361fd"></script>
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'VPL_summary';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Intel® VPL API Reference" href="API_ref/VPL_api_ref.html" />
+    <link rel="prev" title="Hardware Device Error Handling" href="programming_guide/VPL_prg_err.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Intel® VPL  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="VPL_intel_media_sdk.html">Intel<sup>®</sup> VPL for Intel<sup>®</sup> Media Software Development Kit Users</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="architecture/index.html">Architecture</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="architecture/VPL_decoding.html">Video Decoding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="architecture/VPL_encoding.html">Video Encoding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="architecture/VPL_processing.html">Video Processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="architecture/VPL_decoding_vpp.html">Video Decoding with multiple video processing</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="programming_guide/index.html">Programming Guide</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="programming_guide/VPL_prg_stc.html">Status Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="programming_guide/VPL_prg_session.html">Intel<sup>®</sup> VPL Session</a></li>
+<li class="toctree-l2"><a class="reference internal" href="programming_guide/VPL_prg_frame.html">Frame and Fields</a></li>
+<li class="toctree-l2"><a class="reference internal" href="programming_guide/VPL_prg_decoding.html">Decoding Procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="programming_guide/VPL_prg_encoding.html">Encoding Procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="programming_guide/VPL_prg_vpp.html">Video Processing Procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="programming_guide/VPL_prg_transcoding.html">Transcoding Procedures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="programming_guide/VPL_prg_config.html">Parameter Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="programming_guide/VPL_prg_hw.html">Hardware Acceleration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="programming_guide/VPL_prg_mem.html">Memory Allocation and External Allocators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="programming_guide/VPL_prg_surface_sharing.html">Importing and Exporting Shared Surfaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="programming_guide/VPL_prg_err.html">Hardware Device Error Handling</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Mandatory APIs and Functions</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="API_ref/VPL_api_ref.html">Intel<sup>®</sup> VPL API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-3"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="API_ref/VPL_functions.html">Function Reference</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-4"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="API_ref/VPL_func_vid_decode.html">VideoDECODE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_ref/VPL_func_vid_encode.html">VideoENCODE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_ref/VPL_func_vid_vpp.html">VideoVPP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_ref/VPL_func_vidcore.html">VideoCORE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_ref/VPL_func_session.html">Session Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_ref/VPL_func_mem.html">Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_ref/VPL_func_capabilities.html">Implementation Capabilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_ref/VPL_func_adapters.html">Adapters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_ref/VPL_func_vid_decode_vpp.html">VideoDECODE_VPP</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="API_ref/VPL_structs.html">Structure Reference</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-5"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="API_ref/VPL_structs_type.html">Type Definitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_ref/VPL_structs_memory.html">Memory Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_ref/VPL_structs_impl_manage.html">Implementation Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_ref/VPL_structs_cross_component.html">Cross-component Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_ref/VPL_structs_decode.html">Decode Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_ref/VPL_structs_encode.html">Encode Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_ref/VPL_structs_vpp.html">VPP Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_ref/VPL_structs_protected.html">Protected Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_ref/VPL_structs_decode_vpp.html">DECODE_VPP Structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_ref/VPL_structs_camera.html">Camera Structures</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="API_ref/VPL_enums.html">Enumerator Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="API_ref/VPL_defines.html">Define Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="API_ref/VPL_ref_types.html">Type Reference</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="API_ref/VPL_disp_api.html">Dispatcher API</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-6"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="API_ref/VPL_disp_api_func.html">Dispatcher API Function Reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_ref/VPL_disp_api_struct.html">Dispatcher API Structure Reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_ref/VPL_disp_api_enum.html">Dispatcher API Enumeration Reference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="API_ref/VPL_disp_api_def.html">Dispatcher API Define Reference</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="API_ref/VPL_guids.html">GUIDs Reference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="Versioning.html">Intel<sup>®</sup> VPL API Versioning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Experimental.html">Intel<sup>®</sup> VPL Experimental API</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="appendix/index.html">Appendices</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-7"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="appendix/VPL_apnds_a.html">Configuration Parameter Constraints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="appendix/VPL_apnds_b.html">Multiple-segment Encoding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="appendix/VPL_apnds_c.html">Streaming and Video Conferencing Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="appendix/VPL_apnds_d.html">Switchable Graphics and Multiple Monitors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="appendix/VPL_apnds_e.html">Working Directly with VA-API for Linux*</a></li>
+<li class="toctree-l2"><a class="reference internal" href="appendix/VPL_apnds_f.html">CQP HRD Mode Encoding</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="VPL_acronyms.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="VPL_deprecation.html">Deprecated API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="VPL_change_log.html">Change Log</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/VPL_summary.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Mandatory APIs and Functions</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#disclaimer">Disclaimer</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#exported-functions">Exported Functions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#mandatory-apis">Mandatory APIs</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="mandatory-apis-and-functions">
+<h1>Mandatory APIs and Functions<a class="headerlink" href="#mandatory-apis-and-functions" title="Permalink to this heading">#</a></h1>
+<section id="disclaimer">
+<h2>Disclaimer<a class="headerlink" href="#disclaimer" title="Permalink to this heading">#</a></h2>
+<p>Developers can implement any subset of the Intel<sup>®</sup> VPL API.
+The specification makes no claim about what encoder, decoder, VPP
+filter, or any other underlying features are mandatory for the implementation.
+The Intel<sup>®</sup> VPL API is designed such that users have several options
+to discover capabilities exposed by the implementation:</p>
+<ol class="arabic simple">
+<li><p>Before or after session creation: Users can get a list of supported encoders, decoders,
+VPP filters, correspondent color formats, and memory types with the help of
+the <a class="reference internal" href="API_ref/VPL_disp_api_func.html#_CPPv422MFXEnumImplementations9mfxLoader6mfxU3225mfxImplCapsDeliveryFormatP6mfxHDL" title="MFXEnumImplementations"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXEnumImplementations()</span></code></a> function. For more details, see
+<a class="reference internal" href="programming_guide/VPL_prg_session.html#vpl-dispatcher-interactions"><span class="std std-ref">Intel® VPL Dispatcher Interactions</span></a>.</p></li>
+<li><p>After session is created: Users can call <strong>Query</strong> functions to obtain
+low level implementation capabilities.</p></li>
+</ol>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>The legacy Intel<sup>®</sup> Media Software Development Kit implementation does not support the
+first approach to obtain capabilities.</p>
+</div>
+</section>
+<section id="exported-functions">
+<h2>Exported Functions<a class="headerlink" href="#exported-functions" title="Permalink to this heading">#</a></h2>
+<p>The <a class="reference internal" href="#export-func-version-table-2x"><span class="std std-ref">Exported Functions table</span></a> lists all
+functions that must be exposed by any Intel<sup>®</sup> Video Processing Library implementation.
+The realization of all listed functions is mandatory; most functions may return
+<a class="reference internal" href="API_ref/VPL_enums.html#_CPPv4N9mfxStatus23MFX_ERR_NOT_IMPLEMENTEDE" title="mfxStatus::MFX_ERR_NOT_IMPLEMENTED"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">mfxStatus::MFX_ERR_NOT_IMPLEMENTED</span></code></a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Functions <a class="reference internal" href="API_ref/VPL_func_session.html#_CPPv47MFXInit7mfxIMPLP10mfxVersionP10mfxSession" title="MFXInit"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXInit()</span></code></a> and <a class="reference internal" href="API_ref/VPL_func_session.html#_CPPv49MFXInitEx12mfxInitParamP10mfxSession" title="MFXInitEx"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXInitEx()</span></code></a> are not required to be
+exported.</p>
+</div>
+<p>See <a class="reference internal" href="#mandatory-apis">Mandatory APIs</a> for details about which functions, in which conditions,
+must not return <a class="reference internal" href="API_ref/VPL_enums.html#_CPPv4N9mfxStatus23MFX_ERR_NOT_IMPLEMENTEDE" title="mfxStatus::MFX_ERR_NOT_IMPLEMENTED"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">mfxStatus::MFX_ERR_NOT_IMPLEMENTED</span></code></a>.</p>
+<span id="export-func-version-table-2x"></span><table class="table" id="id1">
+<caption><span class="caption-text">Exported Functions</span><a class="headerlink" href="#id1" title="Permalink to this table">#</a></caption>
+<colgroup>
+<col style="width: 70.0%" />
+<col style="width: 30.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Function</strong></p></th>
+<th class="head"><p><strong>API Version</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="API_ref/VPL_func_session.html#_CPPv48MFXClose10mfxSession" title="MFXClose"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXClose()</span></code></a></p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="API_ref/VPL_func_session.html#_CPPv412MFXQueryIMPL10mfxSessionP7mfxIMPL" title="MFXQueryIMPL"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXQueryIMPL()</span></code></a></p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="API_ref/VPL_func_session.html#_CPPv415MFXQueryVersion10mfxSessionP10mfxVersion" title="MFXQueryVersion"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXQueryVersion()</span></code></a></p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="API_ref/VPL_func_session.html#_CPPv414MFXJoinSession10mfxSession10mfxSession" title="MFXJoinSession"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXJoinSession()</span></code></a></p></td>
+<td><p>1.1</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="API_ref/VPL_func_session.html#_CPPv417MFXDisjoinSession10mfxSession" title="MFXDisjoinSession"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXDisjoinSession()</span></code></a></p></td>
+<td><p>1.1</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="API_ref/VPL_func_session.html#_CPPv415MFXCloneSession10mfxSessionP10mfxSession" title="MFXCloneSession"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXCloneSession()</span></code></a></p></td>
+<td><p>1.1</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="API_ref/VPL_func_session.html#_CPPv414MFXSetPriority10mfxSession11mfxPriority" title="MFXSetPriority"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXSetPriority()</span></code></a></p></td>
+<td><p>1.1</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="API_ref/VPL_func_session.html#_CPPv414MFXGetPriority10mfxSessionP11mfxPriority" title="MFXGetPriority"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXGetPriority()</span></code></a></p></td>
+<td><p>1.1</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="API_ref/VPL_func_vidcore.html#_CPPv430MFXVideoCORE_SetFrameAllocator10mfxSessionP17mfxFrameAllocator" title="MFXVideoCORE_SetFrameAllocator"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoCORE_SetFrameAllocator()</span></code></a></p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="API_ref/VPL_func_vidcore.html#_CPPv422MFXVideoCORE_SetHandle10mfxSession13mfxHandleType6mfxHDL" title="MFXVideoCORE_SetHandle"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoCORE_SetHandle()</span></code></a></p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="API_ref/VPL_func_vidcore.html#_CPPv422MFXVideoCORE_GetHandle10mfxSession13mfxHandleTypeP6mfxHDL" title="MFXVideoCORE_GetHandle"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoCORE_GetHandle()</span></code></a></p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="API_ref/VPL_func_vidcore.html#_CPPv426MFXVideoCORE_SyncOperation10mfxSession12mfxSyncPoint6mfxU32" title="MFXVideoCORE_SyncOperation"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoCORE_SyncOperation()</span></code></a></p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="API_ref/VPL_func_vid_encode.html#_CPPv420MFXVideoENCODE_Query10mfxSessionP13mfxVideoParamP13mfxVideoParam" title="MFXVideoENCODE_Query"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoENCODE_Query()</span></code></a></p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="API_ref/VPL_func_vid_encode.html#_CPPv426MFXVideoENCODE_QueryIOSurf10mfxSessionP13mfxVideoParamP20mfxFrameAllocRequest" title="MFXVideoENCODE_QueryIOSurf"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoENCODE_QueryIOSurf()</span></code></a></p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="API_ref/VPL_func_vid_encode.html#_CPPv419MFXVideoENCODE_Init10mfxSessionP13mfxVideoParam" title="MFXVideoENCODE_Init"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoENCODE_Init()</span></code></a></p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="API_ref/VPL_func_vid_encode.html#_CPPv420MFXVideoENCODE_Reset10mfxSessionP13mfxVideoParam" title="MFXVideoENCODE_Reset"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoENCODE_Reset()</span></code></a></p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="API_ref/VPL_func_vid_encode.html#_CPPv420MFXVideoENCODE_Close10mfxSession" title="MFXVideoENCODE_Close"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoENCODE_Close()</span></code></a></p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="API_ref/VPL_func_vid_encode.html#_CPPv428MFXVideoENCODE_GetVideoParam10mfxSessionP13mfxVideoParam" title="MFXVideoENCODE_GetVideoParam"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoENCODE_GetVideoParam()</span></code></a></p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="API_ref/VPL_func_vid_encode.html#_CPPv428MFXVideoENCODE_GetEncodeStat10mfxSessionP13mfxEncodeStat" title="MFXVideoENCODE_GetEncodeStat"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoENCODE_GetEncodeStat()</span></code></a></p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="API_ref/VPL_func_vid_encode.html#_CPPv431MFXVideoENCODE_EncodeFrameAsync10mfxSessionP13mfxEncodeCtrlP16mfxFrameSurface1P12mfxBitstreamP12mfxSyncPoint" title="MFXVideoENCODE_EncodeFrameAsync"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoENCODE_EncodeFrameAsync()</span></code></a></p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="API_ref/VPL_func_vid_decode.html#_CPPv420MFXVideoDECODE_Query10mfxSessionP13mfxVideoParamP13mfxVideoParam" title="MFXVideoDECODE_Query"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoDECODE_Query()</span></code></a></p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="API_ref/VPL_func_vid_decode.html#_CPPv427MFXVideoDECODE_DecodeHeader10mfxSessionP12mfxBitstreamP13mfxVideoParam" title="MFXVideoDECODE_DecodeHeader"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoDECODE_DecodeHeader()</span></code></a></p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="API_ref/VPL_func_vid_decode.html#_CPPv426MFXVideoDECODE_QueryIOSurf10mfxSessionP13mfxVideoParamP20mfxFrameAllocRequest" title="MFXVideoDECODE_QueryIOSurf"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoDECODE_QueryIOSurf()</span></code></a></p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="API_ref/VPL_func_vid_decode.html#_CPPv419MFXVideoDECODE_Init10mfxSessionP13mfxVideoParam" title="MFXVideoDECODE_Init"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoDECODE_Init()</span></code></a></p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="API_ref/VPL_func_vid_decode.html#_CPPv420MFXVideoDECODE_Reset10mfxSessionP13mfxVideoParam" title="MFXVideoDECODE_Reset"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoDECODE_Reset()</span></code></a></p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="API_ref/VPL_func_vid_decode.html#_CPPv420MFXVideoDECODE_Close10mfxSession" title="MFXVideoDECODE_Close"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoDECODE_Close()</span></code></a></p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="API_ref/VPL_func_vid_decode.html#_CPPv428MFXVideoDECODE_GetVideoParam10mfxSessionP13mfxVideoParam" title="MFXVideoDECODE_GetVideoParam"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoDECODE_GetVideoParam()</span></code></a></p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="API_ref/VPL_func_vid_decode.html#_CPPv428MFXVideoDECODE_GetDecodeStat10mfxSessionP13mfxDecodeStat" title="MFXVideoDECODE_GetDecodeStat"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoDECODE_GetDecodeStat()</span></code></a></p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="API_ref/VPL_func_vid_decode.html#_CPPv426MFXVideoDECODE_SetSkipMode10mfxSession11mfxSkipMode" title="MFXVideoDECODE_SetSkipMode"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoDECODE_SetSkipMode()</span></code></a></p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="API_ref/VPL_func_vid_decode.html#_CPPv425MFXVideoDECODE_GetPayload10mfxSessionP6mfxU64P10mfxPayload" title="MFXVideoDECODE_GetPayload"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoDECODE_GetPayload()</span></code></a></p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="API_ref/VPL_func_vid_decode.html#_CPPv431MFXVideoDECODE_DecodeFrameAsync10mfxSessionP12mfxBitstreamP16mfxFrameSurface1PP16mfxFrameSurface1P12mfxSyncPoint" title="MFXVideoDECODE_DecodeFrameAsync"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoDECODE_DecodeFrameAsync()</span></code></a></p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="API_ref/VPL_func_vid_vpp.html#_CPPv417MFXVideoVPP_Query10mfxSessionP13mfxVideoParamP13mfxVideoParam" title="MFXVideoVPP_Query"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoVPP_Query()</span></code></a></p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="API_ref/VPL_func_vid_vpp.html#_CPPv423MFXVideoVPP_QueryIOSurf10mfxSessionP13mfxVideoParamAL2E_20mfxFrameAllocRequest" title="MFXVideoVPP_QueryIOSurf"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoVPP_QueryIOSurf()</span></code></a></p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="API_ref/VPL_func_vid_vpp.html#_CPPv416MFXVideoVPP_Init10mfxSessionP13mfxVideoParam" title="MFXVideoVPP_Init"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoVPP_Init()</span></code></a></p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="API_ref/VPL_func_vid_vpp.html#_CPPv417MFXVideoVPP_Reset10mfxSessionP13mfxVideoParam" title="MFXVideoVPP_Reset"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoVPP_Reset()</span></code></a></p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="API_ref/VPL_func_vid_vpp.html#_CPPv417MFXVideoVPP_Close10mfxSession" title="MFXVideoVPP_Close"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoVPP_Close()</span></code></a></p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="API_ref/VPL_func_vid_vpp.html#_CPPv425MFXVideoVPP_GetVideoParam10mfxSessionP13mfxVideoParam" title="MFXVideoVPP_GetVideoParam"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoVPP_GetVideoParam()</span></code></a></p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="API_ref/VPL_func_vid_vpp.html#_CPPv422MFXVideoVPP_GetVPPStat10mfxSessionP10mfxVPPStat" title="MFXVideoVPP_GetVPPStat"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoVPP_GetVPPStat()</span></code></a></p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="API_ref/VPL_func_vid_vpp.html#_CPPv428MFXVideoVPP_RunFrameVPPAsync10mfxSessionP16mfxFrameSurface1P16mfxFrameSurface1P16mfxExtVppAuxDataP12mfxSyncPoint" title="MFXVideoVPP_RunFrameVPPAsync"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoVPP_RunFrameVPPAsync()</span></code></a></p></td>
+<td><p>1.0</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="API_ref/VPL_func_vidcore.html#_CPPv426MFXVideoCORE_QueryPlatform10mfxSessionP11mfxPlatform" title="MFXVideoCORE_QueryPlatform"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoCORE_QueryPlatform()</span></code></a></p></td>
+<td><p>1.19</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="API_ref/VPL_func_adapters.html#_CPPv416MFXQueryAdaptersP16mfxComponentInfoP15mfxAdaptersInfo" title="MFXQueryAdapters"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXQueryAdapters()</span></code></a></p></td>
+<td><p>1.31</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="API_ref/VPL_func_adapters.html#_CPPv422MFXQueryAdaptersDecodeP12mfxBitstream6mfxU32P15mfxAdaptersInfo" title="MFXQueryAdaptersDecode"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXQueryAdaptersDecode()</span></code></a></p></td>
+<td><p>1.31</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="API_ref/VPL_func_adapters.html#_CPPv422MFXQueryAdaptersNumberP6mfxU32" title="MFXQueryAdaptersNumber"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXQueryAdaptersNumber()</span></code></a></p></td>
+<td><p>1.31</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="API_ref/VPL_func_mem.html#_CPPv426MFXMemory_GetSurfaceForVPP10mfxSessionPP16mfxFrameSurface1" title="MFXMemory_GetSurfaceForVPP"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXMemory_GetSurfaceForVPP()</span></code></a></p></td>
+<td><p>2.0</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="API_ref/VPL_func_mem.html#_CPPv429MFXMemory_GetSurfaceForEncode10mfxSessionPP16mfxFrameSurface1" title="MFXMemory_GetSurfaceForEncode"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXMemory_GetSurfaceForEncode()</span></code></a></p></td>
+<td><p>2.0</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="API_ref/VPL_func_mem.html#_CPPv429MFXMemory_GetSurfaceForDecode10mfxSessionPP16mfxFrameSurface1" title="MFXMemory_GetSurfaceForDecode"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXMemory_GetSurfaceForDecode()</span></code></a></p></td>
+<td><p>2.0</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="API_ref/VPL_func_capabilities.html#_CPPv424MFXQueryImplsDescription25mfxImplCapsDeliveryFormatP6mfxU32" title="MFXQueryImplsDescription"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXQueryImplsDescription()</span></code></a></p></td>
+<td><p>2.0</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="API_ref/VPL_func_capabilities.html#_CPPv425MFXReleaseImplDescription6mfxHDL" title="MFXReleaseImplDescription"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXReleaseImplDescription()</span></code></a></p></td>
+<td><p>2.0</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="API_ref/VPL_func_session.html#_CPPv413MFXInitialize22mfxInitializationParamP10mfxSession" title="MFXInitialize"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXInitialize()</span></code></a></p></td>
+<td><p>2.0</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="API_ref/VPL_func_mem.html#_CPPv429MFXMemory_GetSurfaceForVPPOut10mfxSessionPP16mfxFrameSurface1" title="MFXMemory_GetSurfaceForVPPOut"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXMemory_GetSurfaceForVPPOut()</span></code></a></p></td>
+<td><p>2.1</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="API_ref/VPL_func_vid_vpp.html#_CPPv429MFXVideoVPP_ProcessFrameAsync10mfxSessionP16mfxFrameSurface1PP16mfxFrameSurface1" title="MFXVideoVPP_ProcessFrameAsync"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoVPP_ProcessFrameAsync()</span></code></a></p></td>
+<td><p>2.1</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="API_ref/VPL_func_vid_decode_vpp.html#_CPPv423MFXVideoDECODE_VPP_Init10mfxSessionP13mfxVideoParamPP20mfxVideoChannelParam6mfxU32" title="MFXVideoDECODE_VPP_Init"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoDECODE_VPP_Init()</span></code></a></p></td>
+<td><p>2.1</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="API_ref/VPL_func_vid_decode_vpp.html#_CPPv435MFXVideoDECODE_VPP_DecodeFrameAsync10mfxSessionP12mfxBitstreamP6mfxU326mfxU32PP15mfxSurfaceArray" title="MFXVideoDECODE_VPP_DecodeFrameAsync"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoDECODE_VPP_DecodeFrameAsync()</span></code></a></p></td>
+<td><p>2.1</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="API_ref/VPL_func_vid_decode_vpp.html#_CPPv424MFXVideoDECODE_VPP_Reset10mfxSessionP13mfxVideoParamPP20mfxVideoChannelParam6mfxU32" title="MFXVideoDECODE_VPP_Reset"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoDECODE_VPP_Reset()</span></code></a></p></td>
+<td><p>2.1</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="API_ref/VPL_func_vid_decode_vpp.html#_CPPv434MFXVideoDECODE_VPP_GetChannelParam10mfxSessionP20mfxVideoChannelParam6mfxU32" title="MFXVideoDECODE_VPP_GetChannelParam"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoDECODE_VPP_GetChannelParam()</span></code></a></p></td>
+<td><p>2.1</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="API_ref/VPL_func_vid_decode_vpp.html#_CPPv424MFXVideoDECODE_VPP_Close10mfxSession" title="MFXVideoDECODE_VPP_Close"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoDECODE_VPP_Close()</span></code></a></p></td>
+<td><p>2.1</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="mandatory-apis">
+<h2>Mandatory APIs<a class="headerlink" href="#mandatory-apis" title="Permalink to this heading">#</a></h2>
+<p>All implementations must implement the APIs listed in the
+<a class="reference internal" href="#mandatory-apis-table"><span class="std std-ref">Mandatory APIs table</span></a>:</p>
+<span id="mandatory-apis-table"></span><table class="table" id="id2">
+<caption><span class="caption-text">Mandatory APIs</span><a class="headerlink" href="#id2" title="Permalink to this table">#</a></caption>
+<colgroup>
+<col style="width: 50.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Functions</strong></p></th>
+<th class="head"><p><strong>Description</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line"><a class="reference internal" href="API_ref/VPL_func_session.html#_CPPv413MFXInitialize22mfxInitializationParamP10mfxSession" title="MFXInitialize"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXInitialize()</span></code></a></div>
+<div class="line"><a class="reference internal" href="API_ref/VPL_func_session.html#_CPPv48MFXClose10mfxSession" title="MFXClose"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXClose()</span></code></a></div>
+</div>
+</td>
+<td><p>Required functions for the dispatcher to create a session.</p></td>
+</tr>
+<tr class="row-odd"><td><div class="line-block">
+<div class="line"><a class="reference internal" href="API_ref/VPL_func_capabilities.html#_CPPv424MFXQueryImplsDescription25mfxImplCapsDeliveryFormatP6mfxU32" title="MFXQueryImplsDescription"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXQueryImplsDescription()</span></code></a></div>
+<div class="line"><a class="reference internal" href="API_ref/VPL_func_capabilities.html#_CPPv425MFXReleaseImplDescription6mfxHDL" title="MFXReleaseImplDescription"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXReleaseImplDescription()</span></code></a></div>
+</div>
+</td>
+<td><p>Required functions for the dispatcher to return implementation capabilities.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="API_ref/VPL_func_vidcore.html#_CPPv426MFXVideoCORE_SyncOperation10mfxSession12mfxSyncPoint6mfxU32" title="MFXVideoCORE_SyncOperation"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoCORE_SyncOperation()</span></code></a></p></td>
+<td><p>Required function for synchronization of asynchronous operations.</p></td>
+</tr>
+</tbody>
+</table>
+<p>If the implementation exposes any encoder, decoder, or VPP filter, it must
+implement the corresponding mandatory APIs, as described in the
+<a class="reference internal" href="#mandatory-enc-apis-table"><span class="std std-ref">Mandatory Encode</span></a>, <a class="reference internal" href="#mandatory-dec-apis-table"><span class="std std-ref">Decode</span></a>,
+<a class="reference internal" href="#mandatory-vpp-apis-table"><span class="std std-ref">VPP</span></a> and <a class="reference internal" href="#mandatory-dec-vpp-apis-table"><span class="std std-ref">Decode+VPP</span></a> APIs
+tables:</p>
+<span id="mandatory-enc-apis-table"></span><table class="table" id="id3">
+<caption><span class="caption-text">Mandatory Encode APIs</span><a class="headerlink" href="#id3" title="Permalink to this table">#</a></caption>
+<colgroup>
+<col style="width: 50.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Functions</strong></p></th>
+<th class="head"><p><strong>Description</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line"><a class="reference internal" href="API_ref/VPL_func_vid_encode.html#_CPPv419MFXVideoENCODE_Init10mfxSessionP13mfxVideoParam" title="MFXVideoENCODE_Init"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoENCODE_Init()</span></code></a></div>
+<div class="line"><a class="reference internal" href="API_ref/VPL_func_vid_encode.html#_CPPv420MFXVideoENCODE_Close10mfxSession" title="MFXVideoENCODE_Close"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoENCODE_Close()</span></code></a></div>
+<div class="line"><a class="reference internal" href="API_ref/VPL_func_vid_encode.html#_CPPv420MFXVideoENCODE_Query10mfxSessionP13mfxVideoParamP13mfxVideoParam" title="MFXVideoENCODE_Query"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoENCODE_Query()</span></code></a></div>
+<div class="line"><a class="reference internal" href="API_ref/VPL_func_vid_encode.html#_CPPv431MFXVideoENCODE_EncodeFrameAsync10mfxSessionP13mfxEncodeCtrlP16mfxFrameSurface1P12mfxBitstreamP12mfxSyncPoint" title="MFXVideoENCODE_EncodeFrameAsync"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoENCODE_EncodeFrameAsync()</span></code></a></div>
+</div>
+</td>
+<td><p>Required functions if the implementation implements any encoder.</p></td>
+</tr>
+</tbody>
+</table>
+<span id="mandatory-dec-apis-table"></span><table class="table" id="id4">
+<caption><span class="caption-text">Mandatory Decode APIs</span><a class="headerlink" href="#id4" title="Permalink to this table">#</a></caption>
+<colgroup>
+<col style="width: 50.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Functions</strong></p></th>
+<th class="head"><p><strong>Description</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line"><a class="reference internal" href="API_ref/VPL_func_vid_decode.html#_CPPv419MFXVideoDECODE_Init10mfxSessionP13mfxVideoParam" title="MFXVideoDECODE_Init"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoDECODE_Init()</span></code></a></div>
+<div class="line"><a class="reference internal" href="API_ref/VPL_func_vid_decode.html#_CPPv420MFXVideoDECODE_Close10mfxSession" title="MFXVideoDECODE_Close"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoDECODE_Close()</span></code></a></div>
+<div class="line"><a class="reference internal" href="API_ref/VPL_func_vid_decode.html#_CPPv420MFXVideoDECODE_Query10mfxSessionP13mfxVideoParamP13mfxVideoParam" title="MFXVideoDECODE_Query"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoDECODE_Query()</span></code></a></div>
+<div class="line"><a class="reference internal" href="API_ref/VPL_func_vid_decode.html#_CPPv431MFXVideoDECODE_DecodeFrameAsync10mfxSessionP12mfxBitstreamP16mfxFrameSurface1PP16mfxFrameSurface1P12mfxSyncPoint" title="MFXVideoDECODE_DecodeFrameAsync"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoDECODE_DecodeFrameAsync()</span></code></a></div>
+</div>
+</td>
+<td><p>Required functions if the implementation implements any decoder.</p></td>
+</tr>
+</tbody>
+</table>
+<span id="mandatory-vpp-apis-table"></span><table class="table" id="id5">
+<caption><span class="caption-text">Mandatory VPP APIs</span><a class="headerlink" href="#id5" title="Permalink to this table">#</a></caption>
+<colgroup>
+<col style="width: 50.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Functions</strong></p></th>
+<th class="head"><p><strong>Description</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line"><a class="reference internal" href="API_ref/VPL_func_vid_vpp.html#_CPPv416MFXVideoVPP_Init10mfxSessionP13mfxVideoParam" title="MFXVideoVPP_Init"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoVPP_Init()</span></code></a></div>
+<div class="line"><a class="reference internal" href="API_ref/VPL_func_vid_vpp.html#_CPPv417MFXVideoVPP_Close10mfxSession" title="MFXVideoVPP_Close"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoVPP_Close()</span></code></a></div>
+<div class="line"><a class="reference internal" href="API_ref/VPL_func_vid_vpp.html#_CPPv417MFXVideoVPP_Query10mfxSessionP13mfxVideoParamP13mfxVideoParam" title="MFXVideoVPP_Query"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoVPP_Query()</span></code></a></div>
+<div class="line"><a class="reference internal" href="API_ref/VPL_func_vid_vpp.html#_CPPv428MFXVideoVPP_RunFrameVPPAsync10mfxSessionP16mfxFrameSurface1P16mfxFrameSurface1P16mfxExtVppAuxDataP12mfxSyncPoint" title="MFXVideoVPP_RunFrameVPPAsync"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoVPP_RunFrameVPPAsync()</span></code></a> or <a class="reference internal" href="API_ref/VPL_func_vid_vpp.html#_CPPv429MFXVideoVPP_ProcessFrameAsync10mfxSessionP16mfxFrameSurface1PP16mfxFrameSurface1" title="MFXVideoVPP_ProcessFrameAsync"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoVPP_ProcessFrameAsync()</span></code></a></div>
+</div>
+</td>
+<td><p>Required functions if the implementation implements any VPP filter.</p></td>
+</tr>
+</tbody>
+</table>
+<span id="mandatory-dec-vpp-apis-table"></span><table class="table" id="id6">
+<caption><span class="caption-text">Mandatory Decode+VPP APIs</span><a class="headerlink" href="#id6" title="Permalink to this table">#</a></caption>
+<colgroup>
+<col style="width: 50.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Functions</strong></p></th>
+<th class="head"><p><strong>Description</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line"><a class="reference internal" href="API_ref/VPL_func_vid_decode_vpp.html#_CPPv423MFXVideoDECODE_VPP_Init10mfxSessionP13mfxVideoParamPP20mfxVideoChannelParam6mfxU32" title="MFXVideoDECODE_VPP_Init"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoDECODE_VPP_Init()</span></code></a></div>
+<div class="line"><a class="reference internal" href="API_ref/VPL_func_vid_decode_vpp.html#_CPPv435MFXVideoDECODE_VPP_DecodeFrameAsync10mfxSessionP12mfxBitstreamP6mfxU326mfxU32PP15mfxSurfaceArray" title="MFXVideoDECODE_VPP_DecodeFrameAsync"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoDECODE_VPP_DecodeFrameAsync()</span></code></a></div>
+<div class="line"><a class="reference internal" href="API_ref/VPL_func_vid_decode_vpp.html#_CPPv424MFXVideoDECODE_VPP_Close10mfxSession" title="MFXVideoDECODE_VPP_Close"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXVideoDECODE_VPP_Close()</span></code></a></div>
+</div>
+</td>
+<td><p>Required functions if the implementation implements any Decode+VPP component.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Mandatory functions must not return the
+<a class="reference internal" href="API_ref/VPL_enums.html#_CPPv4N9mfxStatus23MFX_ERR_NOT_IMPLEMENTEDE" title="MFX_ERR_NOT_IMPLEMENTED"><code class="xref cpp cpp-enumerator docutils literal notranslate"><span class="pre">MFX_ERR_NOT_IMPLEMENTED</span></code></a> status.</p>
+</div>
+<p>If at least one of the encoder, decoder, or VPP filter functions is implemented,
+the <a class="reference internal" href="API_ref/VPL_func_capabilities.html#_CPPv424MFXQueryImplsDescription25mfxImplCapsDeliveryFormatP6mfxU32" title="MFXQueryImplsDescription"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">MFXQueryImplsDescription()</span></code></a> function must return a valid
+<a class="reference internal" href="API_ref/VPL_disp_api_struct.html#_CPPv418mfxImplDescription" title="mfxImplDescription"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxImplDescription</span></code></a> structure instance with mandatory capabilities
+of the implementation, including decoder, encoder, or VPP capabilities information.</p>
+<p>If the implementation supports internal memory allocation by exposing at least one of the
+function from that family: <a class="reference internal" href="API_ref/VPL_func_mem.html#func-memory"><span class="std std-ref">internal memory allocation and management API</span></a> then
+implementation of whole scope of the <a class="reference internal" href="API_ref/VPL_structs_memory.html#_CPPv424mfxFrameSurfaceInterface" title="mfxFrameSurfaceInterface"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxFrameSurfaceInterface</span></code></a> structure as a part of
+the <a class="reference internal" href="API_ref/VPL_structs_memory.html#_CPPv416mfxFrameSurface1" title="mfxFrameSurface1"><code class="xref cpp cpp-struct docutils literal notranslate"><span class="pre">mfxFrameSurface1</span></code></a> is mandatory.</p>
+<p>Any other functions or extension buffers are optional for the implementation.</p>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="programming_guide/VPL_prg_err.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Hardware Device Error Handling</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="API_ref/VPL_api_ref.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Intel<sup>®</sup> VPL API Reference</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#disclaimer">Disclaimer</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#exported-functions">Exported Functions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#mandatory-apis">Mandatory APIs</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023, Intel.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=5b4479735964841361fd"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
