@@ -557,7 +557,7 @@ mfxStatus MFXInitEx2(mfxVersion version,
         *session = 0;
 
         // allocate the dispatching handle and call-table
-        pHandle = new MFX_DISP_HANDLE(par.Version);
+        pHandle = new MFX_DISP_HANDLE_EX(par.Version);
     }
     catch (...) {
         return MFX_ERR_MEMORY_ALLOC;
@@ -578,7 +578,7 @@ mfxStatus MFXInitEx2(mfxVersion version,
         // unload the failed DLL
         if (MFX_ERR_NONE != mfxRes) {
             pHandle->Close();
-            delete pHandle;
+            delete (MFX_DISP_HANDLE_EX *)pHandle;
             return MFX_ERR_UNSUPPORTED;
         }
         else {
@@ -608,7 +608,7 @@ mfxStatus MFXClose(mfxSession session) {
             // can't unload library in that case.
             if (MFX_ERR_UNDEFINED_BEHAVIOR != mfxRes) {
                 // release the handle
-                delete pHandle;
+                delete (MFX_DISP_HANDLE_EX *)pHandle;
             }
         }
         catch (...) {
@@ -767,7 +767,7 @@ static mfxStatus AllocateCloneHandle(MFX_DISP_HANDLE *parentHandle, MFX_DISP_HAN
 
     try {
         // requested version matches original session
-        ch = new MFX_DISP_HANDLE(ph->apiVersion);
+        ch = new MFX_DISP_HANDLE_EX(ph->apiVersion);
     }
     catch (...) {
         return MFX_ERR_MEMORY_ALLOC;
@@ -794,7 +794,7 @@ static mfxStatus AllocateCloneHandle(MFX_DISP_HANDLE *parentHandle, MFX_DISP_HAN
     // unload the failed DLL
     if (sts) {
         ch->Close();
-        delete ch;
+        delete (MFX_DISP_HANDLE_EX *)ch;
         return MFX_ERR_UNSUPPORTED;
     }
     else {
@@ -859,7 +859,7 @@ mfxStatus MFXCloneSession(mfxSession session, mfxSession *clone) {
 
             if (mfxRes != MFX_ERR_NONE || cloneRT == NULL) {
                 // RT call failed, delete cloned session
-                delete cloneHandle;
+                delete (MFX_DISP_HANDLE_EX *)cloneHandle;
                 return MFX_ERR_UNSUPPORTED;
             }
             cloneHandle->session = cloneRT;
