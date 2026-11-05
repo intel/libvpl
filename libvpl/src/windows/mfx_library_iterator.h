@@ -99,6 +99,9 @@ public:
                                        mfxU32 deviceID,
                                        int storageID);
     static mfxStatus GetRegkeyDir(std::wstring &regDir, size_t length, int storageID);
+    bool isIntelAdapter() const {
+        return m_vendorID == INTEL_VENDOR_ID;
+    }
 
 protected:
     // Release the iterator
