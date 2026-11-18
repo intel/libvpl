@@ -30,7 +30,7 @@ The code below shows how to filter in Windows for the implementation using adapt
   MFXSetConfigFilterProperty(
       cfg, (mfxU8 *)"DXGIAdapterIndex", cfgVal);
 ```
-- For more information on DXGIAdapterIndex, see https://intel.github.io/libvpl/programming_guide/VPL_prg_session.html.
+- For more information on DXGIAdapterIndex, see https://intel.github.io/libvpl/latest/programming_guide/VPL_prg_session.html.
 
 Starting with API 2.6, Linux implementation selection is supported with the addition of mfxExtendedDeviceID.
 The code below shows how to filter in Linux for the implementation using /dev/dri/renderD128:
@@ -44,7 +44,7 @@ The code below shows how to filter in Linux for the implementation using /dev/dr
       cfg, (mfxU8 *)"mfxExtendedDeviceId.DRMRenderNodeNum", cfgVal);
 ```
 For more information on MFXExtendedDeviceId, see
-https://intel.github.io/libvpl/API_ref/VPL_disp_api_struct.html?highlight=mfxextendeddeviceid.
+https://intel.github.io/libvpl/latest/API_ref/VPL_disp_api_struct.html?highlight=mfxextendeddeviceid.
 
 
 ## Running sample_* tools with Intel® VPL runtime
