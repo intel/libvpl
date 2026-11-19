@@ -38,7 +38,7 @@ static const VPLFunctionDesc FunctionDescOptional[NumVPLOptionalFunctions] = {
 };
 
 static const VPLFunctionDesc MSDKCompatFunctions[NumMSDKFunctions] = {
-    { "MFXInitEx",                              { { 14, 1 } } },
+    { "MFXInit",                                { {  0, 1 } } },
     { "MFXClose" ,                              { {  0, 1 } } },
 };
 
